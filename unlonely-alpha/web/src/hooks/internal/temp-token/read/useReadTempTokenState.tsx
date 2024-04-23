@@ -55,7 +55,7 @@ export type UseReadTempTokenStateType = {
   onThresholdUpdateEvent: (newThreshold: bigint) => void;
   onSendRemainingFundsToWinnerEvent: (
     tokenAddress: string,
-    tokenIsCurrent: boolean
+    tokenIsCurrentlyActive: boolean
   ) => void;
   handleIsGamePermanent: (value: boolean) => void;
   handleIsGameSuccess: (value: boolean) => void;
