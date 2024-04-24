@@ -153,6 +153,14 @@ contract TempTokenFactoryV1 is Ownable {
         return tokenAddresses;
     }
 
+
+    /**
+        * @dev sendLoserTokenLiquidityToWinnerToken is a function to uses all remaining liquidity of loserToken to mint winnerToken.
+        * @dev this function should have two parameters, loserToken address and winnerToken address.
+        * @dev The function returns the number of winnerTokens minted.
+     */    
+    
+
     /**
         * @dev getTokenInfo is a function to get the TokenInfo struct of a deployed token.
         * @dev tokenAddress is the address of the deployed token.
