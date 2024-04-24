@@ -107,7 +107,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         }
 
         // Check if total supply has hit the threshold for the first time
-        if(totalSupply() >= totalSupplyThreshold && !hasHitTotalSupplyThreshold) {
+        if(totalSupply() >= totalSupplyThreshold && !hasHitTotalSupplyThreshold && totalSupplyThreshold > 0) {
             endTimestamp += 24 hours;
             hasHitTotalSupplyThreshold = true; // Ensure this logic runs only once
             emit TotalSupplyThresholdReached(endTimestamp, totalSupplyThreshold, address(this));
