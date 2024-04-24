@@ -156,10 +156,14 @@ contract TempTokenFactoryV1 is Ownable {
 
     /**
         * @dev sendLoserTokenLiquidityToWinnerToken is a function to uses all remaining liquidity of loserToken to mint winnerToken.
-        * @dev this function should have two parameters, loserToken address and winnerToken address.
-        * @dev The function returns the number of winnerTokens minted.
-     */    
-    
+        * @dev this function should have three parameters, loserToken address, winnerToken address, and the amount of tokens to be minted using the entire balance of the loserToken.
+     */
+    function sendLoserTokenLiquidityToWinnerToken(address loserTokenAddress, address winnerTokenAddress, uint256 _amount) public onlyOwnerOrAdmin {
+        TempTokenV1 loserToken = TempTokenV1(loserTokenAddress);
+        TempTokenV1 winnerToken = TempTokenV1(winnerTokenAddress);
+        require(winnerToken.isAlwaysTradeable(), "Winner token is not tradeable");
+        loserToken.transferLiquidityTo(winnerTokenAddress, _amount);
+    }
 
     /**
         * @dev getTokenInfo is a function to get the TokenInfo struct of a deployed token.
