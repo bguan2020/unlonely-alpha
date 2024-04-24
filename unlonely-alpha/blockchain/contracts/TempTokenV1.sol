@@ -266,7 +266,8 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
      * @dev Transfers all remaining liquidity to another TempToken contract and mints tokens there.
      * @param winnerTokenAddress The address of the winner token to transfer liquidity to and mint new tokens.
      */
-    function transferLiquidityTo(address winnerTokenAddress, uint256 amount) external onlyOwner nonReentrant {
+    function transferLiquidityTo(address winnerTokenAddress, uint256 amount) external nonReentrant {
+        require(msg.sender == factoryAddress, "Only the factory can transfer liquidity.");
         require(winnerTokenAddress != address(0), "Winner token address cannot be zero.");
         require(address(this).balance > 0, "No liquidity available to transfer.");
 
