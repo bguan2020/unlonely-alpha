@@ -1,7 +1,7 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {DeployFunction} from "hardhat-deploy/types";
 
-const FEE_DESTINATION = "0x53D6D64945A67658C66730Ff4a038eb298eC8902";
+const FEE_DESTINATION = "0x4F3d3f2F895Db524AC3944BDd17fE632473bCa4a"; // todo: change to 0x53D6D64945A67658C66730Ff4a038eb298eC8902 on production
 const ONE_ETHER = BigInt(10) ** BigInt(18);
 
 const PROTOCOL_FEE_PERCENT = 5;

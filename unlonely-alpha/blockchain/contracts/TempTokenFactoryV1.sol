@@ -2,6 +2,7 @@
 pragma solidity ^0.8.2;
 
 import "./TempTokenV1.sol"; // Make sure this import path matches where your token contract is located.
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TempTokenFactoryV1 is Ownable {
 
@@ -71,6 +72,9 @@ contract TempTokenFactoryV1 is Ownable {
     event TotalSupplyThresholdSetForTokens(uint256 totalSupplyThreshold, address[] tokenAddresses);
     event EndTimestampIncreasedForTokens(uint256 additionalDuration, address[] tokenAddresses);
     event AlwaysTradeableSetForTokens(address[] tokenAddresses);
+    event SetWinningTokenTradeableAndTransferredLiquidity(address winnerTokenAddress, address loserTokenAddress, uint256 transferredLiquidity);
+    event FactoryMintedWinnerTokens(address winnerTokenAddress, uint256 amount);
+    event EtherReceived(address indexed sender, uint256 amount);
 
     modifier onlyOwnerOrAdmin() {
         require(msg.sender == owner() || admins[msg.sender] == true, "Caller is neither owner nor admin");
@@ -153,18 +157,6 @@ contract TempTokenFactoryV1 is Ownable {
         return tokenAddresses;
     }
 
-
-    /**
-        * @dev sendLoserTokenLiquidityToWinnerToken is a function to uses all remaining liquidity of loserToken to mint winnerToken.
-        * @dev this function should have three parameters, loserToken address, winnerToken address, and the amount of tokens to be minted using the entire balance of the loserToken.
-     */
-    function sendLoserTokenLiquidityToWinnerToken(address loserTokenAddress, address winnerTokenAddress, uint256 _amount) public onlyOwnerOrAdmin {
-        TempTokenV1 loserToken = TempTokenV1(loserTokenAddress);
-        TempTokenV1 winnerToken = TempTokenV1(winnerTokenAddress);
-        require(winnerToken.isAlwaysTradeable(), "Winner token is not tradeable");
-        loserToken.transferLiquidityTo(winnerTokenAddress, _amount);
-    }
-
     /**
         * @dev getTokenInfo is a function to get the TokenInfo struct of a deployed token.
         * @dev tokenAddress is the address of the deployed token.
@@ -236,6 +228,43 @@ contract TempTokenFactoryV1 is Ownable {
         emit AlwaysTradeableSetForTokens(_tokenAddresses);
     }
 
+    /**
+      * VERSUS mode only (these functions are called on tokens that compete against each other instead of trying to reach a threshold)
+      * @dev setWinningTokenTradeableAndTransferLiquidity is a function to set the winning token as tradeable and transfer all liquidity 
+      * from the losing token to the factory.
+      */
+    function setWinningTokenTradeableAndTransferLiquidity(address _winnerTokenAddress, address _loserTokenAddress) public onlyOwnerOrAdmin {
+        require(_winnerTokenAddress != address(0), "Winner token address cannot be zero.");
+        require(_loserTokenAddress != address(0), "Loser token address cannot be zero.");
+        TempTokenV1 winnerToken = TempTokenV1(_winnerTokenAddress);
+        TempTokenV1 loserToken = TempTokenV1(_loserTokenAddress);
+        winnerToken.setAlwaysTradeable();
+        uint256 transferredLiquidity = loserToken.transferLiquidityToFactory();
+        emit SetWinningTokenTradeableAndTransferredLiquidity(_winnerTokenAddress, _loserTokenAddress, transferredLiquidity);
+    }
+    
+    /**
+        * VERSUS mode only (these functions are called on tokens that compete against each other instead of trying to reach a threshold)
+        * @dev mintWinnerTokens is a function that mints the winner tokens. 
+        * This factory does not have a burn function to bring the price down, 
+        * this ensures the token's supply has a fixed offset.
+     */
+    function mintWinnerTokens(address _winnerTokenAddress, uint256 _amount) public onlyOwnerOrAdmin {
+        require(_winnerTokenAddress != address(0), "Winner token address cannot be zero.");
+        TempTokenV1 winnerToken = TempTokenV1(_winnerTokenAddress);
+        require(winnerToken.isAlwaysTradeable(), "Winner token is not set to always tradeable");
+
+        uint256 requiredEthCost = winnerToken.mintCostAfterFees(_amount);
+        if (requiredEthCost >= address(this).balance) {
+            revert("Factory does not have enough ETH to mint winner tokens");
+        }
+
+        // Call the mint function on the winnerToken contract and send Ether with the call
+        (bool success, ) = address(winnerToken).call{value: requiredEthCost}(abi.encodeWithSignature("mint(uint256)", _amount));
+        require(success, "Minting failed");
+        emit FactoryMintedWinnerTokens(_winnerTokenAddress, _amount);
+    }
+
     function setMaxDuration(uint256 _maxDuration) public onlyOwnerOrAdmin {
         require(_maxDuration > 0, "Max duration cannot be 0");
         maxDuration = _maxDuration;
@@ -251,4 +280,15 @@ contract TempTokenFactoryV1 is Ownable {
         require(_address != address(0), "Admin cannot be zero");
         admins[_address] = _onlyAdmin;
     }
+
+    // Function to receive Ether. The function is called when msg.data is empty
+    receive() external payable {
+        emit EtherReceived(msg.sender, msg.value);
+    }
+
+    // You can also add a fallback function if needed
+    fallback() external payable {
+        emit EtherReceived(msg.sender, msg.value);
+    }
+
 }
