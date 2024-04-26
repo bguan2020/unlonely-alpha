@@ -1,19 +1,19 @@
 import { Text, Flex, Spinner } from "@chakra-ui/react";
 import { PlaybackInfo } from "livepeer/dist/models/components";
 import { useMemo, useRef, useState } from "react";
-import { useChannelContext } from "../../../hooks/context/useChannel";
-import useScript from "../../../hooks/internal/useScript";
+import { useChannelContext } from "../../../../hooks/context/useChannel";
+import useScript from "../../../../hooks/internal/useScript";
 import { getSrc } from "@livepeer/react/external";
-import IVSPlayer from "../../stream/IVSPlayer";
-import LivepeerPlayer from "../../stream/LivepeerPlayer";
-import { ChatWithTokenTimer } from "../../chat/ChatWithTempTokenTimer";
-import { ChatReturnType } from "../../../hooks/chat/useChat";
-import ChannelDesc from "../ChannelDesc";
+import IVSPlayer from "../../../stream/IVSPlayer";
+import LivepeerPlayer from "../../../stream/LivepeerPlayer";
+import { ChatWithTokenTimer } from "../../../chat/ChatWithTempTokenTimer";
+import { ChatReturnType } from "../../../../hooks/chat/useChat";
+import ChannelDesc from "../../ChannelDesc";
 
 export const DesktopChannelViewerPerspectiveSimplified = ({
   playbackData,
   chat,
-  openOverlappingChat,
+  mode,
 }: {
   playbackData:
     | {
@@ -24,7 +24,7 @@ export const DesktopChannelViewerPerspectiveSimplified = ({
         livepeerPlaybackInfo: PlaybackInfo;
       };
   chat: ChatReturnType;
-  openOverlappingChat: boolean;
+  mode: "single-temp-token" | "versus-mode" | "";
 }) => {
   const { channel } = useChannelContext();
   const { channelQueryData, loading: channelLoading } = channel;
@@ -105,7 +105,7 @@ export const DesktopChannelViewerPerspectiveSimplified = ({
       >
         <ChannelDesc />
       </Flex>
-      {openOverlappingChat && <ChatWithTokenTimer chat={chat} />}
+      {mode !== "" && <ChatWithTokenTimer chat={chat} mode={mode} />}
       <Flex flexDirection="row" justifyContent="center" width="100%">
         {playbackData.infra === "livepeer" ? (
           <LivepeerPlayer src={getSrc(playbackData.livepeerPlaybackInfo)} />

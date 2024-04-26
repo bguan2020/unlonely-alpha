@@ -86,6 +86,7 @@ export const TempTokenInterface = ({
     isSuccessGameModalOpen,
     isFailedGameModalOpen,
     isPermanentGameModalOpen,
+    tempTokenTxs,
     handleIsFailedGameModalOpen,
     handleIsSuccessGameModalOpen,
     handleIsPermanentGameModalOpen,
@@ -93,7 +94,12 @@ export const TempTokenInterface = ({
     onSendRemainingFundsToWinnerEvent,
   } = tempToken;
 
-  const tradeTempTokenState = useTradeTempTokenState();
+  const tradeTempTokenState = useTradeTempTokenState(
+    currentActiveTokenAddress,
+    currentActiveTokenSymbol,
+    tempTokenTxs
+  );
+
   const {
     callSetTotalSupplyThresholdForTokens,
     loading: setTotalSupplyThresholdForTokensLoading,

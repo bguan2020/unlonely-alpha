@@ -11,35 +11,35 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@chakra-ui/react";
-import { useChannelContext } from "../../../hooks/context/useChannel";
+import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { useEffect, useMemo, useState } from "react";
 import { IoMdEye } from "react-icons/io";
 import { IoMdEyeOff } from "react-icons/io";
 import { FaRegCopy } from "react-icons/fa";
 import copy from "copy-to-clipboard";
-import LivepeerBroadcast from "../../stream/LivepeerBroadcast";
-import useMigrateChannelToLivepeer from "../../../hooks/server/channel/useMigrateChannelToLivepeer";
-import useUpdateChannelAllowNfcs from "../../../hooks/server/channel/useUpdateChannelAllowNfcs";
+import LivepeerBroadcast from "../../../stream/LivepeerBroadcast";
+import useMigrateChannelToLivepeer from "../../../../hooks/server/channel/useMigrateChannelToLivepeer";
+import useUpdateChannelAllowNfcs from "../../../../hooks/server/channel/useUpdateChannelAllowNfcs";
 import {
   AblyChannelPromise,
   CHANGE_CHANNEL_DETAILS_EVENT,
   DESKTOP_VIDEO_VH,
   MOBILE_VIDEO_VH,
   STREAMER_MIGRATION_URL_QUERY_PARAM,
-} from "../../../constants";
-import useUpdateLivepeerStreamData from "../../../hooks/server/channel/useUpdateLivepeerStreamData";
+} from "../../../../constants";
+import useUpdateLivepeerStreamData from "../../../../hooks/server/channel/useUpdateLivepeerStreamData";
 import { LuClapperboard } from "react-icons/lu";
 import { BiVideoRecording } from "react-icons/bi";
-import StreamComponent from "../../stream/StreamComponent";
-import useUserAgent from "../../../hooks/internal/useUserAgent";
-import { GetLivepeerStreamDataQuery } from "../../../generated/graphql";
+import StreamComponent from "../../../stream/StreamComponent";
+import useUserAgent from "../../../../hooks/internal/useUserAgent";
+import { GetLivepeerStreamDataQuery } from "../../../../generated/graphql";
 import { useRouter } from "next/router";
-import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
+import { TransactionModalTemplate } from "../../../transactions/TransactionModalTemplate";
 import { PlaybackInfo } from "livepeer/dist/models/components";
-import LivepeerPlayer from "../../stream/LivepeerPlayer";
+import LivepeerPlayer from "../../../stream/LivepeerPlayer";
 import { getSrc } from "@livepeer/react/external";
-import { TempTokenTimerView } from "../temp/TempTokenTimer";
-import ChannelDesc from "../ChannelDesc";
+import { TempTokenTimerView } from "../../temp/TempTokenTimer";
+import ChannelDesc from "../../ChannelDesc";
 
 export const DesktopChannelStreamerPerspectiveSimplified = ({
   ablyChannel,

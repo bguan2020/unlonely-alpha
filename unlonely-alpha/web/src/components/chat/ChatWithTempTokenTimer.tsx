@@ -8,7 +8,13 @@ import { EXCLUDED_SLUGS } from "./ChatComponent";
 import { useState } from "react";
 import Participants from "../presence/Participants";
 
-export const ChatWithTokenTimer = ({ chat }: { chat: ChatReturnType }) => {
+export const ChatWithTokenTimer = ({
+  chat,
+  mode,
+}: {
+  chat: ChatReturnType;
+  mode: "single-temp-token" | "versus-mode";
+}) => {
   const { chat: chatContext, channel } = useChannelContext();
   const { presenceChannel } = chatContext;
   const { channelQueryData, isOwner } = channel;
@@ -41,7 +47,9 @@ export const ChatWithTokenTimer = ({ chat }: { chat: ChatReturnType }) => {
       top="0"
     >
       <Flex justifyContent={"center"} bg="rgba(11, 5, 63, 0.534)">
-        <TempTokenTimerView disableChatbot={false} />
+        {mode === "single-temp-token" && (
+          <TempTokenTimerView disableChatbot={false} />
+        )}
       </Flex>
       {presenceChannel && (
         <Flex

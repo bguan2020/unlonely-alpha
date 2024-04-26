@@ -1,4 +1,8 @@
-import { ContractData, FetchBalanceResult } from "../../../../constants/types";
+import {
+  ContractData,
+  FetchBalanceResult,
+  TradeableTokenTx,
+} from "../../../../constants/types";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 import { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import { InteractionType, NULL_ADDRESS } from "../../../../constants";
@@ -29,7 +33,6 @@ import { ChartTokenTx } from "../../../../components/chat/VibesTokenInterface";
 import { useCacheContext } from "../../../context/useCache";
 import useUpdateTempTokenHighestTotalSupply from "../../../server/temp-token/useUpdateTempTokenHighestTotalSupply";
 import useUpdateTempTokenHasHitTotalSupplyThreshold from "../../../server/temp-token/useUpdateTempTokenHasHitTotalSupplyThreshold";
-import { useTempTokenContext } from "../../../context/useTempToken";
 
 export type UseTradeTempTokenStateType = {
   amount: string;
@@ -52,14 +55,15 @@ export type UseTradeTempTokenStateType = {
   userEthBalance?: FetchBalanceResult;
 };
 
-export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
+export const useTradeTempTokenState = (
+  tokenAddress: string,
+  tokenSymbol: string,
+  tokenTxs: TradeableTokenTx[]
+): UseTradeTempTokenStateType => {
   const { walletIsConnected, userAddress, user } = useUser();
 
   const { chat, channel } = useChannelContext();
   const { channelQueryData } = channel;
-  const { tempToken } = useTempTokenContext();
-  const { currentActiveTokenAddress, currentActiveTokenSymbol, tempTokenTxs } =
-    tempToken;
   const { addToChatbot: addToChatbotForTempToken } = chat;
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl, matchingChain } = network;
@@ -78,7 +82,7 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
   const fetching = useRef(false);
 
   const tempTokenContract: ContractData = useMemo(() => {
-    if (!currentActiveTokenAddress) {
+    if (!tokenAddress) {
       return {
         address: NULL_ADDRESS,
         abi: undefined,
@@ -86,11 +90,11 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
       };
     }
     return {
-      address: currentActiveTokenAddress as `0x${string}`,
+      address: tokenAddress as `0x${string}`,
       abi: TempTokenAbi,
       chainId: localNetwork.config.chainId,
     };
-  }, [currentActiveTokenAddress, localNetwork.config.chainId]);
+  }, [tokenAddress, localNetwork.config.chainId]);
 
   /**
    * ETH balance for the user
@@ -123,7 +127,7 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
    */
 
   const chartTxs: ChartTokenTx[] = useMemo(() => {
-    return tempTokenTxs.map((tx) => {
+    return tokenTxs.map((tx) => {
       return {
         user: tx.user,
         event: tx.eventName,
@@ -142,7 +146,7 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
         priceChangePercentage: tx.priceChangePercentage,
       };
     });
-  }, [tempTokenTxs, ethPriceInUsd]);
+  }, [tokenTxs, ethPriceInUsd]);
 
   /**
    * Contract cost reading and MINT and BURN functions
@@ -237,9 +241,7 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
           const tokenAddress = args.tokenAddress as `0x${string}`;
           const title = `${
             user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
-          } bought ${Number(
-            args.amount as bigint
-          )} $${currentActiveTokenSymbol}!`;
+          } bought ${Number(args.amount as bigint)} $${tokenSymbol}!`;
           const promises: any[] = [
             call_updateDb_highestTotalSupply({
               tokenAddresses: [tokenAddress],
@@ -371,7 +373,7 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
         const args: any = topics.args;
         const title = `${
           user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
-        } sold ${Number(args.amount as bigint)} $${currentActiveTokenSymbol}!`;
+        } sold ${Number(args.amount as bigint)} $${tokenSymbol}!`;
         addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",
