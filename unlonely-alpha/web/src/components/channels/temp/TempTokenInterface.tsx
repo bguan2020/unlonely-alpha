@@ -67,8 +67,8 @@ export const TempTokenInterface = ({
   const { ethPriceInUsd } = useCacheContext();
   const windowSize = useWindowSize();
   const { network } = useNetworkContext();
-  const publicClient = usePublicClient();
   const { matchingChain } = network;
+  const publicClient = usePublicClient();
   const { channelQueryData, realTimeChannelDetails, isOwner } = channel;
   const {
     currentActiveTokenAddress,
@@ -94,11 +94,11 @@ export const TempTokenInterface = ({
     onSendRemainingFundsToWinnerEvent,
   } = tempToken;
 
-  const tradeTempTokenState = useTradeTempTokenState(
-    currentActiveTokenAddress,
-    currentActiveTokenSymbol,
-    tempTokenTxs
-  );
+  const tradeTempTokenState = useTradeTempTokenState({
+    tokenAddress: currentActiveTokenAddress,
+    tokenSymbol: currentActiveTokenSymbol,
+    tokenTxs: tempTokenTxs,
+  });
 
   const {
     callSetTotalSupplyThresholdForTokens,
@@ -112,11 +112,12 @@ export const TempTokenInterface = ({
     pausedData_1h,
     pausedData_1d,
     timeFilter,
+    chartTxs,
     handleTimeFilter,
     handleIsChartPaused,
   } = useInterfaceChartData({
     chartTimeIndexes: tempTokenChartTimeIndexes,
-    txs: tradeTempTokenState.chartTxs,
+    txs: tempTokenTxs,
   });
 
   const [tempTokenDisclaimerModalOpen, setTempTokenDisclaimerModalOpen] =
@@ -199,7 +200,7 @@ export const TempTokenInterface = ({
     formatYAxisTick,
     CustomLabel,
     customBrushFormatter,
-  } = useInterfaceChartMarkers(tradeTempTokenState.chartTxs, timeFilter);
+  } = useInterfaceChartMarkers(chartTxs, timeFilter);
 
   const openTokenPopout = () => {
     if (!channelQueryData) return;

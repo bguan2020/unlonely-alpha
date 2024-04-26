@@ -41,7 +41,7 @@ export const versusTokenDataInitial: VersusTokenDataType = {
     abi: undefined,
   },
   creationBlockNumber: BigInt(0),
-  endTimestamp: BigInt(0),
+  endTimestamp: undefined,
 };
 
 export const useVersusTempTokenContext = () => {
@@ -65,7 +65,7 @@ const VersusTempTokenContext = createContext<{
   gameState: {
     canPlayToken: false,
     focusedTokenToTrade: undefined,
-    isGameFinished: false,
+    isGameFinished: true,
     isGameFinishedModalOpen: false,
     handleCanPlayToken: () => undefined,
     handleIsGameFinished: () => undefined,
@@ -87,7 +87,7 @@ export const VersusTempTokenProvider = ({
   const [focusedTokenToTrade, setFocusedTokenToTrade] = useState<
     ContractData | undefined
   >(undefined);
-  const [isGameFinished, setIsGameFinished] = useState(false);
+  const [isGameFinished, setIsGameFinished] = useState(true);
   const [isGameFinishedModalOpen, setIsGameFinishedModalOpen] = useState(false);
   const [tokenA, setTokenA] = useState<VersusTokenDataType>(
     versusTokenDataInitial

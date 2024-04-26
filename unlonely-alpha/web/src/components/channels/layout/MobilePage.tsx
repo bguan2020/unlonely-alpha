@@ -13,9 +13,9 @@ import StandaloneAblyChatComponent from "../../mobile/StandAloneChatComponent";
 import { ChannelWideModals } from "../ChannelWideModals";
 import copy from "copy-to-clipboard";
 import trailString from "../../../utils/trailString";
-import { formatApolloError } from "./temptoken/DesktopChannelPageSimplified";
 import { useLivepeerStreamData } from "../../../hooks/internal/useLivepeerStreamData";
 import { useVipBadgeUi } from "../../../hooks/internal/useVipBadgeUi";
+import { formatApolloError } from "../../../utils/errorFormatting";
 
 export const MobilePage = ({
   channelSSR,

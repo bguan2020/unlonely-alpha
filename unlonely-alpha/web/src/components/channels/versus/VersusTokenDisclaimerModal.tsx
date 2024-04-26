@@ -2,35 +2,33 @@ import { Flex, Button, Text, ListItem, UnorderedList } from "@chakra-ui/react";
 import { getTimeFromMillis } from "../../../utils/time";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 import { useTempTokenTimerState } from "../../../hooks/internal/temp-token/ui/useTempTokenTimerState";
-import { useTempTokenContext } from "../../../hooks/context/useTempToken";
+import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempToken";
 
-export const TempTokenDisclaimerModal = ({
+export const VersusTokenDisclaimerModal = ({
   isOpen,
   handleClose,
-  priceOfThresholdInUsd,
 }: {
   isOpen: boolean;
   handleClose: () => void;
-  priceOfThresholdInUsd?: string;
 }) => {
-  const { tempToken } = useTempTokenContext();
+  const { gameState, tokenA, tokenB } = useVersusTempTokenContext();
   const {
-    currentActiveTokenSymbol,
-    currentActiveTokenEndTimestamp,
-    handleIsGameFailed,
-    handleIsFailedGameModalOpen,
     handleCanPlayToken,
-  } = tempToken;
+    handleIsGameFinished,
+    handleIsGameFinishedModalOpen,
+  } = gameState;
+  const { endTimestamp: endTimestampA } = tokenA;
+  const { endTimestamp: endTimestampB } = tokenB;
   const { durationLeftForTempToken } = useTempTokenTimerState(
-    currentActiveTokenEndTimestamp,
+    endTimestampA || endTimestampB,
     () => {
       handleCanPlayToken(false);
-      handleIsGameFailed(true);
-      handleIsFailedGameModalOpen(true);
+      handleIsGameFinished(true);
+      handleIsGameFinishedModalOpen(true);
     },
     true,
-    `The $${currentActiveTokenSymbol} token will expire in 5 minutes!`,
-    `The $${currentActiveTokenSymbol} token has expired!`
+    "The tokens will expire in 5 minutes!",
+    "The tokens have expired!"
   );
 
   return (
@@ -66,26 +64,6 @@ export const TempTokenDisclaimerModal = ({
                 <Text fontSize="12px">
                   The 30 minute token is an ERC20 token priced on a bonding
                   curve.
-                </Text>
-              </ListItem>
-              <ListItem>
-                <Text fontSize="12px">
-                  If the token hits{" "}
-                  <Text as="span" color="#37FF8B" fontWeight="bold">
-                    ${priceOfThresholdInUsd}
-                  </Text>{" "}
-                  before the timer runs out, 24 hours will be added to the
-                  timer.
-                </Text>
-              </ListItem>
-              <ListItem>
-                <Text fontSize="12px">
-                  If the token does not hit{" "}
-                  <Text as="span" color="#37FF8B" fontWeight="bold">
-                    ${priceOfThresholdInUsd}
-                  </Text>{" "}
-                  before the timer runs out, trades can no longer be made and
-                  liquidity goes to the streamer.
                 </Text>
               </ListItem>
             </UnorderedList>

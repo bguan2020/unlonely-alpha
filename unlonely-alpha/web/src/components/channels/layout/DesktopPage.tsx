@@ -20,9 +20,9 @@ import Trade from "../bet/Trade";
 import { ChannelWideModals } from "../ChannelWideModals";
 import copy from "copy-to-clipboard";
 import trailString from "../../../utils/trailString";
-import { formatApolloError } from "./temptoken/DesktopChannelPageSimplified";
 import { useVipBadgeUi } from "../../../hooks/internal/useVipBadgeUi";
 import { useLivepeerStreamData } from "../../../hooks/internal/useLivepeerStreamData";
+import { formatApolloError } from "../../../utils/errorFormatting";
 
 export const DesktopPage = ({
   channelSSR,

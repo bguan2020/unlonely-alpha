@@ -18,6 +18,7 @@ import { ChannelWideModals } from "../../ChannelWideModals";
 import { DesktopChannelStreamerPerspectiveSimplified } from "../temptoken/DesktopChannelStreamerPerspectiveSimplified";
 import { DesktopChannelViewerPerspectiveSimplified } from "../temptoken/DesktopChannelViewerPerspectiveSimplified";
 import { VersusTempTokensInterface } from "./VersusTempTokensInterface";
+import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
 
 export const DesktopChannelPageVersus = ({
   channelSSR,
@@ -37,14 +38,14 @@ export const DesktopChannelPageVersus = ({
     handleChannelStaticData,
     isOwner,
   } = channel;
+  const { gameState } = useVersusTempTokenContext();
+  const { canPlayToken } = gameState;
   const toast = useToast();
   const { livepeerData, playbackInfo } = useLivepeerStreamData();
   useVipBadgeUi();
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
   }, [channelSSR]);
-
-  const canPlayToken = false;
 
   const canShowInterface = useMemo(() => {
     return (
