@@ -11,12 +11,19 @@ import {
   useReadTempTokenTxs,
   useReadTempTokenTxsInitial,
 } from "../internal/temp-token/read/useReadTempTokenTxs";
-import { createPublicClient, http } from "viem";
+import { createPublicClient, http, isAddressEqual } from "viem";
 import { base } from "viem/chains";
 import { useNetworkContext } from "./useNetwork";
-import { NULL_ADDRESS } from "../../constants";
+import { Contract, InteractionType, NULL_ADDRESS } from "../../constants";
+import { useReadTempTokenExternalEventListeners } from "../internal/temp-token/read/useReadTempTokenExternalEventListeners";
+import { useChannelContext } from "./useChannel";
+import { useRouter } from "next/router";
+import { useUser } from "./useUser";
+import { getContractFromNetwork } from "../../utils/contract";
+import usePostTempToken from "../server/temp-token/usePostTempToken";
+import { useVersusFactoryExternalListeners } from "../internal/versus-token/useVersusFactoryExternalListeners";
 
-type VersusTokenDataType = {
+export type VersusTokenDataType = {
   symbol: string;
   address: string;
   totalSupply: bigint;
@@ -81,6 +88,11 @@ export const VersusTempTokenProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const { userAddress, user } = useUser();
+  const router = useRouter();
+  const { channel, chat } = useChannelContext();
+  const { handleRealTimeChannelDetails, channelQueryData, isOwner } = channel;
+  const { addToChatbot: addToChatbotForTempToken } = chat;
   const { network } = useNetworkContext();
   const { localNetwork } = network;
   const [canPlayToken, setCanPlayToken] = useState(false);
@@ -94,6 +106,13 @@ export const VersusTempTokenProvider = ({
   );
   const [tokenB, setTokenB] = useState<VersusTokenDataType>(
     versusTokenDataInitial
+  );
+
+  const { postTempToken } = usePostTempToken({});
+
+  const factoryContract = getContractFromNetwork(
+    Contract.TEMP_TOKEN_FACTORY_V1,
+    localNetwork
   );
 
   const tempTokenContract_a: ContractData = useMemo(() => {
@@ -152,6 +171,14 @@ export const VersusTempTokenProvider = ({
 
   const handleIsGameFinished = useCallback((value: boolean) => {
     setIsGameFinished(value);
+  }, []);
+
+  const handleTokenA = useCallback((token: VersusTokenDataType) => {
+    setTokenA(token);
+  }, []);
+
+  const handleTokenB = useCallback((token: VersusTokenDataType) => {
+    setTokenB(token);
   }, []);
 
   const handleIsGameFinishedModalOpen = useCallback((value: boolean) => {
@@ -243,6 +270,172 @@ export const VersusTempTokenProvider = ({
     onMintCallback: (totalSupply: bigint, highestTotalSupply: bigint) =>
       onMintEvent(totalSupply, highestTotalSupply, "b"),
     onBurnCallback: (totalSupply: bigint) => onBurnEvent(totalSupply, "b"),
+  });
+
+  const onDurationIncreaseEvent = useCallback(
+    async (newEndTimestamp: bigint, tokenType: "a" | "b") => {
+      if (isOwner && router.pathname.startsWith("/channels")) {
+        const title = `The $${
+          tokenType === "a" ? tokenA.symbol : tokenB.symbol
+        } token's time has been extended!`;
+        addToChatbotForTempToken({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.TEMP_TOKEN_DURATION_INCREASED,
+          title,
+          description: "",
+        });
+      }
+      if (tokenType === "a") {
+        setTokenA((prevTokenA) => {
+          if (prevTokenA) {
+            return {
+              ...prevTokenA,
+              endTimestamp: newEndTimestamp,
+            };
+          } else {
+            return prevTokenA;
+          }
+        });
+      } else if (tokenType === "b") {
+        setTokenB((prevTokenB) => {
+          if (prevTokenB) {
+            return {
+              ...prevTokenB,
+              endTimestamp: newEndTimestamp,
+            };
+          } else {
+            return prevTokenB;
+          }
+        });
+      }
+    },
+    [
+      isOwner,
+      userAddress,
+      user,
+      tokenA,
+      tokenB,
+      addToChatbotForTempToken,
+      router.pathname,
+    ]
+  );
+
+  const onAlwaysTradeableEvent = useCallback(
+    async (tokenType: "a" | "b") => {
+      if (isOwner && router.pathname.startsWith("/channels")) {
+        const title = `The $${
+          tokenType === "a" ? tokenA.symbol : tokenB.symbol
+        } token is now permanently tradeable!`;
+        addToChatbotForTempToken({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.TEMP_TOKEN_BECOMES_ALWAYS_TRADEABLE,
+          title,
+          description: "",
+        });
+      }
+      if (tokenType === "a") {
+        setTokenA((prevTokenA) => {
+          if (prevTokenA) {
+            return {
+              ...prevTokenA,
+              isAlwaysTradeable: true,
+            };
+          } else {
+            return prevTokenA;
+          }
+        });
+      } else if (tokenType === "b") {
+        setTokenB((prevTokenB) => {
+          if (prevTokenB) {
+            return {
+              ...prevTokenB,
+              isAlwaysTradeable: true,
+            };
+          } else {
+            return prevTokenB;
+          }
+        });
+      }
+    },
+    [
+      isOwner,
+      userAddress,
+      user,
+      tokenA,
+      tokenB,
+      addToChatbotForTempToken,
+      router.pathname,
+    ]
+  );
+
+  /**
+   * function to run when sending remaining funds to winner
+   * ideally to be called on an inactive token to reset the state and allow for normal token creation flow
+   * but if a current token had just turned inactive and the funds have or have not been sent, what does the ui look like?
+   */
+  const onSendRemainingFundsToWinnerEvent = useCallback(
+    async (tokenAddress: string) => {
+      if (
+        tokenA.address &&
+        isAddressEqual(
+          tokenAddress as `0x${string}`,
+          tokenA.address as `0x${string}`
+        )
+      ) {
+        setTokenA({ ...versusTokenDataInitial, ...useReadTempTokenTxsInitial });
+      }
+      if (
+        tokenB.address &&
+        isAddressEqual(
+          tokenAddress as `0x${string}`,
+          tokenB.address as `0x${string}`
+        )
+      ) {
+        setTokenB({ ...versusTokenDataInitial, ...useReadTempTokenTxsInitial });
+      }
+    },
+    [tokenA.address, tokenB.address]
+  );
+
+  useReadTempTokenExternalEventListeners({
+    tempTokenContract: tempTokenContract_a,
+    onReachThresholdCallback: () => undefined,
+    onDurationIncreaseCallback: (newEndTimestamp: bigint) =>
+      onDurationIncreaseEvent(newEndTimestamp, "a"),
+    onAlwaysTradeableCallback: () => onAlwaysTradeableEvent("a"),
+    onThresholdUpdateCallback: () => undefined,
+    onSendRemainingFundsToWinnerCallback: (
+      tokenAddress: string,
+      tokenIsCurrentlyActive: boolean
+    ) => onSendRemainingFundsToWinnerEvent(tokenAddress),
+  });
+
+  useReadTempTokenExternalEventListeners({
+    tempTokenContract: tempTokenContract_b,
+    onReachThresholdCallback: () => undefined,
+    onDurationIncreaseCallback: (newEndTimestamp: bigint) =>
+      onDurationIncreaseEvent(newEndTimestamp, "b"),
+    onAlwaysTradeableCallback: () => onAlwaysTradeableEvent("b"),
+    onThresholdUpdateCallback: () => undefined,
+    onSendRemainingFundsToWinnerCallback: (
+      tokenAddress: string,
+      tokenIsCurrentlyActive: boolean
+    ) => onSendRemainingFundsToWinnerEvent(tokenAddress),
+  });
+
+  useVersusFactoryExternalListeners({
+    factoryContract,
+    tokenA,
+    tokenB,
+    handleTokenA,
+    handleTokenB,
+    handleIsGameFinished,
+    resetTempTokenTxs: () => {
+      readTempTokenTxs_a.resetTempTokenTxs();
+      readTempTokenTxs_b.resetTempTokenTxs();
+    },
   });
 
   const value = useMemo(
