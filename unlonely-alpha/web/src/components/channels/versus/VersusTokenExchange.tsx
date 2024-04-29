@@ -17,12 +17,12 @@ import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { formatIncompleteNumber } from "../../../utils/validation/input";
 
 export const VersusTokenExchange = () => {
-  const { gameState, tokenA, tokenB } = useVersusTempTokenContext();
+  const { gameState, tokenATxs, tokenBTxs } = useVersusTempTokenContext();
 
-  const { focusedTokenToTrade } = gameState;
+  const { focusedTokenToTrade, tokenA, tokenB } = gameState;
 
   const focusedTokenData = useMemo(() => {
-    if (!focusedTokenToTrade) {
+    if (!focusedTokenToTrade || !focusedTokenToTrade?.address) {
       return {
         tokenAddress: "",
         tokenSymbol: "",
@@ -39,8 +39,8 @@ export const VersusTokenExchange = () => {
       return {
         tokenAddress: tokenA.address,
         tokenSymbol: tokenA.symbol,
-        tokenTxs: tokenA.tempTokenTxs,
-        userBalance: tokenA.userTempTokenBalance,
+        tokenTxs: tokenATxs.tempTokenTxs,
+        userBalance: tokenATxs.userTempTokenBalance,
       };
     } else if (
       isAddressEqual(
@@ -51,8 +51,8 @@ export const VersusTokenExchange = () => {
       return {
         tokenAddress: tokenB.address,
         tokenSymbol: tokenB.symbol,
-        tokenTxs: tokenB.tempTokenTxs,
-        userBalance: tokenB.userTempTokenBalance,
+        tokenTxs: tokenBTxs.tempTokenTxs,
+        userBalance: tokenBTxs.userTempTokenBalance,
       };
     } else {
       return {
@@ -82,7 +82,12 @@ export const VersusTokenExchange = () => {
   });
 
   return (
-    <Flex direction="column" justifyContent={"center"} gap="10px">
+    <Flex
+      direction="column"
+      justifyContent={"center"}
+      gap="10px"
+      opacity={focusedTokenData.tokenAddress === "" ? 0 : 1}
+    >
       <Flex position="relative" gap="5px" alignItems={"center"}>
         <ChakraTooltip
           label={errorMessage}
@@ -133,7 +138,21 @@ export const VersusTokenExchange = () => {
           _focus={{}}
           _hover={{}}
           _active={{}}
-          bg="#46a800"
+          bg={
+            focusedTokenToTrade?.address &&
+            isAddressEqual(
+              focusedTokenToTrade?.address as `0x${string}`,
+              tokenA.address as `0x${string}`
+            )
+              ? "rgba(255, 36, 36, 1)"
+              : focusedTokenToTrade?.address &&
+                isAddressEqual(
+                  focusedTokenToTrade?.address as `0x${string}`,
+                  tokenB.address as `0x${string}`
+                )
+              ? "rgba(42, 217, 255, 1)"
+              : "#ffffff"
+          }
           isDisabled={
             !mint ||
             mintCostAfterFeesLoading ||
@@ -155,7 +174,21 @@ export const VersusTokenExchange = () => {
           _focus={{}}
           _hover={{}}
           _active={{}}
-          bg="#fe2815"
+          bg={
+            focusedTokenToTrade?.address &&
+            isAddressEqual(
+              focusedTokenToTrade?.address as `0x${string}`,
+              tokenA.address as `0x${string}`
+            )
+              ? "rgba(75, 0, 1, 1)"
+              : focusedTokenToTrade?.address &&
+                isAddressEqual(
+                  focusedTokenToTrade?.address as `0x${string}`,
+                  tokenB.address as `0x${string}`
+                )
+              ? "rgba(66, 101, 136, 1)"
+              : "#ffffff"
+          }
           isDisabled={
             !burn ||
             burnProceedsAfterFeesLoading ||

@@ -139,6 +139,11 @@ export const DesktopChannelPageSimplified = ({
                               infra: "aws",
                             }
                       }
+                      mode={
+                        shouldRenderTempTokenInterface
+                          ? "single-temp-token"
+                          : ""
+                      }
                     />
                   </>
                 ) : (

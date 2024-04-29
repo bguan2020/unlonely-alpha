@@ -1,11 +1,16 @@
 import { useCallback, useRef, useState } from "react";
-import { Contract } from "../../../../constants";
+import { Contract, InteractionType } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { useCreateMultipleTempTokens } from "../../../contracts/useTempTokenFactoryV1";
 import { useToast, Box } from "@chakra-ui/react";
 import Link from "next/link";
-import { decodeEventLog } from "viem";
+import { decodeEventLog, encodeAbiParameters } from "viem";
+import { useChannelContext } from "../../../context/useChannel";
+import usePostTempToken from "../../../server/temp-token/usePostTempToken";
+import centerEllipses from "../../../../utils/centerEllipses";
+import { useUser } from "../../../context/useUser";
+import { verifyTempTokenV1OnBase } from "../../../../utils/contract-verification/tempToken";
 
 export type UseCreateMultipleTempTokensState = {
   newTokenAName: string;
@@ -39,6 +44,10 @@ export const useCreateMultipleTempTokensInitialState: UseCreateMultipleTempToken
   };
 
 export const useCreateMultipleTempTokensState = () => {
+  const { userAddress, user } = useUser();
+  const { channel, chat } = useChannelContext();
+  const { addToChatbot: addToChatbotForTempToken } = chat;
+  const { channelQueryData } = channel;
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
   const toast = useToast();
@@ -55,6 +64,8 @@ export const useCreateMultipleTempTokensState = () => {
   );
 
   const canAddToChatbot_create = useRef(false);
+
+  const { postTempToken } = usePostTempToken({});
 
   const {
     createMultipleTempTokens,
@@ -105,67 +116,125 @@ export const useCreateMultipleTempTokensState = () => {
       onTxSuccess: async (data) => {
         console.log(
           "createMultipleTempTokens success 1",
-          data,
           canAddToChatbot_create.current
         );
         if (!canAddToChatbot_create.current) return;
         const topics = decodeEventLog({
           abi: factoryContract.abi,
-          data: data.logs[2].data,
-          topics: data.logs[2].topics,
+          data: data.logs[data.logs.length - 1].data,
+          topics: data.logs[data.logs.length - 1].topics,
         });
         const args: any = topics.args;
         console.log("createMultipleTempTokens success 2", args, data);
-        // await postTempToken({
-        //   tokenAddress: args.tokenAddress as `0x${string}`,
-        //   symbol: args.symbol as string,
-        //   streamerFeePercentage: args.streamerFeePercent as bigint,
-        //   protocolFeePercentage: args.protocolFeePercent as bigint,
-        //   ownerAddress: args.owner as `0x${string}`,
-        //   name: args.name as string,
-        //   endUnixTimestamp: args.endTimestamp as bigint,
-        //   channelId: Number(channel.channelQueryData?.id),
-        //   chainId: localNetwork.config.chainId as number,
-        //   highestTotalSupply: BigInt(0),
-        //   creationBlockNumber: args.creationBlockNumber as bigint,
-        //   factoryAddress: factoryContract.address as `0x${string}`,
-        // })
-        //   .then((res) => {
-        //     console.log("createMultipleTempTokens update database success", res);
-        //     toast({
-        //       render: () => (
-        //         <Box as="button" borderRadius="md" bg="#5058c8" px={4} h={8}>
-        //           createMultipleTempTokens update database success
-        //         </Box>
-        //       ),
-        //       duration: 9000,
-        //       isClosable: true,
-        //       position: "top-right",
-        //     });
-        //   })
-        //   .catch((err) => {
-        //     console.log("createMultipleTempTokens update database error", err);
-        //     toast({
-        //       render: () => (
-        //         <Box as="button" borderRadius="md" bg="#c87850" px={4} h={8}>
-        //           createMultipleTempTokens update database error
-        //         </Box>
-        //       ),
-        //       duration: 9000,
-        //       isClosable: true,
-        //       position: "top-right",
-        //     });
-        //   });
-        // const title = `${
-        //   user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
-        // } created the $${args.symbol} token!`;
-        // addToChatbotForTempToken({
-        //   username: user?.username ?? "",
-        //   address: userAddress ?? "",
-        //   taskType: InteractionType.CREATE_TEMP_TOKEN,
-        //   title,
-        //   description: "",
-        // });
+        const newEndTimestamp = args.endTimestamp as bigint;
+        const newTokenAddresses = args.tokenAddresses as `0x${string}`[];
+        const newTokenSymbols = args.symbols as string[];
+        const newTokenNames = args.names as string[];
+        const newTokenCreationBlockNumber = args.creationBlockNumber as bigint;
+        await postTempToken({
+          tokenAddress: newTokenAddresses[0],
+          symbol: newTokenSymbols[0],
+          streamerFeePercentage: args.streamerFeePercent as bigint,
+          protocolFeePercentage: args.protocolFeePercent as bigint,
+          ownerAddress: args.owner as `0x${string}`,
+          name: newTokenNames[0],
+          endUnixTimestamp: newEndTimestamp,
+          channelId: Number(channelQueryData?.id),
+          chainId: localNetwork.config.chainId as number,
+          highestTotalSupply: BigInt(0),
+          creationBlockNumber: newTokenCreationBlockNumber,
+          factoryAddress: factoryContract.address as `0x${string}`,
+        })
+          .then((res) => {
+            console.log(
+              "(1/2) createMultipleTempTokens update database success",
+              res
+            );
+            toast({
+              render: () => (
+                <Box as="button" borderRadius="md" bg="#5058c8" px={4} h={8}>
+                  (1/2) createMultipleTempTokens update database success
+                </Box>
+              ),
+              duration: 9000,
+              isClosable: true,
+              position: "top-right",
+            });
+          })
+          .catch((err) => {
+            console.log(
+              "(1/2) createMultipleTempTokens update database error",
+              err
+            );
+            toast({
+              render: () => (
+                <Box as="button" borderRadius="md" bg="#c87850" px={4} h={8}>
+                  (1/2) createMultipleTempTokens update database error
+                </Box>
+              ),
+              duration: 9000,
+              isClosable: true,
+              position: "top-right",
+            });
+          });
+        await postTempToken({
+          tokenAddress: newTokenAddresses[1],
+          symbol: newTokenSymbols[1],
+          streamerFeePercentage: args.streamerFeePercent as bigint,
+          protocolFeePercentage: args.protocolFeePercent as bigint,
+          ownerAddress: args.owner as `0x${string}`,
+          name: newTokenNames[1],
+          endUnixTimestamp: newEndTimestamp,
+          channelId: Number(channelQueryData?.id),
+          chainId: localNetwork.config.chainId as number,
+          highestTotalSupply: BigInt(0),
+          creationBlockNumber: newTokenCreationBlockNumber,
+          factoryAddress: factoryContract.address as `0x${string}`,
+        })
+          .then((res) => {
+            console.log(
+              "(2/2) createMultipleTempTokens update database success",
+              res
+            );
+            toast({
+              render: () => (
+                <Box as="button" borderRadius="md" bg="#5058c8" px={4} h={8}>
+                  (2/2) createMultipleTempTokens update database success
+                </Box>
+              ),
+              duration: 9000,
+              isClosable: true,
+              position: "top-right",
+            });
+          })
+          .catch((err) => {
+            console.log(
+              "(1/2) createMultipleTempTokens update database error",
+              err
+            );
+            toast({
+              render: () => (
+                <Box as="button" borderRadius="md" bg="#c87850" px={4} h={8}>
+                  (2/2) createMultipleTempTokens update database error
+                </Box>
+              ),
+              duration: 9000,
+              isClosable: true,
+              position: "top-right",
+            });
+          });
+        const title = `${
+          user?.username ?? centerEllipses(args.owner as `0x${string}`, 15)
+        } created the $${newTokenSymbols[0]} and $${
+          newTokenSymbols[1]
+        } tokens!`;
+        addToChatbotForTempToken({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.CREATE_TEMP_TOKEN,
+          title,
+          description: "",
+        });
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -185,62 +254,62 @@ export const useCreateMultipleTempTokensState = () => {
         // wait for 5 seconds
         await new Promise((resolve) => setTimeout(resolve, 5000));
         // verify the contract on base
-        // const encoded = encodeAbiParameters(
-        //   [
-        //     {
-        //       name: "name",
-        //       type: "string",
-        //     },
-        //     {
-        //       name: "symbol",
-        //       type: "string",
-        //     },
-        //     {
-        //       name: "_endTimestamp",
-        //       type: "uint256",
-        //     },
-        //     {
-        //       name: "_protocolFeeDestination",
-        //       type: "address",
-        //     },
-        //     {
-        //       name: "_protocolFeePercent",
-        //       type: "uint256",
-        //     },
-        //     {
-        //       name: "_streamerFeePercent",
-        //       type: "uint256",
-        //     },
-        //     {
-        //       name: "_totalSupplyThreshold",
-        //       type: "uint256",
-        //     },
-        //     {
-        //       name: "_factoryAddress",
-        //       type: "address",
-        //     },
-        //     {
-        //       name: "_creationBlockNumber",
-        //       type: "uint256",
-        //     },
-        //   ],
-        //   [
-        //     args.name as string,
-        //     args.symbol as string,
-        //     args.endTimestamp as bigint,
-        //     args.protocolFeeDestination as `0x${string}`,
-        //     args.protocolFeePercent as bigint,
-        //     args.streamerFeePercent as bigint,
-        //     args.totalSupplyThreshold as bigint,
-        //     factoryContract.address as `0x${string}`,
-        //     args.creationBlockNumber as bigint,
-        //   ]
-        // );
-        // await verifyTempTokenV1OnBase(
-        //   args.tokenAddress as `0x${string}`,
-        //   encoded
-        // );
-        // console.log("createMultipleTempTokens encoded", encoded);
+        const encoded = encodeAbiParameters(
+          [
+            {
+              name: "name",
+              type: "string",
+            },
+            {
+              name: "symbol",
+              type: "string",
+            },
+            {
+              name: "_endTimestamp",
+              type: "uint256",
+            },
+            {
+              name: "_protocolFeeDestination",
+              type: "address",
+            },
+            {
+              name: "_protocolFeePercent",
+              type: "uint256",
+            },
+            {
+              name: "_streamerFeePercent",
+              type: "uint256",
+            },
+            {
+              name: "_totalSupplyThreshold",
+              type: "uint256",
+            },
+            {
+              name: "_factoryAddress",
+              type: "address",
+            },
+            {
+              name: "_creationBlockNumber",
+              type: "uint256",
+            },
+          ],
+          [
+            newTokenNames[0] as string,
+            newTokenSymbols[0] as string,
+            args.endTimestamp as bigint,
+            args.protocolFeeDestination as `0x${string}`,
+            args.protocolFeePercent as bigint,
+            args.streamerFeePercent as bigint,
+            args.totalSupplyThreshold as bigint,
+            factoryContract.address as `0x${string}`,
+            args.creationBlockNumber as bigint,
+          ]
+        );
+        await verifyTempTokenV1OnBase(
+          newTokenAddresses[0] as `0x${string}`,
+          encoded
+        );
+        console.log("createMultipleTempTokens encoded", encoded);
         canAddToChatbot_create.current = false;
       },
       onTxError: (error) => {

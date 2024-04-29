@@ -2,7 +2,10 @@ import { Flex, Text, Box, Button } from "@chakra-ui/react";
 import { ChatReturnType, useChatBox } from "../../hooks/chat/useChat";
 import MessageList from "./MessageList";
 import ChatForm from "./ChatForm";
-import { TempTokenTimerView } from "../channels/temp/TempTokenTimer";
+import {
+  SingleTempTokenTimerView,
+  VersusTempTokenTimerView,
+} from "../channels/temp/TempTokenTimer";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { EXCLUDED_SLUGS } from "./ChatComponent";
 import { useState } from "react";
@@ -48,7 +51,10 @@ export const ChatWithTokenTimer = ({
     >
       <Flex justifyContent={"center"} bg="rgba(11, 5, 63, 0.534)">
         {mode === "single-temp-token" && (
-          <TempTokenTimerView disableChatbot={false} />
+          <SingleTempTokenTimerView disableChatbot={false} />
+        )}
+        {mode === "versus-mode" && (
+          <VersusTempTokenTimerView disableChatbot={false} />
         )}
       </Flex>
       {presenceChannel && (

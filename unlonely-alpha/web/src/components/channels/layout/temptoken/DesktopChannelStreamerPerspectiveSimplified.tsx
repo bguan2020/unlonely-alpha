@@ -38,13 +38,17 @@ import { TransactionModalTemplate } from "../../../transactions/TransactionModal
 import { PlaybackInfo } from "livepeer/dist/models/components";
 import LivepeerPlayer from "../../../stream/LivepeerPlayer";
 import { getSrc } from "@livepeer/react/external";
-import { TempTokenTimerView } from "../../temp/TempTokenTimer";
+import {
+  SingleTempTokenTimerView,
+  VersusTempTokenTimerView,
+} from "../../temp/TempTokenTimer";
 import ChannelDesc from "../../ChannelDesc";
 
 export const DesktopChannelStreamerPerspectiveSimplified = ({
   ablyChannel,
   livepeerData,
   playbackData,
+  mode,
 }: {
   ablyChannel: AblyChannelPromise;
   livepeerData?: GetLivepeerStreamDataQuery["getLivepeerStreamData"];
@@ -56,6 +60,7 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
         infra: "livepeer";
         livepeerPlaybackInfo: PlaybackInfo;
       };
+  mode: "single-temp-token" | "versus-mode" | "";
 }) => {
   const toast = useToast();
   const { isStandalone } = useUserAgent();
@@ -209,7 +214,12 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
                   justifyContent={"center"}
                   gap="5px"
                 >
-                  <TempTokenTimerView disableChatbot={false} />
+                  {mode === "single-temp-token" && (
+                    <SingleTempTokenTimerView disableChatbot={false} />
+                  )}
+                  {mode === "versus-mode" && (
+                    <VersusTempTokenTimerView disableChatbot={false} />
+                  )}
                   <Text fontSize="20px">viewer pov</Text>
                   <LivepeerPlayer
                     src={getSrc(playbackData.livepeerPlaybackInfo)}

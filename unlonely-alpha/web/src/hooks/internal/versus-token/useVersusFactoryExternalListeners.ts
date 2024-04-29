@@ -1,28 +1,45 @@
 import { useState, useEffect } from "react";
 import { Log, isAddressEqual } from "viem";
 import { useContractEvent } from "wagmi";
-import { ContractData } from "../../../constants/types";
 import { VersusTokenDataType, versusTokenDataInitial } from "../../context/useVersusTempToken";
 import { useChannelContext } from "../../context/useChannel";
 import usePostTempToken from "../../server/temp-token/usePostTempToken";
 import TempTokenAbi from "../../../constants/abi/TempTokenV1.json";
 import { useNetworkContext } from "../../context/useNetwork";
+import { Contract } from "../../../constants";
+import { getContractFromNetwork } from "../../../utils/contract";
 
-export const useVersusFactoryExternalListeners = ({factoryContract, tokenA, tokenB, handleTokenA, handleTokenB, handleIsGameFinished, resetTempTokenTxs} : {
-    factoryContract: ContractData;
+export const useVersusFactoryExternalListeners = ({ 
+  tokenA, 
+  tokenB, 
+  handleTokenA, 
+  handleTokenB, 
+  handleIsGameFinished, 
+  resetTempTokenTxs, 
+  handleOwnerMustPickWinner, 
+  handleOwnerMustPermamint
+} : {
     tokenA: VersusTokenDataType;
     tokenB: VersusTokenDataType;
     handleTokenA: (token: VersusTokenDataType) => void;
     handleTokenB: (token: VersusTokenDataType) => void;
     handleIsGameFinished: (isGameFinished: boolean) => void;
+    handleOwnerMustPickWinner: (value: boolean) => void;
+    handleOwnerMustPermamint: (value: boolean) => void;
     resetTempTokenTxs: () => void;
 }) => {
 
-    const { channel, chat } = useChannelContext();
+    const { channel } = useChannelContext();
     const { handleRealTimeChannelDetails, channelQueryData, isOwner } = channel;
     const { network } = useNetworkContext();
     const { localNetwork } = network;
     const { postTempToken } = usePostTempToken({});
+
+    const factoryContract = getContractFromNetwork(
+      Contract.TEMP_TOKEN_FACTORY_V1,
+      localNetwork
+    );
+  
 
   /**
    * listen for incoming multiple temp tokens created events from factory
@@ -87,8 +104,7 @@ export const useVersusFactoryExternalListeners = ({factoryContract, tokenA, toke
 
     if (isOwner) {
       try {
-        await Promise.all([
-          postTempToken({
+          await postTempToken({
             tokenAddress: newTokenAddresses[0],
             symbol: newTokenSymbols[0],
             streamerFeePercentage: latestLog?.args.streamerFeePercent as bigint,
@@ -101,30 +117,39 @@ export const useVersusFactoryExternalListeners = ({factoryContract, tokenA, toke
             highestTotalSupply: BigInt(0),
             creationBlockNumber: newTokenCreationBlockNumber,
             factoryAddress: factoryContract.address as `0x${string}`,
-          }),
-          postTempToken({
-            tokenAddress: newTokenAddresses[1],
-            symbol: newTokenSymbols[1],
-            streamerFeePercentage: latestLog?.args.streamerFeePercent as bigint,
-            protocolFeePercentage: latestLog?.args.protocolFeePercent as bigint,
-            ownerAddress: latestLog?.args.owner as `0x${string}`,
-            name: newTokenNames[1],
-            endUnixTimestamp: newEndTimestamp,
-            channelId: Number(channelQueryData?.id),
-            chainId: localNetwork.config.chainId as number,
-            highestTotalSupply: BigInt(0),
-            creationBlockNumber: newTokenCreationBlockNumber,
-            factoryAddress: factoryContract.address as `0x${string}`,
-          }),
-        ]);
+          });
+
       } catch (e) {
         console.log(
-          "detected TempTokenCreated event but cannot call posttemptoken, may have been created already",
+          "detected TempTokenCreated event but cannot call posttemptoken on first token, may have been created already",
+          e
+        );
+      }
+
+      try {
+        await postTempToken({
+          tokenAddress: newTokenAddresses[1],
+          symbol: newTokenSymbols[1],
+          streamerFeePercentage: latestLog?.args.streamerFeePercent as bigint,
+          protocolFeePercentage: latestLog?.args.protocolFeePercent as bigint,
+          ownerAddress: latestLog?.args.owner as `0x${string}`,
+          name: newTokenNames[1],
+          endUnixTimestamp: newEndTimestamp,
+          channelId: Number(channelQueryData?.id),
+          chainId: localNetwork.config.chainId as number,
+          highestTotalSupply: BigInt(0),
+          creationBlockNumber: newTokenCreationBlockNumber,
+          factoryAddress: factoryContract.address as `0x${string}`,
+        });
+      } catch (e) {
+        console.log(
+          "detected TempTokenCreated event but cannot call posttemptoken on second token, may have been created already",
           e
         );
       }
     }
     handleTokenA({
+      balance: BigInt(0),
       symbol: newTokenSymbols[0],
       address: newTokenAddresses[0],
       totalSupply: BigInt(0),
@@ -139,6 +164,7 @@ export const useVersusFactoryExternalListeners = ({factoryContract, tokenA, toke
       endTimestamp: newEndTimestamp,
     });
     handleTokenB({
+      balance: BigInt(0),
       symbol: newTokenSymbols[1],
       address: newTokenAddresses[1],
       totalSupply: BigInt(0),

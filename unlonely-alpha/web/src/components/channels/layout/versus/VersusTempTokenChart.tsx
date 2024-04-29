@@ -13,7 +13,7 @@ import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTe
 import { useEffect, useMemo, useState } from "react";
 import { ChartTokenTx } from "../../../chat/VibesTokenInterface";
 import { useCacheContext } from "../../../../hooks/context/useCache";
-import { formatUnits, isAddress } from "viem";
+import { formatUnits, isAddress, isAddressEqual } from "viem";
 import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
 import { GET_USER_QUERY } from "../../../../constants/queries";
 import centerEllipses from "../../../../utils/centerEllipses";
@@ -166,18 +166,19 @@ export const VersusTempTokenChart = ({
   isFullChart?: boolean;
 }) => {
   const { ethPriceInUsd } = useCacheContext();
-  const { tokenA, tokenB } = useVersusTempTokenContext();
+  const { gameState, tokenATxs, tokenBTxs } = useVersusTempTokenContext();
+  const { focusedTokenToTrade } = gameState;
   const { network } = useNetworkContext();
   const { matchingChain } = network;
 
   const tokenAChartData = useInterfaceChartData({
     chartTimeIndexes: new Map<string, { index?: number }>(),
-    txs: tokenA.tempTokenTxs,
+    txs: tokenATxs.tempTokenTxs,
   });
 
   const tokenBChartData = useInterfaceChartData({
     chartTimeIndexes: new Map<string, { index?: number }>(),
-    txs: tokenB.tempTokenTxs,
+    txs: tokenBTxs.tempTokenTxs,
   });
 
   const client = useApolloClient();
@@ -253,26 +254,6 @@ export const VersusTempTokenChart = ({
       return null;
     }
 
-    const percentageA = Number(
-      truncateValue(
-        payload[0].payload.tokenAPriceChangePercentage,
-        2,
-        true,
-        2,
-        false
-      )
-    );
-
-    const percentageB = Number(
-      truncateValue(
-        payload[0].payload.tokenBPriceChangePercentage,
-        2,
-        true,
-        2,
-        false
-      )
-    );
-
     return (
       <Flex
         direction="column"
@@ -282,137 +263,169 @@ export const VersusTempTokenChart = ({
         borderRadius="15px"
       >
         <Flex direction="column">
-          <Text>
-            {!loading && asyncData !== null ? (
+          <>
+            {payload[0].payload.tokenAEvent !== "" && (
               <>
-                {isAddress(asyncData.split(",")[0]) ? (
-                  <Text color={"#d7a7ff"}>
-                    {centerEllipses(asyncData.split(",")[0], 10)}
-                  </Text>
-                ) : (
-                  <Text color={"#d7a7ff"}>{asyncData.split(",")[0]}</Text>
-                )}
+                <Text>
+                  {!loading && asyncData !== null ? (
+                    <>
+                      {isAddress(asyncData.split(",")[0] ?? asyncData) ? (
+                        <Text color={"#d7a7ff"}>
+                          {centerEllipses(
+                            asyncData.split(",")[0] ?? asyncData,
+                            10
+                          )}
+                        </Text>
+                      ) : (
+                        <Text color={"#d7a7ff"}>
+                          {asyncData.split(",")[0] ?? asyncData}
+                        </Text>
+                      )}
+                    </>
+                  ) : (
+                    <Text color={"#ffffff"}>
+                      {centerEllipses(payload[0].payload.tokenATrader, 10)}
+                    </Text>
+                  )}
+                </Text>
+                <Text
+                  color={
+                    payload[0].payload.tokenAEvent === "Mint"
+                      ? "#46a800"
+                      : "#fe2815"
+                  }
+                >
+                  {`${
+                    payload[0].payload.tokenAEvent === "Mint"
+                      ? "Bought"
+                      : "Sold"
+                  } ${truncateValue(payload[0].payload.tokenAAmount, 0)}`}{" "}
+                  {payload[0].payload.tokenASymbol}
+                </Text>
               </>
-            ) : (
-              <Text color={"#ffffff"}>
-                {centerEllipses(payload[0].payload.tokenATrader, 10)}
-              </Text>
             )}
-          </Text>
-          {payload[0].payload.tokenAEvent !== "" && (
-            <>
-              <Text
-                color={
-                  payload[0].payload.tokenAEvent === "Mint"
-                    ? "#46a800"
-                    : "#fe2815"
-                }
-              >{`${
-                payload[0].payload.tokenAEvent === "Mint" ? "Bought" : "Sold"
-              } ${truncateValue(payload[0].payload.tokenAAmount, 0)}`}</Text>
-              {payload[0].payload.tokenAPriceInUsd !== undefined ? (
-                <>
-                  <Text>{`$${truncateValue(
-                    payload[0].payload.tokenAPriceInUsd,
-                    4
-                  )}`}</Text>
-                  <Text fontSize="10px" opacity="0.75">{`${truncateValue(
-                    formatUnits(payload[0].payload.tokenAPrice, 18),
-                    10
-                  )} ETH`}</Text>
-                </>
-              ) : (
-                <Text>{`${truncateValue(
+            {payload[0].payload.tokenAPriceInUsd !== undefined ? (
+              <>
+                <Text color="rgba(255, 36, 36, 1)">{`$${truncateValue(
+                  payload[0].payload.tokenAPriceInUsd,
+                  4
+                )}`}</Text>
+                <Text
+                  color="rgba(255, 36, 36, 1)"
+                  fontSize="10px"
+                  opacity="0.75"
+                >{`${truncateValue(
                   formatUnits(payload[0].payload.tokenAPrice, 18),
                   10
                 )} ETH`}</Text>
-              )}
-              {percentageA !== 0 && (
-                <Text
-                  color={
-                    payload[0].payload.tokenAPriceChangePercentage > 0
-                      ? "#46a800"
-                      : "#fe2815"
-                  }
-                >{`${
-                  payload[0].payload.priceChangePercentage > 0 ? "+" : ""
-                }${percentageA}%`}</Text>
-              )}
-            </>
-          )}
-        </Flex>
-        <Flex direction="column">
-          <Text>
-            {!loading && asyncData !== null ? (
-              <>
-                {isAddress(asyncData.split(",")[1]) ? (
-                  <Text color={"#d7a7ff"}>
-                    {centerEllipses(asyncData.split(",")[1], 10)}
-                  </Text>
-                ) : (
-                  <Text color={"#d7a7ff"}>{asyncData.split(",")[1]}</Text>
-                )}
               </>
             ) : (
-              <Text color={"#ffffff"}>
-                {centerEllipses(payload[0].payload.tokenBTrader, 10)}
-              </Text>
+              <Text>{`${truncateValue(
+                formatUnits(payload[0].payload.tokenAPrice, 18),
+                10
+              )} ETH`}</Text>
             )}
-          </Text>
-          {payload[0].payload.tokenBEvent !== "" && (
-            <>
+            {/* {percentageA !== 0 && (
               <Text
                 color={
-                  payload[0].payload.tokenBEvent === "Mint"
+                  payload[0].payload.tokenAPriceChangePercentage > 0
                     ? "#46a800"
                     : "#fe2815"
                 }
               >{`${
-                payload[0].payload.tokenBEvent === "Mint" ? "Bought" : "Sold"
-              } ${truncateValue(payload[0].payload.tokenBAmount, 0)}`}</Text>
-              {payload[0].payload.tokenBPriceInUsd !== undefined ? (
-                <>
-                  <Text>{`$${truncateValue(
-                    payload[0].payload.tokenBPriceInUsd,
-                    4
-                  )}`}</Text>
-                  <Text fontSize="10px" opacity="0.75">{`${truncateValue(
-                    formatUnits(payload[0].payload.tokenBPrice, 18),
-                    10
-                  )} ETH`}</Text>
-                </>
-              ) : (
-                <Text>{`${truncateValue(
-                  formatUnits(payload[0].payload.tokenBPrice, 18),
-                  10
-                )} ETH`}</Text>
-              )}
-              {percentageB !== 0 && (
+                payload[0].payload.priceChangePercentage > 0 ? "+" : ""
+              }${percentageA}%`}</Text>
+            )} */}
+          </>
+        </Flex>
+        <Flex direction="column">
+          <>
+            {payload[0].payload.tokenBEvent !== "" && (
+              <>
+                <Text>
+                  {!loading && asyncData !== null ? (
+                    <>
+                      {isAddress(asyncData.split(",")[1] ?? asyncData) ? (
+                        <Text color={"#d7a7ff"}>
+                          {centerEllipses(
+                            asyncData.split(",")[1] ?? asyncData,
+                            10
+                          )}
+                        </Text>
+                      ) : (
+                        <Text color={"#d7a7ff"}>
+                          {asyncData.split(",")[1] ?? asyncData}
+                        </Text>
+                      )}
+                    </>
+                  ) : (
+                    <Text color={"#ffffff"}>
+                      {centerEllipses(payload[0].payload.tokenBTrader, 10)}
+                    </Text>
+                  )}
+                </Text>
                 <Text
                   color={
-                    payload[0].payload.tokenBPriceChangePercentage > 0
+                    payload[0].payload.tokenBEvent === "Mint"
                       ? "#46a800"
                       : "#fe2815"
                   }
-                >{`${
-                  payload[0].payload.priceChangePercentage > 0 ? "+" : ""
-                }${percentageB}%`}</Text>
-              )}
-            </>
-          )}
+                >
+                  {`${
+                    payload[0].payload.tokenBEvent === "Mint"
+                      ? "Bought"
+                      : "Sold"
+                  } ${truncateValue(payload[0].payload.tokenBAmount, 0)}`}{" "}
+                  {payload[0].payload.tokenBSymbol}
+                </Text>
+              </>
+            )}
+            {payload[0].payload.tokenBPriceInUsd !== undefined ? (
+              <>
+                <Text color="rgba(42, 217, 255, 1)">{`$${truncateValue(
+                  payload[0].payload.tokenBPriceInUsd,
+                  4
+                )}`}</Text>
+                <Text
+                  color="rgba(42, 217, 255, 1)"
+                  fontSize="10px"
+                  opacity="0.75"
+                >{`${truncateValue(
+                  formatUnits(payload[0].payload.tokenBPrice, 18),
+                  10
+                )} ETH`}</Text>
+              </>
+            ) : (
+              <Text>{`${truncateValue(
+                formatUnits(payload[0].payload.tokenBPrice, 18),
+                10
+              )} ETH`}</Text>
+            )}
+            {/* {percentageB !== 0 && (
+              <Text
+                color={
+                  payload[0].payload.tokenBPriceChangePercentage > 0
+                    ? "#46a800"
+                    : "#fe2815"
+                }
+              >{`${
+                payload[0].payload.priceChangePercentage > 0 ? "+" : ""
+              }${percentageB}%`}</Text>
+            )} */}
+          </>
         </Flex>
       </Flex>
     );
   };
 
   const consolidatedChartData = useMemo(() => {
-    // return consolidateChartData(
-    //   tokenAChartData.chartTxs,
-    //   tokenBChartData.chartTxs
-    // );
-    const res = consolidateChartData(sampleTokenATxs, sampleTokenBTxs);
-    console.log(res);
-    return res;
+    return consolidateChartData(
+      tokenAChartData.chartTxs,
+      tokenBChartData.chartTxs
+    );
+    // const res = consolidateChartData(sampleTokenATxs, sampleTokenBTxs);
+    // console.log(res);
+    // return res;
   }, [tokenAChartData.chartTxs, tokenBChartData.chartTxs]);
 
   return (
@@ -466,19 +479,22 @@ export const VersusTempTokenChart = ({
               type="monotone"
               dataKey="tokenAPrice"
               stroke={"rgba(255, 36, 36, 1)"}
-              strokeWidth={2}
+              strokeWidth={
+                focusedTokenToTrade?.address !== undefined &&
+                isAddressEqual(
+                  focusedTokenToTrade?.address,
+                  gameState.tokenA.address as `0x${string}`
+                )
+                  ? 4
+                  : 2
+              }
               animationDuration={200}
               dot={
                 isFullChart
                   ? (props: any) => {
-                      const { cx, cy, stroke, payload } = props;
+                      const { cx, cy, stroke } = props;
                       // Change the dot stroke color based on the value
-                      const dotStroke =
-                        payload.event === "Mint"
-                          ? "#00ff0d"
-                          : payload.event === "Burn"
-                          ? "#ff0000"
-                          : "#ffffff";
+                      const dotStroke = "#ffffff";
 
                       return (
                         <circle
@@ -498,19 +514,22 @@ export const VersusTempTokenChart = ({
               type="monotone"
               dataKey="tokenBPrice"
               stroke={"rgba(42, 217, 255, 1)"}
-              strokeWidth={2}
+              strokeWidth={
+                focusedTokenToTrade?.address !== undefined &&
+                isAddressEqual(
+                  focusedTokenToTrade?.address,
+                  gameState.tokenB.address as `0x${string}`
+                )
+                  ? 4
+                  : 2
+              }
               animationDuration={200}
               dot={
                 isFullChart
                   ? (props: any) => {
-                      const { cx, cy, stroke, payload } = props;
+                      const { cx, cy, stroke } = props;
                       // Change the dot stroke color based on the value
-                      const dotStroke =
-                        payload.event === "Mint"
-                          ? "#00ff0d"
-                          : payload.event === "Burn"
-                          ? "#ff0000"
-                          : "#ffffff";
+                      const dotStroke = "#ffffff";
 
                       return (
                         <circle

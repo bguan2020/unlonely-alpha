@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { AblyChannelPromise } from "../../../../constants";
 import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
-import { TempTokenTimerView } from "../../temp/TempTokenTimer";
+import { VersusTempTokenTimerView } from "../../temp/TempTokenTimer";
 import { useWindowSize } from "../../../../hooks/internal/useWindowSize";
 import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { VersusTempTokenChart } from "./VersusTempTokenChart";
@@ -19,6 +19,7 @@ import { useState } from "react";
 import { VersusTokenCreationModal } from "../../versus/VersusTokenCreationModal";
 import { VersusTokenDisclaimerModal } from "../../versus/VersusTokenDisclaimerModal";
 import { VersusTokenExchange } from "../../versus/VersusTokenExchange";
+import { isAddressEqual } from "viem";
 
 export const VersusTempTokensInterface = ({
   customHeight,
@@ -36,15 +37,23 @@ export const VersusTempTokensInterface = ({
   const { channel } = useChannelContext();
   const { channelQueryData, realTimeChannelDetails, isOwner } = channel;
 
-  const { gameState, tokenA, tokenB } = useVersusTempTokenContext();
+  const { gameState } = useVersusTempTokenContext();
   const {
     canPlayToken,
     isGameFinished,
+    focusedTokenToTrade,
+    ownerMustPermamint,
+    ownerMustPickWinner,
     isGameFinishedModalOpen,
+    tokenA,
+    tokenB,
     handleCanPlayToken,
     handleFocusedTokenToTrade,
     handleIsGameFinished,
     handleIsGameFinishedModalOpen,
+    handleOwnerMustPermamint,
+    handleOwnerMustPickWinner,
+    handleIsPickWinnerModalOpen,
   } = gameState;
   const windowSize = useWindowSize();
 
@@ -85,7 +94,7 @@ export const VersusTempTokensInterface = ({
           handleClose={() => setVersusTempTokenDisclaimerModalOpen(false)}
         />
         <Flex justifyContent={"space-between"} alignItems={"center"}>
-          {isFullChart && <TempTokenTimerView disableChatbot={true} />}
+          {isFullChart && <VersusTempTokenTimerView disableChatbot={true} />}
           {!isFullChart && (
             <Flex>
               {canPlayToken && (
@@ -141,33 +150,97 @@ export const VersusTempTokensInterface = ({
             </Flex>
           )}
         </Flex>
-        <Flex justifyContent={"center"} gap="5px">
-          <Button
-            onClick={() => handleFocusedTokenToTrade(tokenA.contractData)}
-          >
-            ${tokenA.symbol}
-          </Button>
-          <Button
-            onClick={() => handleFocusedTokenToTrade(tokenB.contractData)}
-          >
-            ${tokenB.symbol}
-          </Button>
-        </Flex>
+        {canPlayToken && (
+          <Flex justifyContent={"center"} gap="5px">
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={
+                focusedTokenToTrade === undefined ||
+                isAddressEqual(
+                  focusedTokenToTrade?.address as `0x${string}`,
+                  tokenA.address as `0x${string}`
+                )
+                  ? "rgba(255, 36, 36, 1)"
+                  : "#ffffff"
+              }
+              onClick={() => handleFocusedTokenToTrade(tokenA.contractData)}
+            >
+              ${tokenA.symbol}
+            </Button>
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={
+                focusedTokenToTrade === undefined ||
+                isAddressEqual(
+                  focusedTokenToTrade?.address as `0x${string}`,
+                  tokenB.address as `0x${string}`
+                )
+                  ? "rgba(42, 217, 255, 1)"
+                  : "#ffffff"
+              }
+              onClick={() => handleFocusedTokenToTrade(tokenB.contractData)}
+            >
+              ${tokenB.symbol}
+            </Button>
+          </Flex>
+        )}
         <VersusTempTokenChart noChannelData={noChannelData} />
-        {/* {!canPlayToken && (
-          <Button onClick={() => setVersusTempTokenDisclaimerModalOpen(true)}>
-            Play
-          </Button>
-        )} */}
-        {!isGameFinished && !canPlayToken ? (
-          <Button onClick={() => setVersusTempTokenDisclaimerModalOpen(true)}>
-            Play
-          </Button>
-        ) : isOwner ? (
-          <Button onClick={() => setCreateTokensModalOpen(true)}>
-            Create tokens
-          </Button>
-        ) : null}
+        {!canPlayToken && (
+          <>
+            {isOwner ? (
+              <>
+                {!isGameFinished &&
+                  !ownerMustPermamint &&
+                  !ownerMustPickWinner && (
+                    <Button
+                      onClick={() =>
+                        setVersusTempTokenDisclaimerModalOpen(true)
+                      }
+                      h="30%"
+                    >
+                      Play
+                    </Button>
+                  )}
+                {isGameFinished && !ownerMustPermamint && !ownerMustPickWinner && (
+                  <Button
+                    onClick={() => setCreateTokensModalOpen(true)}
+                    h="30%"
+                  >
+                    Create tokens
+                  </Button>
+                )}
+                {isGameFinished && ownerMustPickWinner && (
+                  <Button
+                    onClick={() => handleIsPickWinnerModalOpen(true)}
+                    h="30%"
+                  >
+                    Pick Winner
+                  </Button>
+                )}
+                {isGameFinished && ownerMustPermamint && (
+                  <Button onClick={() => undefined} h="30%">
+                    Permamint
+                  </Button>
+                )}
+              </>
+            ) : (
+              <>
+                {!isGameFinished && (
+                  <Button
+                    onClick={() => setVersusTempTokenDisclaimerModalOpen(true)}
+                    h="30%"
+                  >
+                    Play
+                  </Button>
+                )}
+              </>
+            )}
+          </>
+        )}
         {canPlayToken && <VersusTokenExchange />}
       </Flex>
     </>

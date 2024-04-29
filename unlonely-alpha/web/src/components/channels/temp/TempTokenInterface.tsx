@@ -40,7 +40,7 @@ import { useWindowSize } from "../../../hooks/internal/useWindowSize";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import { SendRemainingFundsFromCurrentInactiveTokenModal } from "./SendRemainingFundsFromCurrentInactiveTokenModal";
 import { TempTokenExchange } from "./TempTokenExchange";
-import { TempTokenTimerView } from "./TempTokenTimer";
+import { SingleTempTokenTimerView } from "./TempTokenTimer";
 import { usePublicClient } from "wagmi";
 import { TempTokenDisclaimerModal } from "./TempTokenDisclaimerModal";
 import { useOwnerUpdateTotalSupplyThresholdState } from "../../../hooks/internal/temp-token/write/useOwnerUpdateTotalSupplyThresholdState";
@@ -333,7 +333,7 @@ export const TempTokenInterface = ({
             <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
               ${currentActiveTokenSymbol}
             </Text>
-            {isFullChart && <TempTokenTimerView disableChatbot={true} />}
+            {isFullChart && <SingleTempTokenTimerView disableChatbot={true} />}
             {!isFullChart && (
               <Flex>
                 {canPlayToken && (

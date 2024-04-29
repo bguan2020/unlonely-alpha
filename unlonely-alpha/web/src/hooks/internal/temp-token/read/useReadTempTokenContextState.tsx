@@ -26,7 +26,7 @@ import usePostTempToken from "../../../server/temp-token/usePostTempToken";
 import { useRouter } from "next/router";
 import { useChannelContext } from "../../../context/useChannel";
 
-export type UseReadTempTokenStateType = {
+export type UseReadTempTokenContextStateType = {
   currentActiveTokenSymbol: string;
   currentActiveTokenAddress: string;
   currentActiveTokenEndTimestamp?: bigint;
@@ -66,7 +66,7 @@ export type UseReadTempTokenStateType = {
   handleCanPlayToken: (value: boolean) => void;
 } & UseReadTempTokenTxsType;
 
-export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
+export const useReadTempTokenInitialState: UseReadTempTokenContextStateType = {
   currentActiveTokenSymbol: "",
   currentActiveTokenAddress: NULL_ADDRESS,
   currentActiveTokenEndTimestamp: undefined,
@@ -108,7 +108,7 @@ export const useReadTempTokenInitialState: UseReadTempTokenStateType = {
   ...useReadTempTokenTxsInitial,
 };
 
-export const useReadTempTokenState = () => {
+export const useReadTempTokenContextState = () => {
   const { userAddress, user } = useUser();
   const router = useRouter();
 

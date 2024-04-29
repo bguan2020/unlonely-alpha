@@ -33,19 +33,20 @@ export const VersusTokenCreationModal = ({
 
   useEffect(() => {
     const checkIfLiveBeforeCreateToken = async () => {
-      if (realTimeChannelDetails.isLive) {
-        setReturnedIsLive(true);
-        return;
-      }
-      if (isOpen) {
-        setReturnedIsLive(undefined);
-        const res = await getLivepeerStreamData({
-          variables: {
-            data: { streamId: channelQueryData?.livepeerStreamId },
-          },
-        });
-        setReturnedIsLive(res.data?.getLivepeerStreamData?.isActive || false);
-      }
+      setReturnedIsLive(true);
+      // if (realTimeChannelDetails.isLive) {
+      //   setReturnedIsLive(true);
+      //   return;
+      // }
+      // if (isOpen) {
+      //   setReturnedIsLive(undefined);
+      //   const res = await getLivepeerStreamData({
+      //     variables: {
+      //       data: { streamId: channelQueryData?.livepeerStreamId },
+      //     },
+      //   });
+      //   setReturnedIsLive(res.data?.getLivepeerStreamData?.isActive || false);
+      // }
     };
     checkIfLiveBeforeCreateToken();
   }, [
@@ -116,9 +117,9 @@ export const VersusTokenCreationModal = ({
             <Input
               placeholder="token b symbol"
               variant="glow"
-              value={newTokenBName}
+              value={newTokenBSymbol}
               onChange={(e) =>
-                handleTokenName(alphanumericInput(e.target.value), "b")
+                handleTokenSymbol(alphanumericInput(e.target.value), "b")
               }
             />
           </Flex>

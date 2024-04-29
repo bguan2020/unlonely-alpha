@@ -39,7 +39,7 @@ export const DesktopChannelPageVersus = ({
     isOwner,
   } = channel;
   const { gameState } = useVersusTempTokenContext();
-  const { canPlayToken } = gameState;
+  const { canPlayToken, isGameFinished } = gameState;
   const toast = useToast();
   const { livepeerData, playbackInfo } = useLivepeerStreamData();
   useVipBadgeUi();
@@ -106,6 +106,7 @@ export const DesktopChannelPageVersus = ({
                               infra: "aws",
                             }
                       }
+                      mode={!isGameFinished ? "versus-mode" : ""}
                     />
                   </>
                 ) : (
