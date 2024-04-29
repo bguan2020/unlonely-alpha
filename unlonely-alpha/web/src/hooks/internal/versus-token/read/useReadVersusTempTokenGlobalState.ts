@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { ContractData } from "../../../../constants/types";
-import { VersusTokenDataType, versusTokenDataInitial } from "../../../context/useVersusTempToken";
+import { VersusTokenDataType } from "../../../context/useVersusTempToken";
+import { NULL_ADDRESS } from "../../../../constants";
 
 export type UseReadVersusTempTokenGlobalStateType = {
   canPlayToken: boolean;
@@ -24,6 +25,23 @@ export type UseReadVersusTempTokenGlobalStateType = {
   isPickWinnerModalOpen: boolean;
   handleIsPickWinnerModalOpen: (value: boolean) => void;
 }
+
+
+const versusTokenDataInitial: VersusTokenDataType = {
+  balance: BigInt(0),
+  symbol: "",
+  address: "",
+  totalSupply: BigInt(0),
+  isAlwaysTradeable: false,
+  highestTotalSupply: BigInt(0),
+  contractData: {
+    address: NULL_ADDRESS,
+    chainId: 0,
+    abi: undefined,
+  },
+  creationBlockNumber: BigInt(0),
+  endTimestamp: undefined,
+};
 
 export const useReadVersusTempTokenGlobalStateInitial: UseReadVersusTempTokenGlobalStateType = {
   canPlayToken: false,

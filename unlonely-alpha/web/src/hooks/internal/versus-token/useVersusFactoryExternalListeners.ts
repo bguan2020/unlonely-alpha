@@ -1,13 +1,29 @@
 import { useState, useEffect } from "react";
 import { Log, isAddressEqual } from "viem";
 import { useContractEvent } from "wagmi";
-import { VersusTokenDataType, versusTokenDataInitial } from "../../context/useVersusTempToken";
+import { VersusTokenDataType } from "../../context/useVersusTempToken";
 import { useChannelContext } from "../../context/useChannel";
 import usePostTempToken from "../../server/temp-token/usePostTempToken";
 import TempTokenAbi from "../../../constants/abi/TempTokenV1.json";
 import { useNetworkContext } from "../../context/useNetwork";
-import { Contract } from "../../../constants";
+import { Contract, NULL_ADDRESS } from "../../../constants";
 import { getContractFromNetwork } from "../../../utils/contract";
+
+const versusTokenDataInitial: VersusTokenDataType = {
+  balance: BigInt(0),
+  symbol: "",
+  address: "",
+  totalSupply: BigInt(0),
+  isAlwaysTradeable: false,
+  highestTotalSupply: BigInt(0),
+  contractData: {
+    address: NULL_ADDRESS,
+    chainId: 0,
+    abi: undefined,
+  },
+  creationBlockNumber: BigInt(0),
+  endTimestamp: undefined,
+};
 
 export const useVersusFactoryExternalListeners = ({ 
   tokenA, 

@@ -1,8 +1,8 @@
 import { Flex, Button, Text, ListItem, UnorderedList } from "@chakra-ui/react";
 import { getTimeFromMillis } from "../../../utils/time";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
-import { useTempTokenTimerState } from "../../../hooks/internal/temp-token/ui/useTempTokenTimerState";
 import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempToken";
+import { useVersusTempTokenTimerState } from "../../../hooks/internal/versus-token/ui/useVersusTempTokenTimerState";
 
 export const VersusTokenDisclaimerModal = ({
   isOpen,
@@ -22,7 +22,7 @@ export const VersusTokenDisclaimerModal = ({
   } = gameState;
   const { endTimestamp: endTimestampA } = tokenA;
   const { endTimestamp: endTimestampB } = tokenB;
-  const { durationLeftForTempToken } = useTempTokenTimerState(
+  const { durationLeftForTempToken } = useVersusTempTokenTimerState(
     endTimestampA || endTimestampB,
     () => {
       handleOwnerMustPickWinner(true);

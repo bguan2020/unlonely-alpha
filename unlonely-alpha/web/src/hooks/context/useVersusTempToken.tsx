@@ -1,10 +1,16 @@
-import { createContext, useCallback, useContext, useMemo } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+} from "react";
 import { ContractData } from "../../constants/types";
 import {
   UseReadTempTokenTxsType,
   useReadTempTokenTxsInitial,
 } from "../internal/temp-token/read/useReadTempTokenTxs";
-import { InteractionType, NULL_ADDRESS } from "../../constants";
+import { Contract, InteractionType } from "../../constants";
 import { useChannelContext } from "./useChannel";
 import { useRouter } from "next/router";
 import { useUser } from "./useUser";
@@ -16,6 +22,9 @@ import {
   useReadVersusTempTokenGlobalState,
 } from "../internal/versus-token/read/useReadVersusTempTokenGlobalState";
 import { useReadVersusTempTokenOnMount } from "../internal/versus-token/read/useReadVersusTempTokenOnMount";
+import { getContractFromNetwork } from "../../utils/contract";
+import { useNetworkContext } from "./useNetwork";
+import { usePublicClient } from "wagmi";
 
 export type VersusTokenDataType = {
   balance: bigint;
@@ -27,22 +36,6 @@ export type VersusTokenDataType = {
   contractData: ContractData;
   creationBlockNumber: bigint;
   endTimestamp?: bigint;
-};
-
-export const versusTokenDataInitial: VersusTokenDataType = {
-  balance: BigInt(0),
-  symbol: "",
-  address: "",
-  totalSupply: BigInt(0),
-  isAlwaysTradeable: false,
-  highestTotalSupply: BigInt(0),
-  contractData: {
-    address: NULL_ADDRESS,
-    chainId: 0,
-    abi: undefined,
-  },
-  creationBlockNumber: BigInt(0),
-  endTimestamp: undefined,
 };
 
 export const useVersusTempTokenContext = () => {
@@ -78,8 +71,16 @@ export const VersusTempTokenProvider = ({
   const { channel, chat } = useChannelContext();
   const { isOwner } = channel;
   const { addToChatbot: addToChatbotForTempToken } = chat;
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
+
+  const factoryContract = getContractFromNetwork(
+    Contract.TEMP_TOKEN_FACTORY_V1,
+    localNetwork
+  );
 
   const globalState = useReadVersusTempTokenGlobalState();
+  const publicClient = usePublicClient();
 
   const { readTempTokenTxs: readTempTokenTxs_a } =
     useReadTempTokenListenerState({
@@ -276,6 +277,7 @@ export const VersusTempTokenProvider = ({
     setTokenA: globalState.setTokenA,
     setTokenB: globalState.setTokenB,
     handleWinningToken: globalState.handleWinningToken,
+    handleOwnerMustPickWinner: globalState.handleOwnerMustPickWinner,
     handleIsGameFinished: globalState.handleIsGameFinished,
   });
 
@@ -292,6 +294,24 @@ export const VersusTempTokenProvider = ({
       readTempTokenTxs_b.resetTempTokenTxs();
     },
   });
+
+  useEffect(() => {
+    if (!globalState.winningToken.address) return;
+    const balance = publicClient.readContract({
+      address: factoryContract.address as `0x${string}`,
+      abi: factoryContract.abi,
+      functionName: "getBalance",
+      args: [],
+    });
+    console.log("balance", balance);
+    const mintCostOfOneWinningToken = publicClient.readContract({
+      address: globalState.winningToken.contractData.address as `0x${string}`,
+      abi: globalState.winningToken.contractData.abi,
+      functionName: "mintCostAfterFees",
+      args: [BigInt(1)],
+    });
+    // if balance is greater than mintCostOfOneWinningToken, then set handleOwnerMustPermamint to true, and calculate the amount of tokens that can be minted via the lambda function
+  }, [globalState.winningToken]);
 
   const value = useMemo(
     () => ({

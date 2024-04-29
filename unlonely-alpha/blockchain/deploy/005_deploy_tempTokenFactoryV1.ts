@@ -25,6 +25,6 @@ export default func;
 func.tags = ["All", "TempTokenFactoryV1"]
 
 /** 
-npx hardhat deploy --network base_sepolia --tags All,TempTokenFactoryV1
-npx hardhat --network base_sepolia etherscan-verify
+npx hardhat deploy --network base --tags All,TempTokenFactoryV1
+npx hardhat --network base etherscan-verify
 */

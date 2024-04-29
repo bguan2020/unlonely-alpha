@@ -13,10 +13,12 @@ export const useReadVersusTempTokenOnMount = ({
     setTokenB,
     handleWinningToken,
     handleIsGameFinished,
+    handleOwnerMustPickWinner, 
 }: {
     setTokenA: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
     setTokenB: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
     handleWinningToken: (token: VersusTokenDataType) => void;
+    handleOwnerMustPickWinner: (value: boolean) => void;
     handleIsGameFinished: (value: boolean) => void;
 }) => {
 
@@ -152,6 +154,10 @@ export const useReadVersusTempTokenOnMount = ({
           };
           setTokenA(_newTokenA);
           setTokenB(_newTokenB);
+
+          /**
+           * check if the game is finished through using endTimestamps
+           */
           if (
             BigInt(String(endTimestampA)) >
               BigInt(Math.floor(Date.now() / 1000)) &&
@@ -160,6 +166,16 @@ export const useReadVersusTempTokenOnMount = ({
           ) {
             handleIsGameFinished(false);
           } else {
+            handleIsGameFinished(true);
+
+            /**
+             * if both tokens are not always tradeable, then the owner must pick a winner
+             */
+            if (!Boolean(isAlwaysTradeableA) && !Boolean(isAlwaysTradeableB)) {
+              handleOwnerMustPickWinner(true);
+              return;
+            }
+
             if (Boolean(isAlwaysTradeableA)) {
               handleWinningToken(_newTokenA);
             }

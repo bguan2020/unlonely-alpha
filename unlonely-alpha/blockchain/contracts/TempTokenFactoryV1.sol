@@ -281,6 +281,10 @@ contract TempTokenFactoryV1 is Ownable {
         admins[_address] = _onlyAdmin;
     }
 
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
+    }
+
     // Function to receive Ether. The function is called when msg.data is empty
     receive() external payable {
         emit EtherReceived(msg.sender, msg.value);
