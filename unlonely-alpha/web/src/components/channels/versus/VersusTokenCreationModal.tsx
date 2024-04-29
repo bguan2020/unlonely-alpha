@@ -34,6 +34,7 @@ export const VersusTokenCreationModal = ({
   useEffect(() => {
     const checkIfLiveBeforeCreateToken = async () => {
       setReturnedIsLive(true);
+      // todo: undo this line and uncomment the block during production
       // if (realTimeChannelDetails.isLive) {
       //   setReturnedIsLive(true);
       //   return;

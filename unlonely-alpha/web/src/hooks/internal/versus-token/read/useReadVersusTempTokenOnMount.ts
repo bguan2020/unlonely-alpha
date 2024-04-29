@@ -7,6 +7,8 @@ import { useNetworkContext } from "../../../context/useNetwork";
 import { usePublicClient } from "wagmi";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 import { VersusTokenDataType } from "../../../context/useVersusTempToken";
+import { Contract } from "../../../../constants";
+import { getContractFromNetwork } from "../../../../utils/contract";
 
 export const useReadVersusTempTokenOnMount = ({
     setTokenA,
@@ -26,6 +28,11 @@ export const useReadVersusTempTokenOnMount = ({
     const { channelQueryData } = channel;
     const { network } = useNetworkContext();
     const { localNetwork } = network;
+
+    const factoryContract = getContractFromNetwork(
+      Contract.TEMP_TOKEN_FACTORY_V1,
+      localNetwork
+    );
 
     const publicClient = usePublicClient();
 
@@ -48,6 +55,7 @@ export const useReadVersusTempTokenOnMount = ({
             data: {
               channelId: Number(channelQueryData?.id ?? "0"),
               chainId: localNetwork.config.chainId,
+              factoryAddress: factoryContract.address as `0x${string}`,
               fulfillAllNotAnyConditions: true,
             },
           },

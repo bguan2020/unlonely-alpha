@@ -281,6 +281,7 @@ export interface IGetTempTokensInput {
   onlyActiveTokens?: boolean;
   hasHitTotalSupplyThreshold?: boolean;
   isAlwaysTradeable?: boolean;
+  factoryAddress?: string;
   fulfillAllNotAnyConditions: boolean;
 }
 
@@ -319,6 +320,7 @@ export const getTempTokens = async (
             : undefined,
           chainId: data.chainId,
           tokenAddress: data.tokenAddress,
+          factoryAddress: data.factoryAddress,
           hasHitTotalSupplyThreshold: data.hasHitTotalSupplyThreshold,
           isAlwaysTradeable: data.isAlwaysTradeable,
           ...endTimestampClause,
@@ -336,6 +338,7 @@ export const getTempTokens = async (
             : []),
           { chainId: data.chainId },
           { tokenAddress: data.tokenAddress },
+          { factoryAddress: data.factoryAddress },
           { hasHitTotalSupplyThreshold: data.hasHitTotalSupplyThreshold },
           { isAlwaysTradeable: data.isAlwaysTradeable },
           // Assuming endTimestampClause is an object with a comparison operation
