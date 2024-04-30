@@ -25,9 +25,9 @@ export const VersusTokenDisclaimerModal = ({
   const { durationLeftForTempToken } = useVersusTempTokenTimerState(
     endTimestampA || endTimestampB,
     () => {
-      handleOwnerMustTransferFunds(true);
       handleCanPlayToken(false);
       handleIsGameFinished(true);
+      handleOwnerMustTransferFunds(true);
       handleIsGameFinishedModalOpen(true);
     },
     true,
