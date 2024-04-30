@@ -1,37 +1,67 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { ChartTokenTx } from "../../../../components/chat/VibesTokenInterface";
+import { TradeableTokenTx } from "../../../../constants/types";
+import { useCacheContext } from "../../../context/useCache";
+import { formatUnits } from "viem";
 
 export const useInterfaceChartData = ({
   chartTimeIndexes,
   txs,
 }: {
   chartTimeIndexes: Map<string, { index?: number }>;
-  txs: ChartTokenTx[];
+  txs: TradeableTokenTx[];
 }) => {
+  const { ethPriceInUsd } = useCacheContext();
   const [timeFilter, setTimeFilter] = useState<"1h" | "1d" | "all">("all");
   const [isChartPaused, setIsChartPaused] = useState(false);
+
+  /**
+   * CHART TRANSACTIONS, formatted to fit chart component
+   */
+
+  const chartTxs: ChartTokenTx[] = useMemo(() => {
+    return txs.map((tx) => {
+      return {
+        user: tx.user,
+        event: tx.eventName,
+        amount: Number(tx.amount),
+        price: tx.price,
+        priceInUsd:
+          ethPriceInUsd !== undefined
+            ? Number(
+                String(
+                  Number(ethPriceInUsd) *
+                    Number(formatUnits(BigInt(tx.price), 18))
+                )
+              )
+            : 0,
+        blockNumber: tx.blockNumber,
+        priceChangePercentage: tx.priceChangePercentage,
+      };
+    });
+  }, [txs, ethPriceInUsd]);
 
   const formattedData_1h = useMemo(
     () =>
       chartTimeIndexes.get("1h") !== undefined
-        ? txs.slice(chartTimeIndexes.get("1h")?.index as number)
-        : txs,
-    [txs, chartTimeIndexes]
+        ? chartTxs.slice(chartTimeIndexes.get("1h")?.index as number)
+        : chartTxs,
+    [chartTxs, chartTimeIndexes]
   );
 
   const formattedData_1d = useMemo(
     () =>
       chartTimeIndexes.get("1d") !== undefined
-        ? txs.slice(chartTimeIndexes.get("1d")?.index as number)
-        : txs,
-    [txs, chartTimeIndexes]
+        ? chartTxs.slice(chartTimeIndexes.get("1d")?.index as number)
+        : chartTxs,
+    [chartTxs, chartTimeIndexes]
   );
 
   const formattedData = useMemo(() => {
     if (timeFilter === "1h") return formattedData_1h;
     if (timeFilter === "1d") return formattedData_1d;
-    return txs;
-  }, [txs, timeFilter, formattedData_1h, formattedData_1d]);
+    return chartTxs;
+  }, [chartTxs, timeFilter, formattedData_1h, formattedData_1d]);
 
   const [pausedDataForAllTime, setPausedDataForAllTime] = useState<
     ChartTokenTx[]
@@ -41,11 +71,11 @@ export const useInterfaceChartData = ({
 
   useEffect(() => {
     if (!isChartPaused) {
-      setPausedDataForAllTime(txs);
+      setPausedDataForAllTime(chartTxs);
     } else {
       setPausedDataForAllTime((prev) => prependStartMarker(prev));
     }
-  }, [isChartPaused, txs]);
+  }, [isChartPaused, chartTxs]);
 
   useEffect(() => {
     if (!isChartPaused) {
@@ -78,6 +108,7 @@ export const useInterfaceChartData = ({
     pausedData_1h,
     pausedData_1d,
     timeFilter,
+    chartTxs,
     handleTimeFilter,
     handleIsChartPaused,
   };

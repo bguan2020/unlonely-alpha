@@ -336,6 +336,7 @@ export type GetSubscriptionsByChannelIdInput = {
 export type GetTempTokensInput = {
   chainId?: InputMaybe<Scalars["Int"]>;
   channelId?: InputMaybe<Scalars["Int"]>;
+  factoryAddress?: InputMaybe<Scalars["String"]>;
   fulfillAllNotAnyConditions: Scalars["Boolean"];
   hasHitTotalSupplyThreshold?: InputMaybe<Scalars["Boolean"]>;
   isAlwaysTradeable?: InputMaybe<Scalars["Boolean"]>;

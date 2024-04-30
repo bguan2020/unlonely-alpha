@@ -481,7 +481,9 @@ const LoggedInOnboard = () => {
                       placeholder={"brian"}
                       variant={isSlugAvailable ? "glow" : "redGlow"}
                       onChange={(e) =>
-                        setNewSlug(alphanumericInput(e.target.value))
+                        setNewSlug(
+                          alphanumericInput(e.target.value).toLowerCase()
+                        )
                       }
                       value={newSlug}
                     />

@@ -5,10 +5,11 @@ import { useUser } from "../../../context/useUser";
 
 // pure temp token function hook
 export const useTempTokenTimerState = (
-  tokenSymbol: string,
   tokenEndTimestamp: bigint | undefined,
   callbackOnExpiration: () => void,
-  disableChatbot: boolean
+  disableChatbot: boolean,
+  fiveMinuteWarningMessage: string,
+  expirationMessage: string
 ) => {
   const { userAddress, user } = useUser();
   const { channel, chat } = useChannelContext();
@@ -64,7 +65,7 @@ export const useTempTokenTimerState = (
       !disableChatbot
     ) {
       // if the duration left is 5 minutes, send a chatbot message to notify everyone that the token is about to expire
-      const title = `The $${tokenSymbol} token will expire in 5 minutes!`;
+      const title = fiveMinuteWarningMessage;
       addToChatbotForTempToken({
         username: user?.username ?? "",
         address: userAddress ?? "",
@@ -75,7 +76,7 @@ export const useTempTokenTimerState = (
     }
     if (durationLeftForTempToken === undefined) {
       if (isChannelOwner && !disableChatbot) {
-        const title = `The $${tokenSymbol} token expired!`;
+        const title = expirationMessage;
         addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",

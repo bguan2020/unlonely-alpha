@@ -48,6 +48,7 @@ export const typeDef = gql`
     onlyActiveTokens: Boolean
     hasHitTotalSupplyThreshold: Boolean
     isAlwaysTradeable: Boolean
+    factoryAddress: String
     fulfillAllNotAnyConditions: Boolean!
   }
 

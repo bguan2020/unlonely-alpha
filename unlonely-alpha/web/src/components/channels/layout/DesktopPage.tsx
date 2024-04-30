@@ -1,27 +1,12 @@
-import { ApolloError, useLazyQuery } from "@apollo/client";
+import { ApolloError } from "@apollo/client";
 import { Flex, Button, Stack, Text, useToast } from "@chakra-ui/react";
 import Link from "next/link";
-import { useState, useEffect, useMemo } from "react";
-import { Log, isAddressEqual } from "viem";
-import { useContractEvent } from "wagmi";
-import { Contract } from "../../../constants";
-import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../../constants/queries";
-import {
-  ChannelStaticQuery,
-  GetLivepeerStreamDataQuery,
-} from "../../../generated/graphql";
+import { useEffect } from "react";
+import { ChannelStaticQuery } from "../../../generated/graphql";
 import { useChat } from "../../../hooks/chat/useChat";
 import { useChannelContext } from "../../../hooks/context/useChannel";
-import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import { useUser } from "../../../hooks/context/useUser";
-import {
-  useGenerateKey,
-  useSupply,
-  useGetHolderBalance,
-} from "../../../hooks/contracts/useTournament";
 import { streamerTourSteps } from "../../../pages/_app";
-import { getContractFromNetwork } from "../../../utils/contract";
-import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import ChatComponent from "../../chat/ChatComponent";
 import VibesTokenInterface from "../../chat/VibesTokenInterface";
 import { WavyText } from "../../general/WavyText";
@@ -32,12 +17,12 @@ import ChannelDesc from "../ChannelDesc";
 import ChannelStreamerPerspective from "./ChannelStreamerPerspective";
 import ChannelViewerPerspective from "./ChannelViewerPerspective";
 import Trade from "../bet/Trade";
-import { PlaybackInfo } from "livepeer/dist/models/components";
-import { Livepeer } from "livepeer";
 import { ChannelWideModals } from "../ChannelWideModals";
 import copy from "copy-to-clipboard";
 import trailString from "../../../utils/trailString";
-import { formatApolloError } from "./DesktopChannelPageSimplified";
+import { useVipBadgeUi } from "../../../hooks/internal/useVipBadgeUi";
+import { useLivepeerStreamData } from "../../../hooks/internal/useLivepeerStreamData";
+import { formatApolloError } from "../../../utils/errorFormatting";
 
 export const DesktopPage = ({
   channelSSR,
@@ -48,17 +33,14 @@ export const DesktopPage = ({
   channelSSRDataLoading: boolean;
   channelSSRDataError?: ApolloError;
 }) => {
-  const { channel, leaderboard, ui } = useChannelContext();
+  const { walletIsConnected } = useUser();
+  const { channel, ui } = useChannelContext();
   const chat = useChat();
-  const { network } = useNetworkContext();
-  const { localNetwork } = network;
   const {
-    channelQueryData,
     loading: channelDataLoading,
     error: channelDataError,
-    isOwner,
-    handleTotalBadges,
     handleChannelStaticData,
+    isOwner,
   } = channel;
   const {
     welcomeStreamerModal,
@@ -67,138 +49,13 @@ export const DesktopPage = ({
     handleIsTourOpen,
     handleSetTourSteps,
   } = ui;
-  const { handleIsVip } = leaderboard;
   const toast = useToast();
-
-  const [livepeerData, setLivepeerData] =
-    useState<GetLivepeerStreamDataQuery["getLivepeerStreamData"]>();
-  const { userAddress, walletIsConnected } = useUser();
-
-  const livepeer = new Livepeer({
-    apiKey: String(process.env.NEXT_PUBLIC_STUDIO_API_KEY),
-  });
-
-  const tournamentContract = getContractFromNetwork(
-    Contract.TOURNAMENT,
-    localNetwork
-  );
-
-  const [getLivepeerStreamData] = useLazyQuery<GetLivepeerStreamDataQuery>(
-    GET_LIVEPEER_STREAM_DATA_QUERY,
-    {
-      fetchPolicy: "network-only",
-    }
-  );
-
-  const livepeerPlaybackId = useMemo(
-    () =>
-      channelQueryData?.livepeerPlaybackId == null
-        ? undefined
-        : channelQueryData?.livepeerPlaybackId,
-    [channelQueryData]
-  );
-
-  const [playbackInfo, setPlaybackInfo] = useState<PlaybackInfo | undefined>(
-    undefined
-  );
-
-  useEffect(() => {
-    const init = async () => {
-      if (livepeerPlaybackId) {
-        const res = await livepeer.playback.get(livepeerPlaybackId);
-        const playbackInfo = res.playbackInfo;
-        setPlaybackInfo(playbackInfo);
-      }
-    };
-    init();
-  }, [livepeerPlaybackId]);
-
-  useEffect(() => {
-    const init = async () => {
-      if (channelQueryData?.livepeerStreamId) {
-        const res = await getLivepeerStreamData({
-          variables: {
-            data: { streamId: channelQueryData?.livepeerStreamId },
-          },
-        });
-        setLivepeerData(res.data?.getLivepeerStreamData);
-      }
-    };
-    init();
-  }, [channelQueryData?.livepeerStreamId]);
+  const { livepeerData, playbackInfo } = useLivepeerStreamData();
+  useVipBadgeUi();
 
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
   }, [channelSSR]);
-
-  const { key: generatedKey } = useGenerateKey(
-    channelQueryData?.owner?.address as `0x${string}`,
-    0,
-    tournamentContract
-  );
-
-  const { vipBadgeSupply, setVipBadgeSupply } = useSupply(
-    generatedKey,
-    tournamentContract
-  );
-
-  const { vipBadgeBalance, setVipBadgeBalance } = useGetHolderBalance(
-    channelQueryData?.owner?.address as `0x${string}`,
-    0,
-    userAddress as `0x${string}`,
-    tournamentContract
-  );
-
-  const handleUpdate = (tradeEvents: Log[]) => {
-    const sortedEvents = tradeEvents.filter(
-      (event: any) => (event?.args.trade.eventByte as string) === generatedKey
-    );
-    if (sortedEvents.length === 0) return;
-    let newBalanceAddition = 0;
-    for (let i = 0; i < sortedEvents.length; i++) {
-      const tradeEvent: any = sortedEvents[i];
-      const trader = tradeEvent?.args.trade.trader as `0x${string}`;
-      if (userAddress && isAddressEqual(trader, userAddress as `0x${string}`)) {
-        newBalanceAddition +=
-          ((tradeEvent?.args.trade.isBuy as boolean) ? 1 : -1) *
-          Number(tradeEvent?.args.trade.badgeAmount as bigint);
-      }
-    }
-    setVipBadgeSupply(
-      (sortedEvents[sortedEvents.length - 1] as any).args.trade.supply as bigint
-    );
-    setVipBadgeBalance((prev) => String(Number(prev) + newBalanceAddition));
-  };
-
-  const [incomingTrades, setIncomingTrades] = useState<Log[]>([]);
-
-  useContractEvent({
-    address: tournamentContract.address,
-    abi: tournamentContract.abi,
-    eventName: "Trade",
-    listener(logs) {
-      const init = async () => {
-        setIncomingTrades(logs);
-      };
-      init();
-    },
-  });
-
-  useEffect(() => {
-    if (incomingTrades) handleUpdate(incomingTrades);
-  }, [incomingTrades]);
-
-  useEffect(() => {
-    if (Number(vipBadgeBalance) > 0) {
-      handleIsVip(true);
-    } else {
-      handleIsVip(false);
-    }
-  }, [vipBadgeBalance]);
-
-  useEffect(() => {
-    handleTotalBadges(truncateValue(Number(vipBadgeSupply), 0));
-  }, [vipBadgeSupply]);
 
   const handleCopy = () => {
     toast({

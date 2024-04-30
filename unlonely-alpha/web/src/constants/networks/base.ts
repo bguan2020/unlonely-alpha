@@ -78,7 +78,8 @@ export const Base: Network = {
         abi: VibesTokenV1,
       },
       [Contract.TEMP_TOKEN_FACTORY_V1]: {
-        address: "0x0C397be7ea5268E4745Eed546880016E5B2BBAB0",
+        address: "0x182a969A936EF9689A5b1a7E6bd008D52eBD4FBE", // allows for the versus token management, loser token transfer, and minting winner token
+        // address: "0x0C397be7ea5268E4745Eed546880016E5B2BBAB0", // past contract (removal of global variable totalSupplyThreshold)
         // address: "0x2307DE4C285b7Cc3981432CF67FFBFB0843ac1Bc", // past contract
         abi: TempTokenFactoryV1,
       },

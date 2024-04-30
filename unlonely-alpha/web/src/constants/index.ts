@@ -111,4 +111,6 @@ export const CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_SIMPLIFIED = [
   "191",
   "525",
   "554",
+  "127",
+  "496",
 ];

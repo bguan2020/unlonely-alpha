@@ -22,14 +22,15 @@ export const TempTokenDisclaimerModal = ({
     handleCanPlayToken,
   } = tempToken;
   const { durationLeftForTempToken } = useTempTokenTimerState(
-    currentActiveTokenSymbol,
     currentActiveTokenEndTimestamp,
     () => {
       handleCanPlayToken(false);
       handleIsGameFailed(true);
       handleIsFailedGameModalOpen(true);
     },
-    true
+    true,
+    `The $${currentActiveTokenSymbol} token will expire in 5 minutes!`,
+    `The $${currentActiveTokenSymbol} token has expired!`
   );
 
   return (

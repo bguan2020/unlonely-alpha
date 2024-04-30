@@ -115,8 +115,8 @@ module.exports = {
     base: {
       url: "https://base-mainnet.g.alchemy.com/v2/aR93M6MdEC4lgh4VjPXLaMnfBveve1fC",
       accounts: [
-        "deb65044913e5f8f24e1407c4e4abea0873e07bcdeabab477d931e9e4825cdd2",
-        // "a56ca0f8d1737207afa59328b3d5a282806434d08f35f2e7f7b41084c0ad3704"
+        // "deb65044913e5f8f24e1407c4e4abea0873e07bcdeabab477d931e9e4825cdd2",
+        "a56ca0f8d1737207afa59328b3d5a282806434d08f35f2e7f7b41084c0ad3704" // todo: change to other account during production
       ],
       verify: {
         etherscan: {

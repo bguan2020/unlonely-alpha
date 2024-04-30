@@ -2,6 +2,7 @@
 pragma solidity ^0.8.2;
 
 import "./TempTokenV1.sol"; // Make sure this import path matches where your token contract is located.
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TempTokenFactoryV1 is Ownable {
 
@@ -50,7 +51,7 @@ contract TempTokenFactoryV1 is Ownable {
         * @dev defaultProtocolFeeDestination is the default protocol fee destination address.
         * @dev isPaused is a boolean to pause the token creation function.
         * @dev maxDuration is the max duration in seconds for the lifespan of the TempToken.
-        * @dev totalSupplyThreshold is the total supply needed for the token to convert from a TempToken into a normal, permanent token. 
+        * @dev totalSupplyThreshold is the total supply needed for the token to increase its lifespan by 24 hours. 
                This total supply will be adjusted by us depending on various factors.
                The goal of each TempToken is to have hit this threshold by the time the duration has expired.
                IT'S A GAME.
@@ -62,6 +63,7 @@ contract TempTokenFactoryV1 is Ownable {
     uint256 public maxDuration;
 
     event TempTokenCreated(address indexed tokenAddress, address indexed owner, string name, string symbol, uint256 endTimestamp, address protocolFeeDestination, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 totalSupplyThreshold, uint256 creationBlockNumber);
+    event MultipleTempTokensCreated(address[] tokenAddresses, address indexed owner, string[] names, string[] symbols, uint256 endTimestamp, address protocolFeeDestination, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 totalSupplyThreshold, uint256 creationBlockNumber);
     event ProtocolFeeDestinationSet(address indexed protocolFeeDestination);
     event ProtocolFeePercentSet(uint256 feePercent);
     event StreamerFeePercentSet(uint256 feePercent);
@@ -70,6 +72,9 @@ contract TempTokenFactoryV1 is Ownable {
     event TotalSupplyThresholdSetForTokens(uint256 totalSupplyThreshold, address[] tokenAddresses);
     event EndTimestampIncreasedForTokens(uint256 additionalDuration, address[] tokenAddresses);
     event AlwaysTradeableSetForTokens(address[] tokenAddresses);
+    event SetWinningTokenTradeableAndTransferredLiquidity(address winnerTokenAddress, address loserTokenAddress, uint256 transferredLiquidity);
+    event FactoryMintedWinnerTokens(address winnerTokenAddress, uint256 amount);
+    event EtherReceived(address indexed sender, uint256 amount);
 
     modifier onlyOwnerOrAdmin() {
         require(msg.sender == owner() || admins[msg.sender] == true, "Caller is neither owner nor admin");
@@ -116,6 +121,40 @@ contract TempTokenFactoryV1 is Ownable {
         newToken.transferOwnership(msg.sender); // Transfer ownership of the new token to the caller of this function.
         emit TempTokenCreated(address(newToken), msg.sender, name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, creationBlockNumber);
         return address(newToken);
+    }
+
+/**
+        * @dev createMultipleTempTokens is a function to create multiple TempTokens.
+        * @dev names is the array of names for the tokens
+        * @dev symbols is the array of symbols for the tokens
+        * @dev duration is the duration in seconds for the lifespan of the TempTokens.
+        * @dev totalSupplyThreshold is the total supply needed for the token to convert from a TempToken into a normal, permanent token. Enter 0 if you don't want to set a threshold.
+        * @dev The function returns the addresses of the new TempTokens.
+ */
+    function createMultipleTempTokens(
+        string[] memory names,
+        string[] memory symbols,
+        uint256 duration,
+        uint256 totalSupplyThreshold
+    ) public returns (address[] memory) {
+        require(!isPaused, "Factory is paused");
+        require(duration <= maxDuration, "Duration is longer than max duration");
+        require(duration > 0, "Duration cannot be 0");
+        require(names.length > 1, "Names array must have more than 1 element");
+        require(names.length == symbols.length, "Names and symbols arrays are not the same length");
+        address[] memory tokenAddresses = new address[](names.length);
+        uint256 endTimestamp = block.timestamp + duration;
+        uint256 creationBlockNumber = block.number;
+        for (uint256 i = 0; i < names.length; i++) {
+            TempTokenV1 newToken = new TempTokenV1(names[i], symbols[i], endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, address(this), creationBlockNumber);
+            uint256 index = ++numDeployedTokens;
+            deployedTokens[index] = TokenInfo(address(newToken), msg.sender, names[i], symbols[i], endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, creationBlockNumber);
+            deployedTokenIndices[address(newToken)] = index;
+            newToken.transferOwnership(msg.sender);
+            tokenAddresses[i] = address(newToken);
+        }
+        emit MultipleTempTokensCreated(tokenAddresses, msg.sender, names, symbols, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, creationBlockNumber);
+        return tokenAddresses;
     }
 
     /**
@@ -189,6 +228,43 @@ contract TempTokenFactoryV1 is Ownable {
         emit AlwaysTradeableSetForTokens(_tokenAddresses);
     }
 
+    /**
+      * VERSUS mode only (these functions are called on tokens that compete against each other instead of trying to reach a threshold)
+      * @dev setWinningTokenTradeableAndTransferLiquidity is a function to set the winning token as tradeable and transfer all liquidity 
+      * from the losing token to the factory.
+      */
+    function setWinningTokenTradeableAndTransferLiquidity(address _winnerTokenAddress, address _loserTokenAddress) public onlyOwnerOrAdmin {
+        require(_winnerTokenAddress != address(0), "Winner token address cannot be zero.");
+        require(_loserTokenAddress != address(0), "Loser token address cannot be zero.");
+        TempTokenV1 winnerToken = TempTokenV1(_winnerTokenAddress);
+        TempTokenV1 loserToken = TempTokenV1(_loserTokenAddress);
+        winnerToken.setAlwaysTradeable();
+        uint256 transferredLiquidity = loserToken.transferLiquidityToFactory();
+        emit SetWinningTokenTradeableAndTransferredLiquidity(_winnerTokenAddress, _loserTokenAddress, transferredLiquidity);
+    }
+    
+    /**
+        * VERSUS mode only (these functions are called on tokens that compete against each other instead of trying to reach a threshold)
+        * @dev mintWinnerTokens is a function that mints the winner tokens. 
+        * This factory does not have a burn function to bring the price down, 
+        * this ensures the token's supply has a fixed offset.
+     */
+    function mintWinnerTokens(address _winnerTokenAddress, uint256 _amount) public onlyOwnerOrAdmin {
+        require(_winnerTokenAddress != address(0), "Winner token address cannot be zero.");
+        TempTokenV1 winnerToken = TempTokenV1(_winnerTokenAddress);
+        require(winnerToken.isAlwaysTradeable(), "Winner token is not set to always tradeable");
+
+        uint256 requiredEthCost = winnerToken.mintCostAfterFees(_amount);
+        if (requiredEthCost >= address(this).balance) {
+            revert("Factory does not have enough ETH to mint winner tokens");
+        }
+
+        // Call the mint function on the winnerToken contract and send Ether with the call
+        (bool success, ) = address(winnerToken).call{value: requiredEthCost}(abi.encodeWithSignature("mint(uint256)", _amount));
+        require(success, "Minting failed");
+        emit FactoryMintedWinnerTokens(_winnerTokenAddress, _amount);
+    }
+
     function setMaxDuration(uint256 _maxDuration) public onlyOwnerOrAdmin {
         require(_maxDuration > 0, "Max duration cannot be 0");
         maxDuration = _maxDuration;
@@ -204,4 +280,19 @@ contract TempTokenFactoryV1 is Ownable {
         require(_address != address(0), "Admin cannot be zero");
         admins[_address] = _onlyAdmin;
     }
+
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
+    }
+
+    // Function to receive Ether. The function is called when msg.data is empty
+    receive() external payable {
+        emit EtherReceived(msg.sender, msg.value);
+    }
+
+    // You can also add a fallback function if needed
+    fallback() external payable {
+        emit EtherReceived(msg.sender, msg.value);
+    }
+
 }

@@ -258,7 +258,7 @@ export const useReadTempTokenExternalEventListeners = ({
       "RemainingFundsToWinnerAfterTokenExpiration listener for active token",
       logs,
       tempTokenContract.address,
-      filteredLogsByCurrentTokenAddress,
+      filteredLogsByCurrentTokenAddress
     );
     if (filteredLogsByCurrentTokenAddress.length > 0)
       onSendRemainingFundsToWinnerCallback(
