@@ -9,7 +9,7 @@ export const useVersusTempTokenTimerState = (
   callbackOnExpiration: () => void,
   disableChatbot: boolean,
   fiveMinuteWarningMessage: string,
-  expirationMessage: string,
+  expirationMessage: string
 ) => {
   const { userAddress, user } = useUser();
   const { channel, chat } = useChannelContext();
@@ -40,7 +40,7 @@ export const useVersusTempTokenTimerState = (
       const _duration = Number(tokenEndTimestamp) - now;
 
       // if _duration at any point was positive, then this hook has permission to call the expiration callback when the token expires
-       if(_duration > 0) setCanCallExpiration(true);
+      if (_duration > 0) setCanCallExpiration(true);
 
       if (_duration < 0) {
         // If the duration is negative, the countdown is over and the game can no longer be played

@@ -20,6 +20,7 @@ import { VersusTokenCreationModal } from "../../versus/VersusTokenCreationModal"
 import { VersusTokenDisclaimerModal } from "../../versus/VersusTokenDisclaimerModal";
 import { VersusTokenExchange } from "../../versus/VersusTokenExchange";
 import { isAddressEqual } from "viem";
+import { VersusTokenGameFinishedModal } from "../../versus/VersusTokenGameFinishedModal";
 
 export const VersusTempTokensInterface = ({
   customHeight,
@@ -43,7 +44,7 @@ export const VersusTempTokensInterface = ({
     isGameFinished,
     focusedTokenToTrade,
     ownerMustPermamint,
-    ownerMustPickWinner,
+    ownerMustTransferFunds,
     isGameFinishedModalOpen,
     tokenA,
     tokenB,
@@ -52,7 +53,7 @@ export const VersusTempTokensInterface = ({
     handleIsGameFinished,
     handleIsGameFinishedModalOpen,
     handleOwnerMustPermamint,
-    handleOwnerMustPickWinner,
+    handleOwnerMustTransferFunds,
     handleIsPickWinnerModalOpen,
   } = gameState;
   const windowSize = useWindowSize();
@@ -92,6 +93,11 @@ export const VersusTempTokensInterface = ({
         <VersusTokenDisclaimerModal
           isOpen={versusTempTokenDisclaimerModalOpen}
           handleClose={() => setVersusTempTokenDisclaimerModalOpen(false)}
+        />
+        <VersusTokenGameFinishedModal
+          title={"Game Finished"}
+          isOpen={isGameFinishedModalOpen}
+          handleClose={() => handleIsGameFinishedModalOpen(false)}
         />
         <Flex justifyContent={"space-between"} alignItems={"center"}>
           {isFullChart && <VersusTempTokenTimerView disableChatbot={true} />}
@@ -195,7 +201,7 @@ export const VersusTempTokensInterface = ({
               <>
                 {!isGameFinished &&
                   !ownerMustPermamint &&
-                  !ownerMustPickWinner && (
+                  !ownerMustTransferFunds && (
                     <Button
                       onClick={() =>
                         setVersusTempTokenDisclaimerModalOpen(true)
@@ -205,20 +211,22 @@ export const VersusTempTokensInterface = ({
                       Play
                     </Button>
                   )}
-                {isGameFinished && !ownerMustPermamint && !ownerMustPickWinner && (
-                  <Button
-                    onClick={() => setCreateTokensModalOpen(true)}
-                    h="30%"
-                  >
-                    Create tokens
-                  </Button>
-                )}
-                {isGameFinished && ownerMustPickWinner && (
+                {isGameFinished &&
+                  !ownerMustPermamint &&
+                  !ownerMustTransferFunds && (
+                    <Button
+                      onClick={() => setCreateTokensModalOpen(true)}
+                      h="30%"
+                    >
+                      Create tokens
+                    </Button>
+                  )}
+                {isGameFinished && ownerMustTransferFunds && (
                   <Button
                     onClick={() => handleIsPickWinnerModalOpen(true)}
                     h="30%"
                   >
-                    Pick Winner
+                    Send Funds
                   </Button>
                 )}
                 {isGameFinished && ownerMustPermamint && (

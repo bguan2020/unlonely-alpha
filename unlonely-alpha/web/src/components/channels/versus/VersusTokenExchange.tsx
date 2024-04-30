@@ -1,7 +1,4 @@
 import { useMemo } from "react";
-import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempToken";
-import { formatUnits, isAddressEqual } from "viem";
-import { useTradeTempTokenState } from "../../../hooks/internal/temp-token/write/useTradeTempTokenState";
 import {
   Flex,
   Input,
@@ -13,6 +10,10 @@ import {
   Text,
   PopoverArrow,
 } from "@chakra-ui/react";
+import { formatUnits, isAddressEqual } from "viem";
+
+import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempToken";
+import { useTradeTempTokenState } from "../../../hooks/internal/temp-token/write/useTradeTempTokenState";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { formatIncompleteNumber } from "../../../utils/validation/input";
 
@@ -82,12 +83,7 @@ export const VersusTokenExchange = () => {
   });
 
   return (
-    <Flex
-      direction="column"
-      justifyContent={"center"}
-      gap="10px"
-      opacity={focusedTokenData.tokenAddress === "" ? 0 : 1}
-    >
+    <Flex direction="column" justifyContent={"center"} gap="10px">
       <Flex position="relative" gap="5px" alignItems={"center"}>
         <ChakraTooltip
           label={errorMessage}
@@ -156,7 +152,8 @@ export const VersusTokenExchange = () => {
           isDisabled={
             !mint ||
             mintCostAfterFeesLoading ||
-            Number(formatIncompleteNumber(amount)) <= 0
+            Number(formatIncompleteNumber(amount)) <= 0 ||
+            focusedTokenData.tokenAddress === ""
           }
           onClick={mint}
           p={"0px"}
@@ -192,7 +189,8 @@ export const VersusTokenExchange = () => {
           isDisabled={
             !burn ||
             burnProceedsAfterFeesLoading ||
-            Number(formatIncompleteNumber(amount)) <= 0
+            Number(formatIncompleteNumber(amount)) <= 0 ||
+            focusedTokenData.tokenAddress === ""
           }
           onClick={burn}
           p={undefined}

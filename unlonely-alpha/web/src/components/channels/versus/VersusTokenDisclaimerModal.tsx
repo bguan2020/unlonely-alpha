@@ -17,7 +17,7 @@ export const VersusTokenDisclaimerModal = ({
     tokenB,
     handleCanPlayToken,
     handleIsGameFinished,
-    handleOwnerMustPickWinner,
+    handleOwnerMustTransferFunds,
     handleIsGameFinishedModalOpen,
   } = gameState;
   const { endTimestamp: endTimestampA } = tokenA;
@@ -25,7 +25,7 @@ export const VersusTokenDisclaimerModal = ({
   const { durationLeftForTempToken } = useVersusTempTokenTimerState(
     endTimestampA || endTimestampB,
     () => {
-      handleOwnerMustPickWinner(true);
+      handleOwnerMustTransferFunds(true);
       handleCanPlayToken(false);
       handleIsGameFinished(true);
       handleIsGameFinishedModalOpen(true);

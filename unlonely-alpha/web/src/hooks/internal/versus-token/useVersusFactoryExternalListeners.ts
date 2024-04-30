@@ -25,37 +25,35 @@ const versusTokenDataInitial: VersusTokenDataType = {
   endTimestamp: undefined,
 };
 
-export const useVersusFactoryExternalListeners = ({ 
-  tokenA, 
-  tokenB, 
-  handleTokenA, 
-  handleTokenB, 
-  handleIsGameFinished, 
-  resetTempTokenTxs, 
-  handleOwnerMustPickWinner, 
-  handleOwnerMustPermamint
-} : {
-    tokenA: VersusTokenDataType;
-    tokenB: VersusTokenDataType;
-    handleTokenA: (token: VersusTokenDataType) => void;
-    handleTokenB: (token: VersusTokenDataType) => void;
-    handleIsGameFinished: (isGameFinished: boolean) => void;
-    handleOwnerMustPickWinner: (value: boolean) => void;
-    handleOwnerMustPermamint: (value: boolean) => void;
-    resetTempTokenTxs: () => void;
+export const useVersusFactoryExternalListeners = ({
+  tokenA,
+  tokenB,
+  handleTokenA,
+  handleTokenB,
+  handleIsGameFinished,
+  resetTempTokenTxs,
+  handleOwnerMustTransferFunds,
+  handleOwnerMustPermamint,
+}: {
+  tokenA: VersusTokenDataType;
+  tokenB: VersusTokenDataType;
+  handleTokenA: (token: VersusTokenDataType) => void;
+  handleTokenB: (token: VersusTokenDataType) => void;
+  handleIsGameFinished: (isGameFinished: boolean) => void;
+  handleOwnerMustTransferFunds: (value: boolean) => void;
+  handleOwnerMustPermamint: (value: boolean) => void;
+  resetTempTokenTxs: () => void;
 }) => {
+  const { channel } = useChannelContext();
+  const { handleRealTimeChannelDetails, channelQueryData, isOwner } = channel;
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
+  const { postTempToken } = usePostTempToken({});
 
-    const { channel } = useChannelContext();
-    const { handleRealTimeChannelDetails, channelQueryData, isOwner } = channel;
-    const { network } = useNetworkContext();
-    const { localNetwork } = network;
-    const { postTempToken } = usePostTempToken({});
-
-    const factoryContract = getContractFromNetwork(
-      Contract.TEMP_TOKEN_FACTORY_V1,
-      localNetwork
-    );
-  
+  const factoryContract = getContractFromNetwork(
+    Contract.TEMP_TOKEN_FACTORY_V1,
+    localNetwork
+  );
 
   /**
    * listen for incoming multiple temp tokens created events from factory
@@ -120,21 +118,20 @@ export const useVersusFactoryExternalListeners = ({
 
     if (isOwner) {
       try {
-          await postTempToken({
-            tokenAddress: newTokenAddresses[0],
-            symbol: newTokenSymbols[0],
-            streamerFeePercentage: latestLog?.args.streamerFeePercent as bigint,
-            protocolFeePercentage: latestLog?.args.protocolFeePercent as bigint,
-            ownerAddress: latestLog?.args.owner as `0x${string}`,
-            name: newTokenNames[0],
-            endUnixTimestamp: newEndTimestamp,
-            channelId: Number(channelQueryData?.id),
-            chainId: localNetwork.config.chainId as number,
-            highestTotalSupply: BigInt(0),
-            creationBlockNumber: newTokenCreationBlockNumber,
-            factoryAddress: factoryContract.address as `0x${string}`,
-          });
-
+        await postTempToken({
+          tokenAddress: newTokenAddresses[0],
+          symbol: newTokenSymbols[0],
+          streamerFeePercentage: latestLog?.args.streamerFeePercent as bigint,
+          protocolFeePercentage: latestLog?.args.protocolFeePercent as bigint,
+          ownerAddress: latestLog?.args.owner as `0x${string}`,
+          name: newTokenNames[0],
+          endUnixTimestamp: newEndTimestamp,
+          channelId: Number(channelQueryData?.id),
+          chainId: localNetwork.config.chainId as number,
+          highestTotalSupply: BigInt(0),
+          creationBlockNumber: newTokenCreationBlockNumber,
+          factoryAddress: factoryContract.address as `0x${string}`,
+        });
       } catch (e) {
         console.log(
           "detected TempTokenCreated event but cannot call posttemptoken on first token, may have been created already",
@@ -277,12 +274,10 @@ export const useVersusFactoryExternalListeners = ({
         tokenB.address as `0x${string}`
       )
     ) {
-      handleTokenB(
-        {
-          ...tokenB,
-          isAlwaysTradeable: true,
-        }
-      );
+      handleTokenB({
+        ...tokenB,
+        isAlwaysTradeable: true,
+      });
     }
   };
 
@@ -357,5 +352,4 @@ export const useVersusFactoryExternalListeners = ({
       handleTokenA(versusTokenDataInitial);
     }
   };
-
-}
+};

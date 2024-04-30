@@ -14,8 +14,8 @@ export type UseReadVersusTempTokenGlobalStateType = {
   handleIsGameFinished: (value: boolean) => void;
   isGameFinishedModalOpen: boolean;
   handleIsGameFinishedModalOpen: (value: boolean) => void;
-  ownerMustPickWinner: boolean;
-  handleOwnerMustPickWinner: (value: boolean) => void;
+  ownerMustTransferFunds: boolean;
+  handleOwnerMustTransferFunds: (value: boolean) => void;
   ownerMustPermamint: boolean;
   handleOwnerMustPermamint: (value: boolean) => void;
   tokenA: VersusTokenDataType;
@@ -24,8 +24,7 @@ export type UseReadVersusTempTokenGlobalStateType = {
   setTokenB: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
   isPickWinnerModalOpen: boolean;
   handleIsPickWinnerModalOpen: (value: boolean) => void;
-}
-
+};
 
 const versusTokenDataInitial: VersusTokenDataType = {
   balance: BigInt(0),
@@ -43,104 +42,107 @@ const versusTokenDataInitial: VersusTokenDataType = {
   endTimestamp: undefined,
 };
 
-export const useReadVersusTempTokenGlobalStateInitial: UseReadVersusTempTokenGlobalStateType = {
-  canPlayToken: false,
-  handleCanPlayToken: () => undefined,
-  focusedTokenToTrade: undefined,
-  handleFocusedTokenToTrade: () => undefined,
-  winningToken: versusTokenDataInitial,
-  handleWinningToken: () => undefined,
-  isGameFinished: true,
-  handleIsGameFinished: () => undefined,
-  isGameFinishedModalOpen: false,
-  handleIsGameFinishedModalOpen: () => undefined,
-  ownerMustPickWinner: false,
-  handleOwnerMustPickWinner: () => undefined,
-  ownerMustPermamint: false,
-  handleOwnerMustPermamint: () => undefined,
-  tokenA: versusTokenDataInitial,
-  setTokenA: () => undefined,
-  tokenB: versusTokenDataInitial,
-  setTokenB: () => undefined,
-  isPickWinnerModalOpen: false,
-  handleIsPickWinnerModalOpen: () => undefined,
-}
+export const useReadVersusTempTokenGlobalStateInitial: UseReadVersusTempTokenGlobalStateType =
+  {
+    canPlayToken: false,
+    handleCanPlayToken: () => undefined,
+    focusedTokenToTrade: undefined,
+    handleFocusedTokenToTrade: () => undefined,
+    winningToken: versusTokenDataInitial,
+    handleWinningToken: () => undefined,
+    isGameFinished: true,
+    handleIsGameFinished: () => undefined,
+    isGameFinishedModalOpen: false,
+    handleIsGameFinishedModalOpen: () => undefined,
+    ownerMustTransferFunds: false,
+    handleOwnerMustTransferFunds: () => undefined,
+    ownerMustPermamint: false,
+    handleOwnerMustPermamint: () => undefined,
+    tokenA: versusTokenDataInitial,
+    setTokenA: () => undefined,
+    tokenB: versusTokenDataInitial,
+    setTokenB: () => undefined,
+    isPickWinnerModalOpen: false,
+    handleIsPickWinnerModalOpen: () => undefined,
+  };
 
-export const useReadVersusTempTokenGlobalState = (): UseReadVersusTempTokenGlobalStateType => {
+export const useReadVersusTempTokenGlobalState =
+  (): UseReadVersusTempTokenGlobalStateType => {
     const [canPlayToken, setCanPlayToken] = useState(false);
     const [focusedTokenToTrade, setFocusedTokenToTrade] = useState<
-    ContractData | undefined
-  >(undefined);
+      ContractData | undefined
+    >(undefined);
     const [winningToken, setWinningToken] = useState<VersusTokenDataType>(
-        versusTokenDataInitial
-      );
-      const [isGameFinished, setIsGameFinished] = useState(true);
-      const [isGameFinishedModalOpen, setIsGameFinishedModalOpen] = useState(false);
-      const [isPickWinnerModalOpen, setIsPickWinnerModalOpen] = useState(false);
-      const [ownerMustPickWinner, setOwnerMustPickWinner] = useState(false);
-      const [ownerMustPermamint, setOwnerMustPermamint] = useState(false);
-      const [tokenA, setTokenA] = useState<VersusTokenDataType>(
-        versusTokenDataInitial
-      );
-      const [tokenB, setTokenB] = useState<VersusTokenDataType>(
-        versusTokenDataInitial
-      );
-    
-  const handleCanPlayToken = useCallback((value: boolean) => {
-    setCanPlayToken(value);
-  }, []);
+      versusTokenDataInitial
+    );
+    const [isGameFinished, setIsGameFinished] = useState(true);
+    const [isGameFinishedModalOpen, setIsGameFinishedModalOpen] =
+      useState(false);
+    const [isPickWinnerModalOpen, setIsPickWinnerModalOpen] = useState(false);
+    const [ownerMustTransferFunds, setOwnerMustTransferFunds] = useState(false);
+    const [ownerMustPermamint, setOwnerMustPermamint] = useState(false);
+    const [tokenA, setTokenA] = useState<VersusTokenDataType>(
+      versusTokenDataInitial
+    );
+    const [tokenB, setTokenB] = useState<VersusTokenDataType>(
+      versusTokenDataInitial
+    );
 
-  const handleFocusedTokenToTrade = useCallback(
-    (value: ContractData | undefined) => {
-      setFocusedTokenToTrade(value);
-    },
-    []
-  );
+    const handleCanPlayToken = useCallback((value: boolean) => {
+      setCanPlayToken(value);
+    }, []);
 
-  const handleIsGameFinished = useCallback((value: boolean) => {
-    setIsGameFinished(value);
-  }, []);
-  
-  const handleIsGameFinishedModalOpen = useCallback((value: boolean) => {
-    setIsGameFinishedModalOpen(value);
-  }, []);
+    const handleFocusedTokenToTrade = useCallback(
+      (value: ContractData | undefined) => {
+        setFocusedTokenToTrade(value);
+      },
+      []
+    );
 
-  const handleOwnerMustPickWinner = useCallback((value: boolean) => {
-    setOwnerMustPickWinner(value);
-  }, []);
+    const handleIsGameFinished = useCallback((value: boolean) => {
+      setIsGameFinished(value);
+    }, []);
 
-  const handleOwnerMustPermamint = useCallback((value: boolean) => {
-    setOwnerMustPermamint(value);
-  }, []);
-  
-  const handleWinningToken = useCallback((token: VersusTokenDataType) => {
-    setWinningToken(token);
-  }, []);
+    const handleIsGameFinishedModalOpen = useCallback((value: boolean) => {
+      setIsGameFinishedModalOpen(value);
+    }, []);
 
-  const handleIsPickWinnerModalOpen = useCallback((value: boolean) => {
-    setIsPickWinnerModalOpen(value);
-  }, []);
+    const handleOwnerMustTransferFunds = useCallback((value: boolean) => {
+      setOwnerMustTransferFunds(value);
+    }, []);
 
-  return {
-    canPlayToken,
-    handleCanPlayToken,
-    focusedTokenToTrade,
-    handleFocusedTokenToTrade,
-    winningToken,
-    handleWinningToken,
-    isGameFinished,
-    handleIsGameFinished,
-    isGameFinishedModalOpen,
-    handleIsGameFinishedModalOpen,
-    ownerMustPickWinner,
-    handleOwnerMustPickWinner,
-    ownerMustPermamint,
-    handleOwnerMustPermamint,
-    tokenA,
-    setTokenA,
-    tokenB,
-    setTokenB,
-    isPickWinnerModalOpen,
-    handleIsPickWinnerModalOpen
-  }
-}
+    const handleOwnerMustPermamint = useCallback((value: boolean) => {
+      setOwnerMustPermamint(value);
+    }, []);
+
+    const handleWinningToken = useCallback((token: VersusTokenDataType) => {
+      setWinningToken(token);
+    }, []);
+
+    const handleIsPickWinnerModalOpen = useCallback((value: boolean) => {
+      setIsPickWinnerModalOpen(value);
+    }, []);
+
+    return {
+      canPlayToken,
+      handleCanPlayToken,
+      focusedTokenToTrade,
+      handleFocusedTokenToTrade,
+      winningToken,
+      handleWinningToken,
+      isGameFinished,
+      handleIsGameFinished,
+      isGameFinishedModalOpen,
+      handleIsGameFinishedModalOpen,
+      ownerMustTransferFunds,
+      handleOwnerMustTransferFunds,
+      ownerMustPermamint,
+      handleOwnerMustPermamint,
+      tokenA,
+      setTokenA,
+      tokenB,
+      setTokenB,
+      isPickWinnerModalOpen,
+      handleIsPickWinnerModalOpen,
+    };
+  };

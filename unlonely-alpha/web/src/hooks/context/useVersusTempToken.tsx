@@ -5,6 +5,10 @@ import {
   useEffect,
   useMemo,
 } from "react";
+import { useRouter } from "next/router";
+import { isAddress } from "viem";
+import { usePublicClient } from "wagmi";
+
 import { ContractData } from "../../constants/types";
 import {
   UseReadTempTokenTxsType,
@@ -12,7 +16,6 @@ import {
 } from "../internal/temp-token/read/useReadTempTokenTxs";
 import { Contract, InteractionType } from "../../constants";
 import { useChannelContext } from "./useChannel";
-import { useRouter } from "next/router";
 import { useUser } from "./useUser";
 import { useVersusFactoryExternalListeners } from "../internal/versus-token/useVersusFactoryExternalListeners";
 import { useReadTempTokenListenerState } from "../internal/temp-token/read/useReadTempTokenListenerState";
@@ -24,7 +27,6 @@ import {
 import { useReadVersusTempTokenOnMount } from "../internal/versus-token/read/useReadVersusTempTokenOnMount";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useNetworkContext } from "./useNetwork";
-import { usePublicClient } from "wagmi";
 
 export type VersusTokenDataType = {
   balance: bigint;
@@ -44,10 +46,10 @@ export const useVersusTempTokenContext = () => {
 
 /**
  * streamer perspective on versus mode has 4 states: create, play, pick, and permamint
- * create = isGameFinished && !ownerMustPickWinner && !ownerMustPermamint
- * play = !isGameFinished && !ownerMustPickWinner && !ownerMustPermamint
- * pick = isGameFinished && ownerMustPickWinner && !ownerMustPermamint
- * permamint = isGameFinished && !ownerMustPickWinner && ownerMustPermamint
+ * create = isGameFinished && !ownerMustTransferFunds && !ownerMustPermamint
+ * play = !isGameFinished && !ownerMustTransferFunds && !ownerMustPermamint
+ * pick = isGameFinished && ownerMustTransferFunds && !ownerMustPermamint
+ * permamint = isGameFinished && !ownerMustTransferFunds && ownerMustPermamint
  * while viewer only has buy, and play
  */
 
@@ -277,7 +279,7 @@ export const VersusTempTokenProvider = ({
     setTokenA: globalState.setTokenA,
     setTokenB: globalState.setTokenB,
     handleWinningToken: globalState.handleWinningToken,
-    handleOwnerMustPickWinner: globalState.handleOwnerMustPickWinner,
+    handleOwnerMustTransferFunds: globalState.handleOwnerMustTransferFunds,
     handleIsGameFinished: globalState.handleIsGameFinished,
   });
 
@@ -287,7 +289,7 @@ export const VersusTempTokenProvider = ({
     handleTokenA: (token: VersusTokenDataType) => globalState.setTokenA(token),
     handleTokenB: (token: VersusTokenDataType) => globalState.setTokenB(token),
     handleIsGameFinished: globalState.handleIsGameFinished,
-    handleOwnerMustPickWinner: globalState.handleOwnerMustPickWinner,
+    handleOwnerMustTransferFunds: globalState.handleOwnerMustTransferFunds,
     handleOwnerMustPermamint: globalState.handleOwnerMustPermamint,
     resetTempTokenTxs: () => {
       readTempTokenTxs_a.resetTempTokenTxs();
@@ -296,22 +298,55 @@ export const VersusTempTokenProvider = ({
   });
 
   useEffect(() => {
-    if (!globalState.winningToken.address) return;
-    const balance = publicClient.readContract({
-      address: factoryContract.address as `0x${string}`,
-      abi: factoryContract.abi,
-      functionName: "getBalance",
-      args: [],
-    });
-    console.log("balance", balance);
-    const mintCostOfOneWinningToken = publicClient.readContract({
-      address: globalState.winningToken.contractData.address as `0x${string}`,
-      abi: globalState.winningToken.contractData.abi,
-      functionName: "mintCostAfterFees",
-      args: [BigInt(1)],
-    });
-    // if balance is greater than mintCostOfOneWinningToken, then set handleOwnerMustPermamint to true, and calculate the amount of tokens that can be minted via the lambda function
-  }, [globalState.winningToken]);
+    const calculatePermament = async () => {
+      if (
+        !globalState.winningToken.address ||
+        !isAddress(globalState.winningToken.address)
+      )
+        return;
+      // const balance = publicClient.readContract({
+      //   address: factoryContract.address as `0x${string}`,
+      //   abi: factoryContract.abi,
+      //   functionName: "getBalance",
+      //   args: [],
+      // });
+      const mintCostOfOneWinningToken = publicClient.readContract({
+        address: globalState.winningToken.contractData.address as `0x${string}`,
+        abi: globalState.winningToken.contractData.abi,
+        functionName: "mintCostAfterFees",
+        args: [BigInt(1)],
+      });
+      /**
+       * if losing token liquidity is greater than mintCostOfOneWinningToken, then set handleOwnerMustPermamint to true,
+       * and calculate the amount of tokens that can be minted via the lambda function, finally handleOwnerMustPermamint to true
+       *  */
+      // let _amountOfTokensToPermamint = BigInt(0);
+      // if (BigInt(String(balance)) > BigInt(String(mintCostOfOneWinningToken))) {
+      //   _amountOfTokensToPermamint = BigInt(1);
+      //   const lambda = new AWS.Lambda({
+      //     region: "us-west-2",
+      //     accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY,
+      //     secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
+      //   });
+
+      //   const params = {
+      //     FunctionName: "calcNumTokensToReachPrice",
+      //     Payload: JSON.stringify({
+      //       detail: {
+      //         current_token_supply: Number(
+      //           globalState.winningToken.totalSupply
+      //         ),
+      //         new_eth_price: 0,
+      //       },
+      //     }),
+      //   };
+
+      //   const calculation = await lambda.invoke(params).promise();
+      //   globalState.handleOwnerMustPermamint(true);
+      // }
+    };
+    calculatePermament();
+  }, [globalState.winningToken, globalState.tokenA, globalState.tokenB]);
 
   const value = useMemo(
     () => ({

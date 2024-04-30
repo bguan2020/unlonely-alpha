@@ -231,12 +231,7 @@ export const useCreateMultipleTempTokens = (
   } = useWrite(
     contract,
     "createMultipleTempTokens",
-    [
-      args.names,
-      args.symbols,
-      args.duration,
-      args.totalSupplyThreshold,
-    ],
+    [args.names, args.symbols, args.duration, args.totalSupplyThreshold],
     createCallbackHandler(
       "useTempTokenFactoryV1 createMultipleTempTokens",
       callbacks
@@ -249,8 +244,8 @@ export const useCreateMultipleTempTokens = (
     createMultipleTempTokensData,
     createMultipleTempTokensTxData,
     isCreateMultipleTempTokensLoading,
-  }
-}
+  };
+};
 
 export const setWinningTokenTradeableAndTransferLiquidity = (
   args: {
@@ -281,7 +276,7 @@ export const setWinningTokenTradeableAndTransferLiquidity = (
     setWinningTokenTradeableAndTransferLiquidityTxData,
     isSetWinningTokenTradeableAndTransferLiquidityLoading,
   };
-}
+};
 
 export const mintWinnerTokens = (
   args: {
@@ -300,10 +295,7 @@ export const mintWinnerTokens = (
     contract,
     "mintWinnerTokens",
     [args.winnerTokenAddress, args.amountOfTokens],
-    createCallbackHandler(
-      "useTempTokenFactoryV1 mintWinnerTokens",
-      callbacks
-    )
+    createCallbackHandler("useTempTokenFactoryV1 mintWinnerTokens", callbacks)
   );
 
   return {
@@ -312,7 +304,7 @@ export const mintWinnerTokens = (
     mintWinnerTokensTxData,
     isMintWinnerTokensLoading,
   };
-}
+};
 
 export const useSetTotalSupplyThresholdForTokens = (
   args: {

@@ -9,7 +9,7 @@ export const useTempTokenTimerState = (
   callbackOnExpiration: () => void,
   disableChatbot: boolean,
   fiveMinuteWarningMessage: string,
-  expirationMessage: string,
+  expirationMessage: string
 ) => {
   const { userAddress, user } = useUser();
   const { channel, chat } = useChannelContext();

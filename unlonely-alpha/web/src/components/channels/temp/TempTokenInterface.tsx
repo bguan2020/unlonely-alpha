@@ -882,30 +882,6 @@ export const TempTokenInterface = ({
                       </Text>
                     )}
                   </Flex>
-                  {/* <Flex direction="column">
-                    <Text fontSize={"12px"} color="#c6c3fc">
-                      Highest Price Reached
-                    </Text>
-                    {priceOfHighestTotalSupplyInUsd !== undefined ? (
-                      <>
-                        <Text color="#f3d584" fontSize="2rem">
-                          ${priceOfHighestTotalSupplyInUsd}
-                        </Text>
-                        <Text
-                          whiteSpace={"nowrap"}
-                          opacity="0.3"
-                          fontSize="14px"
-                        >
-                          {formatUnits(BigInt(priceOfHighestTotalSupply), 18)}{" "}
-                          ETH
-                        </Text>
-                      </>
-                    ) : (
-                      <Text whiteSpace={"nowrap"} fontSize="1rem">
-                        {formatUnits(BigInt(priceOfHighestTotalSupply), 18)} ETH
-                      </Text>
-                    )}
-                  </Flex> */}
                   <Flex direction="column">
                     {currentActiveTokenHasHitTotalSupplyThreshold ? (
                       <Text fontSize={"12px"} color="#ffd014">

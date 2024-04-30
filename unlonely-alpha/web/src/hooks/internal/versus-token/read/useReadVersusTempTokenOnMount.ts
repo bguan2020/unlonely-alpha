@@ -11,30 +11,29 @@ import { Contract } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 
 export const useReadVersusTempTokenOnMount = ({
-    setTokenA,
-    setTokenB,
-    handleWinningToken,
-    handleIsGameFinished,
-    handleOwnerMustPickWinner, 
+  setTokenA,
+  setTokenB,
+  handleWinningToken,
+  handleIsGameFinished,
+  handleOwnerMustTransferFunds,
 }: {
-    setTokenA: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
-    setTokenB: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
-    handleWinningToken: (token: VersusTokenDataType) => void;
-    handleOwnerMustPickWinner: (value: boolean) => void;
-    handleIsGameFinished: (value: boolean) => void;
+  setTokenA: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
+  setTokenB: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
+  handleWinningToken: (token: VersusTokenDataType) => void;
+  handleOwnerMustTransferFunds: (value: boolean) => void;
+  handleIsGameFinished: (value: boolean) => void;
 }) => {
+  const { channel } = useChannelContext();
+  const { channelQueryData } = channel;
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
 
-    const { channel } = useChannelContext();
-    const { channelQueryData } = channel;
-    const { network } = useNetworkContext();
-    const { localNetwork } = network;
+  const factoryContract = getContractFromNetwork(
+    Contract.TEMP_TOKEN_FACTORY_V1,
+    localNetwork
+  );
 
-    const factoryContract = getContractFromNetwork(
-      Contract.TEMP_TOKEN_FACTORY_V1,
-      localNetwork
-    );
-
-    const publicClient = usePublicClient();
+  const publicClient = usePublicClient();
 
   /**
    * read for channel's temp token data on mount
@@ -176,19 +175,27 @@ export const useReadVersusTempTokenOnMount = ({
           } else {
             handleIsGameFinished(true);
 
-            /**
-             * if both tokens are not always tradeable, then the owner must pick a winner
-             */
-            if (!Boolean(isAlwaysTradeableA) && !Boolean(isAlwaysTradeableB)) {
-              handleOwnerMustPickWinner(true);
-              return;
-            }
-
-            if (Boolean(isAlwaysTradeableA)) {
+            if (
+              Boolean(isAlwaysTradeableA) ||
+              BigInt(String(totalSupplyA)) > BigInt(String(totalSupplyB))
+            )
               handleWinningToken(_newTokenA);
-            }
-            if (Boolean(isAlwaysTradeableB)) {
+            if (
+              Boolean(isAlwaysTradeableB) ||
+              BigInt(String(totalSupplyB)) > BigInt(String(totalSupplyA))
+            )
               handleWinningToken(_newTokenB);
+
+            /**
+             * if token A is not tradeable and token B has a balance, or vice versa, that means the owner had not transferred funds to the winning token from the losing token
+             */
+            if (
+              (!Boolean(isAlwaysTradeableA) &&
+                BigInt(String(balanceB)) > BigInt(0)) ||
+              (!Boolean(isAlwaysTradeableB) &&
+                BigInt(String(balanceA)) > BigInt(0))
+            ) {
+              handleOwnerMustTransferFunds(true);
             }
           }
         }
@@ -198,4 +205,4 @@ export const useReadVersusTempTokenOnMount = ({
     };
     fetchVersusTempTokens();
   }, [channelQueryData?.id, localNetwork.config.chainId]);
-}
+};
