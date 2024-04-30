@@ -21,6 +21,8 @@ import { VersusTokenDisclaimerModal } from "../../versus/VersusTokenDisclaimerMo
 import { VersusTokenExchange } from "../../versus/VersusTokenExchange";
 import { isAddressEqual } from "viem";
 import { VersusTokenGameFinishedModal } from "../../versus/VersusTokenGameFinishedModal";
+import { TransferLiquidityModule } from "./TransferLiquidityModule";
+import { PermamintModule } from "./PermamintModule";
 
 export const VersusTempTokensInterface = ({
   customHeight,
@@ -36,7 +38,7 @@ export const VersusTempTokensInterface = ({
   noChannelData?: boolean;
 }) => {
   const { channel } = useChannelContext();
-  const { channelQueryData, realTimeChannelDetails, isOwner } = channel;
+  const { channelQueryData, isOwner } = channel;
 
   const { gameState } = useVersusTempTokenContext();
   const {
@@ -50,11 +52,7 @@ export const VersusTempTokensInterface = ({
     tokenB,
     handleCanPlayToken,
     handleFocusedTokenToTrade,
-    handleIsGameFinished,
     handleIsGameFinishedModalOpen,
-    handleOwnerMustPermamint,
-    handleOwnerMustTransferFunds,
-    handleIsPickWinnerModalOpen,
   } = gameState;
   const windowSize = useWindowSize();
 
@@ -222,18 +220,9 @@ export const VersusTempTokensInterface = ({
                     </Button>
                   )}
                 {isGameFinished && ownerMustTransferFunds && (
-                  <Button
-                    onClick={() => handleIsPickWinnerModalOpen(true)}
-                    h="30%"
-                  >
-                    Send Funds
-                  </Button>
+                  <TransferLiquidityModule />
                 )}
-                {isGameFinished && ownerMustPermamint && (
-                  <Button onClick={() => undefined} h="30%">
-                    Permamint
-                  </Button>
-                )}
+                {isGameFinished && ownerMustPermamint && <PermamintModule />}
               </>
             ) : (
               <>

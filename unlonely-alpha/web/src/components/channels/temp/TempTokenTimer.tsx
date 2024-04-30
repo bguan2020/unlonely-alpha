@@ -4,6 +4,7 @@ import { NULL_ADDRESS } from "../../../constants";
 import { useTempTokenTimerState } from "../../../hooks/internal/temp-token/ui/useTempTokenTimerState";
 import { useTempTokenContext } from "../../../hooks/context/useTempToken";
 import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempToken";
+import { useVersusTempTokenTimerState } from "../../../hooks/internal/versus-token/ui/useVersusTempTokenTimerState";
 
 export const SingleTempTokenTimerView = ({
   disableChatbot,
@@ -67,7 +68,7 @@ export const VersusTempTokenTimerView = ({
     handleIsGameFinishedModalOpen,
     handleOwnerMustTransferFunds,
   } = gameState;
-  const { durationLeftForTempToken } = useTempTokenTimerState(
+  const { durationLeftForTempToken } = useVersusTempTokenTimerState(
     tokenA.endTimestamp,
     () => {
       handleCanPlayToken(false);

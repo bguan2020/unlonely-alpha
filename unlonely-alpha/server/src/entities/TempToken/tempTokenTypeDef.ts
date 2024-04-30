@@ -19,6 +19,7 @@ export const typeDef = gql`
     isAlwaysTradeable: Boolean!
     hasHitTotalSupplyThreshold: Boolean!
     channel: Channel!
+    transferredLiquidityOnExpiration: BigInt
   }
 
   type TempTokenWithBalance {
@@ -95,6 +96,12 @@ export const typeDef = gql`
     chainId: Int!
   }
 
+  input UpdateTempTokenTransferredLiquidityOnExpirationInput {
+    losingTokenAddress: String!
+    chainId: Int!
+    finalLiquidityInWei: String!
+  }
+
   extend type Query {
     getTempTokens(data: GetTempTokensInput): [TempToken]
   }
@@ -115,6 +122,9 @@ export const typeDef = gql`
     updateTempTokenHasHitTotalSupplyThreshold(
       data: UpdateTempTokenHasHitTotalSupplyThresholdInput!
     ): Boolean!
+    updateTempTokenTransferredLiquidityOnExpiration(
+      data: UpdateTempTokenTransferredLiquidityOnExpirationInput!
+    ): TempToken
     postTempToken(data: PostTempTokenInput!): TempToken
   }
 `;

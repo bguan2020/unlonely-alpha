@@ -14,7 +14,7 @@ import {
   UseReadTempTokenTxsType,
   useReadTempTokenTxsInitial,
 } from "../internal/temp-token/read/useReadTempTokenTxs";
-import { Contract, InteractionType } from "../../constants";
+import { InteractionType } from "../../constants";
 import { useChannelContext } from "./useChannel";
 import { useUser } from "./useUser";
 import { useVersusFactoryExternalListeners } from "../internal/versus-token/useVersusFactoryExternalListeners";
@@ -25,8 +25,6 @@ import {
   useReadVersusTempTokenGlobalState,
 } from "../internal/versus-token/read/useReadVersusTempTokenGlobalState";
 import { useReadVersusTempTokenOnMount } from "../internal/versus-token/read/useReadVersusTempTokenOnMount";
-import { getContractFromNetwork } from "../../utils/contract";
-import { useNetworkContext } from "./useNetwork";
 
 export type VersusTokenDataType = {
   balance: bigint;
@@ -73,13 +71,6 @@ export const VersusTempTokenProvider = ({
   const { channel, chat } = useChannelContext();
   const { isOwner } = channel;
   const { addToChatbot: addToChatbotForTempToken } = chat;
-  const { network } = useNetworkContext();
-  const { localNetwork } = network;
-
-  const factoryContract = getContractFromNetwork(
-    Contract.TEMP_TOKEN_FACTORY_V1,
-    localNetwork
-  );
 
   const globalState = useReadVersusTempTokenGlobalState();
   const publicClient = usePublicClient();

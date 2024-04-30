@@ -247,7 +247,7 @@ export const useCreateMultipleTempTokens = (
   };
 };
 
-export const setWinningTokenTradeableAndTransferLiquidity = (
+export const useSetWinningTokenTradeableAndTransferLiquidity = (
   args: {
     winnerTokenAddress: string;
     loserTokenAddress: string;
@@ -278,7 +278,7 @@ export const setWinningTokenTradeableAndTransferLiquidity = (
   };
 };
 
-export const mintWinnerTokens = (
+export const useMintWinnerTokens = (
   args: {
     winnerTokenAddress: string;
     amountOfTokens: bigint;

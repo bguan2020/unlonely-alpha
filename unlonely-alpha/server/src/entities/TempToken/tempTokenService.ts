@@ -273,6 +273,34 @@ export const updateTempTokenHasHitTotalSupplyThreshold = async (
   }
 };
 
+export interface IUpdateTempTokenTransferredLiquidityOnExpirationInput {
+  losingTokenAddress: string;
+  chainId: number;
+  finalLiquidityInWei: string;
+}
+
+export const updateTempTokenTransferredLiquidityOnExpiration = async (
+  data: IUpdateTempTokenTransferredLiquidityOnExpirationInput,
+  ctx: Context
+) => {
+  try {
+    return await ctx.prisma.tempToken.update({
+      where: {
+        uniqueTempTokenId: `${data.losingTokenAddress}-${String(data.chainId)}`,
+      },
+      data: {
+        transferredLiquidityOnExpiration: BigInt(data.finalLiquidityInWei),
+      },
+    });
+  } catch (error) {
+    console.error(
+      "updateTempTokenTransferredLiquidityOnExpiration error:",
+      error
+    );
+    throw error; // Or handle error as needed
+  }
+}
+
 export interface IGetTempTokensInput {
   tokenAddress?: string;
   ownerAddress?: string;

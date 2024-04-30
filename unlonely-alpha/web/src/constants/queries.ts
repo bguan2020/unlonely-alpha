@@ -296,6 +296,7 @@ export const GET_TEMP_TOKENS_QUERY = gql`
       endUnixTimestamp
       channelId
       chainId
+      transferredLiquidityOnExpiration
       id
       channel {
         slug

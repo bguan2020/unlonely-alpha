@@ -491,6 +491,7 @@ export type Mutation = {
   >;
   updateTempTokenHighestTotalSupply?: Maybe<Array<Maybe<TempToken>>>;
   updateTempTokenIsAlwaysTradeable: Scalars["Boolean"];
+  updateTempTokenTransferredLiquidityOnExpiration?: Maybe<TempToken>;
   updateUser?: Maybe<User>;
   updateUserCreatorTokenQuantity: UserCreatorToken;
   updateUserNotifications?: Maybe<User>;
@@ -694,6 +695,10 @@ export type MutationUpdateTempTokenHighestTotalSupplyArgs = {
 
 export type MutationUpdateTempTokenIsAlwaysTradeableArgs = {
   data: UpdateTempTokenIsAlwaysTradeableInput;
+};
+
+export type MutationUpdateTempTokenTransferredLiquidityOnExpirationArgs = {
+  data: UpdateTempTokenTransferredLiquidityOnExpirationInput;
 };
 
 export type MutationUpdateUserArgs = {
@@ -1239,6 +1244,7 @@ export type TempToken = {
   streamerFeePercentage: Scalars["BigInt"];
   symbol: Scalars["String"];
   tokenAddress: Scalars["String"];
+  transferredLiquidityOnExpiration?: Maybe<Scalars["BigInt"]>;
 };
 
 export type TempTokenWithBalance = {
@@ -1363,6 +1369,12 @@ export type UpdateTempTokenIsAlwaysTradeableInput = {
   chainId: Scalars["Int"];
   tokenAddressesSetFalse?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
   tokenAddressesSetTrue?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
+};
+
+export type UpdateTempTokenTransferredLiquidityOnExpirationInput = {
+  chainId: Scalars["Int"];
+  finalLiquidityInWei: Scalars["String"];
+  losingTokenAddress: Scalars["String"];
 };
 
 export type UpdateUserCreatorTokenQuantityInput = {
@@ -1824,6 +1836,7 @@ export type GetTempTokensQuery = {
     endUnixTimestamp: any;
     channelId: number;
     chainId: number;
+    transferredLiquidityOnExpiration?: any | null;
     id: string;
     channel: {
       __typename?: "Channel";
@@ -2597,6 +2610,35 @@ export type FetchCurrentUserQuery = {
     __typename?: "User";
     signature?: string | null;
     sigTimestamp?: any | null;
+  } | null;
+};
+
+export type UpdateTempTokenTransferredLiquidityOnExpirationMutationVariables =
+  Exact<{
+    data: UpdateTempTokenTransferredLiquidityOnExpirationInput;
+  }>;
+
+export type UpdateTempTokenTransferredLiquidityOnExpirationMutation = {
+  __typename?: "Mutation";
+  updateTempTokenTransferredLiquidityOnExpiration?: {
+    __typename?: "TempToken";
+    transferredLiquidityOnExpiration?: any | null;
+    tokenAddress: string;
+    symbol: string;
+    streamerFeePercentage: any;
+    protocolFeePercentage: any;
+    ownerAddress: string;
+    name: string;
+    isAlwaysTradeable: boolean;
+    id: string;
+    highestTotalSupply: any;
+    factoryAddress: string;
+    hasHitTotalSupplyThreshold: boolean;
+    hasRemainingFundsForCreator: boolean;
+    endUnixTimestamp: any;
+    creationBlockNumber: any;
+    chainId: number;
+    channelId: number;
   } | null;
 };
 
@@ -3713,6 +3755,7 @@ export const GetTempTokensDocument = gql`
       endUnixTimestamp
       channelId
       chainId
+      transferredLiquidityOnExpiration
       id
       channel {
         slug
@@ -6731,3 +6774,72 @@ export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
 >;
+export const UpdateTempTokenTransferredLiquidityOnExpirationDocument = gql`
+  mutation UpdateTempTokenTransferredLiquidityOnExpiration(
+    $data: UpdateTempTokenTransferredLiquidityOnExpirationInput!
+  ) {
+    updateTempTokenTransferredLiquidityOnExpiration(data: $data) {
+      transferredLiquidityOnExpiration
+      tokenAddress
+      symbol
+      streamerFeePercentage
+      protocolFeePercentage
+      ownerAddress
+      name
+      isAlwaysTradeable
+      id
+      highestTotalSupply
+      factoryAddress
+      hasHitTotalSupplyThreshold
+      hasRemainingFundsForCreator
+      endUnixTimestamp
+      creationBlockNumber
+      chainId
+      channelId
+    }
+  }
+`;
+export type UpdateTempTokenTransferredLiquidityOnExpirationMutationFn =
+  Apollo.MutationFunction<
+    UpdateTempTokenTransferredLiquidityOnExpirationMutation,
+    UpdateTempTokenTransferredLiquidityOnExpirationMutationVariables
+  >;
+
+/**
+ * __useUpdateTempTokenTransferredLiquidityOnExpirationMutation__
+ *
+ * To run a mutation, you first call `useUpdateTempTokenTransferredLiquidityOnExpirationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTempTokenTransferredLiquidityOnExpirationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTempTokenTransferredLiquidityOnExpirationMutation, { data, loading, error }] = useUpdateTempTokenTransferredLiquidityOnExpirationMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateTempTokenTransferredLiquidityOnExpirationMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateTempTokenTransferredLiquidityOnExpirationMutation,
+    UpdateTempTokenTransferredLiquidityOnExpirationMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateTempTokenTransferredLiquidityOnExpirationMutation,
+    UpdateTempTokenTransferredLiquidityOnExpirationMutationVariables
+  >(UpdateTempTokenTransferredLiquidityOnExpirationDocument, options);
+}
+export type UpdateTempTokenTransferredLiquidityOnExpirationMutationHookResult =
+  ReturnType<typeof useUpdateTempTokenTransferredLiquidityOnExpirationMutation>;
+export type UpdateTempTokenTransferredLiquidityOnExpirationMutationResult =
+  Apollo.MutationResult<UpdateTempTokenTransferredLiquidityOnExpirationMutation>;
+export type UpdateTempTokenTransferredLiquidityOnExpirationMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateTempTokenTransferredLiquidityOnExpirationMutation,
+    UpdateTempTokenTransferredLiquidityOnExpirationMutationVariables
+  >;

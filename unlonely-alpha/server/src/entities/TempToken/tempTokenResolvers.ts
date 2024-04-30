@@ -82,6 +82,24 @@ export const resolvers = {
 
       return tempTokenService.updateTempTokenHighestTotalSupply(data, ctx);
     },
+    updateTempTokenTransferredLiquidityOnExpiration: (
+      _: any,
+      {
+        data,
+      }: {
+        data: tempTokenService.IUpdateTempTokenTransferredLiquidityOnExpirationInput;
+      },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+
+      return tempTokenService.updateTempTokenTransferredLiquidityOnExpiration(
+        data,
+        ctx
+      );
+    },
     postTempToken: (
       _: any,
       { data }: { data: tempTokenService.IPostTempTokenInput },

@@ -29,6 +29,9 @@ export enum InteractionType {
   TEMP_TOKEN_BECOMES_ALWAYS_TRADEABLE = "temp-token-becomes-always-tradeable-interaction",
   TEMP_TOKEN_THRESHOLD_INCREASED = "temp-token-threshold-increased-interaction",
   SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION = "send-remaining-funds-to-winner-after-temp-token-expiration-interaction",
+  VERSUS_WINNER_TOKENS_MINTED = "versus-winner-tokens-minted-interaction",
+  VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY = "versus-set-winning-token-tradeable-and-transfer-liquidity-interaction",
+
 
   EVENT_LIVE = "event-live-interaction",
   EVENT_LOCK = "event-lock-interaction",

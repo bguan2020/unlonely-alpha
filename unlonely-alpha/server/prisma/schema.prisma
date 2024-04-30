@@ -169,25 +169,26 @@ model ChannelUserRole {
 }
 
 model TempToken {
-  id                             Int      @id @default(autoincrement())
-  uniqueTempTokenId              String   @unique
-  creationBlockNumber            BigInt
-  tokenAddress                   String
-  chainId                        Int
-  channelId                      Int
-  channel                        Channel  @relation(fields: [channelId], references: [id])
-  createdAt                      DateTime @default(now())
-  ownerAddress                   String
-  factoryAddress                 String
-  name                           String
-  symbol                         String
-  endUnixTimestamp               BigInt
-  protocolFeePercentage          BigInt
-  streamerFeePercentage          BigInt
-  highestTotalSupply             BigInt
-  hasRemainingFundsForCreator    Boolean @default(true)
-  hasHitTotalSupplyThreshold     Boolean @default(false)
-  isAlwaysTradeable              Boolean @default(false)
+  id                                Int      @id @default(autoincrement())
+  uniqueTempTokenId                 String   @unique
+  creationBlockNumber               BigInt
+  tokenAddress                      String
+  chainId                           Int
+  channelId                         Int
+  channel                           Channel  @relation(fields: [channelId], references: [id])
+  createdAt                         DateTime @default(now())
+  ownerAddress                      String
+  factoryAddress                    String
+  name                              String
+  symbol                            String
+  endUnixTimestamp                  BigInt
+  protocolFeePercentage             BigInt
+  streamerFeePercentage             BigInt
+  highestTotalSupply                BigInt
+  hasRemainingFundsForCreator       Boolean @default(true)
+  hasHitTotalSupplyThreshold        Boolean @default(false)
+  isAlwaysTradeable                 Boolean @default(false)
+  transferredLiquidityOnExpiration  BigInt?
 }
 
 enum EventType {

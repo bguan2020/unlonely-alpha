@@ -145,7 +145,8 @@ export const useSendRemainingFundsToWinnerState = (
         addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",
-          taskType: InteractionType.CREATE_TEMP_TOKEN,
+          taskType:
+            InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION,
           title,
           description: "",
         });
