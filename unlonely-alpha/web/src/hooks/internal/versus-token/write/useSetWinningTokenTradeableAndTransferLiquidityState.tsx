@@ -18,13 +18,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
   const toast = useToast();
 
   const { gameState } = useVersusTempTokenContext();
-  const {
-    winningToken,
-    tokenA,
-    tokenB,
-    handleOwnerMustPermamint,
-    handleOwnerMustTransferFunds,
-  } = gameState;
+  const { winningToken, tokenA, tokenB } = gameState;
 
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
@@ -163,8 +157,6 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
           title,
           description: "",
         });
-        handleOwnerMustPermamint(true);
-        handleOwnerMustTransferFunds(false);
         callbackOnTxSuccess?.();
       },
       onTxError: (error) => {
@@ -186,6 +178,6 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
     setWinningTokenTradeableAndTransferLiquidity,
     setWinningTokenTradeableAndTransferLiquidityData,
     setWinningTokenTradeableAndTransferLiquidityTxData,
-    isSetWinningTokenTradeableAndTransferLiquidityLoading,
+    loading: loading || isSetWinningTokenTradeableAndTransferLiquidityLoading,
   };
 };

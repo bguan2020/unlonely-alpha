@@ -6,22 +6,25 @@ import { useChannelContext } from "../../../context/useChannel";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { usePublicClient } from "wagmi";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
-import { VersusTokenDataType } from "../../../context/useVersusTempToken";
-import { Contract } from "../../../../constants";
+import { Contract, VersusTokenDataType } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 
 export const useReadVersusTempTokenOnMount = ({
   setTokenA,
   setTokenB,
+  handleIsGameOngoing,
   handleWinningToken,
-  handleIsGameFinished,
+  handleLosingToken,
   handleOwnerMustTransferFunds,
+  handleOwnerMustPermamint,
 }: {
   setTokenA: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
   setTokenB: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
   handleWinningToken: (token: VersusTokenDataType) => void;
   handleOwnerMustTransferFunds: (value: boolean) => void;
-  handleIsGameFinished: (value: boolean) => void;
+  handleOwnerMustPermamint: (value: boolean) => void;
+  handleIsGameOngoing: (value: boolean) => void;
+  handleLosingToken: (token: VersusTokenDataType) => void;
 }) => {
   const { channel } = useChannelContext();
   const { channelQueryData } = channel;
@@ -67,22 +70,15 @@ export const useReadVersusTempTokenOnMount = ({
         const _tokenA = nonNullListOfTokens?.[1];
         if (_tokenA !== undefined && _tokenB !== undefined) {
           const [
-            balanceA,
             endTimestampA,
             totalSupplyA,
             highestTotalSupplyA,
             isAlwaysTradeableA,
-            balanceB,
             endTimeStampB,
             totalSupplyB,
             highestTotalSupplyB,
             isAlwaysTradeableB,
           ] = await Promise.all([
-            publicClient.readContract({
-              address: _tokenA.tokenAddress as `0x${string}`,
-              abi: TempTokenAbi,
-              functionName: "getBalance",
-            }),
             publicClient.readContract({
               address: _tokenA.tokenAddress as `0x${string}`,
               abi: TempTokenAbi,
@@ -102,11 +98,6 @@ export const useReadVersusTempTokenOnMount = ({
               address: _tokenA.tokenAddress as `0x${string}`,
               abi: TempTokenAbi,
               functionName: "isAlwaysTradeable",
-            }),
-            publicClient.readContract({
-              address: _tokenB.tokenAddress as `0x${string}`,
-              abi: TempTokenAbi,
-              functionName: "getBalance",
             }),
             publicClient.readContract({
               address: _tokenB.tokenAddress as `0x${string}`,
@@ -129,8 +120,8 @@ export const useReadVersusTempTokenOnMount = ({
               functionName: "isAlwaysTradeable",
             }),
           ]);
-          const _newTokenA = {
-            balance: BigInt(String(balanceA)),
+          const _newTokenA: VersusTokenDataType = {
+            transferredLiquidityOnExpiration: _tokenA.transferredLiquidityOnExpiration,
             symbol: _tokenA.symbol,
             address: _tokenA.tokenAddress as `0x${string}`,
             totalSupply: BigInt(String(totalSupplyA)),
@@ -144,8 +135,8 @@ export const useReadVersusTempTokenOnMount = ({
             creationBlockNumber: BigInt(_tokenA.creationBlockNumber),
             endTimestamp: BigInt(String(endTimestampA)),
           };
-          const _newTokenB = {
-            balance: BigInt(String(balanceB)),
+          const _newTokenB: VersusTokenDataType = {
+            transferredLiquidityOnExpiration: _tokenB.transferredLiquidityOnExpiration,
             symbol: _tokenB.symbol,
             address: _tokenB.tokenAddress as `0x${string}`,
             totalSupply: BigInt(String(totalSupplyB)),
@@ -171,32 +162,34 @@ export const useReadVersusTempTokenOnMount = ({
             BigInt(String(endTimeStampB)) >
               BigInt(Math.floor(Date.now() / 1000))
           ) {
-            handleIsGameFinished(false);
-          } else {
-            handleIsGameFinished(true);
-
+            handleIsGameOngoing(false);
+      
             if (
-              Boolean(isAlwaysTradeableA) ||
-              BigInt(String(totalSupplyA)) > BigInt(String(totalSupplyB))
-            )
-              handleWinningToken(_newTokenA);
-            if (
-              Boolean(isAlwaysTradeableB) ||
-              BigInt(String(totalSupplyB)) > BigInt(String(totalSupplyA))
-            )
-              handleWinningToken(_newTokenB);
-
-            /**
-             * if token A is not tradeable and token B has a balance, or vice versa, that means the owner had not transferred funds to the winning token from the losing token
-             */
-            if (
-              (!Boolean(isAlwaysTradeableA) &&
-                BigInt(String(balanceB)) > BigInt(0)) ||
-              (!Boolean(isAlwaysTradeableB) &&
-                BigInt(String(balanceA)) > BigInt(0))
+              _newTokenA.isAlwaysTradeable ||
+              BigInt(String(_newTokenA.totalSupply)) >
+                BigInt(String(_newTokenB.totalSupply))
             ) {
-              handleOwnerMustTransferFunds(true);
+              handleWinningToken(_newTokenA);
+              handleLosingToken(_newTokenB);
             }
+            if (
+              _newTokenB.isAlwaysTradeable ||
+              BigInt(String(_newTokenB.totalSupply)) >
+                BigInt(String(_newTokenA.totalSupply))
+            ) {
+              handleWinningToken(_newTokenB);
+              handleLosingToken(_newTokenA);
+            }
+
+            if (!_newTokenA.isAlwaysTradeable && !_newTokenB.isAlwaysTradeable) {
+              handleOwnerMustTransferFunds(true)
+              handleOwnerMustPermamint(false)
+            } else {
+              handleOwnerMustTransferFunds(false)
+              handleOwnerMustPermamint(true)
+            }
+          } else {
+            handleIsGameOngoing(true);
           }
         }
       } catch (e) {

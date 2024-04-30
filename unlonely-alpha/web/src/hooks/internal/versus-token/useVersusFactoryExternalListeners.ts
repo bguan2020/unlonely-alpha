@@ -1,16 +1,15 @@
 import { useState, useEffect } from "react";
 import { Log, isAddressEqual } from "viem";
 import { useContractEvent } from "wagmi";
-import { VersusTokenDataType } from "../../context/useVersusTempToken";
 import { useChannelContext } from "../../context/useChannel";
 import usePostTempToken from "../../server/temp-token/usePostTempToken";
 import TempTokenAbi from "../../../constants/abi/TempTokenV1.json";
 import { useNetworkContext } from "../../context/useNetwork";
-import { Contract, NULL_ADDRESS } from "../../../constants";
+import { Contract, NULL_ADDRESS, VersusTokenDataType } from "../../../constants";
 import { getContractFromNetwork } from "../../../utils/contract";
 
 const versusTokenDataInitial: VersusTokenDataType = {
-  balance: BigInt(0),
+  transferredLiquidityOnExpiration: BigInt(0),
   symbol: "",
   address: "",
   totalSupply: BigInt(0),
@@ -31,17 +30,21 @@ export const useVersusFactoryExternalListeners = ({
   handleTokenA,
   handleTokenB,
   handleIsGameFinished,
+  handleIsGameFinishedModalOpen,
   resetTempTokenTxs,
   handleOwnerMustTransferFunds,
   handleOwnerMustPermamint,
+  handleLosingToken
 }: {
   tokenA: VersusTokenDataType;
   tokenB: VersusTokenDataType;
   handleTokenA: (token: VersusTokenDataType) => void;
   handleTokenB: (token: VersusTokenDataType) => void;
   handleIsGameFinished: (isGameFinished: boolean) => void;
+  handleIsGameFinishedModalOpen: (isOpen: boolean) => void;
   handleOwnerMustTransferFunds: (value: boolean) => void;
   handleOwnerMustPermamint: (value: boolean) => void;
+  handleLosingToken: (token: VersusTokenDataType) => void;
   resetTempTokenTxs: () => void;
 }) => {
   const { channel } = useChannelContext();
@@ -114,6 +117,9 @@ export const useVersusFactoryExternalListeners = ({
     });
 
     handleIsGameFinished(false);
+    handleOwnerMustPermamint(false);
+    handleOwnerMustTransferFunds(false);
+    handleIsGameFinishedModalOpen(false);
     resetTempTokenTxs();
 
     if (isOwner) {
@@ -162,7 +168,7 @@ export const useVersusFactoryExternalListeners = ({
       }
     }
     handleTokenA({
-      balance: BigInt(0),
+      transferredLiquidityOnExpiration: BigInt(0),
       symbol: newTokenSymbols[0],
       address: newTokenAddresses[0],
       totalSupply: BigInt(0),
@@ -177,7 +183,7 @@ export const useVersusFactoryExternalListeners = ({
       endTimestamp: newEndTimestamp,
     });
     handleTokenB({
-      balance: BigInt(0),
+      transferredLiquidityOnExpiration: BigInt(0),
       symbol: newTokenSymbols[1],
       address: newTokenAddresses[1],
       totalSupply: BigInt(0),
@@ -266,6 +272,11 @@ export const useVersusFactoryExternalListeners = ({
         ...tokenA,
         isAlwaysTradeable: true,
       });
+      handleTokenB({
+        ...tokenB,
+        transferredLiquidityOnExpiration: transferredLiquidity,
+      })
+      handleLosingToken(tokenB)
     }
     if (
       tokenB.address &&
@@ -278,6 +289,15 @@ export const useVersusFactoryExternalListeners = ({
         ...tokenB,
         isAlwaysTradeable: true,
       });
+      handleTokenA({
+        ...tokenA,
+        transferredLiquidityOnExpiration: transferredLiquidity,
+      })
+      handleLosingToken(tokenA)
+    }
+
+    if (transferredLiquidity > BigInt(0)) {
+      handleOwnerMustTransferFunds(false)
     }
   };
 
@@ -351,5 +371,6 @@ export const useVersusFactoryExternalListeners = ({
     ) {
       handleTokenA(versusTokenDataInitial);
     }
+    handleOwnerMustPermamint(false)
   };
 };

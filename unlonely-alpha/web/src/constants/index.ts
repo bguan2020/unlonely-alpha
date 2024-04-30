@@ -1,6 +1,7 @@
 import Ably from "ably/promises";
 
 import { COLORS } from "../styles/Colors";
+import { ContractData } from "./types";
 
 export enum InteractionType {
   CONTROL = "control-text-interaction",
@@ -117,3 +118,32 @@ export const CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_SIMPLIFIED = [
   "127",
   "496",
 ];
+
+export type VersusTokenDataType = {
+  symbol: string;
+  address: string;
+  totalSupply: bigint;
+  isAlwaysTradeable: boolean;
+  highestTotalSupply: bigint;
+  contractData: ContractData;
+  creationBlockNumber: bigint;
+  transferredLiquidityOnExpiration: bigint;
+  endTimestamp?: bigint;
+};
+
+
+export const versusTokenDataInitial: VersusTokenDataType = {
+  transferredLiquidityOnExpiration: BigInt(0),
+  symbol: "",
+  address: "",
+  totalSupply: BigInt(0),
+  isAlwaysTradeable: false,
+  highestTotalSupply: BigInt(0),
+  contractData: {
+    address: NULL_ADDRESS,
+    chainId: 0,
+    abi: undefined,
+  },
+  creationBlockNumber: BigInt(0),
+  endTimestamp: undefined,
+};

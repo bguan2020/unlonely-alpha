@@ -59,9 +59,8 @@ export const useReadTempTokenListenerState = ({
     tokenSymbol: tempTokenData?.symbol ?? "",
     baseClient,
     tempTokenContract: tempTokenContract,
-    onMintCallback: (totalSupply: bigint, highestTotalSupply: bigint) =>
-      onMintEvent(totalSupply, highestTotalSupply),
-    onBurnCallback: (totalSupply: bigint) => onBurnEvent(totalSupply),
+    onMintCallback: onMintEvent,
+    onBurnCallback: onBurnEvent,
   });
 
   useReadTempTokenExternalEventListeners({

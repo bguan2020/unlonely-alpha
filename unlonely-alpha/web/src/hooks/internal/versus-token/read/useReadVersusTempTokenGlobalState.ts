@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import { ContractData } from "../../../../constants/types";
-import { VersusTokenDataType } from "../../../context/useVersusTempToken";
-import { NULL_ADDRESS } from "../../../../constants";
+import { NULL_ADDRESS, VersusTokenDataType } from "../../../../constants";
 
 export type UseReadVersusTempTokenGlobalStateType = {
   canPlayToken: boolean;
@@ -10,6 +9,10 @@ export type UseReadVersusTempTokenGlobalStateType = {
   handleFocusedTokenToTrade: (value: ContractData | undefined) => void;
   winningToken: VersusTokenDataType;
   handleWinningToken: (token: VersusTokenDataType) => void;
+  losingToken: VersusTokenDataType;
+  handleLosingToken: (token: VersusTokenDataType) => void;
+  isGameOngoing: boolean;
+  handleIsGameOngoing: (value: boolean) => void;
   isGameFinished: boolean;
   handleIsGameFinished: (value: boolean) => void;
   isGameFinishedModalOpen: boolean;
@@ -22,12 +25,10 @@ export type UseReadVersusTempTokenGlobalStateType = {
   setTokenA: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
   tokenB: VersusTokenDataType;
   setTokenB: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
-  isPickWinnerModalOpen: boolean;
-  handleIsPickWinnerModalOpen: (value: boolean) => void;
 };
 
 const versusTokenDataInitial: VersusTokenDataType = {
-  balance: BigInt(0),
+  transferredLiquidityOnExpiration: BigInt(0),
   symbol: "",
   address: "",
   totalSupply: BigInt(0),
@@ -50,7 +51,11 @@ export const useReadVersusTempTokenGlobalStateInitial: UseReadVersusTempTokenGlo
     handleFocusedTokenToTrade: () => undefined,
     winningToken: versusTokenDataInitial,
     handleWinningToken: () => undefined,
-    isGameFinished: true,
+    losingToken: versusTokenDataInitial,
+    handleLosingToken: () => undefined,
+    isGameOngoing: false,
+    handleIsGameOngoing: () => undefined,
+    isGameFinished: false,
     handleIsGameFinished: () => undefined,
     isGameFinishedModalOpen: false,
     handleIsGameFinishedModalOpen: () => undefined,
@@ -62,8 +67,6 @@ export const useReadVersusTempTokenGlobalStateInitial: UseReadVersusTempTokenGlo
     setTokenA: () => undefined,
     tokenB: versusTokenDataInitial,
     setTokenB: () => undefined,
-    isPickWinnerModalOpen: false,
-    handleIsPickWinnerModalOpen: () => undefined,
   };
 
 export const useReadVersusTempTokenGlobalState =
@@ -75,12 +78,15 @@ export const useReadVersusTempTokenGlobalState =
     const [winningToken, setWinningToken] = useState<VersusTokenDataType>(
       versusTokenDataInitial
     );
-    const [isGameFinished, setIsGameFinished] = useState(true);
+    const [isGameOngoing, setIsGameOngoing] = useState(false); // is game still playable?
+    const [isGameFinished, setIsGameFinished] = useState(false); // had the game just finished? use this flag to manage transitions in state
     const [isGameFinishedModalOpen, setIsGameFinishedModalOpen] =
       useState(false);
-    const [isPickWinnerModalOpen, setIsPickWinnerModalOpen] = useState(false);
     const [ownerMustTransferFunds, setOwnerMustTransferFunds] = useState(false);
     const [ownerMustPermamint, setOwnerMustPermamint] = useState(false);
+    const [losingToken, setLosingToken] = useState<VersusTokenDataType>(
+      versusTokenDataInitial
+    );
     const [tokenA, setTokenA] = useState<VersusTokenDataType>(
       versusTokenDataInitial
     );
@@ -119,13 +125,21 @@ export const useReadVersusTempTokenGlobalState =
       setWinningToken(token);
     }, []);
 
-    const handleIsPickWinnerModalOpen = useCallback((value: boolean) => {
-      setIsPickWinnerModalOpen(value);
+    const handleLosingToken = useCallback((token: VersusTokenDataType) => {
+      setLosingToken(token);
+    }, []);
+
+    const handleIsGameOngoing = useCallback((value: boolean) => {
+      setIsGameOngoing(value);
     }, []);
 
     return {
+      isGameOngoing,
+      handleIsGameOngoing,
       canPlayToken,
       handleCanPlayToken,
+      losingToken,
+      handleLosingToken,
       focusedTokenToTrade,
       handleFocusedTokenToTrade,
       winningToken,
@@ -142,7 +156,5 @@ export const useReadVersusTempTokenGlobalState =
       setTokenA,
       tokenB,
       setTokenB,
-      isPickWinnerModalOpen,
-      handleIsPickWinnerModalOpen,
     };
   };

@@ -1,11 +1,11 @@
 import { Box, Button, Spinner, useToast } from "@chakra-ui/react";
 import { useMintWinnerTokens } from "../../../../hooks/contracts/useTempTokenFactoryV1";
 import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Contract, InteractionType } from "../../../../constants";
 import { useNetworkContext } from "../../../../hooks/context/useNetwork";
 import { getContractFromNetwork } from "../../../../utils/contract";
-import { decodeEventLog, isAddress, isAddressEqual } from "viem";
+import { decodeEventLog, formatUnits, isAddress } from "viem";
 import Link from "next/link";
 import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { useUser } from "../../../../hooks/context/useUser";
@@ -17,6 +17,7 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
   const { gameState } = useVersusTempTokenContext();
   const {
     winningToken,
+    losingToken,
     tokenA,
     tokenB,
     handleOwnerMustPermamint,
@@ -34,16 +35,6 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
     Contract.TEMP_TOKEN_FACTORY_V1,
     localNetwork
   );
-
-  const losingToken = useMemo(() => {
-    if (!winningToken || !winningToken.address) return null;
-    return isAddressEqual(
-      winningToken.address as `0x${string}`,
-      tokenA.address as `0x${string}`
-    )
-      ? tokenB
-      : tokenA;
-  }, [winningToken, tokenA, tokenB]);
 
   const [amountOfTokensToMint, setAmountOfTokensToMint] = useState<
     string | undefined
@@ -110,11 +101,12 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
           isClosable: true,
           position: "top-right",
         });
+        const winnerTokenAddress = args.winnerTokenAddress as `0x${string}`;
         const loserTokenAddress = args.loserTokenAddress as `0x${string}`;
         const transferredLiquidityInWei = args.transferredLiquidity as bigint;
         const title = `The $${String(
-          winningToken.symbol
-        )} is now permanently tradeable!`;
+          formatUnits(transferredLiquidityInWei, 18)
+        )}ETH was used to mint the winning token!`;
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -122,8 +114,6 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
           title,
           description: "",
         });
-        handleOwnerMustPermamint(true);
-        handleOwnerMustTransferFunds(false);
         callbackOnTxSuccess?.();
       },
       onTxError: (error) => {
@@ -143,8 +133,9 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
 
   useEffect(() => {
     const calculateMaxWinnerTokensToMint = async () => {
-      if (!isAddress(winningToken?.address) || !losingToken) return;
-      const wei_amount = Number(losingToken.balance);
+      if (!isAddress(winningToken?.address) || !isAddress(losingToken?.address))
+        return;
+      const wei_amount = Number(losingToken.transferredLiquidityOnExpiration);
       const total_fee_percent: number = 10 * 10 ** 16; // 5% protocol fee and 5% streamer fee
       const winningTokenSupply = Number(winningToken.totalSupply);
       const lambda = new AWS.Lambda({
@@ -174,6 +165,7 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
         );
       } else {
         const maxNumTokens = parsedResponse.body;
+        console.log("maxNumTokens", maxNumTokens);
         setAmountOfTokensToMint(maxNumTokens);
       }
     };

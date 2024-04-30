@@ -66,14 +66,12 @@ export const VersusTempTokenTimerView = ({
     handleCanPlayToken,
     handleIsGameFinished,
     handleIsGameFinishedModalOpen,
-    handleOwnerMustTransferFunds,
   } = gameState;
   const { durationLeftForTempToken } = useVersusTempTokenTimerState(
     tokenA.endTimestamp,
     () => {
       handleCanPlayToken(false);
       handleIsGameFinished(true);
-      handleOwnerMustTransferFunds(true);
       handleIsGameFinishedModalOpen(true);
     },
     disableChatbot,
