@@ -105,9 +105,14 @@ export const DesktopPage = ({
   useEffect(() => {
     const init = async () => {
       if (livepeerPlaybackId) {
-        const res = await livepeer.playback.get(livepeerPlaybackId);
-        const playbackInfo = res.playbackInfo;
-        setPlaybackInfo(playbackInfo);
+        try {
+          const res = await livepeer.playback.get(livepeerPlaybackId);
+          const playbackInfo = res.playbackInfo;
+          console.log("livepeer get playbackInfo", playbackInfo);
+          setPlaybackInfo(playbackInfo);
+        } catch (e) {
+          console.log("livepeer get playbackInfo error", e);
+        }
       }
     };
     init();
