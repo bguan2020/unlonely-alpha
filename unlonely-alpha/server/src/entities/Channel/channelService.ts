@@ -161,7 +161,7 @@ export const postChannel = async (
 
     return await ctx.prisma.channel.create({
       data: {
-        slug: data.slug,
+        slug: data.slug.toLowerCase(),
         name: data.name ?? "",
         description: data.description ?? "",
         allowNFCs: data.allowNfcs,
