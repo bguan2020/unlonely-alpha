@@ -11,7 +11,7 @@ export const TransferLiquidityModule = () => {
       isDisabled={loading || !setWinningTokenTradeableAndTransferLiquidity}
       h="30%"
     >
-      {loading ? "Transfer Funds" : <Spinner />}
+      {loading ? <Spinner /> : "Transfer Funds"}
     </Button>
   );
 };

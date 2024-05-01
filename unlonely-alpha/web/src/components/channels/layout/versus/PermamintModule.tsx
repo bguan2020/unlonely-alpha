@@ -37,7 +37,7 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
   );
 
   const [amountOfTokensToMint, setAmountOfTokensToMint] = useState<
-    string | undefined
+    number | undefined
   >(undefined);
 
   const { mintWinnerTokens, isMintWinnerTokensLoading } = useMintWinnerTokens(
@@ -138,6 +138,9 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
       const wei_amount = Number(losingToken.transferredLiquidityOnExpiration);
       const total_fee_percent: number = 10 * 10 ** 16; // 5% protocol fee and 5% streamer fee
       const winningTokenSupply = Number(winningToken.totalSupply);
+      console.log("wei_amount", wei_amount);
+      console.log("total_fee_percent", total_fee_percent);
+      console.log("winningTokenSupply", winningTokenSupply);
       const lambda = new AWS.Lambda({
         region: "us-west-2",
         accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY,
@@ -164,9 +167,15 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
           parsedResponse.errorMessage
         );
       } else {
-        const maxNumTokens = parsedResponse.body;
-        console.log("maxNumTokens", maxNumTokens);
+        const maxNumTokens: number = parsedResponse.body as number;
         setAmountOfTokensToMint(maxNumTokens);
+
+        /**
+         * If the maxNumTokens is 0, then the owner does not need to permamint and can skip this step
+         */
+        if (maxNumTokens === 0) {
+          handleOwnerMustPermamint(false);
+        }
       }
     };
     calculateMaxWinnerTokensToMint();
@@ -175,10 +184,14 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
   return (
     <Button
       onClick={mintWinnerTokens}
-      isDisabled={isMintWinnerTokensLoading || !mintWinnerTokens}
+      isDisabled={
+        isMintWinnerTokensLoading ||
+        !mintWinnerTokens ||
+        amountOfTokensToMint === 0
+      }
       h="30%"
     >
-      {isMintWinnerTokensLoading ? "Transfer Funds" : <Spinner />}
+      {isMintWinnerTokensLoading ? <Spinner /> : "Mint Winner Tokens"}
     </Button>
   );
 };

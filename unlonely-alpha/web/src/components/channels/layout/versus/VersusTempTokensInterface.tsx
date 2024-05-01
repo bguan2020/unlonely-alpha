@@ -43,7 +43,7 @@ export const VersusTempTokensInterface = ({
   const { gameState } = useVersusTempTokenContext();
   const {
     canPlayToken,
-    isGameFinished,
+    isGameOngoing,
     focusedTokenToTrade,
     ownerMustPermamint,
     ownerMustTransferFunds,
@@ -55,6 +55,13 @@ export const VersusTempTokensInterface = ({
     handleIsGameFinishedModalOpen,
   } = gameState;
   const windowSize = useWindowSize();
+
+  console.log(
+    "isGameOngoing",
+    isGameOngoing,
+    ownerMustTransferFunds,
+    ownerMustPermamint
+  );
 
   const [createTokensModalOpen, setCreateTokensModalOpen] = useState(false);
   const [
@@ -197,7 +204,7 @@ export const VersusTempTokensInterface = ({
           <>
             {isOwner ? (
               <>
-                {!isGameFinished &&
+                {isGameOngoing &&
                   !ownerMustPermamint &&
                   !ownerMustTransferFunds && (
                     <Button
@@ -209,7 +216,7 @@ export const VersusTempTokensInterface = ({
                       Play
                     </Button>
                   )}
-                {isGameFinished &&
+                {!isGameOngoing &&
                   !ownerMustPermamint &&
                   !ownerMustTransferFunds && (
                     <Button
@@ -219,14 +226,14 @@ export const VersusTempTokensInterface = ({
                       Create tokens
                     </Button>
                   )}
-                {isGameFinished && ownerMustTransferFunds && (
+                {!isGameOngoing && ownerMustTransferFunds && (
                   <TransferLiquidityModule />
                 )}
-                {isGameFinished && ownerMustPermamint && <PermamintModule />}
+                {!isGameOngoing && ownerMustPermamint && <PermamintModule />}
               </>
             ) : (
               <>
-                {!isGameFinished && (
+                {isGameOngoing && (
                   <Button
                     onClick={() => setVersusTempTokenDisclaimerModalOpen(true)}
                     h="30%"

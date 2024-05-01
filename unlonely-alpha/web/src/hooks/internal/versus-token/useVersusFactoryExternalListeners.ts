@@ -29,6 +29,7 @@ export const useVersusFactoryExternalListeners = ({
   tokenB,
   handleTokenA,
   handleTokenB,
+  handleIsGameOngoing,
   handleIsGameFinished,
   handleIsGameFinishedModalOpen,
   resetTempTokenTxs,
@@ -40,6 +41,7 @@ export const useVersusFactoryExternalListeners = ({
   tokenB: VersusTokenDataType;
   handleTokenA: (token: VersusTokenDataType) => void;
   handleTokenB: (token: VersusTokenDataType) => void;
+  handleIsGameOngoing: (isGameOngoing: boolean) => void;
   handleIsGameFinished: (isGameFinished: boolean) => void;
   handleIsGameFinishedModalOpen: (isOpen: boolean) => void;
   handleOwnerMustTransferFunds: (value: boolean) => void;
@@ -117,6 +119,7 @@ export const useVersusFactoryExternalListeners = ({
     });
 
     handleIsGameFinished(false);
+    handleIsGameOngoing(true);
     handleOwnerMustPermamint(false);
     handleOwnerMustTransferFunds(false);
     handleIsGameFinishedModalOpen(false);
@@ -268,15 +271,12 @@ export const useVersusFactoryExternalListeners = ({
         tokenA.address as `0x${string}`
       )
     ) {
-      handleTokenA({
-        ...tokenA,
-        isAlwaysTradeable: true,
-      });
-      handleTokenB({
+      const _losingToken = {
         ...tokenB,
         transferredLiquidityOnExpiration: transferredLiquidity,
-      })
-      handleLosingToken(tokenB)
+      }
+      handleTokenB(_losingToken)
+      handleLosingToken(_losingToken)
     }
     if (
       tokenB.address &&
@@ -285,19 +285,17 @@ export const useVersusFactoryExternalListeners = ({
         tokenB.address as `0x${string}`
       )
     ) {
-      handleTokenB({
-        ...tokenB,
-        isAlwaysTradeable: true,
-      });
-      handleTokenA({
+      const _losingToken = {
         ...tokenA,
         transferredLiquidityOnExpiration: transferredLiquidity,
-      })
-      handleLosingToken(tokenA)
+      }
+      handleTokenA(_losingToken)
+      handleLosingToken(_losingToken)
     }
 
     if (transferredLiquidity > BigInt(0)) {
       handleOwnerMustTransferFunds(false)
+      handleOwnerMustPermamint(true)
     }
   };
 

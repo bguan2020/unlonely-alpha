@@ -6,7 +6,6 @@ import {
   useMemo,
 } from "react";
 import { useRouter } from "next/router";
-import { usePublicClient } from "wagmi";
 
 import {
   UseReadTempTokenTxsType,
@@ -59,7 +58,6 @@ export const VersusTempTokenProvider = ({
   const { addToChatbot: addToChatbotForTempToken } = chat;
 
   const globalState = useReadVersusTempTokenGlobalState();
-  const publicClient = usePublicClient();
 
   const { readTempTokenTxs: readTempTokenTxs_a } =
     useReadTempTokenListenerState({
@@ -267,6 +265,7 @@ export const VersusTempTokenProvider = ({
     tokenB: globalState.tokenB,
     handleTokenA: (token: VersusTokenDataType) => globalState.setTokenA(token),
     handleTokenB: (token: VersusTokenDataType) => globalState.setTokenB(token),
+    handleIsGameOngoing: globalState.handleIsGameOngoing,
     handleIsGameFinished: globalState.handleIsGameFinished,
     handleIsGameFinishedModalOpen: globalState.handleIsGameFinishedModalOpen,
     handleOwnerMustTransferFunds: globalState.handleOwnerMustTransferFunds,
@@ -286,24 +285,61 @@ export const VersusTempTokenProvider = ({
   useEffect(() => {
     const onGameFinish = async () => {
       if (!globalState.isGameFinished) return;
+      globalState.handleIsGameOngoing(false);
       if (
-        Boolean(globalState.tokenA.isAlwaysTradeable) ||
-        BigInt(String(globalState.tokenA.totalSupply)) >
-          BigInt(String(globalState.tokenB.totalSupply))
+        globalState.tokenA.isAlwaysTradeable ||
+        globalState.tokenA.totalSupply > globalState.tokenB.totalSupply
       ) {
         globalState.handleWinningToken(globalState.tokenA);
         globalState.handleLosingToken(globalState.tokenB);
       }
       if (
-        Boolean(globalState.tokenB.isAlwaysTradeable) ||
-        BigInt(String(globalState.tokenB.totalSupply)) >
-          BigInt(String(globalState.tokenA.totalSupply))
+        globalState.tokenB.isAlwaysTradeable ||
+        globalState.tokenB.totalSupply > globalState.tokenA.totalSupply
       ) {
         globalState.handleWinningToken(globalState.tokenB);
         globalState.handleLosingToken(globalState.tokenA);
       }
 
-      globalState.handleIsGameOngoing(false);
+      /**
+       * if neither tokens are always tradeable at this point, the owner must transfer funds, else the owner must permamint
+       */
+      if (
+        !globalState.tokenA.isAlwaysTradeable &&
+        !globalState.tokenB.isAlwaysTradeable
+      ) {
+        /**
+         * if both tokens have zero supply, there is no need to transfer funds or permamint
+         */
+        if (
+          globalState.tokenA.totalSupply === globalState.tokenB.totalSupply &&
+          globalState.tokenA.totalSupply === BigInt(0)
+        ) {
+          globalState.handleOwnerMustTransferFunds(false);
+          globalState.handleOwnerMustPermamint(false);
+        } else if (
+          globalState.tokenA.totalSupply === globalState.tokenB.totalSupply &&
+          globalState.tokenA.totalSupply > BigInt(0)
+        ) {
+          /**
+           * if both tokens have the same non-zero total supply and neither token is always tradeable, tokenA is the default winner and the owner must permamint
+           */
+          globalState.handleWinningToken(globalState.tokenA);
+          globalState.handleLosingToken(globalState.tokenB);
+          globalState.handleOwnerMustTransferFunds(true);
+          globalState.handleOwnerMustPermamint(false);
+        } else {
+          console.log(
+            "unhandled case in onGameFinish, please report to dev",
+            globalState.tokenA,
+            globalState.tokenB
+          );
+        }
+      } else {
+        globalState.handleOwnerMustTransferFunds(false);
+        globalState.handleOwnerMustPermamint(true);
+      }
+
       globalState.handleOwnerMustTransferFunds(true);
     };
     onGameFinish();

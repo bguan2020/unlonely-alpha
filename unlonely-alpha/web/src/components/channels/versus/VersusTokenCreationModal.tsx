@@ -67,7 +67,7 @@ export const VersusTokenCreationModal = ({
     handleTokenName,
     handleTokenSymbol,
     handleNewDuration,
-  } = useCreateMultipleTempTokensState();
+  } = useCreateMultipleTempTokensState({ callbackOnTxSuccess: handleClose });
 
   return (
     <TransactionModalTemplate

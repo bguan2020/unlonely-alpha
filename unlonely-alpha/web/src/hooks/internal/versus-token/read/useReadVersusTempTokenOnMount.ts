@@ -156,34 +156,61 @@ export const useReadVersusTempTokenOnMount = ({
           /**
            * check if the game is finished through using endTimestamps
            */
+
+          const nowInSeconds = BigInt(Math.floor(Date.now() / 1000));
           if (
-            BigInt(String(endTimestampA)) >
-              BigInt(Math.floor(Date.now() / 1000)) &&
-            BigInt(String(endTimeStampB)) >
-              BigInt(Math.floor(Date.now() / 1000))
+            BigInt(String(endTimestampA)) <
+              nowInSeconds &&
+            BigInt(String(endTimeStampB)) <
+              nowInSeconds
           ) {
             handleIsGameOngoing(false);
       
-            if (
-              _newTokenA.isAlwaysTradeable ||
-              BigInt(String(_newTokenA.totalSupply)) >
-                BigInt(String(_newTokenB.totalSupply))
-            ) {
-              handleWinningToken(_newTokenA);
-              handleLosingToken(_newTokenB);
-            }
+            /**
+             * The two if statements below determine which token is the winning token and which is the losing token. The only situation when these if statements do not run are when
+             * both tokens have the same total supply and neither token is always tradeable. 
+             * 
+             * In this case, addition work is done to determine the next course of action in the code block further down.
+             */
             if (
               _newTokenB.isAlwaysTradeable ||
-              BigInt(String(_newTokenB.totalSupply)) >
-                BigInt(String(_newTokenA.totalSupply))
+              _newTokenB.totalSupply >
+                _newTokenA.totalSupply
             ) {
               handleWinningToken(_newTokenB);
               handleLosingToken(_newTokenA);
             }
+            if (
+              _newTokenA.isAlwaysTradeable ||
+              _newTokenA.totalSupply >
+                _newTokenB.totalSupply
+            ) {
+              handleWinningToken(_newTokenA);
+              handleLosingToken(_newTokenB);
+            }
 
+            /**
+             * if neither tokens are always tradeable at this point, the owner must transfer funds, else the owner must permamint
+             */
             if (!_newTokenA.isAlwaysTradeable && !_newTokenB.isAlwaysTradeable) {
-              handleOwnerMustTransferFunds(true)
-              handleOwnerMustPermamint(false)
+              /**
+               * if both tokens have zero supply, there is no need to transfer funds or permamint
+               */
+              if (_newTokenA.totalSupply === _newTokenB.totalSupply && _newTokenA.totalSupply === BigInt(0)) {
+                handleOwnerMustTransferFunds(false)
+                handleOwnerMustPermamint(false)
+              } else if (_newTokenA.totalSupply === _newTokenB.totalSupply && _newTokenA.totalSupply > BigInt(0)) {
+
+                /**
+                 * if both tokens have the same non-zero total supply and neither token is always tradeable, tokenA is the default winner and the owner must permamint
+                 */
+                handleWinningToken(_newTokenA);
+                handleLosingToken(_newTokenB);
+                handleOwnerMustTransferFunds(true)
+                handleOwnerMustPermamint(false)
+              } else {
+                console.log("unhandled case in fetchVersusTempTokens, please report to dev", _newTokenA, _newTokenB)
+              }
             } else {
               handleOwnerMustTransferFunds(false)
               handleOwnerMustPermamint(true)

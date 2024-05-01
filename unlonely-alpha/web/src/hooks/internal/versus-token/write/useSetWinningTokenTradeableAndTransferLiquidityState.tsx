@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useVersusTempTokenContext } from "../../../context/useVersusTempToken";
 import { useSetWinningTokenTradeableAndTransferLiquidity } from "../../../contracts/useTempTokenFactoryV1";
 import { decodeEventLog, isAddressEqual } from "viem";
-import { Contract, InteractionType } from "../../../../constants";
+import { Contract } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { Box, useToast } from "@chakra-ui/react";
@@ -117,11 +117,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
           chainId: localNetwork.config.chainId,
           finalLiquidityInWei: String(transferredLiquidityInWei),
         })
-          .then((res) => {
-            console.log(
-              "transfer loser liquidity update database success",
-              res
-            );
+          .then(() => {
             toast({
               render: () => (
                 <Box as="button" borderRadius="md" bg="#5058c8" px={4} h={8}>
@@ -146,17 +142,6 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
               position: "top-right",
             });
           });
-        const title = `The $${String(
-          winningToken.symbol
-        )} is now permanently tradeable!`;
-        addToChatbot({
-          username: user?.username ?? "",
-          address: userAddress ?? "",
-          taskType:
-            InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
-          title,
-          description: "",
-        });
         callbackOnTxSuccess?.();
       },
       onTxError: (error) => {

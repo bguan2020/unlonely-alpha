@@ -43,7 +43,11 @@ export const useCreateMultipleTempTokensInitialState: UseCreateMultipleTempToken
     handleNewDuration: () => undefined,
   };
 
-export const useCreateMultipleTempTokensState = () => {
+export const useCreateMultipleTempTokensState = ({
+  callbackOnTxSuccess,
+}: {
+  callbackOnTxSuccess: () => void;
+}) => {
   const { userAddress, user } = useUser();
   const { channel, chat } = useChannelContext();
   const { addToChatbot: addToChatbotForTempToken } = chat;
@@ -310,6 +314,7 @@ export const useCreateMultipleTempTokensState = () => {
           encoded
         );
         console.log("createMultipleTempTokens encoded", encoded);
+        callbackOnTxSuccess();
         canAddToChatbot_create.current = false;
       },
       onTxError: (error) => {
