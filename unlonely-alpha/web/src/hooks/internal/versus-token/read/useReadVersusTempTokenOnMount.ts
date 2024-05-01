@@ -121,7 +121,8 @@ export const useReadVersusTempTokenOnMount = ({
             }),
           ]);
           const _newTokenA: VersusTokenDataType = {
-            transferredLiquidityOnExpiration: _tokenA.transferredLiquidityOnExpiration,
+            transferredLiquidityOnExpiration:
+              _tokenA.transferredLiquidityOnExpiration,
             symbol: _tokenA.symbol,
             address: _tokenA.tokenAddress as `0x${string}`,
             totalSupply: BigInt(String(totalSupplyA)),
@@ -136,7 +137,8 @@ export const useReadVersusTempTokenOnMount = ({
             endTimestamp: BigInt(String(endTimestampA)),
           };
           const _newTokenB: VersusTokenDataType = {
-            transferredLiquidityOnExpiration: _tokenB.transferredLiquidityOnExpiration,
+            transferredLiquidityOnExpiration:
+              _tokenB.transferredLiquidityOnExpiration,
             symbol: _tokenB.symbol,
             address: _tokenB.tokenAddress as `0x${string}`,
             totalSupply: BigInt(String(totalSupplyB)),
@@ -159,31 +161,27 @@ export const useReadVersusTempTokenOnMount = ({
 
           const nowInSeconds = BigInt(Math.floor(Date.now() / 1000));
           if (
-            BigInt(String(endTimestampA)) <
-              nowInSeconds &&
-            BigInt(String(endTimeStampB)) <
-              nowInSeconds
+            BigInt(String(endTimestampA)) < nowInSeconds &&
+            BigInt(String(endTimeStampB)) < nowInSeconds
           ) {
             handleIsGameOngoing(false);
-      
+
             /**
              * The two if statements below determine which token is the winning token and which is the losing token. The only situation when these if statements do not run are when
-             * both tokens have the same total supply and neither token is always tradeable. 
-             * 
+             * both tokens have the same total supply and neither token is always tradeable.
+             *
              * In this case, addition work is done to determine the next course of action in the code block further down.
              */
             if (
               _newTokenB.isAlwaysTradeable ||
-              _newTokenB.totalSupply >
-                _newTokenA.totalSupply
+              _newTokenB.totalSupply > _newTokenA.totalSupply
             ) {
               handleWinningToken(_newTokenB);
               handleLosingToken(_newTokenA);
             }
             if (
               _newTokenA.isAlwaysTradeable ||
-              _newTokenA.totalSupply >
-                _newTokenB.totalSupply
+              _newTokenA.totalSupply > _newTokenB.totalSupply
             ) {
               handleWinningToken(_newTokenA);
               handleLosingToken(_newTokenB);
@@ -192,28 +190,40 @@ export const useReadVersusTempTokenOnMount = ({
             /**
              * if neither tokens are always tradeable at this point, the owner must transfer funds, else the owner must permamint
              */
-            if (!_newTokenA.isAlwaysTradeable && !_newTokenB.isAlwaysTradeable) {
+            if (
+              !_newTokenA.isAlwaysTradeable &&
+              !_newTokenB.isAlwaysTradeable
+            ) {
               /**
                * if both tokens have zero supply, there is no need to transfer funds or permamint
                */
-              if (_newTokenA.totalSupply === _newTokenB.totalSupply && _newTokenA.totalSupply === BigInt(0)) {
-                handleOwnerMustTransferFunds(false)
-                handleOwnerMustPermamint(false)
-              } else if (_newTokenA.totalSupply === _newTokenB.totalSupply && _newTokenA.totalSupply > BigInt(0)) {
-
+              if (
+                _newTokenA.totalSupply === _newTokenB.totalSupply &&
+                _newTokenA.totalSupply === BigInt(0)
+              ) {
+                handleOwnerMustTransferFunds(false);
+                handleOwnerMustPermamint(false);
+              } else if (
+                _newTokenA.totalSupply === _newTokenB.totalSupply &&
+                _newTokenA.totalSupply > BigInt(0)
+              ) {
                 /**
                  * if both tokens have the same non-zero total supply and neither token is always tradeable, tokenA is the default winner and the owner must permamint
                  */
                 handleWinningToken(_newTokenA);
                 handleLosingToken(_newTokenB);
-                handleOwnerMustTransferFunds(true)
-                handleOwnerMustPermamint(false)
+                handleOwnerMustTransferFunds(true);
+                handleOwnerMustPermamint(false);
               } else {
-                console.log("unhandled case in fetchVersusTempTokens, please report to dev", _newTokenA, _newTokenB)
+                console.log(
+                  "unhandled case in fetchVersusTempTokens, please report to dev",
+                  _newTokenA,
+                  _newTokenB
+                );
               }
             } else {
-              handleOwnerMustTransferFunds(false)
-              handleOwnerMustPermamint(true)
+              handleOwnerMustTransferFunds(false);
+              handleOwnerMustPermamint(true);
             }
           } else {
             handleIsGameOngoing(true);

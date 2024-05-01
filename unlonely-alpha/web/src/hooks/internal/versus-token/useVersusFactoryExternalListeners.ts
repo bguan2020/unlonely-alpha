@@ -5,7 +5,11 @@ import { useChannelContext } from "../../context/useChannel";
 import usePostTempToken from "../../server/temp-token/usePostTempToken";
 import TempTokenAbi from "../../../constants/abi/TempTokenV1.json";
 import { useNetworkContext } from "../../context/useNetwork";
-import { Contract, NULL_ADDRESS, VersusTokenDataType } from "../../../constants";
+import {
+  Contract,
+  NULL_ADDRESS,
+  VersusTokenDataType,
+} from "../../../constants";
 import { getContractFromNetwork } from "../../../utils/contract";
 
 const versusTokenDataInitial: VersusTokenDataType = {
@@ -35,7 +39,7 @@ export const useVersusFactoryExternalListeners = ({
   resetTempTokenTxs,
   handleOwnerMustTransferFunds,
   handleOwnerMustPermamint,
-  handleLosingToken
+  handleLosingToken,
 }: {
   tokenA: VersusTokenDataType;
   tokenB: VersusTokenDataType;
@@ -274,9 +278,9 @@ export const useVersusFactoryExternalListeners = ({
       const _losingToken = {
         ...tokenB,
         transferredLiquidityOnExpiration: transferredLiquidity,
-      }
-      handleTokenB(_losingToken)
-      handleLosingToken(_losingToken)
+      };
+      handleTokenB(_losingToken);
+      handleLosingToken(_losingToken);
     }
     if (
       tokenB.address &&
@@ -288,14 +292,14 @@ export const useVersusFactoryExternalListeners = ({
       const _losingToken = {
         ...tokenA,
         transferredLiquidityOnExpiration: transferredLiquidity,
-      }
-      handleTokenA(_losingToken)
-      handleLosingToken(_losingToken)
+      };
+      handleTokenA(_losingToken);
+      handleLosingToken(_losingToken);
     }
 
     if (transferredLiquidity > BigInt(0)) {
-      handleOwnerMustTransferFunds(false)
-      handleOwnerMustPermamint(true)
+      handleOwnerMustTransferFunds(false);
+      handleOwnerMustPermamint(true);
     }
   };
 
@@ -369,6 +373,6 @@ export const useVersusFactoryExternalListeners = ({
     ) {
       handleTokenA(versusTokenDataInitial);
     }
-    handleOwnerMustPermamint(false)
+    handleOwnerMustPermamint(false);
   };
 };

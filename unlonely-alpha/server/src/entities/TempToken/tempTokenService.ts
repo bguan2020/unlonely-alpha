@@ -299,7 +299,7 @@ export const updateTempTokenTransferredLiquidityOnExpiration = async (
     );
     throw error; // Or handle error as needed
   }
-}
+};
 
 export interface IGetTempTokensInput {
   tokenAddress?: string;

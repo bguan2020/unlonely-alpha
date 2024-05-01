@@ -33,7 +33,6 @@ export enum InteractionType {
   VERSUS_WINNER_TOKENS_MINTED = "versus-winner-tokens-minted-interaction",
   VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY = "versus-set-winning-token-tradeable-and-transfer-liquidity-interaction",
 
-
   EVENT_LIVE = "event-live-interaction",
   EVENT_LOCK = "event-lock-interaction",
   EVENT_UNLOCK = "event-unlock-interaction",
@@ -130,7 +129,6 @@ export type VersusTokenDataType = {
   transferredLiquidityOnExpiration: bigint;
   endTimestamp?: bigint;
 };
-
 
 export const versusTokenDataInitial: VersusTokenDataType = {
   transferredLiquidityOnExpiration: BigInt(0),
