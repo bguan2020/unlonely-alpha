@@ -61,22 +61,17 @@ export const VersusTempTokenTimerView = ({
   disableChatbot: boolean;
 }) => {
   const { gameState } = useVersusTempTokenContext();
-  const {
-    tokenA,
-    handleCanPlayToken,
-    handleIsGameFinished,
-    handleIsGameFinishedModalOpen,
-  } = gameState;
+  const { tokenA, tokenB, handleCanPlayToken, handleIsGameFinished } =
+    gameState;
   const { durationLeftForTempToken } = useVersusTempTokenTimerState(
     tokenA.endTimestamp,
     () => {
       handleCanPlayToken(false);
       handleIsGameFinished(true);
-      handleIsGameFinishedModalOpen(true);
     },
     disableChatbot,
-    "The tokens will expire in 5 minutes!",
-    "The tokens have expired!"
+    `The $${tokenA} and $${tokenB} tokens will expire in 5 minutes!`,
+    ""
   );
 
   return (

@@ -12,13 +12,8 @@ export const VersusTokenDisclaimerModal = ({
   handleClose: () => void;
 }) => {
   const { gameState } = useVersusTempTokenContext();
-  const {
-    tokenA,
-    tokenB,
-    handleCanPlayToken,
-    handleIsGameFinished,
-    handleIsGameFinishedModalOpen,
-  } = gameState;
+  const { tokenA, tokenB, handleCanPlayToken, handleIsGameFinished } =
+    gameState;
   const { endTimestamp: endTimestampA } = tokenA;
   const { endTimestamp: endTimestampB } = tokenB;
   const { durationLeftForTempToken } = useVersusTempTokenTimerState(
@@ -26,11 +21,10 @@ export const VersusTokenDisclaimerModal = ({
     () => {
       handleCanPlayToken(false);
       handleIsGameFinished(true);
-      handleIsGameFinishedModalOpen(true);
     },
     true,
-    "The tokens will expire in 5 minutes!",
-    "The tokens have expired!"
+    `The $${tokenA} and $${tokenB} tokens will expire in 5 minutes!`,
+    ""
   );
 
   return (

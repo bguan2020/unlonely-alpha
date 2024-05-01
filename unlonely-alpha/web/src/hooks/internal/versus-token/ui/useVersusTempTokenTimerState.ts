@@ -66,7 +66,7 @@ export const useVersusTempTokenTimerState = (
       durationLeftForTempToken !== undefined &&
       durationLeftForTempToken === 300 &&
       isChannelOwner &&
-      !disableChatbot
+      !disableChatbot && fiveMinuteWarningMessage.length > 0
     ) {
       // if the duration left is 5 minutes, send a chatbot message to notify everyone that the token is about to expire
       const title = fiveMinuteWarningMessage;
@@ -79,7 +79,7 @@ export const useVersusTempTokenTimerState = (
       });
     }
     if (durationLeftForTempToken === undefined && canCallExpiration) {
-      if (isChannelOwner && !disableChatbot) {
+      if (isChannelOwner && !disableChatbot && expirationMessage.length > 0) {
         const title = expirationMessage;
         addToChatbotForTempToken({
           username: user?.username ?? "",

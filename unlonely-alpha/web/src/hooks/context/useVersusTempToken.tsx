@@ -22,6 +22,7 @@ import {
   useReadVersusTempTokenGlobalState,
 } from "../internal/versus-token/read/useReadVersusTempTokenGlobalState";
 import { useReadVersusTempTokenOnMount } from "../internal/versus-token/read/useReadVersusTempTokenOnMount";
+import { usePublicClient } from "wagmi";
 
 export const useVersusTempTokenContext = () => {
   return useContext(VersusTempTokenContext);
@@ -56,6 +57,7 @@ export const VersusTempTokenProvider = ({
   const { channel, chat } = useChannelContext();
   const { isOwner } = channel;
   const { addToChatbot: addToChatbotForTempToken } = chat;
+  const publicClient = usePublicClient();
 
   const globalState = useReadVersusTempTokenGlobalState();
 
@@ -286,6 +288,14 @@ export const VersusTempTokenProvider = ({
     const onGameFinish = async () => {
       if (!globalState.isGameFinished) return;
       globalState.handleIsGameOngoing(false);
+      globalState.handleIsGameFinishedModalOpen(true);
+
+      /**
+       * The two if statements below determine which token is the winning token and which is the losing token. The only situation when these if statements do not run are when
+       * both tokens have the same total supply and neither token is always tradeable.
+       *
+       * In this case, addition work is done to determine the next course of action in the code block further down.
+       */
       if (
         globalState.tokenA.isAlwaysTradeable ||
         globalState.tokenA.totalSupply > globalState.tokenB.totalSupply
@@ -300,6 +310,21 @@ export const VersusTempTokenProvider = ({
         globalState.handleWinningToken(globalState.tokenB);
         globalState.handleLosingToken(globalState.tokenA);
       }
+
+      const [balanceA, balanceB] = await Promise.all([
+        publicClient.readContract({
+          address: globalState.tokenA.contractData.address as `0x${string}`,
+          abi: globalState.tokenA.contractData.abi,
+          functionName: "getBalance",
+          args: [],
+        }),
+        publicClient.readContract({
+          address: globalState.tokenB.contractData.address as `0x${string}`,
+          abi: globalState.tokenB.contractData.abi,
+          functionName: "getBalance",
+          args: [],
+        }),
+      ]);
 
       /**
        * if neither tokens are always tradeable at this point, the owner must transfer funds, else the owner must permamint
@@ -328,22 +353,42 @@ export const VersusTempTokenProvider = ({
           globalState.handleLosingToken(globalState.tokenB);
           globalState.handleOwnerMustTransferFunds(true);
           globalState.handleOwnerMustPermamint(false);
-        } else {
-          console.log(
-            "unhandled case in onGameFinish, please report to dev",
-            globalState.tokenA,
-            globalState.tokenB
-          );
+        } else if (
+          globalState.tokenA.totalSupply > BigInt(0) &&
+          BigInt(String(balanceA)) > BigInt(0) &&
+          globalState.tokenB.totalSupply > BigInt(0) &&
+          BigInt(String(balanceA)) > BigInt(0)
+        ) {
+          globalState.handleOwnerMustTransferFunds(true);
+          globalState.handleOwnerMustPermamint(false);
         }
       } else {
-        globalState.handleOwnerMustTransferFunds(false);
-        globalState.handleOwnerMustPermamint(true);
+        /**
+         * if one of the tokens is always tradeable, the owner
+         * must permamint UNLESS the other token, or the
+         * untradeable one has zero balance, meaning the owner
+         * had already permamint at that point
+         */
+        if (
+          (globalState.tokenA.isAlwaysTradeable &&
+            BigInt(String(balanceB)) === BigInt(0)) ||
+          (globalState.tokenB.isAlwaysTradeable &&
+            BigInt(String(balanceA)) === BigInt(0))
+        ) {
+          globalState.handleOwnerMustPermamint(false);
+        } else {
+          globalState.handleOwnerMustTransferFunds(false);
+          globalState.handleOwnerMustPermamint(true);
+        }
       }
-
-      globalState.handleOwnerMustTransferFunds(true);
     };
     onGameFinish();
-  }, [globalState.isGameFinished, globalState.tokenA, globalState.tokenB]);
+  }, [
+    globalState.isGameFinished,
+    globalState.tokenA,
+    globalState.tokenB,
+    publicClient,
+  ]);
 
   const value = useMemo(
     () => ({

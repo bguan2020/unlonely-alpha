@@ -138,9 +138,6 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
       const wei_amount = Number(losingToken.transferredLiquidityOnExpiration);
       const total_fee_percent: number = 10 * 10 ** 16; // 5% protocol fee and 5% streamer fee
       const winningTokenSupply = Number(winningToken.totalSupply);
-      console.log("wei_amount", wei_amount);
-      console.log("total_fee_percent", total_fee_percent);
-      console.log("winningTokenSupply", winningTokenSupply);
       const lambda = new AWS.Lambda({
         region: "us-west-2",
         accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY,
@@ -189,9 +186,12 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
         !mintWinnerTokens ||
         amountOfTokensToMint === 0
       }
-      h="30%"
     >
-      {isMintWinnerTokensLoading ? <Spinner /> : "Mint Winner Tokens"}
+      {isMintWinnerTokensLoading ? (
+        <Spinner />
+      ) : (
+        `Mint Winner Tokens (${amountOfTokensToMint})`
+      )}
     </Button>
   );
 };

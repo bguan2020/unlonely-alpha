@@ -70,15 +70,22 @@ export const useReadVersusTempTokenOnMount = ({
         const _tokenA = nonNullListOfTokens?.[1];
         if (_tokenA !== undefined && _tokenB !== undefined) {
           const [
+            balanceA,
             endTimestampA,
             totalSupplyA,
             highestTotalSupplyA,
             isAlwaysTradeableA,
+            balanceB,
             endTimeStampB,
             totalSupplyB,
             highestTotalSupplyB,
             isAlwaysTradeableB,
           ] = await Promise.all([
+            publicClient.readContract({
+              address: _tokenA.tokenAddress as `0x${string}`,
+              abi: TempTokenAbi,
+              functionName: "getBalance",
+            }),
             publicClient.readContract({
               address: _tokenA.tokenAddress as `0x${string}`,
               abi: TempTokenAbi,
@@ -98,6 +105,11 @@ export const useReadVersusTempTokenOnMount = ({
               address: _tokenA.tokenAddress as `0x${string}`,
               abi: TempTokenAbi,
               functionName: "isAlwaysTradeable",
+            }),
+            publicClient.readContract({
+              address: _tokenB.tokenAddress as `0x${string}`,
+              abi: TempTokenAbi,
+              functionName: "getBalance",
             }),
             publicClient.readContract({
               address: _tokenB.tokenAddress as `0x${string}`,
@@ -208,22 +220,39 @@ export const useReadVersusTempTokenOnMount = ({
                 _newTokenA.totalSupply > BigInt(0)
               ) {
                 /**
-                 * if both tokens have the same non-zero total supply and neither token is always tradeable, tokenA is the default winner and the owner must permamint
+                 * if both tokens have the same non-zero total supply 
+                 * and neither token is always tradeable, tokenA is 
+                 * the default winner and the owner must permamint
                  */
                 handleWinningToken(_newTokenA);
                 handleLosingToken(_newTokenB);
                 handleOwnerMustTransferFunds(true);
                 handleOwnerMustPermamint(false);
-              } else {
-                console.log(
-                  "unhandled case in fetchVersusTempTokens, please report to dev",
-                  _newTokenA,
-                  _newTokenB
-                );
+              }  else if (
+                _newTokenA.totalSupply > BigInt(0) && BigInt(String(balanceB)) > BigInt(0) &&
+                _newTokenB.totalSupply > BigInt(0) && BigInt(String(balanceA)) > BigInt(0)
+              ) {
+                handleOwnerMustTransferFunds(true);
+                handleOwnerMustPermamint(false);
               }
             } else {
-              handleOwnerMustTransferFunds(false);
-              handleOwnerMustPermamint(true);
+
+              /**
+               * if one of the tokens is always tradeable, the owner 
+               * must permamint UNLESS the other token, or the 
+               * untradeable one has zero balance, meaning the owner 
+               * had already permamint at that point
+               */
+              if (
+                (_newTokenA.isAlwaysTradeable && BigInt(String(balanceB)) === BigInt(0)) ||
+                (_newTokenB.isAlwaysTradeable && BigInt(String(balanceA)) === BigInt(0))
+              ) {
+                handleOwnerMustPermamint(false);
+              }
+              else {
+                handleOwnerMustTransferFunds(false);
+                handleOwnerMustPermamint(true);
+              }
             }
           } else {
             handleIsGameOngoing(true);

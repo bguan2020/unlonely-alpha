@@ -19,7 +19,7 @@ import { useState } from "react";
 import { VersusTokenCreationModal } from "../../versus/VersusTokenCreationModal";
 import { VersusTokenDisclaimerModal } from "../../versus/VersusTokenDisclaimerModal";
 import { VersusTokenExchange } from "../../versus/VersusTokenExchange";
-import { isAddressEqual } from "viem";
+import { isAddress, isAddressEqual } from "viem";
 import { VersusTokenGameFinishedModal } from "../../versus/VersusTokenGameFinishedModal";
 import { TransferLiquidityModule } from "./TransferLiquidityModule";
 import { PermamintModule } from "./PermamintModule";
@@ -42,6 +42,7 @@ export const VersusTempTokensInterface = ({
 
   const { gameState } = useVersusTempTokenContext();
   const {
+    winningToken,
     canPlayToken,
     isGameOngoing,
     focusedTokenToTrade,
@@ -55,13 +56,6 @@ export const VersusTempTokensInterface = ({
     handleIsGameFinishedModalOpen,
   } = gameState;
   const windowSize = useWindowSize();
-
-  console.log(
-    "isGameOngoing",
-    isGameOngoing,
-    ownerMustTransferFunds,
-    ownerMustPermamint
-  );
 
   const [createTokensModalOpen, setCreateTokensModalOpen] = useState(false);
   const [
@@ -101,7 +95,7 @@ export const VersusTempTokensInterface = ({
         />
         <VersusTokenGameFinishedModal
           title={"Game Finished"}
-          isOpen={isGameFinishedModalOpen}
+          isOpen={isGameFinishedModalOpen && isAddress(winningToken.address)}
           handleClose={() => handleIsGameFinishedModalOpen(false)}
         />
         <Flex justifyContent={"space-between"} alignItems={"center"}>
@@ -219,10 +213,7 @@ export const VersusTempTokensInterface = ({
                 {!isGameOngoing &&
                   !ownerMustPermamint &&
                   !ownerMustTransferFunds && (
-                    <Button
-                      onClick={() => setCreateTokensModalOpen(true)}
-                      h="30%"
-                    >
+                    <Button onClick={() => setCreateTokensModalOpen(true)}>
                       Create tokens
                     </Button>
                   )}

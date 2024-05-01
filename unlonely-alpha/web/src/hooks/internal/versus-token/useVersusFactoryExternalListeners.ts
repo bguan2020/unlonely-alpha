@@ -249,11 +249,11 @@ export const useVersusFactoryExternalListeners = ({
     const filteredLogsByMatchingAddresses = logs.filter(
       (log: any) =>
         isAddressEqual(
-          log.args.winningTokenAddress as `0x${string}`,
+          log.args.winnerTokenAddress as `0x${string}`,
           tokenA.address as `0x${string}`
         ) ||
         isAddressEqual(
-          log.args.winningTokenAddress as `0x${string}`,
+          log.args.winnerTokenAddress as `0x${string}`,
           tokenB.address as `0x${string}`
         )
     );
@@ -262,8 +262,8 @@ export const useVersusFactoryExternalListeners = ({
     );
     if (sortedLogs.length === 0) return;
     const latestLog: any = sortedLogs[sortedLogs.length - 1];
-    const winningTokenAddress = latestLog?.args
-      .winningTokenAddress as `0x${string}`;
+    const winnerTokenAddress = latestLog?.args
+      .winnerTokenAddress as `0x${string}`;
     const losingTokenAddress = latestLog?.args
       .losingTokenAddress as `0x${string}`;
     const transferredLiquidity = latestLog?.args.transferredLiquidity as bigint;
@@ -271,7 +271,7 @@ export const useVersusFactoryExternalListeners = ({
     if (
       tokenA.address &&
       isAddressEqual(
-        winningTokenAddress as `0x${string}`,
+        winnerTokenAddress as `0x${string}`,
         tokenA.address as `0x${string}`
       )
     ) {
@@ -285,7 +285,7 @@ export const useVersusFactoryExternalListeners = ({
     if (
       tokenB.address &&
       isAddressEqual(
-        winningTokenAddress as `0x${string}`,
+        winnerTokenAddress as `0x${string}`,
         tokenB.address as `0x${string}`
       )
     ) {
@@ -338,11 +338,11 @@ export const useVersusFactoryExternalListeners = ({
     const filteredLogsByMatchingAddresses = logs.filter(
       (log: any) =>
         isAddressEqual(
-          log.args.winningTokenAddress as `0x${string}`,
+          log.args.winnerTokenAddress as `0x${string}`,
           tokenA.address as `0x${string}`
         ) ||
         isAddressEqual(
-          log.args.winningTokenAddress as `0x${string}`,
+          log.args.winnerTokenAddress as `0x${string}`,
           tokenB.address as `0x${string}`
         )
     );
@@ -351,14 +351,14 @@ export const useVersusFactoryExternalListeners = ({
     );
     if (sortedLogs.length === 0) return;
     const latestLog: any = sortedLogs[sortedLogs.length - 1];
-    const winningTokenAddress = latestLog?.args
-      .winningTokenAddress as `0x${string}`;
+    const winnerTokenAddress = latestLog?.args
+      .winnerTokenAddress as `0x${string}`;
     const amount = latestLog?.args.amount as bigint;
 
     if (
       tokenA.address &&
       isAddressEqual(
-        winningTokenAddress as `0x${string}`,
+        winnerTokenAddress as `0x${string}`,
         tokenA.address as `0x${string}`
       )
     ) {
@@ -367,7 +367,7 @@ export const useVersusFactoryExternalListeners = ({
     if (
       tokenB.address &&
       isAddressEqual(
-        winningTokenAddress as `0x${string}`,
+        winnerTokenAddress as `0x${string}`,
         tokenB.address as `0x${string}`
       )
     ) {
