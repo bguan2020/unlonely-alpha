@@ -2,30 +2,17 @@ import { Box, Button, Spinner, useToast } from "@chakra-ui/react";
 import { useMintWinnerTokens } from "../../../../hooks/contracts/useTempTokenFactoryV1";
 import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
 import { useEffect, useState } from "react";
-import { Contract, InteractionType } from "../../../../constants";
+import { Contract } from "../../../../constants";
 import { useNetworkContext } from "../../../../hooks/context/useNetwork";
 import { getContractFromNetwork } from "../../../../utils/contract";
-import { decodeEventLog, formatUnits, isAddress } from "viem";
+import { decodeEventLog, isAddress } from "viem";
 import Link from "next/link";
-import { useChannelContext } from "../../../../hooks/context/useChannel";
-import { useUser } from "../../../../hooks/context/useUser";
 import * as AWS from "aws-sdk";
+import useUpdateTempTokenTransferredLiquidityOnExpiration from "../../../../hooks/server/temp-token/useUpdateTempTokenTransferredLiquidityOnExpiration";
 
 export const PermamintModule = (callbackOnTxSuccess?: any) => {
-  const { userAddress, user } = useUser();
-
   const { gameState } = useVersusTempTokenContext();
-  const {
-    winningToken,
-    losingToken,
-    tokenA,
-    tokenB,
-    handleOwnerMustPermamint,
-    handleOwnerMustTransferFunds,
-  } = gameState;
-
-  const { chat } = useChannelContext();
-  const { addToChatbot } = chat;
+  const { winningToken, losingToken, handleOwnerMustPermamint } = gameState;
 
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
@@ -39,6 +26,9 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
   const [amountOfTokensToMint, setAmountOfTokensToMint] = useState<
     number | undefined
   >(undefined);
+
+  const { updateTempTokenTransferredLiquidityOnExpiration, loading } =
+    useUpdateTempTokenTransferredLiquidityOnExpiration({});
 
   const { mintWinnerTokens, isMintWinnerTokensLoading } = useMintWinnerTokens(
     {
@@ -101,18 +91,14 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
           isClosable: true,
           position: "top-right",
         });
-        const winnerTokenAddress = args.winnerTokenAddress as `0x${string}`;
-        const loserTokenAddress = args.loserTokenAddress as `0x${string}`;
         const transferredLiquidityInWei = args.transferredLiquidity as bigint;
-        const title = `The $${String(
-          formatUnits(transferredLiquidityInWei, 18)
-        )}ETH was used to mint the winning token!`;
-        addToChatbot({
-          username: user?.username ?? "",
-          address: userAddress ?? "",
-          taskType: InteractionType.VERSUS_WINNER_TOKENS_MINTED,
-          title,
-          description: "",
+        await updateTempTokenTransferredLiquidityOnExpiration({
+          losingTokenAddress: losingToken.address,
+          chainId: localNetwork.config.chainId,
+          finalLiquidityInWei: String(
+            losingToken.transferredLiquidityOnExpiration -
+              transferredLiquidityInWei
+          ),
         });
         callbackOnTxSuccess?.();
       },
@@ -166,7 +152,13 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
       } else {
         const maxNumTokens: number = parsedResponse.body as number;
         setAmountOfTokensToMint(maxNumTokens);
-
+        console.log(
+          "max amount to mint winner tokens",
+          maxNumTokens,
+          wei_amount,
+          winningTokenSupply,
+          total_fee_percent
+        );
         /**
          * If the maxNumTokens is 0, then the owner does not need to permamint and can skip this step
          */
@@ -184,10 +176,11 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
       isDisabled={
         isMintWinnerTokensLoading ||
         !mintWinnerTokens ||
-        amountOfTokensToMint === 0
+        amountOfTokensToMint === 0 ||
+        amountOfTokensToMint === undefined
       }
     >
-      {isMintWinnerTokensLoading ? (
+      {isMintWinnerTokensLoading || amountOfTokensToMint === undefined ? (
         <Spinner />
       ) : (
         `Mint Winner Tokens (${amountOfTokensToMint})`

@@ -3,6 +3,7 @@ import {
   IconButton,
   PopoverTrigger,
   Text,
+  useToast,
   Image,
   Popover,
   PopoverArrow,
@@ -15,14 +16,16 @@ import { VersusTempTokenTimerView } from "../../temp/TempTokenTimer";
 import { useWindowSize } from "../../../../hooks/internal/useWindowSize";
 import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { VersusTempTokenChart } from "./VersusTempTokenChart";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { VersusTokenCreationModal } from "../../versus/VersusTokenCreationModal";
 import { VersusTokenDisclaimerModal } from "../../versus/VersusTokenDisclaimerModal";
-import { VersusTokenExchange } from "../../versus/VersusTokenExchange";
 import { isAddress, isAddressEqual } from "viem";
 import { VersusTokenGameFinishedModal } from "../../versus/VersusTokenGameFinishedModal";
 import { TransferLiquidityModule } from "./TransferLiquidityModule";
 import { PermamintModule } from "./PermamintModule";
+import centerEllipses from "../../../../utils/centerEllipses";
+import copy from "copy-to-clipboard";
+import { FaRegCopy } from "react-icons/fa";
 
 export const VersusTempTokensInterface = ({
   customHeight,
@@ -38,7 +41,7 @@ export const VersusTempTokensInterface = ({
   noChannelData?: boolean;
 }) => {
   const { channel } = useChannelContext();
-  const { channelQueryData, isOwner } = channel;
+  const { channelQueryData, isOwner, realTimeChannelDetails } = channel;
 
   const { gameState } = useVersusTempTokenContext();
   const {
@@ -56,6 +59,7 @@ export const VersusTempTokensInterface = ({
     handleIsGameFinishedModalOpen,
   } = gameState;
   const windowSize = useWindowSize();
+  const toast = useToast();
 
   const [createTokensModalOpen, setCreateTokensModalOpen] = useState(false);
   const [
@@ -75,13 +79,33 @@ export const VersusTempTokensInterface = ({
     );
   };
 
+  useEffect(() => {
+    if (isAddress(winningToken.address))
+      handleFocusedTokenToTrade(winningToken.contractData);
+  }, [winningToken]);
+
+  const handleCopyAddress = () => {
+    toast({
+      title: "copied token address",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
+
+  console.log(
+    "isGameFinishedModalOpen",
+    isGameFinishedModalOpen,
+    isAddress(winningToken.address)
+  );
+
   return (
     <>
       <Flex
-        direction="column"
+        direction={"column"}
         justifyContent={"space-between"}
         width="100%"
-        p={"10px"}
+        gap={"5px"}
         h={customHeight ?? "100%"}
       >
         <VersusTokenCreationModal
@@ -99,6 +123,85 @@ export const VersusTempTokensInterface = ({
           handleClose={() => handleIsGameFinishedModalOpen(false)}
         />
         <Flex justifyContent={"space-between"} alignItems={"center"}>
+          {!canPlayToken && (
+            <Flex direction={"column"}>
+              {isAddress(winningToken.address) ? (
+                <>
+                  <Text
+                    fontSize={"20px"}
+                    color={
+                      isAddressEqual(
+                        winningToken.address,
+                        tokenA.address as `0x${string}`
+                      )
+                        ? "rgba(255, 36, 36, 1)"
+                        : "rgba(42, 217, 255, 1)"
+                    }
+                    fontWeight="bold"
+                  >
+                    ${winningToken.symbol}
+                  </Text>
+                  <Flex alignItems="center">
+                    <Text
+                      fontSize={"10px"}
+                      color={
+                        isAddressEqual(
+                          winningToken.address,
+                          tokenA.address as `0x${string}`
+                        )
+                          ? "rgba(255, 36, 36, 1)"
+                          : "rgba(42, 217, 255, 1)"
+                      }
+                    >
+                      {centerEllipses(winningToken.address, 13)}
+                    </Text>
+                    <IconButton
+                      aria-label={`copy-${winningToken.address}`}
+                      color="#b5b5b5"
+                      icon={<FaRegCopy />}
+                      height="10px"
+                      minWidth={"10px"}
+                      bg="transparent"
+                      _focus={{}}
+                      _active={{}}
+                      _hover={{
+                        color: "white",
+                      }}
+                      onClick={() => {
+                        copy(winningToken.address);
+                        handleCopyAddress();
+                      }}
+                    />
+                  </Flex>
+                </>
+              ) : (
+                <Text fontWeight="bold" fontSize={"20px"}>
+                  <Text as="span" color="rgba(255, 36, 36, 1)">
+                    ${tokenA.symbol}
+                  </Text>{" "}
+                  VS{" "}
+                  <Text as="span" color="rgba(42, 217, 255, 1)">
+                    ${tokenB.symbol}
+                  </Text>
+                </Text>
+              )}
+            </Flex>
+          )}
+          {isOwner && (
+            <>
+              {!isGameOngoing &&
+                !ownerMustPermamint &&
+                !ownerMustTransferFunds && (
+                  <Button onClick={() => setCreateTokensModalOpen(true)}>
+                    Create tokens
+                  </Button>
+                )}
+              {!isGameOngoing && ownerMustTransferFunds && (
+                <TransferLiquidityModule />
+              )}
+              {!isGameOngoing && ownerMustPermamint && <PermamintModule />}
+            </>
+          )}
           {isFullChart && <VersusTempTokenTimerView disableChatbot={true} />}
           {!isFullChart && (
             <Flex>
@@ -193,50 +296,29 @@ export const VersusTempTokensInterface = ({
             </Button>
           </Flex>
         )}
-        <VersusTempTokenChart noChannelData={noChannelData} />
-        {!canPlayToken && (
-          <>
-            {isOwner ? (
-              <>
-                {isGameOngoing &&
-                  !ownerMustPermamint &&
-                  !ownerMustTransferFunds && (
-                    <Button
-                      onClick={() =>
-                        setVersusTempTokenDisclaimerModalOpen(true)
-                      }
-                      h="30%"
-                    >
-                      Play
-                    </Button>
-                  )}
-                {!isGameOngoing &&
-                  !ownerMustPermamint &&
-                  !ownerMustTransferFunds && (
-                    <Button onClick={() => setCreateTokensModalOpen(true)}>
-                      Create tokens
-                    </Button>
-                  )}
-                {!isGameOngoing && ownerMustTransferFunds && (
-                  <TransferLiquidityModule />
-                )}
-                {!isGameOngoing && ownerMustPermamint && <PermamintModule />}
-              </>
-            ) : (
-              <>
-                {isGameOngoing && (
-                  <Button
-                    onClick={() => setVersusTempTokenDisclaimerModalOpen(true)}
-                    h="30%"
-                  >
-                    Play
-                  </Button>
-                )}
-              </>
-            )}
-          </>
-        )}
-        {canPlayToken && <VersusTokenExchange />}
+        <Flex flex="1" direction={"column"}>
+          <VersusTempTokenChart noChannelData={noChannelData} />
+          {!canPlayToken &&
+          isGameOngoing &&
+          realTimeChannelDetails.isLive &&
+          !ownerMustPermamint &&
+          !ownerMustTransferFunds ? (
+            <Button
+              onClick={() => setVersusTempTokenDisclaimerModalOpen(true)}
+              h="30%"
+            >
+              Play
+            </Button>
+          ) : ownerMustTransferFunds ? (
+            <Text>Wait for streamer to transfer funds</Text>
+          ) : ownerMustPermamint ? (
+            <Text>Wait for streamer to mint winner tokens</Text>
+          ) : !realTimeChannelDetails.isLive && isGameOngoing ? (
+            <Text>
+              Cannot play when stream is offline, please refresh and try again
+            </Text>
+          ) : null}
+        </Flex>
       </Flex>
     </>
   );

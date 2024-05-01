@@ -272,6 +272,7 @@ export const VersusTempTokenProvider = ({
     handleIsGameFinishedModalOpen: globalState.handleIsGameFinishedModalOpen,
     handleOwnerMustTransferFunds: globalState.handleOwnerMustTransferFunds,
     handleOwnerMustPermamint: globalState.handleOwnerMustPermamint,
+    handleWinningToken: globalState.handleWinningToken,
     handleLosingToken: globalState.handleLosingToken,
     resetTempTokenTxs: () => {
       readTempTokenTxs_a.resetTempTokenTxs();
@@ -286,6 +287,12 @@ export const VersusTempTokenProvider = ({
    */
   useEffect(() => {
     const onGameFinish = async () => {
+      console.log(
+        "calling onGameFinish",
+        globalState.isGameFinished,
+        globalState.tokenA,
+        globalState.tokenB
+      );
       if (!globalState.isGameFinished) return;
       globalState.handleIsGameOngoing(false);
       globalState.handleIsGameFinishedModalOpen(true);
@@ -364,10 +371,8 @@ export const VersusTempTokenProvider = ({
         }
       } else {
         /**
-         * if one of the tokens is always tradeable, the owner
-         * must permamint UNLESS the other token, or the
-         * untradeable one has zero balance, meaning the owner
-         * had already permamint at that point
+         * if one of the tokens is always tradeable and the other untradeable token has zero balance, meaning the owner
+         * had already transferred liquidity at that point, skip transfer phase and go straight to permamint phase
          */
         if (
           (globalState.tokenA.isAlwaysTradeable &&
@@ -375,8 +380,6 @@ export const VersusTempTokenProvider = ({
           (globalState.tokenB.isAlwaysTradeable &&
             BigInt(String(balanceA)) === BigInt(0))
         ) {
-          globalState.handleOwnerMustPermamint(false);
-        } else {
           globalState.handleOwnerMustTransferFunds(false);
           globalState.handleOwnerMustPermamint(true);
         }

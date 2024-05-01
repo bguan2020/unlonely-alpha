@@ -167,6 +167,8 @@ export const useReadVersusTempTokenOnMount = ({
           setTokenA(_newTokenA);
           setTokenB(_newTokenB);
 
+          console.log(_newTokenA, _newTokenB, balanceA, balanceB)
+
           /**
            * check if the game is finished through using endTimestamps
            */
@@ -238,18 +240,13 @@ export const useReadVersusTempTokenOnMount = ({
             } else {
 
               /**
-               * if one of the tokens is always tradeable, the owner 
-               * must permamint UNLESS the other token, or the 
-               * untradeable one has zero balance, meaning the owner 
-               * had already permamint at that point
+               * if one of the tokens is always tradeable and the other untradeable token has zero balance, meaning the owner 
+               * had already transferred liquidity at that point, skip transfer phase and go straight to permamint phase
                */
               if (
                 (_newTokenA.isAlwaysTradeable && BigInt(String(balanceB)) === BigInt(0)) ||
                 (_newTokenB.isAlwaysTradeable && BigInt(String(balanceA)) === BigInt(0))
               ) {
-                handleOwnerMustPermamint(false);
-              }
-              else {
                 handleOwnerMustTransferFunds(false);
                 handleOwnerMustPermamint(true);
               }

@@ -3,7 +3,6 @@ import { TransactionModalTemplate } from "../../transactions/TransactionModalTem
 import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempToken";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useEffect } from "react";
-import { isAddress } from "viem";
 import { useUser } from "../../../hooks/context/useUser";
 import { InteractionType } from "../../../constants";
 import { useRouter } from "next/router";
@@ -24,17 +23,11 @@ export const VersusTokenGameFinishedModal = ({
   const router = useRouter();
 
   const { gameState } = useVersusTempTokenContext();
-  const { winningToken, losingToken } = gameState;
+  const { winningToken } = gameState;
 
   useEffect(() => {
-    if (
-      isChannelOwner &&
-      isOpen &&
-      isAddress(winningToken.address) &&
-      isAddress(losingToken.address) &&
-      router.pathname.startsWith("/channels")
-    ) {
-      const title = `Game finished! The ${winningToken.symbol} token has won!`;
+    if (isChannelOwner && isOpen && router.pathname.startsWith("/channels")) {
+      const title = "Game finished! Both tokens are now expired!";
       addToChatbotForTempToken({
         username: user?.username ?? "",
         address: userAddress ?? "",
@@ -43,7 +36,7 @@ export const VersusTokenGameFinishedModal = ({
         description: "",
       });
     }
-  }, [isChannelOwner, isOpen, winningToken, losingToken, router.pathname]);
+  }, [isChannelOwner, isOpen, router.pathname]);
 
   return (
     <TransactionModalTemplate

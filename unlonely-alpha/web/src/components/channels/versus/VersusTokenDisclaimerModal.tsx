@@ -14,10 +14,8 @@ export const VersusTokenDisclaimerModal = ({
   const { gameState } = useVersusTempTokenContext();
   const { tokenA, tokenB, handleCanPlayToken, handleIsGameFinished } =
     gameState;
-  const { endTimestamp: endTimestampA } = tokenA;
-  const { endTimestamp: endTimestampB } = tokenB;
   const { durationLeftForTempToken } = useVersusTempTokenTimerState(
-    endTimestampA || endTimestampB,
+    tokenA.endTimestamp,
     () => {
       handleCanPlayToken(false);
       handleIsGameFinished(true);

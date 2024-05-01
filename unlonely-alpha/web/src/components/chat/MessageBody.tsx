@@ -99,6 +99,8 @@ const MessageBody = ({
       InteractionType.TEMP_TOKEN_BECOMES_ALWAYS_TRADEABLE,
       InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED,
       InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION,
+      InteractionType.VERSUS_WINNER_TOKENS_MINTED,
+      InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
     ];
 
     const greenTempTokenInteractionTypes = [InteractionType.BUY_TEMP_TOKENS];

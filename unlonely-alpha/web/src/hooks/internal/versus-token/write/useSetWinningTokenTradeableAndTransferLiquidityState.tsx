@@ -1,30 +1,23 @@
-import { useMemo } from "react";
 import { useVersusTempTokenContext } from "../../../context/useVersusTempToken";
 import { useSetWinningTokenTradeableAndTransferLiquidity } from "../../../contracts/useTempTokenFactoryV1";
-import { decodeEventLog, isAddressEqual } from "viem";
+import { decodeEventLog } from "viem";
 import { Contract } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { Box, useToast } from "@chakra-ui/react";
 import Link from "next/link";
-import { useChannelContext } from "../../../context/useChannel";
-import { useUser } from "../../../context/useUser";
 import useUpdateTempTokenTransferredLiquidityOnExpiration from "../../../server/temp-token/useUpdateTempTokenTransferredLiquidityOnExpiration";
 
 export const useSetWinningTokenTradeableAndTransferLiquidityState = (
   callbackOnTxSuccess?: any
 ) => {
-  const { userAddress, user } = useUser();
   const toast = useToast();
 
   const { gameState } = useVersusTempTokenContext();
-  const { winningToken, tokenA, tokenB } = gameState;
+  const { winningToken, losingToken } = gameState;
 
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
-
-  const { chat } = useChannelContext();
-  const { addToChatbot } = chat;
 
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
@@ -33,16 +26,6 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
 
   const { updateTempTokenTransferredLiquidityOnExpiration, loading } =
     useUpdateTempTokenTransferredLiquidityOnExpiration({});
-
-  const losingToken = useMemo(() => {
-    if (!winningToken || !winningToken.address) return null;
-    return isAddressEqual(
-      winningToken.address as `0x${string}`,
-      tokenA.address as `0x${string}`
-    )
-      ? tokenB
-      : tokenA;
-  }, [winningToken, tokenA, tokenB]);
 
   const {
     setWinningTokenTradeableAndTransferLiquidity,
@@ -65,7 +48,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                 href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
-                transfer funds pending, click to view
+                (1/3) transfer funds pending
               </Link>
             </Box>
           ),
@@ -102,7 +85,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                 href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
-                transfer funds success, click to view
+                (2/3) transfer funds success
               </Link>
             </Box>
           ),
@@ -121,7 +104,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
             toast({
               render: () => (
                 <Box as="button" borderRadius="md" bg="#5058c8" px={4} h={8}>
-                  transfer loser liquidity update database success
+                  (3/3) transfer loser liquidity update database success
                 </Box>
               ),
               duration: 9000,

@@ -18,6 +18,8 @@ import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
 import { GET_USER_QUERY } from "../../../../constants/queries";
 import centerEllipses from "../../../../utils/centerEllipses";
 import { useApolloClient } from "@apollo/client";
+import { useInterfaceChartMarkers } from "../../../../hooks/internal/temp-token/ui/useInterfaceChartMarkers";
+import { VersusTokenExchange } from "../../versus/VersusTokenExchange";
 
 export type ConsolidatedTradeData = {
   tokenATrader: string;
@@ -35,129 +37,6 @@ export type ConsolidatedTradeData = {
   blockNumber: number;
 };
 
-const sampleTokenATxs: ChartTokenTx[] = [
-  {
-    user: "a",
-    event: "Mint",
-    amount: 1,
-    price: 1,
-    priceInUsd: 1,
-    priceChangePercentage: 1,
-    blockNumber: 1,
-  },
-  {
-    user: "b",
-    event: "Burn",
-    amount: 2,
-    price: 2,
-    priceInUsd: 2,
-    priceChangePercentage: 2,
-    blockNumber: 1,
-  },
-  {
-    user: "c",
-    event: "Mint",
-    amount: 3,
-    price: 4,
-    priceInUsd: 3,
-    priceChangePercentage: 3,
-    blockNumber: 3,
-  },
-  {
-    user: "d",
-    event: "Mint",
-    amount: 4,
-    price: 6,
-    priceInUsd: 4,
-    priceChangePercentage: 4,
-    blockNumber: 5,
-  },
-  {
-    user: "d",
-    event: "Mint",
-    amount: 4,
-    price: 8,
-    priceInUsd: 4,
-    priceChangePercentage: 4,
-    blockNumber: 6,
-  },
-  {
-    user: "d",
-    event: "Mint",
-    amount: 4,
-    price: 11,
-    priceInUsd: 4,
-    priceChangePercentage: 4,
-    blockNumber: 10,
-  },
-];
-
-const sampleTokenBTxs: ChartTokenTx[] = [
-  {
-    user: "a",
-    event: "Mint",
-    amount: 1,
-    price: 3,
-    priceInUsd: 1,
-    priceChangePercentage: 1,
-    blockNumber: 2,
-  },
-  {
-    user: "b",
-    event: "Burn",
-    amount: 2,
-    price: 5,
-    priceInUsd: 2,
-    priceChangePercentage: 2,
-    blockNumber: 4,
-  },
-  {
-    user: "c",
-    event: "Mint",
-    amount: 3,
-    price: 7,
-    priceInUsd: 3,
-    priceChangePercentage: 3,
-    blockNumber: 5,
-  },
-  {
-    user: "d",
-    event: "Mint",
-    amount: 4,
-    price: 9,
-    priceInUsd: 4,
-    priceChangePercentage: 4,
-    blockNumber: 7,
-  },
-  {
-    user: "d",
-    event: "Mint",
-    amount: 4,
-    price: 10,
-    priceInUsd: 4,
-    priceChangePercentage: 4,
-    blockNumber: 7,
-  },
-  {
-    user: "d",
-    event: "Burn",
-    amount: 4,
-    price: 7,
-    priceInUsd: 4,
-    priceChangePercentage: 4,
-    blockNumber: 10,
-  },
-  {
-    user: "d",
-    event: "Burn",
-    amount: 4,
-    price: 6,
-    priceInUsd: 4,
-    priceChangePercentage: 4,
-    blockNumber: 10,
-  },
-];
-
 export const VersusTempTokenChart = ({
   noChannelData,
   isFullChart,
@@ -167,9 +46,28 @@ export const VersusTempTokenChart = ({
 }) => {
   const { ethPriceInUsd } = useCacheContext();
   const { gameState, tokenATxs, tokenBTxs } = useVersusTempTokenContext();
-  const { focusedTokenToTrade } = gameState;
+  const {
+    winningToken,
+    canPlayToken,
+    isGameOngoing,
+    isGameFinished,
+    focusedTokenToTrade,
+    ownerMustPermamint,
+    ownerMustTransferFunds,
+    isGameFinishedModalOpen,
+    tokenA,
+    tokenB,
+    handleCanPlayToken,
+    handleFocusedTokenToTrade,
+    handleIsGameFinishedModalOpen,
+  } = gameState;
   const { network } = useNetworkContext();
   const { matchingChain } = network;
+
+  const { CustomTooltip: SingleCustomTooltip } = useInterfaceChartMarkers(
+    [],
+    "all"
+  );
 
   const tokenAChartData = useInterfaceChartData({
     chartTimeIndexes: new Map<string, { index?: number }>(),
@@ -181,9 +79,31 @@ export const VersusTempTokenChart = ({
     txs: tokenBTxs.tempTokenTxs,
   });
 
+  const tokenAWon = useMemo(
+    () =>
+      tokenA.address.length > 0 &&
+      winningToken.address.length > 0 &&
+      isAddressEqual(
+        tokenA.address as `0x${string}`,
+        winningToken.address as `0x${string}`
+      ),
+    [tokenA, winningToken]
+  );
+
+  const tokenBWon = useMemo(
+    () =>
+      tokenB.address.length > 0 &&
+      winningToken.address.length > 0 &&
+      isAddressEqual(
+        tokenB.address as `0x${string}`,
+        winningToken.address as `0x${string}`
+      ),
+    [tokenB, winningToken]
+  );
+
   const client = useApolloClient();
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const VersusCustomTooltip = ({ active, payload }: any) => {
     const [asyncData, setAsyncData] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [lastDataKey, setLastDataKey] = useState<`0x${string}` | null>(null);
@@ -325,17 +245,6 @@ export const VersusTempTokenChart = ({
                 10
               )} ETH`}</Text>
             )}
-            {/* {percentageA !== 0 && (
-              <Text
-                color={
-                  payload[0].payload.tokenAPriceChangePercentage > 0
-                    ? "#46a800"
-                    : "#fe2815"
-                }
-              >{`${
-                payload[0].payload.priceChangePercentage > 0 ? "+" : ""
-              }${percentageA}%`}</Text>
-            )} */}
           </>
         </Flex>
         <Flex direction="column">
@@ -401,17 +310,6 @@ export const VersusTempTokenChart = ({
                 10
               )} ETH`}</Text>
             )}
-            {/* {percentageB !== 0 && (
-              <Text
-                color={
-                  payload[0].payload.tokenBPriceChangePercentage > 0
-                    ? "#46a800"
-                    : "#fe2815"
-                }
-              >{`${
-                payload[0].payload.priceChangePercentage > 0 ? "+" : ""
-              }${percentageB}%`}</Text>
-            )} */}
           </>
         </Flex>
       </Flex>
@@ -423,61 +321,98 @@ export const VersusTempTokenChart = ({
       tokenAChartData.chartTxs,
       tokenBChartData.chartTxs
     );
-    // const res = consolidateChartData(sampleTokenATxs, sampleTokenBTxs);
-    // console.log(res);
-    // return res;
   }, [tokenAChartData.chartTxs, tokenBChartData.chartTxs]);
 
+  const canBuyPostGame = useMemo(
+    () =>
+      isAddress(winningToken.address) &&
+      !isGameFinished &&
+      !isGameOngoing &&
+      !ownerMustPermamint &&
+      !ownerMustTransferFunds,
+    [
+      winningToken,
+      isGameFinished,
+      isGameOngoing,
+      ownerMustPermamint,
+      ownerMustTransferFunds,
+    ]
+  );
+
   return (
-    <Flex gap="10px" flex="1" h="100%" direction="column">
-      <Flex direction="column" w="100%" position="relative" h="100%">
-        {noChannelData && (
-          <Text
-            textAlign="center"
-            position="absolute"
-            color="gray"
-            top="50%"
-            left="50%"
-            transform="translate(-50%, -50%)"
-          >
-            could not fetch channel data
-          </Text>
-        )}
-        {consolidatedChartData.length === 0 && matchingChain && (
-          <Text
-            textAlign="center"
-            position="absolute"
-            color="gray"
-            top="50%"
-            left="50%"
-            transform="translate(-50%, -50%)"
-          >
-            no txs
-          </Text>
-        )}
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={consolidatedChartData}>
-            <XAxis
-              hide
-              dataKey="blockNumber"
-              type="number"
-              domain={["dataMin", "dataMax"]}
-              allowDataOverflow={false}
-            />
-            <YAxis
-              tickFormatter={(tick: number) => {
-                return `$${truncateValue(
-                  Number(formatUnits(BigInt(Math.floor(tick)), 18)) *
-                    Number(ethPriceInUsd ?? "0"),
-                  2
-                )}`;
-              }}
-              domain={["dataMin", "dataMax"]}
-            />
-            <Tooltip content={<CustomTooltip />} />
+    <Flex
+      w="100%"
+      gap="10px"
+      flex="1"
+      h="100%"
+      position="relative"
+      direction={canBuyPostGame ? "row" : "column"}
+    >
+      {noChannelData && (
+        <Text
+          textAlign="center"
+          position="absolute"
+          color="gray"
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%)"
+        >
+          could not fetch channel data
+        </Text>
+      )}
+      {consolidatedChartData.length === 0 && matchingChain && (
+        <Text
+          textAlign="center"
+          position="absolute"
+          color="gray"
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%)"
+        >
+          no txs
+        </Text>
+      )}
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart
+          data={
+            tokenAWon
+              ? tokenAChartData.chartTxs
+              : tokenBWon
+              ? tokenBChartData.chartTxs
+              : consolidatedChartData
+          }
+        >
+          <XAxis
+            hide
+            dataKey="blockNumber"
+            type="number"
+            domain={["dataMin", "dataMax"]}
+            allowDataOverflow={false}
+          />
+          <YAxis
+            tickFormatter={(tick: number) => {
+              return `$${truncateValue(
+                Number(formatUnits(BigInt(Math.floor(tick)), 18)) *
+                  Number(ethPriceInUsd ?? "0"),
+                2
+              )}`;
+            }}
+            hide={!isFullChart && !canPlayToken}
+            domain={["dataMin", "dataMax"]}
+          />
+          <Tooltip
+            content={
+              tokenAWon || tokenBWon ? (
+                <SingleCustomTooltip />
+              ) : (
+                <VersusCustomTooltip />
+              )
+            }
+          />
+          {!tokenBWon && (
             <Line
               type="monotone"
-              dataKey="tokenAPrice"
+              dataKey={!tokenBWon && tokenAWon ? "price" : "tokenAPrice"}
               stroke={"rgba(255, 36, 36, 1)"}
               strokeWidth={
                 focusedTokenToTrade?.address !== undefined &&
@@ -489,30 +424,28 @@ export const VersusTempTokenChart = ({
                   : 2
               }
               animationDuration={200}
-              dot={
-                isFullChart
-                  ? (props: any) => {
-                      const { cx, cy, stroke } = props;
-                      // Change the dot stroke color based on the value
-                      const dotStroke = "#ffffff";
+              dot={(props: any) => {
+                const { cx, cy, stroke, payload } = props;
+                // Change the dot stroke color based on the value
+                const dotStroke = "#ffffff";
 
-                      return (
-                        <circle
-                          cx={cx}
-                          cy={cy}
-                          r={3}
-                          fill={stroke}
-                          stroke={dotStroke}
-                          strokeWidth={2}
-                        />
-                      );
-                    }
-                  : false
-              }
+                return (
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r={3}
+                    fill={stroke}
+                    stroke={dotStroke}
+                    strokeWidth={payload.event === "" ? 0 : 2}
+                  />
+                );
+              }}
             />
+          )}
+          {!tokenAWon && (
             <Line
               type="monotone"
-              dataKey="tokenBPrice"
+              dataKey={!tokenAWon && tokenBWon ? "price" : "tokenBPrice"}
               stroke={"rgba(42, 217, 255, 1)"}
               strokeWidth={
                 focusedTokenToTrade?.address !== undefined &&
@@ -524,30 +457,27 @@ export const VersusTempTokenChart = ({
                   : 2
               }
               animationDuration={200}
-              dot={
-                isFullChart
-                  ? (props: any) => {
-                      const { cx, cy, stroke } = props;
-                      // Change the dot stroke color based on the value
-                      const dotStroke = "#ffffff";
+              dot={(props: any) => {
+                const { cx, cy, stroke, payload } = props;
+                // Change the dot stroke color based on the value
+                const dotStroke = "#ffffff";
 
-                      return (
-                        <circle
-                          cx={cx}
-                          cy={cy}
-                          r={3}
-                          fill={stroke}
-                          stroke={dotStroke}
-                          strokeWidth={2}
-                        />
-                      );
-                    }
-                  : false
-              }
+                return (
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r={3}
+                    fill={stroke}
+                    stroke={dotStroke}
+                    strokeWidth={payload.event === "" ? 0 : 2}
+                  />
+                );
+              }}
             />
-          </LineChart>
-        </ResponsiveContainer>
-      </Flex>
+          )}
+        </LineChart>
+      </ResponsiveContainer>
+      {(canPlayToken || canBuyPostGame) && <VersusTokenExchange />}
     </Flex>
   );
 };

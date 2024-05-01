@@ -63,7 +63,7 @@ export const VersusTokenExchange = () => {
         userBalance: BigInt(0),
       };
     }
-  }, [focusedTokenToTrade]);
+  }, [focusedTokenToTrade, tokenA, tokenB, tokenATxs, tokenBTxs]);
 
   const {
     amount,
@@ -84,7 +84,7 @@ export const VersusTokenExchange = () => {
 
   return (
     <Flex direction="column" justifyContent={"center"} gap="10px">
-      <Flex position="relative" gap="5px" alignItems={"center"}>
+      <Flex position="relative" gap="5px" alignItems={"center"} mx="auto">
         <ChakraTooltip
           label={errorMessage}
           placement="bottom-start"
@@ -96,7 +96,6 @@ export const VersusTokenExchange = () => {
             textAlign="center"
             value={amount}
             onChange={handleAmount}
-            mx="auto"
             p="1"
             fontSize={"14px"}
           />
@@ -128,7 +127,7 @@ export const VersusTokenExchange = () => {
           </PopoverContent>
         </Popover>
       </Flex>
-      <Flex gap="2px" justifyContent={"center"} direction="column">
+      <Flex gap="2px" justifyContent={"center"} direction="column" mx="auto">
         <Button
           color="white"
           _focus={{}}

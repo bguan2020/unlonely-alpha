@@ -255,6 +255,7 @@ export const useCreateMultipleTempTokensState = ({
           isClosable: true,
           position: "top-right",
         });
+        callbackOnTxSuccess();
         // wait for 5 seconds
         await new Promise((resolve) => setTimeout(resolve, 5000));
         // verify the contract on base
@@ -314,7 +315,6 @@ export const useCreateMultipleTempTokensState = ({
           encoded
         );
         console.log("createMultipleTempTokens encoded", encoded);
-        callbackOnTxSuccess();
         canAddToChatbot_create.current = false;
       },
       onTxError: (error) => {
