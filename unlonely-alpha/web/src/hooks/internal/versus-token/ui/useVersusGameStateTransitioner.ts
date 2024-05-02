@@ -1,9 +1,19 @@
 import { usePublicClient } from "wagmi";
-import { VersusTokenDataType } from "../../../../constants";
+import { Contract, VersusTokenDataType } from "../../../../constants";
 import { useCallback } from "react";
+import { getContractFromNetwork } from "../../../../utils/contract";
+import { useNetworkContext } from "../../../context/useNetwork";
 
 export const useVersusGameStateTransitioner = () => {
   const publicClient = usePublicClient();
+
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
+
+  const factoryContract = getContractFromNetwork(
+    Contract.TEMP_TOKEN_FACTORY_V1,
+    localNetwork
+  );
 
   const transitionGameState = useCallback(
     async ({
@@ -83,7 +93,8 @@ export const useVersusGameStateTransitioner = () => {
         }
 
         /**
-         * double check losing balance because according to our factory smart contract, a token can be set tradeable wthough a separate function
+         * double check losing balance because according to our factory smart contract, a token can be set tradeable wthough a separate function,
+         * so if the losing token has a balance, the owner must call the setWinningTokenTradeableAndTransferLiquidity function
          */
         const losingTokenBalance = await publicClient.readContract({
           address: _losingToken.contractData.address as `0x${string}`,
@@ -94,10 +105,30 @@ export const useVersusGameStateTransitioner = () => {
         if (BigInt(String(losingTokenBalance)) > BigInt(0)) {
           handleOwnerMustMakeWinningTokenTradeable(true);
           handleOwnerMustPermamint(false);
-        } else {
-          handleOwnerMustMakeWinningTokenTradeable(false);
-          handleOwnerMustPermamint(true);
+          return;
         }
+
+        /**
+         * if the losing token no longer has a balance, that should mean the winning token 
+         * is now permanently tradeable and the losing token balance is 0, now we need to confirm whether
+         * the factory had already minted the winner tokens by checking its balance of the winner tokens,
+         * if it does not have any balance, the owner must permamint the winning token, else the owner can skip this step
+         */
+        const winningTokenBalanceForFactory = await publicClient.readContract({
+          address: _winningToken.contractData.address as `0x${string}`,
+          abi: _winningToken.contractData.abi,
+          functionName: "balanceOf",
+          args: [factoryContract.address],
+        });
+
+        if (BigInt(String(winningTokenBalanceForFactory)) > BigInt(0)) {
+          handleOwnerMustMakeWinningTokenTradeable(false);
+          handleOwnerMustPermamint(false);
+          return
+        }
+
+        handleOwnerMustMakeWinningTokenTradeable(false);
+        handleOwnerMustPermamint(true);
       }
     },
     []
