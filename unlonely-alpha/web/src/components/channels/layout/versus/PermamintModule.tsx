@@ -109,20 +109,6 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
     const calculateMaxWinnerTokensToMint = async () => {
       if (!isAddress(winningToken?.address) || !isAddress(losingToken?.address))
         return;
-      const winningTokenBalanceForFactory = await publicClient.readContract({
-        address: winningToken.contractData.address as `0x${string}`,
-        abi: winningToken.contractData.abi,
-        functionName: "balanceOf",
-        args: [factoryContract.address],
-      });
-      console.log(
-        "winningTokenBalanceForFactory",
-        winningTokenBalanceForFactory
-      );
-      if (BigInt(String(winningTokenBalanceForFactory)) > BigInt(0)) {
-        handleOwnerMustPermamint(false);
-        return;
-      }
       const wei_amount = Number(losingToken.transferredLiquidityOnExpiration);
       const total_fee_percent: number = 10 * 10 ** 16; // 5% protocol fee and 5% streamer fee
       const winningTokenSupply = Number(winningToken.totalSupply);

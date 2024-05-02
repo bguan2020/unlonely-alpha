@@ -19,7 +19,7 @@ import {
   StepTitle,
   Stepper,
 } from "@chakra-ui/react";
-import { AblyChannelPromise } from "../../../../constants";
+import { AblyChannelPromise, Contract } from "../../../../constants";
 import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
 import { VersusTempTokenTimerView } from "../../temp/TempTokenTimer";
 import { useWindowSize } from "../../../../hooks/internal/useWindowSize";
@@ -35,6 +35,9 @@ import { PermamintModule } from "./PermamintModule";
 import centerEllipses from "../../../../utils/centerEllipses";
 import copy from "copy-to-clipboard";
 import { FaRegCopy } from "react-icons/fa";
+import { usePublicClient } from "wagmi";
+import { useNetworkContext } from "../../../../hooks/context/useNetwork";
+import { getContractFromNetwork } from "../../../../utils/contract";
 
 const steps = [
   { title: "streamer must make winner token tradeable" },
@@ -73,15 +76,25 @@ export const VersusTempTokensInterface = ({
     handleCanPlayToken,
     handleFocusedTokenToTrade,
     handleIsGameFinishedModalOpen,
+    handleOwnerMustPermamint,
   } = gameState;
+
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
   const windowSize = useWindowSize();
   const toast = useToast();
+  const publicClient = usePublicClient();
 
   const [createTokensModalOpen, setCreateTokensModalOpen] = useState(false);
   const [
     versusTempTokenDisclaimerModalOpen,
     setVersusTempTokenDisclaimerModalOpen,
   ] = useState<boolean>(false);
+
+  const factoryContract = getContractFromNetwork(
+    Contract.TEMP_TOKEN_FACTORY_V1,
+    localNetwork
+  );
 
   const openTokenPopout = () => {
     if (!channelQueryData) return;
@@ -108,6 +121,27 @@ export const VersusTempTokensInterface = ({
       isClosable: true,
     });
   };
+
+  useEffect(() => {
+    const determinePermamintStatus = async () => {
+      if (
+        !ownerMustPermamint ||
+        !isAddress(winningToken?.address) ||
+        !publicClient
+      )
+        return;
+      const winningTokenBalanceForFactory = await publicClient.readContract({
+        address: winningToken.contractData.address as `0x${string}`,
+        abi: winningToken.contractData.abi,
+        functionName: "balanceOf",
+        args: [factoryContract.address],
+      });
+      if (BigInt(String(winningTokenBalanceForFactory)) > BigInt(0)) {
+        handleOwnerMustPermamint(false);
+      }
+    };
+    determinePermamintStatus();
+  }, [ownerMustPermamint, publicClient, winningToken]);
 
   return (
     <>
