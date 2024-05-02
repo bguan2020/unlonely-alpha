@@ -33,21 +33,20 @@ export const VersusTokenCreationModal = ({
 
   useEffect(() => {
     const checkIfLiveBeforeCreateToken = async () => {
-      setReturnedIsLive(true);
-      // todo: undo this line and uncomment the block during production
-      // if (realTimeChannelDetails.isLive) {
-      //   setReturnedIsLive(true);
-      //   return;
-      // }
-      // if (isOpen) {
-      //   setReturnedIsLive(undefined);
-      //   const res = await getLivepeerStreamData({
-      //     variables: {
-      //       data: { streamId: channelQueryData?.livepeerStreamId },
-      //     },
-      //   });
-      //   setReturnedIsLive(res.data?.getLivepeerStreamData?.isActive || false);
-      // }
+      // setReturnedIsLive(true);
+      if (realTimeChannelDetails.isLive) {
+        setReturnedIsLive(true);
+        return;
+      }
+      if (isOpen) {
+        setReturnedIsLive(undefined);
+        const res = await getLivepeerStreamData({
+          variables: {
+            data: { streamId: channelQueryData?.livepeerStreamId },
+          },
+        });
+        setReturnedIsLive(res.data?.getLivepeerStreamData?.isActive || false);
+      }
     };
     checkIfLiveBeforeCreateToken();
   }, [
