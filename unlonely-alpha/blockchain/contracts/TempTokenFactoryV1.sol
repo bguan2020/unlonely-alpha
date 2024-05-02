@@ -233,14 +233,23 @@ contract TempTokenFactoryV1 is Ownable {
       * @dev setWinningTokenTradeableAndTransferLiquidity is a function to set the winning token as tradeable and transfer all liquidity 
       * from the losing token to the factory.
       */
-    function setWinningTokenTradeableAndTransferLiquidity(address _winnerTokenAddress, address _loserTokenAddress) public onlyOwnerOrAdmin {
-        require(_winnerTokenAddress != address(0), "Winner token address cannot be zero.");
-        require(_loserTokenAddress != address(0), "Loser token address cannot be zero.");
-        TempTokenV1 winnerToken = TempTokenV1(_winnerTokenAddress);
-        TempTokenV1 loserToken = TempTokenV1(_loserTokenAddress);
-        winnerToken.setAlwaysTradeable();
-        uint256 transferredLiquidity = loserToken.transferLiquidityToFactory();
-        emit SetWinningTokenTradeableAndTransferredLiquidity(_winnerTokenAddress, _loserTokenAddress, transferredLiquidity);
+    function setWinningTokenTradeableAndTransferLiquidity(address[] calldata _tokenAddresses) public {
+        require(_tokenAddresses.length == 2, "Token addresses array must have 2 elements");
+        require(_tokenAddresses[0] != address(0) && _tokenAddresses[1] != address(0), "One or both token addresses are zero.");
+        TempTokenV1 tokenA = TempTokenV1(_tokenAddresses[0]);
+        TempTokenV1 tokenB = TempTokenV1(_tokenAddresses[1]);
+        require(tokenA.owner() == msg.sender && tokenB.owner() == msg.sender, "Caller is not the owner of both tokens");
+        require(tokenA.creationBlockNumber() == tokenB.creationBlockNumber(), "Tokens were not created in the same block");
+        require(tokenA.endTimestamp() < block.timestamp && tokenB.endTimestamp() < block.timestamp, "Both tokens must expire first");
+        if (tokenA.totalSupply() >= tokenB.totalSupply()) {
+            tokenA.setAlwaysTradeable();
+            uint256 transferredLiquidity = tokenB.transferLiquidityToFactory();
+            emit SetWinningTokenTradeableAndTransferredLiquidity(_tokenAddresses[0], _tokenAddresses[1], transferredLiquidity);
+        } else {
+            tokenB.setAlwaysTradeable();
+            uint256 transferredLiquidity = tokenA.transferLiquidityToFactory();
+            emit SetWinningTokenTradeableAndTransferredLiquidity(_tokenAddresses[1], _tokenAddresses[0], transferredLiquidity);
+        }
     }
     
     /**
@@ -249,10 +258,12 @@ contract TempTokenFactoryV1 is Ownable {
         * This factory does not have a burn function to bring the price down, 
         * this ensures the token's supply has a fixed offset.
      */
-    function mintWinnerTokens(address _winnerTokenAddress, uint256 _amount) public onlyOwnerOrAdmin {
+    function mintWinnerTokens(address _winnerTokenAddress, uint256 _amount) public {
         require(_winnerTokenAddress != address(0), "Winner token address cannot be zero.");
         TempTokenV1 winnerToken = TempTokenV1(_winnerTokenAddress);
+        require(winnerToken.owner() == msg.sender, "Caller is not the owner of this token");
         require(winnerToken.isAlwaysTradeable(), "Winner token is not set to always tradeable");
+        require(winnerToken.balanceOf(address(this)) == 0, "Factory already owns winner tokens");
 
         uint256 requiredEthCost = winnerToken.mintCostAfterFees(_amount);
         if (requiredEthCost >= address(this).balance) {

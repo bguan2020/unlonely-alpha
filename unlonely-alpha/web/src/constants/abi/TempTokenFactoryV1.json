@@ -857,14 +857,9 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_winnerTokenAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_loserTokenAddress",
-        "type": "address"
+        "internalType": "address[]",
+        "name": "_tokenAddresses",
+        "type": "address[]"
       }
     ],
     "name": "setWinningTokenTradeableAndTransferLiquidity",

@@ -1319,8 +1319,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\TempTokenFactoryV1.sol": {
-      "lastModificationDate": 1714433119038,
-      "contentHash": "5b82fe6134ca102fd41e5bd4d0f9cc77",
+      "lastModificationDate": 1714611821953,
+      "contentHash": "3b0592724b28b3077c690a916f3df2ba",
       "sourceName": "contracts/TempTokenFactoryV1.sol",
       "solcConfig": {
         "version": "0.8.8",

@@ -125,7 +125,7 @@ export const VersusTempTokensInterface = ({
         <Flex justifyContent={"space-between"} alignItems={"center"}>
           {!canPlayToken && (
             <Flex direction={"column"}>
-              {isAddress(winningToken.address) ? (
+              {isAddress(winningToken.address) && isAddress(tokenA.address) ? (
                 <>
                   <Text
                     fontSize={"20px"}

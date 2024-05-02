@@ -8,7 +8,7 @@ import { getContractFromNetwork } from "../../../../utils/contract";
 import { decodeEventLog, isAddress } from "viem";
 import Link from "next/link";
 import * as AWS from "aws-sdk";
-import useUpdateTempTokenTransferredLiquidityOnExpiration from "../../../../hooks/server/temp-token/useUpdateTempTokenTransferredLiquidityOnExpiration";
+import { usePublicClient } from "wagmi";
 
 export const PermamintModule = (callbackOnTxSuccess?: any) => {
   const { gameState } = useVersusTempTokenContext();
@@ -17,6 +17,7 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
   const toast = useToast();
+  const publicClient = usePublicClient();
 
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
@@ -26,10 +27,6 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
   const [amountOfTokensToMint, setAmountOfTokensToMint] = useState<
     number | undefined
   >(undefined);
-
-  const { updateTempTokenTransferredLiquidityOnExpiration, loading } =
-    useUpdateTempTokenTransferredLiquidityOnExpiration({});
-
   const { mintWinnerTokens, isMintWinnerTokensLoading } = useMintWinnerTokens(
     {
       winnerTokenAddress: winningToken?.address as `0x${string}`,
@@ -91,15 +88,6 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
           isClosable: true,
           position: "top-right",
         });
-        const transferredLiquidityInWei = args.transferredLiquidity as bigint;
-        await updateTempTokenTransferredLiquidityOnExpiration({
-          losingTokenAddress: losingToken.address,
-          chainId: localNetwork.config.chainId,
-          finalLiquidityInWei: String(
-            losingToken.transferredLiquidityOnExpiration -
-              transferredLiquidityInWei
-          ),
-        });
         callbackOnTxSuccess?.();
       },
       onTxError: (error) => {
@@ -121,6 +109,20 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
     const calculateMaxWinnerTokensToMint = async () => {
       if (!isAddress(winningToken?.address) || !isAddress(losingToken?.address))
         return;
+      const winningTokenBalanceForFactory = await publicClient.readContract({
+        address: winningToken.contractData.address as `0x${string}`,
+        abi: winningToken.contractData.abi,
+        functionName: "balanceOf",
+        args: [factoryContract.address],
+      });
+      console.log(
+        "winningTokenBalanceForFactory",
+        winningTokenBalanceForFactory
+      );
+      if (BigInt(String(winningTokenBalanceForFactory)) > BigInt(0)) {
+        handleOwnerMustPermamint(false);
+        return;
+      }
       const wei_amount = Number(losingToken.transferredLiquidityOnExpiration);
       const total_fee_percent: number = 10 * 10 ** 16; // 5% protocol fee and 5% streamer fee
       const winningTokenSupply = Number(winningToken.totalSupply);
@@ -168,7 +170,7 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
       }
     };
     calculateMaxWinnerTokensToMint();
-  }, [winningToken, losingToken]);
+  }, [winningToken, losingToken, publicClient]);
 
   return (
     <Button
@@ -180,7 +182,7 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
         amountOfTokensToMint === undefined
       }
     >
-      {isMintWinnerTokensLoading || amountOfTokensToMint === undefined ? (
+      {isMintWinnerTokensLoading ? (
         <Spinner />
       ) : (
         `Mint Winner Tokens (${amountOfTokensToMint})`

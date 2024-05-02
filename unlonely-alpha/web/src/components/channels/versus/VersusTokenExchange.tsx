@@ -10,7 +10,7 @@ import {
   Text,
   PopoverArrow,
 } from "@chakra-ui/react";
-import { formatUnits, isAddressEqual } from "viem";
+import { formatUnits, isAddress, isAddressEqual } from "viem";
 
 import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempToken";
 import { useTradeTempTokenState } from "../../../hooks/internal/temp-token/write/useTradeTempTokenState";
@@ -23,7 +23,12 @@ export const VersusTokenExchange = () => {
   const { focusedTokenToTrade, tokenA, tokenB } = gameState;
 
   const focusedTokenData = useMemo(() => {
-    if (!focusedTokenToTrade || !focusedTokenToTrade?.address) {
+    if (
+      !focusedTokenToTrade ||
+      !focusedTokenToTrade?.address ||
+      !isAddress(tokenA.address) ||
+      !isAddress(tokenB.address)
+    ) {
       return {
         tokenAddress: "",
         tokenSymbol: "",

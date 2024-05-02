@@ -14,7 +14,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
   const toast = useToast();
 
   const { gameState } = useVersusTempTokenContext();
-  const { winningToken, losingToken } = gameState;
+  const { tokenA, tokenB } = gameState;
 
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
@@ -34,8 +34,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
     isSetWinningTokenTradeableAndTransferLiquidityLoading,
   } = useSetWinningTokenTradeableAndTransferLiquidity(
     {
-      winnerTokenAddress: winningToken?.address as `0x${string}`,
-      loserTokenAddress: losingToken?.address as `0x${string}`,
+      tokenAddresses: [tokenA.address, tokenB.address],
     },
     factoryContract,
     {

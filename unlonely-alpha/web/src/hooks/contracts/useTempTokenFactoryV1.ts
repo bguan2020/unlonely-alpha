@@ -249,8 +249,7 @@ export const useCreateMultipleTempTokens = (
 
 export const useSetWinningTokenTradeableAndTransferLiquidity = (
   args: {
-    winnerTokenAddress: string;
-    loserTokenAddress: string;
+    tokenAddresses: string[];
   },
   contract: ContractData,
   callbacks?: WriteCallbacks
@@ -263,7 +262,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidity = (
   } = useWrite(
     contract,
     "setWinningTokenTradeableAndTransferLiquidity",
-    [args.winnerTokenAddress, args.loserTokenAddress],
+    [...args.tokenAddresses],
     createCallbackHandler(
       "useTempTokenFactoryV1 setWinningTokenTradeableAndTransferLiquidity",
       callbacks
