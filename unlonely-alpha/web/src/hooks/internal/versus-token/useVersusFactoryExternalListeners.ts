@@ -420,7 +420,7 @@ export const useVersusFactoryExternalListeners = ({
           tokenA.address as `0x${string}`
         )
       ) {
-        title = `$${tokenA.symbol} price increased!`;
+        title = `The $${tokenA.symbol} token's price increased!`;
       }
       if (
         isAddress(tokenB.address) &&
@@ -429,7 +429,7 @@ export const useVersusFactoryExternalListeners = ({
           tokenB.address as `0x${string}`
         )
       ) {
-        title = `$${tokenB.symbol} price increased!`;
+        title = `The $${tokenB.symbol} token's price increased!`;
       }
       addToChatbot({
         username: user?.username ?? "",
