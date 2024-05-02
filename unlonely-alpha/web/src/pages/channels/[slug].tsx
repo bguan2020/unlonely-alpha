@@ -15,7 +15,7 @@ import { TempTokenProvider } from "../../hooks/context/useTempToken";
 import { DesktopChannelPageVersus } from "../../components/channels/layout/versus/DesktopChannelPageVersus";
 import { VersusTempTokenProvider } from "../../hooks/context/useVersusTempToken";
 
-const CAN_USE_VERSUS_MODE = ["3", "29"];
+export const CAN_USE_VERSUS_MODE_SLUGS = ["danny", "brian", "grace"];
 
 const ChannelDetail = ({
   channelData,
@@ -37,7 +37,7 @@ const ChannelDetail = ({
     <ChannelProvider>
       {!isStandalone ? (
         <>
-          {CAN_USE_VERSUS_MODE.includes(channelSSR?.id ?? "") ? (
+          {CAN_USE_VERSUS_MODE_SLUGS.includes(channelSSR?.slug ?? "") ? (
             <VersusTempTokenProvider>
               <DesktopChannelPageVersus
                 channelSSR={channelSSR}

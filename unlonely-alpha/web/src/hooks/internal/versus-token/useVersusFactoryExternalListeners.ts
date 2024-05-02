@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Log, isAddressEqual } from "viem";
+import { Log, isAddress, isAddressEqual } from "viem";
 import { useContractEvent } from "wagmi";
 import { useChannelContext } from "../../context/useChannel";
 import usePostTempToken from "../../server/temp-token/usePostTempToken";
@@ -40,7 +40,7 @@ export const useVersusFactoryExternalListeners = ({
   handleIsGameFinished,
   handleIsGameFinishedModalOpen,
   resetTempTokenTxs,
-  handleOwnerMustTransferFunds,
+  handleOwnerMustMakeWinningTokenTradeable,
   handleOwnerMustPermamint,
   handleWinningToken,
   handleLosingToken,
@@ -52,7 +52,7 @@ export const useVersusFactoryExternalListeners = ({
   handleIsGameOngoing: (isGameOngoing: boolean) => void;
   handleIsGameFinished: (isGameFinished: boolean) => void;
   handleIsGameFinishedModalOpen: (isOpen: boolean) => void;
-  handleOwnerMustTransferFunds: (value: boolean) => void;
+  handleOwnerMustMakeWinningTokenTradeable: (value: boolean) => void;
   handleOwnerMustPermamint: (value: boolean) => void;
   handleWinningToken: (token: VersusTokenDataType) => void;
   handleLosingToken: (token: VersusTokenDataType) => void;
@@ -66,7 +66,7 @@ export const useVersusFactoryExternalListeners = ({
   const { network } = useNetworkContext();
   const { localNetwork } = network;
   const { postTempToken } = usePostTempToken({});
-  const router = useRouter()
+  const router = useRouter();
 
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
@@ -134,9 +134,9 @@ export const useVersusFactoryExternalListeners = ({
     handleIsGameFinished(false);
     handleIsGameOngoing(true);
     handleOwnerMustPermamint(false);
-    handleOwnerMustTransferFunds(false);
+    handleOwnerMustMakeWinningTokenTradeable(false);
     handleIsGameFinishedModalOpen(false);
-    handleWinningToken(versusTokenDataInitial)
+    handleWinningToken(versusTokenDataInitial);
     handleLosingToken(versusTokenDataInitial);
     resetTempTokenTxs();
 
@@ -259,14 +259,16 @@ export const useVersusFactoryExternalListeners = ({
     );
     const filteredLogsByMatchingAddresses = logs.filter(
       (log: any) =>
-        isAddressEqual(
-          log.args.winnerTokenAddress as `0x${string}`,
-          tokenA.address as `0x${string}`
-        ) ||
-        isAddressEqual(
-          log.args.winnerTokenAddress as `0x${string}`,
-          tokenB.address as `0x${string}`
-        )
+        (isAddress(tokenA.address) &&
+          isAddressEqual(
+            log.args.winnerTokenAddress as `0x${string}`,
+            tokenA.address as `0x${string}`
+          )) ||
+        (isAddress(tokenB.address) &&
+          isAddressEqual(
+            log.args.winnerTokenAddress as `0x${string}`,
+            tokenB.address as `0x${string}`
+          ))
     );
     const sortedLogs = filteredLogsByMatchingAddresses.sort(
       (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
@@ -294,7 +296,8 @@ export const useVersusFactoryExternalListeners = ({
       addToChatbot({
         username: user?.username ?? "",
         address: userAddress ?? "",
-        taskType: InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
+        taskType:
+          InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
         title,
         description: "",
       });
@@ -316,15 +319,20 @@ export const useVersusFactoryExternalListeners = ({
       addToChatbot({
         username: user?.username ?? "",
         address: userAddress ?? "",
-        taskType: InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
+        taskType:
+          InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
         title,
         description: "",
       });
     }
 
     if (transferredLiquidity > BigInt(0)) {
-      console.log("transferredLiquidity > BigInt(0)", transferredLiquidity, "transitioning to permamint phase");
-      handleOwnerMustTransferFunds(false);
+      console.log(
+        "transferredLiquidity > BigInt(0)",
+        transferredLiquidity,
+        "transitioning to permamint phase"
+      );
+      handleOwnerMustMakeWinningTokenTradeable(false);
       handleOwnerMustPermamint(true);
     }
   };
@@ -363,14 +371,16 @@ export const useVersusFactoryExternalListeners = ({
     console.log("handleFactoryMintedWinnerTokensUpdate", logs);
     const filteredLogsByMatchingAddresses = logs.filter(
       (log: any) =>
-        isAddressEqual(
-          log.args.winnerTokenAddress as `0x${string}`,
-          tokenA.address as `0x${string}`
-        ) ||
-        isAddressEqual(
-          log.args.winnerTokenAddress as `0x${string}`,
-          tokenB.address as `0x${string}`
-        )
+        (isAddress(tokenA.address) &&
+          isAddressEqual(
+            log.args.winnerTokenAddress as `0x${string}`,
+            tokenA.address as `0x${string}`
+          )) ||
+        (isAddress(tokenB.address) &&
+          isAddressEqual(
+            log.args.winnerTokenAddress as `0x${string}`,
+            tokenB.address as `0x${string}`
+          ))
     );
     const sortedLogs = filteredLogsByMatchingAddresses.sort(
       (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
@@ -401,16 +411,25 @@ export const useVersusFactoryExternalListeners = ({
     }
     handleOwnerMustPermamint(false);
 
-    if (
-      isOwner &&
-      router.pathname.startsWith("/channels")
-    ) {
+    if (isOwner && router.pathname.startsWith("/channels")) {
       let title = "";
-      if (isAddressEqual(winnerTokenAddress as `0x${string}`, tokenA.address as `0x${string}`)) {
-        title = `$${tokenA.symbol} price increased!`
+      if (
+        isAddress(tokenA.address) &&
+        isAddressEqual(
+          winnerTokenAddress as `0x${string}`,
+          tokenA.address as `0x${string}`
+        )
+      ) {
+        title = `$${tokenA.symbol} price increased!`;
       }
-      if (isAddressEqual(winnerTokenAddress as `0x${string}`, tokenB.address as `0x${string}`)) {
-        title = `$${tokenB.symbol} price increased!`
+      if (
+        isAddress(tokenB.address) &&
+        isAddressEqual(
+          winnerTokenAddress as `0x${string}`,
+          tokenB.address as `0x${string}`
+        )
+      ) {
+        title = `$${tokenB.symbol} price increased!`;
       }
       addToChatbot({
         username: user?.username ?? "",

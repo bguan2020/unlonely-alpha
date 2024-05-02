@@ -9,6 +9,15 @@ import {
   PopoverArrow,
   PopoverContent,
   Button,
+  Box,
+  Step,
+  StepIcon,
+  StepIndicator,
+  StepNumber,
+  StepSeparator,
+  StepStatus,
+  StepTitle,
+  Stepper,
 } from "@chakra-ui/react";
 import { AblyChannelPromise } from "../../../../constants";
 import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
@@ -26,6 +35,13 @@ import { PermamintModule } from "./PermamintModule";
 import centerEllipses from "../../../../utils/centerEllipses";
 import copy from "copy-to-clipboard";
 import { FaRegCopy } from "react-icons/fa";
+
+const steps = [
+  { title: "streamer must make winner token tradeable" },
+  {
+    title: "streamer must pump winner token",
+  },
+];
 
 export const VersusTempTokensInterface = ({
   customHeight,
@@ -50,7 +66,7 @@ export const VersusTempTokensInterface = ({
     isGameOngoing,
     focusedTokenToTrade,
     ownerMustPermamint,
-    ownerMustTransferFunds,
+    ownerMustMakeWinningTokenTradeable,
     isGameFinishedModalOpen,
     tokenA,
     tokenB,
@@ -93,12 +109,6 @@ export const VersusTempTokensInterface = ({
     });
   };
 
-  console.log(
-    "isGameFinishedModalOpen",
-    isGameFinishedModalOpen,
-    isAddress(winningToken.address)
-  );
-
   return (
     <>
       <Flex
@@ -118,7 +128,7 @@ export const VersusTempTokensInterface = ({
           handleClose={() => setVersusTempTokenDisclaimerModalOpen(false)}
         />
         <VersusTokenGameFinishedModal
-          title={"Game Finished"}
+          title={"Time's up"}
           isOpen={isGameFinishedModalOpen && isAddress(winningToken.address)}
           handleClose={() => handleIsGameFinishedModalOpen(false)}
         />
@@ -191,12 +201,15 @@ export const VersusTempTokensInterface = ({
             <>
               {!isGameOngoing &&
                 !ownerMustPermamint &&
-                !ownerMustTransferFunds && (
-                  <Button onClick={() => setCreateTokensModalOpen(true)}>
+                !ownerMustMakeWinningTokenTradeable && (
+                  <Button
+                    onClick={() => setCreateTokensModalOpen(true)}
+                    h="20px"
+                  >
                     Create tokens
                   </Button>
                 )}
-              {!isGameOngoing && ownerMustTransferFunds && (
+              {!isGameOngoing && ownerMustMakeWinningTokenTradeable && (
                 <TransferLiquidityModule />
               )}
               {!isGameOngoing && ownerMustPermamint && <PermamintModule />}
@@ -299,27 +312,52 @@ export const VersusTempTokensInterface = ({
         <Flex flex="1" direction={"column"}>
           <VersusTempTokenChart noChannelData={noChannelData} />
           {!canPlayToken &&
-          isGameOngoing &&
-          realTimeChannelDetails.isLive &&
-          !ownerMustPermamint &&
-          !ownerMustTransferFunds ? (
-            <Button
-              onClick={() => setVersusTempTokenDisclaimerModalOpen(true)}
-              h="30%"
-            >
-              Play
-            </Button>
-          ) : ownerMustTransferFunds ? (
-            <Text>Wait for streamer to transfer funds</Text>
-          ) : ownerMustPermamint ? (
-            <Text>Wait for streamer to mint winner tokens</Text>
-          ) : !realTimeChannelDetails.isLive && isGameOngoing ? (
-            <Text>
-              Cannot play when stream is offline, please refresh and try again
-            </Text>
-          ) : null}
+            isGameOngoing &&
+            realTimeChannelDetails.isLive &&
+            !ownerMustPermamint &&
+            !ownerMustMakeWinningTokenTradeable && (
+              <Button
+                onClick={() => setVersusTempTokenDisclaimerModalOpen(true)}
+                h="30%"
+              >
+                Play
+              </Button>
+            )}
         </Flex>
       </Flex>
+      {!realTimeChannelDetails.isLive && isGameOngoing && (
+        <Text>
+          Cannot play when stream is offline, please refresh and try again
+        </Text>
+      )}
+      {(ownerMustMakeWinningTokenTradeable || ownerMustPermamint) && (
+        <Stepper
+          orientation="vertical"
+          index={
+            ownerMustPermamint ? 1 : ownerMustMakeWinningTokenTradeable ? 0 : 0
+          }
+        >
+          {steps.map((step, index) => (
+            <Step key={index}>
+              <StepIndicator>
+                <StepStatus
+                  complete={<StepIcon />}
+                  incomplete={<StepNumber />}
+                  active={<StepNumber />}
+                />
+              </StepIndicator>
+
+              <Box>
+                <StepTitle>
+                  <Text fontFamily="LoRes15">{step.title}</Text>
+                </StepTitle>
+              </Box>
+
+              <StepSeparator />
+            </Step>
+          ))}
+        </Stepper>
+      )}
     </>
   );
 };

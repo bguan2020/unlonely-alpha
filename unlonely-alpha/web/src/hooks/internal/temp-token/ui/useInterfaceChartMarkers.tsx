@@ -1,12 +1,15 @@
 import { useApolloClient } from "@apollo/client";
 import { Flex, Text } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
-import { isAddress, formatUnits } from "viem";
+import { isAddress, formatUnits, isAddressEqual } from "viem";
 import { GET_USER_QUERY } from "../../../../constants/queries";
 import centerEllipses from "../../../../utils/centerEllipses";
 import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
 import { useCacheContext } from "../../../context/useCache";
 import { ChartTokenTx } from "../../../../components/chat/VibesTokenInterface";
+import { Contract } from "../../../../constants";
+import { getContractFromNetwork } from "../../../../utils/contract";
+import { useNetworkContext } from "../../../context/useNetwork";
 
 export const useInterfaceChartMarkers = (
   chartTxs: ChartTokenTx[],
@@ -14,6 +17,13 @@ export const useInterfaceChartMarkers = (
 ) => {
   const client = useApolloClient();
   const { ethPriceInUsd } = useCacheContext();
+
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
+  const factoryContract = getContractFromNetwork(
+    Contract.TEMP_TOKEN_FACTORY_V1,
+    localNetwork
+  );
 
   const CustomDot = (props: any) => {
     const { cx, cy, stroke, payload } = props;
@@ -38,7 +48,7 @@ export const useInterfaceChartMarkers = (
   };
 
   const CustomTooltip = ({ active, payload }: any) => {
-    const [asyncData, setAsyncData] = useState(null);
+    const [asyncData, setAsyncData] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [lastDataKey, setLastDataKey] = useState<`0x${string}` | null>(null);
 
@@ -51,6 +61,18 @@ export const useInterfaceChartMarkers = (
       const handler = setTimeout(async () => {
         setLoading(true);
         if (payload[0].payload.user === lastDataKey) {
+          setLoading(false);
+          return;
+        }
+
+        if (
+          factoryContract.address !== undefined &&
+          isAddress(payload[0].payload.user) &&
+          isAddress(factoryContract.address as `0x${string}`) &&
+          isAddressEqual(payload[0].payload.user, factoryContract.address)
+        ) {
+          setAsyncData("FACTORY");
+          setLastDataKey(payload[0].payload.user);
           setLoading(false);
           return;
         }

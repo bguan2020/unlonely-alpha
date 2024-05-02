@@ -230,7 +230,7 @@ contract TempTokenFactoryV1 is Ownable {
 
     /**
       * VERSUS mode only (these functions are called on tokens that compete against each other instead of trying to reach a threshold)
-      * @dev setWinningTokenTradeableAndTransferLiquidity is a function to set the winning token as tradeable and transfer all liquidity 
+      * @dev setWinningTokenTradeableAndTransferLiquidity is a function to set the winning token as tradeable and transfer all liquidity (if any) 
       * from the losing token to the factory.
       */
     function setWinningTokenTradeableAndTransferLiquidity(address[] calldata _tokenAddresses) public {
@@ -241,13 +241,18 @@ contract TempTokenFactoryV1 is Ownable {
         require(tokenA.owner() == msg.sender && tokenB.owner() == msg.sender, "Caller is not the owner of both tokens");
         require(tokenA.creationBlockNumber() == tokenB.creationBlockNumber(), "Tokens were not created in the same block");
         require(tokenA.endTimestamp() < block.timestamp && tokenB.endTimestamp() < block.timestamp, "Both tokens must expire first");
+        uint256 transferredLiquidity = 0;
         if (tokenA.totalSupply() >= tokenB.totalSupply()) {
             tokenA.setAlwaysTradeable();
-            uint256 transferredLiquidity = tokenB.transferLiquidityToFactory();
+            if (tokenB.getBalance() > 0) {
+                transferredLiquidity = tokenB.transferLiquidityToFactory();
+            }
             emit SetWinningTokenTradeableAndTransferredLiquidity(_tokenAddresses[0], _tokenAddresses[1], transferredLiquidity);
         } else {
             tokenB.setAlwaysTradeable();
-            uint256 transferredLiquidity = tokenA.transferLiquidityToFactory();
+            if (tokenA.getBalance() > 0) {
+                transferredLiquidity = tokenA.transferLiquidityToFactory();
+            }
             emit SetWinningTokenTradeableAndTransferredLiquidity(_tokenAddresses[1], _tokenAddresses[0], transferredLiquidity);
         }
     }

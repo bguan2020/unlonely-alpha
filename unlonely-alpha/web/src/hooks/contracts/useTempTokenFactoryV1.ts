@@ -259,10 +259,11 @@ export const useSetWinningTokenTradeableAndTransferLiquidity = (
     writeData: setWinningTokenTradeableAndTransferLiquidityData,
     txData: setWinningTokenTradeableAndTransferLiquidityTxData,
     isTxLoading: isSetWinningTokenTradeableAndTransferLiquidityLoading,
+    refetch: refetchSetWinningTokenTradeableAndTransferLiquidity,
   } = useWrite(
     contract,
     "setWinningTokenTradeableAndTransferLiquidity",
-    [...args.tokenAddresses],
+    [args.tokenAddresses],
     createCallbackHandler(
       "useTempTokenFactoryV1 setWinningTokenTradeableAndTransferLiquidity",
       callbacks
@@ -274,6 +275,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidity = (
     setWinningTokenTradeableAndTransferLiquidityData,
     setWinningTokenTradeableAndTransferLiquidityTxData,
     isSetWinningTokenTradeableAndTransferLiquidityLoading,
+    refetchSetWinningTokenTradeableAndTransferLiquidity,
   };
 };
 

@@ -8,6 +8,7 @@ import { usePublicClient } from "wagmi";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 import { Contract, VersusTokenDataType } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
+import { useVersusGameStateTransitioner } from "../ui/useVersusGameStateTransitioner";
 
 export const useReadVersusTempTokenOnMount = ({
   setTokenA,
@@ -15,13 +16,13 @@ export const useReadVersusTempTokenOnMount = ({
   handleIsGameOngoing,
   handleWinningToken,
   handleLosingToken,
-  handleOwnerMustTransferFunds,
+  handleOwnerMustMakeWinningTokenTradeable,
   handleOwnerMustPermamint,
 }: {
   setTokenA: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
   setTokenB: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
   handleWinningToken: (token: VersusTokenDataType) => void;
-  handleOwnerMustTransferFunds: (value: boolean) => void;
+  handleOwnerMustMakeWinningTokenTradeable: (value: boolean) => void;
   handleOwnerMustPermamint: (value: boolean) => void;
   handleIsGameOngoing: (value: boolean) => void;
   handleLosingToken: (token: VersusTokenDataType) => void;
@@ -37,6 +38,7 @@ export const useReadVersusTempTokenOnMount = ({
   );
 
   const publicClient = usePublicClient();
+  const transitionGameState = useVersusGameStateTransitioner();
 
   /**
    * read for channel's temp token data on mount
@@ -70,22 +72,15 @@ export const useReadVersusTempTokenOnMount = ({
         const _tokenA = nonNullListOfTokens?.[1];
         if (_tokenA !== undefined && _tokenB !== undefined) {
           const [
-            balanceA,
             endTimestampA,
             totalSupplyA,
             highestTotalSupplyA,
             isAlwaysTradeableA,
-            balanceB,
             endTimeStampB,
             totalSupplyB,
             highestTotalSupplyB,
             isAlwaysTradeableB,
           ] = await Promise.all([
-            publicClient.readContract({
-              address: _tokenA.tokenAddress as `0x${string}`,
-              abi: TempTokenAbi,
-              functionName: "getBalance",
-            }),
             publicClient.readContract({
               address: _tokenA.tokenAddress as `0x${string}`,
               abi: TempTokenAbi,
@@ -105,11 +100,6 @@ export const useReadVersusTempTokenOnMount = ({
               address: _tokenA.tokenAddress as `0x${string}`,
               abi: TempTokenAbi,
               functionName: "isAlwaysTradeable",
-            }),
-            publicClient.readContract({
-              address: _tokenB.tokenAddress as `0x${string}`,
-              abi: TempTokenAbi,
-              functionName: "getBalance",
             }),
             publicClient.readContract({
               address: _tokenB.tokenAddress as `0x${string}`,
@@ -167,8 +157,6 @@ export const useReadVersusTempTokenOnMount = ({
           setTokenA(_newTokenA);
           setTokenB(_newTokenB);
 
-          console.log(_newTokenA, _newTokenB, balanceA, balanceB)
-
           /**
            * check if the game is finished through using endTimestamps
            */
@@ -180,77 +168,14 @@ export const useReadVersusTempTokenOnMount = ({
           ) {
             handleIsGameOngoing(false);
 
-            /**
-             * The two if statements below determine which token is the winning token and which is the losing token. The only situation when these if statements do not run are when
-             * both tokens have the same total supply and neither token is always tradeable.
-             *
-             * In this case, addition work is done to determine the next course of action in the code block further down.
-             */
-            if (
-              _newTokenB.isAlwaysTradeable ||
-              _newTokenB.totalSupply > _newTokenA.totalSupply
-            ) {
-              handleWinningToken(_newTokenB);
-              handleLosingToken(_newTokenA);
-            }
-            if (
-              _newTokenA.isAlwaysTradeable ||
-              _newTokenA.totalSupply > _newTokenB.totalSupply
-            ) {
-              handleWinningToken(_newTokenA);
-              handleLosingToken(_newTokenB);
-            }
-
-            /**
-             * if neither tokens are always tradeable at this point, the owner must transfer funds, else the owner must permamint
-             */
-            if (
-              !_newTokenA.isAlwaysTradeable &&
-              !_newTokenB.isAlwaysTradeable
-            ) {
-              /**
-               * if both tokens have zero supply, there is no need to transfer funds or permamint
-               */
-              if (
-                _newTokenA.totalSupply === _newTokenB.totalSupply &&
-                _newTokenA.totalSupply === BigInt(0)
-              ) {
-                handleOwnerMustTransferFunds(false);
-                handleOwnerMustPermamint(false);
-              } else if (
-                _newTokenA.totalSupply === _newTokenB.totalSupply &&
-                _newTokenA.totalSupply > BigInt(0)
-              ) {
-                /**
-                 * if both tokens have the same non-zero total supply 
-                 * and neither token is always tradeable, tokenA is 
-                 * the default winner and the owner must permamint
-                 */
-                handleWinningToken(_newTokenA);
-                handleLosingToken(_newTokenB);
-                handleOwnerMustTransferFunds(true);
-                handleOwnerMustPermamint(false);
-              }  else if (
-                _newTokenA.totalSupply > BigInt(0) && BigInt(String(balanceB)) > BigInt(0) &&
-                _newTokenB.totalSupply > BigInt(0) && BigInt(String(balanceA)) > BigInt(0)
-              ) {
-                handleOwnerMustTransferFunds(true);
-                handleOwnerMustPermamint(false);
-              }
-            } else {
-
-              /**
-               * if one of the tokens is always tradeable and the other untradeable token has zero balance, meaning the owner 
-               * had already transferred liquidity at that point, skip transfer phase and go straight to permamint phase
-               */
-              if (
-                (_newTokenA.isAlwaysTradeable && BigInt(String(balanceB)) === BigInt(0)) ||
-                (_newTokenB.isAlwaysTradeable && BigInt(String(balanceA)) === BigInt(0))
-              ) {
-                handleOwnerMustTransferFunds(false);
-                handleOwnerMustPermamint(true);
-              }
-            }
+            transitionGameState({
+              tokenA: _newTokenA,
+              tokenB: _newTokenB,
+              handleWinningToken,
+              handleLosingToken,
+              handleOwnerMustMakeWinningTokenTradeable,
+              handleOwnerMustPermamint,
+            });
           } else {
             handleIsGameOngoing(true);
           }

@@ -37,6 +37,8 @@ export const VersusTokenExchange = () => {
       };
     }
     if (
+      isAddress(tokenA.address) &&
+      isAddress(focusedTokenToTrade?.address) &&
       isAddressEqual(
         focusedTokenToTrade?.address as `0x${string}`,
         tokenA.address as `0x${string}`
@@ -49,6 +51,8 @@ export const VersusTokenExchange = () => {
         userBalance: tokenATxs.userTempTokenBalance,
       };
     } else if (
+      isAddress(tokenB.address) &&
+      isAddress(focusedTokenToTrade?.address) &&
       isAddressEqual(
         focusedTokenToTrade?.address as `0x${string}`,
         tokenB.address as `0x${string}`
@@ -105,32 +109,49 @@ export const VersusTokenExchange = () => {
             fontSize={"14px"}
           />
         </ChakraTooltip>
-        <Popover trigger="hover" placement="top" openDelay={500}>
-          <PopoverTrigger>
-            <Button
-              bg={"#403c7d"}
-              color="white"
-              p={2}
-              height={"20px"}
-              _focus={{}}
-              _active={{}}
-              _hover={{
-                bg: "#8884d8",
-              }}
-              onClick={() => {
-                handleAmountDirectly(focusedTokenData.userBalance.toString());
-              }}
-            >
-              max
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent bg="#6c3daf" border="none" width="100%" p="2px">
-            <PopoverArrow bg="#6c3daf" />
-            <Text fontSize="12px" textAlign={"center"}>
-              click to show max temp tokens u currently own
-            </Text>
-          </PopoverContent>
-        </Popover>
+        {focusedTokenToTrade?.address &&
+          isAddress(focusedTokenToTrade?.address) && (
+            <Popover trigger="hover" placement="top" openDelay={500}>
+              <PopoverTrigger>
+                <Button
+                  bg={"#403c7d"}
+                  color="white"
+                  p={2}
+                  height={"20px"}
+                  _focus={{}}
+                  _active={{}}
+                  _hover={{
+                    bg: "#8884d8",
+                  }}
+                  onClick={() => {
+                    handleAmountDirectly(
+                      isAddress(tokenA.address) &&
+                        isAddressEqual(
+                          focusedTokenToTrade?.address as `0x${string}`,
+                          tokenA.address as `0x${string}`
+                        )
+                        ? tokenATxs.userTempTokenBalance.toString()
+                        : isAddress(tokenB.address) &&
+                          isAddressEqual(
+                            focusedTokenToTrade?.address as `0x${string}`,
+                            tokenB.address as `0x${string}`
+                          )
+                        ? tokenBTxs.userTempTokenBalance.toString()
+                        : "0"
+                    );
+                  }}
+                >
+                  max
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent bg="#6c3daf" border="none" width="100%" p="2px">
+                <PopoverArrow bg="#6c3daf" />
+                <Text fontSize="12px" textAlign={"center"}>
+                  click to show max temp tokens u currently own
+                </Text>
+              </PopoverContent>
+            </Popover>
+          )}
       </Flex>
       <Flex gap="2px" justifyContent={"center"} direction="column" mx="auto">
         <Button
@@ -140,12 +161,16 @@ export const VersusTokenExchange = () => {
           _active={{}}
           bg={
             focusedTokenToTrade?.address &&
+            isAddress(tokenA.address) &&
+            isAddress(focusedTokenToTrade?.address) &&
             isAddressEqual(
               focusedTokenToTrade?.address as `0x${string}`,
               tokenA.address as `0x${string}`
             )
               ? "rgba(255, 36, 36, 1)"
               : focusedTokenToTrade?.address &&
+                isAddress(tokenB.address) &&
+                isAddress(focusedTokenToTrade?.address) &&
                 isAddressEqual(
                   focusedTokenToTrade?.address as `0x${string}`,
                   tokenB.address as `0x${string}`
@@ -177,12 +202,16 @@ export const VersusTokenExchange = () => {
           _active={{}}
           bg={
             focusedTokenToTrade?.address &&
+            isAddress(tokenA.address) &&
+            isAddress(focusedTokenToTrade?.address) &&
             isAddressEqual(
               focusedTokenToTrade?.address as `0x${string}`,
               tokenA.address as `0x${string}`
             )
               ? "rgba(75, 0, 1, 1)"
               : focusedTokenToTrade?.address &&
+                isAddress(tokenB.address) &&
+                isAddress(focusedTokenToTrade?.address) &&
                 isAddressEqual(
                   focusedTokenToTrade?.address as `0x${string}`,
                   tokenB.address as `0x${string}`

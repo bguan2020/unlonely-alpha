@@ -23,6 +23,7 @@ import {
 } from "../internal/versus-token/read/useReadVersusTempTokenGlobalState";
 import { useReadVersusTempTokenOnMount } from "../internal/versus-token/read/useReadVersusTempTokenOnMount";
 import { usePublicClient } from "wagmi";
+import { useVersusGameStateTransitioner } from "../internal/versus-token/ui/useVersusGameStateTransitioner";
 
 export const useVersusTempTokenContext = () => {
   return useContext(VersusTempTokenContext);
@@ -30,10 +31,10 @@ export const useVersusTempTokenContext = () => {
 
 /**
  * streamer perspective on versus mode has 4 states: create, play, pick, and permamint
- * create = isGameFinished && !ownerMustTransferFunds && !ownerMustPermamint
- * play = !isGameFinished && !ownerMustTransferFunds && !ownerMustPermamint
- * pick = isGameFinished && ownerMustTransferFunds && !ownerMustPermamint
- * permamint = isGameFinished && !ownerMustTransferFunds && ownerMustPermamint
+ * create = isGameFinished && !ownerMustMakeWinningTokenTradeable && !ownerMustPermamint
+ * play = !isGameFinished && !ownerMustMakeWinningTokenTradeable && !ownerMustPermamint
+ * pick = isGameFinished && ownerMustMakeWinningTokenTradeable && !ownerMustPermamint
+ * permamint = isGameFinished && !ownerMustMakeWinningTokenTradeable && ownerMustPermamint
  * while viewer only has buy, and play
  */
 
@@ -60,6 +61,7 @@ export const VersusTempTokenProvider = ({
   const publicClient = usePublicClient();
 
   const globalState = useReadVersusTempTokenGlobalState();
+  const transitionGameState = useVersusGameStateTransitioner();
 
   const { readTempTokenTxs: readTempTokenTxs_a } =
     useReadTempTokenListenerState({
@@ -256,7 +258,8 @@ export const VersusTempTokenProvider = ({
     setTokenA: globalState.setTokenA,
     setTokenB: globalState.setTokenB,
     handleWinningToken: globalState.handleWinningToken,
-    handleOwnerMustTransferFunds: globalState.handleOwnerMustTransferFunds,
+    handleOwnerMustMakeWinningTokenTradeable:
+      globalState.handleOwnerMustMakeWinningTokenTradeable,
     handleIsGameOngoing: globalState.handleIsGameOngoing,
     handleLosingToken: globalState.handleLosingToken,
     handleOwnerMustPermamint: globalState.handleOwnerMustPermamint,
@@ -270,7 +273,8 @@ export const VersusTempTokenProvider = ({
     handleIsGameOngoing: globalState.handleIsGameOngoing,
     handleIsGameFinished: globalState.handleIsGameFinished,
     handleIsGameFinishedModalOpen: globalState.handleIsGameFinishedModalOpen,
-    handleOwnerMustTransferFunds: globalState.handleOwnerMustTransferFunds,
+    handleOwnerMustMakeWinningTokenTradeable:
+      globalState.handleOwnerMustMakeWinningTokenTradeable,
     handleOwnerMustPermamint: globalState.handleOwnerMustPermamint,
     handleWinningToken: globalState.handleWinningToken,
     handleLosingToken: globalState.handleLosingToken,
@@ -283,107 +287,24 @@ export const VersusTempTokenProvider = ({
   /**
    * on game finish, whether it is set on mount or through the timer state,
    * determine the status of the relationship between the two tokens, and set the winning token, set
-   * ownerMustTransferFunds and ownerMustPermamint accordingly
+   * ownerMustMakeWinningTokenTradeable and ownerMustPermamint accordingly
    */
   useEffect(() => {
     const onGameFinish = async () => {
-      console.log(
-        "calling onGameFinish",
-        globalState.isGameFinished,
-        globalState.tokenA,
-        globalState.tokenB
-      );
       if (!globalState.isGameFinished) return;
       globalState.handleIsGameOngoing(false);
       globalState.handleIsGameFinishedModalOpen(true);
 
-      /**
-       * The two if statements below determine which token is the winning token and which is the losing token. The only situation when these if statements do not run are when
-       * both tokens have the same total supply and neither token is always tradeable.
-       *
-       * In this case, addition work is done to determine the next course of action in the code block further down.
-       */
-      if (
-        globalState.tokenA.isAlwaysTradeable ||
-        globalState.tokenA.totalSupply > globalState.tokenB.totalSupply
-      ) {
-        globalState.handleWinningToken(globalState.tokenA);
-        globalState.handleLosingToken(globalState.tokenB);
-      }
-      if (
-        globalState.tokenB.isAlwaysTradeable ||
-        globalState.tokenB.totalSupply > globalState.tokenA.totalSupply
-      ) {
-        globalState.handleWinningToken(globalState.tokenB);
-        globalState.handleLosingToken(globalState.tokenA);
-      }
-
-      const [balanceA, balanceB] = await Promise.all([
-        publicClient.readContract({
-          address: globalState.tokenA.contractData.address as `0x${string}`,
-          abi: globalState.tokenA.contractData.abi,
-          functionName: "getBalance",
-          args: [],
-        }),
-        publicClient.readContract({
-          address: globalState.tokenB.contractData.address as `0x${string}`,
-          abi: globalState.tokenB.contractData.abi,
-          functionName: "getBalance",
-          args: [],
-        }),
-      ]);
-
-      /**
-       * if neither tokens are always tradeable at this point, the owner must transfer funds, else the owner must permamint
-       */
-      if (
-        !globalState.tokenA.isAlwaysTradeable &&
-        !globalState.tokenB.isAlwaysTradeable
-      ) {
-        /**
-         * if both tokens have zero supply, there is no need to transfer funds or permamint
-         */
-        if (
-          globalState.tokenA.totalSupply === globalState.tokenB.totalSupply &&
-          globalState.tokenA.totalSupply === BigInt(0)
-        ) {
-          globalState.handleOwnerMustTransferFunds(false);
-          globalState.handleOwnerMustPermamint(false);
-        } else if (
-          globalState.tokenA.totalSupply === globalState.tokenB.totalSupply &&
-          globalState.tokenA.totalSupply > BigInt(0)
-        ) {
-          /**
-           * if both tokens have the same non-zero total supply and neither token is always tradeable, tokenA is the default winner and the owner must permamint
-           */
-          globalState.handleWinningToken(globalState.tokenA);
-          globalState.handleLosingToken(globalState.tokenB);
-          globalState.handleOwnerMustTransferFunds(true);
-          globalState.handleOwnerMustPermamint(false);
-        } else if (
-          globalState.tokenA.totalSupply > BigInt(0) &&
-          BigInt(String(balanceA)) > BigInt(0) &&
-          globalState.tokenB.totalSupply > BigInt(0) &&
-          BigInt(String(balanceA)) > BigInt(0)
-        ) {
-          globalState.handleOwnerMustTransferFunds(true);
-          globalState.handleOwnerMustPermamint(false);
-        }
-      } else {
-        /**
-         * if one of the tokens is always tradeable and the other untradeable token has zero balance, meaning the owner
-         * had already transferred liquidity at that point, skip transfer phase and go straight to permamint phase
-         */
-        if (
-          (globalState.tokenA.isAlwaysTradeable &&
-            BigInt(String(balanceB)) === BigInt(0)) ||
-          (globalState.tokenB.isAlwaysTradeable &&
-            BigInt(String(balanceA)) === BigInt(0))
-        ) {
-          globalState.handleOwnerMustTransferFunds(false);
-          globalState.handleOwnerMustPermamint(true);
-        }
-      }
+      transitionGameState({
+        tokenA: globalState.tokenA,
+        tokenB: globalState.tokenB,
+        handleWinningToken: globalState.handleWinningToken,
+        handleLosingToken: globalState.handleLosingToken,
+        handleOwnerMustMakeWinningTokenTradeable:
+          globalState.handleOwnerMustMakeWinningTokenTradeable,
+        handleOwnerMustPermamint: globalState.handleOwnerMustPermamint,
+      });
+      globalState.handleIsGameFinished(false);
     };
     onGameFinish();
   }, [

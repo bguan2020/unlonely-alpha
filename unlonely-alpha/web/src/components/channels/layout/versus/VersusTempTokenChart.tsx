@@ -53,7 +53,7 @@ export const VersusTempTokenChart = ({
     isGameFinished,
     focusedTokenToTrade,
     ownerMustPermamint,
-    ownerMustTransferFunds,
+    ownerMustMakeWinningTokenTradeable,
     isGameFinishedModalOpen,
     tokenA,
     tokenB,
@@ -81,8 +81,8 @@ export const VersusTempTokenChart = ({
 
   const tokenAWon = useMemo(
     () =>
-      tokenA.address.length > 0 &&
-      winningToken.address.length > 0 &&
+      isAddress(tokenA.address) &&
+      isAddress(winningToken.address) &&
       isAddressEqual(
         tokenA.address as `0x${string}`,
         winningToken.address as `0x${string}`
@@ -92,8 +92,8 @@ export const VersusTempTokenChart = ({
 
   const tokenBWon = useMemo(
     () =>
-      tokenB.address.length > 0 &&
-      winningToken.address.length > 0 &&
+      isAddress(tokenB.address) &&
+      isAddress(winningToken.address) &&
       isAddressEqual(
         tokenB.address as `0x${string}`,
         winningToken.address as `0x${string}`
@@ -329,13 +329,13 @@ export const VersusTempTokenChart = ({
       !isGameFinished &&
       !isGameOngoing &&
       !ownerMustPermamint &&
-      !ownerMustTransferFunds,
+      !ownerMustMakeWinningTokenTradeable,
     [
       winningToken,
       isGameFinished,
       isGameOngoing,
       ownerMustPermamint,
-      ownerMustTransferFunds,
+      ownerMustMakeWinningTokenTradeable,
     ]
   );
 
@@ -411,11 +411,14 @@ export const VersusTempTokenChart = ({
           />
           {!tokenBWon && (
             <Line
+              key="0"
               type="monotone"
               dataKey={!tokenBWon && tokenAWon ? "price" : "tokenAPrice"}
               stroke={"rgba(255, 36, 36, 1)"}
               strokeWidth={
                 focusedTokenToTrade?.address !== undefined &&
+                isAddress(focusedTokenToTrade?.address) &&
+                isAddress(gameState.tokenA.address) &&
                 isAddressEqual(
                   focusedTokenToTrade?.address,
                   gameState.tokenA.address as `0x${string}`
@@ -424,31 +427,19 @@ export const VersusTempTokenChart = ({
                   : 2
               }
               animationDuration={200}
-              dot={(props: any) => {
-                const { cx, cy, stroke, payload } = props;
-                // Change the dot stroke color based on the value
-                const dotStroke = "#ffffff";
-
-                return (
-                  <circle
-                    cx={cx}
-                    cy={cy}
-                    r={3}
-                    fill={stroke}
-                    stroke={dotStroke}
-                    strokeWidth={payload.event === "" ? 0 : 2}
-                  />
-                );
-              }}
+              dot={false}
             />
           )}
           {!tokenAWon && (
             <Line
+              key="1"
               type="monotone"
               dataKey={!tokenAWon && tokenBWon ? "price" : "tokenBPrice"}
               stroke={"rgba(42, 217, 255, 1)"}
               strokeWidth={
                 focusedTokenToTrade?.address !== undefined &&
+                isAddress(focusedTokenToTrade?.address) &&
+                isAddress(gameState.tokenB.address) &&
                 isAddressEqual(
                   focusedTokenToTrade?.address,
                   gameState.tokenB.address as `0x${string}`
@@ -457,22 +448,7 @@ export const VersusTempTokenChart = ({
                   : 2
               }
               animationDuration={200}
-              dot={(props: any) => {
-                const { cx, cy, stroke, payload } = props;
-                // Change the dot stroke color based on the value
-                const dotStroke = "#ffffff";
-
-                return (
-                  <circle
-                    cx={cx}
-                    cy={cy}
-                    r={3}
-                    fill={stroke}
-                    stroke={dotStroke}
-                    strokeWidth={payload.event === "" ? 0 : 2}
-                  />
-                );
-              }}
+              dot={false}
             />
           )}
         </LineChart>

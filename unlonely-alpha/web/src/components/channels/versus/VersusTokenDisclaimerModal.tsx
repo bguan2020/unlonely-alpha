@@ -27,7 +27,7 @@ export const VersusTokenDisclaimerModal = ({
 
   return (
     <TransactionModalTemplate
-      title="30 MINUTE TOKEN LAUNCHED!"
+      title="YOU'RE JOINING THIS VERSUS GAME"
       isOpen={isOpen}
       handleClose={handleClose}
       bg={"#18162F"}
@@ -56,8 +56,19 @@ export const VersusTokenDisclaimerModal = ({
             <UnorderedList>
               <ListItem>
                 <Text fontSize="12px">
-                  The 30 minute token is an ERC20 token priced on a bonding
-                  curve.
+                  There are 2 competing tokens on this stream - ${tokenA.symbol}{" "}
+                  VS ${tokenB.symbol}
+                </Text>
+              </ListItem>
+              <ListItem>
+                <Text fontSize="12px">
+                  Once time runs out, the token with the highest price WINS.
+                </Text>
+              </ListItem>
+              <ListItem>
+                <Text fontSize="12px">
+                  The liquidity from the LOSING token gets pumped into the
+                  WINNING token.
                 </Text>
               </ListItem>
             </UnorderedList>

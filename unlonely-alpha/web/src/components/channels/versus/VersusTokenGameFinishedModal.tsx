@@ -46,7 +46,10 @@ export const VersusTokenGameFinishedModal = ({
       bg={"#18162F"}
       hideFooter
     >
-      <Text>The ${winningToken.symbol} token has won!</Text>
+      <Text textAlign={"center"}>
+        The ${winningToken.symbol} token has won this battle! This token now
+        gets to live forever.
+      </Text>
       <Flex justifyContent={"space-evenly"} gap="5px">
         <Button onClick={handleClose}>Continue</Button>
       </Flex>

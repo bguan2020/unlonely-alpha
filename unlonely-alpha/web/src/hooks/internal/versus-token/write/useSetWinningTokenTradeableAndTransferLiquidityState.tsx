@@ -29,6 +29,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
 
   const {
     setWinningTokenTradeableAndTransferLiquidity,
+    refetchSetWinningTokenTradeableAndTransferLiquidity,
     setWinningTokenTradeableAndTransferLiquidityData,
     setWinningTokenTradeableAndTransferLiquidityTxData,
     isSetWinningTokenTradeableAndTransferLiquidityLoading,
@@ -143,6 +144,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
 
   return {
     setWinningTokenTradeableAndTransferLiquidity,
+    refetchSetWinningTokenTradeableAndTransferLiquidity,
     setWinningTokenTradeableAndTransferLiquidityData,
     setWinningTokenTradeableAndTransferLiquidityTxData,
     loading: loading || isSetWinningTokenTradeableAndTransferLiquidityLoading,

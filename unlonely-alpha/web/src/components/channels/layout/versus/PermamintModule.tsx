@@ -182,7 +182,7 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
         amountOfTokensToMint === undefined
       }
     >
-      {isMintWinnerTokensLoading ? (
+      {isMintWinnerTokensLoading || amountOfTokensToMint === undefined ? (
         <Spinner />
       ) : (
         `Mint Winner Tokens (${amountOfTokensToMint})`

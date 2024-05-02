@@ -167,7 +167,7 @@ export const useGetUserBalance = (
       args: [userAddress],
     });
     setBalance(BigInt(String(res)));
-  }, [contract.address, publicClient, userAddress]);
+  }, [contract, publicClient, userAddress]);
 
   useEffect(() => {
     getData();
