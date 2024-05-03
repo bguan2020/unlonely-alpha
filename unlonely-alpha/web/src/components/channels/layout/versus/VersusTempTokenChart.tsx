@@ -400,15 +400,18 @@ export const VersusTempTokenChart = ({
             hide={!isFullChart && !canPlayToken}
             domain={["dataMin", "dataMax"]}
           />
-          <Tooltip
-            content={
-              tokenAWon || tokenBWon ? (
-                <SingleCustomTooltip />
-              ) : (
-                <VersusCustomTooltip />
-              )
-            }
-          />
+          {((!canPlayToken && (tokenAWon || tokenBWon)) ||
+            (canPlayToken && !tokenAWon && !tokenBWon)) && (
+            <Tooltip
+              content={
+                tokenAWon || tokenBWon ? (
+                  <SingleCustomTooltip />
+                ) : (
+                  <VersusCustomTooltip />
+                )
+              }
+            />
+          )}
           {!tokenBWon && (
             <Line
               key="0"

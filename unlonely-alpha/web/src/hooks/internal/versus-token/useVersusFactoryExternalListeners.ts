@@ -389,26 +389,26 @@ export const useVersusFactoryExternalListeners = ({
     const latestLog: any = sortedLogs[sortedLogs.length - 1];
     const winnerTokenAddress = latestLog?.args
       .winnerTokenAddress as `0x${string}`;
-    const amount = latestLog?.args.amount as bigint;
+    // const amount = latestLog?.args.amount as bigint;
 
-    if (
-      tokenA.address &&
-      isAddressEqual(
-        winnerTokenAddress as `0x${string}`,
-        tokenA.address as `0x${string}`
-      )
-    ) {
-      handleTokenB(versusTokenDataInitial);
-    }
-    if (
-      tokenB.address &&
-      isAddressEqual(
-        winnerTokenAddress as `0x${string}`,
-        tokenB.address as `0x${string}`
-      )
-    ) {
-      handleTokenA(versusTokenDataInitial);
-    }
+    // if (
+    //   tokenA.address &&
+    //   isAddressEqual(
+    //     winnerTokenAddress as `0x${string}`,
+    //     tokenA.address as `0x${string}`
+    //   )
+    // ) {
+    //   handleTokenB(versusTokenDataInitial);
+    // }
+    // if (
+    //   tokenB.address &&
+    //   isAddressEqual(
+    //     winnerTokenAddress as `0x${string}`,
+    //     tokenB.address as `0x${string}`
+    //   )
+    // ) {
+    //   handleTokenA(versusTokenDataInitial);
+    // }
     handleOwnerMustPermamint(false);
 
     if (isOwner && router.pathname.startsWith("/channels")) {

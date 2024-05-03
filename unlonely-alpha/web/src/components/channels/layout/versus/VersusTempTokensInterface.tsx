@@ -118,6 +118,7 @@ export const VersusTempTokensInterface = ({
         width="100%"
         gap={"5px"}
         h={customHeight ?? "100%"}
+        p="10px"
       >
         <VersusTokenCreationModal
           title={"Create Tokens"}
@@ -136,7 +137,7 @@ export const VersusTempTokensInterface = ({
         <Flex justifyContent={"space-between"} alignItems={"center"}>
           {!canPlayToken && (
             <Flex direction={"column"}>
-              {isAddress(winningToken.address) && isAddress(tokenA.address) ? (
+              {isAddress(winningToken.address) ? (
                 <>
                   <Text
                     fontSize={"20px"}
@@ -216,6 +217,45 @@ export const VersusTempTokensInterface = ({
               {!isGameOngoing && ownerMustPermamint && <PermamintModule />}
             </>
           )}
+
+          {canPlayToken && (
+            <Flex justifyContent={"center"} gap="5px">
+              <Button
+                _hover={{}}
+                _focus={{}}
+                _active={{}}
+                bg={
+                  focusedTokenToTrade?.address === undefined ||
+                  isAddressEqual(
+                    focusedTokenToTrade?.address as `0x${string}`,
+                    tokenA.address as `0x${string}`
+                  )
+                    ? "rgba(255, 36, 36, 1)"
+                    : "#ffffff"
+                }
+                onClick={() => handleFocusedTokenToTrade(tokenA.contractData)}
+              >
+                ${tokenA.symbol}
+              </Button>
+              <Button
+                _hover={{}}
+                _focus={{}}
+                _active={{}}
+                bg={
+                  focusedTokenToTrade?.address === undefined ||
+                  isAddressEqual(
+                    focusedTokenToTrade?.address as `0x${string}`,
+                    tokenB.address as `0x${string}`
+                  )
+                    ? "rgba(42, 217, 255, 1)"
+                    : "#ffffff"
+                }
+                onClick={() => handleFocusedTokenToTrade(tokenB.contractData)}
+              >
+                ${tokenB.symbol}
+              </Button>
+            </Flex>
+          )}
           {isFullChart && <VersusTempTokenTimerView disableChatbot={true} />}
           {!isFullChart && (
             <Flex>
@@ -232,6 +272,7 @@ export const VersusTempTokensInterface = ({
                         <Image alt="close" src="/svg/close.svg" width="20px" />
                       }
                       onClick={() => {
+                        handleFocusedTokenToTrade(undefined);
                         handleCanPlayToken(false);
                       }}
                     />
@@ -272,44 +313,6 @@ export const VersusTempTokensInterface = ({
             </Flex>
           )}
         </Flex>
-        {canPlayToken && (
-          <Flex justifyContent={"center"} gap="5px">
-            <Button
-              _hover={{}}
-              _focus={{}}
-              _active={{}}
-              bg={
-                focusedTokenToTrade === undefined ||
-                isAddressEqual(
-                  focusedTokenToTrade?.address as `0x${string}`,
-                  tokenA.address as `0x${string}`
-                )
-                  ? "rgba(255, 36, 36, 1)"
-                  : "#ffffff"
-              }
-              onClick={() => handleFocusedTokenToTrade(tokenA.contractData)}
-            >
-              ${tokenA.symbol}
-            </Button>
-            <Button
-              _hover={{}}
-              _focus={{}}
-              _active={{}}
-              bg={
-                focusedTokenToTrade === undefined ||
-                isAddressEqual(
-                  focusedTokenToTrade?.address as `0x${string}`,
-                  tokenB.address as `0x${string}`
-                )
-                  ? "rgba(42, 217, 255, 1)"
-                  : "#ffffff"
-              }
-              onClick={() => handleFocusedTokenToTrade(tokenB.contractData)}
-            >
-              ${tokenB.symbol}
-            </Button>
-          </Flex>
-        )}
         <Flex flex="1" direction={"column"}>
           <VersusTempTokenChart noChannelData={noChannelData} />
           {!canPlayToken &&

@@ -94,21 +94,28 @@ export const VersusTokenExchange = () => {
   return (
     <Flex direction="column" justifyContent={"center"} gap="10px">
       <Flex position="relative" gap="5px" alignItems={"center"} mx="auto">
-        <ChakraTooltip
-          label={errorMessage}
-          placement="bottom-start"
-          isOpen={errorMessage !== undefined}
-          bg="red.600"
-        >
-          <Input
-            variant={errorMessage.length > 0 ? "redGlow" : "glow"}
-            textAlign="center"
-            value={amount}
-            onChange={handleAmount}
-            p="1"
-            fontSize={"14px"}
-          />
-        </ChakraTooltip>
+        <Flex h="40px">
+          {focusedTokenToTrade?.address &&
+          isAddress(focusedTokenToTrade?.address) ? (
+            <ChakraTooltip
+              label={errorMessage}
+              placement="bottom-start"
+              isOpen={errorMessage !== undefined}
+              bg="red.600"
+            >
+              <Input
+                variant={errorMessage.length > 0 ? "redGlow" : "glow"}
+                textAlign="center"
+                value={amount}
+                onChange={handleAmount}
+                p="1"
+                fontSize={"14px"}
+              />
+            </ChakraTooltip>
+          ) : (
+            <Text>Select a token above to trade</Text>
+          )}
+        </Flex>
         {focusedTokenToTrade?.address &&
           isAddress(focusedTokenToTrade?.address) && (
             <Popover trigger="hover" placement="top" openDelay={500}>
