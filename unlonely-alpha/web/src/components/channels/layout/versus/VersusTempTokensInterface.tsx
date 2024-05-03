@@ -3,7 +3,6 @@ import {
   IconButton,
   PopoverTrigger,
   Text,
-  useToast,
   Image,
   Popover,
   PopoverArrow,
@@ -33,8 +32,9 @@ import { VersusTokenGameFinishedModal } from "../../versus/VersusTokenGameFinish
 import { TransferLiquidityModule } from "./TransferLiquidityModule";
 import { PermamintModule } from "./PermamintModule";
 import centerEllipses from "../../../../utils/centerEllipses";
-import copy from "copy-to-clipboard";
-import { FaRegCopy } from "react-icons/fa";
+import Link from "next/link";
+import { useNetworkContext } from "../../../../hooks/context/useNetwork";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 const steps = [
   { title: "streamer must make winner token tradeable" },
@@ -59,6 +59,9 @@ export const VersusTempTokensInterface = ({
   const { channel } = useChannelContext();
   const { channelQueryData, isOwner, realTimeChannelDetails } = channel;
 
+  const { network } = useNetworkContext();
+  const { explorerUrl } = network;
+
   const { gameState } = useVersusTempTokenContext();
   const {
     winningToken,
@@ -76,7 +79,6 @@ export const VersusTempTokensInterface = ({
   } = gameState;
 
   const windowSize = useWindowSize();
-  const toast = useToast();
 
   const [createTokensModalOpen, setCreateTokensModalOpen] = useState(false);
   const [
@@ -100,15 +102,6 @@ export const VersusTempTokensInterface = ({
     if (isAddress(winningToken.address))
       handleFocusedTokenToTrade(winningToken.contractData);
   }, [winningToken]);
-
-  const handleCopyAddress = () => {
-    toast({
-      title: "copied token address",
-      status: "success",
-      duration: 2000,
-      isClosable: true,
-    });
-  };
 
   return (
     <>
@@ -134,7 +127,7 @@ export const VersusTempTokensInterface = ({
           isOpen={isGameFinishedModalOpen && isAddress(winningToken.address)}
           handleClose={() => handleIsGameFinishedModalOpen(false)}
         />
-        <Flex justifyContent={"space-between"} alignItems={"center"}>
+        <Flex justifyContent={"space-between"} alignItems={"center"} gap="10px">
           {!canPlayToken && (
             <Flex direction={"column"}>
               {isAddress(winningToken.address) ? (
@@ -153,38 +146,45 @@ export const VersusTempTokensInterface = ({
                   >
                     ${winningToken.symbol}
                   </Text>
-                  <Flex alignItems="center">
-                    <Text
-                      fontSize={"10px"}
-                      color={
-                        isAddressEqual(
-                          winningToken.address,
-                          tokenA.address as `0x${string}`
-                        )
-                          ? "rgba(255, 36, 36, 1)"
-                          : "rgba(42, 217, 255, 1)"
-                      }
-                    >
-                      {centerEllipses(winningToken.address, 13)}
-                    </Text>
-                    <IconButton
-                      aria-label={`copy-${winningToken.address}`}
-                      color="#b5b5b5"
-                      icon={<FaRegCopy />}
-                      height="10px"
-                      minWidth={"10px"}
-                      bg="transparent"
-                      _focus={{}}
-                      _active={{}}
+                  <Link
+                    target="_blank"
+                    href={`${explorerUrl}/address/${winningToken.address}`}
+                    passHref
+                  >
+                    <Flex
+                      alignItems="center"
                       _hover={{
-                        color: "white",
+                        textDecoration: "underline",
                       }}
-                      onClick={() => {
-                        copy(winningToken.address);
-                        handleCopyAddress();
-                      }}
-                    />
-                  </Flex>
+                    >
+                      <Text
+                        fontSize={"10px"}
+                        color={
+                          isAddressEqual(
+                            winningToken.address,
+                            tokenA.address as `0x${string}`
+                          )
+                            ? "rgba(255, 36, 36, 1)"
+                            : "rgba(42, 217, 255, 1)"
+                        }
+                      >
+                        {centerEllipses(winningToken.address, 13)}
+                      </Text>
+                      <IconButton
+                        aria-label={`goto-${winningToken.address}`}
+                        color="#b5b5b5"
+                        icon={<ExternalLinkIcon />}
+                        height="10px"
+                        minWidth={"10px"}
+                        bg="transparent"
+                        _focus={{}}
+                        _active={{}}
+                        _hover={{
+                          color: "white",
+                        }}
+                      />
+                    </Flex>
+                  </Link>
                 </>
               ) : (
                 <Text fontWeight="bold" fontSize={"20px"}>

@@ -40,7 +40,7 @@ export const TransferLiquidityModule = () => {
       isDisabled={loading || !setWinningTokenTradeableAndTransferLiquidity}
       h="20px"
     >
-      {loading ? <Spinner /> : "Make Winning Token Tradeable"}
+      {loading ? <Spinner /> : "Make Winner Token Tradeable"}
     </Button>
   );
 };
