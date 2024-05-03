@@ -91,11 +91,15 @@ const VibesTokenInterface = ({
 }) => {
   const { walletIsConnected } = useUser();
   const { isStandalone } = useUserAgent();
-  const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
-    useCacheContext();
+  const {
+    vibesTokenTxs,
+    vibesTokenLoading,
+    chartTimeIndexes,
+    ethPriceInUsd,
+    currentBlockNumberForVibes,
+  } = useCacheContext();
   const { channel } = useChannelContext();
   const { channelQueryData, channelVibesTokenPriceRange, isOwner } = channel;
-  const { ethPriceInUsd, currentBlockNumberForVibes } = useCacheContext();
   const windowSize = useWindowSize();
   const { network } = useNetworkContext();
   const { matchingChain } = network;

@@ -16,7 +16,7 @@ import { TransactionModalTemplate } from "../../transactions/TransactionModalTem
 import ChannelDesc from "../ChannelDesc";
 import ChannelStreamerPerspective from "./ChannelStreamerPerspective";
 import ChannelViewerPerspective from "./ChannelViewerPerspective";
-import Trade from "../bet/Trade";
+// import Trade from "../bet/Trade";
 import { ChannelWideModals } from "../ChannelWideModals";
 import copy from "copy-to-clipboard";
 import trailString from "../../../utils/trailString";
@@ -188,7 +188,7 @@ export const DesktopPage = ({
                   justifyContent={"space-between"}
                 >
                   <ChannelDesc />
-                  <Flex gap="1rem" mt="1rem" justifyContent={"flex-end"}>
+                  {/* <Flex gap="1rem" mt="1rem" justifyContent={"flex-end"}>
                     <Flex
                       direction="column"
                       bg={"#131323"}
@@ -198,7 +198,7 @@ export const DesktopPage = ({
                     >
                       <Trade />
                     </Flex>
-                  </Flex>
+                  </Flex> */}
                 </Flex>
               </Stack>
               <Stack

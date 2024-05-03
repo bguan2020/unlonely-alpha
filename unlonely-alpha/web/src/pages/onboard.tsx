@@ -22,12 +22,7 @@ import { GET_CHANNEL_SEARCH_RESULTS_QUERY } from "../constants/queries";
 import { GetChannelSearchResultsQuery } from "../generated/graphql";
 import { alphanumericInput } from "../utils/validation/input";
 import { NEW_STREAMER_URL_QUERY_PARAM } from "../constants";
-import { isAddress } from "viem";
-import { useBalance } from "wagmi";
-import { useCacheContext } from "../hooks/context/useCache";
 import { useNetworkContext } from "../hooks/context/useNetwork";
-import { useRouter } from "next/router";
-import useUserAgent from "../hooks/internal/useUserAgent";
 
 const SLUG_MAX_CHARS = 25;
 
@@ -71,12 +66,9 @@ const Onboard = () => {
 };
 
 const LoggedInOnboard = () => {
-  const { user, userAddress } = useUser();
-  const router = useRouter();
-  const { isStandalone } = useUserAgent();
-  const { userVibesBalance, lastChainInteractionTimestamp } = useCacheContext();
+  const { user } = useUser();
   const { network } = useNetworkContext();
-  const { matchingChain, explorerUrl } = network;
+  const { matchingChain } = network;
   const toast = useToast();
 
   const { postChannel } = usePostChannel({
@@ -100,7 +92,6 @@ const LoggedInOnboard = () => {
   const [isSlugAvailable, setIsSlugAvailable] = useState<boolean>(true);
 
   const [handleErrorMessage, setHandleErrorMessage] = useState<string>("");
-  const [vibesErrorMessage, setVibesErrorMessage] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
@@ -112,15 +103,6 @@ const LoggedInOnboard = () => {
       fetchPolicy: "network-only",
     }
   );
-
-  const {
-    data: userEthBalance,
-    refetch: refetchUserEthBalance,
-    isRefetching: isRefetchingUserEthBalance,
-  } = useBalance({
-    address: userAddress as `0x${string}`,
-    enabled: isAddress(userAddress as `0x${string}`),
-  });
 
   const handleCopy = () => {
     toast({
@@ -411,7 +393,6 @@ const LoggedInOnboard = () => {
                   bg="#2562db"
                   isDisabled={
                     handleErrorMessage.length > 0 ||
-                    vibesErrorMessage.length > 0 ||
                     errorMessage.length > 0 ||
                     debouncedNewSlug.length === 0 ||
                     loading
