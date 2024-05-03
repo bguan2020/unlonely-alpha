@@ -10,14 +10,8 @@ import {
 } from "react";
 import { ToastId, useToast, Box, Flex, Text, Spinner } from "@chakra-ui/react";
 
-import {
-  CHANNEL_FEED_QUERY,
-  GET_UNCLAIMED_EVENTS_QUERY,
-} from "../../constants/queries";
-import {
-  GetChannelFeedQuery,
-  GetUnclaimedEventsQuery,
-} from "../../generated/graphql";
+import { CHANNEL_FEED_QUERY } from "../../constants/queries";
+import { GetChannelFeedQuery } from "../../generated/graphql";
 import { useUser } from "./useUser";
 import {
   UseVibesCheckType,
@@ -103,13 +97,6 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       },
       fetchPolicy: "cache-first",
     });
-
-  const [getUnclaimedEvents] = useLazyQuery<GetUnclaimedEventsQuery>(
-    GET_UNCLAIMED_EVENTS_QUERY,
-    {
-      fetchPolicy: "network-only",
-    }
-  );
 
   useEffect(() => {
     const getChannelFeedData = async () => {
