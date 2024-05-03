@@ -7,6 +7,7 @@ import { useNetworkContext } from "../../../context/useNetwork";
 import { Box, useToast } from "@chakra-ui/react";
 import Link from "next/link";
 import useUpdateTempTokenTransferredLiquidityOnExpiration from "../../../server/temp-token/useUpdateTempTokenTransferredLiquidityOnExpiration";
+import useUpdateTempTokenIsAlwaysTradeable from "../../../server/temp-token/useUpdateTempTokenIsAlwaysTradeable";
 
 export const useSetWinningTokenTradeableAndTransferLiquidityState = (
   callbackOnTxSuccess?: any
@@ -26,6 +27,9 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
 
   const { updateTempTokenTransferredLiquidityOnExpiration, loading } =
     useUpdateTempTokenTransferredLiquidityOnExpiration({});
+
+  const { updateTempTokenIsAlwaysTradeable } =
+    useUpdateTempTokenIsAlwaysTradeable({});
 
   const {
     setWinningTokenTradeableAndTransferLiquidity,
@@ -48,7 +52,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                 href={`${explorerUrl}/tx/${data.hash}`}
                 passHref
               >
-                (1/3) transfer funds pending
+                (1/4) transfer funds pending
               </Link>
             </Box>
           ),
@@ -85,7 +89,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                 href={`${explorerUrl}/tx/${data.transactionHash}`}
                 passHref
               >
-                (2/3) transfer funds success
+                (2/4) transfer funds success
               </Link>
             </Box>
           ),
@@ -93,6 +97,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
           isClosable: true,
           position: "top-right",
         });
+        const winnerTokenAddress = args.winnerTokenAddress as `0x${string}`;
         const loserTokenAddress = args.loserTokenAddress as `0x${string}`;
         const transferredLiquidityInWei = args.transferredLiquidity as bigint;
         await updateTempTokenTransferredLiquidityOnExpiration({
@@ -104,7 +109,37 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
             toast({
               render: () => (
                 <Box as="button" borderRadius="md" bg="#5058c8" px={4} h={8}>
-                  (3/3) transfer loser liquidity update database success
+                  (3/4) transfer loser liquidity update database success
+                </Box>
+              ),
+              duration: 9000,
+              isClosable: true,
+              position: "top-right",
+            });
+          })
+          .catch((err) => {
+            console.log("transfer loser liquidity update database error", err);
+            toast({
+              render: () => (
+                <Box as="button" borderRadius="md" bg="#c87850" px={4} h={8}>
+                  transfer loser liquidity update database error
+                </Box>
+              ),
+              duration: 9000,
+              isClosable: true,
+              position: "top-right",
+            });
+          });
+        await updateTempTokenIsAlwaysTradeable({
+          tokenAddressesSetTrue: [winnerTokenAddress],
+          tokenAddressesSetFalse: [],
+          chainId: localNetwork.config.chainId,
+        })
+          .then(() => {
+            toast({
+              render: () => (
+                <Box as="button" borderRadius="md" bg="#5058c8" px={4} h={8}>
+                  (4/4) transfer loser liquidity update database success
                 </Box>
               ),
               duration: 9000,

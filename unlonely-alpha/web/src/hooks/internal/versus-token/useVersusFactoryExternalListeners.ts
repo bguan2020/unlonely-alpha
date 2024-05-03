@@ -325,16 +325,8 @@ export const useVersusFactoryExternalListeners = ({
         description: "",
       });
     }
-
-    if (transferredLiquidity > BigInt(0)) {
-      console.log(
-        "transferredLiquidity > BigInt(0)",
-        transferredLiquidity,
-        "transitioning to permamint phase"
-      );
-      handleOwnerMustMakeWinningTokenTradeable(false);
-      handleOwnerMustPermamint(true);
-    }
+    handleOwnerMustMakeWinningTokenTradeable(false);
+    handleOwnerMustPermamint(true);
   };
 
   /**
