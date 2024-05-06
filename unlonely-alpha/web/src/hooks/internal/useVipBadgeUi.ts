@@ -1,19 +1,19 @@
-import { useState, useEffect } from "react";
-import { Log, isAddressEqual } from "viem";
-import { useContractEvent } from "wagmi";
+import { useEffect } from "react";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import {
   useGenerateKey,
   useGetHolderBalance,
   useSupply,
 } from "../contracts/useTournament";
-import { Contract } from "../../constants";
+import { CHAT_MESSAGE_EVENT, Contract, InteractionType } from "../../constants";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useChannelContext } from "../context/useChannel";
 import { useNetworkContext } from "../context/useNetwork";
 import { useUser } from "../context/useUser";
+import { ChatReturnType } from "../chat/useChat";
+import { isAddress, isAddressEqual } from "viem";
 
-export const useVipBadgeUi = () => {
+export const useVipBadgeUi = (chat: ChatReturnType) => {
   const { userAddress } = useUser();
   const { channel, leaderboard } = useChannelContext();
   const { network } = useNetworkContext();
@@ -44,45 +44,34 @@ export const useVipBadgeUi = () => {
     tournamentContract
   );
 
-  const handleUpdate = (tradeEvents: Log[]) => {
-    const sortedEvents = tradeEvents.filter(
-      (event: any) => (event?.args.trade.eventByte as string) === generatedKey
-    );
-    if (sortedEvents.length === 0) return;
-    let newBalanceAddition = 0;
-    for (let i = 0; i < sortedEvents.length; i++) {
-      const tradeEvent: any = sortedEvents[i];
-      const trader = tradeEvent?.args.trade.trader as `0x${string}`;
-      if (userAddress && isAddressEqual(trader, userAddress as `0x${string}`)) {
-        newBalanceAddition +=
-          ((tradeEvent?.args.trade.isBuy as boolean) ? 1 : -1) *
-          Number(tradeEvent?.args.trade.badgeAmount as bigint);
-      }
-    }
-    setVipBadgeSupply(
-      (sortedEvents[sortedEvents.length - 1] as any).args.trade.supply as bigint
-    );
-    setVipBadgeBalance((prev) => String(Number(prev) + newBalanceAddition));
-  };
-
-  const [incomingTrades, setIncomingTrades] = useState<Log[]>([]);
-
-  useContractEvent({
-    address: tournamentContract.address,
-    abi: tournamentContract.abi,
-    eventName: "Trade",
-    listener(logs) {
-      const init = async () => {
-        setIncomingTrades(logs);
-      };
-      init();
-    },
-  });
-
   useEffect(() => {
-    if (incomingTrades) handleUpdate(incomingTrades);
-  }, [incomingTrades]);
-
+    const init = async () => {
+      if (chat.receivedMessages.length === 0) return;
+      const latestMessage =
+        chat.receivedMessages[chat.receivedMessages.length - 1];
+      if (
+        latestMessage &&
+        latestMessage.data.body &&
+        latestMessage.name === CHAT_MESSAGE_EVENT &&
+        Date.now() - latestMessage.timestamp < 12000
+      ) {
+        const body = latestMessage.data.body;
+        if (
+          body.split(":")[0] === InteractionType.BUY_BADGES &&
+          Date.now() - latestMessage.timestamp < 12000
+        ) {
+          if (body.split(":")[4] === generatedKey) {
+            if (userAddress && isAddress(body.split(":")[1]) && isAddressEqual(body.split(":")[1] as `0x${string}`, userAddress as `0x${string}`)) {
+              setVipBadgeBalance((prev) => String(Number(prev) + Number(body.split(":")[2])));
+            }
+            setVipBadgeSupply(BigInt(body.split(":")[3]));
+          }
+        }
+      }
+    };
+    init();
+  }, [chat.receivedMessages]);
+  
   useEffect(() => {
     if (Number(vipBadgeBalance) > 0) {
       handleIsVip(true);

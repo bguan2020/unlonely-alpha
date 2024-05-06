@@ -23,6 +23,7 @@ export enum InteractionType {
   BUY_TEMP_TOKENS = "buy-temp-tokens-interaction",
   SELL_TEMP_TOKENS = "sell-temp-tokens-interaction",
   CREATE_TEMP_TOKEN = "create-temp-token-interaction",
+  CREATE_MULTIPLE_TEMP_TOKENS = "create-multiple-temp-tokens-interaction",
   TEMP_TOKEN_EXPIRED = "expired-temp-token-interaction",
   TEMP_TOKEN_EXPIRATION_WARNING = "temp-token-expiration-warning-interaction",
   TEMP_TOKEN_REACHED_THRESHOLD = "temp-token-reached-threshold-interaction",
@@ -72,6 +73,7 @@ export const CHAT_MESSAGE_EVENT = "chat-message";
 export const CHANGE_USER_ROLE_EVENT = "change-user-role";
 export const CHANGE_CHANNEL_DETAILS_EVENT = "change-channel-details";
 export const VIBES_TOKEN_PRICE_RANGE_EVENT = "vibes-token-price-range";
+export const VIBES_TOKEN_TRANSFER_EVENT = "vibes-token-transfer";
 
 export type CommandData = {
   command: string;
@@ -100,7 +102,7 @@ export const MOBILE_VIDEO_VH = 25;
 export const NEW_STREAMER_URL_QUERY_PARAM = "new";
 export const STREAMER_MIGRATION_URL_QUERY_PARAM = "migrate";
 
-export const CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_SIMPLIFIED = [
+export const CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN = [
   "3",
   "15",
   "29",

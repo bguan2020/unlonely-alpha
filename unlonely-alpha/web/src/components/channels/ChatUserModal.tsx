@@ -17,6 +17,7 @@ import {
   AblyChannelPromise,
   CHANGE_USER_ROLE_EVENT,
   Contract,
+  VIBES_TOKEN_TRANSFER_EVENT,
 } from "../../constants";
 import { NETWORKS } from "../../constants/networks";
 import { useCacheContext } from "../../hooks/context/useCache";
@@ -123,6 +124,16 @@ export const ChatUserModal = ({
           duration: 9000,
           isClosable: true,
           position: "top-right",
+        });
+        channel.publish({
+          name: VIBES_TOKEN_TRANSFER_EVENT,
+          data: {
+            body: JSON.stringify({
+              from: user?.address,
+              to: targetUser?.address,
+              amount: Number(amountOfVibesToSend),
+            }),
+          },
         });
         setAmountOfVibesToSend("10");
       },
@@ -370,7 +381,7 @@ export const ChatUserModal = ({
                 )}
               </Flex>
               <Flex direction="column" gap="10px">
-                {targetUser.address !== user?.address && (
+                {true && (
                   <>
                     {!isSendingVibes ? (
                       <Button

@@ -172,12 +172,23 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
         const title = `${
           user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
         } created the $${args.symbol} token!`;
+        const dataToSend = [
+          `${args.tokenAddress}`,
+          `${args.symbol}`,
+          `${String(args.streamerFeePercent)}`,
+          `${String(args.protocolFeePercent)}`,
+          `${args.owner}`,
+          `${args.name}`,
+          `${args.endTimestamp}`,
+          `${String(args.creationBlockNumber)}`,
+          `${String(args.totalSupplyThreshold)}`,
+        ];
         addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.CREATE_TEMP_TOKEN,
           title,
-          description: "",
+          description: dataToSend.join(":"),
         });
         toast({
           render: () => (

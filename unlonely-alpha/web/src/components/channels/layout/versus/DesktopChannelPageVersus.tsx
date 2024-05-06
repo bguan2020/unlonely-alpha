@@ -1,6 +1,6 @@
 import { ApolloError } from "@apollo/client";
 import { ChannelStaticQuery } from "../../../../generated/graphql";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useChat } from "../../../../hooks/chat/useChat";
 import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { useUser } from "../../../../hooks/context/useUser";
@@ -19,6 +19,12 @@ import { DesktopChannelStreamerPerspectiveSimplified } from "../temptoken/Deskto
 import { DesktopChannelViewerPerspectiveSimplified } from "../temptoken/DesktopChannelViewerPerspectiveSimplified";
 import { VersusTempTokensInterface } from "./VersusTempTokensInterface";
 import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
+import {
+  CHAT_MESSAGE_EVENT,
+  InteractionType,
+  versusTokenDataInitial,
+} from "../../../../constants";
+import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 
 export const DesktopChannelPageVersus = ({
   channelSSR,
@@ -37,12 +43,29 @@ export const DesktopChannelPageVersus = ({
     error: channelDataError,
     handleChannelStaticData,
     isOwner,
+    handleRealTimeChannelDetails,
   } = channel;
-  const { gameState } = useVersusTempTokenContext();
-  const { canPlayToken, isGameFinished } = gameState;
+  const { gameState, tokenATxs, tokenBTxs } = useVersusTempTokenContext();
+  const {
+    canPlayToken,
+    isGameFinished,
+    handleIsGameFinished,
+    handleIsGameOngoing,
+    handleOwnerMustPermamint,
+    handleOwnerMustMakeWinningTokenTradeable,
+    handleIsGameFinishedModalOpen,
+    handleWinningToken,
+    handleLosingToken,
+    setTokenA,
+    setTokenB,
+  } = gameState;
+  const { resetTempTokenTxs: resetTempTokenTxsA } = tokenATxs;
+  const { resetTempTokenTxs: resetTempTokenTxsB } = tokenBTxs;
+
   const toast = useToast();
   const { livepeerData, playbackInfo } = useLivepeerStreamData();
-  useVipBadgeUi();
+  useVipBadgeUi(chat);
+  const mountingMessages = useRef(true);
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
   }, [channelSSR]);
@@ -69,6 +92,77 @@ export const DesktopChannelPageVersus = ({
       isClosable: true,
     });
   };
+
+  useEffect(() => {
+    if (chat.mounted) mountingMessages.current = false;
+  }, [chat.mounted]);
+
+  useEffect(() => {
+    if (chat.receivedMessages.length === 0) return;
+    const latestMessage =
+      chat.receivedMessages[chat.receivedMessages.length - 1];
+    if (
+      latestMessage &&
+      latestMessage.data.body &&
+      latestMessage.name === CHAT_MESSAGE_EVENT &&
+      Date.now() - latestMessage.timestamp < 12000
+    ) {
+      const body = latestMessage.data.body;
+      if (
+        body.split(":")[0] === InteractionType.CREATE_MULTIPLE_TEMP_TOKENS &&
+        Date.now() - latestMessage.timestamp < 12000
+      ) {
+        const newEndTimestamp = BigInt(body.split(":")[1]);
+        const newTokenAddresses = JSON.parse(body.split(":")[2]);
+        const newTokenSymbols = JSON.parse(body.split(":")[3]);
+        const chainId = Number(body.split(":")[4]);
+        const newTokenCreationBlockNumber = BigInt(body.split(":")[5]);
+        handleRealTimeChannelDetails({
+          isLive: true,
+        });
+
+        handleIsGameFinished(false);
+        handleIsGameOngoing(true);
+        handleOwnerMustPermamint(false);
+        handleOwnerMustMakeWinningTokenTradeable(false);
+        handleIsGameFinishedModalOpen(false);
+        handleWinningToken(versusTokenDataInitial);
+        handleLosingToken(versusTokenDataInitial);
+        resetTempTokenTxsA();
+        resetTempTokenTxsB();
+        setTokenA({
+          transferredLiquidityOnExpiration: BigInt(0),
+          symbol: newTokenSymbols[0],
+          address: newTokenAddresses[0],
+          totalSupply: BigInt(0),
+          isAlwaysTradeable: false,
+          highestTotalSupply: BigInt(0),
+          contractData: {
+            address: newTokenAddresses[0],
+            chainId,
+            abi: TempTokenAbi,
+          },
+          creationBlockNumber: newTokenCreationBlockNumber,
+          endTimestamp: newEndTimestamp,
+        });
+        setTokenB({
+          transferredLiquidityOnExpiration: BigInt(0),
+          symbol: newTokenSymbols[1],
+          address: newTokenAddresses[1],
+          totalSupply: BigInt(0),
+          isAlwaysTradeable: false,
+          highestTotalSupply: BigInt(0),
+          contractData: {
+            address: newTokenAddresses[1],
+            chainId,
+            abi: TempTokenAbi,
+          },
+          creationBlockNumber: newTokenCreationBlockNumber,
+          endTimestamp: newEndTimestamp,
+        });
+      }
+    }
+  }, [chat.receivedMessages]);
 
   return (
     <>

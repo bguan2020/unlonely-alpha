@@ -11,10 +11,9 @@ import {
   AVERAGE_BLOCK_TIME_SECS,
   CREATION_BLOCK,
   Contract,
-  NULL_ADDRESS,
   SECONDS_PER_HOUR,
 } from "../../constants";
-import { Flex, Box, Text, useToast } from "@chakra-ui/react";
+import { useToast } from "@chakra-ui/react";
 import { useUser } from "../context/useUser";
 import { useRouter } from "next/router";
 import { useGetUserBalance } from "../contracts/useVibesToken";
@@ -29,6 +28,7 @@ export type UseVibesCheckType = {
   >;
   currentBlockNumberForVibes: bigint;
   lastChainInteractionTimestamp: number;
+  refetchVibesBalance: () => void;
 };
 
 export const useVibesCheckInitial: UseVibesCheckType = {
@@ -38,6 +38,7 @@ export const useVibesCheckInitial: UseVibesCheckType = {
   chartTimeIndexes: new Map(),
   currentBlockNumberForVibes: BigInt(0),
   lastChainInteractionTimestamp: 0,
+  refetchVibesBalance: () => undefined,
 };
 
 export const useVibesCheck = () => {
@@ -305,57 +306,6 @@ export const useVibesCheck = () => {
     init();
   }, [tokenTxs.length]);
 
-  const [transferLogs, setTransferLogs] = useState<Log[]>([]);
-
-  useContractEvent({
-    address: contract.address,
-    abi: contract.abi,
-    eventName: "Transfer",
-    listener(logs) {
-      setTransferLogs(logs);
-    },
-  });
-
-  useEffect(() => {
-    if (transferLogs.length > 0) {
-      const includesUser = transferLogs.some(
-        (log: any) =>
-          (log?.args?.from as `0x${string}`) === userAddress ||
-          (log?.args?.to as `0x${string}`) === userAddress
-      );
-      if (includesUser) {
-        console.log("Detected vibes transfer event", transferLogs);
-        refetchVibesBalance();
-        const incomingReceives = transferLogs.filter(
-          (log: any) =>
-            (log?.args?.from as `0x${string}`) !== NULL_ADDRESS &&
-            (log?.args?.to as `0x${string}`) === userAddress
-        );
-        if (incomingReceives.length > 0) {
-          toast({
-            duration: 5000,
-            isClosable: true,
-            render: () => (
-              <Box borderRadius="md" bg="#8e64dd" px={4} h={8}>
-                <Flex justifyContent="center" alignItems="center">
-                  <Text fontSize="16px" color="white">
-                    Some people sent you vibes! 🎉
-                  </Text>
-                  <Text>
-                    Got{" "}
-                    {incomingReceives.reduce((acc, cv: any) => {
-                      return acc + Number(cv?.args?.value as bigint);
-                    }, 0)}
-                  </Text>
-                </Flex>
-              </Box>
-            ),
-          });
-        }
-      }
-    }
-  }, [transferLogs]);
-
   return {
     vibesTokenTxs: tokenTxs,
     vibesTokenLoading: loading,
@@ -363,6 +313,7 @@ export const useVibesCheck = () => {
     chartTimeIndexes,
     currentBlockNumberForVibes,
     lastChainInteractionTimestamp,
+    refetchVibesBalance,
   };
 };
 

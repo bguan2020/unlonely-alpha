@@ -235,9 +235,13 @@ export const useCreateMultipleTempTokensState = ({
         addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",
-          taskType: InteractionType.CREATE_TEMP_TOKEN,
+          taskType: InteractionType.CREATE_MULTIPLE_TEMP_TOKENS,
           title,
-          description: "",
+          description: `${String(newEndTimestamp)}:${JSON.stringify(
+            newTokenAddresses
+          )}:${JSON.stringify(newTokenSymbols)}:${String(
+            localNetwork.config.chainId
+          )}:${String(newTokenCreationBlockNumber)}`,
         });
         toast({
           render: () => (

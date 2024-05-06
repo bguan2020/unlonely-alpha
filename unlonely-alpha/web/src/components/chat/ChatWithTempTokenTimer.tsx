@@ -1,5 +1,5 @@
 import { Flex, Text, Box, Button } from "@chakra-ui/react";
-import { ChatReturnType, useChatBox } from "../../hooks/chat/useChat";
+import { ChatReturnType } from "../../hooks/chat/useChat";
 import MessageList from "./MessageList";
 import ChatForm from "./ChatForm";
 import {
@@ -10,6 +10,7 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import { EXCLUDED_SLUGS } from "./ChatComponent";
 import { useState } from "react";
 import Participants from "../presence/Participants";
+import { useChatBox } from "../../hooks/chat/useChatBox";
 
 export const ChatWithTempTokenTimer = ({
   chat,

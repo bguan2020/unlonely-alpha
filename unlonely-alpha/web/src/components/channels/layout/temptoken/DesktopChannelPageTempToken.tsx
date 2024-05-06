@@ -2,7 +2,7 @@ import { ApolloError } from "@apollo/client";
 import { ChannelStaticQuery } from "../../../../generated/graphql";
 import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { useChat } from "../../../../hooks/chat/useChat";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useUser } from "../../../../hooks/context/useUser";
 import ChannelNextHead from "../../../layout/ChannelNextHead";
 import { Stack, Flex, Text, Button, useToast } from "@chakra-ui/react";
@@ -20,8 +20,9 @@ import { useVipBadgeUi } from "../../../../hooks/internal/useVipBadgeUi";
 import { useLivepeerStreamData } from "../../../../hooks/internal/useLivepeerStreamData";
 import { CreateTokenInterface } from "./CreateTempTokenInterface";
 import { formatApolloError } from "../../../../utils/errorFormatting";
+import { CHAT_MESSAGE_EVENT, InteractionType } from "../../../../constants";
 
-export const DesktopChannelPageSimplified = ({
+export const DesktopChannelPageTempToken = ({
   channelSSR,
   channelSSRDataLoading,
   channelSSRDataError,
@@ -38,12 +39,26 @@ export const DesktopChannelPageSimplified = ({
     loading: channelDataLoading,
     error: channelDataError,
     handleChannelStaticData,
+    handleRealTimeChannelDetails,
     isOwner,
   } = channel;
-  const { currentActiveTokenEndTimestamp, canPlayToken } = tempToken;
+  const {
+    currentActiveTokenEndTimestamp,
+    canPlayToken,
+    handleIsGamePermanent,
+    handleIsGameSuccess,
+    handleIsGameFailed,
+    resetTempTokenTxs,
+    handleCurrentActiveTokenEndTimestamp,
+    handleCurrentActiveTokenCreationBlockNumber,
+    handleCurrentActiveTokenAddress,
+    handleCurrentActiveTokenSymbol,
+    handleCurrentActiveTokenTotalSupplyThreshold,
+  } = tempToken;
   const toast = useToast();
   const { livepeerData, playbackInfo } = useLivepeerStreamData();
-  useVipBadgeUi();
+  useVipBadgeUi(chat);
+  const mountingMessages = useRef(true);
 
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
@@ -102,6 +117,45 @@ export const DesktopChannelPageSimplified = ({
       isClosable: true,
     });
   };
+
+  useEffect(() => {
+    if (chat.mounted) mountingMessages.current = false;
+  }, [chat.mounted]);
+
+  useEffect(() => {
+    if (chat.receivedMessages.length === 0) return;
+    const latestMessage =
+      chat.receivedMessages[chat.receivedMessages.length - 1];
+    if (
+      latestMessage &&
+      latestMessage.data.body &&
+      latestMessage.name === CHAT_MESSAGE_EVENT &&
+      Date.now() - latestMessage.timestamp < 12000
+    ) {
+      const body = latestMessage.data.body;
+      if (
+        body.split(":")[0] === InteractionType.CREATE_TEMP_TOKEN &&
+        Date.now() - latestMessage.timestamp < 12000
+      ) {
+        handleRealTimeChannelDetails({
+          isLive: true,
+        });
+
+        handleIsGamePermanent(false);
+        handleIsGameSuccess(false);
+        handleIsGameFailed(false);
+        resetTempTokenTxs();
+
+        handleCurrentActiveTokenEndTimestamp(BigInt(body.split(":")[7]));
+        handleCurrentActiveTokenCreationBlockNumber(BigInt(body.split(":")[8]));
+        handleCurrentActiveTokenAddress(body.split(":")[1]);
+        handleCurrentActiveTokenSymbol(body.split(":")[2]);
+        handleCurrentActiveTokenTotalSupplyThreshold(
+          BigInt(body.split(":")[9])
+        );
+      }
+    }
+  }, [chat.receivedMessages]);
 
   return (
     <>

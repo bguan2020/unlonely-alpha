@@ -3,13 +3,14 @@ import { useMemo, useState } from "react";
 
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
-import { ChatReturnType, useChatBox } from "../../hooks/chat/useChat";
+import { ChatReturnType } from "../../hooks/chat/useChat";
 import MessageList from "../chat/MessageList";
 import ChatForm from "../chat/ChatForm";
 import { BorderType, OuterBorder } from "../general/OuterBorder";
 import Participants from "../presence/Participants";
 import { VipBadgeBuy } from "../channels/vibes/VipBadgeBuy";
 import VibesTokenInterface from "../chat/VibesTokenInterface";
+import { useChatBox } from "../../hooks/chat/useChatBox";
 
 export const EXCLUDED_SLUGS = ["loveonleverage"];
 
@@ -180,7 +181,7 @@ const ChatTab = ({
           <Text textAlign={"center"}>
             You must have a VIP badge to use this chat.
           </Text>
-          <VipBadgeBuy />
+          <VipBadgeBuy chat={chat} />
         </Flex>
       )}
       <Flex

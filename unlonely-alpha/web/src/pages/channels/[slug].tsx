@@ -9,10 +9,10 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import { ApolloError } from "@apollo/client";
 import { MobilePage } from "../../components/channels/layout/MobilePage";
 import { DesktopPage } from "../../components/channels/layout/DesktopPage";
-import { DesktopChannelPageSimplified } from "../../components/channels/layout/temptoken/DesktopChannelPageSimplified";
-import { CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_SIMPLIFIED } from "../../constants";
+import { CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN } from "../../constants";
 import { TempTokenProvider } from "../../hooks/context/useTempToken";
 import { DesktopChannelPageVersus } from "../../components/channels/layout/versus/DesktopChannelPageVersus";
+import { DesktopChannelPageTempToken } from "../../components/channels/layout/temptoken/DesktopChannelPageTempToken";
 import { VersusTempTokenProvider } from "../../hooks/context/useVersusTempToken";
 import { VibesProvider } from "../../hooks/context/useVibes";
 
@@ -46,11 +46,11 @@ const ChannelDetail = ({
                 channelSSRDataError={channelDataError}
               />
             </VersusTempTokenProvider>
-          ) : CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_SIMPLIFIED.includes(
+          ) : CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN.includes(
               channelSSR?.id ?? ""
             ) ? (
             <TempTokenProvider>
-              <DesktopChannelPageSimplified
+              <DesktopChannelPageTempToken
                 channelSSR={channelSSR}
                 channelSSRDataLoading={channelDataLoading}
                 channelSSRDataError={channelDataError}

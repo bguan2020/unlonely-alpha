@@ -2,12 +2,12 @@ import { Button, Text, Box, useToast, Flex } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { decodeEventLog, formatUnits, isAddress } from "viem";
-import { useBalance, useContractEvent } from "wagmi";
-import type { Log } from "viem";
+import { useBalance } from "wagmi";
 
 import { useUser } from "../../../hooks/context/useUser";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import {
+  CHAT_MESSAGE_EVENT,
   Contract,
   InteractionType,
   NULL_ADDRESS_BYTES32,
@@ -22,12 +22,13 @@ import centerEllipses from "../../../utils/centerEllipses";
 import { getContractFromNetwork } from "../../../utils/contract";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
+import { ChatReturnType } from "../../../hooks/chat/useChat";
 
-export const VipBadgeBuy = () => {
+export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
   const { userAddress, walletIsConnected, user } = useUser();
-  const { channel, chat } = useChannelContext();
+  const { channel, chat: c } = useChannelContext();
   const { channelQueryData } = channel;
-  const { addToChatbot } = chat;
+  const { addToChatbot } = c;
 
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
@@ -39,6 +40,7 @@ export const VipBadgeBuy = () => {
     address: userAddress as `0x${string}`,
     enabled: isAddress(userAddress as `0x${string}`),
   });
+  const mountingMessages = useRef(true);
 
   const getCallbackHandlers = (
     name: string,
@@ -165,6 +167,8 @@ export const VipBadgeBuy = () => {
           topics: data.logs[0].topics,
         });
         const args: any = topics.args;
+        console.log("VipBadgeBuy", args);
+        const newSupply = args.trade.supply as bigint;
         const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
           args.trade.isBuy ? "bought" : "sold"
         } ${args.trade.badgeAmount} badges!`;
@@ -173,9 +177,7 @@ export const VipBadgeBuy = () => {
           address: userAddress ?? "",
           taskType: InteractionType.BUY_BADGES,
           title,
-          description: `${user?.username ?? centerEllipses(userAddress, 15)}:${
-            args.trade.badgeAmount
-          }`,
+          description: `${args.trade.trader}:${args.trade.badgeAmount}:${newSupply}:${args.trade.eventByte}`,
         });
         await postBadgeTrade({
           channelId: channelQueryData?.id as string,
@@ -190,69 +192,37 @@ export const VipBadgeBuy = () => {
     })
   );
 
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const [incomingTrades, setIncomingTrades] = useState<Log[]>([]);
-  const [debouncedTrades, setDebouncedTrades] = useState<Log[]>([]);
-
-  /** once per trade, we fetch for new data asynchronously, 
-      we use debounce and timeout because only the data after the latest trade matters, 
-      all other previous data would be outdated already by the next trade,
-      however if the trade was created by this user, immediately fetch for new data
-      for the sake of responsiveness
-  */
-  useContractEvent({
-    address: tournamentContract.address,
-    abi: tournamentContract.abi,
-    eventName: "Trade",
-    listener(logs) {
-      console.log("VipBadgeBuy Trade", logs);
-      const init = async () => {
-        setIncomingTrades(logs);
-      };
-      init();
-    },
-  });
-
   useEffect(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-
-    const MILLIS_TO_WAIT = 400;
-
-    timeoutRef.current = setTimeout(() => {
-      setDebouncedTrades(incomingTrades);
-    }, MILLIS_TO_WAIT);
-
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [incomingTrades]);
+    if (chat.mounted) mountingMessages.current = false;
+  }, [chat.mounted]);
 
   useEffect(() => {
     const init = async () => {
-      if (!debouncedTrades || debouncedTrades.length === 0) return;
+      if (chat.receivedMessages.length === 0) return;
+      const latestMessage =
+        chat.receivedMessages[chat.receivedMessages.length - 1];
       if (
-        debouncedTrades.some(
-          (log: any) => (log?.args?.trade?.eventByte as string) === generatedKey
-        )
+        latestMessage &&
+        latestMessage.data.body &&
+        latestMessage.name === CHAT_MESSAGE_EVENT &&
+        Date.now() - latestMessage.timestamp < 12000
       ) {
-        try {
-          await Promise.all([
-            refetchBadgePrice(),
-            refetchUserEthBalance(),
-            refetchBuyVipBadge(),
-          ]);
-        } catch (err) {
-          console.log("VipBadgeBuy fetching error", err);
+        const body = latestMessage.data.body;
+        if (body.split(":")[0] === InteractionType.BUY_BADGES) {
+          try {
+            await Promise.all([
+              refetchBadgePrice(),
+              refetchUserEthBalance(),
+              refetchBuyVipBadge(),
+            ]);
+          } catch (err) {
+            console.log("VipBadgeBuy fetching error", err);
+          }
         }
       }
     };
     init();
-  }, [debouncedTrades]);
+  }, [chat.receivedMessages]);
 
   useEffect(() => {
     if (!walletIsConnected) {

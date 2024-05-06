@@ -51,7 +51,7 @@ export const DesktopPage = ({
   } = ui;
   const toast = useToast();
   const { livepeerData, playbackInfo } = useLivepeerStreamData();
-  useVipBadgeUi();
+  useVipBadgeUi(chat);
 
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);

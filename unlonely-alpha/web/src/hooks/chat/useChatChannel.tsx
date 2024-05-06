@@ -10,9 +10,14 @@ import {
   CHAT_MESSAGE_EVENT,
   InteractionType,
   VIBES_TOKEN_PRICE_RANGE_EVENT,
+  VIBES_TOKEN_TRANSFER_EVENT,
 } from "../../constants";
 import { useUser } from "../context/useUser";
 import { SharesEventState } from "../../generated/graphql";
+import { useVibesContext } from "../context/useVibes";
+import { isAddress, isAddressEqual } from "viem";
+import { Box, Flex, useToast, Text } from "@chakra-ui/react";
+import centerEllipses from "../../utils/centerEllipses";
 
 const ably = new Ably.Realtime.Promise({ authUrl: "/api/createTokenRequest" });
 
@@ -57,6 +62,8 @@ export function useChatChannel(fixedChatName?: string) {
   } = c;
   const { chatChannel } = chat;
   const { handleLocalSharesEventState } = ui;
+  const { refetchVibesBalance } = useVibesContext();
+  const toast = useToast();
 
   const channelName =
     fixedChatName ??
@@ -83,6 +90,39 @@ export function useChatChannel(fixedChatName?: string) {
     const messageHistory = receivedMessages.filter(
       (m) => m.name === CHAT_MESSAGE_EVENT
     );
+    if (message.name === VIBES_TOKEN_TRANSFER_EVENT) {
+      const body = JSON.parse(message.data.body);
+      const fromAddress = body.from as string | undefined;
+      const toAddress = body.to as string | undefined;
+      const amount = body.amount as number;
+      const includesUser =
+        toAddress &&
+        isAddress(toAddress) &&
+        fromAddress &&
+        isAddress(fromAddress) &&
+        (isAddressEqual(fromAddress, userAddress as `0x${string}`) ||
+          isAddressEqual(toAddress, userAddress as `0x${string}`));
+      if (includesUser) refetchVibesBalance();
+      if (
+        toAddress &&
+        isAddress(toAddress) &&
+        isAddressEqual(toAddress, userAddress as `0x${string}`)
+      ) {
+        toast({
+          duration: 5000,
+          isClosable: true,
+          render: () => (
+            <Box borderRadius="md" bg="#8e64dd" px={4} h={8}>
+              <Flex justifyContent="center" alignItems="center">
+                <Text fontSize="16px" color="white">
+                  {centerEllipses(fromAddress, 13)} sent you {amount} vibes! 🎉
+                </Text>
+              </Flex>
+            </Box>
+          ),
+        });
+      }
+    }
     if (message.name === CHANGE_USER_ROLE_EVENT) {
       const body = JSON.parse(message.data.body);
       handleChannelRoles(body.address, body.role, body.isAdding);

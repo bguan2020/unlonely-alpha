@@ -64,6 +64,11 @@ export type UseReadTempTokenContextStateType = {
   handleIsSuccessGameModalOpen: (value: boolean) => void;
   handleIsFailedGameModalOpen: (value: boolean) => void;
   handleCanPlayToken: (value: boolean) => void;
+  handleCurrentActiveTokenEndTimestamp: (value: bigint) => void;
+  handleCurrentActiveTokenCreationBlockNumber: (value: bigint) => void;
+  handleCurrentActiveTokenAddress: (value: string) => void;
+  handleCurrentActiveTokenSymbol: (value: string) => void;
+  handleCurrentActiveTokenTotalSupplyThreshold: (value: bigint) => void;
 } & UseReadTempTokenTxsType;
 
 export const useReadTempTokenInitialState: UseReadTempTokenContextStateType = {
@@ -105,6 +110,11 @@ export const useReadTempTokenInitialState: UseReadTempTokenContextStateType = {
   handleIsSuccessGameModalOpen: () => undefined,
   handleIsFailedGameModalOpen: () => undefined,
   handleCanPlayToken: () => undefined,
+  handleCurrentActiveTokenEndTimestamp: () => undefined,
+  handleCurrentActiveTokenCreationBlockNumber: () => undefined,
+  handleCurrentActiveTokenAddress: () => undefined,
+  handleCurrentActiveTokenSymbol: () => undefined,
+  handleCurrentActiveTokenTotalSupplyThreshold: () => undefined,
   ...useReadTempTokenTxsInitial,
 };
 
@@ -389,97 +399,6 @@ export const useReadTempTokenContextState = () => {
   });
 
   /**
-   * listen for incoming temp token created events
-   */
-
-  const [incomingTempTokenCreatedLogs, setIncomingTempTokenCreatedLogs] =
-    useState<Log[]>([]);
-
-  useContractEvent({
-    address: factoryContract.address,
-    abi: factoryContract.abi,
-    eventName: "TempTokenCreated",
-    listener(logs) {
-      console.log("detected TempTokenCreated event", logs);
-      const init = async () => {
-        setIncomingTempTokenCreatedLogs(logs);
-      };
-      init();
-    },
-  });
-
-  useEffect(() => {
-    if (incomingTempTokenCreatedLogs)
-      handleTempTokenCreatedUpdate(incomingTempTokenCreatedLogs);
-  }, [incomingTempTokenCreatedLogs]);
-
-  const handleTempTokenCreatedUpdate = async (logs: Log[]) => {
-    if (logs.length === 0) return;
-    console.log(
-      "handleTempTokenCreatedUpdate",
-      logs,
-      channelQueryData?.owner.address
-    );
-    const filteredLogsByOwner = logs.filter((log: any) =>
-      isAddressEqual(
-        log.args.owner as `0x${string}`,
-        channelQueryData?.owner.address as `0x${string}`
-      )
-    );
-    const sortedLogs = filteredLogsByOwner.sort(
-      (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
-    );
-    if (sortedLogs.length === 0) return;
-    const latestLog: any = sortedLogs[sortedLogs.length - 1];
-    const newEndTimestamp = latestLog?.args.endTimestamp as bigint;
-    const newTokenAddress = latestLog?.args.tokenAddress as `0x${string}`;
-    const newTokenSymbol = latestLog?.args.symbol as string;
-    const newTokenName = latestLog?.args.name as string;
-    const newTokenCreationBlockNumber = latestLog?.args
-      .creationBlockNumber as bigint;
-    const newTokenTotalSupplyThreshold = latestLog?.args
-      .totalSupplyThreshold as bigint;
-
-    handleRealTimeChannelDetails({
-      isLive: true,
-    });
-
-    handleIsGamePermanent(false);
-    handleIsGameSuccess(false);
-    handleIsGameFailed(false);
-    readTempTokenTxs.resetTempTokenTxs();
-
-    if (isOwner) {
-      try {
-        await postTempToken({
-          tokenAddress: newTokenAddress,
-          symbol: newTokenSymbol,
-          streamerFeePercentage: latestLog?.args.streamerFeePercent as bigint,
-          protocolFeePercentage: latestLog?.args.protocolFeePercent as bigint,
-          ownerAddress: latestLog?.args.owner as `0x${string}`,
-          name: newTokenName,
-          endUnixTimestamp: newEndTimestamp,
-          channelId: Number(channelQueryData?.id),
-          chainId: localNetwork.config.chainId as number,
-          highestTotalSupply: BigInt(0),
-          creationBlockNumber: newTokenCreationBlockNumber,
-          factoryAddress: factoryContract.address as `0x${string}`,
-        });
-      } catch (e) {
-        console.log(
-          "detected TempTokenCreated event but cannot call posttemptoken, but have been created already",
-          e
-        );
-      }
-    }
-    setCurrentActiveTokenEndTimestamp(newEndTimestamp);
-    setCurrentActiveTokenCreationBlockNumber(newTokenCreationBlockNumber);
-    setCurrentActiveTokenAddress(newTokenAddress);
-    setCurrentActiveTokenSymbol(newTokenSymbol);
-    setCurrentActiveTokenTotalSupplyThreshold(newTokenTotalSupplyThreshold);
-  };
-
-  /**
    * listen for last inactive temp token send remaining funds to winner after token expiration events
    */
   const [
@@ -716,6 +635,32 @@ export const useReadTempTokenContextState = () => {
     setIsFailedGameModalOpen(value);
   }, []);
 
+  const handleCurrentActiveTokenEndTimestamp = useCallback((value: bigint) => {
+    setCurrentActiveTokenEndTimestamp(value);
+  }, []);
+
+  const handleCurrentActiveTokenCreationBlockNumber = useCallback(
+    (value: bigint) => {
+      setCurrentActiveTokenCreationBlockNumber(value);
+    },
+    []
+  );
+
+  const handleCurrentActiveTokenAddress = useCallback((value: string) => {
+    setCurrentActiveTokenAddress(value);
+  }, []);
+
+  const handleCurrentActiveTokenSymbol = useCallback((value: string) => {
+    setCurrentActiveTokenSymbol(value);
+  }, []);
+
+  const handleCurrentActiveTokenTotalSupplyThreshold = useCallback(
+    (value: bigint) => {
+      setCurrentActiveTokenTotalSupplyThreshold(value);
+    },
+    []
+  );
+
   return {
     currentActiveTokenSymbol,
     currentActiveTokenAddress,
@@ -751,6 +696,11 @@ export const useReadTempTokenContextState = () => {
     handleIsSuccessGameModalOpen,
     handleIsFailedGameModalOpen,
     handleCanPlayToken,
+    handleCurrentActiveTokenEndTimestamp,
+    handleCurrentActiveTokenCreationBlockNumber,
+    handleCurrentActiveTokenAddress,
+    handleCurrentActiveTokenSymbol,
+    handleCurrentActiveTokenTotalSupplyThreshold,
     ...readTempTokenTxs,
   };
 };

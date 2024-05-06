@@ -35,8 +35,8 @@ export const MobilePage = ({
   } = channel;
   const toast = useToast();
   const { livepeerData, playbackInfo } = useLivepeerStreamData();
-  useVipBadgeUi();
   const chat = useChat();
+  useVipBadgeUi(chat);
 
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
