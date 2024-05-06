@@ -116,6 +116,7 @@ export const CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_SIMPLIFIED = [
   "554",
   "127",
   "496",
+  "688"
 ];
 
 export type VersusTokenDataType = {
