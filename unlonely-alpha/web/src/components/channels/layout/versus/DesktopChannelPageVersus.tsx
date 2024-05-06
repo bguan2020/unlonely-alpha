@@ -150,7 +150,11 @@ export const DesktopChannelPageVersus = ({
                     ablyChannel={chat.channel}
                     customHeight="30%"
                   />
-                  <ChatComponent chat={chat} customHeight={"100%"} />
+                  <ChatComponent
+                    chat={chat}
+                    tokenForTransfer="tempToken"
+                    customHeight={"100%"}
+                  />
                 </Flex>
               )}
             </Stack>

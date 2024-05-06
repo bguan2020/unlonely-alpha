@@ -11,7 +11,7 @@ import { EXCLUDED_SLUGS } from "./ChatComponent";
 import { useState } from "react";
 import Participants from "../presence/Participants";
 
-export const ChatWithTokenTimer = ({
+export const ChatWithTempTokenTimer = ({
   chat,
   mode,
 }: {

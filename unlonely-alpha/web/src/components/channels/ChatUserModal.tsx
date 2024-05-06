@@ -38,6 +38,7 @@ import {
 import Link from "next/link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import { useVibesContext } from "../../hooks/context/useVibes";
 
 export const ChatUserModal = ({
   isOpen,
@@ -56,7 +57,8 @@ export const ChatUserModal = ({
   const { channelQueryData, channelRoles } = c;
   const { network } = useNetworkContext();
   const { matchingChain, explorerUrl } = network;
-  const { vibesTokenTxs, userVibesBalance, ethPriceInUsd } = useCacheContext();
+  const { ethPriceInUsd } = useCacheContext();
+  const { vibesTokenTxs, userVibesBalance } = useVibesContext();
 
   const [isBanning, setIsBanning] = useState<boolean>(false);
   const [isAppointing, setIsAppointing] = useState<boolean>(false);

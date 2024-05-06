@@ -30,13 +30,13 @@ import {
   filteredInput,
   formatIncompleteNumber,
 } from "../../utils/validation/input";
-import { useCacheContext } from "../../hooks/context/useCache";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useUser } from "../../hooks/context/useUser";
 import { getContractFromNetwork } from "../../utils/contract";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useVibesContext } from "../../hooks/context/useVibes";
 
 export const mintErrors: { [key: string]: string } = {
   InsufficientValue:
@@ -52,7 +52,7 @@ export const burnErrors: { [key: string]: string } = {
 const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   const { isStandalone } = useUserAgent();
   const { walletIsConnected, userAddress, user } = useUser();
-  const { vibesTokenTxs, userVibesBalance } = useCacheContext();
+  const { vibesTokenTxs, userVibesBalance } = useVibesContext();
   const toast = useToast();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;

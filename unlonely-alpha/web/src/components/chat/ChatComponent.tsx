@@ -27,9 +27,11 @@ export const EXCLUDED_SLUGS = ["loveonleverage"];
 
 const ChatComponent = ({
   chat,
+  tokenForTransfer,
   customHeight,
 }: {
   chat: ChatReturnType;
+  tokenForTransfer: "vibes" | "tempToken";
   customHeight?: string;
 }) => {
   const { isStandalone } = useUserAgent();
@@ -227,8 +229,16 @@ const ChatComponent = ({
                   </Flex>
                 )}
               </Flex>
-              {selectedTab === "chat" && <Chat chat={chat} />}
-              {selectedTab === "vip" && <Chat chat={chat} isVipChat />}
+              {selectedTab === "chat" && (
+                <Chat chat={chat} tokenForTransfer={tokenForTransfer} />
+              )}
+              {selectedTab === "vip" && (
+                <Chat
+                  chat={chat}
+                  tokenForTransfer={tokenForTransfer}
+                  isVipChat
+                />
+              )}
             </Flex>
           </OuterBorder>
         </Container>

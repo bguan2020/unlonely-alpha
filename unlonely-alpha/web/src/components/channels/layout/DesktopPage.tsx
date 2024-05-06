@@ -205,7 +205,7 @@ export const DesktopPage = ({
                 >
                   <VibesTokenInterface ablyChannel={chat.channel} />
                 </Flex>
-                <ChatComponent chat={chat} />
+                <ChatComponent chat={chat} tokenForTransfer="vibes" />
               </Stack>
             </Stack>
           </>

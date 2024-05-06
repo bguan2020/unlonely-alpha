@@ -10,9 +10,11 @@ import { VipBadgeBuy } from "../channels/vibes/VipBadgeBuy";
 
 const Chat = ({
   chat,
+  tokenForTransfer,
   isVipChat,
 }: {
   chat: ChatReturnType;
+  tokenForTransfer: "vibes" | "tempToken";
   isVipChat?: boolean;
 }) => {
   const { channel, leaderboard } = useChannelContext();
@@ -85,7 +87,7 @@ const Chat = ({
           channel={chat.channel}
           isAtBottomCallback={handleIsAtBottom}
           isVipChat={isVipChat}
-          tokenForTransfer="vibes"
+          tokenForTransfer={tokenForTransfer}
         />
       </Flex>
       <Flex justifyContent="center">

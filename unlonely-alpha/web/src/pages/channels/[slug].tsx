@@ -14,6 +14,7 @@ import { CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_SIMPLIFIED } from "../../constan
 import { TempTokenProvider } from "../../hooks/context/useTempToken";
 import { DesktopChannelPageVersus } from "../../components/channels/layout/versus/DesktopChannelPageVersus";
 import { VersusTempTokenProvider } from "../../hooks/context/useVersusTempToken";
+import { VibesProvider } from "../../hooks/context/useVibes";
 
 export const CAN_USE_VERSUS_MODE_SLUGS = ["danny", "brian", "grace"];
 
@@ -56,19 +57,23 @@ const ChannelDetail = ({
               />
             </TempTokenProvider>
           ) : (
-            <DesktopPage
-              channelSSR={channelSSR}
-              channelSSRDataLoading={channelDataLoading}
-              channelSSRDataError={channelDataError}
-            />
+            <VibesProvider>
+              <DesktopPage
+                channelSSR={channelSSR}
+                channelSSRDataLoading={channelDataLoading}
+                channelSSRDataError={channelDataError}
+              />
+            </VibesProvider>
           )}
         </>
       ) : (
-        <MobilePage
-          channelSSR={channelSSR}
-          channelSSRDataLoading={channelDataLoading}
-          channelSSRDataError={channelDataError}
-        />
+        <VibesProvider>
+          <MobilePage
+            channelSSR={channelSSR}
+            channelSSRDataLoading={channelDataLoading}
+            channelSSRDataError={channelDataError}
+          />
+        </VibesProvider>
       )}
     </ChannelProvider>
   );

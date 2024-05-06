@@ -6,7 +6,7 @@ import useScript from "../../../../hooks/internal/useScript";
 import { getSrc } from "@livepeer/react/external";
 import IVSPlayer from "../../../stream/IVSPlayer";
 import LivepeerPlayer from "../../../stream/LivepeerPlayer";
-import { ChatWithTokenTimer } from "../../../chat/ChatWithTempTokenTimer";
+import { ChatWithTempTokenTimer } from "../../../chat/ChatWithTempTokenTimer";
 import { ChatReturnType } from "../../../../hooks/chat/useChat";
 import ChannelDesc from "../../ChannelDesc";
 
@@ -105,7 +105,7 @@ export const DesktopChannelViewerPerspectiveSimplified = ({
       >
         <ChannelDesc />
       </Flex>
-      {mode !== "" && <ChatWithTokenTimer chat={chat} mode={mode} />}
+      {mode !== "" && <ChatWithTempTokenTimer chat={chat} mode={mode} />}
       <Flex flexDirection="row" justifyContent="center" width="100%">
         {playbackData.infra === "livepeer" ? (
           <LivepeerPlayer src={getSrc(playbackData.livepeerPlaybackInfo)} />

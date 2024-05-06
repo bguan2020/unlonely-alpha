@@ -13,11 +13,6 @@ import { ToastId, useToast, Box, Flex, Text, Spinner } from "@chakra-ui/react";
 import { CHANNEL_FEED_QUERY } from "../../constants/queries";
 import { GetChannelFeedQuery } from "../../generated/graphql";
 import { useUser } from "./useUser";
-import {
-  UseVibesCheckType,
-  useVibesCheck,
-  useVibesCheckInitial,
-} from "../internal/useVibesCheck";
 import { useRouter } from "next/router";
 import { useFetchEthPrice } from "../internal/useFetchEthPrice";
 import {
@@ -38,8 +33,7 @@ const CacheContext = createContext<
     addAppError: (error: Error, source: string) => void;
     popAppError: (errorName: string, field: string) => void;
     ethPriceInUsd: string;
-  } & UseVibesCheckType &
-    UseGetClaimBetEventsType
+  } & UseGetClaimBetEventsType
 >({
   channelFeed: [],
   feedLoading: true,
@@ -47,7 +41,6 @@ const CacheContext = createContext<
   addAppError: () => undefined,
   popAppError: () => undefined,
   ethPriceInUsd: "0",
-  ...useVibesCheckInitial,
   ...useGetClaimBetEventsInitial,
 });
 
@@ -62,7 +55,6 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const { walletIsConnected } = useUser();
   const toastIdRef = useRef<ToastId | undefined>();
 
-  const vibesCheck = useVibesCheck();
   const router = useRouter();
   const ethPriceInUsd = useFetchEthPrice();
   const claimBetEvents = useGetClaimBetEvents();
@@ -156,7 +148,6 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       addAppError,
       popAppError,
       ethPriceInUsd,
-      ...vibesCheck,
       ...claimBetEvents,
     };
   }, [
@@ -166,7 +157,6 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
     addAppError,
     popAppError,
     ethPriceInUsd,
-    vibesCheck,
     claimBetEvents,
   ]);
 

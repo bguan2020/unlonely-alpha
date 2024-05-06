@@ -202,7 +202,11 @@ export const DesktopChannelPageSimplified = ({
                           <CreateTokenInterface />
                         </Flex>
                       )}
-                      <ChatComponent chat={chat} customHeight={"100%"} />
+                      <ChatComponent
+                        chat={chat}
+                        customHeight={"100%"}
+                        tokenForTransfer="tempToken"
+                      />
                     </>
                   ) : (
                     <>
@@ -212,7 +216,11 @@ export const DesktopChannelPageSimplified = ({
                           customHeight="30%"
                         />
                       )}
-                      <ChatComponent chat={chat} customHeight={"100%"} />
+                      <ChatComponent
+                        chat={chat}
+                        customHeight={"100%"}
+                        tokenForTransfer="tempToken"
+                      />
                     </>
                   )}
                 </Flex>
