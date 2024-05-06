@@ -412,7 +412,6 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
       )}
       <Flex p={"0.5rem"} width={"100%"} height={"100%"} direction="column">
         {selectedTab === "chat" && <Chat chat={chat} />}
-        {/* {selectedTab === "trade" && <Trade />} */}
         {selectedTab === "vibes" && (
           <Flex h="100%" justifyContent={"space-between"}>
             <VibesTokenInterface isExchangeColumn ablyChannel={chat.channel} />

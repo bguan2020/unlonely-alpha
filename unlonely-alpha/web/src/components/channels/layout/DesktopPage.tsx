@@ -188,17 +188,6 @@ export const DesktopPage = ({
                   justifyContent={"space-between"}
                 >
                   <ChannelDesc />
-                  {/* <Flex gap="1rem" mt="1rem" justifyContent={"flex-end"}>
-                    <Flex
-                      direction="column"
-                      bg={"#131323"}
-                      width="400px"
-                      borderRadius="0px"
-                      p="1rem"
-                    >
-                      <Trade />
-                    </Flex>
-                  </Flex> */}
                 </Flex>
               </Stack>
               <Stack
