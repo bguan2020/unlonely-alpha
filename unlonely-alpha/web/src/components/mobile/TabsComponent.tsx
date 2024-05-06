@@ -9,7 +9,6 @@ import ChatForm from "../chat/ChatForm";
 import { BorderType, OuterBorder } from "../general/OuterBorder";
 import Participants from "../presence/Participants";
 import { VipBadgeBuy } from "../channels/vibes/VipBadgeBuy";
-import useUserAgent from "../../hooks/internal/useUserAgent";
 import VibesTokenInterface from "../chat/VibesTokenInterface";
 
 export const EXCLUDED_SLUGS = ["loveonleverage"];
@@ -17,13 +16,12 @@ export const EXCLUDED_SLUGS = ["loveonleverage"];
 export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
   const { chat: chatContext, channel } = useChannelContext();
   const { presenceChannel } = chatContext;
-  const { isStandalone } = useUserAgent();
 
   const { channelQueryData, isOwner } = channel;
   const [showParticipants, setShowParticipants] = useState(true);
-  const [selectedTab, setSelectedTab] = useState<
-    "chat" | "trade" | "vibes" | "vip"
-  >("chat");
+  const [selectedTab, setSelectedTab] = useState<"chat" | "vibes" | "vip">(
+    "chat"
+  );
 
   return (
     <>
@@ -46,26 +44,6 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
             </Text>
           </Flex>
         </OuterBorder>
-        {!isStandalone && (
-          <OuterBorder
-            type={BorderType.OCEAN}
-            zIndex={selectedTab === "trade" ? 4 : 2}
-            onClick={() => setSelectedTab("trade")}
-            noborder
-            pb={selectedTab === "trade" ? "0px" : undefined}
-          >
-            <Flex
-              bg={selectedTab === "trade" ? "#1b9d9d" : "rgba(19, 18, 37, 1)"}
-              py="0.3rem"
-              width="100%"
-              justifyContent={"center"}
-            >
-              <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
-                vote
-              </Text>
-            </Flex>
-          </OuterBorder>
-        )}
         <OuterBorder
           type={BorderType.OCEAN}
           zIndex={selectedTab === "vibes" ? 4 : 2}
