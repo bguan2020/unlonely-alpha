@@ -13,7 +13,6 @@ import {
   Contract,
   SECONDS_PER_HOUR,
 } from "../../constants";
-import { useToast } from "@chakra-ui/react";
 import { useUser } from "../context/useUser";
 import { useRouter } from "next/router";
 import { useGetUserBalance } from "../contracts/useVibesToken";
@@ -51,7 +50,6 @@ export const useVibesCheck = () => {
     Map<string, { index: number | undefined; blockNumber: number }>
   >(new Map());
   const fetching = useRef(false);
-  const toast = useToast();
   const router = useRouter();
 
   const { balance: vibesBalance, refetch: refetchVibesBalance } =
@@ -358,6 +356,17 @@ export function insertElementSorted(
   }
 
   return [...arr.slice(0, insertIndex), newElement, ...arr.slice(insertIndex)];
+}
+
+export function insertElementsSorted(
+  arr: TradeableTokenTx[],
+  newElements: TradeableTokenTx[]
+) {
+  let newArr = arr;
+  for (const newElement of newElements) {
+    newArr = insertElementSorted(newArr, newElement);
+  }
+  return newArr;
 }
 
 export function blockNumberHoursAgo(hours: number, currentBlockNumber: bigint) {

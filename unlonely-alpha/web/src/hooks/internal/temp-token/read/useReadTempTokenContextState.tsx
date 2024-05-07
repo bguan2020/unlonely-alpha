@@ -123,7 +123,7 @@ export const useReadTempTokenContextState = () => {
   const router = useRouter();
 
   const { channel, chat } = useChannelContext();
-  const { handleRealTimeChannelDetails, channelQueryData, isOwner } = channel;
+  const { channelQueryData, isOwner } = channel;
   const { addToChatbot: addToChatbotForTempToken } = chat;
   const { network } = useNetworkContext();
   const { localNetwork } = network;

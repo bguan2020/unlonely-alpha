@@ -29,7 +29,6 @@ import {
 import { useChannelContext } from "../../../context/useChannel";
 import { useUser } from "../../../context/useUser";
 import { useBalance } from "wagmi";
-import { useCacheContext } from "../../../context/useCache";
 import useUpdateTempTokenHighestTotalSupply from "../../../server/temp-token/useUpdateTempTokenHighestTotalSupply";
 import useUpdateTempTokenHasHitTotalSupplyThreshold from "../../../server/temp-token/useUpdateTempTokenHasHitTotalSupplyThreshold";
 
@@ -71,7 +70,6 @@ export const useTradeTempTokenState = ({
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl, matchingChain } = network;
   const toast = useToast();
-  const { ethPriceInUsd } = useCacheContext();
 
   const canAddToChatbot_mint = useRef(false);
   const canAddToChatbot_burn = useRef(false);
@@ -215,6 +213,7 @@ export const useTradeTempTokenState = ({
           const hasHitTotalSupplyThreshold =
             args.hasHitTotalSupplyThreshold as boolean;
           const highestTotalSupply = args.highestTotalSupply as bigint;
+          const totalSupply = args.totalSupply as bigint;
           const tokenAddress = args.tokenAddress as `0x${string}`;
           const title = `${
             user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
@@ -247,7 +246,11 @@ export const useTradeTempTokenState = ({
             title,
             description: `${
               user?.username ?? centerEllipses(userAddress, 15)
-            }:${Number(args.amount as bigint)}`,
+            }:${Number(args.amount as bigint)}:${String(
+              data.blockNumber
+            )}:${tokenAddress}:${String(totalSupply)}:${String(
+              highestTotalSupply
+            )}:${String(hasHitTotalSupplyThreshold)}`,
           });
         }
         canAddToChatbot_mint.current = false;
@@ -348,6 +351,8 @@ export const useTradeTempTokenState = ({
           topics: data.logs[1].topics,
         });
         const args: any = topics.args;
+        const tokenAddress = args.tokenAddress as `0x${string}`;
+        const totalSupply = args.totalSupply as bigint;
         const title = `${
           user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
         } sold ${Number(args.amount as bigint)} $${tokenSymbol}!`;
@@ -358,7 +363,9 @@ export const useTradeTempTokenState = ({
           title,
           description: `${
             user?.username ?? centerEllipses(userAddress, 15)
-          }:${Number(args.amount as bigint)}`,
+          }:${Number(args.amount as bigint)}:${String(
+            data.blockNumber
+          )}:${tokenAddress}:${String(totalSupply)}`,
         });
         canAddToChatbot_burn.current = false;
         setAmount("1000");
