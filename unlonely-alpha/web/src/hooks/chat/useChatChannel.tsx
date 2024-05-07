@@ -9,8 +9,8 @@ import {
   CHANGE_USER_ROLE_EVENT,
   CHAT_MESSAGE_EVENT,
   InteractionType,
+  TOKEN_TRANSFER_EVENT,
   VIBES_TOKEN_PRICE_RANGE_EVENT,
-  VIBES_TOKEN_TRANSFER_EVENT,
 } from "../../constants";
 import { useUser } from "../context/useUser";
 import { SharesEventState } from "../../generated/graphql";
@@ -18,6 +18,7 @@ import { useVibesContext } from "../context/useVibes";
 import { isAddress, isAddressEqual } from "viem";
 import { Box, Flex, useToast, Text } from "@chakra-ui/react";
 import centerEllipses from "../../utils/centerEllipses";
+import { useTempTokenContext } from "../context/useTempToken";
 
 const ably = new Ably.Realtime.Promise({ authUrl: "/api/createTokenRequest" });
 
@@ -63,6 +64,8 @@ export function useChatChannel(fixedChatName?: string) {
   const { chatChannel } = chat;
   const { handleLocalSharesEventState } = ui;
   const { refetchVibesBalance } = useVibesContext();
+  const { tempToken } = useTempTokenContext();
+  const { refetchUserTempTokenBalance } = tempToken;
   const toast = useToast();
 
   const channelName =
@@ -90,11 +93,12 @@ export function useChatChannel(fixedChatName?: string) {
     const messageHistory = receivedMessages.filter(
       (m) => m.name === CHAT_MESSAGE_EVENT
     );
-    if (message.name === VIBES_TOKEN_TRANSFER_EVENT) {
+    if (message.name === TOKEN_TRANSFER_EVENT) {
       const body = JSON.parse(message.data.body);
       const fromAddress = body.from as string | undefined;
       const toAddress = body.to as string | undefined;
       const amount = body.amount as number;
+      const symbol = body.symbol as string;
       const includesUser =
         toAddress &&
         isAddress(toAddress) &&
@@ -102,7 +106,13 @@ export function useChatChannel(fixedChatName?: string) {
         isAddress(fromAddress) &&
         (isAddressEqual(fromAddress, userAddress as `0x${string}`) ||
           isAddressEqual(toAddress, userAddress as `0x${string}`));
-      if (includesUser) refetchVibesBalance();
+      if (includesUser) {
+        if (symbol === "vibes") {
+          refetchVibesBalance?.();
+        } else {
+          refetchUserTempTokenBalance?.();
+        }
+      }
       if (
         toAddress &&
         isAddress(toAddress) &&
@@ -115,7 +125,8 @@ export function useChatChannel(fixedChatName?: string) {
             <Box borderRadius="md" bg="#8e64dd" px={4} h={8}>
               <Flex justifyContent="center" alignItems="center">
                 <Text fontSize="16px" color="white">
-                  {centerEllipses(fromAddress, 13)} sent you {amount} vibes! 🎉
+                  {centerEllipses(fromAddress, 13)} sent you {amount} ${symbol}!
+                  🎉
                 </Text>
               </Flex>
             </Box>
@@ -125,12 +136,12 @@ export function useChatChannel(fixedChatName?: string) {
     }
     if (message.name === CHANGE_USER_ROLE_EVENT) {
       const body = JSON.parse(message.data.body);
-      handleChannelRoles(body.address, body.role, body.isAdding);
+      handleChannelRoles?.(body.address, body.role, body.isAdding);
     }
     if (message.name === CHANGE_CHANNEL_DETAILS_EVENT) {
       const body = JSON.parse(message.data.body);
       console.log("body", body);
-      handleRealTimeChannelDetails({
+      handleRealTimeChannelDetails?.({
         channelName: body.channelName,
         channelDescription: body.channelDescription,
         chatCommands: body.chatCommands,
@@ -140,7 +151,7 @@ export function useChatChannel(fixedChatName?: string) {
     }
     if (message.name === VIBES_TOKEN_PRICE_RANGE_EVENT) {
       const newSliderValue = JSON.parse(message.data.body);
-      handleChannelVibesTokenPriceRange(newSliderValue);
+      handleChannelVibesTokenPriceRange?.(newSliderValue);
     }
     if (message.name === CHAT_MESSAGE_EVENT) {
       if (message.data.senderStatus === SenderStatus.CHATBOT) {
@@ -153,7 +164,7 @@ export function useChatChannel(fixedChatName?: string) {
           const optionB = message.data.body.split(":")[5];
           const chainId = message.data.body.split(":")[6];
           const channelId = message.data.body.split(":")[7];
-          handleLatestBet({
+          handleLatestBet?.({
             id: betId as string,
             sharesSubjectQuestion: sharesSubjectQuestion as string,
             sharesSubjectAddress: sharesSubjectAddress as string,
@@ -165,13 +176,13 @@ export function useChatChannel(fixedChatName?: string) {
           });
         }
         if (chatbotTaskType === InteractionType.EVENT_LOCK) {
-          handleLocalSharesEventState(SharesEventState.Lock);
+          handleLocalSharesEventState?.(SharesEventState.Lock);
         }
         if (chatbotTaskType === InteractionType.EVENT_UNLOCK) {
-          handleLocalSharesEventState(SharesEventState.Live);
+          handleLocalSharesEventState?.(SharesEventState.Live);
         }
         if (chatbotTaskType === InteractionType.EVENT_PAYOUT) {
-          handleLocalSharesEventState(SharesEventState.Payout);
+          handleLocalSharesEventState?.(SharesEventState.Payout);
         }
       }
       if (localBanList.length === 0) {

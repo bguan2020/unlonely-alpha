@@ -343,6 +343,7 @@ export type GetTempTokensInput = {
   onlyActiveTokens?: InputMaybe<Scalars["Boolean"]>;
   ownerAddress?: InputMaybe<Scalars["String"]>;
   tokenAddress?: InputMaybe<Scalars["String"]>;
+  tokenType?: InputMaybe<TempTokenType>;
 };
 
 export type GetTokenHoldersInput = {
@@ -879,6 +880,7 @@ export type PostTempTokenInput = {
   streamerFeePercentage: Scalars["String"];
   symbol: Scalars["String"];
   tokenAddress: Scalars["String"];
+  tokenType: TempTokenType;
 };
 
 export type PostUserRoleForChannelInput = {
@@ -1244,8 +1246,14 @@ export type TempToken = {
   streamerFeePercentage: Scalars["BigInt"];
   symbol: Scalars["String"];
   tokenAddress: Scalars["String"];
+  tokenType?: Maybe<TempTokenType>;
   transferredLiquidityOnExpiration?: Maybe<Scalars["BigInt"]>;
 };
+
+export enum TempTokenType {
+  SingleMode = "SINGLE_MODE",
+  VersusMode = "VERSUS_MODE",
+}
 
 export type TempTokenWithBalance = {
   __typename?: "TempTokenWithBalance";
@@ -1265,6 +1273,7 @@ export type TempTokenWithBalance = {
   streamerFeePercentage: Scalars["BigInt"];
   symbol: Scalars["String"];
   tokenAddress: Scalars["String"];
+  tokenType?: Maybe<TempTokenType>;
 };
 
 export type ToggleSubscriptionInput = {
@@ -1357,6 +1366,7 @@ export type UpdateTempTokenHasHitTotalSupplyThresholdInput = {
 export type UpdateTempTokenHasRemainingFundsForCreatorInput = {
   chainId: Scalars["Int"];
   channelId: Scalars["Int"];
+  tokenType: TempTokenType;
 };
 
 export type UpdateTempTokenHighestTotalSupplyInput = {

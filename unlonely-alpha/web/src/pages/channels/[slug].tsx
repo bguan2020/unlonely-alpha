@@ -9,14 +9,15 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import { ApolloError } from "@apollo/client";
 import { MobilePage } from "../../components/channels/layout/MobilePage";
 import { DesktopPage } from "../../components/channels/layout/DesktopPage";
-import { CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN } from "../../constants";
+import {
+  CAN_USE_VERSUS_MODE_SLUGS,
+  CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN,
+} from "../../constants";
 import { TempTokenProvider } from "../../hooks/context/useTempToken";
 import { DesktopChannelPageVersus } from "../../components/channels/layout/versus/DesktopChannelPageVersus";
 import { DesktopChannelPageTempToken } from "../../components/channels/layout/temptoken/DesktopChannelPageTempToken";
 import { VersusTempTokenProvider } from "../../hooks/context/useVersusTempToken";
 import { VibesProvider } from "../../hooks/context/useVibes";
-
-export const CAN_USE_VERSUS_MODE_SLUGS = ["danny", "brian", "grace"];
 
 const ChannelDetail = ({
   channelData,

@@ -21,6 +21,8 @@ import { useLivepeerStreamData } from "../../../../hooks/internal/useLivepeerStr
 import { CreateTokenInterface } from "./CreateTempTokenInterface";
 import { formatApolloError } from "../../../../utils/errorFormatting";
 import { CHAT_MESSAGE_EVENT, InteractionType } from "../../../../constants";
+import useDebounce from "../../../../hooks/internal/useDebounce";
+import { isAddress, isAddressEqual } from "viem";
 
 export const DesktopChannelPageTempToken = ({
   channelSSR,
@@ -31,7 +33,7 @@ export const DesktopChannelPageTempToken = ({
   channelSSRDataLoading: boolean;
   channelSSRDataError?: ApolloError;
 }) => {
-  const { walletIsConnected } = useUser();
+  const { walletIsConnected, userAddress } = useUser();
   const { channel } = useChannelContext();
   const { tempToken } = useTempTokenContext();
   const chat = useChat();
@@ -44,7 +46,11 @@ export const DesktopChannelPageTempToken = ({
   } = channel;
   const {
     currentActiveTokenEndTimestamp,
+    currentTempTokenContract,
+    currentActiveTokenAddress,
+    lastInactiveTokenAddress,
     canPlayToken,
+    tempTokenTxs,
     handleIsGamePermanent,
     handleIsGameSuccess,
     handleIsGameFailed,
@@ -54,11 +60,17 @@ export const DesktopChannelPageTempToken = ({
     handleCurrentActiveTokenAddress,
     handleCurrentActiveTokenSymbol,
     handleCurrentActiveTokenTotalSupplyThreshold,
+    onMintEvent,
+    onBurnEvent,
+    getTempTokenEvents,
+    refetchUserTempTokenBalance,
+    onSendRemainingFundsToWinnerEvent,
   } = tempToken;
   const toast = useToast();
   const { livepeerData, playbackInfo } = useLivepeerStreamData();
   useVipBadgeUi(chat);
   const mountingMessages = useRef(true);
+  const fetching = useRef(false);
 
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
@@ -66,6 +78,9 @@ export const DesktopChannelPageTempToken = ({
 
   const [shouldRenderTempTokenInterface, setShouldRenderTempTokenInterface] =
     useState(false);
+
+  const [blockNumberOfLastInAppTrade, setBlockNumberOfLastInAppTrade] =
+    useState<bigint>(BigInt(0));
 
   /**
    * if there is an existing token, render the temp token interface
@@ -122,6 +137,63 @@ export const DesktopChannelPageTempToken = ({
     if (chat.mounted) mountingMessages.current = false;
   }, [chat.mounted]);
 
+  const [tempTokenTransactionBody, setTempTokenTransactionBody] = useState("");
+  const debouncedTempTokenTransactionBody = useDebounce(
+    tempTokenTransactionBody,
+    500
+  );
+
+  useEffect(() => {
+    const processTempTokenEvents = async (body: string) => {
+      console.log("fetching temp token events 1");
+      if (!body || fetching.current) return;
+      fetching.current = true;
+      const interactionType = body.split(":")[0];
+      const _userAddress = body.split(":")[1];
+      const txBlockNumber = BigInt(body.split(":")[3]);
+      const incomingTxTokenAddress = body.split(":")[4];
+      const totalSupply = BigInt(body.split(":")[5]);
+      const highestTotalSupply = body.split(":")[6];
+      console.log("fetching temp token events 2");
+      if (
+        currentTempTokenContract.address &&
+        isAddress(incomingTxTokenAddress) &&
+        isAddress(currentTempTokenContract.address) &&
+        isAddressEqual(
+          incomingTxTokenAddress as `0x${string}`,
+          currentTempTokenContract.address as `0x${string}`
+        )
+      ) {
+        console.log("fetching temp token events 3");
+        await getTempTokenEvents(
+          currentTempTokenContract,
+          blockNumberOfLastInAppTrade === BigInt(0) && tempTokenTxs.length > 0
+            ? BigInt(tempTokenTxs[tempTokenTxs.length - 1].blockNumber)
+            : blockNumberOfLastInAppTrade,
+          txBlockNumber
+        );
+        if (
+          userAddress &&
+          isAddress(userAddress) &&
+          isAddress(_userAddress) &&
+          isAddressEqual(
+            userAddress as `0x${string}`,
+            _userAddress as `0x${string}`
+          )
+        ) {
+          refetchUserTempTokenBalance?.();
+        }
+        setBlockNumberOfLastInAppTrade(txBlockNumber);
+        if (interactionType === InteractionType.BUY_TEMP_TOKENS)
+          onMintEvent(BigInt(totalSupply), BigInt(highestTotalSupply));
+        if (interactionType === InteractionType.SELL_TEMP_TOKENS)
+          onBurnEvent(BigInt(totalSupply));
+      }
+      fetching.current = false;
+    };
+    processTempTokenEvents(debouncedTempTokenTransactionBody);
+  }, [debouncedTempTokenTransactionBody]);
+
   useEffect(() => {
     if (chat.receivedMessages.length === 0) return;
     const latestMessage =
@@ -153,6 +225,39 @@ export const DesktopChannelPageTempToken = ({
         handleCurrentActiveTokenTotalSupplyThreshold(
           BigInt(body.split(":")[9])
         );
+      }
+      if (
+        body.split(":")[0] === InteractionType.BUY_TEMP_TOKENS ||
+        body.split(":")[0] === InteractionType.SELL_TEMP_TOKENS
+      ) {
+        setTempTokenTransactionBody(body);
+      }
+      if (
+        body.split(":")[0] ===
+        InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION
+      ) {
+        const to = body.split(":")[3];
+
+        if (
+          isAddress(to) &&
+          isAddress(lastInactiveTokenAddress) &&
+          isAddressEqual(to, lastInactiveTokenAddress)
+        ) {
+          onSendRemainingFundsToWinnerEvent(
+            lastInactiveTokenAddress as `0x${string}`,
+            false
+          );
+        }
+        if (
+          isAddress(to) &&
+          isAddress(currentActiveTokenAddress) &&
+          isAddressEqual(to, currentActiveTokenAddress)
+        ) {
+          onSendRemainingFundsToWinnerEvent(
+            currentActiveTokenAddress as `0x${string}`,
+            true
+          );
+        }
       }
     }
   }, [chat.receivedMessages]);

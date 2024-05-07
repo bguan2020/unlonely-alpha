@@ -70,7 +70,7 @@ export const VersusTempTokenTimerView = ({
       handleIsGameFinished(true);
     },
     disableChatbot,
-    `The $${tokenA} and $${tokenB} tokens will expire in 5 minutes!`,
+    `The $${tokenA.symbol} and $${tokenB.symbol} tokens will expire in 5 minutes!`,
     ""
   );
 

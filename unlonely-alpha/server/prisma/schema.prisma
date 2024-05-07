@@ -168,6 +168,11 @@ model ChannelUserRole {
   createdAt DateTime @default(now())
 }
 
+enum TempTokenType {
+  SINGLE_MODE
+  VERSUS_MODE
+}
+
 model TempToken {
   id                                Int      @id @default(autoincrement())
   uniqueTempTokenId                 String   @unique
@@ -188,6 +193,7 @@ model TempToken {
   hasRemainingFundsForCreator       Boolean @default(true)
   hasHitTotalSupplyThreshold        Boolean @default(false)
   isAlwaysTradeable                 Boolean @default(false)
+  tokenType                     TempTokenType?
   transferredLiquidityOnExpiration  BigInt?
 }
 

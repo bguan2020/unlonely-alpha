@@ -244,13 +244,13 @@ export const useTradeTempTokenState = ({
             address: userAddress ?? "",
             taskType: InteractionType.BUY_TEMP_TOKENS,
             title,
-            description: `${
-              user?.username ?? centerEllipses(userAddress, 15)
-            }:${Number(args.amount as bigint)}:${String(
-              data.blockNumber
-            )}:${tokenAddress}:${String(totalSupply)}:${String(
-              highestTotalSupply
-            )}:${String(hasHitTotalSupplyThreshold)}`,
+            description: `${userAddress}:${Number(
+              args.amount as bigint
+            )}:${String(data.blockNumber)}:${tokenAddress}:${String(
+              totalSupply
+            )}:${String(highestTotalSupply)}:${String(
+              hasHitTotalSupplyThreshold
+            )}`,
           });
         }
         canAddToChatbot_mint.current = false;
@@ -361,11 +361,11 @@ export const useTradeTempTokenState = ({
           address: userAddress ?? "",
           taskType: InteractionType.SELL_TEMP_TOKENS,
           title,
-          description: `${
-            user?.username ?? centerEllipses(userAddress, 15)
-          }:${Number(args.amount as bigint)}:${String(
-            data.blockNumber
-          )}:${tokenAddress}:${String(totalSupply)}`,
+          description: `${userAddress}:${Number(
+            args.amount as bigint
+          )}:${String(data.blockNumber)}:${tokenAddress}:${String(
+            totalSupply
+          )}`,
         });
         canAddToChatbot_burn.current = false;
         setAmount("1000");

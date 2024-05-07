@@ -13,9 +13,9 @@ import { ChannelStaticQuery } from "../../generated/graphql";
 import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
 import { TempTokenInterface } from "../../components/channels/temp/TempTokenInterface";
 import { TempTokenProvider } from "../../hooks/context/useTempToken";
-import { CAN_USE_VERSUS_MODE_SLUGS } from "../channels/[slug]";
 import { VersusTempTokenProvider } from "../../hooks/context/useVersusTempToken";
 import { VersusTempTokensInterface } from "../../components/channels/layout/versus/VersusTempTokensInterface";
+import { CAN_USE_VERSUS_MODE_SLUGS } from "../../constants";
 
 const FullTempTokenChartPage = () => {
   return (

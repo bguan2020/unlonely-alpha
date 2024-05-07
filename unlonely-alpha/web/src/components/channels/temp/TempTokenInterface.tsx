@@ -80,7 +80,7 @@ export const TempTokenInterface = ({
     currentTempTokenContract,
     canPlayToken,
     tempTokenChartTimeIndexes,
-    tempTokenLoading,
+    initialTempTokenLoading,
     currentBlockNumberForTempTokenChart,
     isFailedGameState,
     isSuccessGameModalOpen,
@@ -243,7 +243,7 @@ export const TempTokenInterface = ({
           <Text>No active token detected for this channel yet</Text>
           <Spinner size="md" />
         </Flex>
-      ) : tempTokenLoading || customLoading ? (
+      ) : initialTempTokenLoading || customLoading ? (
         <Flex
           direction="column"
           alignItems="center"

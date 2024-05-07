@@ -93,6 +93,7 @@ const MessageBody = ({
 
     const adminTempTokenInteractionTypes = [
       InteractionType.CREATE_TEMP_TOKEN,
+      InteractionType.CREATE_MULTIPLE_TEMP_TOKENS,
       InteractionType.TEMP_TOKEN_EXPIRED,
       InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
       InteractionType.TEMP_TOKEN_DURATION_INCREASED,

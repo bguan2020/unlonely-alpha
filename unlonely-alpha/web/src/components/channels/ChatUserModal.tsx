@@ -17,7 +17,7 @@ import {
   AblyChannelPromise,
   CHANGE_USER_ROLE_EVENT,
   Contract,
-  VIBES_TOKEN_TRANSFER_EVENT,
+  TOKEN_TRANSFER_EVENT,
 } from "../../constants";
 import { NETWORKS } from "../../constants/networks";
 import { useCacheContext } from "../../hooks/context/useCache";
@@ -126,12 +126,13 @@ export const ChatUserModal = ({
           position: "top-right",
         });
         channel.publish({
-          name: VIBES_TOKEN_TRANSFER_EVENT,
+          name: TOKEN_TRANSFER_EVENT,
           data: {
             body: JSON.stringify({
               from: user?.address,
               to: targetUser?.address,
               amount: Number(amountOfVibesToSend),
+              symbol: "vibes",
             }),
           },
         });

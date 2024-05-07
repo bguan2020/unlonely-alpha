@@ -1,6 +1,6 @@
 import { ApolloError } from "@apollo/client";
 import { ChannelStaticQuery } from "../../../../generated/graphql";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useChat } from "../../../../hooks/chat/useChat";
 import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { useUser } from "../../../../hooks/context/useUser";
@@ -25,6 +25,8 @@ import {
   versusTokenDataInitial,
 } from "../../../../constants";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
+import { isAddress, isAddressEqual } from "viem";
+import useDebounce from "../../../../hooks/internal/useDebounce";
 
 export const DesktopChannelPageVersus = ({
   channelSSR,
@@ -35,7 +37,7 @@ export const DesktopChannelPageVersus = ({
   channelSSRDataLoading: boolean;
   channelSSRDataError?: ApolloError;
 }) => {
-  const { walletIsConnected } = useUser();
+  const { userAddress, walletIsConnected } = useUser();
   const { channel } = useChannelContext();
   const chat = useChat();
   const {
@@ -45,7 +47,8 @@ export const DesktopChannelPageVersus = ({
     isOwner,
     handleRealTimeChannelDetails,
   } = channel;
-  const { gameState, tokenATxs, tokenBTxs } = useVersusTempTokenContext();
+  const { gameState, tokenATxs, tokenBTxs, callbacks } =
+    useVersusTempTokenContext();
   const {
     canPlayToken,
     isGameFinished,
@@ -58,14 +61,31 @@ export const DesktopChannelPageVersus = ({
     handleLosingToken,
     setTokenA,
     setTokenB,
+    tokenA,
+    tokenB,
   } = gameState;
-  const { resetTempTokenTxs: resetTempTokenTxsA } = tokenATxs;
-  const { resetTempTokenTxs: resetTempTokenTxsB } = tokenBTxs;
+  const {
+    resetTempTokenTxs: resetTempTokenTxsA,
+    getTempTokenEvents: getTempTokenEventsA,
+    refetchUserTempTokenBalance: refetchUserTempTokenBalanceA,
+    tempTokenTxs: tempTokenTxsA,
+  } = tokenATxs;
+  const {
+    resetTempTokenTxs: resetTempTokenTxsB,
+    getTempTokenEvents: getTempTokenEventsB,
+    refetchUserTempTokenBalance: refetchUserTempTokenBalanceB,
+    tempTokenTxs: tempTokenTxsB,
+  } = tokenBTxs;
+  const { onMintEvent, onBurnEvent } = callbacks;
+
+  const [blockNumberOfLastInAppTrade, setBlockNumberOfLastInAppTrade] =
+    useState<bigint>(BigInt(0));
 
   const toast = useToast();
   const { livepeerData, playbackInfo } = useLivepeerStreamData();
   useVipBadgeUi(chat);
   const mountingMessages = useRef(true);
+  const fetching = useRef(false);
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
   }, [channelSSR]);
@@ -97,71 +117,149 @@ export const DesktopChannelPageVersus = ({
     if (chat.mounted) mountingMessages.current = false;
   }, [chat.mounted]);
 
+  const [tempTokenTransactionBody, setTempTokenTransactionBody] = useState("");
+  const debouncedTempTokenTransactionBody = useDebounce(
+    tempTokenTransactionBody,
+    500
+  );
+
   useEffect(() => {
-    if (chat.receivedMessages.length === 0) return;
-    const latestMessage =
-      chat.receivedMessages[chat.receivedMessages.length - 1];
-    if (
-      latestMessage &&
-      latestMessage.data.body &&
-      latestMessage.name === CHAT_MESSAGE_EVENT &&
-      Date.now() - latestMessage.timestamp < 12000
-    ) {
-      const body = latestMessage.data.body;
+    const processVersusTokenEvents = async (body: string) => {
+      console.log("fetching versus token events 1");
+      if (!body || fetching.current) return;
+      fetching.current = true;
+      const interactionType = body.split(":")[0];
+      const _userAddress = body.split(":")[1];
+      const txBlockNumber = BigInt(body.split(":")[3]);
+      const incomingTxTokenAddress = body.split(":")[4];
+      const totalSupply = BigInt(body.split(":")[5]);
+      const highestTotalSupply = body.split(":")[6];
+      console.log("fetching versus token events 2");
+      const tokenType =
+        isAddress(tokenB.address) &&
+        isAddress(incomingTxTokenAddress) &&
+        isAddressEqual(tokenB.address, incomingTxTokenAddress)
+          ? "b"
+          : "a";
+      await Promise.all([
+        getTempTokenEventsA(
+          tokenA.contractData,
+          blockNumberOfLastInAppTrade === BigInt(0) && tempTokenTxsA.length > 0
+            ? BigInt(tempTokenTxsA[tempTokenTxsA.length - 1].blockNumber)
+            : blockNumberOfLastInAppTrade,
+          txBlockNumber
+        ),
+        getTempTokenEventsB(
+          tokenB.contractData,
+          blockNumberOfLastInAppTrade === BigInt(0) && tempTokenTxsB.length > 0
+            ? BigInt(tempTokenTxsB[tempTokenTxsB.length - 1].blockNumber)
+            : blockNumberOfLastInAppTrade,
+          txBlockNumber
+        ),
+      ]);
       if (
-        body.split(":")[0] === InteractionType.CREATE_MULTIPLE_TEMP_TOKENS &&
+        userAddress &&
+        isAddress(userAddress) &&
+        isAddress(_userAddress) &&
+        isAddressEqual(
+          userAddress as `0x${string}`,
+          _userAddress as `0x${string}`
+        )
+      ) {
+        if (tokenType === "a") {
+          refetchUserTempTokenBalanceA?.();
+        } else {
+          refetchUserTempTokenBalanceB?.();
+        }
+      }
+      setBlockNumberOfLastInAppTrade(txBlockNumber);
+      if (interactionType === InteractionType.BUY_TEMP_TOKENS)
+        onMintEvent(BigInt(totalSupply), BigInt(highestTotalSupply), tokenType);
+      if (interactionType === InteractionType.SELL_TEMP_TOKENS)
+        onBurnEvent(BigInt(totalSupply), tokenType);
+      fetching.current = false;
+    };
+    processVersusTokenEvents(debouncedTempTokenTransactionBody);
+  }, [debouncedTempTokenTransactionBody]);
+
+  useEffect(() => {
+    const checkAbly = async () => {
+      if (chat.receivedMessages.length === 0) return;
+      const latestMessage =
+        chat.receivedMessages[chat.receivedMessages.length - 1];
+      if (
+        latestMessage &&
+        latestMessage.data.body &&
+        latestMessage.name === CHAT_MESSAGE_EVENT &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
-        const newEndTimestamp = BigInt(body.split(":")[1]);
-        const newTokenAddresses = JSON.parse(body.split(":")[2]);
-        const newTokenSymbols = JSON.parse(body.split(":")[3]);
-        const chainId = Number(body.split(":")[4]);
-        const newTokenCreationBlockNumber = BigInt(body.split(":")[5]);
-        handleRealTimeChannelDetails({
-          isLive: true,
-        });
+        const body = latestMessage.data.body;
+        console.log(
+          "DesktopChannelPageVersus -> body",
+          body,
+          blockNumberOfLastInAppTrade
+        );
+        if (
+          body.split(":")[0] === InteractionType.CREATE_MULTIPLE_TEMP_TOKENS
+        ) {
+          const newEndTimestamp = BigInt(body.split(":")[1]);
+          const newTokenAddresses = JSON.parse(body.split(":")[2]);
+          const newTokenSymbols = JSON.parse(body.split(":")[3]);
+          const chainId = Number(body.split(":")[4]);
+          const newTokenCreationBlockNumber = BigInt(body.split(":")[5]);
+          handleRealTimeChannelDetails({
+            isLive: true,
+          });
 
-        handleIsGameFinished(false);
-        handleIsGameOngoing(true);
-        handleOwnerMustPermamint(false);
-        handleOwnerMustMakeWinningTokenTradeable(false);
-        handleIsGameFinishedModalOpen(false);
-        handleWinningToken(versusTokenDataInitial);
-        handleLosingToken(versusTokenDataInitial);
-        resetTempTokenTxsA();
-        resetTempTokenTxsB();
-        setTokenA({
-          transferredLiquidityOnExpiration: BigInt(0),
-          symbol: newTokenSymbols[0],
-          address: newTokenAddresses[0],
-          totalSupply: BigInt(0),
-          isAlwaysTradeable: false,
-          highestTotalSupply: BigInt(0),
-          contractData: {
+          handleIsGameFinished(false);
+          handleIsGameOngoing(true);
+          handleOwnerMustPermamint(false);
+          handleOwnerMustMakeWinningTokenTradeable(false);
+          handleIsGameFinishedModalOpen(false);
+          handleWinningToken(versusTokenDataInitial);
+          handleLosingToken(versusTokenDataInitial);
+          resetTempTokenTxsA();
+          resetTempTokenTxsB();
+          setTokenA({
+            transferredLiquidityOnExpiration: BigInt(0),
+            symbol: newTokenSymbols[0],
             address: newTokenAddresses[0],
-            chainId,
-            abi: TempTokenAbi,
-          },
-          creationBlockNumber: newTokenCreationBlockNumber,
-          endTimestamp: newEndTimestamp,
-        });
-        setTokenB({
-          transferredLiquidityOnExpiration: BigInt(0),
-          symbol: newTokenSymbols[1],
-          address: newTokenAddresses[1],
-          totalSupply: BigInt(0),
-          isAlwaysTradeable: false,
-          highestTotalSupply: BigInt(0),
-          contractData: {
+            totalSupply: BigInt(0),
+            isAlwaysTradeable: false,
+            highestTotalSupply: BigInt(0),
+            contractData: {
+              address: newTokenAddresses[0],
+              chainId,
+              abi: TempTokenAbi,
+            },
+            creationBlockNumber: newTokenCreationBlockNumber,
+            endTimestamp: newEndTimestamp,
+          });
+          setTokenB({
+            transferredLiquidityOnExpiration: BigInt(0),
+            symbol: newTokenSymbols[1],
             address: newTokenAddresses[1],
-            chainId,
-            abi: TempTokenAbi,
-          },
-          creationBlockNumber: newTokenCreationBlockNumber,
-          endTimestamp: newEndTimestamp,
-        });
+            totalSupply: BigInt(0),
+            isAlwaysTradeable: false,
+            highestTotalSupply: BigInt(0),
+            contractData: {
+              address: newTokenAddresses[1],
+              chainId,
+              abi: TempTokenAbi,
+            },
+            creationBlockNumber: newTokenCreationBlockNumber,
+            endTimestamp: newEndTimestamp,
+          });
+        }
+        if (
+          body.split(":")[0] === InteractionType.BUY_TEMP_TOKENS ||
+          body.split(":")[0] === InteractionType.SELL_TEMP_TOKENS
+        ) {
+          setTempTokenTransactionBody(body);
+        }
       }
-    }
+    };
+    checkAbly();
   }, [chat.receivedMessages]);
 
   return (

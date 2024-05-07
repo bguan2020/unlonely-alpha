@@ -11,6 +11,7 @@ import usePostTempToken from "../../../server/temp-token/usePostTempToken";
 import centerEllipses from "../../../../utils/centerEllipses";
 import { useUser } from "../../../context/useUser";
 import { verifyTempTokenV1OnBase } from "../../../../utils/contract-verification/tempToken";
+import { TempTokenType } from "../../../../generated/graphql";
 
 export type UseCreateMultipleTempTokensState = {
   newTokenAName: string;
@@ -138,16 +139,16 @@ export const useCreateMultipleTempTokensState = ({
         await postTempToken({
           tokenAddress: newTokenAddresses[0],
           symbol: newTokenSymbols[0],
-          streamerFeePercentage: args.streamerFeePercent as bigint,
-          protocolFeePercentage: args.protocolFeePercent as bigint,
+          streamerFeePercentage: String(args.streamerFeePercent as bigint),
+          protocolFeePercentage: String(args.protocolFeePercent as bigint),
           ownerAddress: args.owner as `0x${string}`,
           name: newTokenNames[0],
-          endUnixTimestamp: newEndTimestamp,
+          endUnixTimestamp: String(newEndTimestamp),
           channelId: Number(channelQueryData?.id),
           chainId: localNetwork.config.chainId as number,
-          highestTotalSupply: BigInt(0),
-          creationBlockNumber: newTokenCreationBlockNumber,
+          creationBlockNumber: String(newTokenCreationBlockNumber),
           factoryAddress: factoryContract.address as `0x${string}`,
+          tokenType: TempTokenType.VersusMode,
         })
           .then((res) => {
             console.log(
@@ -184,16 +185,16 @@ export const useCreateMultipleTempTokensState = ({
         await postTempToken({
           tokenAddress: newTokenAddresses[1],
           symbol: newTokenSymbols[1],
-          streamerFeePercentage: args.streamerFeePercent as bigint,
-          protocolFeePercentage: args.protocolFeePercent as bigint,
+          streamerFeePercentage: String(args.streamerFeePercent as bigint),
+          protocolFeePercentage: String(args.protocolFeePercent as bigint),
           ownerAddress: args.owner as `0x${string}`,
           name: newTokenNames[1],
-          endUnixTimestamp: newEndTimestamp,
+          endUnixTimestamp: String(newEndTimestamp),
           channelId: Number(channelQueryData?.id),
           chainId: localNetwork.config.chainId as number,
-          highestTotalSupply: BigInt(0),
-          creationBlockNumber: newTokenCreationBlockNumber,
+          creationBlockNumber: String(newTokenCreationBlockNumber),
           factoryAddress: factoryContract.address as `0x${string}`,
+          tokenType: TempTokenType.VersusMode,
         })
           .then((res) => {
             console.log(

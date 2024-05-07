@@ -3,12 +3,13 @@ import { Contract, InteractionType, NULL_ADDRESS } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { useLazyQuery } from "@apollo/client";
-import { Log, createPublicClient, http, isAddressEqual } from "viem";
-import { useContractEvent, usePublicClient } from "wagmi";
+import { createPublicClient, http, isAddressEqual } from "viem";
+import { usePublicClient } from "wagmi";
 import { GET_TEMP_TOKENS_QUERY } from "../../../../constants/queries";
 import {
   GetTempTokensQuery,
   TempToken,
+  TempTokenType,
   TempTokenWithBalance,
 } from "../../../../generated/graphql";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
@@ -399,61 +400,6 @@ export const useReadTempTokenContextState = () => {
   });
 
   /**
-   * listen for last inactive temp token send remaining funds to winner after token expiration events
-   */
-  const [
-    incomingSendRemainingFundsToWinnerAfterTokenExpirationLogs,
-    setIncomingSendRemainingFundsToWinnerAfterTokenExpirationLogs,
-  ] = useState<Log[]>([]);
-
-  useContractEvent({
-    address: lastInactiveTempTokenContract.address,
-    abi: lastInactiveTempTokenContract.abi,
-    eventName: "SendRemainingFundsToWinnerAfterTokenExpiration",
-    listener(logs) {
-      console.log(
-        "detected SendRemainingFundsToWinnerAfterTokenExpiration event for inactive token",
-        logs
-      );
-      const init = async () => {
-        setIncomingSendRemainingFundsToWinnerAfterTokenExpirationLogs(logs);
-      };
-      init();
-    },
-  });
-
-  useEffect(() => {
-    if (incomingSendRemainingFundsToWinnerAfterTokenExpirationLogs)
-      handleRemainingFundsToWinnerAfterTokenExpirationUpdate(
-        incomingSendRemainingFundsToWinnerAfterTokenExpirationLogs
-      );
-  }, [incomingSendRemainingFundsToWinnerAfterTokenExpirationLogs]);
-
-  const handleRemainingFundsToWinnerAfterTokenExpirationUpdate = async (
-    logs: Log[]
-  ) => {
-    if (logs.length === 0) return;
-    const filteredLogsByLastInactiveTokenAddress = logs.filter((log: any) =>
-      isAddressEqual(
-        log.address as `0x${string}`,
-        lastInactiveTempTokenContract.address as `0x${string}`
-      )
-    );
-    console.log(
-      "RemainingFundsToWinnerAfterTokenExpiration listener for inactive token",
-      logs,
-      tempTokenContract.address,
-      lastInactiveTempTokenContract.address,
-      filteredLogsByLastInactiveTokenAddress
-    );
-    if (filteredLogsByLastInactiveTokenAddress.length > 0)
-      onSendRemainingFundsToWinnerEvent(
-        lastInactiveTempTokenContract.address as `0x${string}`,
-        false
-      );
-  };
-
-  /**
    * read for channel's temp token data on mount
    */
   const [getTempTokensQuery] = useLazyQuery<GetTempTokensQuery>(
@@ -475,6 +421,8 @@ export const useReadTempTokenContextState = () => {
             data: {
               channelId: Number(channelQueryData?.id ?? "0"),
               chainId: localNetwork.config.chainId,
+              tokenType: TempTokenType.SingleMode,
+              factoryAddress: factoryContract.address as `0x${string}`,
               fulfillAllNotAnyConditions: true,
             },
           },
@@ -568,11 +516,13 @@ export const useReadTempTokenContextState = () => {
         const res = await updateTempTokenHasRemainingFundsForCreator({
           channelId: Number(channelQueryData?.id ?? "0"),
           chainId: localNetwork.config.chainId,
+          tokenType: TempTokenType.SingleMode,
         });
         const tempTokensWithNonZeroBalances = res?.res;
         console.log(
           "tempTokensWithNonZeroBalances",
-          tempTokensWithNonZeroBalances
+          tempTokensWithNonZeroBalances,
+          Number(channelQueryData?.id ?? "0")
         );
         const nonNullListOfTokensWithNonZeroBalances =
           tempTokensWithNonZeroBalances?.filter(

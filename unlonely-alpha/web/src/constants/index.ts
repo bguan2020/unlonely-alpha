@@ -73,7 +73,7 @@ export const CHAT_MESSAGE_EVENT = "chat-message";
 export const CHANGE_USER_ROLE_EVENT = "change-user-role";
 export const CHANGE_CHANNEL_DETAILS_EVENT = "change-channel-details";
 export const VIBES_TOKEN_PRICE_RANGE_EVENT = "vibes-token-price-range";
-export const VIBES_TOKEN_TRANSFER_EVENT = "vibes-token-transfer";
+export const TOKEN_TRANSFER_EVENT = "token-transfer";
 
 export type CommandData = {
   command: string;
@@ -120,6 +120,10 @@ export const CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN = [
   "496",
   "688"
 ];
+
+export const CAN_USE_VERSUS_MODE_SLUGS = [
+  "danny", 
+  "brian", "grace"];
 
 export type VersusTokenDataType = {
   symbol: string;

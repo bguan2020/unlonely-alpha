@@ -1,7 +1,7 @@
 import { useLazyQuery } from "@apollo/client";
 import { useEffect } from "react";
 import { GET_TEMP_TOKENS_QUERY } from "../../../../constants/queries";
-import { GetTempTokensQuery, TempToken } from "../../../../generated/graphql";
+import { GetTempTokensQuery, TempToken, TempTokenType } from "../../../../generated/graphql";
 import { useChannelContext } from "../../../context/useChannel";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { usePublicClient } from "wagmi";
@@ -59,6 +59,7 @@ export const useReadVersusTempTokenOnMount = ({
             data: {
               channelId: Number(channelQueryData?.id ?? "0"),
               chainId: localNetwork.config.chainId,
+              tokenType: TempTokenType.VersusMode,
               factoryAddress: factoryContract.address as `0x${string}`,
               fulfillAllNotAnyConditions: true,
             },

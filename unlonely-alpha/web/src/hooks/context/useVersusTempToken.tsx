@@ -42,10 +42,29 @@ const VersusTempTokenContext = createContext<{
   gameState: UseReadVersusTempTokenGlobalStateType;
   tokenATxs: UseReadTempTokenTxsType;
   tokenBTxs: UseReadTempTokenTxsType;
+  callbacks: {
+    onMintEvent: (
+      totalSupply: bigint,
+      highestTotalSupply: bigint,
+      tokenIdentifier: "a" | "b"
+    ) => void;
+    onBurnEvent: (totalSupply: bigint, tokenIdentifier: "a" | "b") => void;
+    onDurationIncreaseEvent: (
+      newEndTimestamp: bigint,
+      tokenType: "a" | "b"
+    ) => void;
+    onAlwaysTradeableEvent: (tokenType: "a" | "b") => void;
+  };
 }>({
   gameState: useReadVersusTempTokenGlobalStateInitial,
   tokenATxs: { ...useReadTempTokenTxsInitial },
   tokenBTxs: { ...useReadTempTokenTxsInitial },
+  callbacks: {
+    onMintEvent: () => undefined,
+    onBurnEvent: () => undefined,
+    onDurationIncreaseEvent: () => undefined,
+    onAlwaysTradeableEvent: () => undefined,
+  },
 });
 
 export const VersusTempTokenProvider = ({
@@ -319,6 +338,12 @@ export const VersusTempTokenProvider = ({
       gameState: globalState,
       tokenATxs: readTempTokenTxs_a,
       tokenBTxs: readTempTokenTxs_b,
+      callbacks: {
+        onMintEvent,
+        onBurnEvent,
+        onDurationIncreaseEvent,
+        onAlwaysTradeableEvent,
+      },
     }),
     [readTempTokenTxs_a, readTempTokenTxs_b, globalState]
   );

@@ -1,6 +1,12 @@
 import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
+
+  enum TempTokenType {
+    SINGLE_MODE
+    VERSUS_MODE
+  }
+
   type TempToken {
     id: ID!
     tokenAddress: String!
@@ -20,6 +26,7 @@ export const typeDef = gql`
     hasHitTotalSupplyThreshold: Boolean!
     channel: Channel!
     transferredLiquidityOnExpiration: BigInt
+    tokenType: TempTokenType
   }
 
   type TempTokenWithBalance {
@@ -39,6 +46,7 @@ export const typeDef = gql`
     isAlwaysTradeable: Boolean!
     hasHitTotalSupplyThreshold: Boolean!
     balance: BigInt!
+    tokenType: TempTokenType
   }
 
   input GetTempTokensInput {
@@ -50,12 +58,14 @@ export const typeDef = gql`
     hasHitTotalSupplyThreshold: Boolean
     isAlwaysTradeable: Boolean
     factoryAddress: String
+    tokenType: TempTokenType
     fulfillAllNotAnyConditions: Boolean!
   }
 
   input UpdateTempTokenHasRemainingFundsForCreatorInput {
     chainId: Int!
     channelId: Int!
+    tokenType: TempTokenType!
   }
 
   input UpdateTempTokenHighestTotalSupplyInput {
@@ -76,6 +86,7 @@ export const typeDef = gql`
     creationBlockNumber: String!
     protocolFeePercentage: String!
     streamerFeePercentage: String!
+    tokenType: TempTokenType!
   }
 
   input UpdateEndTimestampForTokensInput {

@@ -176,9 +176,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
             address: userAddress ?? "",
             taskType: InteractionType.BUY_VIBES,
             title,
-            description: `${
-              user?.username ?? centerEllipses(userAddress, 15)
-            }:${Number(args.amount as bigint)}`,
+            description: `${userAddress}:${Number(args.amount as bigint)}`,
           });
         }
         canAddToChatbot_mint.current = false;
@@ -291,9 +289,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           address: userAddress ?? "",
           taskType: InteractionType.SELL_VIBES,
           title,
-          description: `${
-            user?.username ?? centerEllipses(userAddress, 15)
-          }:${Number(args.amount as bigint)}`,
+          description: `${userAddress}:${Number(args.amount as bigint)}`,
         });
         canAddToChatbot_burn.current = false;
         setAmountOfVibes("1000");

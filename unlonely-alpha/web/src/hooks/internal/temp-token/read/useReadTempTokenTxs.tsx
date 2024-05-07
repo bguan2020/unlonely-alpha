@@ -1,37 +1,45 @@
-import { Flex, useToast, Text, Box } from "@chakra-ui/react";
 import { useRef, useEffect, useState, useCallback } from "react";
-import { isAddressEqual, Log, parseAbiItem } from "viem";
-import { useContractEvent } from "wagmi";
+import { parseAbiItem } from "viem";
 import { NULL_ADDRESS } from "../../../../constants";
 import { ContractData, TradeableTokenTx } from "../../../../constants/types";
 import {
-  insertElementSorted,
   blockNumberDaysAgo,
   binarySearchIndex,
   blockNumberHoursAgo,
 } from "../../useVibesCheck";
 import { useUser } from "../../../context/useUser";
 import { useGetUserBalance } from "../../../contracts/useVibesToken";
+import React from "react";
 
 export type UseReadTempTokenTxsType = {
   tempTokenTxs: TradeableTokenTx[];
-  tempTokenLoading: boolean;
+  initialTempTokenLoading: boolean;
   tempTokenChartTimeIndexes: Map<
     string,
     { index: number | undefined; blockNumber: number }
   >;
   currentBlockNumberForTempTokenChart: bigint;
   userTempTokenBalance: bigint;
+  refetchUserTempTokenBalance: () => void;
   resetTempTokenTxs: () => void;
+  setTempTokenTxs: React.Dispatch<React.SetStateAction<TradeableTokenTx[]>>;
+  getTempTokenEvents: (
+    tempTokenContract: ContractData,
+    fromBlock: bigint,
+    toBlock: bigint
+  ) => Promise<void>;
 };
 
 export const useReadTempTokenTxsInitial = {
   tempTokenTxs: [],
-  tempTokenLoading: true,
+  initialTempTokenLoading: true,
   tempTokenChartTimeIndexes: new Map(),
   currentBlockNumberForTempTokenChart: BigInt(0),
   userTempTokenBalance: BigInt(0),
+  refetchUserTempTokenBalance: () => undefined,
   resetTempTokenTxs: () => undefined,
+  setTempTokenTxs: () => undefined,
+  getTempTokenEvents: async () => undefined,
 };
 
 /**
@@ -54,11 +62,9 @@ export const useReadTempTokenTxs = ({
   onBurnCallback: (totalSupply: bigint) => void;
 }): UseReadTempTokenTxsType => {
   const { userAddress } = useUser();
-  const toast = useToast();
-
   const fetching = useRef(false);
   const [tempTokenTxs, setTempTokenTxs] = useState<TradeableTokenTx[]>([]);
-  const [tempTokenLoading, setTempTokenLoading] = useState(true);
+  const [initialTempTokenLoading, setInitialTempTokenLoading] = useState(true);
 
   const [tempTokenChartTimeIndexes, setTempTokenChartTimeIndexes] = useState<
     Map<string, { index: number | undefined; blockNumber: number }>
@@ -77,126 +83,28 @@ export const useReadTempTokenTxs = ({
     refetch: refetchUserTempTokenBalance,
   } = useGetUserBalance(userAddress as `0x${string}`, tempTokenContract);
 
-  /**
-   * EVENT LISTENERS for Mint and Burn events, and appending new transactions to the chart, and changing chart appearance when appropriate
-   */
-
-  const eventQueueRef = useRef<Log[]>([]);
-
-  useContractEvent({
-    address: tempTokenContract.address,
-    abi: tempTokenContract.abi,
-    eventName: tempTokenLoading ? undefined : "Mint",
-    listener(logs) {
-      console.log("temp token Mint event detected", logs);
-      const sortedLogs = logs.sort(
-        (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
-      );
-      sortedLogs.forEach((log) => {
-        eventQueueRef.current.push(log);
-        if (eventQueueRef.current.length === 1) {
-          processQueue();
-        }
-      });
-    },
-  });
-
-  useContractEvent({
-    address: tempTokenContract.address,
-    abi: tempTokenContract.abi,
-    eventName: tempTokenLoading ? undefined : "Burn",
-    listener(logs) {
-      console.log("temp token Burn event detected", logs);
-      const sortedLogs = logs.sort(
-        (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
-      );
-      sortedLogs.forEach((log) => {
-        eventQueueRef.current.push(log);
-        if (eventQueueRef.current.length === 1) {
-          processQueue();
-        }
-      });
-    },
-  });
-
-  const processQueue = async () => {
-    while (eventQueueRef.current.length > 0) {
-      const log = eventQueueRef.current[0];
-      await handleEvent(log);
-      eventQueueRef.current.shift();
-    }
-  };
-
-  const handleEvent = async (log: any) => {
-    const eventName = log?.eventName;
-    const n = Number(log?.args.totalSupply as bigint);
-    const n_ = Math.max(n - 1, 0);
-    const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-    const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
-    const newPrice = priceForCurrent - priceForPrevious;
-    const previousTxPrice =
-      tempTokenTxs.length > 0 ? tempTokenTxs[tempTokenTxs.length - 1].price : 0;
-    const eventTx: TradeableTokenTx = {
-      eventName: eventName,
-      user: log?.args.account as `0x${string}`,
-      amount: log?.args.amount as bigint,
-      price: newPrice,
-      blockNumber: Number(log?.blockNumber as bigint),
-      supply: log?.args.totalSupply as bigint,
-      priceChangePercentage:
-        tempTokenTxs.length === 0
-          ? 0
-          : ((newPrice - previousTxPrice) / previousTxPrice) * 100,
-    };
-    console.log("detected", eventName, eventTx);
-    const totalSupply = log?.args.totalSupply as bigint;
-    if (eventName === "Mint") {
-      const highestTotalSupply = log?.args.highestTotalSupply as bigint;
-      onMintCallback(totalSupply, highestTotalSupply);
-    } else if (eventName === "Burn") {
-      onBurnCallback(totalSupply);
-    }
-    setTempTokenTxs((prev) => {
-      const newTokenTxs = insertElementSorted(prev, eventTx);
-      console.log("newTokenTxs", newTokenTxs);
-      return newTokenTxs;
-    });
-  };
-
-  // on mount or newly detected token's creationBlockNumber, fetch for logs to populate historical transactions on the chart
-  useEffect(() => {
-    const getTempTokenEvents = async () => {
-      if (
-        !baseClient ||
-        !tempTokenContract.address ||
-        tempTokenContract.address === NULL_ADDRESS ||
-        tokenCreationBlockNumber === BigInt(0) ||
-        fetching.current ||
-        tempTokenTxs.length > 0
-      ) {
-        fetching.current = false;
-        return;
-      }
-      fetching.current = true;
-      console.log(
-        "getTempTokenEvents tokenCreationBlockNumber",
-        tokenCreationBlockNumber
-      );
-      console.log("getTempTokenEvents tempTokenContract", tempTokenContract);
+  const getTempTokenEvents = useCallback(
+    async (
+      tempTokenContract: ContractData,
+      fromBlock: bigint,
+      toBlock: bigint
+    ) => {
       const [mintLogs, burnLogs] = await Promise.all([
         baseClient.getLogs({
           address: tempTokenContract.address,
           event: parseAbiItem(
             "event Mint(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 endTimestamp, bool hasHitTotalSupplyThreshold, uint256 highestTotalSupply)"
           ),
-          fromBlock: tokenCreationBlockNumber,
+          fromBlock,
+          toBlock: toBlock === BigInt(0) ? undefined : toBlock,
         }),
         baseClient.getLogs({
           address: tempTokenContract.address,
           event: parseAbiItem(
             "event Burn(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent)"
           ),
-          fromBlock: tokenCreationBlockNumber,
+          fromBlock,
+          toBlock: toBlock === BigInt(0) ? undefined : toBlock,
         }),
       ]);
       console.log(
@@ -215,6 +123,10 @@ export const useReadTempTokenTxs = ({
         return 0;
       });
       const _tokenTxs: TradeableTokenTx[] = [];
+      const previousFetchedTx =
+        tempTokenTxs.length > 0
+          ? tempTokenTxs[tempTokenTxs.length - 1]
+          : undefined;
       for (let i = 0; i < logs.length; i++) {
         const event = logs[i];
         const n = Number(event.args.totalSupply as bigint);
@@ -223,7 +135,15 @@ export const useReadTempTokenTxs = ({
         const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
         const newPrice = priceForCurrent - priceForPrevious;
         const previousTxPrice =
-          _tokenTxs.length > 0 ? _tokenTxs[_tokenTxs.length - 1].price : 0;
+          i === 0
+            ? previousFetchedTx?.price ?? 0
+            : _tokenTxs.length > 0
+            ? _tokenTxs[_tokenTxs.length - 1].price
+            : 0;
+        const priceChangePercentage =
+          previousTxPrice > 0
+            ? ((newPrice - previousTxPrice) / previousTxPrice) * 100
+            : 0;
         const tx: TradeableTokenTx = {
           eventName: event.eventName,
           user: event.args.account as `0x${string}`,
@@ -231,19 +151,39 @@ export const useReadTempTokenTxs = ({
           price: newPrice,
           blockNumber: Number(event.blockNumber),
           supply: event.args.totalSupply as bigint,
-          priceChangePercentage:
-            i > 0 && _tokenTxs.length > 0
-              ? ((newPrice - previousTxPrice) / previousTxPrice) * 100
-              : 0,
+          priceChangePercentage,
         };
         _tokenTxs.push(tx);
       }
+      setTempTokenTxs((prev) => [...prev, ..._tokenTxs]);
+    },
+    []
+  );
+
+  // on mount or newly detected token's creationBlockNumber, fetch for logs to populate historical transactions on the chart
+  useEffect(() => {
+    const init = async () => {
+      if (
+        fetching.current ||
+        tempTokenTxs.length > 0 ||
+        !baseClient ||
+        !tempTokenContract.address ||
+        tempTokenContract.address === NULL_ADDRESS
+      ) {
+        fetching.current = false;
+        return;
+      }
+      fetching.current = true;
+      const blockNumber = await baseClient.getBlockNumber();
+      await getTempTokenEvents(
+        tempTokenContract,
+        tokenCreationBlockNumber,
+        blockNumber
+      );
       fetching.current = false;
-      console.log("setting temp token txs,", _tokenTxs.length, "count");
-      setTempTokenTxs(_tokenTxs);
-      setTempTokenLoading(false);
+      setInitialTempTokenLoading(false);
     };
-    getTempTokenEvents();
+    init();
   }, [tempTokenContract, tokenCreationBlockNumber, baseClient]);
 
   // For every new transaction, organize chart time indexes for the time filter functionality based on chart txs
@@ -348,67 +288,15 @@ export const useReadTempTokenTxs = ({
     setCurrentBlockNumberForTempTokenChart(BigInt(0));
   }, []);
 
-  /**
-   * listen for transfer events
-   */
-
-  const [transferLogs, setTransferLogs] = useState<Log[]>([]);
-
-  useContractEvent({
-    address: tempTokenContract.address,
-    abi: tempTokenContract.abi,
-    eventName: "Transfer",
-    listener(logs) {
-      setTransferLogs(logs);
-    },
-  });
-
-  useEffect(() => {
-    if (transferLogs.length > 0 && userAddress) {
-      const includesUser = transferLogs.some(
-        (log: any) =>
-          isAddressEqual(log?.args?.from as `0x${string}`, userAddress) ||
-          isAddressEqual(log?.args?.to as `0x${string}`, userAddress)
-      );
-      if (includesUser) {
-        console.log("Detected token transfer event", transferLogs);
-        refetchUserTempTokenBalance();
-        const incomingReceives = transferLogs.filter(
-          (log: any) =>
-            (log?.args?.from as `0x${string}`) !== NULL_ADDRESS &&
-            isAddressEqual(log?.args?.to as `0x${string}`, userAddress)
-        );
-        if (incomingReceives.length > 0) {
-          toast({
-            duration: 5000,
-            isClosable: true,
-            render: () => (
-              <Box borderRadius="md" bg="#8e64dd" px={4} h={8}>
-                <Flex justifyContent="center" alignItems="center">
-                  <Text fontSize="16px" color="white">
-                    Some people sent you ${tokenSymbol}! 🎉
-                  </Text>
-                  <Text>
-                    Got{" "}
-                    {incomingReceives.reduce((acc, cv: any) => {
-                      return acc + Number(cv?.args?.value as bigint);
-                    }, 0)}
-                  </Text>
-                </Flex>
-              </Box>
-            ),
-          });
-        }
-      }
-    }
-  }, [transferLogs]);
-
   return {
     tempTokenTxs,
-    tempTokenLoading,
+    initialTempTokenLoading,
     tempTokenChartTimeIndexes,
     currentBlockNumberForTempTokenChart,
     userTempTokenBalance,
+    refetchUserTempTokenBalance,
     resetTempTokenTxs,
+    setTempTokenTxs,
+    getTempTokenEvents,
   };
 };
