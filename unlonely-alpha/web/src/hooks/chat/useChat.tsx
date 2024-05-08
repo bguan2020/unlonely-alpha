@@ -36,8 +36,8 @@ export const useChat = (): ChatReturnType => {
   const mountingMessages = useRef(true);
   const { emojiBlast, fireworks } = useScreenAnimationsContext();
 
-  const publishChatBotMessage = (messageText: string, body?: string) => {
-    channel.publish({
+  const publishChatBotMessage = async (messageText: string, body?: string) => {
+    await channel.publish({
       name: CHAT_MESSAGE_EVENT,
       data: {
         messageText: messageText,

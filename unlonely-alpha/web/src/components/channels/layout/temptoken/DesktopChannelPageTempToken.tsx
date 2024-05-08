@@ -62,6 +62,7 @@ export const DesktopChannelPageTempToken = ({
     handleCurrentActiveTokenTotalSupplyThreshold,
     onMintEvent,
     onBurnEvent,
+    onReachThresholdEvent,
     getTempTokenEvents,
     refetchUserTempTokenBalance,
     onSendRemainingFundsToWinnerEvent,
@@ -145,7 +146,7 @@ export const DesktopChannelPageTempToken = ({
 
   useEffect(() => {
     const processTempTokenEvents = async (body: string) => {
-      console.log("fetching temp token events 1");
+      console.log("fetching temp token events 1", body);
       if (!body || fetching.current) return;
       fetching.current = true;
       const interactionType = body.split(":")[0];
@@ -153,7 +154,6 @@ export const DesktopChannelPageTempToken = ({
       const txBlockNumber = BigInt(body.split(":")[3]);
       const incomingTxTokenAddress = body.split(":")[4];
       const totalSupply = BigInt(body.split(":")[5]);
-      const highestTotalSupply = body.split(":")[6];
       console.log("fetching temp token events 2");
       if (
         currentTempTokenContract.address &&
@@ -184,8 +184,15 @@ export const DesktopChannelPageTempToken = ({
           refetchUserTempTokenBalance?.();
         }
         setBlockNumberOfLastInAppTrade(txBlockNumber);
-        if (interactionType === InteractionType.BUY_TEMP_TOKENS)
+        if (interactionType === InteractionType.BUY_TEMP_TOKENS) {
+          const highestTotalSupply = body.split(":")[6];
+          const hasHitTotalSupplyThreshold = body.split(":")[7] === "true";
+          const newEndTimestampForToken = BigInt(body.split(":")[8]);
+          if (hasHitTotalSupplyThreshold) {
+            onReachThresholdEvent(newEndTimestampForToken);
+          }
           onMintEvent(BigInt(totalSupply), BigInt(highestTotalSupply));
+        }
         if (interactionType === InteractionType.SELL_TEMP_TOKENS)
           onBurnEvent(BigInt(totalSupply));
       }

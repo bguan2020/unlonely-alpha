@@ -243,32 +243,12 @@ export const useReadTempTokenContextState = () => {
     setCurrentActiveTokenTotalSupply(totalSupply);
   }, []);
 
-  const onReachThresholdEvent = useCallback(
-    async (newEndTimestamp: bigint) => {
-      if (isOwner && router.pathname.startsWith("/channels")) {
-        const title = `The $${currentActiveTokenSymbol} token has hit the price goal and survives for another 24 hours! 🎉`;
-        addToChatbotForTempToken({
-          username: user?.username ?? "",
-          address: userAddress ?? "",
-          taskType: InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
-          title,
-          description: "",
-        });
-      }
-      setCurrentActiveTokenHasHitTotalSupplyThreshold(true);
-      setCurrentActiveTokenEndTimestamp(newEndTimestamp);
-      handleIsGameSuccess(true);
-      handleIsSuccessGameModalOpen(true);
-    },
-    [
-      isOwner,
-      userAddress,
-      user,
-      currentActiveTokenSymbol,
-      addToChatbotForTempToken,
-      router.pathname,
-    ]
-  );
+  const onReachThresholdEvent = useCallback(async (newEndTimestamp: bigint) => {
+    setCurrentActiveTokenHasHitTotalSupplyThreshold(true);
+    setCurrentActiveTokenEndTimestamp(newEndTimestamp);
+    handleIsGameSuccess(true);
+    handleIsSuccessGameModalOpen(true);
+  }, []);
 
   const onDurationIncreaseEvent = useCallback(
     async (newEndTimestamp: bigint) => {

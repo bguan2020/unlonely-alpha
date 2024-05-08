@@ -215,9 +215,31 @@ export const useTradeTempTokenState = ({
           const highestTotalSupply = args.highestTotalSupply as bigint;
           const totalSupply = args.totalSupply as bigint;
           const tokenAddress = args.tokenAddress as `0x${string}`;
+          const endTimestamp = args.endTimestamp as bigint;
           const title = `${
             user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
           } bought ${Number(args.amount as bigint)} $${tokenSymbol}!`;
+
+          /**
+           * perform a check to see data.logs.length is greater than 2 to determine
+           * if the totalSupplyThresholdReached event was emitted, if so include returned value into ably message
+           */
+          const hasTotalSupplyThresholdReachedEvent = data.logs.length > 2;
+          addToChatbotForTempToken({
+            username: user?.username ?? "",
+            address: userAddress ?? "",
+            taskType: InteractionType.BUY_TEMP_TOKENS,
+            title,
+            description: `${userAddress}:${Number(
+              args.amount as bigint
+            )}:${String(data.blockNumber)}:${tokenAddress}:${String(
+              totalSupply
+            )}:${String(highestTotalSupply)}:${String(
+              hasTotalSupplyThresholdReachedEvent
+                ? hasHitTotalSupplyThreshold
+                : false
+            )}:${String(endTimestamp)}`,
+          });
           const promises: any[] = [
             call_updateDb_highestTotalSupply({
               tokenAddresses: [tokenAddress],
@@ -225,7 +247,10 @@ export const useTradeTempTokenState = ({
               chainId: localNetwork.config.chainId,
             }),
           ];
-          if (hasHitTotalSupplyThreshold) {
+          if (
+            hasTotalSupplyThresholdReachedEvent &&
+            hasHitTotalSupplyThreshold
+          ) {
             promises.push(
               call_updateDb_hasHitTotalSupplyThreshold({
                 tokenAddressesSetTrue: [tokenAddress],
@@ -239,22 +264,24 @@ export const useTradeTempTokenState = ({
           } catch (err) {
             console.log("cannot update db on mint", err);
           }
-          addToChatbotForTempToken({
-            username: user?.username ?? "",
-            address: userAddress ?? "",
-            taskType: InteractionType.BUY_TEMP_TOKENS,
-            title,
-            description: `${userAddress}:${Number(
-              args.amount as bigint
-            )}:${String(data.blockNumber)}:${tokenAddress}:${String(
-              totalSupply
-            )}:${String(highestTotalSupply)}:${String(
-              hasHitTotalSupplyThreshold
-            )}`,
-          });
+          setAmount("1000");
+          if (
+            hasTotalSupplyThresholdReachedEvent &&
+            hasHitTotalSupplyThreshold
+          ) {
+            // wait few seconds
+            await new Promise((res) => setTimeout(res, 4000));
+            const _title = `The $${tokenSymbol} token has hit the price goal and survives for another 24 hours! 🎉`;
+            addToChatbotForTempToken({
+              username: user?.username ?? "",
+              address: userAddress ?? "",
+              taskType: InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
+              title: _title,
+              description: "",
+            });
+          }
+          canAddToChatbot_mint.current = false;
         }
-        canAddToChatbot_mint.current = false;
-        setAmount("1000");
       },
       onTxError: (error) => {
         console.log("mint error", error);
