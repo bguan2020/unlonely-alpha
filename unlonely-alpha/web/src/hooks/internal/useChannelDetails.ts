@@ -27,6 +27,7 @@ export type UseChannelDetailsType = {
   }) => void;
   channelRoles: Role[];
   channelVibesTokenPriceRange: string[];
+  pinnedChatMessages: string[];
   loading: boolean;
   error?: ApolloError;
   channelQueryData: ChannelDetailQuery["getChannelBySlug"];
@@ -35,6 +36,7 @@ export type UseChannelDetailsType = {
   ) => void;
   refetchChannel: () => Promise<any>;
   handleChannelVibesTokenPriceRange: (value: string[]) => void;
+  handlePinnedChatMessages: (value: string) => void;
   handleChannelRoles: (
     address: string,
     role: number,
@@ -56,6 +58,7 @@ export const useChannelDetailsInitial: UseChannelDetailsType = {
   handleRealTimeChannelDetails: () => undefined,
   channelRoles: [],
   channelVibesTokenPriceRange: [],
+  pinnedChatMessages: [],
   loading: false,
   error: undefined,
   channelQueryData: {
@@ -69,6 +72,7 @@ export const useChannelDetailsInitial: UseChannelDetailsType = {
   handleChannelStaticData: () => undefined,
   refetchChannel: () => Promise.resolve(undefined),
   handleChannelVibesTokenPriceRange: () => undefined,
+  handlePinnedChatMessages: () => undefined,
   handleChannelRoles: () => undefined,
 };
 
@@ -106,6 +110,7 @@ export const useChannelDetails = (slug: string | string[] | undefined) => {
   const [channelRoles, setChannelRoles] = useState<Role[]>([]);
   const [channelVibesTokenPriceRange, setChannelVibesTokenPriceRange] =
     useState<string[]>([]);
+  const [pinnedChatMessages, setPinnedChatMessages] = useState<string[]>([]);
 
   const handleChannelStaticData = useCallback(
     (value: ChannelDetailQuery["getChannelBySlug"]) => {
@@ -117,6 +122,14 @@ export const useChannelDetails = (slug: string | string[] | undefined) => {
   const handleChannelVibesTokenPriceRange = useCallback((value: string[]) => {
     setChannelVibesTokenPriceRange(value);
   }, []);
+
+
+  const handlePinnedChatMessages = useCallback(
+    (value: string[]) => {
+      setPinnedChatMessages(value);
+    },
+    []
+  );
 
   // handleRealTimeChannelDetails, all parameters are optional, for those that are not provided, the previous value is used, make it a mapping parameter for easy input
   const handleRealTimeChannelDetails = useCallback(
@@ -162,6 +175,15 @@ export const useChannelDetails = (slug: string | string[] | undefined) => {
   }, [channelQueryData?.vibesTokenPriceRange]);
 
   useEffect(() => {
+    if (channelQueryData?.pinnedChatMessages) {
+      const filteredArray = channelQueryData?.pinnedChatMessages.filter(
+        (str): str is string => str !== null
+      );
+      handlePinnedChatMessages(filteredArray);
+    }
+  }, [channelQueryData?.pinnedChatMessages]);
+
+  useEffect(() => {
     if (channelQueryData?.roles) {
       const filteredArray = channelQueryData?.roles.filter(
         (
@@ -203,12 +225,14 @@ export const useChannelDetails = (slug: string | string[] | undefined) => {
     realTimeChannelDetails,
     channelRoles,
     channelVibesTokenPriceRange,
+    pinnedChatMessages,
     loading: channelInteractableLoading || channelStatic?.id === "-1",
     error: channelInteractableError,
     handleRealTimeChannelDetails,
     handleChannelStaticData,
     refetchChannel: refetchChannelInteractable,
     handleChannelVibesTokenPriceRange,
+    handlePinnedChatMessages,
     handleChannelRoles,
   };
 };

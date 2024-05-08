@@ -178,6 +178,19 @@ export const resolvers = {
 
       return channelService.updateChannelVibesTokenPriceRange(data, ctx);
     },
+    updatePinnedChatMessages: (
+      _: any,
+      {
+        data,
+      }: { data: channelService.IUpdatePinnedChatMessagesInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+
+      return channelService.updatePinnedChatMessages(data, ctx);
+    },
     bulkLivepeerStreamIdMigration: (_: any, data: any, ctx: Context) => {
       // if (!ctx.user || !ctx.userIsAuthed) {
       //   throw new AuthenticationError("User is not authenticated");
@@ -204,9 +217,6 @@ export const resolvers = {
     },
     nfcs: ({ id }: { id: number }, _: any, ctx: Context) => {
       return channelService.getChannelNfcs({ id }, ctx);
-    },
-    sideBets: ({ id }: { id: number }, _: any, ctx: Context) => {
-      return channelService.getChannelSideBets({ id }, ctx);
-    },
+    }
   },
 };

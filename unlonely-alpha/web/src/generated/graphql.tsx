@@ -104,11 +104,11 @@ export type Channel = {
   name?: Maybe<Scalars["String"]>;
   nfcs?: Maybe<Array<Maybe<Nfc>>>;
   owner: User;
+  pinnedChatMessages?: Maybe<Array<Maybe<Scalars["String"]>>>;
   playbackUrl?: Maybe<Scalars["String"]>;
   response: Scalars["String"];
   roles?: Maybe<Array<Maybe<ChannelUserRole>>>;
   sharesEvent?: Maybe<Array<Maybe<SharesEvent>>>;
-  sideBets?: Maybe<Array<Maybe<SideBet>>>;
   slug: Scalars["String"];
   softDelete?: Maybe<Scalars["Boolean"]>;
   streamKey?: Maybe<Scalars["String"]>;
@@ -484,6 +484,7 @@ export type Mutation = {
   updateLivepeerStreamData?: Maybe<LivepeerStreamData>;
   updateNFC?: Maybe<Nfc>;
   updateOpenseaLink?: Maybe<Nfc>;
+  updatePinnedChatMessages?: Maybe<Channel>;
   updateSharesEvent?: Maybe<Channel>;
   updateSideBet?: Maybe<SideBet>;
   updateTempTokenHasHitTotalSupplyThreshold: Scalars["Boolean"];
@@ -672,6 +673,10 @@ export type MutationUpdateLivepeerStreamDataArgs = {
 
 export type MutationUpdateNfcArgs = {
   data: UpdateNfcInput;
+};
+
+export type MutationUpdatePinnedChatMessagesArgs = {
+  data: UpdatePinnedChatMessagesInput;
 };
 
 export type MutationUpdateSharesEventArgs = {
@@ -1342,6 +1347,11 @@ export type UpdateNfcInput = {
   videoThumbnail: Scalars["String"];
 };
 
+export type UpdatePinnedChatMessagesInput = {
+  id: Scalars["ID"];
+  pinnedChatMessages: Array<InputMaybe<Scalars["String"]>>;
+};
+
 export type UpdateSharesEventInput = {
   eventState?: InputMaybe<SharesEventState>;
   id: Scalars["ID"];
@@ -1588,6 +1598,7 @@ export type ChannelDetailQuery = {
     slug: string;
     allowNFCs?: boolean | null;
     vibesTokenPriceRange?: Array<string | null> | null;
+    pinnedChatMessages?: Array<string | null> | null;
     playbackUrl?: string | null;
     sharesEvent?: Array<{
       __typename?: "SharesEvent";
@@ -1642,6 +1653,7 @@ export type ChannelStaticQuery = {
     slug: string;
     allowNFCs?: boolean | null;
     vibesTokenPriceRange?: Array<string | null> | null;
+    pinnedChatMessages?: Array<string | null> | null;
     playbackUrl?: string | null;
     owner: {
       __typename?: "User";
@@ -2268,6 +2280,18 @@ export type UpdateLivepeerStreamDataMutation = {
   } | null;
 };
 
+export type UpdatePinnedChatMessagesMutationVariables = Exact<{
+  data: UpdatePinnedChatMessagesInput;
+}>;
+
+export type UpdatePinnedChatMessagesMutation = {
+  __typename?: "Mutation";
+  updatePinnedChatMessages?: {
+    __typename?: "Channel";
+    pinnedChatMessages?: Array<string | null> | null;
+  } | null;
+};
+
 export type UpdateSharesEventMutationVariables = Exact<{
   data: UpdateSharesEventInput;
 }>;
@@ -2396,6 +2420,35 @@ export type UpdateTempTokenIsAlwaysTradeableMutationVariables = Exact<{
 export type UpdateTempTokenIsAlwaysTradeableMutation = {
   __typename?: "Mutation";
   updateTempTokenIsAlwaysTradeable: boolean;
+};
+
+export type UpdateTempTokenTransferredLiquidityOnExpirationMutationVariables =
+  Exact<{
+    data: UpdateTempTokenTransferredLiquidityOnExpirationInput;
+  }>;
+
+export type UpdateTempTokenTransferredLiquidityOnExpirationMutation = {
+  __typename?: "Mutation";
+  updateTempTokenTransferredLiquidityOnExpiration?: {
+    __typename?: "TempToken";
+    transferredLiquidityOnExpiration?: any | null;
+    tokenAddress: string;
+    symbol: string;
+    streamerFeePercentage: any;
+    protocolFeePercentage: any;
+    ownerAddress: string;
+    name: string;
+    isAlwaysTradeable: boolean;
+    id: string;
+    highestTotalSupply: any;
+    factoryAddress: string;
+    hasHitTotalSupplyThreshold: boolean;
+    hasRemainingFundsForCreator: boolean;
+    endUnixTimestamp: any;
+    creationBlockNumber: any;
+    chainId: number;
+    channelId: number;
+  } | null;
 };
 
 export type AddChannelToSubscriptionMutationVariables = Exact<{
@@ -2620,35 +2673,6 @@ export type FetchCurrentUserQuery = {
     __typename?: "User";
     signature?: string | null;
     sigTimestamp?: any | null;
-  } | null;
-};
-
-export type UpdateTempTokenTransferredLiquidityOnExpirationMutationVariables =
-  Exact<{
-    data: UpdateTempTokenTransferredLiquidityOnExpirationInput;
-  }>;
-
-export type UpdateTempTokenTransferredLiquidityOnExpirationMutation = {
-  __typename?: "Mutation";
-  updateTempTokenTransferredLiquidityOnExpiration?: {
-    __typename?: "TempToken";
-    transferredLiquidityOnExpiration?: any | null;
-    tokenAddress: string;
-    symbol: string;
-    streamerFeePercentage: any;
-    protocolFeePercentage: any;
-    ownerAddress: string;
-    name: string;
-    isAlwaysTradeable: boolean;
-    id: string;
-    highestTotalSupply: any;
-    factoryAddress: string;
-    hasHitTotalSupplyThreshold: boolean;
-    hasRemainingFundsForCreator: boolean;
-    endUnixTimestamp: any;
-    creationBlockNumber: any;
-    chainId: number;
-    channelId: number;
   } | null;
 };
 
@@ -2965,6 +2989,7 @@ export const ChannelDetailDocument = gql`
       slug
       allowNFCs
       vibesTokenPriceRange
+      pinnedChatMessages
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress
@@ -3061,6 +3086,7 @@ export const ChannelStaticDocument = gql`
       slug
       allowNFCs
       vibesTokenPriceRange
+      pinnedChatMessages
       owner {
         FCImageUrl
         lensImageUrl
@@ -5302,6 +5328,57 @@ export type UpdateLivepeerStreamDataMutationOptions =
     UpdateLivepeerStreamDataMutation,
     UpdateLivepeerStreamDataMutationVariables
   >;
+export const UpdatePinnedChatMessagesDocument = gql`
+  mutation UpdatePinnedChatMessages($data: UpdatePinnedChatMessagesInput!) {
+    updatePinnedChatMessages(data: $data) {
+      pinnedChatMessages
+    }
+  }
+`;
+export type UpdatePinnedChatMessagesMutationFn = Apollo.MutationFunction<
+  UpdatePinnedChatMessagesMutation,
+  UpdatePinnedChatMessagesMutationVariables
+>;
+
+/**
+ * __useUpdatePinnedChatMessagesMutation__
+ *
+ * To run a mutation, you first call `useUpdatePinnedChatMessagesMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePinnedChatMessagesMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePinnedChatMessagesMutation, { data, loading, error }] = useUpdatePinnedChatMessagesMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdatePinnedChatMessagesMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdatePinnedChatMessagesMutation,
+    UpdatePinnedChatMessagesMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdatePinnedChatMessagesMutation,
+    UpdatePinnedChatMessagesMutationVariables
+  >(UpdatePinnedChatMessagesDocument, options);
+}
+export type UpdatePinnedChatMessagesMutationHookResult = ReturnType<
+  typeof useUpdatePinnedChatMessagesMutation
+>;
+export type UpdatePinnedChatMessagesMutationResult =
+  Apollo.MutationResult<UpdatePinnedChatMessagesMutation>;
+export type UpdatePinnedChatMessagesMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdatePinnedChatMessagesMutation,
+    UpdatePinnedChatMessagesMutationVariables
+  >;
 export const UpdateSharesEventDocument = gql`
   mutation UpdateSharesEvent($data: UpdateSharesEventInput!) {
     updateSharesEvent(data: $data) {
@@ -5838,6 +5915,75 @@ export type UpdateTempTokenIsAlwaysTradeableMutationOptions =
   Apollo.BaseMutationOptions<
     UpdateTempTokenIsAlwaysTradeableMutation,
     UpdateTempTokenIsAlwaysTradeableMutationVariables
+  >;
+export const UpdateTempTokenTransferredLiquidityOnExpirationDocument = gql`
+  mutation UpdateTempTokenTransferredLiquidityOnExpiration(
+    $data: UpdateTempTokenTransferredLiquidityOnExpirationInput!
+  ) {
+    updateTempTokenTransferredLiquidityOnExpiration(data: $data) {
+      transferredLiquidityOnExpiration
+      tokenAddress
+      symbol
+      streamerFeePercentage
+      protocolFeePercentage
+      ownerAddress
+      name
+      isAlwaysTradeable
+      id
+      highestTotalSupply
+      factoryAddress
+      hasHitTotalSupplyThreshold
+      hasRemainingFundsForCreator
+      endUnixTimestamp
+      creationBlockNumber
+      chainId
+      channelId
+    }
+  }
+`;
+export type UpdateTempTokenTransferredLiquidityOnExpirationMutationFn =
+  Apollo.MutationFunction<
+    UpdateTempTokenTransferredLiquidityOnExpirationMutation,
+    UpdateTempTokenTransferredLiquidityOnExpirationMutationVariables
+  >;
+
+/**
+ * __useUpdateTempTokenTransferredLiquidityOnExpirationMutation__
+ *
+ * To run a mutation, you first call `useUpdateTempTokenTransferredLiquidityOnExpirationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTempTokenTransferredLiquidityOnExpirationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTempTokenTransferredLiquidityOnExpirationMutation, { data, loading, error }] = useUpdateTempTokenTransferredLiquidityOnExpirationMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateTempTokenTransferredLiquidityOnExpirationMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateTempTokenTransferredLiquidityOnExpirationMutation,
+    UpdateTempTokenTransferredLiquidityOnExpirationMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateTempTokenTransferredLiquidityOnExpirationMutation,
+    UpdateTempTokenTransferredLiquidityOnExpirationMutationVariables
+  >(UpdateTempTokenTransferredLiquidityOnExpirationDocument, options);
+}
+export type UpdateTempTokenTransferredLiquidityOnExpirationMutationHookResult =
+  ReturnType<typeof useUpdateTempTokenTransferredLiquidityOnExpirationMutation>;
+export type UpdateTempTokenTransferredLiquidityOnExpirationMutationResult =
+  Apollo.MutationResult<UpdateTempTokenTransferredLiquidityOnExpirationMutation>;
+export type UpdateTempTokenTransferredLiquidityOnExpirationMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateTempTokenTransferredLiquidityOnExpirationMutation,
+    UpdateTempTokenTransferredLiquidityOnExpirationMutationVariables
   >;
 export const AddChannelToSubscriptionDocument = gql`
   mutation AddChannelToSubscription($data: MoveChannelAlongSubscriptionInput!) {
@@ -6784,72 +6930,3 @@ export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
 >;
-export const UpdateTempTokenTransferredLiquidityOnExpirationDocument = gql`
-  mutation UpdateTempTokenTransferredLiquidityOnExpiration(
-    $data: UpdateTempTokenTransferredLiquidityOnExpirationInput!
-  ) {
-    updateTempTokenTransferredLiquidityOnExpiration(data: $data) {
-      transferredLiquidityOnExpiration
-      tokenAddress
-      symbol
-      streamerFeePercentage
-      protocolFeePercentage
-      ownerAddress
-      name
-      isAlwaysTradeable
-      id
-      highestTotalSupply
-      factoryAddress
-      hasHitTotalSupplyThreshold
-      hasRemainingFundsForCreator
-      endUnixTimestamp
-      creationBlockNumber
-      chainId
-      channelId
-    }
-  }
-`;
-export type UpdateTempTokenTransferredLiquidityOnExpirationMutationFn =
-  Apollo.MutationFunction<
-    UpdateTempTokenTransferredLiquidityOnExpirationMutation,
-    UpdateTempTokenTransferredLiquidityOnExpirationMutationVariables
-  >;
-
-/**
- * __useUpdateTempTokenTransferredLiquidityOnExpirationMutation__
- *
- * To run a mutation, you first call `useUpdateTempTokenTransferredLiquidityOnExpirationMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateTempTokenTransferredLiquidityOnExpirationMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateTempTokenTransferredLiquidityOnExpirationMutation, { data, loading, error }] = useUpdateTempTokenTransferredLiquidityOnExpirationMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useUpdateTempTokenTransferredLiquidityOnExpirationMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateTempTokenTransferredLiquidityOnExpirationMutation,
-    UpdateTempTokenTransferredLiquidityOnExpirationMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    UpdateTempTokenTransferredLiquidityOnExpirationMutation,
-    UpdateTempTokenTransferredLiquidityOnExpirationMutationVariables
-  >(UpdateTempTokenTransferredLiquidityOnExpirationDocument, options);
-}
-export type UpdateTempTokenTransferredLiquidityOnExpirationMutationHookResult =
-  ReturnType<typeof useUpdateTempTokenTransferredLiquidityOnExpirationMutation>;
-export type UpdateTempTokenTransferredLiquidityOnExpirationMutationResult =
-  Apollo.MutationResult<UpdateTempTokenTransferredLiquidityOnExpirationMutation>;
-export type UpdateTempTokenTransferredLiquidityOnExpirationMutationOptions =
-  Apollo.BaseMutationOptions<
-    UpdateTempTokenTransferredLiquidityOnExpirationMutation,
-    UpdateTempTokenTransferredLiquidityOnExpirationMutationVariables
-  >;

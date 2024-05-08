@@ -1,5 +1,5 @@
-import { Box, Image, Flex, Link, Text } from "@chakra-ui/react";
-import React, { useMemo } from "react";
+import { Box, Image, Flex, Link, Text, IconButton } from "@chakra-ui/react";
+import React, { useMemo, useState } from "react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 import { InteractionType } from "../../constants";
@@ -13,6 +13,7 @@ import {
 import { useChannelContext } from "../../hooks/context/useChannel";
 import Badges from "./Badges";
 import { formatTimestampToTime } from "../../utils/time";
+import { TiPin } from "react-icons/ti";
 
 type Props = {
   index: number;
@@ -20,6 +21,7 @@ type Props = {
   messageText: string;
   linkArray: RegExpMatchArray | null;
   handleOpen: (value?: SelectedUser) => void;
+  handlePinCallback: (value: string) => void;
 };
 
 // if isVipChat is true, messages with SenderStatus.VIP will be displayed, else they are blurred,
@@ -31,11 +33,15 @@ const MessageBody = ({
   messageText,
   linkArray,
   handleOpen,
+  handlePinCallback,
 }: Props) => {
+  const { user } = useUser();
+
   const { channel: c, leaderboard } = useChannelContext();
   const { isVip: userIsVip } = leaderboard;
   const { channelQueryData, channelRoles } = c;
-  const { user } = useUser();
+
+  const [mouseHover, setMouseHover] = useState(false);
 
   const userIsChannelOwner = useMemo(
     () => user?.address === channelQueryData?.owner.address,
@@ -201,7 +207,19 @@ const MessageBody = ({
 
   return (
     <>
-      <Flex direction="column">
+      <Flex
+        direction="column"
+        onMouseEnter={
+          userIsChannelOwner || userIsModerator
+            ? () => setMouseHover(true)
+            : undefined
+        }
+        onMouseLeave={
+          userIsChannelOwner || userIsModerator
+            ? () => setMouseHover(false)
+            : undefined
+        }
+      >
         <Flex
           className="showhim"
           justifyContent={
@@ -210,6 +228,7 @@ const MessageBody = ({
           bg={messageStyle().bg}
           bgGradient={messageStyle().bgGradient}
           borderRadius="10px"
+          position={"relative"}
         >
           <Flex direction={"column"} width="100%">
             <Box key={index} px="0.3rem" position="relative">
@@ -314,6 +333,17 @@ const MessageBody = ({
                 {formatTimestampToTime(message.timestamp)}
               </Text>
             </Flex>
+          )}
+          {mouseHover && (
+            <IconButton
+              right="2"
+              bottom="0"
+              height="20px"
+              position="absolute"
+              aria-label="pin-message"
+              icon={<TiPin />}
+              onClick={() => handlePinCallback(messageText)}
+            />
           )}
         </Flex>
       </Flex>

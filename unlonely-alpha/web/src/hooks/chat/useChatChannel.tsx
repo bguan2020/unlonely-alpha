@@ -9,6 +9,7 @@ import {
   CHANGE_USER_ROLE_EVENT,
   CHAT_MESSAGE_EVENT,
   InteractionType,
+  PINNED_CHAT_MESSAGES_EVENT,
   TOKEN_TRANSFER_EVENT,
   VIBES_TOKEN_PRICE_RANGE_EVENT,
 } from "../../constants";
@@ -60,6 +61,7 @@ export function useChatChannel(fixedChatName?: string) {
     handleLatestBet,
     handleRealTimeChannelDetails,
     handleChannelVibesTokenPriceRange,
+    handlePinnedChatMessages,
   } = c;
   const { chatChannel } = chat;
   const { handleLocalSharesEventState } = ui;
@@ -152,6 +154,10 @@ export function useChatChannel(fixedChatName?: string) {
     if (message.name === VIBES_TOKEN_PRICE_RANGE_EVENT) {
       const newSliderValue = JSON.parse(message.data.body);
       handleChannelVibesTokenPriceRange?.(newSliderValue);
+    }
+    if (message.name === PINNED_CHAT_MESSAGES_EVENT) {
+      const _pinnedMessages = JSON.parse(message.data.body);
+      handlePinnedChatMessages?.(_pinnedMessages);
     }
     if (message.name === CHAT_MESSAGE_EVENT) {
       if (message.data.senderStatus === SenderStatus.CHATBOT) {

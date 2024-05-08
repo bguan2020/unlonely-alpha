@@ -576,6 +576,23 @@ export const updateChannelVibesTokenPriceRange = async (
   });
 };
 
+export interface IUpdatePinnedChatMessagesInput {
+  id: number;
+  pinnedChatMessages: string[];
+}
+
+export const updatePinnedChatMessages = async (
+  data: IUpdatePinnedChatMessagesInput,
+  ctx: Context
+) => {
+  return ctx.prisma.channel.update({
+    where: { id: Number(data.id) },
+    data: {
+      pinnedChatMessages: data.pinnedChatMessages,
+    },
+  });
+}
+
 export const getChannelById = ({ id }: { id: number }, ctx: Context) => {
   return ctx.prisma.channel.findFirst({
     where: { id: Number(id), softDelete: false },
@@ -856,20 +873,4 @@ export const getChannelsByOwnerAddress = async (
   return ctx.prisma.channel.findMany({
     where: { ownerAddr: ownerAddress, softDelete: false },
   });
-};
-
-export const getChannelSideBets = async (
-  { id }: { id: number },
-  ctx: Context
-) => {
-  try {
-    return ctx.prisma.sideBet.findMany({
-      where: { channelId: Number(id), softDelete: false },
-      // order by createdAt w latest first
-      orderBy: { createdAt: "desc" },
-    });
-  } catch (error: any) {
-    console.log("getChannelSideBets error", error);
-    return [];
-  }
 };

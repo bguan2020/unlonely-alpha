@@ -28,16 +28,6 @@ export const typeDef = gql`
     updatedAt: DateTime!
   }
 
-  type SideBet {
-    id: ID!
-    wagerDescription: String
-    creatorAddress: String
-    opponentAddress: String
-    chainId: Int
-    softDelete: Boolean
-    createdAt: DateTime!
-  }
-
   type SharesEvent {
     id: ID!
     sharesSubjectQuestion: String
@@ -85,8 +75,8 @@ export const typeDef = gql`
     sharesEvent: [SharesEvent]
     roles: [ChannelUserRole]
     nfcs: [NFC]
-    sideBets: [SideBet]
     vibesTokenPriceRange: [String]
+    pinnedChatMessages: [String]
   }
 
   type LivepeerStreamData {
@@ -176,6 +166,11 @@ export const typeDef = gql`
     vibesTokenPriceRange: [String]!
   }
 
+  input UpdatePinnedChatMessagesInput {
+    id: ID!
+    pinnedChatMessages: [String]!
+  }
+
   input ChannelSearchInput {
     query: String
     skip: Int
@@ -235,6 +230,9 @@ export const typeDef = gql`
     postUserRoleForChannel(data: PostUserRoleForChannelInput): ChannelUserRole
     updateChannelVibesTokenPriceRange(
       data: UpdateChannelVibesTokenPriceRangeInput!
+    ): Channel
+    updatePinnedChatMessages(
+      data: UpdatePinnedChatMessagesInput!
     ): Channel
     bulkLivepeerStreamIdMigration: UpdateManyResponse
   }
