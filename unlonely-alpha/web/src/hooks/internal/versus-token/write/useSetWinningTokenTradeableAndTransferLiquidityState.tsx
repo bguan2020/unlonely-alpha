@@ -1,22 +1,27 @@
 import { useVersusTempTokenContext } from "../../../context/useVersusTempToken";
 import { useSetWinningTokenTradeableAndTransferLiquidity } from "../../../contracts/useTempTokenFactoryV1";
-import { decodeEventLog } from "viem";
-import { Contract } from "../../../../constants";
+import { decodeEventLog, isAddressEqual } from "viem";
+import { Contract, InteractionType } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { Box, useToast } from "@chakra-ui/react";
 import Link from "next/link";
 import useUpdateTempTokenTransferredLiquidityOnExpiration from "../../../server/temp-token/useUpdateTempTokenTransferredLiquidityOnExpiration";
 import useUpdateTempTokenIsAlwaysTradeable from "../../../server/temp-token/useUpdateTempTokenIsAlwaysTradeable";
+import { useChannelContext } from "../../../context/useChannel";
+import { useUser } from "../../../context/useUser";
 
 export const useSetWinningTokenTradeableAndTransferLiquidityState = (
   callbackOnTxSuccess?: any
 ) => {
+  const { userAddress, user } = useUser();
+
   const toast = useToast();
 
   const { gameState } = useVersusTempTokenContext();
   const { tokenA, tokenB } = gameState;
-
+  const { chat } = useChannelContext();
+  const { addToChatbot } = chat;
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
 
@@ -160,6 +165,41 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
               position: "top-right",
             });
           });
+
+        let _winningToken = tokenA;
+        let _tokenType: "a" | "b" = "a";
+
+        if (
+          tokenA.address &&
+          isAddressEqual(
+            winnerTokenAddress as `0x${string}`,
+            tokenA.address as `0x${string}`
+          )
+        ) {
+          _winningToken = tokenA;
+        }
+        if (
+          tokenB.address &&
+          isAddressEqual(
+            winnerTokenAddress as `0x${string}`,
+            tokenB.address as `0x${string}`
+          )
+        ) {
+          _winningToken = tokenB;
+          _tokenType = "b";
+        }
+
+        const title = `The ${_winningToken.symbol} token has won!`;
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType:
+            InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
+          title,
+          description: `${userAddress}:${winnerTokenAddress}:${loserTokenAddress}:${String(
+            transferredLiquidityInWei
+          )}:${_tokenType}`,
+        });
         callbackOnTxSuccess?.();
       },
       onTxError: (error) => {
