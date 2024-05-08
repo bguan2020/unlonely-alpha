@@ -91,6 +91,7 @@ export const ChatWithTempTokenTimer = ({
       )}
       <Flex direction="column" id={"chat"} height="100%">
         <MessageList
+          hidePinnedMessages={true}
           scrollRef={scrollRef}
           messages={chat.receivedMessages}
           channel={chat.channel}

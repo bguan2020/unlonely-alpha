@@ -25,6 +25,7 @@ import {
   CAN_USE_VERSUS_MODE_SLUGS,
   CHAT_MESSAGE_EVENT,
   InteractionType,
+  VersusTokenDataType,
   versusTokenDataInitial,
 } from "../../constants";
 import { isAddress, isAddressEqual } from "viem";
@@ -459,6 +460,35 @@ const FullVersusTokenChart = ({
           body.split(":")[0] === InteractionType.SELL_TEMP_TOKENS
         ) {
           setTempTokenTransactionBody(body);
+        }
+        if (
+          body.split(":")[0] ===
+          InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY
+        ) {
+          const winnerTokenAddress = body.split(":")[2];
+          const loserTokenAddress = body.split(":")[3];
+          const transferredLiquidityInWei = BigInt(body.split(":")[4]);
+          const winnerTokenType = body.split(":")[5];
+          const _losingToken = {
+            ...((winnerTokenType === "a"
+              ? tokenB
+              : tokenA) as VersusTokenDataType),
+            transferredLiquidityOnExpiration: transferredLiquidityInWei,
+          };
+          if (winnerTokenType === "a") {
+            handleLosingToken(_losingToken);
+            setTokenA(_losingToken);
+          } else {
+            handleLosingToken(_losingToken);
+            setTokenB(_losingToken);
+          }
+          handleOwnerMustMakeWinningTokenTradeable(false);
+          handleOwnerMustPermamint(true);
+        }
+        if (
+          body.split(":")[0] === InteractionType.VERSUS_WINNER_TOKENS_MINTED
+        ) {
+          handleOwnerMustPermamint(false);
         }
       }
     };

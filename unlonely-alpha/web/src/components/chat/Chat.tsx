@@ -83,6 +83,7 @@ const Chat = ({
           />
         )}
         <MessageList
+          hidePinnedMessages={false}
           scrollRef={scrollRef}
           messages={chat.receivedMessages}
           channel={chat.channel}

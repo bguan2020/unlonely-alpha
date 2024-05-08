@@ -1,11 +1,7 @@
-import { useState, useEffect } from "react";
-import { Log, isAddress, isAddressEqual } from "viem";
-import { useContractEvent } from "wagmi";
 import { useChannelContext } from "../../context/useChannel";
 import { useNetworkContext } from "../../context/useNetwork";
 import {
   Contract,
-  InteractionType,
   VersusTokenDataType,
 } from "../../../constants";
 import { getContractFromNetwork } from "../../../utils/contract";
@@ -53,199 +49,199 @@ export const useVersusFactoryExternalListeners = ({
     localNetwork
   );
 
-  /**
-   * listen for incoming setWinningTokenTradeableAndTransferredLiquidity events from factory
-   */
+  // /**
+  //  * listen for incoming setWinningTokenTradeableAndTransferredLiquidity events from factory
+  //  */
 
-  const [
-    incomingSetWinningTokenTradeableAndTransferredLiquidityLogs,
-    setIncomingSetWinningTokenTradeableAndTransferredLiquidityLogs,
-  ] = useState<Log[]>([]);
+  // const [
+  //   incomingSetWinningTokenTradeableAndTransferredLiquidityLogs,
+  //   setIncomingSetWinningTokenTradeableAndTransferredLiquidityLogs,
+  // ] = useState<Log[]>([]);
 
-  useContractEvent({
-    address: factoryContract.address,
-    abi: factoryContract.abi,
-    eventName: "SetWinningTokenTradeableAndTransferredLiquidity",
-    listener(logs) {
-      console.log(
-        "detected SetWinningTokenTradeableAndTransferredLiquidity event",
-        logs
-      );
-      const init = async () => {
-        setIncomingSetWinningTokenTradeableAndTransferredLiquidityLogs(logs);
-      };
-      init();
-    },
-  });
+  // useContractEvent({
+  //   address: factoryContract.address,
+  //   abi: factoryContract.abi,
+  //   eventName: "SetWinningTokenTradeableAndTransferredLiquidity",
+  //   listener(logs) {
+  //     console.log(
+  //       "detected SetWinningTokenTradeableAndTransferredLiquidity event",
+  //       logs
+  //     );
+  //     const init = async () => {
+  //       setIncomingSetWinningTokenTradeableAndTransferredLiquidityLogs(logs);
+  //     };
+  //     init();
+  //   },
+  // });
 
-  useEffect(() => {
-    if (incomingSetWinningTokenTradeableAndTransferredLiquidityLogs)
-      handleSetWinningTokenTradeableAndTransferredLiquidityUpdate(
-        incomingSetWinningTokenTradeableAndTransferredLiquidityLogs
-      );
-  }, [incomingSetWinningTokenTradeableAndTransferredLiquidityLogs]);
+  // useEffect(() => {
+  //   if (incomingSetWinningTokenTradeableAndTransferredLiquidityLogs)
+  //     handleSetWinningTokenTradeableAndTransferredLiquidityUpdate(
+  //       incomingSetWinningTokenTradeableAndTransferredLiquidityLogs
+  //     );
+  // }, [incomingSetWinningTokenTradeableAndTransferredLiquidityLogs]);
 
-  const handleSetWinningTokenTradeableAndTransferredLiquidityUpdate = async (
-    logs: Log[]
-  ) => {
-    if (logs.length === 0) return;
-    console.log(
-      "handleSetWinningTokenTradeableAndTransferredLiquidityUpdate",
-      logs
-    );
-    const filteredLogsByMatchingAddresses = logs.filter(
-      (log: any) =>
-        (isAddress(tokenA.address) &&
-          isAddressEqual(
-            log.args.winnerTokenAddress as `0x${string}`,
-            tokenA.address as `0x${string}`
-          )) ||
-        (isAddress(tokenB.address) &&
-          isAddressEqual(
-            log.args.winnerTokenAddress as `0x${string}`,
-            tokenB.address as `0x${string}`
-          ))
-    );
-    const sortedLogs = filteredLogsByMatchingAddresses.sort(
-      (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
-    );
-    if (sortedLogs.length === 0) return;
-    const latestLog: any = sortedLogs[sortedLogs.length - 1];
-    const winnerTokenAddress = latestLog?.args
-      .winnerTokenAddress as `0x${string}`;
-    const transferredLiquidity = latestLog?.args.transferredLiquidity as bigint;
+  // const handleSetWinningTokenTradeableAndTransferredLiquidityUpdate = async (
+  //   logs: Log[]
+  // ) => {
+  //   if (logs.length === 0) return;
+  //   console.log(
+  //     "handleSetWinningTokenTradeableAndTransferredLiquidityUpdate",
+  //     logs
+  //   );
+  //   const filteredLogsByMatchingAddresses = logs.filter(
+  //     (log: any) =>
+  //       (isAddress(tokenA.address) &&
+  //         isAddressEqual(
+  //           log.args.winnerTokenAddress as `0x${string}`,
+  //           tokenA.address as `0x${string}`
+  //         )) ||
+  //       (isAddress(tokenB.address) &&
+  //         isAddressEqual(
+  //           log.args.winnerTokenAddress as `0x${string}`,
+  //           tokenB.address as `0x${string}`
+  //         ))
+  //   );
+  //   const sortedLogs = filteredLogsByMatchingAddresses.sort(
+  //     (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
+  //   );
+  //   if (sortedLogs.length === 0) return;
+  //   const latestLog: any = sortedLogs[sortedLogs.length - 1];
+  //   const winnerTokenAddress = latestLog?.args
+  //     .winnerTokenAddress as `0x${string}`;
+  //   const transferredLiquidity = latestLog?.args.transferredLiquidity as bigint;
 
-    if (
-      tokenA.address &&
-      isAddressEqual(
-        winnerTokenAddress as `0x${string}`,
-        tokenA.address as `0x${string}`
-      )
-    ) {
-      const _losingToken = {
-        ...tokenB,
-        transferredLiquidityOnExpiration: transferredLiquidity,
-      };
-      handleTokenB(_losingToken);
-      handleLosingToken(_losingToken);
-      const title = `The ${tokenA.symbol} token has won!`;
-      addToChatbot({
-        username: user?.username ?? "",
-        address: userAddress ?? "",
-        taskType:
-          InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
-        title,
-        description: "",
-      });
-    }
-    if (
-      tokenB.address &&
-      isAddressEqual(
-        winnerTokenAddress as `0x${string}`,
-        tokenB.address as `0x${string}`
-      )
-    ) {
-      const _losingToken = {
-        ...tokenA,
-        transferredLiquidityOnExpiration: transferredLiquidity,
-      };
-      handleTokenA(_losingToken);
-      handleLosingToken(_losingToken);
-      const title = `The ${tokenB.symbol} token has won!`;
-      addToChatbot({
-        username: user?.username ?? "",
-        address: userAddress ?? "",
-        taskType:
-          InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
-        title,
-        description: "",
-      });
-    }
-    handleOwnerMustMakeWinningTokenTradeable(false);
-    handleOwnerMustPermamint(true);
-  };
+  //   if (
+  //     tokenA.address &&
+  //     isAddressEqual(
+  //       winnerTokenAddress as `0x${string}`,
+  //       tokenA.address as `0x${string}`
+  //     )
+  //   ) {
+  //     const _losingToken = {
+  //       ...tokenB,
+  //       transferredLiquidityOnExpiration: transferredLiquidity,
+  //     };
+  //     handleTokenB(_losingToken);
+  //     handleLosingToken(_losingToken);
+  //     const title = `The ${tokenA.symbol} token has won!`;
+  //     addToChatbot({
+  //       username: user?.username ?? "",
+  //       address: userAddress ?? "",
+  //       taskType:
+  //         InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
+  //       title,
+  //       description: "",
+  //     });
+  //   }
+  //   if (
+  //     tokenB.address &&
+  //     isAddressEqual(
+  //       winnerTokenAddress as `0x${string}`,
+  //       tokenB.address as `0x${string}`
+  //     )
+  //   ) {
+  //     const _losingToken = {
+  //       ...tokenA,
+  //       transferredLiquidityOnExpiration: transferredLiquidity,
+  //     };
+  //     handleTokenA(_losingToken);
+  //     handleLosingToken(_losingToken);
+  //     const title = `The ${tokenB.symbol} token has won!`;
+  //     addToChatbot({
+  //       username: user?.username ?? "",
+  //       address: userAddress ?? "",
+  //       taskType:
+  //         InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
+  //       title,
+  //       description: "",
+  //     });
+  //   }
+  //   handleOwnerMustMakeWinningTokenTradeable(false);
+  //   handleOwnerMustPermamint(true);
+  // };
 
   /**
    * listen for FactoryMintedWinnerTokens event from the factory
    */
 
-  const [
-    incomingFactoryMintedWinnerTokensLogs,
-    setIncomingFactoryMintedWinnerTokensLogs,
-  ] = useState<Log[]>([]);
+  // const [
+  //   incomingFactoryMintedWinnerTokensLogs,
+  //   setIncomingFactoryMintedWinnerTokensLogs,
+  // ] = useState<Log[]>([]);
 
-  useContractEvent({
-    address: factoryContract.address,
-    abi: factoryContract.abi,
-    eventName: "FactoryMintedWinnerTokens",
-    listener(logs) {
-      console.log("detected FactoryMintedWinnerTokens event", logs);
-      const init = async () => {
-        setIncomingFactoryMintedWinnerTokensLogs(logs);
-      };
-      init();
-    },
-  });
+  // useContractEvent({
+  //   address: factoryContract.address,
+  //   abi: factoryContract.abi,
+  //   eventName: "FactoryMintedWinnerTokens",
+  //   listener(logs) {
+  //     console.log("detected FactoryMintedWinnerTokens event", logs);
+  //     const init = async () => {
+  //       setIncomingFactoryMintedWinnerTokensLogs(logs);
+  //     };
+  //     init();
+  //   },
+  // });
 
-  useEffect(() => {
-    if (incomingFactoryMintedWinnerTokensLogs)
-      handleFactoryMintedWinnerTokensUpdate(
-        incomingFactoryMintedWinnerTokensLogs
-      );
-  }, [incomingFactoryMintedWinnerTokensLogs]);
+  // useEffect(() => {
+  //   if (incomingFactoryMintedWinnerTokensLogs)
+  //     handleFactoryMintedWinnerTokensUpdate(
+  //       incomingFactoryMintedWinnerTokensLogs
+  //     );
+  // }, [incomingFactoryMintedWinnerTokensLogs]);
 
-  const handleFactoryMintedWinnerTokensUpdate = async (logs: Log[]) => {
-    if (logs.length === 0) return;
-    console.log("handleFactoryMintedWinnerTokensUpdate", logs);
-    const filteredLogsByMatchingAddresses = logs.filter(
-      (log: any) =>
-        (isAddress(tokenA.address) &&
-          isAddressEqual(
-            log.args.winnerTokenAddress as `0x${string}`,
-            tokenA.address as `0x${string}`
-          )) ||
-        (isAddress(tokenB.address) &&
-          isAddressEqual(
-            log.args.winnerTokenAddress as `0x${string}`,
-            tokenB.address as `0x${string}`
-          ))
-    );
-    const sortedLogs = filteredLogsByMatchingAddresses.sort(
-      (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
-    );
-    if (sortedLogs.length === 0) return;
-    const latestLog: any = sortedLogs[sortedLogs.length - 1];
-    const winnerTokenAddress = latestLog?.args
-      .winnerTokenAddress as `0x${string}`;
-    handleOwnerMustPermamint(false);
+  // const handleFactoryMintedWinnerTokensUpdate = async (logs: Log[]) => {
+  //   if (logs.length === 0) return;
+  //   console.log("handleFactoryMintedWinnerTokensUpdate", logs);
+  //   const filteredLogsByMatchingAddresses = logs.filter(
+  //     (log: any) =>
+  //       (isAddress(tokenA.address) &&
+  //         isAddressEqual(
+  //           log.args.winnerTokenAddress as `0x${string}`,
+  //           tokenA.address as `0x${string}`
+  //         )) ||
+  //       (isAddress(tokenB.address) &&
+  //         isAddressEqual(
+  //           log.args.winnerTokenAddress as `0x${string}`,
+  //           tokenB.address as `0x${string}`
+  //         ))
+  //   );
+  //   const sortedLogs = filteredLogsByMatchingAddresses.sort(
+  //     (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
+  //   );
+  //   if (sortedLogs.length === 0) return;
+  //   const latestLog: any = sortedLogs[sortedLogs.length - 1];
+  //   const winnerTokenAddress = latestLog?.args
+  //     .winnerTokenAddress as `0x${string}`;
+  //   handleOwnerMustPermamint(false);
 
-    if (isOwner && router.pathname.startsWith("/channels")) {
-      let title = "";
-      if (
-        isAddress(tokenA.address) &&
-        isAddressEqual(
-          winnerTokenAddress as `0x${string}`,
-          tokenA.address as `0x${string}`
-        )
-      ) {
-        title = `The $${tokenA.symbol} token's price increased!`;
-      }
-      if (
-        isAddress(tokenB.address) &&
-        isAddressEqual(
-          winnerTokenAddress as `0x${string}`,
-          tokenB.address as `0x${string}`
-        )
-      ) {
-        title = `The $${tokenB.symbol} token's price increased!`;
-      }
-      addToChatbot({
-        username: user?.username ?? "",
-        address: userAddress ?? "",
-        taskType: InteractionType.VERSUS_WINNER_TOKENS_MINTED,
-        title,
-        description: "",
-      });
-    }
-  };
+  //   if (isOwner && router.pathname.startsWith("/channels")) {
+  //     let title = "";
+  //     if (
+  //       isAddress(tokenA.address) &&
+  //       isAddressEqual(
+  //         winnerTokenAddress as `0x${string}`,
+  //         tokenA.address as `0x${string}`
+  //       )
+  //     ) {
+  //       title = `The $${tokenA.symbol} token's price increased!`;
+  //     }
+  //     if (
+  //       isAddress(tokenB.address) &&
+  //       isAddressEqual(
+  //         winnerTokenAddress as `0x${string}`,
+  //         tokenB.address as `0x${string}`
+  //       )
+  //     ) {
+  //       title = `The $${tokenB.symbol} token's price increased!`;
+  //     }
+  //     addToChatbot({
+  //       username: user?.username ?? "",
+  //       address: userAddress ?? "",
+  //       taskType: InteractionType.VERSUS_WINNER_TOKENS_MINTED,
+  //       title,
+  //       description: "",
+  //     });
+  //   }
+  // };
 };

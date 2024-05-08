@@ -2,18 +2,30 @@ import { Box, Button, Spinner, useToast } from "@chakra-ui/react";
 import { useMintWinnerTokens } from "../../../../hooks/contracts/useTempTokenFactoryV1";
 import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
 import { useEffect, useState } from "react";
-import { Contract } from "../../../../constants";
+import { Contract, InteractionType } from "../../../../constants";
 import { useNetworkContext } from "../../../../hooks/context/useNetwork";
 import { getContractFromNetwork } from "../../../../utils/contract";
-import { decodeEventLog, isAddress } from "viem";
+import { decodeEventLog, isAddress, isAddressEqual } from "viem";
 import Link from "next/link";
 import * as AWS from "aws-sdk";
 import { usePublicClient } from "wagmi";
+import { useUser } from "../../../../hooks/context/useUser";
+import { useChannelContext } from "../../../../hooks/context/useChannel";
 
 export const PermamintModule = (callbackOnTxSuccess?: any) => {
-  const { gameState } = useVersusTempTokenContext();
-  const { winningToken, losingToken, handleOwnerMustPermamint } = gameState;
+  const { userAddress, user } = useUser();
 
+  const { gameState } = useVersusTempTokenContext();
+  const {
+    winningToken,
+    losingToken,
+    tokenA,
+    tokenB,
+    handleOwnerMustPermamint,
+  } = gameState;
+
+  const { chat } = useChannelContext();
+  const { addToChatbot } = chat;
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
   const toast = useToast();
@@ -72,6 +84,7 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
         });
         const args: any = topics.args;
         console.log("mint winner tokens success", data, args);
+        const winnerTokenAddress = args.winnerTokenAddress as `0x${string}`;
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -87,6 +100,39 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
           duration: 9000,
           isClosable: true,
           position: "top-right",
+        });
+
+        let _winningToken = tokenA;
+        let _tokenType: "a" | "b" = "a";
+
+        if (
+          tokenA.address &&
+          isAddressEqual(
+            winnerTokenAddress as `0x${string}`,
+            tokenA.address as `0x${string}`
+          )
+        ) {
+          _winningToken = tokenA;
+        }
+        if (
+          tokenB.address &&
+          isAddressEqual(
+            winnerTokenAddress as `0x${string}`,
+            tokenB.address as `0x${string}`
+          )
+        ) {
+          _winningToken = tokenB;
+          _tokenType = "b";
+        }
+
+        const title = `The ${_winningToken.symbol} token's price increased!`;
+
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.VERSUS_WINNER_TOKENS_MINTED,
+          title,
+          description: `${userAddress}:${_tokenType}`,
         });
         callbackOnTxSuccess?.();
       },

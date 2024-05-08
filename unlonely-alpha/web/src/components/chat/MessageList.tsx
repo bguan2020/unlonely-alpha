@@ -27,6 +27,7 @@ type MessageListProps = {
   isAtBottomCallback: (value: boolean) => void;
   isVipChat?: boolean;
   tokenForTransfer: "vibes" | "tempToken";
+  hidePinnedMessages: boolean;
 };
 
 type MessageItemProps = {
@@ -98,6 +99,7 @@ const MessageList = memo(
     isAtBottomCallback,
     isVipChat,
     tokenForTransfer,
+    hidePinnedMessages,
   }: MessageListProps) => {
     const { ui, channel: c } = useChannelContext();
     const { pinnedChatMessages, channelQueryData } = c;
@@ -167,7 +169,7 @@ const MessageList = memo(
             }}
           />
         )}
-        {pinnedChatMessages.length > 0 && (
+        {!hidePinnedMessages && pinnedChatMessages.length > 0 && (
           <Flex direction="column">
             {pinnedChatMessages.map((m) => {
               return (
