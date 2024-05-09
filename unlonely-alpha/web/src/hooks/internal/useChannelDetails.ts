@@ -36,7 +36,7 @@ export type UseChannelDetailsType = {
   ) => void;
   refetchChannel: () => Promise<any>;
   handleChannelVibesTokenPriceRange: (value: string[]) => void;
-  handlePinnedChatMessages: (value: string) => void;
+  handlePinnedChatMessages: (value: string[]) => void;
   handleChannelRoles: (
     address: string,
     role: number,
