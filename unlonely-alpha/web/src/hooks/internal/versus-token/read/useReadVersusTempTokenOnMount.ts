@@ -125,7 +125,7 @@ export const useReadVersusTempTokenOnMount = ({
           ]);
           const _newTokenA: VersusTokenDataType = {
             transferredLiquidityOnExpiration:
-              _tokenA.transferredLiquidityOnExpiration,
+              _tokenA.transferredLiquidityOnExpiration !== null ? BigInt(_tokenA.transferredLiquidityOnExpiration) : BigInt(0),
             symbol: _tokenA.symbol,
             address: _tokenA.tokenAddress as `0x${string}`,
             totalSupply: BigInt(String(totalSupplyA)),
@@ -141,7 +141,7 @@ export const useReadVersusTempTokenOnMount = ({
           };
           const _newTokenB: VersusTokenDataType = {
             transferredLiquidityOnExpiration:
-              _tokenB.transferredLiquidityOnExpiration,
+              _tokenB.transferredLiquidityOnExpiration !== null ? BigInt(_tokenB.transferredLiquidityOnExpiration) : BigInt(0),
             symbol: _tokenB.symbol,
             address: _tokenB.tokenAddress as `0x${string}`,
             totalSupply: BigInt(String(totalSupplyB)),

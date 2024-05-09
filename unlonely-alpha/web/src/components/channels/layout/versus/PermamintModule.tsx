@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Contract, InteractionType } from "../../../../constants";
 import { useNetworkContext } from "../../../../hooks/context/useNetwork";
 import { getContractFromNetwork } from "../../../../utils/contract";
-import { decodeEventLog, isAddress, isAddressEqual } from "viem";
+import { decodeEventLog, isAddressEqual } from "viem";
 import Link from "next/link";
 import { usePublicClient } from "wagmi";
 import { useUser } from "../../../../hooks/context/useUser";
@@ -25,7 +25,8 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
     handleOwnerMustPermamint,
   } = gameState;
 
-  const { chat } = useChannelContext();
+  const { chat, channel } = useChannelContext();
+  const { isOwner } = channel;
   const { addToChatbot } = chat;
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
@@ -86,6 +87,8 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
         const args: any = topics.args;
         console.log("mint winner tokens success", data, args);
         const winnerTokenAddress = args.winnerTokenAddress as `0x${string}`;
+        const amount = args.amount as bigint;
+
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -133,7 +136,9 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
           address: userAddress ?? "",
           taskType: InteractionType.VERSUS_WINNER_TOKENS_MINTED,
           title,
-          description: `${userAddress}:${_tokenType}`,
+          description: `${userAddress}:${Number(
+            args.amount as bigint
+          )}:${String(data.blockNumber)}:${_tokenType}`,
         });
         callbackOnTxSuccess?.();
       },
@@ -153,30 +158,29 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
   );
 
   useEffect(() => {
-    const _calculateMaxWinnerTokensToMint = async () => {
-      if (!isAddress(winningToken?.address) || !isAddress(losingToken?.address))
-        return;
-      const { maxNumTokens } = await calculateMaxWinnerTokensToMint(
-        Number(losingToken.transferredLiquidityOnExpiration),
-        Number(winningToken.totalSupply)
-      );
-      setAmountOfTokensToMint(maxNumTokens);
-      if (maxNumTokens === 0) {
+    const init = async () => {
+      if (
+        ownerMustPermamint === true &&
+        isOwner &&
+        losingToken?.transferredLiquidityOnExpiration
+      ) {
+        const { maxNumTokens } = await calculateMaxWinnerTokensToMint(
+          Number(losingToken?.transferredLiquidityOnExpiration),
+          Number(winningToken?.totalSupply)
+        );
+        setAmountOfTokensToMint(maxNumTokens);
+      } else if (
+        typeof ownerMustPermamint === "number" &&
+        ownerMustPermamint > 0 &&
+        isOwner
+      ) {
+        setAmountOfTokensToMint(ownerMustPermamint);
+      } else {
         handleOwnerMustPermamint(false);
       }
     };
-    if (
-      typeof ownerMustPermamint === "boolean" &&
-      ownerMustPermamint === true
-    ) {
-      _calculateMaxWinnerTokensToMint();
-    } else if (
-      typeof ownerMustPermamint === "number" &&
-      ownerMustPermamint > 0
-    ) {
-      setAmountOfTokensToMint(ownerMustPermamint);
-    }
-  }, [winningToken, losingToken, publicClient, ownerMustPermamint]);
+    init();
+  }, [winningToken, losingToken, publicClient, ownerMustPermamint, isOwner]);
 
   return (
     <Button

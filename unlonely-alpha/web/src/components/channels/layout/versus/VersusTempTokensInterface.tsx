@@ -36,12 +36,7 @@ import Link from "next/link";
 import { useNetworkContext } from "../../../../hooks/context/useNetwork";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 
-const steps = [
-  { title: "streamer must make winner token tradeable" },
-  {
-    title: "streamer must pump winner token",
-  },
-];
+const steps = [{ title: "streamer must make winner token tradeable" }];
 
 export const VersusTempTokensInterface = ({
   customHeight,
@@ -214,13 +209,12 @@ export const VersusTempTokensInterface = ({
               {!isGameOngoing && ownerMustMakeWinningTokenTradeable && (
                 <TransferLiquidityModule />
               )}
-              {!isGameOngoing &&
-                (ownerMustPermamint === true ||
-                  (typeof ownerMustPermamint === "number" &&
-                    ownerMustPermamint > 0)) && <PermamintModule />}
             </>
           )}
-
+          {!isGameOngoing &&
+            (ownerMustPermamint === true ||
+              (typeof ownerMustPermamint === "number" &&
+                ownerMustPermamint > 0)) && <PermamintModule />}
           {canPlayToken && (
             <Flex justifyContent={"center"} gap="5px">
               <Button
@@ -321,7 +315,6 @@ export const VersusTempTokensInterface = ({
           {!canPlayToken &&
             isGameOngoing &&
             realTimeChannelDetails.isLive &&
-            !ownerMustPermamint &&
             !ownerMustMakeWinningTokenTradeable && (
               <Button
                 onClick={() => setVersusTempTokenDisclaimerModalOpen(true)}
@@ -337,13 +330,8 @@ export const VersusTempTokensInterface = ({
           Cannot play when stream is offline, please refresh and try again
         </Text>
       )}
-      {(ownerMustMakeWinningTokenTradeable || ownerMustPermamint) && (
-        <Stepper
-          orientation="vertical"
-          index={
-            ownerMustPermamint ? 1 : ownerMustMakeWinningTokenTradeable ? 0 : 0
-          }
-        >
+      {ownerMustMakeWinningTokenTradeable && (
+        <Stepper orientation="vertical" index={0}>
           {steps.map((step, index) => (
             <Step key={index}>
               <StepIndicator>

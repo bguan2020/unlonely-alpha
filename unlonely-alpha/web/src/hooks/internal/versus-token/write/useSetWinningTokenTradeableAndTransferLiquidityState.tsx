@@ -209,7 +209,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
           _tokenType = "b";
         }
 
-        const title = `The ${_winningToken.symbol} token has won!`;
+        const title = `The ${_winningToken.symbol} token is now tradeable!`;
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",

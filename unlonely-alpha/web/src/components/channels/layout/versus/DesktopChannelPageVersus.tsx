@@ -28,6 +28,7 @@ import {
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 import { isAddress, isAddressEqual } from "viem";
 import useDebounce from "../../../../hooks/internal/useDebounce";
+import { calculateMaxWinnerTokensToMint } from "../../../../utils/calculateMaxWinnerTokensToMint";
 
 export const DesktopChannelPageVersus = ({
   channelSSR,
@@ -53,6 +54,7 @@ export const DesktopChannelPageVersus = ({
   const {
     canPlayToken,
     isGameFinished,
+    ownerMustPermamint,
     handleIsGameFinished,
     handleIsGameOngoing,
     handleOwnerMustPermamint,
@@ -64,6 +66,7 @@ export const DesktopChannelPageVersus = ({
     setTokenB,
     tokenA,
     tokenB,
+    losingToken,
   } = gameState;
   const {
     resetTempTokenTxs: resetTempTokenTxsA,
@@ -126,22 +129,11 @@ export const DesktopChannelPageVersus = ({
 
   useEffect(() => {
     const processVersusTokenEvents = async (body: string) => {
-      console.log("fetching versus token events 1");
       if (!body || fetching.current) return;
       fetching.current = true;
       const interactionType = body.split(":")[0];
       const _userAddress = body.split(":")[1];
       const txBlockNumber = BigInt(body.split(":")[3]);
-      const incomingTxTokenAddress = body.split(":")[4];
-      const totalSupply = BigInt(body.split(":")[5]);
-      const highestTotalSupply = body.split(":")[6];
-      console.log("fetching versus token events 2");
-      const tokenType =
-        isAddress(tokenB.address) &&
-        isAddress(incomingTxTokenAddress) &&
-        isAddressEqual(tokenB.address, incomingTxTokenAddress)
-          ? "b"
-          : "a";
       await Promise.all([
         getTempTokenEventsA(
           tokenA.contractData,
@@ -158,6 +150,27 @@ export const DesktopChannelPageVersus = ({
           txBlockNumber
         ),
       ]);
+      if (body.split(":")[0] === InteractionType.VERSUS_WINNER_TOKENS_MINTED) {
+        const tokenType = String(body.split(":")[4]);
+        if (tokenType === "a") {
+          refetchUserTempTokenBalanceA?.();
+        } else {
+          refetchUserTempTokenBalanceB?.();
+        }
+        handleOwnerMustPermamint(false);
+        setBlockNumberOfLastInAppTrade(txBlockNumber);
+        fetching.current = false;
+        return;
+      }
+      const incomingTxTokenAddress = body.split(":")[4];
+      const totalSupply = BigInt(body.split(":")[5]);
+      const highestTotalSupply = body.split(":")[6];
+      const tokenType =
+        isAddress(tokenB.address) &&
+        isAddress(incomingTxTokenAddress) &&
+        isAddressEqual(tokenB.address, incomingTxTokenAddress)
+          ? "b"
+          : "a";
       if (
         userAddress &&
         isAddress(userAddress) &&
@@ -178,6 +191,14 @@ export const DesktopChannelPageVersus = ({
         onMintEvent(BigInt(totalSupply), BigInt(highestTotalSupply), tokenType);
       if (interactionType === InteractionType.SELL_TEMP_TOKENS)
         onBurnEvent(BigInt(totalSupply), tokenType);
+      if (ownerMustPermamint && losingToken.transferredLiquidityOnExpiration) {
+        const { maxNumTokens: newMaxWinnerTokens } =
+          await calculateMaxWinnerTokensToMint(
+            Number(losingToken.transferredLiquidityOnExpiration),
+            Number(totalSupply)
+          );
+        handleOwnerMustPermamint(newMaxWinnerTokens);
+      }
       fetching.current = false;
     };
     processVersusTokenEvents(debouncedTempTokenTransactionBody);
@@ -249,7 +270,8 @@ export const DesktopChannelPageVersus = ({
         }
         if (
           body.split(":")[0] === InteractionType.BUY_TEMP_TOKENS ||
-          body.split(":")[0] === InteractionType.SELL_TEMP_TOKENS
+          body.split(":")[0] === InteractionType.SELL_TEMP_TOKENS ||
+          body.split(":")[0] === InteractionType.VERSUS_WINNER_TOKENS_MINTED
         ) {
           setTempTokenTransactionBody(body);
         }
@@ -257,8 +279,6 @@ export const DesktopChannelPageVersus = ({
           body.split(":")[0] ===
           InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY
         ) {
-          const winnerTokenAddress = body.split(":")[2];
-          const loserTokenAddress = body.split(":")[3];
           const transferredLiquidityInWei = BigInt(body.split(":")[4]);
           const winnerTokenType = body.split(":")[5];
           const maxNumTokens = Number(body.split(":")[6]);
@@ -277,11 +297,6 @@ export const DesktopChannelPageVersus = ({
           }
           handleOwnerMustMakeWinningTokenTradeable(false);
           handleOwnerMustPermamint(maxNumTokens);
-        }
-        if (
-          body.split(":")[0] === InteractionType.VERSUS_WINNER_TOKENS_MINTED
-        ) {
-          handleOwnerMustPermamint(false);
         }
       }
     };

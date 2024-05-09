@@ -33,6 +33,7 @@ import useDebounce from "../../hooks/internal/useDebounce";
 
 import TempTokenAbi from "../../constants/abi/TempTokenV1.json";
 import { useUser } from "../../hooks/context/useUser";
+import { calculateMaxWinnerTokensToMint } from "../../utils/calculateMaxWinnerTokensToMint";
 
 const FullTempTokenChartPage = () => {
   return (
@@ -307,6 +308,8 @@ const FullVersusTokenChart = ({
     setTokenB,
     tokenA,
     tokenB,
+    ownerMustPermamint,
+    losingToken,
   } = gameState;
   const {
     resetTempTokenTxs: resetTempTokenTxsA,
@@ -337,22 +340,11 @@ const FullVersusTokenChart = ({
 
   useEffect(() => {
     const processVersusTokenEvents = async (body: string) => {
-      console.log("fetching versus token events 1");
       if (!body || fetching.current) return;
       fetching.current = true;
       const interactionType = body.split(":")[0];
       const _userAddress = body.split(":")[1];
       const txBlockNumber = BigInt(body.split(":")[3]);
-      const incomingTxTokenAddress = body.split(":")[4];
-      const totalSupply = BigInt(body.split(":")[5]);
-      const highestTotalSupply = body.split(":")[6];
-      console.log("fetching versus token events 2");
-      const tokenType =
-        isAddress(tokenB.address) &&
-        isAddress(incomingTxTokenAddress) &&
-        isAddressEqual(tokenB.address, incomingTxTokenAddress)
-          ? "b"
-          : "a";
       await Promise.all([
         getTempTokenEventsA(
           tokenA.contractData,
@@ -369,6 +361,27 @@ const FullVersusTokenChart = ({
           txBlockNumber
         ),
       ]);
+      if (body.split(":")[0] === InteractionType.VERSUS_WINNER_TOKENS_MINTED) {
+        const tokenType = String(body.split(":")[4]);
+        if (tokenType === "a") {
+          refetchUserTempTokenBalanceA?.();
+        } else {
+          refetchUserTempTokenBalanceB?.();
+        }
+        handleOwnerMustPermamint(false);
+        setBlockNumberOfLastInAppTrade(txBlockNumber);
+        fetching.current = false;
+        return;
+      }
+      const incomingTxTokenAddress = body.split(":")[4];
+      const totalSupply = BigInt(body.split(":")[5]);
+      const highestTotalSupply = body.split(":")[6];
+      const tokenType =
+        isAddress(tokenB.address) &&
+        isAddress(incomingTxTokenAddress) &&
+        isAddressEqual(tokenB.address, incomingTxTokenAddress)
+          ? "b"
+          : "a";
       if (
         userAddress &&
         isAddress(userAddress) &&
@@ -389,6 +402,14 @@ const FullVersusTokenChart = ({
         onMintEvent(BigInt(totalSupply), BigInt(highestTotalSupply), tokenType);
       if (interactionType === InteractionType.SELL_TEMP_TOKENS)
         onBurnEvent(BigInt(totalSupply), tokenType);
+      if (ownerMustPermamint && losingToken.transferredLiquidityOnExpiration) {
+        const { maxNumTokens: newMaxWinnerTokens } =
+          await calculateMaxWinnerTokensToMint(
+            Number(losingToken.transferredLiquidityOnExpiration),
+            Number(totalSupply)
+          );
+        handleOwnerMustPermamint(newMaxWinnerTokens);
+      }
       fetching.current = false;
     };
     processVersusTokenEvents(debouncedTempTokenTransactionBody);
@@ -406,11 +427,6 @@ const FullVersusTokenChart = ({
         Date.now() - latestMessage.timestamp < 12000
       ) {
         const body = latestMessage.data.body;
-        console.log(
-          "DesktopChannelPageVersus -> body",
-          body,
-          blockNumberOfLastInAppTrade
-        );
         if (
           body.split(":")[0] === InteractionType.CREATE_MULTIPLE_TEMP_TOKENS
         ) {
@@ -465,7 +481,8 @@ const FullVersusTokenChart = ({
         }
         if (
           body.split(":")[0] === InteractionType.BUY_TEMP_TOKENS ||
-          body.split(":")[0] === InteractionType.SELL_TEMP_TOKENS
+          body.split(":")[0] === InteractionType.SELL_TEMP_TOKENS ||
+          body.split(":")[0] === InteractionType.VERSUS_WINNER_TOKENS_MINTED
         ) {
           setTempTokenTransactionBody(body);
         }
@@ -473,8 +490,6 @@ const FullVersusTokenChart = ({
           body.split(":")[0] ===
           InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY
         ) {
-          const winnerTokenAddress = body.split(":")[2];
-          const loserTokenAddress = body.split(":")[3];
           const transferredLiquidityInWei = BigInt(body.split(":")[4]);
           const winnerTokenType = body.split(":")[5];
           const maxNumTokens = Number(body.split(":")[6]);
@@ -486,24 +501,18 @@ const FullVersusTokenChart = ({
           };
           if (winnerTokenType === "a") {
             handleLosingToken(_losingToken);
-            setTokenA(_losingToken);
+            setTokenB(_losingToken);
           } else {
             handleLosingToken(_losingToken);
-            setTokenB(_losingToken);
+            setTokenA(_losingToken);
           }
           handleOwnerMustMakeWinningTokenTradeable(false);
           handleOwnerMustPermamint(maxNumTokens);
-        }
-        if (
-          body.split(":")[0] === InteractionType.VERSUS_WINNER_TOKENS_MINTED
-        ) {
-          handleOwnerMustPermamint(false);
         }
       }
     };
     checkAbly();
   }, [chat.receivedMessages]);
-
   return (
     <Flex h="100vh" justifyContent={"space-between"} bg="#131323" p="0.5rem">
       <VersusTempTokensInterface

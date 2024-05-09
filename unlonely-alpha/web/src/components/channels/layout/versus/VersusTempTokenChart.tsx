@@ -52,14 +52,9 @@ export const VersusTempTokenChart = ({
     isGameOngoing,
     isGameFinished,
     focusedTokenToTrade,
-    ownerMustPermamint,
     ownerMustMakeWinningTokenTradeable,
-    isGameFinishedModalOpen,
     tokenA,
     tokenB,
-    handleCanPlayToken,
-    handleFocusedTokenToTrade,
-    handleIsGameFinishedModalOpen,
   } = gameState;
   const { network } = useNetworkContext();
   const { matchingChain } = network;
@@ -328,13 +323,11 @@ export const VersusTempTokenChart = ({
       isAddress(winningToken.address) &&
       !isGameFinished &&
       !isGameOngoing &&
-      !ownerMustPermamint &&
       !ownerMustMakeWinningTokenTradeable,
     [
       winningToken,
       isGameFinished,
       isGameOngoing,
-      ownerMustPermamint,
       ownerMustMakeWinningTokenTradeable,
     ]
   );
