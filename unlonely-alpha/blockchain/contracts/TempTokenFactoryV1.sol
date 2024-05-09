@@ -72,7 +72,7 @@ contract TempTokenFactoryV1 is Ownable {
     event TotalSupplyThresholdSetForTokens(uint256 totalSupplyThreshold, address[] tokenAddresses);
     event EndTimestampIncreasedForTokens(uint256 additionalDuration, address[] tokenAddresses);
     event AlwaysTradeableSetForTokens(address[] tokenAddresses);
-    event SetWinningTokenTradeableAndTransferredLiquidity(address winnerTokenAddress, address loserTokenAddress, uint256 transferredLiquidity);
+    event SetWinningTokenTradeableAndTransferredLiquidity(address winnerTokenAddress, address loserTokenAddress, uint256 winnerTotalSupply, uint256 loserTotalSupply, uint256 transferredLiquidity);
     event FactoryMintedWinnerTokens(address winnerTokenAddress, uint256 amount);
     event EtherReceived(address indexed sender, uint256 amount);
 
@@ -247,13 +247,13 @@ contract TempTokenFactoryV1 is Ownable {
             if (tokenB.getBalance() > 0) {
                 transferredLiquidity = tokenB.transferLiquidityToFactory();
             }
-            emit SetWinningTokenTradeableAndTransferredLiquidity(_tokenAddresses[0], _tokenAddresses[1], transferredLiquidity);
+            emit SetWinningTokenTradeableAndTransferredLiquidity(_tokenAddresses[0], _tokenAddresses[1], tokenA.totalSupply(), tokenB.totalSupply(), transferredLiquidity);
         } else {
             tokenB.setAlwaysTradeable();
             if (tokenA.getBalance() > 0) {
                 transferredLiquidity = tokenA.transferLiquidityToFactory();
             }
-            emit SetWinningTokenTradeableAndTransferredLiquidity(_tokenAddresses[1], _tokenAddresses[0], transferredLiquidity);
+            emit SetWinningTokenTradeableAndTransferredLiquidity(_tokenAddresses[1], _tokenAddresses[0], tokenB.totalSupply(), tokenA.totalSupply(), transferredLiquidity);
         }
     }
     

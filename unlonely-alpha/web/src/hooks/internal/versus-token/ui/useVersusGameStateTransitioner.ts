@@ -29,7 +29,7 @@ export const useVersusGameStateTransitioner = () => {
       handleWinningToken: (token: VersusTokenDataType) => void;
       handleLosingToken: (token: VersusTokenDataType) => void;
       handleOwnerMustMakeWinningTokenTradeable: (value: boolean) => void;
-      handleOwnerMustPermamint: (value: boolean) => void;
+      handleOwnerMustPermamint: (value: boolean | number) => void;
     }) => {
       let _winningToken: VersusTokenDataType | null = null;
       let _losingToken: VersusTokenDataType | null = null;

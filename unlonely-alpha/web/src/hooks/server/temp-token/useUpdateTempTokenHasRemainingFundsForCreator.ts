@@ -23,6 +23,8 @@ const MUTATION = gql`
       channelId
       chainId
       balance
+      isAlwaysTradeable
+      symbol
     }
   }
 `;

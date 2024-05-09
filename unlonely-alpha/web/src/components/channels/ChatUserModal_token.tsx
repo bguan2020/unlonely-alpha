@@ -29,10 +29,7 @@ import {
   filteredInput,
   formatIncompleteNumber,
 } from "../../utils/validation/input";
-import {
-  useGetUserBalance,
-  useTransfer,
-} from "../../hooks/contracts/useVibesToken";
+import { useGetUserBalance, useTransfer } from "../../hooks/contracts/useToken";
 import Link from "next/link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";

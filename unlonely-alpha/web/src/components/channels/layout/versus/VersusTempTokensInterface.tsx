@@ -214,7 +214,10 @@ export const VersusTempTokensInterface = ({
               {!isGameOngoing && ownerMustMakeWinningTokenTradeable && (
                 <TransferLiquidityModule />
               )}
-              {!isGameOngoing && ownerMustPermamint && <PermamintModule />}
+              {!isGameOngoing &&
+                (ownerMustPermamint === true ||
+                  (typeof ownerMustPermamint === "number" &&
+                    ownerMustPermamint > 0)) && <PermamintModule />}
             </>
           )}
 

@@ -252,6 +252,18 @@
       {
         "indexed": false,
         "internalType": "uint256",
+        "name": "winnerTotalSupply",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "loserTotalSupply",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "transferredLiquidity",
         "type": "uint256"
       }

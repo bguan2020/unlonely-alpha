@@ -60,6 +60,7 @@ export const DesktopChannelPageTempToken = ({
     handleCurrentActiveTokenAddress,
     handleCurrentActiveTokenSymbol,
     handleCurrentActiveTokenTotalSupplyThreshold,
+    handleCurrentActiveTokenHasHitTotalSupplyThreshold,
     onMintEvent,
     onBurnEvent,
     onReachThresholdEvent,
@@ -265,6 +266,13 @@ export const DesktopChannelPageTempToken = ({
             true
           );
         }
+      }
+      if (
+        body.split(":")[0] === InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED
+      ) {
+        const newThreshold = BigInt(body.split(":")[2]);
+        handleCurrentActiveTokenTotalSupplyThreshold(newThreshold);
+        handleCurrentActiveTokenHasHitTotalSupplyThreshold(false);
       }
     }
   }, [chat.receivedMessages]);

@@ -7,10 +7,10 @@ import { useNetworkContext } from "../../../../hooks/context/useNetwork";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { decodeEventLog, isAddress, isAddressEqual } from "viem";
 import Link from "next/link";
-import * as AWS from "aws-sdk";
 import { usePublicClient } from "wagmi";
 import { useUser } from "../../../../hooks/context/useUser";
 import { useChannelContext } from "../../../../hooks/context/useChannel";
+import { calculateMaxWinnerTokensToMint } from "../../../../utils/calculateMaxWinnerTokensToMint";
 
 export const PermamintModule = (callbackOnTxSuccess?: any) => {
   const { userAddress, user } = useUser();
@@ -21,6 +21,7 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
     losingToken,
     tokenA,
     tokenB,
+    ownerMustPermamint,
     handleOwnerMustPermamint,
   } = gameState;
 
@@ -152,57 +153,30 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
   );
 
   useEffect(() => {
-    const calculateMaxWinnerTokensToMint = async () => {
+    const _calculateMaxWinnerTokensToMint = async () => {
       if (!isAddress(winningToken?.address) || !isAddress(losingToken?.address))
         return;
-      const wei_amount = Number(losingToken.transferredLiquidityOnExpiration);
-      const total_fee_percent: number = 10 * 10 ** 16; // 5% protocol fee and 5% streamer fee
-      const winningTokenSupply = Number(winningToken.totalSupply);
-      const lambda = new AWS.Lambda({
-        region: "us-west-2",
-        accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY,
-        secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
-      });
-
-      const params = {
-        FunctionName: "calcMaxNumTokensCanBuy",
-        Payload: JSON.stringify({
-          detail: {
-            wei_amount: wei_amount,
-            token_supply: winningTokenSupply,
-            total_fee_percent: total_fee_percent,
-          },
-        }),
-      };
-
-      const maxNumTokensResponse = await lambda.invoke(params).promise();
-      const parsedResponse = JSON.parse(maxNumTokensResponse.Payload as any);
-      if (parsedResponse.errorMessage) {
-        setAmountOfTokensToMint(undefined);
-        console.error(
-          "lambda calculate max tokens error:",
-          parsedResponse.errorMessage
-        );
-      } else {
-        const maxNumTokens: number = parsedResponse.body as number;
-        setAmountOfTokensToMint(maxNumTokens);
-        console.log(
-          "max amount to mint winner tokens",
-          maxNumTokens,
-          wei_amount,
-          winningTokenSupply,
-          total_fee_percent
-        );
-        /**
-         * If the maxNumTokens is 0, then the owner does not need to permamint and can skip this step
-         */
-        if (maxNumTokens === 0) {
-          handleOwnerMustPermamint(false);
-        }
+      const { maxNumTokens } = await calculateMaxWinnerTokensToMint(
+        Number(losingToken.transferredLiquidityOnExpiration),
+        Number(winningToken.totalSupply)
+      );
+      setAmountOfTokensToMint(maxNumTokens);
+      if (maxNumTokens === 0) {
+        handleOwnerMustPermamint(false);
       }
     };
-    calculateMaxWinnerTokensToMint();
-  }, [winningToken, losingToken, publicClient]);
+    if (
+      typeof ownerMustPermamint === "boolean" &&
+      ownerMustPermamint === true
+    ) {
+      _calculateMaxWinnerTokensToMint();
+    } else if (
+      typeof ownerMustPermamint === "number" &&
+      ownerMustPermamint > 0
+    ) {
+      setAmountOfTokensToMint(ownerMustPermamint);
+    }
+  }, [winningToken, losingToken, publicClient, ownerMustPermamint]);
 
   return (
     <Button

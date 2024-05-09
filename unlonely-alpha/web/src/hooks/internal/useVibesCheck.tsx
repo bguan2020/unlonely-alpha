@@ -14,7 +14,7 @@ import {
 } from "../../constants";
 import { useUser } from "../context/useUser";
 import { useRouter } from "next/router";
-import { useGetUserBalance } from "../contracts/useVibesToken";
+import { useGetUserBalance } from "../contracts/useToken";
 
 export type UseVibesCheckType = {
   vibesTokenTxs: TradeableTokenTx[];

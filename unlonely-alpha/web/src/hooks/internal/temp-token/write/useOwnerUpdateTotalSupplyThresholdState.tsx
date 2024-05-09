@@ -6,12 +6,19 @@ import useUpdateTempTokenHasHitTotalSupplyThreshold from "../../../server/temp-t
 import { useCallback, useEffect, useState } from "react";
 import { useUpdateTotalSupplyThreshold } from "../../../contracts/useTempTokenV1";
 import { useTempTokenContext } from "../../../context/useTempToken";
+import { useChannelContext } from "../../../context/useChannel";
+import { InteractionType } from "../../../../constants";
+import { useUser } from "../../../context/useUser";
 
 export const useOwnerUpdateTotalSupplyThresholdState = (
   onSuccess?: () => void
 ) => {
+  const { userAddress, user } = useUser();
+
   const { tempToken } = useTempTokenContext();
-  const { currentTempTokenContract } = tempToken;
+  const { currentTempTokenContract, currentActiveTokenSymbol } = tempToken;
+  const { chat } = useChannelContext();
+  const { addToChatbot } = chat;
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
   const toast = useToast();
@@ -88,7 +95,16 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
         });
         const args: any = topics.args;
         console.log("setTotalSupplyThresholdForTokens success", data, args);
+        const newThreshold = args.totalSupplyThreshold as bigint;
         setNewSupplyThreshold(BigInt(0));
+        const title = `The $${currentActiveTokenSymbol} token's price goal is increased!`;
+        addToChatbot({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED,
+          title,
+          description: `${userAddress}:${String(newThreshold)}`,
+        });
         onSuccess && onSuccess();
         toast({
           render: () => (

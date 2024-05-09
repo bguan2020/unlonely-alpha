@@ -70,6 +70,7 @@ export type UseReadTempTokenContextStateType = {
   handleCurrentActiveTokenAddress: (value: string) => void;
   handleCurrentActiveTokenSymbol: (value: string) => void;
   handleCurrentActiveTokenTotalSupplyThreshold: (value: bigint) => void;
+  handleCurrentActiveTokenHasHitTotalSupplyThreshold: (value: boolean) => void;
 } & UseReadTempTokenTxsType;
 
 export const useReadTempTokenInitialState: UseReadTempTokenContextStateType = {
@@ -116,6 +117,7 @@ export const useReadTempTokenInitialState: UseReadTempTokenContextStateType = {
   handleCurrentActiveTokenAddress: () => undefined,
   handleCurrentActiveTokenSymbol: () => undefined,
   handleCurrentActiveTokenTotalSupplyThreshold: () => undefined,
+  handleCurrentActiveTokenHasHitTotalSupplyThreshold: () => undefined,
   ...useReadTempTokenTxsInitial,
 };
 
@@ -499,11 +501,7 @@ export const useReadTempTokenContextState = () => {
           tokenType: TempTokenType.SingleMode,
         });
         const tempTokensWithNonZeroBalances = res?.res;
-        console.log(
-          "tempTokensWithNonZeroBalances",
-          tempTokensWithNonZeroBalances,
-          Number(channelQueryData?.id ?? "0")
-        );
+
         const nonNullListOfTokensWithNonZeroBalances =
           tempTokensWithNonZeroBalances?.filter(
             (token): token is TempTokenWithBalance => token !== null
@@ -591,6 +589,13 @@ export const useReadTempTokenContextState = () => {
     []
   );
 
+  const handleCurrentActiveTokenHasHitTotalSupplyThreshold = useCallback(
+    (value: boolean) => {
+      setCurrentActiveTokenHasHitTotalSupplyThreshold(value);
+    },
+    []
+  );
+
   return {
     currentActiveTokenSymbol,
     currentActiveTokenAddress,
@@ -631,6 +636,7 @@ export const useReadTempTokenContextState = () => {
     handleCurrentActiveTokenAddress,
     handleCurrentActiveTokenSymbol,
     handleCurrentActiveTokenTotalSupplyThreshold,
+    handleCurrentActiveTokenHasHitTotalSupplyThreshold,
     ...readTempTokenTxs,
   };
 };

@@ -506,7 +506,15 @@ export const TempTokenInterface = ({
                           )
                         )
                       }
-                      isDisabled={setTotalSupplyThresholdForTokensLoading}
+                      isDisabled={
+                        setTotalSupplyThresholdForTokensLoading ||
+                        BigInt(
+                          Math.floor(
+                            Number(currentActiveTokenTotalSupplyThreshold) *
+                              1.05
+                          )
+                        ) === currentActiveTokenTotalSupplyThreshold
+                      }
                     >
                       +5%
                     </Button>

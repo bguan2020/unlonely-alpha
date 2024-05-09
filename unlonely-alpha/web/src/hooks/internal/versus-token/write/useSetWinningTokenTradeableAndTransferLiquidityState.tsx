@@ -10,6 +10,7 @@ import useUpdateTempTokenTransferredLiquidityOnExpiration from "../../../server/
 import useUpdateTempTokenIsAlwaysTradeable from "../../../server/temp-token/useUpdateTempTokenIsAlwaysTradeable";
 import { useChannelContext } from "../../../context/useChannel";
 import { useUser } from "../../../context/useUser";
+import { calculateMaxWinnerTokensToMint } from "../../../../utils/calculateMaxWinnerTokensToMint";
 
 export const useSetWinningTokenTradeableAndTransferLiquidityState = (
   callbackOnTxSuccess?: any
@@ -105,6 +106,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
         const winnerTokenAddress = args.winnerTokenAddress as `0x${string}`;
         const loserTokenAddress = args.loserTokenAddress as `0x${string}`;
         const transferredLiquidityInWei = args.transferredLiquidity as bigint;
+        const winnerTotalSupply = args.winnerTotalSupply as bigint;
         await updateTempTokenTransferredLiquidityOnExpiration({
           losingTokenAddress: loserTokenAddress,
           chainId: localNetwork.config.chainId,
@@ -165,6 +167,24 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
               position: "top-right",
             });
           });
+        const { error: lambdaError, maxNumTokens } =
+          await calculateMaxWinnerTokensToMint(
+            Number(transferredLiquidityInWei),
+            Number(winnerTotalSupply)
+          );
+
+        if (lambdaError) {
+          toast({
+            render: () => (
+              <Box as="button" borderRadius="md" bg="#c87850" px={4} h={8}>
+                cannot get max winner tokens, defaulting to 0: {lambdaError}
+              </Box>
+            ),
+            duration: 9000,
+            isClosable: true,
+            position: "top-right",
+          });
+        }
 
         let _winningToken = tokenA;
         let _tokenType: "a" | "b" = "a";
@@ -198,7 +218,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
           title,
           description: `${userAddress}:${winnerTokenAddress}:${loserTokenAddress}:${String(
             transferredLiquidityInWei
-          )}:${_tokenType}`,
+          )}:${_tokenType}:${String(maxNumTokens)}`,
         });
         callbackOnTxSuccess?.();
       },

@@ -23,7 +23,7 @@ export const useReadVersusTempTokenOnMount = ({
   setTokenB: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
   handleWinningToken: (token: VersusTokenDataType) => void;
   handleOwnerMustMakeWinningTokenTradeable: (value: boolean) => void;
-  handleOwnerMustPermamint: (value: boolean) => void;
+  handleOwnerMustPermamint: (value: boolean | number) => void;
   handleIsGameOngoing: (value: boolean) => void;
   handleLosingToken: (token: VersusTokenDataType) => void;
 }) => {

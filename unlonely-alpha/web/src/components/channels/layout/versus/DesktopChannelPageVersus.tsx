@@ -261,6 +261,7 @@ export const DesktopChannelPageVersus = ({
           const loserTokenAddress = body.split(":")[3];
           const transferredLiquidityInWei = BigInt(body.split(":")[4]);
           const winnerTokenType = body.split(":")[5];
+          const maxNumTokens = Number(body.split(":")[6]);
           const _losingToken = {
             ...((winnerTokenType === "a"
               ? tokenB
@@ -269,13 +270,13 @@ export const DesktopChannelPageVersus = ({
           };
           if (winnerTokenType === "a") {
             handleLosingToken(_losingToken);
-            setTokenA(_losingToken);
+            setTokenB(_losingToken);
           } else {
             handleLosingToken(_losingToken);
-            setTokenB(_losingToken);
+            setTokenA(_losingToken);
           }
           handleOwnerMustMakeWinningTokenTradeable(false);
-          handleOwnerMustPermamint(true);
+          handleOwnerMustPermamint(maxNumTokens);
         }
         if (
           body.split(":")[0] === InteractionType.VERSUS_WINNER_TOKENS_MINTED

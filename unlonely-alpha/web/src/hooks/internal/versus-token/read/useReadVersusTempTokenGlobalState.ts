@@ -19,8 +19,8 @@ export type UseReadVersusTempTokenGlobalStateType = {
   handleIsGameFinishedModalOpen: (value: boolean) => void;
   ownerMustMakeWinningTokenTradeable: boolean;
   handleOwnerMustMakeWinningTokenTradeable: (value: boolean) => void;
-  ownerMustPermamint: boolean;
-  handleOwnerMustPermamint: (value: boolean) => void;
+  ownerMustPermamint: boolean| number;
+  handleOwnerMustPermamint: (value: boolean | number) => void;
   tokenA: VersusTokenDataType;
   setTokenA: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
   tokenB: VersusTokenDataType;
@@ -83,7 +83,7 @@ export const useReadVersusTempTokenGlobalState =
     const [isGameFinishedModalOpen, setIsGameFinishedModalOpen] =
       useState(false);
     const [ownerMustMakeWinningTokenTradeable, setOwnerMustMakeWinningTokenTradeable] = useState(false);
-    const [ownerMustPermamint, setOwnerMustPermamint] = useState(false);
+    const [ownerMustPermamint, setOwnerMustPermamint] = useState<boolean | number>(false);
     const [losingToken, setLosingToken] = useState<VersusTokenDataType>(
       versusTokenDataInitial
     );
@@ -117,7 +117,7 @@ export const useReadVersusTempTokenGlobalState =
       setOwnerMustMakeWinningTokenTradeable(value);
     }, []);
 
-    const handleOwnerMustPermamint = useCallback((value: boolean) => {
+    const handleOwnerMustPermamint = useCallback((value: boolean | number) => {
       setOwnerMustPermamint(value);
     }, []);
 

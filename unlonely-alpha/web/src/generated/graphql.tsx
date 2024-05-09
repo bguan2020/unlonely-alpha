@@ -2390,6 +2390,8 @@ export type UpdateTempTokenHasRemainingFundsForCreatorMutation = {
     channelId: number;
     chainId: number;
     balance: any;
+    isAlwaysTradeable: boolean;
+    symbol: string;
   } | null> | null;
 };
 
@@ -5755,6 +5757,8 @@ export const UpdateTempTokenHasRemainingFundsForCreatorDocument = gql`
       channelId
       chainId
       balance
+      isAlwaysTradeable
+      symbol
     }
   }
 `;

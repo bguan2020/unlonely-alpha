@@ -8,7 +8,7 @@ import {
   blockNumberHoursAgo,
 } from "../../useVibesCheck";
 import { useUser } from "../../../context/useUser";
-import { useGetUserBalance } from "../../../contracts/useVibesToken";
+import { useGetUserBalance } from "../../../contracts/useToken";
 import React from "react";
 
 export type UseReadTempTokenTxsType = {

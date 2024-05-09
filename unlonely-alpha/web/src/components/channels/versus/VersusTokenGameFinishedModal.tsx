@@ -19,7 +19,7 @@ export const VersusTokenGameFinishedModal = ({
   const { userAddress, user } = useUser();
   const { channel, chat } = useChannelContext();
   const { isOwner: isChannelOwner } = channel;
-  const { addToChatbot: addToChatbotForTempToken } = chat;
+  const { addToChatbot } = chat;
   const router = useRouter();
 
   const { gameState } = useVersusTempTokenContext();
@@ -28,7 +28,7 @@ export const VersusTokenGameFinishedModal = ({
   useEffect(() => {
     if (isChannelOwner && isOpen && router.pathname.startsWith("/channels")) {
       const title = "Game finished! Both tokens are now expired!";
-      addToChatbotForTempToken({
+      addToChatbot({
         username: user?.username ?? "",
         address: userAddress ?? "",
         taskType: InteractionType.TEMP_TOKEN_EXPIRED,
