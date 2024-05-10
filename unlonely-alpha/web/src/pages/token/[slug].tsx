@@ -374,8 +374,6 @@ const FullVersusTokenChart = ({
         return;
       }
       const incomingTxTokenAddress = body.split(":")[4];
-      const totalSupply = BigInt(body.split(":")[5]);
-      const highestTotalSupply = body.split(":")[6];
       const tokenType =
         isAddress(tokenB.address) &&
         isAddress(incomingTxTokenAddress) &&
@@ -397,6 +395,8 @@ const FullVersusTokenChart = ({
           refetchUserTempTokenBalanceB?.();
         }
       }
+      const totalSupply = BigInt(body.split(":")[5]);
+      const highestTotalSupply = body.split(":")[6];
       setBlockNumberOfLastInAppTrade(txBlockNumber);
       if (interactionType === InteractionType.BUY_TEMP_TOKENS)
         onMintEvent(BigInt(totalSupply), BigInt(highestTotalSupply), tokenType);

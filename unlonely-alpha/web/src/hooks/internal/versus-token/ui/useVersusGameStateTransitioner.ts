@@ -50,7 +50,7 @@ export const useVersusGameStateTransitioner = () => {
           _winningToken = tokenA;
           _losingToken = tokenB;
         }
-        if (
+        else if (
           tokenB.totalSupply > tokenA.totalSupply &&
           tokenB.totalSupply > BigInt(0)
         ) {
