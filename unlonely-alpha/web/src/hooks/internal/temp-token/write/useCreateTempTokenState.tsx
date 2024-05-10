@@ -13,7 +13,8 @@ import { useUser } from "../../../context/useUser";
 import centerEllipses from "../../../../utils/centerEllipses";
 import { TempTokenType } from "../../../../generated/graphql";
 
-export const EASY_THRESHOLD = BigInt(420_000);
+// export const EASY_THRESHOLD = BigInt(420_000);
+export const EASY_THRESHOLD = BigInt(5); // todo: change back to 420_000
 export const MEDIUM_THRESHOLD = BigInt(690_000);
 export const HARD_THRESHOLD = BigInt(2_000_000);
 
