@@ -292,7 +292,16 @@ const MessageBody = ({
                     {fragments.map((fragment, i) => {
                       if (fragment.isLink) {
                         return (
-                          <Link href={fragment.message} isExternal key={i}>
+                          <Link
+                            href={
+                              fragment.message.startsWith("https://") ||
+                              fragment.message.startsWith("http://")
+                                ? fragment.message
+                                : "https://".concat(fragment.message)
+                            }
+                            isExternal
+                            key={i}
+                          >
                             {fragment.message}
                             <ExternalLinkIcon mx="2px" />
                           </Link>

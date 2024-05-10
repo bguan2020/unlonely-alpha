@@ -187,7 +187,16 @@ const LineFormatter = ({ line }: { line: string }) => {
       {fragments.map((fragment, i) => {
         if (fragment.isLink) {
           return (
-            <Link href={fragment.message} isExternal key={i}>
+            <Link
+              href={
+                fragment.message.startsWith("https://") ||
+                fragment.message.startsWith("http://")
+                  ? fragment.message
+                  : "https://".concat(fragment.message)
+              }
+              isExternal
+              key={i}
+            >
               <Text
                 as="span"
                 color="#15dae4"
