@@ -1,18 +1,21 @@
 import { Flex, Box, Text } from "@chakra-ui/react";
 import { useMemo } from "react";
 
-import { ChatReturnType, useChatBox } from "../../hooks/chat/useChat";
+import { ChatReturnType } from "../../hooks/chat/useChat";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import ChatForm from "./ChatForm";
 import MessageList from "./MessageList";
 import { useUser } from "../../hooks/context/useUser";
 import { VipBadgeBuy } from "../channels/vibes/VipBadgeBuy";
+import { useChatBox } from "../../hooks/chat/useChatBox";
 
 const Chat = ({
   chat,
+  tokenForTransfer,
   isVipChat,
 }: {
   chat: ChatReturnType;
+  tokenForTransfer: "vibes" | "tempToken";
   isVipChat?: boolean;
 }) => {
   const { channel, leaderboard } = useChannelContext();
@@ -58,7 +61,7 @@ const Chat = ({
           <Text textAlign={"center"}>
             You must have a VIP badge to use this chat.
           </Text>
-          <VipBadgeBuy />
+          <VipBadgeBuy chat={chat} />
         </Flex>
       )}
       <Flex
@@ -80,12 +83,13 @@ const Chat = ({
           />
         )}
         <MessageList
+          hidePinnedMessages={false}
           scrollRef={scrollRef}
           messages={chat.receivedMessages}
           channel={chat.channel}
           isAtBottomCallback={handleIsAtBottom}
           isVipChat={isVipChat}
-          tokenForTransfer="vibes"
+          tokenForTransfer={tokenForTransfer}
         />
       </Flex>
       <Flex justifyContent="center">

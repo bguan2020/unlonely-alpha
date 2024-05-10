@@ -1,8 +1,8 @@
 import { Box, Flex } from "@chakra-ui/react";
 
 import NextHead from "../layout/NextHead";
-import { TabsComponent } from "./StandAloneChatComponent";
 import { useChat } from "../../hooks/chat/useChat";
+import { TabsComponent } from "./TabsComponent";
 
 const styles = `
   html, body {

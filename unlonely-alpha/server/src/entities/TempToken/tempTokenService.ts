@@ -6,6 +6,12 @@ import { base } from "viem/chains";
 import TempTokenV1 from "../../utils/abi/TempTokenV1.json";
 
 type TempTokenWithBalance = TempToken & { balance: bigint };
+
+enum TempTokenType {
+  SINGLE_MODE = "SINGLE_MODE",
+  VERSUS_MODE = "VERSUS_MODE",
+}
+
 export interface IPostTempTokenInput {
   tokenAddress: string;
   chainId: number;
@@ -17,6 +23,7 @@ export interface IPostTempTokenInput {
   creationBlockNumber: string;
   protocolFeePercentage: string;
   streamerFeePercentage: string;
+  tokenType: TempTokenType;
 }
 
 export const postTempToken = async (
@@ -38,6 +45,7 @@ export const postTempToken = async (
       streamerFeePercentage: BigInt(data.streamerFeePercentage),
       highestTotalSupply: BigInt(0),
       creationBlockNumber: BigInt(data.creationBlockNumber),
+      tokenType: data.tokenType,
       channel: {
         connect: {
           id: data.channelId,
@@ -85,6 +93,7 @@ export const updateTempTokenHighestTotalSupply = async (
 export interface IUpdateTempTokenHasRemainingFundsForCreatorInput {
   chainId: number;
   channelId: number;
+  tokenType: TempTokenType;
 }
 
 export const updateTempTokenHasRemainingFundsForCreator = async (
@@ -120,7 +129,19 @@ export const updateTempTokenHasRemainingFundsForCreator = async (
         endUnixTimestamp: {
           lt: Math.floor(Date.now() / 1000),
         },
+        /**
+         *  we have this OR clause to include the temp tokens that are in single mode and have null tokenType,
+         * this is because tokenType was added as a new column after the initial table was created, all existing tokens
+         * will have null tokenType, so we need to include them in the query
+         *  */
+        OR: [
+          { tokenType: data.tokenType },
+          ...(data.tokenType === TempTokenType.SINGLE_MODE ? [{ tokenType: null }] : []),
+                ],
         hasRemainingFundsForCreator: true,
+      },
+      orderBy: {
+        endUnixTimestamp: "desc" // Sorting by descending order of endUnixTimestamp
       },
     });
 
@@ -273,6 +294,34 @@ export const updateTempTokenHasHitTotalSupplyThreshold = async (
   }
 };
 
+export interface IUpdateTempTokenTransferredLiquidityOnExpirationInput {
+  losingTokenAddress: string;
+  chainId: number;
+  finalLiquidityInWei: string;
+}
+
+export const updateTempTokenTransferredLiquidityOnExpiration = async (
+  data: IUpdateTempTokenTransferredLiquidityOnExpirationInput,
+  ctx: Context
+) => {
+  try {
+    return await ctx.prisma.tempToken.update({
+      where: {
+        uniqueTempTokenId: `${data.losingTokenAddress}-${String(data.chainId)}`,
+      },
+      data: {
+        transferredLiquidityOnExpiration: BigInt(data.finalLiquidityInWei),
+      },
+    });
+  } catch (error) {
+    console.error(
+      "updateTempTokenTransferredLiquidityOnExpiration error:",
+      error
+    );
+    throw error; // Or handle error as needed
+  }
+};
+
 export interface IGetTempTokensInput {
   tokenAddress?: string;
   ownerAddress?: string;
@@ -281,6 +330,8 @@ export interface IGetTempTokensInput {
   onlyActiveTokens?: boolean;
   hasHitTotalSupplyThreshold?: boolean;
   isAlwaysTradeable?: boolean;
+  factoryAddress?: string;
+  tokenType?: TempTokenType;
   fulfillAllNotAnyConditions: boolean;
 }
 
@@ -319,8 +370,22 @@ export const getTempTokens = async (
             : undefined,
           chainId: data.chainId,
           tokenAddress: data.tokenAddress,
+          factoryAddress: data.factoryAddress,
           hasHitTotalSupplyThreshold: data.hasHitTotalSupplyThreshold,
           isAlwaysTradeable: data.isAlwaysTradeable,
+                  /**
+         *  we have this OR clause to include the temp tokens that are in single mode and have null tokenType,
+         * this is because tokenType was added as a new column after the initial table was created, all existing tokens
+         * will have null tokenType, so we need to include them in the query
+         *  */
+          ...(data.tokenType === TempTokenType.SINGLE_MODE ? {
+            OR: [
+              { tokenType: data.tokenType },
+              { tokenType: null },
+            ],
+          } : {
+            tokenType: data.tokenType,
+          }),
           ...endTimestampClause,
         },
         orderBy: { createdAt: "desc" },
@@ -336,8 +401,20 @@ export const getTempTokens = async (
             : []),
           { chainId: data.chainId },
           { tokenAddress: data.tokenAddress },
+          { factoryAddress: data.factoryAddress },
           { hasHitTotalSupplyThreshold: data.hasHitTotalSupplyThreshold },
           { isAlwaysTradeable: data.isAlwaysTradeable },
+         /**
+         *  we have this OR clause to include the temp tokens that are in single mode and have null tokenType,
+         * this is because tokenType was added as a new column after the initial table was created, all existing tokens
+         * will have null tokenType, so we need to include them in the query
+         *  */
+          ...(data.tokenType === TempTokenType.SINGLE_MODE ? [
+            { tokenType: data.tokenType },
+            { tokenType: null },
+          ] : [
+            { tokenType: data.tokenType },
+          ]),
           // Assuming endTimestampClause is an object with a comparison operation
           ...Object.entries(endTimestampClause).map(([key, value]) => ({
             [key]: value,

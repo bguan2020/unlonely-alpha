@@ -11,6 +11,7 @@ import { getContractFromNetwork } from "../../../../utils/contract";
 import { useChannelContext } from "../../../context/useChannel";
 import { useUser } from "../../../context/useUser";
 import centerEllipses from "../../../../utils/centerEllipses";
+import { TempTokenType } from "../../../../generated/graphql";
 
 export const EASY_THRESHOLD = BigInt(420_000);
 export const MEDIUM_THRESHOLD = BigInt(690_000);
@@ -132,16 +133,16 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
         await postTempToken({
           tokenAddress: args.tokenAddress as `0x${string}`,
           symbol: args.symbol as string,
-          streamerFeePercentage: args.streamerFeePercent as bigint,
-          protocolFeePercentage: args.protocolFeePercent as bigint,
+          streamerFeePercentage: String(args.streamerFeePercent as bigint),
+          protocolFeePercentage: String(args.protocolFeePercent as bigint),
           ownerAddress: args.owner as `0x${string}`,
           name: args.name as string,
-          endUnixTimestamp: args.endTimestamp as bigint,
+          endUnixTimestamp: String(args.endTimestamp as bigint),
           channelId: Number(channel.channelQueryData?.id),
           chainId: localNetwork.config.chainId as number,
-          highestTotalSupply: BigInt(0),
-          creationBlockNumber: args.creationBlockNumber as bigint,
+          creationBlockNumber: String(args.creationBlockNumber as bigint),
           factoryAddress: factoryContract.address as `0x${string}`,
+          tokenType: TempTokenType.SingleMode,
         })
           .then((res) => {
             console.log("createTempToken update database success", res);
@@ -172,12 +173,23 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
         const title = `${
           user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
         } created the $${args.symbol} token!`;
+        const dataToSend = [
+          `${args.tokenAddress}`,
+          `${args.symbol}`,
+          `${String(args.streamerFeePercent)}`,
+          `${String(args.protocolFeePercent)}`,
+          `${args.owner}`,
+          `${args.name}`,
+          `${args.endTimestamp}`,
+          `${String(args.creationBlockNumber)}`,
+          `${String(args.totalSupplyThreshold)}`,
+        ];
         addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.CREATE_TEMP_TOKEN,
           title,
-          description: "",
+          description: dataToSend.join(":"),
         });
         toast({
           render: () => (

@@ -1,5 +1,5 @@
-import { Box, Image, Flex, Link, Text } from "@chakra-ui/react";
-import React, { useMemo } from "react";
+import { Box, Image, Flex, Link, Text, IconButton } from "@chakra-ui/react";
+import React, { useMemo, useState } from "react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 import { InteractionType } from "../../constants";
@@ -13,6 +13,7 @@ import {
 import { useChannelContext } from "../../hooks/context/useChannel";
 import Badges from "./Badges";
 import { formatTimestampToTime } from "../../utils/time";
+import { TiPin } from "react-icons/ti";
 
 type Props = {
   index: number;
@@ -20,6 +21,7 @@ type Props = {
   messageText: string;
   linkArray: RegExpMatchArray | null;
   handleOpen: (value?: SelectedUser) => void;
+  handlePinCallback: (value: string) => void;
 };
 
 // if isVipChat is true, messages with SenderStatus.VIP will be displayed, else they are blurred,
@@ -31,11 +33,15 @@ const MessageBody = ({
   messageText,
   linkArray,
   handleOpen,
+  handlePinCallback,
 }: Props) => {
+  const { user } = useUser();
+
   const { channel: c, leaderboard } = useChannelContext();
   const { isVip: userIsVip } = leaderboard;
   const { channelQueryData, channelRoles } = c;
-  const { user } = useUser();
+
+  const [mouseHover, setMouseHover] = useState(false);
 
   const userIsChannelOwner = useMemo(
     () => user?.address === channelQueryData?.owner.address,
@@ -93,12 +99,15 @@ const MessageBody = ({
 
     const adminTempTokenInteractionTypes = [
       InteractionType.CREATE_TEMP_TOKEN,
+      InteractionType.CREATE_MULTIPLE_TEMP_TOKENS,
       InteractionType.TEMP_TOKEN_EXPIRED,
       InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
       InteractionType.TEMP_TOKEN_DURATION_INCREASED,
       InteractionType.TEMP_TOKEN_BECOMES_ALWAYS_TRADEABLE,
       InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED,
       InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION,
+      InteractionType.VERSUS_WINNER_TOKENS_MINTED,
+      InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
     ];
 
     const greenTempTokenInteractionTypes = [InteractionType.BUY_TEMP_TOKENS];
@@ -198,7 +207,19 @@ const MessageBody = ({
 
   return (
     <>
-      <Flex direction="column">
+      <Flex
+        direction="column"
+        onMouseEnter={
+          userIsChannelOwner || userIsModerator
+            ? () => setMouseHover(true)
+            : undefined
+        }
+        onMouseLeave={
+          userIsChannelOwner || userIsModerator
+            ? () => setMouseHover(false)
+            : undefined
+        }
+      >
         <Flex
           className="showhim"
           justifyContent={
@@ -207,6 +228,7 @@ const MessageBody = ({
           bg={messageStyle().bg}
           bgGradient={messageStyle().bgGradient}
           borderRadius="10px"
+          position={"relative"}
         >
           <Flex direction={"column"} width="100%">
             <Box key={index} px="0.3rem" position="relative">
@@ -270,7 +292,16 @@ const MessageBody = ({
                     {fragments.map((fragment, i) => {
                       if (fragment.isLink) {
                         return (
-                          <Link href={fragment.message} isExternal key={i}>
+                          <Link
+                            href={
+                              fragment.message.startsWith("https://") ||
+                              fragment.message.startsWith("http://")
+                                ? fragment.message
+                                : "https://".concat(fragment.message)
+                            }
+                            isExternal
+                            key={i}
+                          >
                             {fragment.message}
                             <ExternalLinkIcon mx="2px" />
                           </Link>
@@ -311,6 +342,17 @@ const MessageBody = ({
                 {formatTimestampToTime(message.timestamp)}
               </Text>
             </Flex>
+          )}
+          {mouseHover && (
+            <IconButton
+              right="2"
+              bottom="0"
+              height="20px"
+              position="absolute"
+              aria-label="pin-message"
+              icon={<TiPin />}
+              onClick={() => handlePinCallback(messageText)}
+            />
           )}
         </Flex>
       </Flex>

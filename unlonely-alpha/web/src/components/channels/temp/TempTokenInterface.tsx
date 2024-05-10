@@ -40,7 +40,7 @@ import { useWindowSize } from "../../../hooks/internal/useWindowSize";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import { SendRemainingFundsFromCurrentInactiveTokenModal } from "./SendRemainingFundsFromCurrentInactiveTokenModal";
 import { TempTokenExchange } from "./TempTokenExchange";
-import { TempTokenTimerView } from "./TempTokenTimer";
+import { SingleTempTokenTimerView } from "./TempTokenTimer";
 import { usePublicClient } from "wagmi";
 import { TempTokenDisclaimerModal } from "./TempTokenDisclaimerModal";
 import { useOwnerUpdateTotalSupplyThresholdState } from "../../../hooks/internal/temp-token/write/useOwnerUpdateTotalSupplyThresholdState";
@@ -67,8 +67,8 @@ export const TempTokenInterface = ({
   const { ethPriceInUsd } = useCacheContext();
   const windowSize = useWindowSize();
   const { network } = useNetworkContext();
-  const publicClient = usePublicClient();
   const { matchingChain } = network;
+  const publicClient = usePublicClient();
   const { channelQueryData, realTimeChannelDetails, isOwner } = channel;
   const {
     currentActiveTokenAddress,
@@ -80,12 +80,13 @@ export const TempTokenInterface = ({
     currentTempTokenContract,
     canPlayToken,
     tempTokenChartTimeIndexes,
-    tempTokenLoading,
+    initialTempTokenLoading,
     currentBlockNumberForTempTokenChart,
     isFailedGameState,
     isSuccessGameModalOpen,
     isFailedGameModalOpen,
     isPermanentGameModalOpen,
+    tempTokenTxs,
     handleIsFailedGameModalOpen,
     handleIsSuccessGameModalOpen,
     handleIsPermanentGameModalOpen,
@@ -93,7 +94,12 @@ export const TempTokenInterface = ({
     onSendRemainingFundsToWinnerEvent,
   } = tempToken;
 
-  const tradeTempTokenState = useTradeTempTokenState();
+  const tradeTempTokenState = useTradeTempTokenState({
+    tokenAddress: currentActiveTokenAddress,
+    tokenSymbol: currentActiveTokenSymbol,
+    tokenTxs: tempTokenTxs,
+  });
+
   const {
     callSetTotalSupplyThresholdForTokens,
     loading: setTotalSupplyThresholdForTokensLoading,
@@ -106,11 +112,12 @@ export const TempTokenInterface = ({
     pausedData_1h,
     pausedData_1d,
     timeFilter,
+    chartTxs,
     handleTimeFilter,
     handleIsChartPaused,
   } = useInterfaceChartData({
     chartTimeIndexes: tempTokenChartTimeIndexes,
-    txs: tradeTempTokenState.chartTxs,
+    txs: tempTokenTxs,
   });
 
   const [tempTokenDisclaimerModalOpen, setTempTokenDisclaimerModalOpen] =
@@ -193,7 +200,7 @@ export const TempTokenInterface = ({
     formatYAxisTick,
     CustomLabel,
     customBrushFormatter,
-  } = useInterfaceChartMarkers(tradeTempTokenState.chartTxs, timeFilter);
+  } = useInterfaceChartMarkers(chartTxs, timeFilter);
 
   const openTokenPopout = () => {
     if (!channelQueryData) return;
@@ -236,7 +243,7 @@ export const TempTokenInterface = ({
           <Text>No active token detected for this channel yet</Text>
           <Spinner size="md" />
         </Flex>
-      ) : tempTokenLoading || customLoading ? (
+      ) : initialTempTokenLoading || customLoading ? (
         <Flex
           direction="column"
           alignItems="center"
@@ -258,7 +265,6 @@ export const TempTokenInterface = ({
           <TempTokenDisclaimerModal
             isOpen={tempTokenDisclaimerModalOpen}
             handleClose={() => setTempTokenDisclaimerModalOpen(false)}
-            handleCanPlayToken={handleCanPlayToken}
             priceOfThresholdInUsd={priceOfThresholdInUsd}
           />
           <TransactionModalTemplate
@@ -327,7 +333,7 @@ export const TempTokenInterface = ({
             <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
               ${currentActiveTokenSymbol}
             </Text>
-            {isFullChart && <TempTokenTimerView disableChatbot={true} />}
+            {isFullChart && <SingleTempTokenTimerView disableChatbot={true} />}
             {!isFullChart && (
               <Flex>
                 {canPlayToken && (
@@ -500,7 +506,15 @@ export const TempTokenInterface = ({
                           )
                         )
                       }
-                      isDisabled={setTotalSupplyThresholdForTokensLoading}
+                      isDisabled={
+                        setTotalSupplyThresholdForTokensLoading ||
+                        BigInt(
+                          Math.floor(
+                            Number(currentActiveTokenTotalSupplyThreshold) *
+                              1.05
+                          )
+                        ) === currentActiveTokenTotalSupplyThreshold
+                      }
                     >
                       +5%
                     </Button>
@@ -876,30 +890,6 @@ export const TempTokenInterface = ({
                       </Text>
                     )}
                   </Flex>
-                  {/* <Flex direction="column">
-                    <Text fontSize={"12px"} color="#c6c3fc">
-                      Highest Price Reached
-                    </Text>
-                    {priceOfHighestTotalSupplyInUsd !== undefined ? (
-                      <>
-                        <Text color="#f3d584" fontSize="2rem">
-                          ${priceOfHighestTotalSupplyInUsd}
-                        </Text>
-                        <Text
-                          whiteSpace={"nowrap"}
-                          opacity="0.3"
-                          fontSize="14px"
-                        >
-                          {formatUnits(BigInt(priceOfHighestTotalSupply), 18)}{" "}
-                          ETH
-                        </Text>
-                      </>
-                    ) : (
-                      <Text whiteSpace={"nowrap"} fontSize="1rem">
-                        {formatUnits(BigInt(priceOfHighestTotalSupply), 18)} ETH
-                      </Text>
-                    )}
-                  </Flex> */}
                   <Flex direction="column">
                     {currentActiveTokenHasHitTotalSupplyThreshold ? (
                       <Text fontSize={"12px"} color="#ffd014">

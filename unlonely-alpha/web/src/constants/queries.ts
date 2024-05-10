@@ -84,6 +84,7 @@ export const CHANNEL_DETAIL_QUERY = gql`
       slug
       allowNFCs
       vibesTokenPriceRange
+      pinnedChatMessages
       sharesEvent {
         sharesSubjectQuestion
         sharesSubjectAddress
@@ -130,6 +131,7 @@ export const CHANNEL_STATIC_QUERY = gql`
       slug
       allowNFCs
       vibesTokenPriceRange
+      pinnedChatMessages
       owner {
         FCImageUrl
         lensImageUrl
@@ -296,6 +298,7 @@ export const GET_TEMP_TOKENS_QUERY = gql`
       endUnixTimestamp
       channelId
       chainId
+      transferredLiquidityOnExpiration
       id
       channel {
         slug

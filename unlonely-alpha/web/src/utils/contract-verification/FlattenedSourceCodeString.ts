@@ -801,7 +801,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         }
 
         // Check if total supply has hit the threshold for the first time
-        if(totalSupply() >= totalSupplyThreshold && !hasHitTotalSupplyThreshold) {
+        if(totalSupply() >= totalSupplyThreshold && !hasHitTotalSupplyThreshold && totalSupplyThreshold > 0) {
             endTimestamp += 24 hours;
             hasHitTotalSupplyThreshold = true; // Ensure this logic runs only once
             emit TotalSupplyThresholdReached(endTimestamp, totalSupplyThreshold, address(this));
@@ -954,6 +954,18 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
 
         uint256 proceeds = sumDiff - protocolFee - subjectFee;
         return proceeds;
+    }
+
+    function transferLiquidityToFactory() external nonReentrant returns (uint256) {
+        require(msg.sender == factoryAddress, "Only the factory can transfer liquidity.");
+        require(address(this).balance > 0, "No liquidity available to transfer.");
+
+        uint256 availableLiquidity = address(this).balance;
+
+        // Attempt to send all available liquidity to the winner token contract
+        (bool success, ) = factoryAddress.call{value: availableLiquidity}("");
+        require(success, "Transfer failed.");
+        return availableLiquidity;
     }
 
     function decimals() pure public override returns (uint8) {

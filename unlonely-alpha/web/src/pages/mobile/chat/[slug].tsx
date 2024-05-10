@@ -11,30 +11,32 @@ import PopOutChatComponent from "../../../components/mobile/PopOutChatComponent"
 import { ChannelStaticQuery } from "../../../generated/graphql";
 import { useRouter } from "next/router";
 import { CHANNEL_STATIC_QUERY } from "../../../constants/queries";
+import { VibesProvider } from "../../../hooks/context/useVibes";
 
 export default function Chat() {
   return (
     <ChannelProvider>
-      <ChatComponent />
+      <VibesProvider>
+        <MobileChatComponent />
+      </VibesProvider>
     </ChannelProvider>
   );
 }
 
-const ChatComponent = () => {
+const MobileChatComponent = () => {
   const router = useRouter();
   const { slug } = router.query;
 
   const { chat, channel } = useChannelContext();
   const { chatChannel } = chat;
   const { handleChannelStaticData } = channel;
-  const {
-    data: channelStatic,
-    error: channelStaticError,
-    loading: channelStaticLoading,
-  } = useQuery<ChannelStaticQuery>(CHANNEL_STATIC_QUERY, {
-    variables: { slug },
-    fetchPolicy: "cache-and-network",
-  });
+  const { data: channelStatic } = useQuery<ChannelStaticQuery>(
+    CHANNEL_STATIC_QUERY,
+    {
+      variables: { slug },
+      fetchPolicy: "cache-and-network",
+    }
+  );
 
   useEffect(() => {
     if (channelStatic)

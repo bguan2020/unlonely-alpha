@@ -107,6 +107,10 @@ export const useSendRemainingFundsToWinnerState = (
           topics: data.logs[0].topics,
         });
         console.log("send remaining funds success", data, topics.args);
+        const args: any = topics.args;
+        const to = data.to as `0x${string}`;
+        const balance = args.balance as bigint;
+        const winnerWallet = args.winnerWallet as `0x${string}`;
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -145,9 +149,12 @@ export const useSendRemainingFundsToWinnerState = (
         addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",
-          taskType: InteractionType.CREATE_TEMP_TOKEN,
+          taskType:
+            InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION,
           title,
-          description: "",
+          description: `${userAddress}:${winnerWallet}:${to}:${String(
+            balance
+          )}`,
         });
         setWinner("");
         callbackOnTxSuccess?.();

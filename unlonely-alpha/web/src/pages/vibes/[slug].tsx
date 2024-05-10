@@ -12,13 +12,16 @@ import { useChat } from "../../hooks/chat/useChat";
 import AppLayout from "../../components/layout/AppLayout";
 import { ChannelStaticQuery } from "../../generated/graphql";
 import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
+import { VibesProvider } from "../../hooks/context/useVibes";
 
 const FullVibesChartPage = () => {
   return (
     <AppLayout isCustomHeader={false} noHeader>
-      <ChannelProvider>
-        <FullVibesChart />
-      </ChannelProvider>
+      <VibesProvider>
+        <ChannelProvider>
+          <FullVibesChart />
+        </ChannelProvider>
+      </VibesProvider>
     </AppLayout>
   );
 };

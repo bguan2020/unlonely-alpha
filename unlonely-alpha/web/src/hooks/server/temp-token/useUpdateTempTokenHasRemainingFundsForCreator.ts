@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../../apiClient/hooks";
 import {
+  UpdateTempTokenHasRemainingFundsForCreatorInput,
   UpdateTempTokenHasRemainingFundsForCreatorMutation,
   UpdateTempTokenHasRemainingFundsForCreatorMutationVariables,
 } from "../../../generated/graphql";
@@ -22,6 +23,8 @@ const MUTATION = gql`
       channelId
       chainId
       balance
+      isAlwaysTradeable
+      symbol
     }
   }
 `;
@@ -34,7 +37,7 @@ const useUpdateTempTokenHasRemainingFundsForCreator = ({ onError }: Props) => {
   >(MUTATION);
 
   const updateTempTokenHasRemainingFundsForCreator = useCallback(
-    async (data) => {
+    async (data: UpdateTempTokenHasRemainingFundsForCreatorInput) => {
       try {
         setLoading(true);
         const mutationResult = await mutate({
@@ -42,6 +45,7 @@ const useUpdateTempTokenHasRemainingFundsForCreator = ({ onError }: Props) => {
             data: {
               channelId: data.channelId as number,
               chainId: data.chainId as number,
+              tokenType: data.tokenType,
             },
           },
         });

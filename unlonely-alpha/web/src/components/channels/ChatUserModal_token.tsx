@@ -13,7 +13,11 @@ import {
 } from "@chakra-ui/react";
 import { useState, useMemo, useEffect } from "react";
 import { formatUnits, isAddress } from "viem";
-import { AblyChannelPromise, CHANGE_USER_ROLE_EVENT } from "../../constants";
+import {
+  AblyChannelPromise,
+  CHANGE_USER_ROLE_EVENT,
+  TOKEN_TRANSFER_EVENT,
+} from "../../constants";
 import { useCacheContext } from "../../hooks/context/useCache";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
@@ -25,10 +29,7 @@ import {
   filteredInput,
   formatIncompleteNumber,
 } from "../../utils/validation/input";
-import {
-  useGetUserBalance,
-  useTransfer,
-} from "../../hooks/contracts/useVibesToken";
+import { useGetUserBalance, useTransfer } from "../../hooks/contracts/useToken";
 import Link from "next/link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
@@ -122,6 +123,17 @@ export const ChatUserModal_token = ({
           duration: 9000,
           isClosable: true,
           position: "top-right",
+        });
+        channel.publish({
+          name: TOKEN_TRANSFER_EVENT,
+          data: {
+            body: JSON.stringify({
+              from: user?.address,
+              to: targetUser?.address,
+              amount: Number(amountToSend),
+              symbol: currentActiveTokenSymbol,
+            }),
+          },
         });
         setAmountToSend("10");
       },
@@ -351,92 +363,100 @@ export const ChatUserModal_token = ({
                   <ExternalLinkIcon />
                 </Flex>
               </Link>
-              <Flex justifyContent={"space-evenly"}>
-                {(isSendingTokens || targetUser.address === user?.address) && (
-                  <Text color="#e5fc92">
-                    your ${currentActiveTokenSymbol}:{" "}
-                    <Text as="span" color="#e5fc92" fontWeight="bold">
-                      {truncateValue(userTempTokenBalance.toString(), 4)}
-                    </Text>
-                  </Text>
+              <>
+                {currentActiveTokenSymbol && (
+                  <Flex justifyContent={"space-evenly"}>
+                    {(isSendingTokens ||
+                      targetUser.address === user?.address) && (
+                      <Text color="#e5fc92">
+                        your ${currentActiveTokenSymbol}:{" "}
+                        <Text as="span" color="#e5fc92" fontWeight="bold">
+                          {truncateValue(userTempTokenBalance.toString(), 4)}
+                        </Text>
+                      </Text>
+                    )}
+                    {targetUser.address !== user?.address && (
+                      <Text color="#c6c3fc">
+                        their ${currentActiveTokenSymbol}:{" "}
+                        <Text as="span" color="#c6c3fc" fontWeight="bold">
+                          {truncateValue(targetTokensBalance.toString(), 4)}
+                        </Text>
+                      </Text>
+                    )}
+                  </Flex>
                 )}
-                {targetUser.address !== user?.address && (
-                  <Text color="#c6c3fc">
-                    their ${currentActiveTokenSymbol}:{" "}
-                    <Text as="span" color="#c6c3fc" fontWeight="bold">
-                      {truncateValue(targetTokensBalance.toString(), 4)}
-                    </Text>
-                  </Text>
-                )}
-              </Flex>
+              </>
               <Flex direction="column" gap="10px">
-                {targetUser.address !== user?.address && (
-                  <>
-                    {!isSendingTokens ? (
-                      <Button
-                        color="white"
-                        mt="20px"
-                        bg="#6862e9"
-                        _hover={{}}
-                        _focus={{}}
-                        _active={{}}
-                        onClick={() => setIsSendingTokens(true)}
-                      >
-                        send ${currentActiveTokenSymbol} to user
-                      </Button>
-                    ) : (
-                      <Flex alignItems="center" gap="10px">
-                        <Tooltip
-                          label={errorMessage}
-                          placement="bottom"
-                          isOpen={errorMessage !== undefined}
-                          bg="red.600"
-                        >
-                          <Input
-                            variant={
-                              errorMessage.length > 0 ? "redGlow" : "glow"
-                            }
-                            textAlign="center"
-                            value={amountToSend}
-                            onChange={handleInputChange}
-                            fontSize={isStandalone ? "16px" : "unset"}
-                            placeholder="enter amount to send"
-                          />
-                        </Tooltip>
-                        <Flex direction="column">
-                          <Text whiteSpace="nowrap">
-                            ~$
-                            {truncateValue(
-                              previewedBurnProceeds * Number(ethPriceInUsd),
-                              4
-                            )}
-                          </Text>
-                          <Text
-                            fontSize="10px"
-                            color="#c6c3fc"
-                            whiteSpace="nowrap"
-                          >
-                            ~{truncateValue(previewedBurnProceeds, 4)} ETH
-                          </Text>
-                        </Flex>
+                {targetUser.address !== user?.address &&
+                  isAddress(
+                    currentTempTokenContract.address as `0x${string}`
+                  ) && (
+                    <>
+                      {!isSendingTokens ? (
                         <Button
-                          bg={"#5852a3"}
                           color="white"
-                          p={2}
+                          mt="20px"
+                          bg="#6862e9"
+                          _hover={{}}
                           _focus={{}}
                           _active={{}}
-                          _hover={{
-                            bg: "#8884d8",
-                          }}
-                          isDisabled={errorMessage.length > 0 || !transfer}
-                          onClick={transfer}
+                          onClick={() => setIsSendingTokens(true)}
                         >
-                          send
+                          send ${currentActiveTokenSymbol} to user
                         </Button>
-                      </Flex>
-                    )}
-                  </>
-                )}
+                      ) : (
+                        <Flex alignItems="center" gap="10px">
+                          <Tooltip
+                            label={errorMessage}
+                            placement="bottom"
+                            isOpen={errorMessage !== undefined}
+                            bg="red.600"
+                          >
+                            <Input
+                              variant={
+                                errorMessage.length > 0 ? "redGlow" : "glow"
+                              }
+                              textAlign="center"
+                              value={amountToSend}
+                              onChange={handleInputChange}
+                              fontSize={isStandalone ? "16px" : "unset"}
+                              placeholder="enter amount to send"
+                            />
+                          </Tooltip>
+                          <Flex direction="column">
+                            <Text whiteSpace="nowrap">
+                              ~$
+                              {truncateValue(
+                                previewedBurnProceeds * Number(ethPriceInUsd),
+                                4
+                              )}
+                            </Text>
+                            <Text
+                              fontSize="10px"
+                              color="#c6c3fc"
+                              whiteSpace="nowrap"
+                            >
+                              ~{truncateValue(previewedBurnProceeds, 4)} ETH
+                            </Text>
+                          </Flex>
+                          <Button
+                            bg={"#5852a3"}
+                            color="white"
+                            p={2}
+                            _focus={{}}
+                            _active={{}}
+                            _hover={{
+                              bg: "#8884d8",
+                            }}
+                            isDisabled={errorMessage.length > 0 || !transfer}
+                            onClick={transfer}
+                          >
+                            send
+                          </Button>
+                        </Flex>
+                      )}
+                    </>
+                  )}
                 {userIsChannelOwner &&
                   targetUser.address !== user?.address &&
                   !channelRoles.some(

@@ -1,4 +1,8 @@
-import { ContractData, FetchBalanceResult } from "../../../../constants/types";
+import {
+  ContractData,
+  FetchBalanceResult,
+  TradeableTokenTx,
+} from "../../../../constants/types";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 import { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import { InteractionType, NULL_ADDRESS } from "../../../../constants";
@@ -12,7 +16,7 @@ import {
 import useDebounce from "../../useDebounce";
 import { Flex, Box, useToast, Text } from "@chakra-ui/react";
 import Link from "next/link";
-import { decodeEventLog, formatUnits, isAddress } from "viem";
+import { decodeEventLog, isAddress } from "viem";
 import centerEllipses from "../../../../utils/centerEllipses";
 import {
   burnErrors,
@@ -25,11 +29,8 @@ import {
 import { useChannelContext } from "../../../context/useChannel";
 import { useUser } from "../../../context/useUser";
 import { useBalance } from "wagmi";
-import { ChartTokenTx } from "../../../../components/chat/VibesTokenInterface";
-import { useCacheContext } from "../../../context/useCache";
 import useUpdateTempTokenHighestTotalSupply from "../../../server/temp-token/useUpdateTempTokenHighestTotalSupply";
 import useUpdateTempTokenHasHitTotalSupplyThreshold from "../../../server/temp-token/useUpdateTempTokenHasHitTotalSupplyThreshold";
-import { useTempTokenContext } from "../../../context/useTempToken";
 
 export type UseTradeTempTokenStateType = {
   amount: string;
@@ -37,34 +38,38 @@ export type UseTradeTempTokenStateType = {
   mintCostAfterFeesLoading: boolean;
   burnProceedsAfterFees: bigint;
   burnProceedsAfterFeesLoading: boolean;
-  mint?: () => Promise<any>;
-  refetchMint: () => void;
   mintTxLoading: boolean;
   isRefetchingMint: boolean;
-  burn?: () => Promise<any>;
-  refetchBurn: () => void;
   burnTxLoading: boolean;
   isRefetchingBurn: boolean;
-  handleAmount: (event: any) => void;
-  handleAmountDirectly: (input: string) => void;
-  chartTxs: ChartTokenTx[];
   errorMessage: string;
   userEthBalance?: FetchBalanceResult;
+
+  mint?: () => Promise<any>;
+  refetchMint: () => void;
+  burn?: () => Promise<any>;
+  refetchBurn: () => void;
+  handleAmount: (event: any) => void;
+  handleAmountDirectly: (input: string) => void;
 };
 
-export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
+export const useTradeTempTokenState = ({
+  tokenAddress,
+  tokenSymbol,
+  tokenTxs,
+}: {
+  tokenAddress: string;
+  tokenSymbol: string;
+  tokenTxs: TradeableTokenTx[];
+}): UseTradeTempTokenStateType => {
   const { walletIsConnected, userAddress, user } = useUser();
 
   const { chat, channel } = useChannelContext();
   const { channelQueryData } = channel;
-  const { tempToken } = useTempTokenContext();
-  const { currentActiveTokenAddress, currentActiveTokenSymbol, tempTokenTxs } =
-    tempToken;
   const { addToChatbot: addToChatbotForTempToken } = chat;
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl, matchingChain } = network;
   const toast = useToast();
-  const { ethPriceInUsd } = useCacheContext();
 
   const canAddToChatbot_mint = useRef(false);
   const canAddToChatbot_burn = useRef(false);
@@ -78,7 +83,7 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
   const fetching = useRef(false);
 
   const tempTokenContract: ContractData = useMemo(() => {
-    if (!currentActiveTokenAddress) {
+    if (!tokenAddress) {
       return {
         address: NULL_ADDRESS,
         abi: undefined,
@@ -86,11 +91,11 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
       };
     }
     return {
-      address: currentActiveTokenAddress as `0x${string}`,
+      address: tokenAddress as `0x${string}`,
       abi: TempTokenAbi,
       chainId: localNetwork.config.chainId,
     };
-  }, [currentActiveTokenAddress, localNetwork.config.chainId]);
+  }, [tokenAddress, localNetwork.config.chainId]);
 
   /**
    * ETH balance for the user
@@ -117,32 +122,6 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
       console.log("useUpdateTempTokenHasHitTotalSupplyThreshold error", e);
     },
   });
-
-  /**
-   * CHART TRANSACTIONS, formatted to fit chart component
-   */
-
-  const chartTxs: ChartTokenTx[] = useMemo(() => {
-    return tempTokenTxs.map((tx) => {
-      return {
-        user: tx.user,
-        event: tx.eventName,
-        amount: Number(tx.amount),
-        price: tx.price,
-        priceInUsd:
-          ethPriceInUsd !== undefined
-            ? Number(
-                String(
-                  Number(ethPriceInUsd) *
-                    Number(formatUnits(BigInt(tx.price), 18))
-                )
-              )
-            : 0,
-        blockNumber: tx.blockNumber,
-        priceChangePercentage: tx.priceChangePercentage,
-      };
-    });
-  }, [tempTokenTxs, ethPriceInUsd]);
 
   /**
    * Contract cost reading and MINT and BURN functions
@@ -234,12 +213,33 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
           const hasHitTotalSupplyThreshold =
             args.hasHitTotalSupplyThreshold as boolean;
           const highestTotalSupply = args.highestTotalSupply as bigint;
+          const totalSupply = args.totalSupply as bigint;
           const tokenAddress = args.tokenAddress as `0x${string}`;
+          const endTimestamp = args.endTimestamp as bigint;
           const title = `${
             user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
-          } bought ${Number(
-            args.amount as bigint
-          )} $${currentActiveTokenSymbol}!`;
+          } bought ${Number(args.amount as bigint)} $${tokenSymbol}!`;
+
+          /**
+           * perform a check to see data.logs.length is greater than 2 to determine
+           * if the totalSupplyThresholdReached event was emitted, if so include returned value into ably message
+           */
+          const hasTotalSupplyThresholdReachedEvent = data.logs.length > 2;
+          addToChatbotForTempToken({
+            username: user?.username ?? "",
+            address: userAddress ?? "",
+            taskType: InteractionType.BUY_TEMP_TOKENS,
+            title,
+            description: `${userAddress}:${Number(
+              args.amount as bigint
+            )}:${String(data.blockNumber)}:${tokenAddress}:${String(
+              totalSupply
+            )}:${String(highestTotalSupply)}:${String(
+              hasTotalSupplyThresholdReachedEvent
+                ? hasHitTotalSupplyThreshold
+                : false
+            )}:${String(endTimestamp)}`,
+          });
           const promises: any[] = [
             call_updateDb_highestTotalSupply({
               tokenAddresses: [tokenAddress],
@@ -247,7 +247,10 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
               chainId: localNetwork.config.chainId,
             }),
           ];
-          if (hasHitTotalSupplyThreshold) {
+          if (
+            hasTotalSupplyThresholdReachedEvent &&
+            hasHitTotalSupplyThreshold
+          ) {
             promises.push(
               call_updateDb_hasHitTotalSupplyThreshold({
                 tokenAddressesSetTrue: [tokenAddress],
@@ -261,18 +264,24 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
           } catch (err) {
             console.log("cannot update db on mint", err);
           }
-          addToChatbotForTempToken({
-            username: user?.username ?? "",
-            address: userAddress ?? "",
-            taskType: InteractionType.BUY_TEMP_TOKENS,
-            title,
-            description: `${
-              user?.username ?? centerEllipses(userAddress, 15)
-            }:${Number(args.amount as bigint)}`,
-          });
+          setAmount("1000");
+          if (
+            hasTotalSupplyThresholdReachedEvent &&
+            hasHitTotalSupplyThreshold
+          ) {
+            // wait few seconds
+            await new Promise((res) => setTimeout(res, 4000));
+            const _title = `The $${tokenSymbol} token has hit the price goal and survives for another 24 hours! 🎉`;
+            addToChatbotForTempToken({
+              username: user?.username ?? "",
+              address: userAddress ?? "",
+              taskType: InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
+              title: _title,
+              description: "",
+            });
+          }
+          canAddToChatbot_mint.current = false;
         }
-        canAddToChatbot_mint.current = false;
-        setAmount("1000");
       },
       onTxError: (error) => {
         console.log("mint error", error);
@@ -369,17 +378,21 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
           topics: data.logs[1].topics,
         });
         const args: any = topics.args;
+        const tokenAddress = args.tokenAddress as `0x${string}`;
+        const totalSupply = args.totalSupply as bigint;
         const title = `${
           user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
-        } sold ${Number(args.amount as bigint)} $${currentActiveTokenSymbol}!`;
+        } sold ${Number(args.amount as bigint)} $${tokenSymbol}!`;
         addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.SELL_TEMP_TOKENS,
           title,
-          description: `${
-            user?.username ?? centerEllipses(userAddress, 15)
-          }:${Number(args.amount as bigint)}`,
+          description: `${userAddress}:${Number(
+            args.amount as bigint
+          )}:${String(data.blockNumber)}:${tokenAddress}:${String(
+            totalSupply
+          )}`,
         });
         canAddToChatbot_burn.current = false;
         setAmount("1000");
@@ -426,7 +439,7 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
    */
   useEffect(() => {
     if (
-      chartTxs.length === 0 ||
+      tokenTxs.length === 0 ||
       fetching.current ||
       !tempTokenContract.address ||
       !userAddress ||
@@ -462,7 +475,7 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
       fetching.current = false;
     };
     fetch();
-  }, [chartTxs.length]);
+  }, [tokenTxs.length]);
 
   /**
    * Error handling
@@ -498,7 +511,6 @@ export const useTradeTempTokenState = (): UseTradeTempTokenStateType => {
     isRefetchingBurn,
     handleAmount,
     handleAmountDirectly,
-    chartTxs,
     errorMessage,
     userEthBalance,
   };

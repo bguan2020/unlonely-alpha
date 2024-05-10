@@ -4,8 +4,10 @@ import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../../apiClient/hooks";
 import {
+  PostTempTokenInput,
   PostTempTokenMutation,
   PostTempTokenMutationVariables,
+  TempTokenType,
 } from "../../../generated/graphql";
 
 type Props = {
@@ -40,7 +42,7 @@ const usePostTempToken = ({ onError }: Props) => {
   >(POST_TEMP_TOKEN_MUTATION);
 
   const postTempToken = useCallback(
-    async (data) => {
+    async (data: PostTempTokenInput) => {
       try {
         setLoading(true);
         const mutationResult = await mutate({
@@ -48,19 +50,16 @@ const usePostTempToken = ({ onError }: Props) => {
             data: {
               tokenAddress: data.tokenAddress as string,
               symbol: data.symbol as string,
-              streamerFeePercentage: String(
-                data.streamerFeePercentage as bigint
-              ),
-              protocolFeePercentage: String(
-                data.protocolFeePercentage as bigint
-              ),
+              streamerFeePercentage: data.streamerFeePercentage as string,
+              protocolFeePercentage: data.protocolFeePercentage as string,
               ownerAddress: data.ownerAddress as string,
               factoryAddress: data.factoryAddress as string,
-              creationBlockNumber: String(data.creationBlockNumber as bigint),
+              creationBlockNumber: data.creationBlockNumber as string,
               name: data.name as string,
-              endUnixTimestamp: String(data.endUnixTimestamp as bigint),
+              endUnixTimestamp: data.endUnixTimestamp as string,
               channelId: data.channelId as number,
               chainId: data.chainId as number,
+              tokenType: data.tokenType as TempTokenType,
             },
           },
         });

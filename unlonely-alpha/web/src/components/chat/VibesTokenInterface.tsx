@@ -48,6 +48,7 @@ import {
 } from "../../hooks/internal/useVibesCheck";
 import { GET_USER_QUERY } from "../../constants/queries";
 import { useApolloClient } from "@apollo/client";
+import { useVibesContext } from "../../hooks/context/useVibes";
 
 export type ChartTokenTx = {
   user: string;
@@ -91,11 +92,15 @@ const VibesTokenInterface = ({
 }) => {
   const { walletIsConnected } = useUser();
   const { isStandalone } = useUserAgent();
-  const { vibesTokenTxs, vibesTokenLoading, chartTimeIndexes } =
-    useCacheContext();
+  const { ethPriceInUsd } = useCacheContext();
+  const {
+    vibesTokenTxs,
+    vibesTokenLoading,
+    chartTimeIndexes,
+    currentBlockNumberForVibes,
+  } = useVibesContext();
   const { channel } = useChannelContext();
   const { channelQueryData, channelVibesTokenPriceRange, isOwner } = channel;
-  const { ethPriceInUsd, currentBlockNumberForVibes } = useCacheContext();
   const windowSize = useWindowSize();
   const { network } = useNetworkContext();
   const { matchingChain } = network;

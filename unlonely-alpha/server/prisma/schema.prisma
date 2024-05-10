@@ -87,13 +87,13 @@ model Like {
 }
 
 model Chat {
-  id       Int     @id @default(autoincrement())
-  text String
+  id        Int     @id @default(autoincrement())
+  text      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   ownerAddr String
-  owner User @relation(fields: [ownerAddr], references: [address])
+  owner     User @relation(fields: [ownerAddr], references: [address])
   channelId Int @default(3)
   channel   Channel  @relation(fields: [channelId], references: [id])
 }
@@ -148,6 +148,7 @@ model Channel {
   customButtonAction String?
   customButtonPrice Int?
   vibesTokenPriceRange String[]
+  pinnedChatMessages String[]
   sharesEvent SharesEvent[]
   roles ChannelUserRole[]
   nfcs NFC[]
@@ -168,26 +169,33 @@ model ChannelUserRole {
   createdAt DateTime @default(now())
 }
 
+enum TempTokenType {
+  SINGLE_MODE
+  VERSUS_MODE
+}
+
 model TempToken {
-  id                             Int      @id @default(autoincrement())
-  uniqueTempTokenId              String   @unique
-  creationBlockNumber            BigInt
-  tokenAddress                   String
-  chainId                        Int
-  channelId                      Int
-  channel                        Channel  @relation(fields: [channelId], references: [id])
-  createdAt                      DateTime @default(now())
-  ownerAddress                   String
-  factoryAddress                 String
-  name                           String
-  symbol                         String
-  endUnixTimestamp               BigInt
-  protocolFeePercentage          BigInt
-  streamerFeePercentage          BigInt
-  highestTotalSupply             BigInt
-  hasRemainingFundsForCreator    Boolean @default(true)
-  hasHitTotalSupplyThreshold     Boolean @default(false)
-  isAlwaysTradeable              Boolean @default(false)
+  id                                Int      @id @default(autoincrement())
+  uniqueTempTokenId                 String   @unique
+  creationBlockNumber               BigInt
+  tokenAddress                      String
+  chainId                           Int
+  channelId                         Int
+  channel                           Channel  @relation(fields: [channelId], references: [id])
+  createdAt                         DateTime @default(now())
+  ownerAddress                      String
+  factoryAddress                    String
+  name                              String
+  symbol                            String
+  endUnixTimestamp                  BigInt
+  protocolFeePercentage             BigInt
+  streamerFeePercentage             BigInt
+  highestTotalSupply                BigInt
+  hasRemainingFundsForCreator       Boolean @default(true)
+  hasHitTotalSupplyThreshold        Boolean @default(false)
+  isAlwaysTradeable                 Boolean @default(false)
+  tokenType                     TempTokenType?
+  transferredLiquidityOnExpiration  BigInt?
 }
 
 enum EventType {

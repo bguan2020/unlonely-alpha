@@ -213,6 +213,100 @@ export const useCreateTempToken = (
   };
 };
 
+export const useCreateMultipleTempTokens = (
+  args: {
+    names: string[];
+    symbols: string[];
+    duration: bigint;
+    totalSupplyThreshold: bigint;
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
+  const {
+    writeAsync: createMultipleTempTokens,
+    writeData: createMultipleTempTokensData,
+    txData: createMultipleTempTokensTxData,
+    isTxLoading: isCreateMultipleTempTokensLoading,
+  } = useWrite(
+    contract,
+    "createMultipleTempTokens",
+    [args.names, args.symbols, args.duration, args.totalSupplyThreshold],
+    createCallbackHandler(
+      "useTempTokenFactoryV1 createMultipleTempTokens",
+      callbacks
+    ),
+    { enabled: args.names.length > 0 && args.symbols.length > 0 }
+  );
+
+  return {
+    createMultipleTempTokens,
+    createMultipleTempTokensData,
+    createMultipleTempTokensTxData,
+    isCreateMultipleTempTokensLoading,
+  };
+};
+
+export const useSetWinningTokenTradeableAndTransferLiquidity = (
+  args: {
+    tokenAddresses: string[];
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
+  const {
+    writeAsync: setWinningTokenTradeableAndTransferLiquidity,
+    writeData: setWinningTokenTradeableAndTransferLiquidityData,
+    txData: setWinningTokenTradeableAndTransferLiquidityTxData,
+    isTxLoading: isSetWinningTokenTradeableAndTransferLiquidityLoading,
+    refetch: refetchSetWinningTokenTradeableAndTransferLiquidity,
+  } = useWrite(
+    contract,
+    "setWinningTokenTradeableAndTransferLiquidity",
+    [args.tokenAddresses],
+    createCallbackHandler(
+      "useTempTokenFactoryV1 setWinningTokenTradeableAndTransferLiquidity",
+      callbacks
+    )
+  );
+
+  return {
+    setWinningTokenTradeableAndTransferLiquidity,
+    setWinningTokenTradeableAndTransferLiquidityData,
+    setWinningTokenTradeableAndTransferLiquidityTxData,
+    isSetWinningTokenTradeableAndTransferLiquidityLoading,
+    refetchSetWinningTokenTradeableAndTransferLiquidity,
+  };
+};
+
+export const useMintWinnerTokens = (
+  args: {
+    winnerTokenAddress: string;
+    amountOfTokens: bigint;
+  },
+  contract: ContractData,
+  callbacks?: WriteCallbacks
+) => {
+  const {
+    writeAsync: mintWinnerTokens,
+    writeData: mintWinnerTokensData,
+    txData: mintWinnerTokensTxData,
+    isTxLoading: isMintWinnerTokensLoading,
+  } = useWrite(
+    contract,
+    "mintWinnerTokens",
+    [args.winnerTokenAddress, args.amountOfTokens],
+    createCallbackHandler("useTempTokenFactoryV1 mintWinnerTokens", callbacks)
+  );
+
+  return {
+    mintWinnerTokens,
+    mintWinnerTokensData,
+    mintWinnerTokensTxData,
+    isMintWinnerTokensLoading,
+  };
+};
+
 export const useSetTotalSupplyThresholdForTokens = (
   args: {
     _totalSupplyThreshold: bigint;

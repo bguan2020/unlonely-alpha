@@ -8,16 +8,11 @@ import {
   Tooltip,
   useToast,
   IconButton,
-  Box,
-  Popover,
-  PopoverArrow,
-  PopoverContent,
-  PopoverTrigger,
 } from "@chakra-ui/react";
 import AppLayout from "../components/layout/AppLayout";
 import { useUser } from "../hooks/context/useUser";
 import usePostChannel from "../hooks/server/channel/usePostChannel";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePrivy } from "@privy-io/react-auth";
 import { FaRegCopy } from "react-icons/fa";
@@ -26,25 +21,8 @@ import { useLazyQuery } from "@apollo/client";
 import { GET_CHANNEL_SEARCH_RESULTS_QUERY } from "../constants/queries";
 import { GetChannelSearchResultsQuery } from "../generated/graphql";
 import { alphanumericInput } from "../utils/validation/input";
-import { Contract, NEW_STREAMER_URL_QUERY_PARAM } from "../constants";
-import {
-  useGetMintCostAfterFees,
-  useMint,
-} from "../hooks/contracts/useVibesToken";
-import { isAddress } from "viem";
-import { useBalance } from "wagmi";
-import { NETWORKS } from "../constants/networks";
-import { getContractFromNetwork } from "../utils/contract";
-import { mintErrors } from "../components/chat/VibesTokenExchange";
-import useDebounce from "../hooks/internal/useDebounce";
-import { useCacheContext } from "../hooks/context/useCache";
+import { NEW_STREAMER_URL_QUERY_PARAM } from "../constants";
 import { useNetworkContext } from "../hooks/context/useNetwork";
-import { useRouter } from "next/router";
-import useUserAgent from "../hooks/internal/useUserAgent";
-import { BiRefresh } from "react-icons/bi";
-import { truncateValue } from "../utils/tokenDisplayFormatting";
-
-const REQUIRED_NUMBER_OF_VIBES = 0;
 
 const SLUG_MAX_CHARS = 25;
 
@@ -88,12 +66,9 @@ const Onboard = () => {
 };
 
 const LoggedInOnboard = () => {
-  const { user, userAddress } = useUser();
-  const router = useRouter();
-  const { isStandalone } = useUserAgent();
-  const { userVibesBalance, lastChainInteractionTimestamp } = useCacheContext();
+  const { user } = useUser();
   const { network } = useNetworkContext();
-  const { matchingChain, explorerUrl } = network;
+  const { matchingChain } = network;
   const toast = useToast();
 
   const { postChannel } = usePostChannel({
@@ -117,134 +92,15 @@ const LoggedInOnboard = () => {
   const [isSlugAvailable, setIsSlugAvailable] = useState<boolean>(true);
 
   const [handleErrorMessage, setHandleErrorMessage] = useState<string>("");
-  const [vibesErrorMessage, setVibesErrorMessage] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
-  const remainingVibesNeeded = useMemo(
-    () =>
-      REQUIRED_NUMBER_OF_VIBES -
-      Math.floor(Number(userVibesBalance.toString())),
-    [userVibesBalance]
-  );
-
-  const debouncedAmountOfVibes = useDebounce(remainingVibesNeeded, 300);
-  const amount_vibes_needed_bigint = useMemo(
-    () =>
-      debouncedAmountOfVibes > 0 ? BigInt(debouncedAmountOfVibes) : BigInt(0),
-    [debouncedAmountOfVibes]
-  );
-
   const [getChannelSearchResults] = useLazyQuery<GetChannelSearchResultsQuery>(
     GET_CHANNEL_SEARCH_RESULTS_QUERY,
     {
       fetchPolicy: "network-only",
-    }
-  );
-
-  const contract = getContractFromNetwork(Contract.VIBES_TOKEN_V1, NETWORKS[0]);
-
-  const {
-    mintCostAfterFees,
-    refetch: refetchMintCostAfterFees,
-    loading: mintCostAfterFeesLoading,
-  } = useGetMintCostAfterFees(amount_vibes_needed_bigint, contract);
-
-  const {
-    data: userEthBalance,
-    refetch: refetchUserEthBalance,
-    isRefetching: isRefetchingUserEthBalance,
-  } = useBalance({
-    address: userAddress as `0x${string}`,
-    enabled: isAddress(userAddress as `0x${string}`),
-  });
-
-  const {
-    mint,
-    refetch: refetchMint,
-    isRefetchingMint,
-  } = useMint(
-    {
-      streamer: userAddress as `0x${string}`,
-      amount: amount_vibes_needed_bigint,
-      value: mintCostAfterFees,
-    },
-    contract,
-    {
-      onWriteSuccess: (data) => {
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
-              <Link
-                target="_blank"
-                href={`${explorerUrl}}/tx/${data.hash}`}
-                passHref
-              >
-                mint pending, click to view
-              </Link>
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-      },
-      onWriteError: (error) => {
-        console.log("mint write error", error);
-        toast({
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
-              mint cancelled
-            </Box>
-          ),
-        });
-      },
-      onTxSuccess: async (data) => {
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
-              <Link
-                target="_blank"
-                href={`${explorerUrl}/tx/${data.transactionHash}`}
-                passHref
-              >
-                mint success, click to view
-              </Link>
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-      },
-      onTxError: (error) => {
-        console.log("mint error", error);
-        let message =
-          "Unknown error, please check the explorer for more details";
-        Object.keys(mintErrors).forEach((key) => {
-          if (String(error).includes(key)) {
-            message = mintErrors[key];
-          }
-        });
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#b82929" p={2}>
-              <Flex direction="column">
-                <Text>mint error</Text>
-                <Text fontSize="15px">{message}</Text>
-              </Flex>
-            </Box>
-          ),
-          duration: 9000,
-          isClosable: true,
-          position: "top-right",
-        });
-      },
     }
   );
 
@@ -287,28 +143,6 @@ const LoggedInOnboard = () => {
     );
   }, [returnedSlug]);
 
-  const redirectToBridge = useCallback(() => {
-    if (isStandalone) {
-      router.push("/bridge");
-    } else {
-      window.open(`${window.location.origin}/bridge`, "_blank");
-    }
-  }, [isStandalone, router]);
-
-  useEffect(() => {
-    const init = async () => {
-      const calls: any[] = [];
-      calls.push(refetchMintCostAfterFees());
-      calls.push(refetchMint());
-      try {
-        await Promise.all(calls);
-      } catch (err) {
-        console.log("cannot fetch vibes balance data", err);
-      }
-    };
-    init();
-  }, [lastChainInteractionTimestamp]);
-
   useEffect(() => {
     let timeout: any;
 
@@ -332,14 +166,6 @@ const LoggedInOnboard = () => {
       setHandleErrorMessage("");
     }
   }, [isSlugAvailable, newSlug]);
-
-  useEffect(() => {
-    if (userEthBalance?.value && mintCostAfterFees > userEthBalance?.value) {
-      setVibesErrorMessage("insufficient ETH");
-    } else {
-      setVibesErrorMessage("");
-    }
-  }, [userEthBalance?.value, mintCostAfterFees]);
 
   useEffect(() => {
     if (!matchingChain) {
@@ -490,93 +316,6 @@ const LoggedInOnboard = () => {
                   </Tooltip>
                 </Flex>
               </Flex>
-              {amount_vibes_needed_bigint > BigInt(0) && (
-                <Flex direction={"column"} gap="2px">
-                  <Text fontSize="11px" color="#c2c2c2">
-                    to create a channel, you must own {REQUIRED_NUMBER_OF_VIBES}{" "}
-                    $VIBES.{" "}
-                    <Popover trigger="hover" placement="top" openDelay={200}>
-                      <PopoverTrigger>
-                        <Text as="span" color="#17d058">
-                          why?
-                        </Text>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        bg="#343dbb"
-                        border="none"
-                        width="200px"
-                        p="2px"
-                      >
-                        <PopoverArrow bg="#343dbb" />
-                        <Text fontSize="12px" textAlign={"center"}>
-                          This is not a fee. This helps us know that you are a
-                          real person. These tokens can immediately be traded
-                          after channel creation.
-                        </Text>
-                      </PopoverContent>
-                    </Popover>
-                  </Text>
-                  <Button
-                    color={"#ffffff"}
-                    bg="#343dbb"
-                    _hover={{}}
-                    _active={{}}
-                    _focus={{}}
-                    onClick={mint}
-                    isDisabled={
-                      mintCostAfterFeesLoading ||
-                      isRefetchingMint ||
-                      vibesErrorMessage.length > 0
-                    }
-                  >
-                    <Text>
-                      {vibesErrorMessage.length > 0
-                        ? vibesErrorMessage
-                        : `Buy ${truncateValue(
-                            Number(amount_vibes_needed_bigint),
-                            0
-                          )} more $VIBES`}
-                    </Text>
-                  </Button>
-                  {vibesErrorMessage && (
-                    <Flex direction="column">
-                      <Text fontSize="11px" color="red.300">
-                        you don't have enough ETH to buy $VIBES, bridge over
-                        some ETH, then refresh your balance
-                      </Text>
-                      <Flex gap="5px">
-                        <Button
-                          width="100%"
-                          color={"#ffffff"}
-                          bg="#343dbb"
-                          _hover={{}}
-                          _active={{}}
-                          _focus={{}}
-                          onClick={redirectToBridge}
-                        >
-                          bridge ETH to Base
-                        </Button>
-                        <Button
-                          color={"#ffffff"}
-                          bg="#1a2182"
-                          p="0"
-                          _hover={{}}
-                          _active={{}}
-                          _focus={{}}
-                          onClick={() => refetchUserEthBalance()}
-                          isDisabled={isRefetchingUserEthBalance}
-                        >
-                          {isRefetchingUserEthBalance ? (
-                            <Spinner />
-                          ) : (
-                            <BiRefresh size="20px" />
-                          )}
-                        </Button>
-                      </Flex>
-                    </Flex>
-                  )}
-                </Flex>
-              )}
             </Flex>
             <Flex direction={"column"} gap="18px">
               <Text fontSize="25px" fontFamily="LoRes15" color="#f5b6ff">
@@ -654,12 +393,8 @@ const LoggedInOnboard = () => {
                   bg="#2562db"
                   isDisabled={
                     handleErrorMessage.length > 0 ||
-                    vibesErrorMessage.length > 0 ||
                     errorMessage.length > 0 ||
                     debouncedNewSlug.length === 0 ||
-                    amount_vibes_needed_bigint > BigInt(0) ||
-                    mintCostAfterFeesLoading ||
-                    isRefetchingMint ||
                     loading
                   }
                   _focus={{}}
@@ -667,15 +402,13 @@ const LoggedInOnboard = () => {
                   _hover={{}}
                   onClick={submitChannel}
                 >
-                  {mintCostAfterFeesLoading || isRefetchingMint || loading ? (
+                  {loading ? (
                     <Flex alignItems={"center"} gap="5px">
                       <Spinner size="sm" />
                       <Text>checking...</Text>
                     </Flex>
                   ) : debouncedNewSlug.length === 0 ? (
                     "channel URL handle is required"
-                  ) : amount_vibes_needed_bigint > BigInt(0) ? (
-                    "not enough $VIBES"
                   ) : (
                     "create channel"
                   )}

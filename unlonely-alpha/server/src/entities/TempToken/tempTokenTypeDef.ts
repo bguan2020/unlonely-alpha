@@ -1,6 +1,12 @@
 import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
+
+  enum TempTokenType {
+    SINGLE_MODE
+    VERSUS_MODE
+  }
+
   type TempToken {
     id: ID!
     tokenAddress: String!
@@ -19,6 +25,8 @@ export const typeDef = gql`
     isAlwaysTradeable: Boolean!
     hasHitTotalSupplyThreshold: Boolean!
     channel: Channel!
+    transferredLiquidityOnExpiration: BigInt
+    tokenType: TempTokenType
   }
 
   type TempTokenWithBalance {
@@ -38,6 +46,7 @@ export const typeDef = gql`
     isAlwaysTradeable: Boolean!
     hasHitTotalSupplyThreshold: Boolean!
     balance: BigInt!
+    tokenType: TempTokenType
   }
 
   input GetTempTokensInput {
@@ -48,12 +57,15 @@ export const typeDef = gql`
     onlyActiveTokens: Boolean
     hasHitTotalSupplyThreshold: Boolean
     isAlwaysTradeable: Boolean
+    factoryAddress: String
+    tokenType: TempTokenType
     fulfillAllNotAnyConditions: Boolean!
   }
 
   input UpdateTempTokenHasRemainingFundsForCreatorInput {
     chainId: Int!
     channelId: Int!
+    tokenType: TempTokenType!
   }
 
   input UpdateTempTokenHighestTotalSupplyInput {
@@ -74,6 +86,7 @@ export const typeDef = gql`
     creationBlockNumber: String!
     protocolFeePercentage: String!
     streamerFeePercentage: String!
+    tokenType: TempTokenType!
   }
 
   input UpdateEndTimestampForTokensInput {
@@ -92,6 +105,12 @@ export const typeDef = gql`
     tokenAddressesSetTrue: [String]
     tokenAddressesSetFalse: [String]
     chainId: Int!
+  }
+
+  input UpdateTempTokenTransferredLiquidityOnExpirationInput {
+    losingTokenAddress: String!
+    chainId: Int!
+    finalLiquidityInWei: String!
   }
 
   extend type Query {
@@ -114,6 +133,9 @@ export const typeDef = gql`
     updateTempTokenHasHitTotalSupplyThreshold(
       data: UpdateTempTokenHasHitTotalSupplyThresholdInput!
     ): Boolean!
+    updateTempTokenTransferredLiquidityOnExpiration(
+      data: UpdateTempTokenTransferredLiquidityOnExpirationInput!
+    ): TempToken
     postTempToken(data: PostTempTokenInput!): TempToken
   }
 `;

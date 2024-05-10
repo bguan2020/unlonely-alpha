@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef, useMemo } from "react";
-import { Log, createPublicClient, parseAbiItem, http } from "viem";
-import { useContractEvent } from "wagmi";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { createPublicClient, parseAbiItem, http } from "viem";
 import { base } from "viem/chains";
 
-import { TradeableTokenTx } from "../../constants/types";
+import { ContractData, TradeableTokenTx } from "../../constants/types";
 import { getContractFromNetwork } from "../../utils/contract";
 import useUserAgent from "./useUserAgent";
 import { NETWORKS } from "../../constants/networks";
@@ -11,13 +10,11 @@ import {
   AVERAGE_BLOCK_TIME_SECS,
   CREATION_BLOCK,
   Contract,
-  NULL_ADDRESS,
   SECONDS_PER_HOUR,
 } from "../../constants";
-import { Flex, Box, Text, useToast } from "@chakra-ui/react";
 import { useUser } from "../context/useUser";
 import { useRouter } from "next/router";
-import { useGetUserBalance } from "../contracts/useVibesToken";
+import { useGetUserBalance } from "../contracts/useToken";
 
 export type UseVibesCheckType = {
   vibesTokenTxs: TradeableTokenTx[];
@@ -29,6 +26,7 @@ export type UseVibesCheckType = {
   >;
   currentBlockNumberForVibes: bigint;
   lastChainInteractionTimestamp: number;
+  refetchVibesBalance: () => void;
 };
 
 export const useVibesCheckInitial: UseVibesCheckType = {
@@ -38,6 +36,7 @@ export const useVibesCheckInitial: UseVibesCheckType = {
   chartTimeIndexes: new Map(),
   currentBlockNumberForVibes: BigInt(0),
   lastChainInteractionTimestamp: 0,
+  refetchVibesBalance: () => undefined,
 };
 
 export const useVibesCheck = () => {
@@ -50,7 +49,6 @@ export const useVibesCheck = () => {
     Map<string, { index: number | undefined; blockNumber: number }>
   >(new Map());
   const fetching = useRef(false);
-  const toast = useToast();
   const router = useRouter();
 
   const { balance: vibesBalance, refetch: refetchVibesBalance } =
@@ -61,8 +59,6 @@ export const useVibesCheck = () => {
 
   const [currentBlockNumberForVibes, setCurrentBlockNumberForVibes] =
     useState<bigint>(BigInt(0));
-
-  const eventQueueRef = useRef<Log[]>([]);
 
   const baseClient = useMemo(
     () =>
@@ -75,90 +71,69 @@ export const useVibesCheck = () => {
     []
   );
 
-  /**
-   * These two useContractEvent calls are used to listen for mint and burn events
-   * Every call is inportant and every piece of information returned should be in
-   * the order they were initiated. Therefore, we will use a queue system to ensure
-   * that the events are in the correct order, regardless of the individual status
-   * per asynchronous call.
-   */
-  useContractEvent({
-    address: contract.address,
-    abi: contract.abi,
-    eventName: loading ? undefined : "Mint",
-    listener(logs) {
-      console.log("vibes Mint event detected", logs);
-      const sortedLogs = logs.sort(
-        (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
-      );
-      setLastChainInteractionTimestamp(Date.now());
-      sortedLogs.forEach((log) => {
-        eventQueueRef.current.push(log);
-        if (eventQueueRef.current.length === 1) {
-          processQueue();
-        }
+  const getVibesEvents = useCallback(
+    async (_contract: ContractData, fromBlock: bigint) => {
+      const [mintLogs, burnLogs] = await Promise.all([
+        baseClient.getLogs({
+          address: _contract.address,
+          event: parseAbiItem(
+            "event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply)"
+          ),
+          fromBlock: fromBlock === BigInt(0) ? CREATION_BLOCK : fromBlock,
+        }),
+        baseClient.getLogs({
+          address: _contract.address,
+          event: parseAbiItem(
+            "event Burn(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply)"
+          ),
+          fromBlock: fromBlock === BigInt(0) ? CREATION_BLOCK : fromBlock,
+        }),
+      ]);
+      const logs = [...mintLogs, ...burnLogs];
+      logs.sort((a, b) => {
+        if (a.blockNumber === null || b.blockNumber === null) return 0;
+        if (a.blockNumber < b.blockNumber) return -1;
+        if (a.blockNumber > b.blockNumber) return 1;
+        return 0;
       });
+      const _tokenTxs: TradeableTokenTx[] = [];
+      const previousFetchedTx =
+        tokenTxs.length > 0 ? tokenTxs[tokenTxs.length - 1] : undefined;
+      for (let i = 0; i < logs.length; i++) {
+        const event = logs[i];
+        const n = Number(event.args.totalSupply as bigint);
+        const n_ = Math.max(n - 1, 0);
+        const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
+        const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+        const newPrice = priceForCurrent - priceForPrevious;
+        const previousTxPrice =
+          i === 0
+            ? previousFetchedTx?.price ?? 0
+            : _tokenTxs.length > 0
+            ? _tokenTxs[_tokenTxs.length - 1].price
+            : 0;
+        const priceChangePercentage =
+          previousTxPrice > 0
+            ? ((newPrice - previousTxPrice) / previousTxPrice) * 100
+            : 0;
+        const tx: TradeableTokenTx = {
+          eventName: event.eventName,
+          user: event.args.account as `0x${string}`,
+          amount: event.args.amount as bigint,
+          price: newPrice,
+          blockNumber: Number(event.blockNumber),
+          supply: event.args.totalSupply as bigint,
+          priceChangePercentage,
+        };
+        _tokenTxs.push(tx);
+      }
+      setTokenTxs((prev) => [...prev, ..._tokenTxs]);
     },
-  });
-
-  useContractEvent({
-    address: contract.address,
-    abi: contract.abi,
-    eventName: loading ? undefined : "Burn",
-    listener(logs) {
-      console.log("vibes Burn event detected", logs);
-      const sortedLogs = logs.sort(
-        (a, b) => Number(a.blockNumber) - Number(b.blockNumber)
-      );
-      setLastChainInteractionTimestamp(Date.now());
-      sortedLogs.forEach((log) => {
-        eventQueueRef.current.push(log);
-        if (eventQueueRef.current.length === 1) {
-          processQueue();
-        }
-      });
-    },
-  });
-
-  const processQueue = async () => {
-    while (eventQueueRef.current.length > 0) {
-      const log = eventQueueRef.current[0];
-      await handleEvent(log);
-      eventQueueRef.current.shift();
-    }
-  };
-
-  const handleEvent = async (log: any) => {
-    const eventName = log?.eventName;
-    const n = Number(log?.args.totalSupply as bigint);
-    const n_ = Math.max(n - 1, 0);
-    const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-    const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
-    const newPrice = priceForCurrent - priceForPrevious;
-    const previousTxPrice =
-      tokenTxs.length > 0 ? tokenTxs[tokenTxs.length - 1].price : 0;
-    const eventTx: TradeableTokenTx = {
-      eventName: eventName,
-      user: log?.args.account as `0x${string}`,
-      amount: log?.args.amount as bigint,
-      price: newPrice,
-      blockNumber: Number(log?.blockNumber as bigint),
-      supply: log?.args.totalSupply as bigint,
-      priceChangePercentage:
-        tokenTxs.length === 0
-          ? 0
-          : ((newPrice - previousTxPrice) / previousTxPrice) * 100,
-    };
-    console.log("detected", eventName, eventTx);
-    setTokenTxs((prev) => {
-      const newTokenTxs = insertElementSorted(prev, eventTx);
-      console.log("newTokenTxs", newTokenTxs);
-      return newTokenTxs;
-    });
-  };
+    [baseClient, tokenTxs]
+  );
 
   useEffect(() => {
-    const getVibesEvents = async () => {
+    const init = async () => {
       const pathnameAccepted =
         router.pathname.startsWith("/channels") ||
         router.pathname.startsWith("/mobile") ||
@@ -176,62 +151,31 @@ export const useVibesCheck = () => {
         return;
       }
       fetching.current = true;
-      const [mintLogs, burnLogs] = await Promise.all([
-        baseClient.getLogs({
-          address: contract.address,
-          event: parseAbiItem(
-            "event Mint(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply)"
-          ),
-          fromBlock: CREATION_BLOCK,
-        }),
-        baseClient.getLogs({
-          address: contract.address,
-          event: parseAbiItem(
-            "event Burn(address indexed account, uint256 amount, address indexed streamerAddress, uint256 indexed totalSupply)"
-          ),
-          fromBlock: CREATION_BLOCK,
-        }),
-      ]);
-      console.log("vibes token mintLogs length", mintLogs.length);
-      console.log("vibes token burnLogs length", burnLogs.length);
-      const logs = [...mintLogs, ...burnLogs];
-      logs.sort((a, b) => {
-        if (a.blockNumber === null || b.blockNumber === null) return 0;
-        if (a.blockNumber < b.blockNumber) return -1;
-        if (a.blockNumber > b.blockNumber) return 1;
-        return 0;
-      });
-      const _tokenTxs: TradeableTokenTx[] = [];
-      for (let i = 0; i < logs.length; i++) {
-        const event = logs[i];
-        const n = Number(event.args.totalSupply as bigint);
-        const n_ = Math.max(n - 1, 0);
-        const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-        const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
-        const newPrice = priceForCurrent - priceForPrevious;
-        const previousTxPrice =
-          _tokenTxs.length > 0 ? _tokenTxs[_tokenTxs.length - 1].price : 0;
-        const tx: TradeableTokenTx = {
-          eventName: event.eventName,
-          user: event.args.account as `0x${string}`,
-          amount: event.args.amount as bigint,
-          price: newPrice,
-          blockNumber: Number(event.blockNumber),
-          supply: event.args.totalSupply as bigint,
-          priceChangePercentage:
-            i > 0 && _tokenTxs.length > 0
-              ? ((newPrice - previousTxPrice) / previousTxPrice) * 100
-              : 0,
-        };
-        _tokenTxs.push(tx);
-      }
+      await getVibesEvents(contract, BigInt(0));
       fetching.current = false;
-      console.log("setting vibes token txs,", _tokenTxs.length, "count");
-      setTokenTxs(_tokenTxs);
       setLoading(false);
     };
-    getVibesEvents();
+    init();
   }, [baseClient, contract.address, router]);
+
+  useEffect(() => {
+    if (tokenTxs.length === 0) return;
+    // Fetching logs from the last known block number to 'latest' or current block
+    const fetchVibesEvents = async () => {
+      await getVibesEvents(
+        contract,
+        tokenTxs.length > 0
+          ? BigInt(tokenTxs[tokenTxs.length - 1].blockNumber + 1)
+          : BigInt(0)
+      );
+    };
+
+    // Initialize interval
+    const intervalId = setInterval(fetchVibesEvents, 6000);
+
+    // Cleanup function to clear the interval when component unmounts or conditions change
+    return () => clearInterval(intervalId);
+  }, [tokenTxs, contract]);
 
   useEffect(() => {
     const init = async () => {
@@ -305,57 +249,6 @@ export const useVibesCheck = () => {
     init();
   }, [tokenTxs.length]);
 
-  const [transferLogs, setTransferLogs] = useState<Log[]>([]);
-
-  useContractEvent({
-    address: contract.address,
-    abi: contract.abi,
-    eventName: "Transfer",
-    listener(logs) {
-      setTransferLogs(logs);
-    },
-  });
-
-  useEffect(() => {
-    if (transferLogs.length > 0) {
-      const includesUser = transferLogs.some(
-        (log: any) =>
-          (log?.args?.from as `0x${string}`) === userAddress ||
-          (log?.args?.to as `0x${string}`) === userAddress
-      );
-      if (includesUser) {
-        console.log("Detected vibes transfer event", transferLogs);
-        refetchVibesBalance();
-        const incomingReceives = transferLogs.filter(
-          (log: any) =>
-            (log?.args?.from as `0x${string}`) !== NULL_ADDRESS &&
-            (log?.args?.to as `0x${string}`) === userAddress
-        );
-        if (incomingReceives.length > 0) {
-          toast({
-            duration: 5000,
-            isClosable: true,
-            render: () => (
-              <Box borderRadius="md" bg="#8e64dd" px={4} h={8}>
-                <Flex justifyContent="center" alignItems="center">
-                  <Text fontSize="16px" color="white">
-                    Some people sent you vibes! 🎉
-                  </Text>
-                  <Text>
-                    Got{" "}
-                    {incomingReceives.reduce((acc, cv: any) => {
-                      return acc + Number(cv?.args?.value as bigint);
-                    }, 0)}
-                  </Text>
-                </Flex>
-              </Box>
-            ),
-          });
-        }
-      }
-    }
-  }, [transferLogs]);
-
   return {
     vibesTokenTxs: tokenTxs,
     vibesTokenLoading: loading,
@@ -363,6 +256,7 @@ export const useVibesCheck = () => {
     chartTimeIndexes,
     currentBlockNumberForVibes,
     lastChainInteractionTimestamp,
+    refetchVibesBalance,
   };
 };
 
@@ -390,23 +284,6 @@ export function binarySearchIndex(
 
   // Target not found, return the insertion position
   return left;
-}
-
-export function insertElementSorted(
-  arr: TradeableTokenTx[],
-  newElement: TradeableTokenTx
-) {
-  // Find the insertion index
-  let insertIndex = arr.length;
-  for (let i = arr.length - 1; i >= 0; i--) {
-    if (arr[i].blockNumber <= newElement.blockNumber) {
-      // Found the position to insert
-      insertIndex = i + 1;
-      break;
-    }
-  }
-
-  return [...arr.slice(0, insertIndex), newElement, ...arr.slice(insertIndex)];
 }
 
 export function blockNumberHoursAgo(hours: number, currentBlockNumber: bigint) {

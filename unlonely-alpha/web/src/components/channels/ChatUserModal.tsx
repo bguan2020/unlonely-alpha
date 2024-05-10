@@ -17,6 +17,7 @@ import {
   AblyChannelPromise,
   CHANGE_USER_ROLE_EVENT,
   Contract,
+  TOKEN_TRANSFER_EVENT,
 } from "../../constants";
 import { NETWORKS } from "../../constants/networks";
 import { useCacheContext } from "../../hooks/context/useCache";
@@ -31,13 +32,11 @@ import {
   filteredInput,
   formatIncompleteNumber,
 } from "../../utils/validation/input";
-import {
-  useGetUserBalance,
-  useTransfer,
-} from "../../hooks/contracts/useVibesToken";
+import { useGetUserBalance, useTransfer } from "../../hooks/contracts/useToken";
 import Link from "next/link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
+import { useVibesContext } from "../../hooks/context/useVibes";
 
 export const ChatUserModal = ({
   isOpen,
@@ -56,7 +55,8 @@ export const ChatUserModal = ({
   const { channelQueryData, channelRoles } = c;
   const { network } = useNetworkContext();
   const { matchingChain, explorerUrl } = network;
-  const { vibesTokenTxs, userVibesBalance, ethPriceInUsd } = useCacheContext();
+  const { ethPriceInUsd } = useCacheContext();
+  const { vibesTokenTxs, userVibesBalance } = useVibesContext();
 
   const [isBanning, setIsBanning] = useState<boolean>(false);
   const [isAppointing, setIsAppointing] = useState<boolean>(false);
@@ -121,6 +121,17 @@ export const ChatUserModal = ({
           duration: 9000,
           isClosable: true,
           position: "top-right",
+        });
+        channel.publish({
+          name: TOKEN_TRANSFER_EVENT,
+          data: {
+            body: JSON.stringify({
+              from: user?.address,
+              to: targetUser?.address,
+              amount: Number(amountOfVibesToSend),
+              symbol: "vibes",
+            }),
+          },
         });
         setAmountOfVibesToSend("10");
       },
@@ -368,7 +379,7 @@ export const ChatUserModal = ({
                 )}
               </Flex>
               <Flex direction="column" gap="10px">
-                {targetUser.address !== user?.address && (
+                {true && (
                   <>
                     {!isSendingVibes ? (
                       <Button

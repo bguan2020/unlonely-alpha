@@ -12,10 +12,13 @@ import {
   AblyChannelPromise,
   CHAT_MESSAGE_EVENT,
   InteractionType,
+  PINNED_CHAT_MESSAGES_EVENT,
 } from "../../constants";
 import { ChatUserModal } from "../channels/ChatUserModal";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { ChatUserModal_token } from "../channels/ChatUserModal_token";
+import useUpdatePinnedChatMessages from "../../hooks/server/channel/useUpdatePinnedChatMessages";
+import PinnedMessageBody from "./PinnedMessageBody";
 
 type MessageListProps = {
   messages: Message[];
@@ -24,37 +27,42 @@ type MessageListProps = {
   isAtBottomCallback: (value: boolean) => void;
   isVipChat?: boolean;
   tokenForTransfer: "vibes" | "tempToken";
+  hidePinnedMessages: boolean;
 };
 
 type MessageItemProps = {
   message: Message;
   index: number;
   handleOpen: (value?: SelectedUser) => void;
+  handlePinCallback: (value: string) => void;
 };
 
-const MessageItem = memo(({ message, handleOpen, index }: MessageItemProps) => {
-  const messageText = message.data.messageText;
-  const linkArray: RegExpMatchArray | null = messageText.match(
-    /((https?:\/\/)|(www\.))[^\s/$.?#].[^\s]*/g
-  );
+const MessageItem = memo(
+  ({ message, handleOpen, index, handlePinCallback }: MessageItemProps) => {
+    const messageText = message.data.messageText;
+    const linkArray: RegExpMatchArray | null = messageText.match(
+      /((https?:\/\/)|(www\.))[^\s/$.?#].[^\s]*/g
+    );
 
-  return (
-    <div
-      key={message.id || index}
-      style={{
-        padding: "2px",
-      }}
-    >
-      <MessageBody
-        index={index}
-        message={message}
-        messageText={messageText}
-        linkArray={linkArray}
-        handleOpen={handleOpen}
-      />
-    </div>
-  );
-});
+    return (
+      <div
+        key={message.id || index}
+        style={{
+          padding: "2px",
+        }}
+      >
+        <MessageBody
+          index={index}
+          message={message}
+          messageText={messageText}
+          linkArray={linkArray}
+          handleOpen={handleOpen}
+          handlePinCallback={handlePinCallback}
+        />
+      </div>
+    );
+  }
+);
 
 const excludedChatbotInteractionTypesInVipChat = [
   InteractionType.BUY,
@@ -91,8 +99,10 @@ const MessageList = memo(
     isAtBottomCallback,
     isVipChat,
     tokenForTransfer,
+    hidePinnedMessages,
   }: MessageListProps) => {
-    const { ui } = useChannelContext();
+    const { ui, channel: c } = useChannelContext();
+    const { pinnedChatMessages, channelQueryData } = c;
     const { selectedUserInChat, handleSelectedUserInChat } = ui;
     const chatMessages = useMemo(() => {
       if (isVipChat) {
@@ -113,6 +123,30 @@ const MessageList = memo(
         return messages.filter((m) => m.name === CHAT_MESSAGE_EVENT);
       }
     }, [messages, isVipChat]);
+
+    const { updatePinnedChatMessages } = useUpdatePinnedChatMessages({});
+
+    const handleUpdatePinnedChatMessages = async (value: string) => {
+      if (channelQueryData?.id) {
+        const isPinned = pinnedChatMessages.includes(value);
+        let updatedPinnedChatMessages: string[] = [];
+        if (isPinned) {
+          updatedPinnedChatMessages = pinnedChatMessages.filter(
+            (item) => item !== value
+          );
+        } else {
+          updatedPinnedChatMessages = [...pinnedChatMessages, value];
+        }
+        await updatePinnedChatMessages({
+          id: channelQueryData?.id,
+          pinnedChatMessages: updatedPinnedChatMessages,
+        });
+        channel?.publish({
+          name: PINNED_CHAT_MESSAGES_EVENT,
+          data: { body: JSON.stringify(updatedPinnedChatMessages) },
+        });
+      }
+    };
 
     return (
       <>
@@ -135,6 +169,18 @@ const MessageList = memo(
             }}
           />
         )}
+        {!hidePinnedMessages && pinnedChatMessages.length > 0 && (
+          <Flex direction="column">
+            {pinnedChatMessages.map((m) => {
+              return (
+                <PinnedMessageBody
+                  messageText={m}
+                  handlePinCallback={handleUpdatePinnedChatMessages}
+                />
+              );
+            })}
+          </Flex>
+        )}
         {chatMessages.length > 0 ? (
           <Virtuoso
             followOutput={"auto"}
@@ -152,6 +198,7 @@ const MessageList = memo(
                 key={data.id || index}
                 message={data}
                 handleOpen={handleSelectedUserInChat}
+                handlePinCallback={handleUpdatePinnedChatMessages}
                 index={index}
               />
             )}

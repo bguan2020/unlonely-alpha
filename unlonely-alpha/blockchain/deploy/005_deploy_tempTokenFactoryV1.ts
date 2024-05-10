@@ -1,7 +1,7 @@
 import {HardhatRuntimeEnvironment} from "hardhat/types";
 import {DeployFunction} from "hardhat-deploy/types";
 
-const FEE_DESTINATION = "0x53D6D64945A67658C66730Ff4a038eb298eC8902";
+const FEE_DESTINATION = "0x53D6D64945A67658C66730Ff4a038eb298eC8902"; // todo: change to 0x53D6D64945A67658C66730Ff4a038eb298eC8902 on production
 const ONE_ETHER = BigInt(10) ** BigInt(18);
 
 const PROTOCOL_FEE_PERCENT = 5;
@@ -25,6 +25,6 @@ export default func;
 func.tags = ["All", "TempTokenFactoryV1"]
 
 /** 
-npx hardhat deploy --network base_sepolia --tags All,TempTokenFactoryV1
-npx hardhat --network base_sepolia etherscan-verify
+npx hardhat deploy --network base --tags All,TempTokenFactoryV1
+npx hardhat --network base etherscan-verify
 */

@@ -1273,8 +1273,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\TempTokenV1.sol": {
-      "lastModificationDate": 1713291093172,
-      "contentHash": "629f40f17c0f499b574353f9b3881f69",
+      "lastModificationDate": 1714071398196,
+      "contentHash": "58b158f65c5ed1c2cbbc600bccfac437",
       "sourceName": "contracts/TempTokenV1.sol",
       "solcConfig": {
         "version": "0.8.8",
@@ -1319,8 +1319,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\TempTokenFactoryV1.sol": {
-      "lastModificationDate": 1713291574381,
-      "contentHash": "27d6a23a663daf469b2368fad3e16301",
+      "lastModificationDate": 1715274286950,
+      "contentHash": "44522f0e43798cdebb8422f2b934b1d3",
       "sourceName": "contracts/TempTokenFactoryV1.sol",
       "solcConfig": {
         "version": "0.8.8",
@@ -1353,7 +1353,8 @@
         }
       },
       "imports": [
-        "./TempTokenV1.sol"
+        "./TempTokenV1.sol",
+        "@openzeppelin/contracts/access/Ownable.sol"
       ],
       "versionPragmas": [
         "^0.8.2"

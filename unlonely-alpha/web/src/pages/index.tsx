@@ -46,6 +46,7 @@ import ChannelList from "../components/channels/ChannelList";
 import VibesTokenInterface from "../components/chat/VibesTokenInterface";
 import HeroBanner from "../components/layout/HeroBanner";
 import TempTokenLeaderboard from "../components/leaderboards/TempTokenLeaderboard";
+import { VibesProvider } from "../hooks/context/useVibes";
 
 const FixedComponent = ({
   newHeightPercentage,
@@ -693,7 +694,7 @@ export default function Page() {
   if (feedError) console.error("channel feed query error:", feedError);
 
   return (
-    <>
+    <VibesProvider>
       {ready ? (
         <>
           {!isStandalone ? (
@@ -715,6 +716,6 @@ export default function Page() {
           <Spinner />
         </AppLayout>
       )}
-    </>
+    </VibesProvider>
   );
 }

@@ -1,14 +1,24 @@
 import { Flex, Text, Box, Button } from "@chakra-ui/react";
-import { ChatReturnType, useChatBox } from "../../hooks/chat/useChat";
+import { ChatReturnType } from "../../hooks/chat/useChat";
 import MessageList from "./MessageList";
 import ChatForm from "./ChatForm";
-import { TempTokenTimerView } from "../channels/temp/TempTokenTimer";
+import {
+  SingleTempTokenTimerView,
+  VersusTempTokenTimerView,
+} from "../channels/temp/TempTokenTimer";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { EXCLUDED_SLUGS } from "./ChatComponent";
 import { useState } from "react";
 import Participants from "../presence/Participants";
+import { useChatBox } from "../../hooks/chat/useChatBox";
 
-export const ChatWithTokenTimer = ({ chat }: { chat: ChatReturnType }) => {
+export const ChatWithTempTokenTimer = ({
+  chat,
+  mode,
+}: {
+  chat: ChatReturnType;
+  mode: "single-temp-token" | "versus-mode";
+}) => {
   const { chat: chatContext, channel } = useChannelContext();
   const { presenceChannel } = chatContext;
   const { channelQueryData, isOwner } = channel;
@@ -36,12 +46,17 @@ export const ChatWithTokenTimer = ({ chat }: { chat: ChatReturnType }) => {
       zIndex={1}
       bg="rgba(10, 6, 52, 0.9)"
       width="25%"
-      height="80%"
+      height="50%"
       right="0"
       top="0"
     >
       <Flex justifyContent={"center"} bg="rgba(11, 5, 63, 0.534)">
-        <TempTokenTimerView disableChatbot={false} />
+        {mode === "single-temp-token" && (
+          <SingleTempTokenTimerView disableChatbot={false} />
+        )}
+        {mode === "versus-mode" && (
+          <VersusTempTokenTimerView disableChatbot={false} />
+        )}
       </Flex>
       {presenceChannel && (
         <Flex
@@ -76,6 +91,7 @@ export const ChatWithTokenTimer = ({ chat }: { chat: ChatReturnType }) => {
       )}
       <Flex direction="column" id={"chat"} height="100%">
         <MessageList
+          hidePinnedMessages={true}
           scrollRef={scrollRef}
           messages={chat.receivedMessages}
           channel={chat.channel}

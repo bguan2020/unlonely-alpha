@@ -1,16 +1,16 @@
 import { useContext, createContext, useMemo } from "react";
 import {
-  UseReadTempTokenStateType,
+  UseReadTempTokenContextStateType,
   useReadTempTokenInitialState,
-  useReadTempTokenState,
-} from "../internal/temp-token/read/useReadTempTokenState";
+  useReadTempTokenContextState,
+} from "../internal/temp-token/read/useReadTempTokenContextState";
 
 export const useTempTokenContext = () => {
   return useContext(TempTokenContext);
 };
 
 const TempTokenContext = createContext<{
-  tempToken: UseReadTempTokenStateType;
+  tempToken: UseReadTempTokenContextStateType;
 }>({
   tempToken: useReadTempTokenInitialState,
 });
@@ -20,7 +20,7 @@ export const TempTokenProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const readTempToken = useReadTempTokenState();
+  const readTempToken = useReadTempTokenContextState();
 
   const value = useMemo(() => {
     return {

@@ -118,11 +118,13 @@ export const TempTokenCreationModal = ({
               _focus={{}}
               _active={{}}
               bg={
-                newTokenTotalSupplyThreshold === EASY_THRESHOLD
+                newTokenTotalSupplyThreshold === BigInt(EASY_THRESHOLD)
                   ? "#02d650"
                   : "#ffffff"
               }
-              onClick={() => handleNewTokenTotalSupplyThreshold(EASY_THRESHOLD)}
+              onClick={() =>
+                handleNewTokenTotalSupplyThreshold(BigInt(EASY_THRESHOLD))
+              }
             >
               <Text>EASY</Text>
             </Button>
