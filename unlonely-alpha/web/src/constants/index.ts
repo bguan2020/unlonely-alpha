@@ -123,7 +123,7 @@ export const CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN = [
 ];
 
 export const CAN_USE_VERSUS_MODE_SLUGS = [
-  "danny",
+  // "danny",
   "versus", 
   "brian"];
 

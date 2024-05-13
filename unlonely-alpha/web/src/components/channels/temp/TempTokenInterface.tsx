@@ -310,11 +310,9 @@ export const TempTokenInterface = ({
             <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
               ${currentActiveTokenSymbol}
             </Text>
-            {!isOwner && (
-              <SingleTempTokenTimerView
-                disableChatbot={true}
-                fontSize={isFullChart ? undefined : 20}
-              />
+            {isFullChart && <SingleTempTokenTimerView disableChatbot={true} />}
+            {!isFullChart && !isOwner && !canPlayToken && (
+              <SingleTempTokenTimerView disableChatbot={true} fontSize={20} />
             )}
             {!isFullChart && (
               <Flex>

@@ -252,11 +252,9 @@ export const VersusTempTokensInterface = ({
               </Button>
             </Flex>
           )}
-          {!isOwner && isGameOngoing && (
-            <VersusTempTokenTimerView
-              disableChatbot={true}
-              fontSize={isFullChart ? undefined : 20}
-            />
+          {isFullChart && <VersusTempTokenTimerView disableChatbot={true} />}
+          {!isFullChart && !isOwner && isGameOngoing && !canPlayToken && (
+            <VersusTempTokenTimerView disableChatbot={true} fontSize={20} />
           )}
           {!isFullChart && (
             <Flex>
