@@ -129,7 +129,7 @@ export const DesktopChannelPageVersus = ({
                   />
                 )}
               </Flex>
-              {canPlayToken && (
+              {canPlayToken ? (
                 <Flex
                   direction="column"
                   minW={["100%", "100%", "500px", "500px"]}
@@ -141,8 +141,7 @@ export const DesktopChannelPageVersus = ({
                     customHeight="100%"
                   />
                 </Flex>
-              )}
-              {!canPlayToken && (
+              ) : (
                 <Flex
                   direction="column"
                   minW={["100%", "100%", "380px", "380px"]}

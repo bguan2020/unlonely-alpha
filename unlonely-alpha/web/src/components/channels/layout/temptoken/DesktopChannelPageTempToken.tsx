@@ -1,26 +1,26 @@
 import { ApolloError } from "@apollo/client";
 import { ChannelStaticQuery } from "../../../../generated/graphql";
-import { useChannelContext } from "../../../../hooks/context/useChannel";
-import { useChat } from "../../../../hooks/chat/useChat";
 import { useEffect, useMemo, useState } from "react";
+import { useChat } from "../../../../hooks/chat/useChat";
+import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { useUser } from "../../../../hooks/context/useUser";
-import ChannelNextHead from "../../../layout/ChannelNextHead";
-import { Stack, Flex, Text, Button, useToast } from "@chakra-ui/react";
-import { WavyText } from "../../../general/WavyText";
-import { ChannelWideModals } from "../../ChannelWideModals";
-import { DesktopChannelViewerPerspectiveSimplified } from "./DesktopChannelViewerPerspectiveSimplified";
-import ChatComponent from "../../../chat/ChatComponent";
-import { DesktopChannelStreamerPerspectiveSimplified } from "./DesktopChannelStreamerPerspectiveSimplified";
-import { TempTokenInterface } from "../../temp/TempTokenInterface";
-import Header from "../../../navigation/Header";
-import trailString from "../../../../utils/trailString";
-import copy from "copy-to-clipboard";
-import { useTempTokenContext } from "../../../../hooks/context/useTempToken";
-import { useVipBadgeUi } from "../../../../hooks/internal/useVipBadgeUi";
 import { useLivepeerStreamData } from "../../../../hooks/internal/useLivepeerStreamData";
-import { CreateTokenInterface } from "./CreateTempTokenInterface";
+import { useVipBadgeUi } from "../../../../hooks/internal/useVipBadgeUi";
+import { Button, Flex, Stack, useToast, Text } from "@chakra-ui/react";
+import copy from "copy-to-clipboard";
 import { formatApolloError } from "../../../../utils/errorFormatting";
+import trailString from "../../../../utils/trailString";
+import ChatComponent from "../../../chat/ChatComponent";
+import { WavyText } from "../../../general/WavyText";
+import ChannelNextHead from "../../../layout/ChannelNextHead";
+import Header from "../../../navigation/Header";
+import { ChannelWideModals } from "../../ChannelWideModals";
+import { DesktopChannelStreamerPerspectiveSimplified } from "../temptoken/DesktopChannelStreamerPerspectiveSimplified";
+import { DesktopChannelViewerPerspectiveSimplified } from "../temptoken/DesktopChannelViewerPerspectiveSimplified";
+import { useTempTokenContext } from "../../../../hooks/context/useTempToken";
 import { useTempTokenAblyInterpreter } from "../../../../hooks/internal/temp-token/ui/useTempTokenAblyInterpreter";
+import { TempTokenInterface } from "../../temp/TempTokenInterface";
+import { CreateTokenInterface } from "./CreateTempTokenInterface";
 
 export const DesktopChannelPageTempToken = ({
   channelSSR,
@@ -42,6 +42,7 @@ export const DesktopChannelPageTempToken = ({
     isOwner,
   } = channel;
   const { currentActiveTokenEndTimestamp, canPlayToken } = tempToken;
+
   const toast = useToast();
   const { livepeerData, playbackInfo } = useLivepeerStreamData();
   useVipBadgeUi(chat);
