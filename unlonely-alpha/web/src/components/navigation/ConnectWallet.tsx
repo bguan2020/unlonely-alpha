@@ -267,7 +267,7 @@ const ConnectedDisplay = () => {
         }
       };
       fetch();
-    }, 60000);
+    }, 90000);
 
     return () => clearInterval(interval);
   }, []);

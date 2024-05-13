@@ -12,7 +12,6 @@ import {
   Step,
   StepIcon,
   StepIndicator,
-  StepNumber,
   StepSeparator,
   StepStatus,
   StepTitle,
@@ -253,7 +252,12 @@ export const VersusTempTokensInterface = ({
               </Button>
             </Flex>
           )}
-          {isFullChart && <VersusTempTokenTimerView disableChatbot={true} />}
+          {!isOwner && isGameOngoing && (
+            <VersusTempTokenTimerView
+              disableChatbot={true}
+              fontSize={isFullChart ? undefined : 20}
+            />
+          )}
           {!isFullChart && (
             <Flex>
               {canPlayToken && (
@@ -335,11 +339,7 @@ export const VersusTempTokensInterface = ({
           {steps.map((step, index) => (
             <Step key={index}>
               <StepIndicator>
-                <StepStatus
-                  complete={<StepIcon />}
-                  incomplete={<StepNumber />}
-                  active={<StepNumber />}
-                />
+                <StepStatus complete={<StepIcon />} />
               </StepIndicator>
 
               <Box>

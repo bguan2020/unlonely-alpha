@@ -130,7 +130,7 @@ export const useGetClaimBetEvents = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCounter((prev) => prev + 1);
-    }, 1000 * 60 * 8);
+    }, 1000 * 60 * 15);
 
     return () => clearInterval(interval);
   }, []);
