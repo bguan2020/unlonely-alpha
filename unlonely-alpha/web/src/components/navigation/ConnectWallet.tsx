@@ -36,6 +36,7 @@ import { useNetworkContext } from "../../hooks/context/useNetwork";
 import useUpdateUser from "../../hooks/server/useUpdateUser";
 import trailString from "../../utils/trailString";
 import { OwnedChannelsModal } from "../channels/OwnedChannelsModal";
+import { formatUnits } from "viem";
 
 const ConnectWallet = () => {
   const router = useRouter();
@@ -211,7 +212,7 @@ const ConnectedDisplay = () => {
 
     return (
       Number(feeData?.formatted?.gasPrice ?? "0") >
-      Number(userEthBalance.formatted)
+      Number(formatUnits(userEthBalance.value, 18))
     );
   }, [feeData?.formatted?.gasPrice, userEthBalance, matchingChain]);
 
@@ -267,7 +268,7 @@ const ConnectedDisplay = () => {
         }
       };
       fetch();
-    }, 60000);
+    }, 90000);
 
     return () => clearInterval(interval);
   }, []);

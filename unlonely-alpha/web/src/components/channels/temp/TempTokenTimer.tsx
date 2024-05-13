@@ -8,8 +8,10 @@ import { useVersusTempTokenTimerState } from "../../../hooks/internal/versus-tok
 
 export const SingleTempTokenTimerView = ({
   disableChatbot,
+  fontSize,
 }: {
   disableChatbot: boolean;
+  fontSize?: number;
 }) => {
   const { tempToken } = useTempTokenContext();
   const {
@@ -42,7 +44,11 @@ export const SingleTempTokenTimerView = ({
             bg={"rgba(0, 0, 0, 0.2)"}
             className={"flashing-text"}
           >
-            <Text fontSize={"40px"} color={"#ec3f3f"} fontWeight="bold">
+            <Text
+              fontSize={`${fontSize ?? 40}px`}
+              color={"#ec3f3f"}
+              fontWeight="bold"
+            >
               {currentActiveTokenIsAlwaysTradable
                 ? "winner"
                 : durationLeftForTempToken
@@ -57,8 +63,10 @@ export const SingleTempTokenTimerView = ({
 
 export const VersusTempTokenTimerView = ({
   disableChatbot,
+  fontSize,
 }: {
   disableChatbot: boolean;
+  fontSize?: number;
 }) => {
   const { gameState } = useVersusTempTokenContext();
   const { tokenA, tokenB, handleCanPlayToken, handleIsGameFinished } =
@@ -83,7 +91,11 @@ export const VersusTempTokenTimerView = ({
             bg={"rgba(0, 0, 0, 0.2)"}
             className={"flashing-text"}
           >
-            <Text fontSize={"40px"} color={"#ec3f3f"} fontWeight="bold">
+            <Text
+              fontSize={`${fontSize ?? 40}px`}
+              color={"#ec3f3f"}
+              fontWeight="bold"
+            >
               {durationLeftForTempToken
                 ? getTimeFromMillis(durationLeftForTempToken * 1000, true, true)
                 : "expired"}
