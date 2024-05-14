@@ -40,8 +40,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     uint256 public constant PRE_SALE_PRICE_PER_TOKEN = 4 * 10**12; // wei per token
     uint256 public constant PRE_SALE_MAX_MINT = 1000; // max tokens per transaction during PRE_SALE
     uint256 public constant MAX_PRE_SALE_SUPPLY = 100000; // max supply for PRE_SALE
-    uint256 public constant PRE_SALE_DURATION = 2 minutes; // duration of the PRE_SALE phase
-    uint256 public preSaleEndTime; // tracks when the token sale ends
+    uint256 public preSaleEndTimestamp; // tracks when the token sale ends
 
     event Mint(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 endTimestamp, bool hasHitTotalSupplyThreshold, uint256 highestTotalSupply);
     event Burn(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent);
@@ -83,7 +82,8 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         uint256 _streamerFeePercent,
         uint256 _totalSupplyThreshold,
         address _factoryAddress,
-        uint256 _creationBlockNumber
+        uint256 _creationBlockNumber,
+        uint256 _preSaleEndTimestamp
     ) ERC20(name, symbol) {
         require(_protocolFeeDestination != address(0), "Fee destination cannot be the zero address");
         
@@ -97,7 +97,7 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         isAlwaysTradeable = false;
         creationBlockNumber = _creationBlockNumber;
         saleState = SaleState.PRE_SALE;
-        preSaleEndTime = block.timestamp + PRE_SALE_DURATION;
+        preSaleEndTimestamp = _preSaleEndTimestamp;
     }
 
     /**
@@ -308,6 +308,10 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         return block.timestamp < endTimestamp;
     }
 
+    function getIsPreSaleOver() public view returns (bool) {
+        return saleState == SaleState.POST_SALE;
+    }
+
     function getBalance() external view returns (uint256) {
         return address(this).balance;
     }
@@ -318,8 +322,8 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     }
 
     function updateSaleState() internal {
-    if (saleState == SaleState.PRE_SALE && (totalSupply() >= MAX_PRE_SALE_SUPPLY || block.timestamp >= preSaleEndTime)) {
-        saleState = SaleState.POST_SALE;
+        if (saleState == SaleState.PRE_SALE && (totalSupply() >= MAX_PRE_SALE_SUPPLY || block.timestamp >= preSaleEndTimestamp)) {
+            saleState = SaleState.POST_SALE;
+        }
     }
-}
 }

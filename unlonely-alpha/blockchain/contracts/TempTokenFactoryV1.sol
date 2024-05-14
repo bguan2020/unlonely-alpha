@@ -28,6 +28,7 @@ contract TempTokenFactoryV1 is Ownable {
         uint256 protocolFeePercent;
         uint256 streamerFeePercent;
         uint256 creationBlockNumber;
+        uint256 preSaleEndTimestamp;
     }
 
     /**
@@ -62,8 +63,8 @@ contract TempTokenFactoryV1 is Ownable {
     bool public isPaused;
     uint256 public maxDuration;
 
-    event TempTokenCreated(address indexed tokenAddress, address indexed owner, string name, string symbol, uint256 endTimestamp, address protocolFeeDestination, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 totalSupplyThreshold, uint256 creationBlockNumber);
-    event MultipleTempTokensCreated(address[] tokenAddresses, address indexed owner, string[] names, string[] symbols, uint256 endTimestamp, address protocolFeeDestination, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 totalSupplyThreshold, uint256 creationBlockNumber);
+    event TempTokenCreated(address indexed tokenAddress, address indexed owner, string name, string symbol, uint256 endTimestamp, address protocolFeeDestination, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 totalSupplyThreshold, uint256 creationBlockNumber, uint256 preSaleEndTimestamp);
+    event MultipleTempTokensCreated(address[] tokenAddresses, address indexed owner, string[] names, string[] symbols, uint256 endTimestamp, address protocolFeeDestination, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 totalSupplyThreshold, uint256 creationBlockNumber, uint256 preSaleEndTimestamp);
     event ProtocolFeeDestinationSet(address indexed protocolFeeDestination);
     event ProtocolFeePercentSet(uint256 feePercent);
     event StreamerFeePercentSet(uint256 feePercent);
@@ -101,25 +102,27 @@ contract TempTokenFactoryV1 is Ownable {
         string memory name,
         string memory symbol,
         uint256 duration,
-        uint256 totalSupplyThreshold
+        uint256 totalSupplyThreshold,
+        uint256 preSaleDuration
     ) public returns (address) {
         require(!isPaused, "Factory is paused");
         require(duration <= maxDuration, "Duration is longer than max duration");
         require(duration > 0, "Duration cannot be 0");
         uint256 endTimestamp = block.timestamp + duration;
+        uint256 preSaleEndTimestamp = block.timestamp + preSaleDuration;
         uint256 creationBlockNumber = block.number;
-        TempTokenV1 newToken = new TempTokenV1(name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, address(this), creationBlockNumber);        
+        TempTokenV1 newToken = new TempTokenV1(name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, address(this), creationBlockNumber, preSaleEndTimestamp);        
         
         /**
             * @dev We increment the numDeployedTokens and use the new value as the index to store the TokenInfo struct in the deployedTokens mapping.
             * @dev We also store the index of the token in the deployedTokenIndices mapping using the token's address as the key.
          */
         uint256 index = ++numDeployedTokens;
-        deployedTokens[index] = TokenInfo(address(newToken), msg.sender, name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, creationBlockNumber);
+        deployedTokens[index] = TokenInfo(address(newToken), msg.sender, name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, creationBlockNumber, preSaleEndTimestamp);
         deployedTokenIndices[address(newToken)] = index;
 
         newToken.transferOwnership(msg.sender); // Transfer ownership of the new token to the caller of this function.
-        emit TempTokenCreated(address(newToken), msg.sender, name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, creationBlockNumber);
+        emit TempTokenCreated(address(newToken), msg.sender, name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, creationBlockNumber, preSaleEndTimestamp);
         return address(newToken);
     }
 
@@ -135,7 +138,8 @@ contract TempTokenFactoryV1 is Ownable {
         string[] memory names,
         string[] memory symbols,
         uint256 duration,
-        uint256 totalSupplyThreshold
+        uint256 totalSupplyThreshold,
+        uint256 preSaleDuration
     ) public returns (address[] memory) {
         require(!isPaused, "Factory is paused");
         require(duration <= maxDuration, "Duration is longer than max duration");
@@ -144,16 +148,17 @@ contract TempTokenFactoryV1 is Ownable {
         require(names.length == symbols.length, "Names and symbols arrays are not the same length");
         address[] memory tokenAddresses = new address[](names.length);
         uint256 endTimestamp = block.timestamp + duration;
+        uint256 preSaleEndTimestamp = block.timestamp + preSaleDuration;
         uint256 creationBlockNumber = block.number;
         for (uint256 i = 0; i < names.length; i++) {
-            TempTokenV1 newToken = new TempTokenV1(names[i], symbols[i], endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, address(this), creationBlockNumber);
+            TempTokenV1 newToken = new TempTokenV1(names[i], symbols[i], endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, address(this), creationBlockNumber, preSaleEndTimestamp);
             uint256 index = ++numDeployedTokens;
-            deployedTokens[index] = TokenInfo(address(newToken), msg.sender, names[i], symbols[i], endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, creationBlockNumber);
+            deployedTokens[index] = TokenInfo(address(newToken), msg.sender, names[i], symbols[i], endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, creationBlockNumber, preSaleEndTimestamp);
             deployedTokenIndices[address(newToken)] = index;
             newToken.transferOwnership(msg.sender);
             tokenAddresses[i] = address(newToken);
         }
-        emit MultipleTempTokensCreated(tokenAddresses, msg.sender, names, symbols, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, creationBlockNumber);
+        emit MultipleTempTokensCreated(tokenAddresses, msg.sender, names, symbols, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, creationBlockNumber, preSaleEndTimestamp);
         return tokenAddresses;
     }
 
