@@ -4,13 +4,25 @@ import { TradeableTokenTx } from "../../../../constants/types";
 import { useCacheContext } from "../../../context/useCache";
 import { formatUnits } from "viem";
 
+export interface UseInterfaceChartDataType {
+  isChartPaused: boolean;
+  formattedData: ChartTokenTx[];
+  pausedDataForAllTime: ChartTokenTx[];
+  pausedData_1h: ChartTokenTx[];
+  pausedData_1d: ChartTokenTx[];
+  timeFilter: "1h" | "1d" | "all";
+  chartTxs: ChartTokenTx[];
+  handleTimeFilter: (time: "1h" | "1d" | "all") => void;
+  handleIsChartPaused: (paused: boolean) => void;
+}
+
 export const useInterfaceChartData = ({
   chartTimeIndexes,
   txs,
 }: {
   chartTimeIndexes: Map<string, { index?: number }>;
   txs: TradeableTokenTx[];
-}) => {
+}): UseInterfaceChartDataType => {
   const { ethPriceInUsd } = useCacheContext();
   const [timeFilter, setTimeFilter] = useState<"1h" | "1d" | "all">("all");
   const [isChartPaused, setIsChartPaused] = useState(false);

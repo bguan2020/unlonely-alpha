@@ -49,8 +49,7 @@ export const useVersusGameStateTransitioner = () => {
           handleLosingToken(tokenB);
           _winningToken = tokenA;
           _losingToken = tokenB;
-        }
-        else if (
+        } else if (
           tokenB.totalSupply > tokenA.totalSupply &&
           tokenB.totalSupply > BigInt(0)
         ) {
@@ -62,8 +61,8 @@ export const useVersusGameStateTransitioner = () => {
 
         if (_winningToken !== null && _losingToken !== null) {
           /**
-           * as long as we have a non-tradeable winning and non-tradeable losing token post game, the owner must call the 
-           * setWinningTokenTradeableAndTransferLiquidity to make the winning token tradeable, even if the losing token 
+           * as long as we have a non-tradeable winning and non-tradeable losing token post game, the owner must call the
+           * setWinningTokenTradeableAndTransferLiquidity to make the winning token tradeable, even if the losing token
            * does not have liquidity
            */
           handleOwnerMustMakeWinningTokenTradeable(true);
@@ -109,10 +108,10 @@ export const useVersusGameStateTransitioner = () => {
         }
 
         /**
-         * if the losing token no longer has a balance, that should mean the winning token 
+         * if the losing token no longer has a balance, that should mean the winning token
          * is now permanently tradeable, now we need to confirm whether
          * the factory had already minted the winner tokens by checking its balance of the winner tokens,
-         * if it has a balance, it means the permamint was successful, 
+         * if it has a balance, it means the permamint was successful,
          * else the user is redirected to the permamint phase
          */
         const winningTokenBalanceForFactory = await publicClient.readContract({
@@ -125,7 +124,7 @@ export const useVersusGameStateTransitioner = () => {
         if (BigInt(String(winningTokenBalanceForFactory)) > BigInt(0)) {
           handleOwnerMustMakeWinningTokenTradeable(false);
           handleOwnerMustPermamint(false);
-          return
+          return;
         }
 
         handleOwnerMustMakeWinningTokenTradeable(false);

@@ -19,6 +19,7 @@ export const useTempTokenTimerState = (
   const [durationLeftForTempToken, setDurationLeftForTempToken] = useState<
     number | undefined
   >(0); // notes the seconds that the token has remaining, we will use undefined as the flag to initiate the expiration flow, 0 is the default value for when there is no token
+  const [canCallExpiration, setCanCallExpiration] = useState<boolean>(false);
 
   /**
    * token countdown
@@ -37,6 +38,9 @@ export const useTempTokenTimerState = (
     const updateCountdown = () => {
       const now = Math.floor(Date.now() / 1000);
       const _duration = Number(tokenEndTimestamp) - now;
+
+      // if _duration at any point was positive, then this hook has permission to call the expiration callback when the token expires
+      if (_duration > 0) setCanCallExpiration(true);
 
       if (_duration < 0) {
         // If the duration is negative, the countdown is over and the game can no longer be played
@@ -62,7 +66,8 @@ export const useTempTokenTimerState = (
       durationLeftForTempToken !== undefined &&
       durationLeftForTempToken === 300 &&
       isChannelOwner &&
-      !disableChatbot
+      !disableChatbot &&
+      fiveMinuteWarningMessage.length > 0
     ) {
       // if the duration left is 5 minutes, send a chatbot message to notify everyone that the token is about to expire
       const title = fiveMinuteWarningMessage;
@@ -74,8 +79,8 @@ export const useTempTokenTimerState = (
         description: "",
       });
     }
-    if (durationLeftForTempToken === undefined) {
-      if (isChannelOwner && !disableChatbot) {
+    if (durationLeftForTempToken === undefined && canCallExpiration) {
+      if (isChannelOwner && !disableChatbot && expirationMessage.length > 0) {
         const title = expirationMessage;
         addToChatbotForTempToken({
           username: user?.username ?? "",
@@ -85,7 +90,13 @@ export const useTempTokenTimerState = (
           description: "",
         });
       }
+      console.log(
+        "durationLeftForTempToken",
+        durationLeftForTempToken,
+        canCallExpiration
+      );
       callbackOnExpiration();
+      setCanCallExpiration(false);
     }
   }, [durationLeftForTempToken, isChannelOwner, disableChatbot]);
 

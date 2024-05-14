@@ -19,7 +19,7 @@ export type UseReadVersusTempTokenGlobalStateType = {
   handleIsGameFinishedModalOpen: (value: boolean) => void;
   ownerMustMakeWinningTokenTradeable: boolean;
   handleOwnerMustMakeWinningTokenTradeable: (value: boolean) => void;
-  ownerMustPermamint: boolean| number;
+  ownerMustPermamint: boolean | number;
   handleOwnerMustPermamint: (value: boolean | number) => void;
   tokenA: VersusTokenDataType;
   setTokenA: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
@@ -82,8 +82,13 @@ export const useReadVersusTempTokenGlobalState =
     const [isGameFinished, setIsGameFinished] = useState(false); // had the game just finished? use this flag to manage transitions in state
     const [isGameFinishedModalOpen, setIsGameFinishedModalOpen] =
       useState(false);
-    const [ownerMustMakeWinningTokenTradeable, setOwnerMustMakeWinningTokenTradeable] = useState(false);
-    const [ownerMustPermamint, setOwnerMustPermamint] = useState<boolean | number>(false);
+    const [
+      ownerMustMakeWinningTokenTradeable,
+      setOwnerMustMakeWinningTokenTradeable,
+    ] = useState(false);
+    const [ownerMustPermamint, setOwnerMustPermamint] = useState<
+      boolean | number
+    >(false);
     const [losingToken, setLosingToken] = useState<VersusTokenDataType>(
       versusTokenDataInitial
     );
@@ -113,9 +118,12 @@ export const useReadVersusTempTokenGlobalState =
       setIsGameFinishedModalOpen(value);
     }, []);
 
-    const handleOwnerMustMakeWinningTokenTradeable = useCallback((value: boolean) => {
-      setOwnerMustMakeWinningTokenTradeable(value);
-    }, []);
+    const handleOwnerMustMakeWinningTokenTradeable = useCallback(
+      (value: boolean) => {
+        setOwnerMustMakeWinningTokenTradeable(value);
+      },
+      []
+    );
 
     const handleOwnerMustPermamint = useCallback((value: boolean | number) => {
       setOwnerMustPermamint(value);

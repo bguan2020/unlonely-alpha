@@ -231,9 +231,7 @@ export const typeDef = gql`
     updateChannelVibesTokenPriceRange(
       data: UpdateChannelVibesTokenPriceRangeInput!
     ): Channel
-    updatePinnedChatMessages(
-      data: UpdatePinnedChatMessagesInput!
-    ): Channel
+    updatePinnedChatMessages(data: UpdatePinnedChatMessagesInput!): Channel
     bulkLivepeerStreamIdMigration: UpdateManyResponse
   }
 `;

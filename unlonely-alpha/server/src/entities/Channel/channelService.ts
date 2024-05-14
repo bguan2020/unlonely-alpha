@@ -591,7 +591,7 @@ export const updatePinnedChatMessages = async (
       pinnedChatMessages: data.pinnedChatMessages,
     },
   });
-}
+};
 
 export const getChannelById = ({ id }: { id: number }, ctx: Context) => {
   return ctx.prisma.channel.findFirst({

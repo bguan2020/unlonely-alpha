@@ -123,13 +123,9 @@ export const useChannelDetails = (slug: string | string[] | undefined) => {
     setChannelVibesTokenPriceRange(value);
   }, []);
 
-
-  const handlePinnedChatMessages = useCallback(
-    (value: string[]) => {
-      setPinnedChatMessages(value);
-    },
-    []
-  );
+  const handlePinnedChatMessages = useCallback((value: string[]) => {
+    setPinnedChatMessages(value);
+  }, []);
 
   // handleRealTimeChannelDetails, all parameters are optional, for those that are not provided, the previous value is used, make it a mapping parameter for easy input
   const handleRealTimeChannelDetails = useCallback(

@@ -2,7 +2,7 @@ import { Flex, Button, Text, ListItem, UnorderedList } from "@chakra-ui/react";
 import { getTimeFromMillis } from "../../../utils/time";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempToken";
-import { useVersusTempTokenTimerState } from "../../../hooks/internal/versus-token/ui/useVersusTempTokenTimerState";
+import { useTempTokenTimerState } from "../../../hooks/internal/temp-token/ui/useTempTokenTimerState";
 
 export const VersusTokenDisclaimerModal = ({
   isOpen,
@@ -14,7 +14,7 @@ export const VersusTokenDisclaimerModal = ({
   const { gameState } = useVersusTempTokenContext();
   const { tokenA, tokenB, handleCanPlayToken, handleIsGameFinished } =
     gameState;
-  const { durationLeftForTempToken } = useVersusTempTokenTimerState(
+  const { durationLeftForTempToken } = useTempTokenTimerState(
     tokenA.endTimestamp,
     () => {
       handleCanPlayToken(false);
