@@ -48,18 +48,12 @@ export const useReadTempTokenTxsInitial = {
  */
 export const useReadTempTokenTxs = ({
   tokenCreationBlockNumber,
-  tokenSymbol,
   baseClient,
   tempTokenContract,
-  onMintCallback, // passed in from the parent component to trigger ui changes
-  onBurnCallback, // passed in from the parent component to trigger ui changes
 }: {
   tokenCreationBlockNumber: bigint;
-  tokenSymbol: string;
   baseClient: any;
   tempTokenContract: ContractData;
-  onMintCallback: (totalSupply: bigint, highestTotalSupply: bigint) => void;
-  onBurnCallback: (totalSupply: bigint) => void;
 }): UseReadTempTokenTxsType => {
   const { userAddress } = useUser();
   const fetching = useRef(false);

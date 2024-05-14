@@ -9,13 +9,13 @@ import { useRouter } from "next/router";
 
 import {
   UseReadTempTokenTxsType,
+  useReadTempTokenTxs,
   useReadTempTokenTxsInitial,
 } from "../internal/temp-token/read/useReadTempTokenTxs";
 import { InteractionType, VersusTokenDataType } from "../../constants";
 import { useChannelContext } from "./useChannel";
 import { useUser } from "./useUser";
 import { useVersusFactoryExternalListeners } from "../internal/versus-token/useVersusFactoryExternalListeners";
-import { useReadTempTokenListenerState } from "../internal/temp-token/read/useReadTempTokenListenerState";
 import {
   useReadVersusTempTokenGlobalStateInitial,
   UseReadVersusTempTokenGlobalStateType,
@@ -24,6 +24,8 @@ import {
 import { useReadVersusTempTokenOnMount } from "../internal/versus-token/read/useReadVersusTempTokenOnMount";
 import { usePublicClient } from "wagmi";
 import { useVersusGameStateTransitioner } from "../internal/versus-token/ui/useVersusGameStateTransitioner";
+import { createPublicClient, http } from "viem";
+import { base } from "viem/chains";
 
 export const useVersusTempTokenContext = () => {
   return useContext(VersusTempTokenContext);
@@ -82,27 +84,30 @@ export const VersusTempTokenProvider = ({
   const globalState = useReadVersusTempTokenGlobalState();
   const transitionGameState = useVersusGameStateTransitioner();
 
-  const { readTempTokenTxs: readTempTokenTxs_a } =
-    useReadTempTokenListenerState({
-      tempTokenData: globalState.tokenA,
-      onMintEvent: (totalSupply: bigint, highestTotalSupply: bigint) =>
-        onMintEvent(totalSupply, highestTotalSupply, "a"),
-      onBurnEvent: (totalSupply: bigint) => onBurnEvent(totalSupply, "a"),
-      onDurationIncreaseEvent: (newEndTimestamp: bigint) =>
-        onDurationIncreaseEvent(newEndTimestamp, "a"),
-      onAlwaysTradeableEvent: () => onAlwaysTradeableEvent("a"),
-    });
+  const baseClient = useMemo(
+    () =>
+      createPublicClient({
+        chain: base,
+        transport: http(
+          "https://base-mainnet.g.alchemy.com/v2/aR93M6MdEC4lgh4VjPXLaMnfBveve1fC"
+        ),
+      }),
+    []
+  );
 
-  const { readTempTokenTxs: readTempTokenTxs_b } =
-    useReadTempTokenListenerState({
-      tempTokenData: globalState.tokenB,
-      onMintEvent: (totalSupply: bigint, highestTotalSupply: bigint) =>
-        onMintEvent(totalSupply, highestTotalSupply, "b"),
-      onBurnEvent: (totalSupply: bigint) => onBurnEvent(totalSupply, "b"),
-      onDurationIncreaseEvent: (newEndTimestamp: bigint) =>
-        onDurationIncreaseEvent(newEndTimestamp, "b"),
-      onAlwaysTradeableEvent: () => onAlwaysTradeableEvent("b"),
-    });
+  const readTempTokenTxs_a = useReadTempTokenTxs({
+    tokenCreationBlockNumber:
+      globalState.tokenA?.creationBlockNumber ?? BigInt(0),
+    baseClient,
+    tempTokenContract: globalState.tokenA.contractData,
+  });
+
+  const readTempTokenTxs_b = useReadTempTokenTxs({
+    tokenCreationBlockNumber:
+      globalState.tokenB?.creationBlockNumber ?? BigInt(0),
+    baseClient,
+    tempTokenContract: globalState.tokenB.contractData,
+  });
 
   /**
    * functions to run when specific events are detected, not exposed outside of this hook,
@@ -310,7 +315,7 @@ export const VersusTempTokenProvider = ({
    */
   useEffect(() => {
     const onGameFinish = async () => {
-      if (!globalState.isGameFinished) return;
+      if (!globalState.isGameFinished || !publicClient) return;
       globalState.handleIsGameOngoing(false);
       globalState.handleIsGameFinishedModalOpen(true);
 

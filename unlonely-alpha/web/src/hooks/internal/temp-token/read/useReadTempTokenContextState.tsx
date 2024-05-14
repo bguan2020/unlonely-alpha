@@ -3,7 +3,7 @@ import { Contract, InteractionType, NULL_ADDRESS } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { useLazyQuery } from "@apollo/client";
-import { createPublicClient, http, isAddressEqual } from "viem";
+import { isAddressEqual } from "viem";
 import { usePublicClient } from "wagmi";
 import { GET_TEMP_TOKENS_QUERY } from "../../../../constants/queries";
 import {
@@ -16,13 +16,11 @@ import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 import { ContractData } from "../../../../constants/types";
 import useUpdateTempTokenHasRemainingFundsForCreator from "../../../server/temp-token/useUpdateTempTokenHasRemainingFundsForCreator";
 import { useUser } from "../../../context/useUser";
-import { base } from "viem/chains";
 import {
   UseReadTempTokenTxsType,
   useReadTempTokenTxs,
   useReadTempTokenTxsInitial,
 } from "./useReadTempTokenTxs";
-import { useReadTempTokenExternalEventListeners } from "./useReadTempTokenExternalEventListeners";
 import { useRouter } from "next/router";
 import { useChannelContext } from "../../../context/useChannel";
 
@@ -222,17 +220,6 @@ export const useReadTempTokenContextState = () => {
     };
   }, [lastInactiveTokenAddress, localNetwork.config.chainId]);
 
-  const baseClient = useMemo(
-    () =>
-      createPublicClient({
-        chain: base,
-        transport: http(
-          "https://base-mainnet.g.alchemy.com/v2/aR93M6MdEC4lgh4VjPXLaMnfBveve1fC"
-        ),
-      }),
-    []
-  );
-
   /**
    * functions to run when specific events are detected, not exposed outside of this hook,
    */
@@ -368,20 +355,8 @@ export const useReadTempTokenContextState = () => {
 
   const readTempTokenTxs = useReadTempTokenTxs({
     tokenCreationBlockNumber: currentActiveTokenCreationBlockNumber,
-    tokenSymbol: currentActiveTokenSymbol,
-    baseClient,
+    baseClient: publicClient,
     tempTokenContract,
-    onMintCallback: onMintEvent,
-    onBurnCallback: onBurnEvent,
-  });
-
-  useReadTempTokenExternalEventListeners({
-    tempTokenContract,
-    onReachThresholdCallback: onReachThresholdEvent,
-    onDurationIncreaseCallback: onDurationIncreaseEvent,
-    onAlwaysTradeableCallback: onAlwaysTradeableEvent,
-    onThresholdUpdateCallback: onThresholdUpdateEvent,
-    onSendRemainingFundsToWinnerCallback: onSendRemainingFundsToWinnerEvent,
   });
 
   /**

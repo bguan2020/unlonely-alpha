@@ -131,7 +131,7 @@ export const useVersusGameStateTransitioner = () => {
         handleOwnerMustPermamint(true);
       }
     },
-    [factoryContract]
+    [factoryContract, publicClient]
   );
 
   return transitionGameState;
