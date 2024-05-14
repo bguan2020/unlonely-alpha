@@ -180,9 +180,7 @@ export const resolvers = {
     },
     updatePinnedChatMessages: (
       _: any,
-      {
-        data,
-      }: { data: channelService.IUpdatePinnedChatMessagesInput },
+      { data }: { data: channelService.IUpdatePinnedChatMessagesInput },
       ctx: Context
     ) => {
       if (!ctx.user || !ctx.userIsAuthed) {
@@ -217,6 +215,6 @@ export const resolvers = {
     },
     nfcs: ({ id }: { id: number }, _: any, ctx: Context) => {
       return channelService.getChannelNfcs({ id }, ctx);
-    }
+    },
   },
 };

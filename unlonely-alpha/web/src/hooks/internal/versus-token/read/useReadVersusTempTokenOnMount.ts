@@ -1,7 +1,11 @@
 import { useLazyQuery } from "@apollo/client";
 import { useEffect } from "react";
 import { GET_TEMP_TOKENS_QUERY } from "../../../../constants/queries";
-import { GetTempTokensQuery, TempToken, TempTokenType } from "../../../../generated/graphql";
+import {
+  GetTempTokensQuery,
+  TempToken,
+  TempTokenType,
+} from "../../../../generated/graphql";
 import { useChannelContext } from "../../../context/useChannel";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { usePublicClient } from "wagmi";
@@ -125,7 +129,9 @@ export const useReadVersusTempTokenOnMount = ({
           ]);
           const _newTokenA: VersusTokenDataType = {
             transferredLiquidityOnExpiration:
-              _tokenA.transferredLiquidityOnExpiration !== null ? BigInt(_tokenA.transferredLiquidityOnExpiration) : BigInt(0),
+              _tokenA.transferredLiquidityOnExpiration !== null
+                ? BigInt(_tokenA.transferredLiquidityOnExpiration)
+                : BigInt(0),
             symbol: _tokenA.symbol,
             address: _tokenA.tokenAddress as `0x${string}`,
             totalSupply: BigInt(String(totalSupplyA)),
@@ -141,7 +147,9 @@ export const useReadVersusTempTokenOnMount = ({
           };
           const _newTokenB: VersusTokenDataType = {
             transferredLiquidityOnExpiration:
-              _tokenB.transferredLiquidityOnExpiration !== null ? BigInt(_tokenB.transferredLiquidityOnExpiration) : BigInt(0),
+              _tokenB.transferredLiquidityOnExpiration !== null
+                ? BigInt(_tokenB.transferredLiquidityOnExpiration)
+                : BigInt(0),
             symbol: _tokenB.symbol,
             address: _tokenB.tokenAddress as `0x${string}`,
             totalSupply: BigInt(String(totalSupplyB)),

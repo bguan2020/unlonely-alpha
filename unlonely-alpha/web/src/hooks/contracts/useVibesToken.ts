@@ -147,7 +147,6 @@ export const useGetPrice = (amount: bigint, contract: ContractData) => {
   };
 };
 
-
 export const useMint = (
   args: {
     amount: bigint;
@@ -224,7 +223,7 @@ export const useBurn = (
     burnTxLoading,
     isRefetchingBurn,
   };
-}
+};
 
 export const useUnpreparedMint = (
   args: {

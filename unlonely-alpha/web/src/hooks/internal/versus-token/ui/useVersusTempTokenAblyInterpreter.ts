@@ -1,6 +1,11 @@
 import { useRef, useState, useEffect } from "react";
 import { isAddress, isAddressEqual } from "viem";
-import { InteractionType, CHAT_MESSAGE_EVENT, versusTokenDataInitial, VersusTokenDataType } from "../../../../constants";
+import {
+  InteractionType,
+  CHAT_MESSAGE_EVENT,
+  versusTokenDataInitial,
+  VersusTokenDataType,
+} from "../../../../constants";
 import { calculateMaxWinnerTokensToMint } from "../../../../utils/calculateMaxWinnerTokensToMint";
 import { ChatReturnType } from "../../../chat/useChat";
 import { useChannelContext } from "../../../context/useChannel";
@@ -10,45 +15,44 @@ import useDebounce from "../../useDebounce";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 
 export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
-    const { userAddress } = useUser();
-    const { channel } = useChannelContext();
-    const { handleRealTimeChannelDetails } = channel;
-    const mountingMessages = useRef(true);
-    const fetching = useRef(false);
-  
-    const { gameState, tokenATxs, tokenBTxs, callbacks } =
-      useVersusTempTokenContext();
-    const {
-      handleIsGameFinished,
-      handleIsGameOngoing,
-      handleOwnerMustPermamint,
-      handleOwnerMustMakeWinningTokenTradeable,
-      handleIsGameFinishedModalOpen,
-      handleWinningToken,
-      handleLosingToken,
-      setTokenA,
-      setTokenB,
-      tokenA,
-      tokenB,
-      ownerMustPermamint,
-      losingToken,
-    } = gameState;
-    const {
-      resetTempTokenTxs: resetTempTokenTxsA,
-      getTempTokenEvents: getTempTokenEventsA,
-      refetchUserTempTokenBalance: refetchUserTempTokenBalanceA,
-      tempTokenTxs: tempTokenTxsA,
-    } = tokenATxs;
-    const {
-      resetTempTokenTxs: resetTempTokenTxsB,
-      getTempTokenEvents: getTempTokenEventsB,
-      refetchUserTempTokenBalance: refetchUserTempTokenBalanceB,
-      tempTokenTxs: tempTokenTxsB,
-    } = tokenBTxs;
-    const { onMintEvent, onBurnEvent } = callbacks;
-  
+  const { userAddress } = useUser();
+  const { channel } = useChannelContext();
+  const { handleRealTimeChannelDetails } = channel;
+  const mountingMessages = useRef(true);
+  const fetching = useRef(false);
 
-    const [blockNumberOfLastInAppTrade, setBlockNumberOfLastInAppTrade] =
+  const { gameState, tokenATxs, tokenBTxs, callbacks } =
+    useVersusTempTokenContext();
+  const {
+    handleIsGameFinished,
+    handleIsGameOngoing,
+    handleOwnerMustPermamint,
+    handleOwnerMustMakeWinningTokenTradeable,
+    handleIsGameFinishedModalOpen,
+    handleWinningToken,
+    handleLosingToken,
+    setTokenA,
+    setTokenB,
+    tokenA,
+    tokenB,
+    ownerMustPermamint,
+    losingToken,
+  } = gameState;
+  const {
+    resetTempTokenTxs: resetTempTokenTxsA,
+    getTempTokenEvents: getTempTokenEventsA,
+    refetchUserTempTokenBalance: refetchUserTempTokenBalanceA,
+    tempTokenTxs: tempTokenTxsA,
+  } = tokenATxs;
+  const {
+    resetTempTokenTxs: resetTempTokenTxsB,
+    getTempTokenEvents: getTempTokenEventsB,
+    refetchUserTempTokenBalance: refetchUserTempTokenBalanceB,
+    tempTokenTxs: tempTokenTxsB,
+  } = tokenBTxs;
+  const { onMintEvent, onBurnEvent } = callbacks;
+
+  const [blockNumberOfLastInAppTrade, setBlockNumberOfLastInAppTrade] =
     useState<bigint>(BigInt(0));
 
   useEffect(() => {
@@ -231,4 +235,4 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
       }
     }
   }, [chat.receivedMessages]);
-}
+};

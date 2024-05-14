@@ -10,11 +10,11 @@ import {
 } from "../../../generated/graphql";
 
 const MUTATION = gql`
-mutation UpdatePinnedChatMessages($data: UpdatePinnedChatMessagesInput!) {
-  updatePinnedChatMessages(data: $data) {
-    pinnedChatMessages
+  mutation UpdatePinnedChatMessages($data: UpdatePinnedChatMessagesInput!) {
+    updatePinnedChatMessages(data: $data) {
+      pinnedChatMessages
+    }
   }
-}
 `;
 
 const useUpdatePinnedChatMessages = ({

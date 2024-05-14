@@ -136,12 +136,14 @@ export const updateTempTokenHasRemainingFundsForCreator = async (
          *  */
         OR: [
           { tokenType: data.tokenType },
-          ...(data.tokenType === TempTokenType.SINGLE_MODE ? [{ tokenType: null }] : []),
-                ],
+          ...(data.tokenType === TempTokenType.SINGLE_MODE
+            ? [{ tokenType: null }]
+            : []),
+        ],
         hasRemainingFundsForCreator: true,
       },
       orderBy: {
-        endUnixTimestamp: "desc" // Sorting by descending order of endUnixTimestamp
+        endUnixTimestamp: "desc", // Sorting by descending order of endUnixTimestamp
       },
     });
 
@@ -373,19 +375,18 @@ export const getTempTokens = async (
           factoryAddress: data.factoryAddress,
           hasHitTotalSupplyThreshold: data.hasHitTotalSupplyThreshold,
           isAlwaysTradeable: data.isAlwaysTradeable,
-                  /**
-         *  we have this OR clause to include the temp tokens that are in single mode and have null tokenType,
-         * this is because tokenType was added as a new column after the initial table was created, all existing tokens
-         * will have null tokenType, so we need to include them in the query
-         *  */
-          ...(data.tokenType === TempTokenType.SINGLE_MODE ? {
-            OR: [
-              { tokenType: data.tokenType },
-              { tokenType: null },
-            ],
-          } : {
-            tokenType: data.tokenType,
-          }),
+          /**
+           *  we have this OR clause to include the temp tokens that are in single mode and have null tokenType,
+           * this is because tokenType was added as a new column after the initial table was created, all existing tokens
+           * will have null tokenType, so we need to include them in the query
+           *  */
+          ...(data.tokenType === TempTokenType.SINGLE_MODE
+            ? {
+                OR: [{ tokenType: data.tokenType }, { tokenType: null }],
+              }
+            : {
+                tokenType: data.tokenType,
+              }),
           ...endTimestampClause,
         },
         orderBy: { createdAt: "desc" },
@@ -404,17 +405,14 @@ export const getTempTokens = async (
           { factoryAddress: data.factoryAddress },
           { hasHitTotalSupplyThreshold: data.hasHitTotalSupplyThreshold },
           { isAlwaysTradeable: data.isAlwaysTradeable },
-         /**
-         *  we have this OR clause to include the temp tokens that are in single mode and have null tokenType,
-         * this is because tokenType was added as a new column after the initial table was created, all existing tokens
-         * will have null tokenType, so we need to include them in the query
-         *  */
-          ...(data.tokenType === TempTokenType.SINGLE_MODE ? [
-            { tokenType: data.tokenType },
-            { tokenType: null },
-          ] : [
-            { tokenType: data.tokenType },
-          ]),
+          /**
+           *  we have this OR clause to include the temp tokens that are in single mode and have null tokenType,
+           * this is because tokenType was added as a new column after the initial table was created, all existing tokens
+           * will have null tokenType, so we need to include them in the query
+           *  */
+          ...(data.tokenType === TempTokenType.SINGLE_MODE
+            ? [{ tokenType: data.tokenType }, { tokenType: null }]
+            : [{ tokenType: data.tokenType }]),
           // Assuming endTimestampClause is an object with a comparison operation
           ...Object.entries(endTimestampClause).map(([key, value]) => ({
             [key]: value,

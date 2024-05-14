@@ -1,9 +1,6 @@
 import { useChannelContext } from "../../context/useChannel";
 import { useNetworkContext } from "../../context/useNetwork";
-import {
-  Contract,
-  VersusTokenDataType,
-} from "../../../constants";
+import { Contract, VersusTokenDataType } from "../../../constants";
 import { getContractFromNetwork } from "../../../utils/contract";
 import { useUser } from "../../context/useUser";
 import { useRouter } from "next/router";

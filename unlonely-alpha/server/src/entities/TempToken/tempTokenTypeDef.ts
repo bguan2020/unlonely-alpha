@@ -1,7 +1,6 @@
 import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
-
   enum TempTokenType {
     SINGLE_MODE
     VERSUS_MODE

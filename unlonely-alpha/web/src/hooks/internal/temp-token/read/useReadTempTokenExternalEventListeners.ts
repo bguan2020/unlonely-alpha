@@ -18,16 +18,13 @@ export const useReadTempTokenExternalEventListeners = ({
     tokenIsCurrentlyActive: boolean
   ) => void;
 }) => {
-
   // /**
   //  * listen for duration increase event
   //  */
-
   // const [
   //   incomingTempTokenDurationExtendedLogs,
   //   setIncomingTempTokenDurationExtendedLogs,
   // ] = useState<Log[]>([]);
-
   // useContractEvent({
   //   address: tempTokenContract.address,
   //   abi: tempTokenContract.abi,
@@ -40,14 +37,12 @@ export const useReadTempTokenExternalEventListeners = ({
   //     init();
   //   },
   // });
-
   // useEffect(() => {
   //   if (incomingTempTokenDurationExtendedLogs)
   //     handleTempTokenDurationExtendedUpdate(
   //       incomingTempTokenDurationExtendedLogs
   //     );
   // }, [incomingTempTokenDurationExtendedLogs]);
-
   // const handleTempTokenDurationExtendedUpdate = async (logs: Log[]) => {
   //   if (logs.length === 0) return;
   //   const filteredLogsByTokenAddress = logs.filter((log: any) =>
@@ -64,16 +59,13 @@ export const useReadTempTokenExternalEventListeners = ({
   //   const newEndTimestamp = latestLog?.args.endTimestamp as bigint;
   //   onDurationIncreaseCallback(newEndTimestamp);
   // };
-
   // /**
   //  * listen for always tradeable event
   //  */
-
   // const [
   //   incomingTempTokenAlwaysTradeableSetLogs,
   //   setIncomingTempTokenAlwaysTradeableSetLogs,
   // ] = useState<Log[]>([]);
-
   // useContractEvent({
   //   address: tempTokenContract.address,
   //   abi: tempTokenContract.abi,
@@ -86,14 +78,12 @@ export const useReadTempTokenExternalEventListeners = ({
   //     init();
   //   },
   // });
-
   // useEffect(() => {
   //   if (incomingTempTokenAlwaysTradeableSetLogs)
   //     handleTempTokenAlwaysTradeableSetUpdate(
   //       incomingTempTokenAlwaysTradeableSetLogs
   //     );
   // }, [incomingTempTokenAlwaysTradeableSetLogs]);
-
   // const handleTempTokenAlwaysTradeableSetUpdate = async (logs: Log[]) => {
   //   if (logs.length === 0) return;
   //   const filteredLogsByTokenAddress = logs.filter((log: any) =>
@@ -108,16 +98,13 @@ export const useReadTempTokenExternalEventListeners = ({
   //   if (sortedLogs.length === 0) return;
   //   onAlwaysTradeableCallback();
   // };
-
   // /**
   //  * listen for threshold update event
   //  */
-
   // const [
   //   incomingTempTokenTotalSupplyThresholdUpdatedLogs,
   //   setIncomingTempTokenTotalSupplyThresholdUpdatedLogs,
   // ] = useState<Log[]>([]);
-
   // useContractEvent({
   //   address: tempTokenContract.address,
   //   abi: tempTokenContract.abi,
@@ -130,14 +117,12 @@ export const useReadTempTokenExternalEventListeners = ({
   //     init();
   //   },
   // });
-
   // useEffect(() => {
   //   if (incomingTempTokenTotalSupplyThresholdUpdatedLogs)
   //     handleTempTokenTotalSupplyThresholdUpdatedUpdate(
   //       incomingTempTokenTotalSupplyThresholdUpdatedLogs
   //     );
   // }, [incomingTempTokenTotalSupplyThresholdUpdatedLogs]);
-
   // const handleTempTokenTotalSupplyThresholdUpdatedUpdate = async (
   //   logs: Log[]
   // ) => {

@@ -119,13 +119,14 @@ export const CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN = [
   "554",
   "127",
   "496",
-  "688"
+  "688",
 ];
 
 export const CAN_USE_VERSUS_MODE_SLUGS = [
   // "danny",
-  "versus", 
-  "brian"];
+  "versus",
+  "brian",
+];
 
 export type VersusTokenDataType = {
   symbol: string;
