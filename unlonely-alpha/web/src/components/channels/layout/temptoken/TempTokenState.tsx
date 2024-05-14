@@ -15,30 +15,20 @@ export const TempTokenState = ({ chat }: { chat: ChatReturnType }) => {
 
   return (
     <>
-      {isOwner && walletIsConnected ? (
-        <>
-          {currentActiveTokenEndTimestamp ? (
-            <TempTokenInterface ablyChannel={chat.channel} customHeight="30%" />
-          ) : (
-            <Flex
-              gap="5px"
-              justifyContent={"center"}
-              alignItems={"center"}
-              bg="#131323"
-              p="5px"
-              height="20vh"
-            >
-              <CreateTokenInterface />
-            </Flex>
-          )}
-        </>
-      ) : (
-        <>
-          {currentActiveTokenEndTimestamp && (
-            <TempTokenInterface ablyChannel={chat.channel} customHeight="30%" />
-          )}
-        </>
-      )}
+      {currentActiveTokenEndTimestamp ? (
+        <TempTokenInterface ablyChannel={chat.channel} customHeight="30%" />
+      ) : isOwner && walletIsConnected ? (
+        <Flex
+          gap="5px"
+          justifyContent={"center"}
+          alignItems={"center"}
+          bg="#131323"
+          p="5px"
+          height="20vh"
+        >
+          <CreateTokenInterface />
+        </Flex>
+      ) : null}
     </>
   );
 };

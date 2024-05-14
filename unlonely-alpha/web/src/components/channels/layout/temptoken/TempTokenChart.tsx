@@ -1,6 +1,7 @@
-import { Flex, Text } from "@chakra-ui/react";
+import { Flex, Text, Button, Tooltip as ChakraTooltip } from "@chakra-ui/react";
 import { useNetworkContext } from "../../../../hooks/context/useNetwork";
 import { FaPause } from "react-icons/fa";
+import { FaMagnifyingGlassChart } from "react-icons/fa6";
 import {
   ResponsiveContainer,
   LineChart,
@@ -22,8 +23,10 @@ import { useTempTokenContext } from "../../../../hooks/context/useTempToken";
 import { formatUnits } from "viem";
 import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
 import { TempTokenExchange } from "../../temp/TempTokenExchange";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useCacheContext } from "../../../../hooks/context/useCache";
+import { useChannelContext } from "../../../../hooks/context/useChannel";
+import { useOwnerUpdateTotalSupplyThresholdState } from "../../../../hooks/internal/temp-token/write/useOwnerUpdateTotalSupplyThresholdState";
 
 const ZONE_BREADTH = 0.05;
 const NUMBER_OF_HOURS_IN_DAY = 24;
@@ -31,19 +34,20 @@ const NUMBER_OF_DAYS_IN_MONTH = 30;
 
 export const TempTokenChart = ({
   interfaceChartData,
-  thresholdOn,
   priceOfThreshold,
   priceOfThresholdInUsd,
   noChannelData,
   isFullChart,
 }: {
   interfaceChartData: UseInterfaceChartDataType;
-  thresholdOn: boolean;
   priceOfThreshold: number;
   priceOfThresholdInUsd: string;
   noChannelData?: boolean;
   isFullChart?: boolean;
 }) => {
+  const { channel } = useChannelContext();
+  const { isOwner } = channel;
+
   const { tempToken } = useTempTokenContext();
   const {
     currentActiveTokenAddress,
@@ -61,6 +65,8 @@ export const TempTokenChart = ({
   const { network } = useNetworkContext();
   const { matchingChain } = network;
 
+  const [thresholdOn, setThresholdOn] = useState(true);
+
   const tradeTempTokenState = useTradeTempTokenState({
     tokenAddress: currentActiveTokenAddress,
     tokenSymbol: currentActiveTokenSymbol,
@@ -77,6 +83,11 @@ export const TempTokenChart = ({
     interfaceChartData.chartTxs,
     interfaceChartData.timeFilter
   );
+
+  const {
+    callSetTotalSupplyThresholdForTokens,
+    loading: setTotalSupplyThresholdForTokensLoading,
+  } = useOwnerUpdateTotalSupplyThresholdState();
 
   const formattedCurrentPrice = useMemo(
     () =>
@@ -106,6 +117,157 @@ export const TempTokenChart = ({
 
   return (
     <>
+      {canPlayToken && (
+        <Flex gap="5px" alignItems={"center"}>
+          <Button
+            bg={interfaceChartData.timeFilter === "1h" ? "#7874c9" : "#403c7d"}
+            color="#c6c3fc"
+            p={3}
+            height="20px"
+            _focus={{}}
+            _active={{}}
+            _hover={{}}
+            onClick={() => interfaceChartData.handleTimeFilter("1h")}
+          >
+            1h
+          </Button>
+          <Button
+            bg={interfaceChartData.timeFilter === "1d" ? "#7874c9" : "#403c7d"}
+            color="#c6c3fc"
+            p={3}
+            height="20px"
+            _focus={{}}
+            _active={{}}
+            _hover={{}}
+            onClick={() => interfaceChartData.handleTimeFilter("1d")}
+          >
+            1d
+          </Button>
+          <Button
+            bg={interfaceChartData.timeFilter === "all" ? "#7874c9" : "#403c7d"}
+            color="#c6c3fc"
+            p={3}
+            height="20px"
+            _focus={{}}
+            _active={{}}
+            _hover={{}}
+            onClick={() => interfaceChartData.handleTimeFilter("all")}
+          >
+            all
+          </Button>
+          <Button
+            bg={thresholdOn ? "#00d3c1" : "#077158"}
+            color="#ffffff"
+            p={3}
+            height={"20px"}
+            _focus={{}}
+            _active={{}}
+            _hover={{}}
+            onClick={() => setThresholdOn((prev) => !prev)}
+            boxShadow={
+              thresholdOn ? "0px 0px 16px rgba(53, 234, 95, 0.4)" : undefined
+            }
+          >
+            goal
+          </Button>
+          <ChakraTooltip
+            label="toggle chart zooming, will pause live updates when enabled"
+            shouldWrapChildren
+            openDelay={300}
+          >
+            <Button
+              color="#ffffff"
+              bg={
+                interfaceChartData.isChartPaused
+                  ? "rgb(173, 169, 249)"
+                  : "#4741c1"
+              }
+              _hover={{
+                transform: "scale(1.15)",
+              }}
+              _focus={{}}
+              _active={{}}
+              p={3}
+              height={"20px"}
+              onClick={() =>
+                interfaceChartData.handleIsChartPaused(
+                  !interfaceChartData.isChartPaused
+                )
+              }
+              boxShadow={
+                interfaceChartData.isChartPaused
+                  ? "0px 0px 25px rgba(173, 169, 249, 0.847)"
+                  : undefined
+              }
+            >
+              <FaMagnifyingGlassChart />
+            </Button>
+          </ChakraTooltip>
+          {isOwner && currentActiveTokenHasHitTotalSupplyThreshold && (
+            <ChakraTooltip
+              label="increase the price goal"
+              shouldWrapChildren
+              openDelay={300}
+            >
+              <Flex gap="2px" bg="#fdbf2f" px="3px" borderRadius="5px">
+                <Button
+                  color="#ffffff"
+                  bg={"rgba(0, 0, 0, 0.7)"}
+                  _hover={{
+                    bg: "rgba(0, 0, 0, 0.5)",
+                  }}
+                  _focus={{}}
+                  _active={{}}
+                  p={3}
+                  height={"20px"}
+                  onClick={() =>
+                    callSetTotalSupplyThresholdForTokens(
+                      BigInt(
+                        Math.floor(
+                          Number(currentActiveTokenTotalSupplyThreshold) * 1.05
+                        )
+                      )
+                    )
+                  }
+                  isDisabled={
+                    setTotalSupplyThresholdForTokensLoading ||
+                    BigInt(
+                      Math.floor(
+                        Number(currentActiveTokenTotalSupplyThreshold) * 1.05
+                      )
+                    ) === currentActiveTokenTotalSupplyThreshold
+                  }
+                >
+                  +5%
+                </Button>
+                <Button
+                  color="#ffffff"
+                  bg={"rgba(0, 0, 0, 0.7)"}
+                  _hover={{
+                    bg: "rgba(0, 0, 0, 0.5)",
+                  }}
+                  _focus={{}}
+                  _active={{}}
+                  p={3}
+                  height={"20px"}
+                  onClick={() =>
+                    callSetTotalSupplyThresholdForTokens(
+                      BigInt(
+                        Math.floor(
+                          Number(currentActiveTokenTotalSupplyThreshold) * 1.5
+                        )
+                      )
+                    )
+                  }
+                  isDisabled={setTotalSupplyThresholdForTokensLoading}
+                >
+                  +50%
+                </Button>
+              </Flex>
+            </ChakraTooltip>
+          )}
+        </Flex>
+      )}
       <Flex direction="column" w="100%" position="relative" h="60%">
         {noChannelData && (
           <Text
