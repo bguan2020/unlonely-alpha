@@ -51,7 +51,7 @@ export const TempTokenCreationModal = ({
     handleNewTokenSymbol,
     handleNewTokenDuration,
     handleNewTokenTotalSupplyThreshold,
-  } = useCreateTempTokenState();
+  } = useCreateTempTokenState({ callbackOnTxSuccess: handleClose });
 
   useEffect(() => {
     const checkIfLiveBeforeCreateToken = async () => {

@@ -20,7 +20,6 @@ import { DesktopChannelViewerPerspectiveSimplified } from "../temptoken/DesktopC
 import { useTempTokenContext } from "../../../../hooks/context/useTempToken";
 import { useTempTokenAblyInterpreter } from "../../../../hooks/internal/temp-token/ui/useTempTokenAblyInterpreter";
 import { TempTokenInterface } from "../../temp/TempTokenInterface";
-import { TempTokenState } from "./TempTokenState";
 
 export const DesktopChannelPageTempToken = ({
   channelSSR,
@@ -154,7 +153,10 @@ export const DesktopChannelPageTempToken = ({
                   maxW={["100%", "100%", "380px", "380px"]}
                   gap="1rem"
                 >
-                  <TempTokenState chat={chat} />
+                  <TempTokenInterface
+                    ablyChannel={chat.channel}
+                    customHeight="30%"
+                  />
                   <ChatComponent
                     chat={chat}
                     customHeight={"100%"}

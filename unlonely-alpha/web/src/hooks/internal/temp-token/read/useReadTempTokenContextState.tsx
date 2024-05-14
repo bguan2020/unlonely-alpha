@@ -23,7 +23,6 @@ import {
   useReadTempTokenTxsInitial,
 } from "./useReadTempTokenTxs";
 import { useReadTempTokenExternalEventListeners } from "./useReadTempTokenExternalEventListeners";
-import usePostTempToken from "../../../server/temp-token/usePostTempToken";
 import { useRouter } from "next/router";
 import { useChannelContext } from "../../../context/useChannel";
 
@@ -41,6 +40,7 @@ export type UseReadTempTokenContextStateType = {
   lastInactiveTokenBalance: bigint;
   lastInactiveTokenSymbol: string;
   currentTempTokenContract: ContractData;
+  lastInactiveTempTokenContract: ContractData;
   isPermanentGameModalOpen: boolean;
   isSuccessGameModalOpen: boolean;
   isFailedGameModalOpen: boolean;
@@ -87,6 +87,11 @@ export const useReadTempTokenInitialState: UseReadTempTokenContextStateType = {
   lastInactiveTokenBalance: BigInt(0),
   lastInactiveTokenSymbol: "",
   currentTempTokenContract: {
+    address: NULL_ADDRESS,
+    abi: undefined,
+    chainId: 0,
+  },
+  lastInactiveTempTokenContract: {
     address: NULL_ADDRESS,
     abi: undefined,
     chainId: 0,
@@ -181,8 +186,6 @@ export const useReadTempTokenContextState = () => {
   const [isSuccessGameState, setIsGameSuccessState] = useState<boolean>(false); // when the token hits the total supply threshold
   const [isFailedGameState, setIsFailedGameState] = useState<boolean>(false); // when the token expires via countdown
   const [canPlayToken, setCanPlayToken] = useState(false);
-
-  const { postTempToken } = usePostTempToken({});
 
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
@@ -610,6 +613,7 @@ export const useReadTempTokenContextState = () => {
     lastInactiveTokenBalance,
     lastInactiveTokenSymbol,
     currentTempTokenContract: tempTokenContract,
+    lastInactiveTempTokenContract: lastInactiveTempTokenContract,
     isPermanentGameModalOpen,
     isSuccessGameModalOpen,
     isFailedGameModalOpen,

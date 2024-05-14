@@ -52,7 +52,11 @@ export const useCreateTempTokenInitialState: UseCreateTempTokenStateType = {
   handleNewTokenTotalSupplyThreshold: () => undefined,
 };
 
-export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
+export const useCreateTempTokenState = ({
+  callbackOnTxSuccess,
+}: {
+  callbackOnTxSuccess: () => void;
+}): UseCreateTempTokenStateType => {
   const { userAddress, user } = useUser();
   const { chat, channel } = useChannelContext();
   const { network } = useNetworkContext();
@@ -229,6 +233,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
         //   },
         // });
         // console.log("send all notifications:", res);
+        callbackOnTxSuccess();
         // wait for 5 seconds
         await new Promise((resolve) => setTimeout(resolve, 5000));
         // verify the contract on base

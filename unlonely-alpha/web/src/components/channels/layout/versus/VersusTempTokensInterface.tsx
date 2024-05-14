@@ -252,10 +252,7 @@ export const VersusTempTokensInterface = ({
               </Button>
             </Flex>
           )}
-          {isFullChart && <VersusTempTokenTimerView disableChatbot={true} />}
-          {!isFullChart && !isOwner && isGameOngoing && !canPlayToken && (
-            <VersusTempTokenTimerView disableChatbot={true} fontSize={20} />
-          )}
+
           {!isFullChart && (
             <Flex>
               {canPlayToken && (
@@ -310,6 +307,12 @@ export const VersusTempTokensInterface = ({
                 </PopoverContent>
               </Popover>
             </Flex>
+          )}
+        </Flex>
+        <Flex justifyContent={"space-between"} alignItems={"center"} gap="10px">
+          {isFullChart && <VersusTempTokenTimerView disableChatbot={true} />}
+          {!isFullChart && !isOwner && isGameOngoing && !canPlayToken && (
+            <VersusTempTokenTimerView disableChatbot={true} fontSize={20} />
           )}
         </Flex>
         <Flex flex="1" direction={"column"}>

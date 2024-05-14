@@ -20,12 +20,13 @@ import { useCacheContext } from "../../../hooks/context/useCache";
 import { AblyChannelPromise, NULL_ADDRESS } from "../../../constants";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 import { useWindowSize } from "../../../hooks/internal/useWindowSize";
-import { SendRemainingFundsFromCurrentInactiveTokenModal } from "./SendRemainingFundsFromCurrentInactiveTokenModal";
 import { SingleTempTokenTimerView } from "./TempTokenTimer";
 import { usePublicClient } from "wagmi";
 import { TempTokenDisclaimerModal } from "./TempTokenDisclaimerModal";
 import { useTempTokenContext } from "../../../hooks/context/useTempToken";
 import { TempTokenChart } from "../layout/temptoken/TempTokenChart";
+import { TempTokenCreationModal } from "./TempTokenCreationModal";
+import { SendRemainingFundsFromTokenModal } from "./SendRemainingFundsFromTokenModal";
 
 export const TempTokenInterface = ({
   customHeight,
@@ -47,6 +48,7 @@ export const TempTokenInterface = ({
   const publicClient = usePublicClient();
   const { channelQueryData, realTimeChannelDetails, isOwner } = channel;
   const {
+    currentActiveTokenEndTimestamp,
     currentActiveTokenAddress,
     currentActiveTokenSymbol,
     currentActiveTokenTotalSupplyThreshold,
@@ -59,6 +61,11 @@ export const TempTokenInterface = ({
     isFailedGameModalOpen,
     isPermanentGameModalOpen,
     tempTokenTxs,
+    lastInactiveTokenAddress,
+    lastInactiveTempTokenContract,
+    lastInactiveTokenBalance,
+    lastInactiveTokenSymbol,
+    handleIsGameFailed,
     handleIsFailedGameModalOpen,
     handleIsSuccessGameModalOpen,
     handleIsPermanentGameModalOpen,
@@ -71,11 +78,12 @@ export const TempTokenInterface = ({
     txs: tempTokenTxs,
   });
 
+  const [createTokenModalOpen, setCreateTokenModalOpen] = useState(false);
   const [tempTokenDisclaimerModalOpen, setTempTokenDisclaimerModalOpen] =
     useState<boolean>(false);
   const [
-    sendRemainingFundsFromActiveTokenModuleOpen,
-    setSendRemainingFundsFromActiveTokenModuleOpen,
+    sendRemainingFundsFromActiveTokenModalOpen,
+    setSendRemainingFundsFromActiveTokenModalOpen,
   ] = useState<boolean>(false);
   const [ownerNeedsToSendFunds, setOwnerNeedsToSendFunds] =
     useState<boolean>(false);
@@ -133,7 +141,7 @@ export const TempTokenInterface = ({
 
   return (
     <>
-      {currentActiveTokenAddress === NULL_ADDRESS ? (
+      {currentActiveTokenAddress === NULL_ADDRESS && !isOwner ? (
         <Flex
           direction="column"
           alignItems="center"
@@ -142,9 +150,9 @@ export const TempTokenInterface = ({
           justifyContent={"center"}
         >
           <Text>No active token detected for this channel yet</Text>
-          <Spinner size="md" />
         </Flex>
-      ) : initialTempTokenLoading || customLoading ? (
+      ) : (initialTempTokenLoading || customLoading) &&
+        currentActiveTokenAddress !== NULL_ADDRESS ? (
         <Flex
           direction="column"
           alignItems="center"
@@ -157,16 +165,40 @@ export const TempTokenInterface = ({
         </Flex>
       ) : (
         <Flex
-          direction="column"
+          direction={"column"}
           justifyContent={"space-between"}
           width="100%"
-          p={"10px"}
+          gap={"5px"}
           h={customHeight ?? "100%"}
+          p="10px"
         >
+          <TempTokenCreationModal
+            title="Create Temp Token"
+            isOpen={createTokenModalOpen}
+            handleClose={() => setCreateTokenModalOpen(false)}
+          />
           <TempTokenDisclaimerModal
             isOpen={tempTokenDisclaimerModalOpen}
             handleClose={() => setTempTokenDisclaimerModalOpen(false)}
             priceOfThresholdInUsd={priceOfThresholdInUsd}
+          />
+          <SendRemainingFundsFromTokenModal
+            tempTokenContract={
+              ownerNeedsToSendFunds
+                ? currentTempTokenContract
+                : lastInactiveTempTokenContract
+            }
+            isOpen={sendRemainingFundsFromActiveTokenModalOpen}
+            title="Send remaining funds to winner"
+            handleClose={() =>
+              setSendRemainingFundsFromActiveTokenModalOpen(false)
+            }
+            callbackOnTxSuccess={() => {
+              setOwnerNeedsToSendFunds(false);
+              setRemainingFundsToSend(BigInt(0));
+              setSendRemainingFundsFromActiveTokenModalOpen(false);
+              handleIsGameFailed(false);
+            }}
           />
           <TransactionModalTemplate
             title="Token didn't make it this time :("
@@ -232,12 +264,8 @@ export const TempTokenInterface = ({
           </TransactionModalTemplate>
           <Flex justifyContent={"space-between"} alignItems={"center"}>
             <Text fontSize={"20px"} color="#c6c3fc" fontWeight="bold">
-              ${currentActiveTokenSymbol}
+              ${currentActiveTokenSymbol || lastInactiveTokenSymbol}
             </Text>
-            {isFullChart && <SingleTempTokenTimerView disableChatbot={true} />}
-            {!isFullChart && !isOwner && !canPlayToken && (
-              <SingleTempTokenTimerView disableChatbot={true} fontSize={20} />
-            )}
             {!isFullChart && (
               <Flex>
                 {canPlayToken && (
@@ -303,14 +331,22 @@ export const TempTokenInterface = ({
               </Flex>
             )}
           </Flex>
+          <Flex justifyContent={"space-between"} alignItems={"center"}>
+            {isFullChart && <SingleTempTokenTimerView disableChatbot={true} />}
+            {!isFullChart && !isOwner && !canPlayToken && (
+              <SingleTempTokenTimerView disableChatbot={true} fontSize={20} />
+            )}
+          </Flex>
           <Flex gap="10px" flex="1" h="100%" direction="column">
-            <TempTokenChart
-              interfaceChartData={interfaceChartData}
-              priceOfThresholdInUsd={priceOfThresholdInUsd}
-              priceOfThreshold={priceOfThreshold}
-              noChannelData={noChannelData}
-              isFullChart={isFullChart}
-            />
+            {currentActiveTokenAddress !== NULL_ADDRESS && (
+              <TempTokenChart
+                interfaceChartData={interfaceChartData}
+                priceOfThresholdInUsd={priceOfThresholdInUsd}
+                priceOfThreshold={priceOfThreshold}
+                noChannelData={noChannelData}
+                isFullChart={isFullChart}
+              />
+            )}
             {!canPlayToken && (
               <>
                 {isFailedGameState ? (
@@ -319,24 +355,6 @@ export const TempTokenInterface = ({
                       <>
                         {ownerNeedsToSendFunds ? (
                           <>
-                            <SendRemainingFundsFromCurrentInactiveTokenModal
-                              isOpen={
-                                sendRemainingFundsFromActiveTokenModuleOpen
-                              }
-                              title="Send remaining funds to winner"
-                              handleClose={() =>
-                                setSendRemainingFundsFromActiveTokenModuleOpen(
-                                  false
-                                )
-                              }
-                              callbackOnTxSuccess={() => {
-                                setOwnerNeedsToSendFunds(false);
-                                setRemainingFundsToSend(BigInt(0));
-                                setSendRemainingFundsFromActiveTokenModuleOpen(
-                                  false
-                                );
-                              }}
-                            />
                             <Text>
                               Remaining ETH liquidity:{" "}
                               {truncateValue(
@@ -351,7 +369,7 @@ export const TempTokenInterface = ({
                               bg="#02b263"
                               h="30%"
                               onClick={() =>
-                                setSendRemainingFundsFromActiveTokenModuleOpen(
+                                setSendRemainingFundsFromActiveTokenModalOpen(
                                   true
                                 )
                               }
@@ -366,12 +384,13 @@ export const TempTokenInterface = ({
                             _hover={{}}
                             bg="#02b263"
                             h="30%"
-                            onClick={() =>
+                            onClick={() => {
                               onSendRemainingFundsToWinnerEvent(
                                 currentTempTokenContract.address as `0x${string}`,
                                 true
-                              )
-                            }
+                              );
+                              handleIsGameFailed(false);
+                            }}
                           >
                             <Text color="white">return to start</Text>
                           </Button>
@@ -383,7 +402,40 @@ export const TempTokenInterface = ({
                   </>
                 ) : (
                   <>
-                    {realTimeChannelDetails.isLive ? (
+                    {isOwner && !currentActiveTokenEndTimestamp ? (
+                      <>
+                        {lastInactiveTokenAddress === NULL_ADDRESS &&
+                        lastInactiveTokenBalance === BigInt(0) ? (
+                          <Button onClick={() => setCreateTokenModalOpen(true)}>
+                            create temp token
+                          </Button>
+                        ) : (
+                          <>
+                            <Text>
+                              Remaining ETH liquidity:{" "}
+                              {truncateValue(
+                                formatUnits(lastInactiveTokenBalance, 18),
+                                4
+                              )}
+                            </Text>
+                            <Button
+                              _focus={{}}
+                              _active={{}}
+                              _hover={{}}
+                              bg="#02b263"
+                              h="30%"
+                              onClick={() =>
+                                setSendRemainingFundsFromActiveTokenModalOpen(
+                                  true
+                                )
+                              }
+                            >
+                              <Text color="white">send funds</Text>
+                            </Button>
+                          </>
+                        )}
+                      </>
+                    ) : realTimeChannelDetails.isLive ? (
                       <Button
                         _focus={{}}
                         _active={{}}

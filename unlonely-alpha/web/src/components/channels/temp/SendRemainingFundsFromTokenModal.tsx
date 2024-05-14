@@ -1,22 +1,21 @@
 import { Button, Flex, Input, Spinner, Text, Tooltip } from "@chakra-ui/react";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 import { useSendRemainingFundsToWinnerState } from "../../../hooks/internal/temp-token/write/useSendRemainingFundsToWinnerState";
-import { useTempTokenContext } from "../../../hooks/context/useTempToken";
+import { ContractData } from "../../../constants/types";
 
-export const SendRemainingFundsFromCurrentInactiveTokenModal = ({
+export const SendRemainingFundsFromTokenModal = ({
   title,
   handleClose,
   isOpen,
+  tempTokenContract,
   callbackOnTxSuccess,
 }: {
   title: string;
   handleClose: () => void;
   isOpen: boolean;
+  tempTokenContract: ContractData;
   callbackOnTxSuccess: () => void;
 }) => {
-  const { tempToken } = useTempTokenContext();
-  const { currentTempTokenContract } = tempToken;
-
   const {
     sendRemainingFundsToWinnerAfterTokenExpiration,
     loading: sendRemainingFundsToWinnerAfterTokenExpirationTxLoading,
@@ -24,7 +23,7 @@ export const SendRemainingFundsFromCurrentInactiveTokenModal = ({
     winner,
     resolvedAddress,
   } = useSendRemainingFundsToWinnerState(
-    currentTempTokenContract,
+    tempTokenContract,
     callbackOnTxSuccess
   );
 
