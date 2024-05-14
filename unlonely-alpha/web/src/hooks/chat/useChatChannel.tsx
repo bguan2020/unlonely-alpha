@@ -20,6 +20,7 @@ import { isAddress, isAddressEqual } from "viem";
 import { Box, Flex, useToast, Text } from "@chakra-ui/react";
 import centerEllipses from "../../utils/centerEllipses";
 import { useTempTokenContext } from "../context/useTempToken";
+import { useVersusTempTokenContext } from "../context/useVersusTempToken";
 
 const ably = new Ably.Realtime.Promise({ authUrl: "/api/createTokenRequest" });
 
@@ -68,6 +69,12 @@ export function useChatChannel(fixedChatName?: string) {
   const { refetchVibesBalance } = useVibesContext();
   const { tempToken } = useTempTokenContext();
   const { refetchUserTempTokenBalance } = tempToken;
+  const { gameState, tokenATxs, tokenBTxs } = useVersusTempTokenContext();
+  const { tokenA, tokenB } = gameState;
+  const { refetchUserTempTokenBalance: refetchUserVersusTokenBalanceA } =
+    tokenATxs;
+  const { refetchUserTempTokenBalance: refetchUserVersusTokenBalanceB } =
+    tokenBTxs;
   const toast = useToast();
 
   const channelName =
@@ -111,6 +118,10 @@ export function useChatChannel(fixedChatName?: string) {
       if (includesUser) {
         if (symbol === "vibes") {
           refetchVibesBalance?.();
+        } else if (symbol === tokenA.symbol) {
+          refetchUserVersusTokenBalanceA?.();
+        } else if (symbol === tokenB.symbol) {
+          refetchUserVersusTokenBalanceB?.();
         } else {
           refetchUserTempTokenBalance?.();
         }

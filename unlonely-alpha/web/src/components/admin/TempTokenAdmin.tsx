@@ -30,6 +30,8 @@ import { useUpdateEndTimestampForTokensState } from "../../hooks/internal/temp-t
 import centerEllipses from "../../utils/centerEllipses";
 import copy from "copy-to-clipboard";
 import { FaRegCopy } from "react-icons/fa";
+import { Contract } from "../../constants";
+import { getContractFromNetwork } from "../../utils/contract";
 // import { verifyTempTokenV1OnBase } from "../../utils/contract-verification/tempToken";
 
 type DetailedTempToken = TempToken & {
@@ -64,6 +66,11 @@ export const TempTokenAdmin = () => {
     set_loading_updateDb_highestTotalSupply,
   ] = useState(false);
 
+  const factoryContract = getContractFromNetwork(
+    Contract.TEMP_TOKEN_FACTORY_V1,
+    localNetwork
+  );
+
   /**
    * Fetch active tokens
    */
@@ -73,6 +80,7 @@ export const TempTokenAdmin = () => {
       const res = await getTempTokensQuery({
         variables: {
           data: {
+            factoryAddress: factoryContract.address as `0x${string}`,
             chainId: localNetwork.config.chainId,
             onlyActiveTokens: true,
             isAlwaysTradeable: true,

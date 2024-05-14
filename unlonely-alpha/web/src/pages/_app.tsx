@@ -174,7 +174,7 @@ function App({ Component, pageProps, cookies }: Props) {
             <TourProvider
               steps={streamerTourSteps}
               styles={tourStyles}
-              prevButton={({ currentStep, setCurrentStep, steps }) => {
+              prevButton={({ currentStep, setCurrentStep }) => {
                 const first = currentStep === 0;
                 if (first) return null;
                 return (

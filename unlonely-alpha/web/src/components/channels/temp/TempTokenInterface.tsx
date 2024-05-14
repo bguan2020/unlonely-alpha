@@ -74,7 +74,6 @@ export const TempTokenInterface = ({
     currentActiveTokenAddress,
     currentActiveTokenSymbol,
     currentActiveTokenHasHitTotalSupplyThreshold,
-    currentActiveTokenHighestTotalSupply,
     currentActiveTokenTotalSupply,
     currentActiveTokenTotalSupplyThreshold,
     currentTempTokenContract,
@@ -132,28 +131,6 @@ export const TempTokenInterface = ({
     BigInt(0)
   );
   const [thresholdOn, setThresholdOn] = useState(true);
-
-  const priceOfHighestTotalSupply = useMemo(() => {
-    if (currentActiveTokenHighestTotalSupply === BigInt(0)) return 0;
-    const n = Number(currentActiveTokenHighestTotalSupply);
-    const n_ = Math.max(n - 1, 0);
-    const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-    const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
-    const newPrice = priceForCurrent - priceForPrevious;
-    return newPrice;
-  }, [currentActiveTokenHighestTotalSupply]);
-
-  const priceOfHighestTotalSupplyInUsd = useMemo(
-    () =>
-      ethPriceInUsd === undefined
-        ? undefined
-        : truncateValue(
-            Number(formatUnits(BigInt(priceOfHighestTotalSupply), 18)) *
-              Number(ethPriceInUsd),
-            4
-          ),
-    [priceOfHighestTotalSupply, ethPriceInUsd]
-  );
 
   const priceOfThreshold = useMemo(() => {
     if (currentActiveTokenTotalSupplyThreshold === BigInt(0)) return 0;
@@ -334,6 +311,9 @@ export const TempTokenInterface = ({
               ${currentActiveTokenSymbol}
             </Text>
             {isFullChart && <SingleTempTokenTimerView disableChatbot={true} />}
+            {!isFullChart && !isOwner && !canPlayToken && (
+              <SingleTempTokenTimerView disableChatbot={true} fontSize={20} />
+            )}
             {!isFullChart && (
               <Flex>
                 {canPlayToken && (

@@ -11,7 +11,12 @@ import usePostTempToken from "../../../server/temp-token/usePostTempToken";
 import centerEllipses from "../../../../utils/centerEllipses";
 import { useUser } from "../../../context/useUser";
 import { verifyTempTokenV1OnBase } from "../../../../utils/contract-verification/tempToken";
-import { TempTokenType } from "../../../../generated/graphql";
+import {
+  QuerySendAllNotificationsArgs,
+  TempTokenType,
+} from "../../../../generated/graphql";
+import { useLazyQuery } from "@apollo/client";
+import { SEND_ALL_NOTIFICATIONS_QUERY } from "../../../../constants/queries";
 
 export type UseCreateMultipleTempTokensState = {
   newTokenAName: string;
@@ -71,6 +76,13 @@ export const useCreateMultipleTempTokensState = ({
   const canAddToChatbot_create = useRef(false);
 
   const { postTempToken } = usePostTempToken({});
+
+  const [call] = useLazyQuery<QuerySendAllNotificationsArgs>(
+    SEND_ALL_NOTIFICATIONS_QUERY,
+    {
+      fetchPolicy: "network-only",
+    }
+  );
 
   const {
     createMultipleTempTokens,
@@ -260,6 +272,16 @@ export const useCreateMultipleTempTokensState = ({
           isClosable: true,
           position: "top-right",
         });
+        // const res = await call({
+        //   variables: {
+        //     data: {
+        //       title: `/${channel.channelQueryData?.slug} launched two new tokens!`,
+        //       body: "Claim 1000 free tokens now!",
+        //       channelId: undefined,
+        //     },
+        //   },
+        // });
+        // console.log("send all notifications:", res);
         callbackOnTxSuccess();
         // wait for 5 seconds
         await new Promise((resolve) => setTimeout(resolve, 5000));

@@ -40,7 +40,7 @@ export const DesktopChannelPageVersus = ({
     isOwner,
   } = channel;
   const { gameState } = useVersusTempTokenContext();
-  const { canPlayToken, isGameFinished } = gameState;
+  const { isGameFinished, canPlayToken: canPlayVersusToken } = gameState;
 
   const toast = useToast();
   const { livepeerData, playbackInfo } = useLivepeerStreamData();
@@ -125,11 +125,11 @@ export const DesktopChannelPageVersus = ({
                           }
                     }
                     chat={chat}
-                    mode={canPlayToken ? "versus-mode" : ""}
+                    mode={canPlayVersusToken ? "versus-mode" : ""}
                   />
                 )}
               </Flex>
-              {canPlayToken && (
+              {canPlayVersusToken ? (
                 <Flex
                   direction="column"
                   minW={["100%", "100%", "500px", "500px"]}
@@ -141,8 +141,7 @@ export const DesktopChannelPageVersus = ({
                     customHeight="100%"
                   />
                 </Flex>
-              )}
-              {!canPlayToken && (
+              ) : (
                 <Flex
                   direction="column"
                   minW={["100%", "100%", "380px", "380px"]}
@@ -155,8 +154,8 @@ export const DesktopChannelPageVersus = ({
                   />
                   <ChatComponent
                     chat={chat}
-                    tokenForTransfer="tempToken"
                     customHeight={"100%"}
+                    tokenForTransfer="tempToken"
                   />
                 </Flex>
               )}

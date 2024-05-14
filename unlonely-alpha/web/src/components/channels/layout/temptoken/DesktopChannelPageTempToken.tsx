@@ -1,26 +1,26 @@
 import { ApolloError } from "@apollo/client";
 import { ChannelStaticQuery } from "../../../../generated/graphql";
-import { useChannelContext } from "../../../../hooks/context/useChannel";
+import { useEffect, useMemo } from "react";
 import { useChat } from "../../../../hooks/chat/useChat";
-import { useEffect, useMemo, useState } from "react";
+import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { useUser } from "../../../../hooks/context/useUser";
-import ChannelNextHead from "../../../layout/ChannelNextHead";
-import { Stack, Flex, Text, Button, useToast } from "@chakra-ui/react";
-import { WavyText } from "../../../general/WavyText";
-import { ChannelWideModals } from "../../ChannelWideModals";
-import { DesktopChannelViewerPerspectiveSimplified } from "./DesktopChannelViewerPerspectiveSimplified";
-import ChatComponent from "../../../chat/ChatComponent";
-import { DesktopChannelStreamerPerspectiveSimplified } from "./DesktopChannelStreamerPerspectiveSimplified";
-import { TempTokenInterface } from "../../temp/TempTokenInterface";
-import Header from "../../../navigation/Header";
-import trailString from "../../../../utils/trailString";
-import copy from "copy-to-clipboard";
-import { useTempTokenContext } from "../../../../hooks/context/useTempToken";
-import { useVipBadgeUi } from "../../../../hooks/internal/useVipBadgeUi";
 import { useLivepeerStreamData } from "../../../../hooks/internal/useLivepeerStreamData";
-import { CreateTokenInterface } from "./CreateTempTokenInterface";
+import { useVipBadgeUi } from "../../../../hooks/internal/useVipBadgeUi";
+import { Button, Flex, Stack, useToast, Text } from "@chakra-ui/react";
+import copy from "copy-to-clipboard";
 import { formatApolloError } from "../../../../utils/errorFormatting";
+import trailString from "../../../../utils/trailString";
+import ChatComponent from "../../../chat/ChatComponent";
+import { WavyText } from "../../../general/WavyText";
+import ChannelNextHead from "../../../layout/ChannelNextHead";
+import Header from "../../../navigation/Header";
+import { ChannelWideModals } from "../../ChannelWideModals";
+import { DesktopChannelStreamerPerspectiveSimplified } from "../temptoken/DesktopChannelStreamerPerspectiveSimplified";
+import { DesktopChannelViewerPerspectiveSimplified } from "../temptoken/DesktopChannelViewerPerspectiveSimplified";
+import { useTempTokenContext } from "../../../../hooks/context/useTempToken";
 import { useTempTokenAblyInterpreter } from "../../../../hooks/internal/temp-token/ui/useTempTokenAblyInterpreter";
+import { TempTokenInterface } from "../../temp/TempTokenInterface";
+import { TempTokenState } from "./TempTokenState";
 
 export const DesktopChannelPageTempToken = ({
   channelSSR,
@@ -41,7 +41,9 @@ export const DesktopChannelPageTempToken = ({
     handleChannelStaticData,
     isOwner,
   } = channel;
-  const { currentActiveTokenEndTimestamp, canPlayToken } = tempToken;
+  const { currentActiveTokenEndTimestamp, canPlayToken: canPlayTempToken } =
+    tempToken;
+
   const toast = useToast();
   const { livepeerData, playbackInfo } = useLivepeerStreamData();
   useVipBadgeUi(chat);
@@ -49,37 +51,6 @@ export const DesktopChannelPageTempToken = ({
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
   }, [channelSSR]);
-
-  const [shouldRenderTempTokenInterface, setShouldRenderTempTokenInterface] =
-    useState(false);
-
-  /**
-   * if there is an existing token, render the temp token interface
-   */
-
-  useEffect(() => {
-    if (!currentActiveTokenEndTimestamp) {
-      setShouldRenderTempTokenInterface(false);
-      return;
-    }
-    const decideRender = () => {
-      const currentTime = Math.floor(Date.now() / 1000);
-      const shouldRender =
-        currentTime <= Number(currentActiveTokenEndTimestamp) &&
-        currentActiveTokenEndTimestamp !== BigInt(0);
-      setShouldRenderTempTokenInterface(shouldRender);
-    };
-
-    // Initial update
-    decideRender();
-
-    const interval = setInterval(() => {
-      decideRender();
-      clearInterval(interval);
-    }, 5 * 1000); // Check every 5 seconds
-
-    return () => clearInterval(interval); // Cleanup on unmount
-  }, [currentActiveTokenEndTimestamp]);
 
   const canShowInterface = useMemo(() => {
     return (
@@ -141,7 +112,7 @@ export const DesktopChannelPageTempToken = ({
                             }
                       }
                       mode={
-                        shouldRenderTempTokenInterface
+                        currentActiveTokenEndTimestamp
                           ? "single-temp-token"
                           : ""
                       }
@@ -160,11 +131,11 @@ export const DesktopChannelPageTempToken = ({
                           }
                     }
                     chat={chat}
-                    mode={canPlayToken ? "single-temp-token" : ""}
+                    mode={canPlayTempToken ? "single-temp-token" : ""}
                   />
                 )}
               </Flex>
-              {canPlayToken && (
+              {canPlayTempToken ? (
                 <Flex
                   direction="column"
                   minW={["100%", "100%", "500px", "500px"]}
@@ -176,54 +147,19 @@ export const DesktopChannelPageTempToken = ({
                     customHeight="100%"
                   />
                 </Flex>
-              )}
-              {!canPlayToken && (
+              ) : (
                 <Flex
                   direction="column"
                   minW={["100%", "100%", "380px", "380px"]}
                   maxW={["100%", "100%", "380px", "380px"]}
                   gap="1rem"
                 >
-                  {isOwner && walletIsConnected ? (
-                    <>
-                      {shouldRenderTempTokenInterface ? (
-                        <TempTokenInterface
-                          ablyChannel={chat.channel}
-                          customHeight="30%"
-                        />
-                      ) : (
-                        <Flex
-                          gap="5px"
-                          justifyContent={"center"}
-                          alignItems={"center"}
-                          bg="#131323"
-                          p="5px"
-                          height="20vh"
-                        >
-                          <CreateTokenInterface />
-                        </Flex>
-                      )}
-                      <ChatComponent
-                        chat={chat}
-                        customHeight={"100%"}
-                        tokenForTransfer="tempToken"
-                      />
-                    </>
-                  ) : (
-                    <>
-                      {shouldRenderTempTokenInterface && (
-                        <TempTokenInterface
-                          ablyChannel={chat.channel}
-                          customHeight="30%"
-                        />
-                      )}
-                      <ChatComponent
-                        chat={chat}
-                        customHeight={"100%"}
-                        tokenForTransfer="tempToken"
-                      />
-                    </>
-                  )}
+                  <TempTokenState chat={chat} />
+                  <ChatComponent
+                    chat={chat}
+                    customHeight={"100%"}
+                    tokenForTransfer="tempToken"
+                  />
                 </Flex>
               )}
             </Stack>

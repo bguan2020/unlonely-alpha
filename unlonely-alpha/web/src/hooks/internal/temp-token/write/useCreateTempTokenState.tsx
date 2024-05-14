@@ -11,7 +11,12 @@ import { getContractFromNetwork } from "../../../../utils/contract";
 import { useChannelContext } from "../../../context/useChannel";
 import { useUser } from "../../../context/useUser";
 import centerEllipses from "../../../../utils/centerEllipses";
-import { TempTokenType } from "../../../../generated/graphql";
+import {
+  QuerySendAllNotificationsArgs,
+  TempTokenType,
+} from "../../../../generated/graphql";
+import { useLazyQuery } from "@apollo/client";
+import { SEND_ALL_NOTIFICATIONS_QUERY } from "../../../../constants/queries";
 
 export const EASY_THRESHOLD = BigInt(420_000);
 export const MEDIUM_THRESHOLD = BigInt(690_000);
@@ -68,6 +73,13 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
     localNetwork
+  );
+
+  const [call] = useLazyQuery<QuerySendAllNotificationsArgs>(
+    SEND_ALL_NOTIFICATIONS_QUERY,
+    {
+      fetchPolicy: "network-only",
+    }
   );
 
   const {
@@ -207,6 +219,16 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
           isClosable: true,
           position: "top-right",
         });
+        // const res = await call({
+        //   variables: {
+        //     data: {
+        //       title: `/${channel.channelQueryData?.slug} launched a new token!`,
+        //       body: "Claim 1000 free tokens now!",
+        //       channelId: undefined,
+        //     },
+        //   },
+        // });
+        // console.log("send all notifications:", res);
         // wait for 5 seconds
         await new Promise((resolve) => setTimeout(resolve, 5000));
         // verify the contract on base
