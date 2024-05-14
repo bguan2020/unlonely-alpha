@@ -13,41 +13,22 @@ import {
   PopoverTrigger,
   IconButton,
 } from "@chakra-ui/react";
-import {
-  ResponsiveContainer,
-  LineChart,
-  XAxis,
-  YAxis,
-  Line,
-  Tooltip,
-  Brush,
-  ReferenceLine,
-} from "recharts";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
-import { useTradeTempTokenState } from "../../../hooks/internal/temp-token/write/useTradeTempTokenState";
 import { useChannelContext } from "../../../hooks/context/useChannel";
-import { FaMagnifyingGlassChart, FaPause } from "react-icons/fa6";
-import { useInterfaceChartMarkers } from "../../../hooks/internal/temp-token/ui/useInterfaceChartMarkers";
+import { FaMagnifyingGlassChart } from "react-icons/fa6";
 import { useInterfaceChartData } from "../../../hooks/internal/temp-token/ui/useInterfaceChartData";
-import {
-  blockNumberDaysAgo,
-  blockNumberHoursAgo,
-} from "../../../hooks/internal/useVibesCheck";
+
 import { useCacheContext } from "../../../hooks/context/useCache";
 import { AblyChannelPromise, NULL_ADDRESS } from "../../../constants";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 import { useWindowSize } from "../../../hooks/internal/useWindowSize";
-import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import { SendRemainingFundsFromCurrentInactiveTokenModal } from "./SendRemainingFundsFromCurrentInactiveTokenModal";
-import { TempTokenExchange } from "./TempTokenExchange";
 import { SingleTempTokenTimerView } from "./TempTokenTimer";
 import { usePublicClient } from "wagmi";
 import { TempTokenDisclaimerModal } from "./TempTokenDisclaimerModal";
 import { useOwnerUpdateTotalSupplyThresholdState } from "../../../hooks/internal/temp-token/write/useOwnerUpdateTotalSupplyThresholdState";
 import { useTempTokenContext } from "../../../hooks/context/useTempToken";
-const ZONE_BREADTH = 0.05;
-const NUMBER_OF_HOURS_IN_DAY = 24;
-const NUMBER_OF_DAYS_IN_MONTH = 30;
+import { TempTokenChart } from "../layout/temptoken/TempTokenChart";
 
 export const TempTokenInterface = ({
   customHeight,
@@ -66,21 +47,17 @@ export const TempTokenInterface = ({
   const { tempToken } = useTempTokenContext();
   const { ethPriceInUsd } = useCacheContext();
   const windowSize = useWindowSize();
-  const { network } = useNetworkContext();
-  const { matchingChain } = network;
   const publicClient = usePublicClient();
   const { channelQueryData, realTimeChannelDetails, isOwner } = channel;
   const {
     currentActiveTokenAddress,
     currentActiveTokenSymbol,
     currentActiveTokenHasHitTotalSupplyThreshold,
-    currentActiveTokenTotalSupply,
     currentActiveTokenTotalSupplyThreshold,
     currentTempTokenContract,
     canPlayToken,
     tempTokenChartTimeIndexes,
     initialTempTokenLoading,
-    currentBlockNumberForTempTokenChart,
     isFailedGameState,
     isSuccessGameModalOpen,
     isFailedGameModalOpen,
@@ -93,28 +70,12 @@ export const TempTokenInterface = ({
     onSendRemainingFundsToWinnerEvent,
   } = tempToken;
 
-  const tradeTempTokenState = useTradeTempTokenState({
-    tokenAddress: currentActiveTokenAddress,
-    tokenSymbol: currentActiveTokenSymbol,
-    tokenTxs: tempTokenTxs,
-  });
-
   const {
     callSetTotalSupplyThresholdForTokens,
     loading: setTotalSupplyThresholdForTokensLoading,
   } = useOwnerUpdateTotalSupplyThresholdState();
 
-  const {
-    isChartPaused,
-    formattedData,
-    pausedDataForAllTime,
-    pausedData_1h,
-    pausedData_1d,
-    timeFilter,
-    chartTxs,
-    handleTimeFilter,
-    handleIsChartPaused,
-  } = useInterfaceChartData({
+  const interfaceChartData = useInterfaceChartData({
     chartTimeIndexes: tempTokenChartTimeIndexes,
     txs: tempTokenTxs,
   });
@@ -151,33 +112,6 @@ export const TempTokenInterface = ({
       ),
     [priceOfThreshold, ethPriceInUsd]
   );
-
-  const formattedCurrentPrice = useMemo(
-    () =>
-      formattedData.length > 0
-        ? formatUnits(BigInt(formattedData[formattedData.length - 1].price), 18)
-        : "0",
-    [formattedData]
-  );
-
-  const currentPriceInUsd = useMemo(
-    () =>
-      ethPriceInUsd === undefined
-        ? undefined
-        : truncateValue(
-            Number(formattedCurrentPrice) * Number(ethPriceInUsd),
-            4
-          ),
-    [formattedCurrentPrice, ethPriceInUsd]
-  );
-
-  const {
-    CustomDot,
-    CustomTooltip,
-    formatYAxisTick,
-    CustomLabel,
-    customBrushFormatter,
-  } = useInterfaceChartMarkers(chartTxs, timeFilter);
 
   const openTokenPopout = () => {
     if (!channelQueryData) return;
@@ -333,7 +267,7 @@ export const TempTokenInterface = ({
                           />
                         }
                         onClick={() => {
-                          handleIsChartPaused(false);
+                          interfaceChartData.handleIsChartPaused(false);
                           handleCanPlayToken(false);
                         }}
                       />
@@ -382,38 +316,46 @@ export const TempTokenInterface = ({
           {canPlayToken && (
             <Flex gap="5px" alignItems={"center"}>
               <Button
-                bg={timeFilter === "1h" ? "#7874c9" : "#403c7d"}
+                bg={
+                  interfaceChartData.timeFilter === "1h" ? "#7874c9" : "#403c7d"
+                }
                 color="#c6c3fc"
                 p={3}
                 height="20px"
                 _focus={{}}
                 _active={{}}
                 _hover={{}}
-                onClick={() => handleTimeFilter("1h")}
+                onClick={() => interfaceChartData.handleTimeFilter("1h")}
               >
                 1h
               </Button>
               <Button
-                bg={timeFilter === "1d" ? "#7874c9" : "#403c7d"}
+                bg={
+                  interfaceChartData.timeFilter === "1d" ? "#7874c9" : "#403c7d"
+                }
                 color="#c6c3fc"
                 p={3}
                 height="20px"
                 _focus={{}}
                 _active={{}}
                 _hover={{}}
-                onClick={() => handleTimeFilter("1d")}
+                onClick={() => interfaceChartData.handleTimeFilter("1d")}
               >
                 1d
               </Button>
               <Button
-                bg={timeFilter === "all" ? "#7874c9" : "#403c7d"}
+                bg={
+                  interfaceChartData.timeFilter === "all"
+                    ? "#7874c9"
+                    : "#403c7d"
+                }
                 color="#c6c3fc"
                 p={3}
                 height="20px"
                 _focus={{}}
                 _active={{}}
                 _hover={{}}
-                onClick={() => handleTimeFilter("all")}
+                onClick={() => interfaceChartData.handleTimeFilter("all")}
               >
                 all
               </Button>
@@ -441,7 +383,11 @@ export const TempTokenInterface = ({
               >
                 <Button
                   color="#ffffff"
-                  bg={isChartPaused ? "rgb(173, 169, 249)" : "#4741c1"}
+                  bg={
+                    interfaceChartData.isChartPaused
+                      ? "rgb(173, 169, 249)"
+                      : "#4741c1"
+                  }
                   _hover={{
                     transform: "scale(1.15)",
                   }}
@@ -449,9 +395,13 @@ export const TempTokenInterface = ({
                   _active={{}}
                   p={3}
                   height={"20px"}
-                  onClick={() => handleIsChartPaused(!isChartPaused)}
+                  onClick={() =>
+                    interfaceChartData.handleIsChartPaused(
+                      !interfaceChartData.isChartPaused
+                    )
+                  }
                   boxShadow={
-                    isChartPaused
+                    interfaceChartData.isChartPaused
                       ? "0px 0px 25px rgba(173, 169, 249, 0.847)"
                       : undefined
                   }
@@ -528,225 +478,14 @@ export const TempTokenInterface = ({
             </Flex>
           )}
           <Flex gap="10px" flex="1" h="100%" direction="column">
-            <Flex direction="column" w="100%" position="relative" h="60%">
-              {noChannelData && (
-                <Text
-                  textAlign="center"
-                  position="absolute"
-                  color="gray"
-                  top="50%"
-                  left="50%"
-                  transform="translate(-50%, -50%)"
-                >
-                  could not fetch channel data
-                </Text>
-              )}
-              {pausedData_1h.length === 0 &&
-                timeFilter === "1h" &&
-                matchingChain && (
-                  <Text
-                    textAlign="center"
-                    position="absolute"
-                    color="gray"
-                    top="50%"
-                    left="50%"
-                    transform="translate(-50%, -50%)"
-                  >
-                    no txs in the past hour
-                  </Text>
-                )}
-              {pausedData_1d.length === 0 &&
-                timeFilter === "1d" &&
-                matchingChain && (
-                  <Text
-                    textAlign="center"
-                    position="absolute"
-                    color="gray"
-                    top="50%"
-                    left="50%"
-                    transform="translate(-50%, -50%)"
-                  >
-                    no txs in the past 24 hours
-                  </Text>
-                )}
-              {formattedData.length === 0 &&
-                timeFilter === "all" &&
-                matchingChain && (
-                  <Text
-                    textAlign="center"
-                    position="absolute"
-                    color="gray"
-                    top="50%"
-                    left="50%"
-                    transform="translate(-50%, -50%)"
-                  >
-                    no txs
-                  </Text>
-                )}
-              {isChartPaused && (
-                <Text
-                  position="absolute"
-                  color="#626262"
-                  top="50%"
-                  left="50%"
-                  transform="translate(-50%, -50%)"
-                  fontSize={"6rem"}
-                  fontWeight={"bold"}
-                  textAlign={"center"}
-                  opacity="0.5"
-                >
-                  <FaPause />
-                </Text>
-              )}
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={
-                    isChartPaused
-                      ? timeFilter === "all"
-                        ? pausedDataForAllTime
-                        : timeFilter === "1h"
-                        ? pausedData_1h
-                        : pausedData_1d
-                      : formattedData
-                  }
-                >
-                  <XAxis
-                    hide
-                    dataKey="blockNumber"
-                    type="number"
-                    domain={["dataMin", "dataMax"]}
-                    allowDataOverflow={false}
-                  />
-                  <YAxis
-                    tickFormatter={formatYAxisTick}
-                    domain={
-                      currentActiveTokenTotalSupplyThreshold >
-                        currentActiveTokenTotalSupply && thresholdOn
-                        ? ["dataMin", priceOfThreshold * (1 + ZONE_BREADTH)]
-                        : ["dataMin", "dataMax"]
-                    }
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                  {timeFilter === "all" && (
-                    <>
-                      {Array.from(tempTokenChartTimeIndexes.keys())
-                        .filter((i) => i.includes("d"))
-                        .map((key) => {
-                          return (
-                            <ReferenceLine
-                              key={key}
-                              strokeDasharray="3 3"
-                              x={
-                                tempTokenChartTimeIndexes.get(key)
-                                  ?.blockNumber as number
-                              }
-                              stroke="rgb(0, 211, 193)"
-                              label={<CustomLabel value={`~${key}`} />}
-                            />
-                          );
-                        })}
-                      {[...Array(NUMBER_OF_DAYS_IN_MONTH).keys()]
-                        .map((i) => i + 1)
-                        .filter(
-                          (d) =>
-                            tempTokenChartTimeIndexes.get(`${d}d`)
-                              ?.blockNumber === undefined
-                        )
-                        .map((key) => {
-                          return (
-                            <ReferenceLine
-                              key={key}
-                              strokeDasharray="1 1"
-                              x={Number(
-                                blockNumberDaysAgo(
-                                  key,
-                                  currentBlockNumberForTempTokenChart
-                                )
-                              )}
-                              stroke="rgba(0, 211, 193, 0.2)"
-                            />
-                          );
-                        })}
-                    </>
-                  )}
-                  {timeFilter === "1d" && (
-                    <>
-                      {Array.from(tempTokenChartTimeIndexes.keys())
-                        .filter((i) => i.includes("h"))
-                        .map((key) => {
-                          return (
-                            <ReferenceLine
-                              key={key}
-                              strokeDasharray="3 3"
-                              x={
-                                tempTokenChartTimeIndexes.get(key)
-                                  ?.blockNumber as number
-                              }
-                              stroke="#00d3c1"
-                              label={<CustomLabel value={`~${key}`} />}
-                            />
-                          );
-                        })}
-                      {[...Array(NUMBER_OF_HOURS_IN_DAY).keys()]
-                        .map((i) => i + 1)
-                        .filter(
-                          (h) =>
-                            tempTokenChartTimeIndexes.get(`${h}h`)
-                              ?.blockNumber === undefined
-                        )
-                        .map((key) => {
-                          return (
-                            <ReferenceLine
-                              key={key}
-                              strokeDasharray="1 1"
-                              x={Number(
-                                blockNumberHoursAgo(
-                                  key,
-                                  currentBlockNumberForTempTokenChart
-                                )
-                              )}
-                              stroke="rgba(0, 211, 193, 0.2)"
-                            />
-                          );
-                        })}
-                    </>
-                  )}
-                  {thresholdOn && (
-                    <ReferenceLine
-                      y={priceOfThreshold}
-                      stroke="#ff0000"
-                      strokeDasharray="3 3"
-                      label={
-                        <CustomLabel
-                          value={`goal: $${priceOfThresholdInUsd}`}
-                        />
-                      }
-                    />
-                  )}
-                  <Line
-                    type="monotone"
-                    dataKey="price"
-                    stroke={
-                      currentActiveTokenHasHitTotalSupplyThreshold
-                        ? "#ffd014"
-                        : "#8884d8"
-                    }
-                    strokeWidth={2}
-                    animationDuration={200}
-                    dot={isFullChart ? <CustomDot /> : false}
-                  />
-                  {isChartPaused && (
-                    <Brush
-                      dataKey="blockNumber"
-                      height={30}
-                      fill={isChartPaused ? "#2c2970" : "transparent"}
-                      stroke={isChartPaused ? "#ada9f9" : "#5e5e6a"}
-                      tickFormatter={(tick) => customBrushFormatter(tick)}
-                    />
-                  )}
-                </LineChart>
-              </ResponsiveContainer>
-            </Flex>
+            <TempTokenChart
+              interfaceChartData={interfaceChartData}
+              thresholdOn={thresholdOn}
+              priceOfThresholdInUsd={priceOfThresholdInUsd}
+              priceOfThreshold={priceOfThreshold}
+              noChannelData={noChannelData}
+              isFullChart={isFullChart}
+            />
             {!canPlayToken && (
               <>
                 {isFailedGameState ? (
@@ -839,64 +578,6 @@ export const TempTokenInterface = ({
                   </>
                 )}
               </>
-            )}
-            {canPlayToken && (
-              <Flex
-                direction="column"
-                justifyContent={"space-between"}
-                gap="5px"
-              >
-                <Flex gap="10px" justifyContent={"space-evenly"}>
-                  <Flex direction="column">
-                    <Text fontSize={"12px"} color="#c6c3fc">
-                      Current Price
-                    </Text>
-                    {currentPriceInUsd !== undefined ? (
-                      <>
-                        <Text color="#f3d584" fontSize="2rem">
-                          ${currentPriceInUsd}
-                        </Text>
-                        <Text
-                          whiteSpace={"nowrap"}
-                          opacity="0.3"
-                          fontSize="14px"
-                        >
-                          {formattedCurrentPrice} ETH
-                        </Text>
-                      </>
-                    ) : (
-                      <Text whiteSpace={"nowrap"} fontSize="1rem">
-                        {formattedCurrentPrice} ETH
-                      </Text>
-                    )}
-                  </Flex>
-                  <Flex direction="column">
-                    {currentActiveTokenHasHitTotalSupplyThreshold ? (
-                      <Text fontSize={"12px"} color="#ffd014">
-                        Target Price Reached
-                      </Text>
-                    ) : (
-                      <Text fontSize={"12px"} color="#c6c3fc">
-                        tokens to reach goal
-                      </Text>
-                    )}
-                    {!currentActiveTokenHasHitTotalSupplyThreshold && (
-                      <>
-                        <Text color="#f3d584" fontSize="2rem">
-                          {truncateValue(
-                            String(
-                              currentActiveTokenTotalSupplyThreshold -
-                                currentActiveTokenTotalSupply
-                            ),
-                            4
-                          )}
-                        </Text>
-                      </>
-                    )}
-                  </Flex>
-                </Flex>
-                <TempTokenExchange tradeTempTokenState={tradeTempTokenState} />
-              </Flex>
             )}
           </Flex>
         </Flex>
