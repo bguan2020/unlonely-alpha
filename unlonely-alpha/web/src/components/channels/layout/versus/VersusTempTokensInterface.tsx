@@ -211,9 +211,8 @@ export const VersusTempTokensInterface = ({
             </>
           )}
           {!isGameOngoing &&
-            (ownerMustPermamint === true ||
-              (typeof ownerMustPermamint === "number" &&
-                ownerMustPermamint > 0)) && <PermamintModule />}
+            typeof ownerMustPermamint === "number" &&
+            ownerMustPermamint > 0 && <PermamintModule />}
           {canPlayToken && (
             <Flex justifyContent={"center"} gap="5px">
               <Button
@@ -329,31 +328,31 @@ export const VersusTempTokensInterface = ({
               </Button>
             )}
         </Flex>
+        {!realTimeChannelDetails.isLive && isGameOngoing && (
+          <Text>
+            Cannot play when stream is offline, please refresh and try again
+          </Text>
+        )}
+        {ownerMustMakeWinningTokenTradeable && (
+          <Stepper orientation="vertical" index={0}>
+            {steps.map((step, index) => (
+              <Step key={index}>
+                <StepIndicator>
+                  <StepStatus complete={<StepIcon />} />
+                </StepIndicator>
+
+                <Box>
+                  <StepTitle>
+                    <Text fontFamily="LoRes15">{step.title}</Text>
+                  </StepTitle>
+                </Box>
+
+                <StepSeparator />
+              </Step>
+            ))}
+          </Stepper>
+        )}
       </Flex>
-      {!realTimeChannelDetails.isLive && isGameOngoing && (
-        <Text>
-          Cannot play when stream is offline, please refresh and try again
-        </Text>
-      )}
-      {ownerMustMakeWinningTokenTradeable && (
-        <Stepper orientation="vertical" index={0}>
-          {steps.map((step, index) => (
-            <Step key={index}>
-              <StepIndicator>
-                <StepStatus complete={<StepIcon />} />
-              </StepIndicator>
-
-              <Box>
-                <StepTitle>
-                  <Text fontFamily="LoRes15">{step.title}</Text>
-                </StepTitle>
-              </Box>
-
-              <StepSeparator />
-            </Step>
-          ))}
-        </Stepper>
-      )}
     </>
   );
 };

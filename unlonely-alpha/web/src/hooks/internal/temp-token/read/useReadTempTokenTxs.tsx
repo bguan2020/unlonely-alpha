@@ -83,6 +83,7 @@ export const useReadTempTokenTxs = ({
       fromBlock: bigint,
       toBlock: bigint
     ) => {
+      console.log("getTempTokenEvents", tempTokenContract, fromBlock, toBlock);
       const [mintLogs, burnLogs] = await Promise.all([
         baseClient.getLogs({
           address: tempTokenContract.address,
@@ -157,6 +158,7 @@ export const useReadTempTokenTxs = ({
   // on mount or newly detected token's creationBlockNumber, fetch for logs to populate historical transactions on the chart
   useEffect(() => {
     const init = async () => {
+      console.log("tempTokenContract", tempTokenContract);
       if (
         fetching.current ||
         tempTokenTxs.length > 0 ||

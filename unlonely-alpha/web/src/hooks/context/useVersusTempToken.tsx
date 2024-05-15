@@ -46,6 +46,7 @@ const VersusTempTokenContext = createContext<{
     ) => void;
     onBurnEvent: (totalSupply: bigint, tokenIdentifier: "a" | "b") => void;
   };
+  loadingOnMount: boolean;
 }>({
   gameState: useReadVersusTempTokenGlobalStateInitial,
   tokenATxs: { ...useReadTempTokenTxsInitial },
@@ -54,6 +55,7 @@ const VersusTempTokenContext = createContext<{
     onMintEvent: () => undefined,
     onBurnEvent: () => undefined,
   },
+  loadingOnMount: true,
 });
 
 export const VersusTempTokenProvider = ({
@@ -63,7 +65,7 @@ export const VersusTempTokenProvider = ({
 }) => {
   const globalState = useReadVersusTempTokenGlobalState();
   const transitionGameState = useVersusGameStateTransitioner();
-  useReadVersusTempTokenOnMount({
+  const { loadingOnMount } = useReadVersusTempTokenOnMount({
     globalState,
   });
 
@@ -198,6 +200,7 @@ export const VersusTempTokenProvider = ({
         onMintEvent,
         onBurnEvent,
       },
+      loadingOnMount,
     }),
     [readTempTokenTxs_a, readTempTokenTxs_b, globalState]
   );

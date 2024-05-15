@@ -28,6 +28,8 @@ export type UseReadTempTokenContextStateType = {
     tokenAddress: string,
     tokenIsCurrentlyActive: boolean
   ) => void;
+  loadingCurrentOnMount: boolean;
+  loadingLastOnMount: boolean;
 } & UseReadTempTokenTxsType;
 
 export const useReadTempTokenInitialState: UseReadTempTokenContextStateType = {
@@ -46,6 +48,8 @@ export const useReadTempTokenInitialState: UseReadTempTokenContextStateType = {
   onBurnEvent: () => undefined,
   onReachThresholdEvent: () => undefined,
   onSendRemainingFundsToWinnerEvent: () => undefined,
+  loadingCurrentOnMount: true,
+  loadingLastOnMount: true,
   ...useReadTempTokenTxsInitial,
 };
 
@@ -54,7 +58,9 @@ export const useReadTempTokenContextState = () => {
   const { localNetwork } = network;
   const publicClient = usePublicClient();
   const globalState = useReadTempTokenGlobalState();
-  useReadTempTokenOnMount({ globalState });
+  const { loadingCurrentOnMount, loadingLastOnMount } = useReadTempTokenOnMount(
+    { globalState }
+  );
 
   const tempTokenContract: ContractData = useMemo(() => {
     if (globalState.currentActiveTokenAddress === NULL_ADDRESS) {
@@ -166,6 +172,8 @@ export const useReadTempTokenContextState = () => {
     onBurnEvent,
     onReachThresholdEvent,
     onSendRemainingFundsToWinnerEvent,
+    loadingCurrentOnMount,
+    loadingLastOnMount,
     ...readTempTokenTxs,
   };
 };

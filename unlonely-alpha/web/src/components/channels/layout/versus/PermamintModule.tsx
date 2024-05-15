@@ -10,9 +10,8 @@ import Link from "next/link";
 import { usePublicClient } from "wagmi";
 import { useUser } from "../../../../hooks/context/useUser";
 import { useChannelContext } from "../../../../hooks/context/useChannel";
-import { calculateMaxWinnerTokensToMint } from "../../../../utils/calculateMaxWinnerTokensToMint";
 
-export const PermamintModule = (callbackOnTxSuccess?: any) => {
+export const PermamintModule = () => {
   const { userAddress, user } = useUser();
 
   const { gameState } = useVersusTempTokenContext();
@@ -140,7 +139,6 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
             args.amount as bigint
           )}:${String(data.blockNumber)}:${_tokenType}`,
         });
-        callbackOnTxSuccess?.();
       },
       onTxError: (error) => {
         toast({
@@ -160,16 +158,6 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
   useEffect(() => {
     const init = async () => {
       if (
-        ownerMustPermamint === true &&
-        isOwner &&
-        losingToken?.transferredLiquidityOnExpiration
-      ) {
-        const { maxNumTokens } = await calculateMaxWinnerTokensToMint(
-          Number(losingToken?.transferredLiquidityOnExpiration),
-          Number(winningToken?.totalSupply)
-        );
-        setAmountOfTokensToMint(maxNumTokens);
-      } else if (
         typeof ownerMustPermamint === "number" &&
         ownerMustPermamint > 0 &&
         isOwner

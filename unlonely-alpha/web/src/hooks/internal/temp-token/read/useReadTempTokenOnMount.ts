@@ -1,5 +1,5 @@
 import { useLazyQuery } from "@apollo/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePublicClient } from "wagmi";
 import { GET_TEMP_TOKENS_QUERY } from "../../../../constants/queries";
 import { GetTempTokensQuery, TempTokenType, TempToken, TempTokenWithBalance } from "../../../../generated/graphql";
@@ -17,6 +17,8 @@ export const useReadTempTokenOnMount = ({ globalState }:{globalState: UseReadTem
     const { network } = useNetworkContext();
     const { localNetwork } = network;
     const publicClient = usePublicClient();
+    const [loadingCurrentOnMount, setLoadingCurrentOnMount] = useState(true);
+    const [loadingLastOnMount, setLoadingLastOnMount] = useState(true);
 
     const factoryContract = getContractFromNetwork(
         Contract.TEMP_TOKEN_FACTORY_V1,
@@ -129,6 +131,7 @@ export const useReadTempTokenOnMount = ({ globalState }:{globalState: UseReadTem
           } catch (e) {
             console.error("getTempTokensQuery", e);
           }
+          setLoadingCurrentOnMount(false);
         };
         init();
       }, [channelQueryData?.id, localNetwork.config.chainId]);
@@ -165,8 +168,14 @@ export const useReadTempTokenOnMount = ({ globalState }:{globalState: UseReadTem
                 BigInt(lastInactiveTokenWithBalance.balance)
               );
             }
+            setLoadingLastOnMount(false);
           }
         };
         init();
       }, [channelQueryData?.id, localNetwork.config.chainId, isOwner]);
+
+      return {
+        loadingCurrentOnMount,
+        loadingLastOnMount,
+      };
 }

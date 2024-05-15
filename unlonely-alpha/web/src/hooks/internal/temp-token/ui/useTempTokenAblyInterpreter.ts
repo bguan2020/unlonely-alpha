@@ -57,7 +57,6 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
 
   useEffect(() => {
     const processTempTokenEvents = async (body: string) => {
-      console.log("fetching temp token events 1", body);
       if (!body || fetching.current) return;
       fetching.current = true;
       const interactionType = body.split(":")[0];
@@ -65,7 +64,6 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
       const txBlockNumber = BigInt(body.split(":")[3]);
       const incomingTxTokenAddress = body.split(":")[4];
       const totalSupply = BigInt(body.split(":")[5]);
-      console.log("fetching temp token events 2");
       if (
         currentTempTokenContract.address &&
         isAddress(incomingTxTokenAddress) &&
@@ -75,7 +73,6 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           currentTempTokenContract.address as `0x${string}`
         )
       ) {
-        console.log("fetching temp token events 3");
         await getTempTokenEvents(
           currentTempTokenContract,
           blockNumberOfLastInAppTrade === BigInt(0) && tempTokenTxs.length > 0

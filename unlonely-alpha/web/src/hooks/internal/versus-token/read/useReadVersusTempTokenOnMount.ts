@@ -1,5 +1,5 @@
 import { useLazyQuery } from "@apollo/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { GET_TEMP_TOKENS_QUERY } from "../../../../constants/queries";
 import {
   GetTempTokensQuery,
@@ -24,6 +24,8 @@ export const useReadVersusTempTokenOnMount = ({
   const { channelQueryData } = channel;
   const { network } = useNetworkContext();
   const { localNetwork } = network;
+
+  const [loadingOnMount, setLoadingOnMount] = useState(true);
 
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
@@ -181,7 +183,10 @@ export const useReadVersusTempTokenOnMount = ({
       } catch (e) {
         console.error("getTempTokensQuery", e);
       }
+      setLoadingOnMount(false);
     };
     fetchVersusTempTokens();
   }, [channelQueryData?.id, localNetwork.config.chainId]);
+
+  return { loadingOnMount }
 };

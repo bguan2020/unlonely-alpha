@@ -1,12 +1,12 @@
 import { ApolloError } from "@apollo/client";
 import { ChannelStaticQuery } from "../../../../generated/graphql";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useChat } from "../../../../hooks/chat/useChat";
 import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { useUser } from "../../../../hooks/context/useUser";
 import { useLivepeerStreamData } from "../../../../hooks/internal/useLivepeerStreamData";
 import { useVipBadgeUi } from "../../../../hooks/internal/useVipBadgeUi";
-import { Button, Flex, Stack, useToast, Text } from "@chakra-ui/react";
+import { Button, Flex, Stack, useToast, Text, Spinner } from "@chakra-ui/react";
 import copy from "copy-to-clipboard";
 import { formatApolloError } from "../../../../utils/errorFormatting";
 import trailString from "../../../../utils/trailString";
@@ -20,6 +20,11 @@ import { DesktopChannelViewerPerspectiveSimplified } from "../temptoken/DesktopC
 import { useTempTokenContext } from "../../../../hooks/context/useTempToken";
 import { useTempTokenAblyInterpreter } from "../../../../hooks/internal/temp-token/ui/useTempTokenAblyInterpreter";
 import { TempTokenInterface } from "../../temp/TempTokenInterface";
+import { useVersusTempTokenAblyInterpreter } from "../../../../hooks/internal/versus-token/ui/useVersusTempTokenAblyInterpreter";
+import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
+import { NULL_ADDRESS } from "../../../../constants";
+import { VersusTempTokensInterface } from "../versus/VersusTempTokensInterface";
+import { calculateMaxWinnerTokensToMint } from "../../../../utils/calculateMaxWinnerTokensToMint";
 
 export const DesktopChannelPageTempToken = ({
   channelSSR,
@@ -38,20 +43,94 @@ export const DesktopChannelPageTempToken = ({
     handleChannelStaticData,
     isOwner,
   } = channel;
-  const { tempToken } = useTempTokenContext();
   const chat = useChat();
 
-  const { gameState } = tempToken;
-  const { currentActiveTokenEndTimestamp, canPlayToken: canPlayTempToken } =
-    gameState;
+  const { tempToken } = useTempTokenContext();
+
+  const { gameState, loadingCurrentOnMount, loadingLastOnMount } = tempToken;
+  const {
+    currentActiveTokenEndTimestamp,
+    canPlayToken: canPlayTempToken,
+    currentActiveTokenAddress,
+    lastInactiveTokenAddress,
+  } = gameState;
+  const { gameState: versusGameState, loadingOnMount } =
+    useVersusTempTokenContext();
+  const {
+    isGameFinished: isVersusGameFinished,
+    canPlayToken: canPlayVersusToken,
+    isGameOngoing: isVersusGameOngoing,
+    losingToken: losingVersusToken,
+    winningToken: winningVersusToken,
+    ownerMustPermamint,
+    ownerMustMakeWinningTokenTradeable,
+    handleOwnerMustPermamint,
+  } = versusGameState;
 
   const toast = useToast();
   const { livepeerData, playbackInfo } = useLivepeerStreamData();
   useVipBadgeUi(chat);
   useTempTokenAblyInterpreter(chat);
+  useVersusTempTokenAblyInterpreter(chat);
+
+  const [ownerTokenStateView, setOwnerTokenStateView] = useState<
+    "choose" | "single" | "versus"
+  >("choose");
+
+  const isVersusOnGoing = useMemo(() => {
+    return (
+      (isVersusGameOngoing ||
+        (typeof ownerMustPermamint === "number" && ownerMustPermamint > 0) ||
+        ownerMustMakeWinningTokenTradeable) &&
+      !loadingOnMount
+    );
+  }, [
+    isVersusGameOngoing,
+    ownerMustPermamint,
+    ownerMustMakeWinningTokenTradeable,
+    loadingOnMount,
+  ]);
+
+  const isSingleOnGoing = useMemo(() => {
+    return (
+      !loadingCurrentOnMount &&
+      (!loadingLastOnMount || !isOwner) &&
+      (currentActiveTokenAddress !== NULL_ADDRESS ||
+        lastInactiveTokenAddress !== NULL_ADDRESS)
+    );
+  }, [
+    loadingCurrentOnMount,
+    loadingLastOnMount,
+    currentActiveTokenAddress,
+    lastInactiveTokenAddress,
+    isOwner,
+  ]);
+
+  const isGameOngoing = useMemo(() => {
+    return isVersusOnGoing || isSingleOnGoing;
+  }, [isVersusOnGoing, isSingleOnGoing]);
+
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
   }, [channelSSR]);
+
+  useEffect(() => {
+    if (isVersusOnGoing) {
+      setOwnerTokenStateView("versus");
+    }
+  }, [isVersusOnGoing]);
+
+  useEffect(() => {
+    if (isSingleOnGoing) {
+      setOwnerTokenStateView("single");
+    }
+  }, [isSingleOnGoing]);
+
+  useEffect(() => {
+    if (!isGameOngoing) {
+      setOwnerTokenStateView("choose");
+    }
+  }, [isGameOngoing]);
 
   const canShowInterface = useMemo(() => {
     return (
@@ -66,6 +145,31 @@ export const DesktopChannelPageTempToken = ({
     channelSSRDataError,
     channelSSRDataLoading,
   ]);
+
+  useEffect(() => {
+    const init = async () => {
+      if (
+        isOwner &&
+        losingVersusToken?.transferredLiquidityOnExpiration &&
+        winningVersusToken?.totalSupply
+      ) {
+        if (ownerMustPermamint === true) {
+          const { maxNumTokens } = await calculateMaxWinnerTokensToMint(
+            Number(losingVersusToken?.transferredLiquidityOnExpiration),
+            Number(winningVersusToken?.totalSupply)
+          );
+          if (maxNumTokens === 0) {
+            handleOwnerMustPermamint(false);
+          } else {
+            handleOwnerMustPermamint(maxNumTokens);
+          }
+        }
+      } else {
+        handleOwnerMustPermamint(false);
+      }
+    };
+    init();
+  }, [losingVersusToken, ownerMustPermamint, isOwner, winningVersusToken]);
 
   const handleCopy = () => {
     toast({
@@ -115,6 +219,8 @@ export const DesktopChannelPageTempToken = ({
                       mode={
                         currentActiveTokenEndTimestamp
                           ? "single-temp-token"
+                          : !isVersusGameFinished
+                          ? "versus-mode"
                           : ""
                       }
                     />
@@ -132,39 +238,143 @@ export const DesktopChannelPageTempToken = ({
                           }
                     }
                     chat={chat}
-                    mode={canPlayTempToken ? "single-temp-token" : ""}
+                    mode={
+                      canPlayTempToken
+                        ? "single-temp-token"
+                        : canPlayVersusToken
+                        ? "versus-mode"
+                        : ""
+                    }
                   />
                 )}
               </Flex>
-              {canPlayTempToken ? (
-                <Flex
-                  direction="column"
-                  minW={["100%", "100%", "500px", "500px"]}
-                  maxW={["100%", "100%", "500px", "500px"]}
-                  gap="1rem"
-                >
-                  <TempTokenInterface
-                    ablyChannel={chat.channel}
-                    customHeight="100%"
-                  />
-                </Flex>
-              ) : (
+              {isOwner && ownerTokenStateView === "choose" ? (
                 <Flex
                   direction="column"
                   minW={["100%", "100%", "380px", "380px"]}
                   maxW={["100%", "100%", "380px", "380px"]}
                   gap="1rem"
                 >
-                  <TempTokenInterface
-                    ablyChannel={chat.channel}
-                    customHeight="30%"
-                  />
+                  {loadingOnMount ||
+                  loadingCurrentOnMount ||
+                  loadingLastOnMount ? (
+                    <Flex justifyContent={"center"}>
+                      <Spinner />
+                    </Flex>
+                  ) : !isGameOngoing ? (
+                    <Flex justifyContent={"space-evenly"}>
+                      <Button
+                        onClick={() => setOwnerTokenStateView("single")}
+                        _hover={{}}
+                      >
+                        single
+                      </Button>
+                      <Button
+                        onClick={() => setOwnerTokenStateView("versus")}
+                        _hover={{}}
+                      >
+                        versus
+                      </Button>
+                    </Flex>
+                  ) : null}
                   <ChatComponent
                     chat={chat}
                     customHeight={"100%"}
                     tokenForTransfer="tempToken"
                   />
                 </Flex>
+              ) : ownerTokenStateView === "single" ? (
+                <>
+                  {canPlayTempToken ? (
+                    <Flex
+                      direction="column"
+                      minW={["100%", "100%", "500px", "500px"]}
+                      maxW={["100%", "100%", "500px", "500px"]}
+                      gap="1rem"
+                    >
+                      <TempTokenInterface
+                        ablyChannel={chat.channel}
+                        customHeight="100%"
+                      />
+                    </Flex>
+                  ) : (
+                    <Flex
+                      direction="column"
+                      minW={["100%", "100%", "380px", "380px"]}
+                      maxW={["100%", "100%", "380px", "380px"]}
+                      gap="1rem"
+                    >
+                      <Flex direction="column">
+                        {isOwner && !isGameOngoing && (
+                          <Button
+                            w="fit-content"
+                            h="20px"
+                            onClick={() => {
+                              setOwnerTokenStateView("versus");
+                            }}
+                          >
+                            versus
+                          </Button>
+                        )}
+                        <TempTokenInterface
+                          ablyChannel={chat.channel}
+                          customHeight="100%"
+                        />
+                      </Flex>
+                      <ChatComponent
+                        chat={chat}
+                        customHeight={"100%"}
+                        tokenForTransfer="tempToken"
+                      />
+                    </Flex>
+                  )}
+                </>
+              ) : (
+                <>
+                  {canPlayVersusToken ? (
+                    <Flex
+                      direction="column"
+                      minW={["100%", "100%", "500px", "500px"]}
+                      maxW={["100%", "100%", "500px", "500px"]}
+                      gap="1rem"
+                    >
+                      <VersusTempTokensInterface
+                        ablyChannel={chat.channel}
+                        customHeight="100%"
+                      />
+                    </Flex>
+                  ) : (
+                    <Flex
+                      direction="column"
+                      minW={["100%", "100%", "380px", "380px"]}
+                      maxW={["100%", "100%", "380px", "380px"]}
+                      gap="1rem"
+                    >
+                      <Flex direction="column">
+                        {isOwner && !isGameOngoing && (
+                          <Button
+                            w="fit-content"
+                            h="20px"
+                            onClick={() => {
+                              setOwnerTokenStateView("single");
+                            }}
+                          >
+                            single
+                          </Button>
+                        )}
+                        <VersusTempTokensInterface
+                          ablyChannel={chat.channel}
+                          customHeight="40%"
+                        />
+                      </Flex>
+                      <ChatComponent
+                        chat={chat}
+                        customHeight={"100%"}
+                        tokenForTransfer="tempToken"
+                      />
+                    </Flex>
+                  )}
+                </>
               )}
             </Stack>
           </Flex>
