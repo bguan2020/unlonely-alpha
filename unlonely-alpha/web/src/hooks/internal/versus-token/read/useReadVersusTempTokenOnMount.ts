@@ -13,23 +13,12 @@ import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 import { Contract, VersusTokenDataType } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useVersusGameStateTransitioner } from "../ui/useVersusGameStateTransitioner";
+import { UseReadVersusTempTokenGlobalStateType } from "./useReadVersusTempTokenGlobalState";
 
 export const useReadVersusTempTokenOnMount = ({
-  setTokenA,
-  setTokenB,
-  handleIsGameOngoing,
-  handleWinningToken,
-  handleLosingToken,
-  handleOwnerMustMakeWinningTokenTradeable,
-  handleOwnerMustPermamint,
+  globalState
 }: {
-  setTokenA: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
-  setTokenB: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
-  handleWinningToken: (token: VersusTokenDataType) => void;
-  handleOwnerMustMakeWinningTokenTradeable: (value: boolean) => void;
-  handleOwnerMustPermamint: (value: boolean | number) => void;
-  handleIsGameOngoing: (value: boolean) => void;
-  handleLosingToken: (token: VersusTokenDataType) => void;
+  globalState: UseReadVersusTempTokenGlobalStateType
 }) => {
   const { channel } = useChannelContext();
   const { channelQueryData } = channel;
@@ -163,8 +152,8 @@ export const useReadVersusTempTokenOnMount = ({
             creationBlockNumber: BigInt(_tokenB.creationBlockNumber),
             endTimestamp: BigInt(String(endTimeStampB)),
           };
-          setTokenA(_newTokenA);
-          setTokenB(_newTokenB);
+          globalState.setTokenA(_newTokenA);
+          globalState.setTokenB(_newTokenB);
 
           /**
            * check if the game is finished through using endTimestamps
@@ -175,18 +164,18 @@ export const useReadVersusTempTokenOnMount = ({
             BigInt(String(endTimestampA)) < nowInSeconds &&
             BigInt(String(endTimeStampB)) < nowInSeconds
           ) {
-            handleIsGameOngoing(false);
+            globalState.handleIsGameOngoing(false);
 
             transitionGameState({
               tokenA: _newTokenA,
               tokenB: _newTokenB,
-              handleWinningToken,
-              handleLosingToken,
-              handleOwnerMustMakeWinningTokenTradeable,
-              handleOwnerMustPermamint,
+              handleWinningToken: globalState.handleWinningToken,
+              handleLosingToken: globalState.handleLosingToken,
+              handleOwnerMustMakeWinningTokenTradeable: globalState.handleOwnerMustMakeWinningTokenTradeable,
+              handleOwnerMustPermamint: globalState.handleOwnerMustPermamint,
             });
           } else {
-            handleIsGameOngoing(true);
+            globalState.handleIsGameOngoing(true);
           }
         }
       } catch (e) {

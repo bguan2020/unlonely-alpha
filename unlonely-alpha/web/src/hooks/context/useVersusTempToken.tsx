@@ -17,7 +17,6 @@ import {
   useReadVersusTempTokenGlobalState,
 } from "../internal/versus-token/read/useReadVersusTempTokenGlobalState";
 import { useReadVersusTempTokenOnMount } from "../internal/versus-token/read/useReadVersusTempTokenOnMount";
-import { usePublicClient } from "wagmi";
 import { useVersusGameStateTransitioner } from "../internal/versus-token/ui/useVersusGameStateTransitioner";
 import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
@@ -62,10 +61,11 @@ export const VersusTempTokenProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const publicClient = usePublicClient();
-
   const globalState = useReadVersusTempTokenGlobalState();
   const transitionGameState = useVersusGameStateTransitioner();
+  useReadVersusTempTokenOnMount({
+    globalState,
+  });
 
   const baseClient = useMemo(
     () =>
@@ -159,17 +159,6 @@ export const VersusTempTokenProvider = ({
     []
   );
 
-  useReadVersusTempTokenOnMount({
-    setTokenA: globalState.setTokenA,
-    setTokenB: globalState.setTokenB,
-    handleWinningToken: globalState.handleWinningToken,
-    handleOwnerMustMakeWinningTokenTradeable:
-      globalState.handleOwnerMustMakeWinningTokenTradeable,
-    handleIsGameOngoing: globalState.handleIsGameOngoing,
-    handleLosingToken: globalState.handleLosingToken,
-    handleOwnerMustPermamint: globalState.handleOwnerMustPermamint,
-  });
-
   /**
    * on game finish, whether it is set on mount or through the timer state,
    * determine the status of the relationship between the two tokens, and set the winning token, set
@@ -177,7 +166,7 @@ export const VersusTempTokenProvider = ({
    */
   useEffect(() => {
     const onGameFinish = async () => {
-      if (!globalState.isGameFinished || !publicClient) return;
+      if (!globalState.isGameFinished || !baseClient) return;
       globalState.handleIsGameOngoing(false);
       globalState.handleIsGameFinishedModalOpen(true);
 
@@ -197,7 +186,7 @@ export const VersusTempTokenProvider = ({
     globalState.isGameFinished,
     globalState.tokenA,
     globalState.tokenB,
-    publicClient,
+    baseClient,
   ]);
 
   const value = useMemo(
