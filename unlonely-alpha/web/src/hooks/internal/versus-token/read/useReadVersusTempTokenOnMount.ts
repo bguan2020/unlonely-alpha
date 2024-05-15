@@ -16,9 +16,9 @@ import { useVersusGameStateTransitioner } from "../ui/useVersusGameStateTransiti
 import { UseReadVersusTempTokenGlobalStateType } from "./useReadVersusTempTokenGlobalState";
 
 export const useReadVersusTempTokenOnMount = ({
-  globalState
+  globalState,
 }: {
-  globalState: UseReadVersusTempTokenGlobalStateType
+  globalState: UseReadVersusTempTokenGlobalStateType;
 }) => {
   const { channel } = useChannelContext();
   const { channelQueryData } = channel;
@@ -173,7 +173,8 @@ export const useReadVersusTempTokenOnMount = ({
               tokenB: _newTokenB,
               handleWinningToken: globalState.handleWinningToken,
               handleLosingToken: globalState.handleLosingToken,
-              handleOwnerMustMakeWinningTokenTradeable: globalState.handleOwnerMustMakeWinningTokenTradeable,
+              handleOwnerMustMakeWinningTokenTradeable:
+                globalState.handleOwnerMustMakeWinningTokenTradeable,
               handleOwnerMustPermamint: globalState.handleOwnerMustPermamint,
             });
           } else {
@@ -188,5 +189,5 @@ export const useReadVersusTempTokenOnMount = ({
     fetchVersusTempTokens();
   }, [channelQueryData?.id, localNetwork.config.chainId]);
 
-  return { loadingOnMount }
+  return { loadingOnMount };
 };
