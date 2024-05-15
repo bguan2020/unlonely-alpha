@@ -15,20 +15,10 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
 
   const { tempToken } = useTempTokenContext();
   const {
-    currentTempTokenContract,
-    currentActiveTokenAddress,
-    lastInactiveTokenAddress,
+    gameState,
     tempTokenTxs,
-    handleIsGamePermanent,
-    handleIsGameSuccess,
-    handleIsGameFailed,
+    currentTempTokenContract,
     resetTempTokenTxs,
-    handleCurrentActiveTokenEndTimestamp,
-    handleCurrentActiveTokenCreationBlockNumber,
-    handleCurrentActiveTokenAddress,
-    handleCurrentActiveTokenSymbol,
-    handleCurrentActiveTokenTotalSupplyThreshold,
-    handleCurrentActiveTokenHasHitTotalSupplyThreshold,
     onMintEvent,
     onBurnEvent,
     onReachThresholdEvent,
@@ -36,6 +26,19 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
     refetchUserTempTokenBalance,
     onSendRemainingFundsToWinnerEvent,
   } = tempToken;
+  const {
+    currentActiveTokenAddress,
+    lastInactiveTokenAddress,
+    handleIsGamePermanent,
+    handleIsGameSuccess,
+    handleIsGameFailed,
+    handleCurrentActiveTokenEndTimestamp,
+    handleCurrentActiveTokenCreationBlockNumber,
+    handleCurrentActiveTokenAddress,
+    handleCurrentActiveTokenSymbol,
+    handleCurrentActiveTokenTotalSupplyThreshold,
+    handleCurrentActiveTokenHasHitTotalSupplyThreshold,
+  } = gameState;
 
   const mountingMessages = useRef(true);
   const fetching = useRef(false);

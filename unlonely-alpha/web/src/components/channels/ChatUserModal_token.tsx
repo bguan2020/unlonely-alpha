@@ -54,9 +54,10 @@ export const ChatUserModal_token = ({
   const {
     userTempTokenBalance,
     tempTokenTxs,
-    currentActiveTokenSymbol,
+    gameState,
     currentTempTokenContract,
   } = tempToken;
+  const { currentActiveTokenSymbol } = gameState;
   const { network } = useNetworkContext();
   const { matchingChain, explorerUrl } = network;
   const { ethPriceInUsd } = useCacheContext();

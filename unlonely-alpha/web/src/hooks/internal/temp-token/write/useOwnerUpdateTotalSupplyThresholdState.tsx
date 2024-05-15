@@ -16,7 +16,8 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
   const { userAddress, user } = useUser();
 
   const { tempToken } = useTempTokenContext();
-  const { currentTempTokenContract, currentActiveTokenSymbol } = tempToken;
+  const { gameState, currentTempTokenContract } = tempToken;
+  const { currentActiveTokenSymbol } = gameState;
   const { chat } = useChannelContext();
   const { addToChatbot } = chat;
   const { network } = useNetworkContext();

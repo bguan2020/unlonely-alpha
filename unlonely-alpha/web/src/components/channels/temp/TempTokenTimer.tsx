@@ -13,6 +13,7 @@ export const SingleTempTokenTimerView = ({
   fontSize?: number;
 }) => {
   const { tempToken } = useTempTokenContext();
+  const { gameState } = tempToken;
   const {
     currentActiveTokenIsAlwaysTradable,
     currentActiveTokenAddress,
@@ -21,7 +22,7 @@ export const SingleTempTokenTimerView = ({
     handleIsGameFailed,
     handleIsFailedGameModalOpen,
     handleCanPlayToken,
-  } = tempToken;
+  } = gameState;
   const { durationLeftForTempToken } = useTempTokenTimerState(
     currentActiveTokenEndTimestamp,
     () => {

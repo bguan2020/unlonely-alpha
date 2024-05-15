@@ -48,21 +48,25 @@ export const TempTokenInterface = ({
   const publicClient = usePublicClient();
   const { channelQueryData, realTimeChannelDetails, isOwner } = channel;
   const {
+    gameState,
+    tempTokenChartTimeIndexes,
+    initialTempTokenLoading,
+    tempTokenTxs,
+    currentTempTokenContract,
+    lastInactiveTempTokenContract,
+    onSendRemainingFundsToWinnerEvent,
+  } = tempToken;
+  const {
     currentActiveTokenEndTimestamp,
     currentActiveTokenAddress,
     currentActiveTokenSymbol,
     currentActiveTokenTotalSupplyThreshold,
-    currentTempTokenContract,
     canPlayToken,
-    tempTokenChartTimeIndexes,
-    initialTempTokenLoading,
     isFailedGameState,
     isSuccessGameModalOpen,
     isFailedGameModalOpen,
     isPermanentGameModalOpen,
-    tempTokenTxs,
     lastInactiveTokenAddress,
-    lastInactiveTempTokenContract,
     lastInactiveTokenBalance,
     lastInactiveTokenSymbol,
     handleIsGameFailed,
@@ -70,8 +74,7 @@ export const TempTokenInterface = ({
     handleIsSuccessGameModalOpen,
     handleIsPermanentGameModalOpen,
     handleCanPlayToken,
-    onSendRemainingFundsToWinnerEvent,
-  } = tempToken;
+  } = gameState;
 
   const interfaceChartData = useInterfaceChartData({
     chartTimeIndexes: tempTokenChartTimeIndexes,

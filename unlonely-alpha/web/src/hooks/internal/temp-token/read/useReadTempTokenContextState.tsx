@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { Contract, NULL_ADDRESS } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
@@ -21,65 +21,27 @@ import {
   useReadTempTokenTxsInitial,
 } from "./useReadTempTokenTxs";
 import { useChannelContext } from "../../../context/useChannel";
+import {
+  UseReadTempTokenGlobalStateType,
+  useReadTempTokenGlobalState,
+  useReadTempTokenGlobalStateInitial,
+} from "./useReadTempTokenGlobalState";
 
 export type UseReadTempTokenContextStateType = {
-  currentActiveTokenSymbol: string;
-  currentActiveTokenAddress: string;
-  currentActiveTokenEndTimestamp?: bigint;
-  currentActiveTokenTotalSupply: bigint;
-  currentActiveTokenHasHitTotalSupplyThreshold: boolean;
-  currentActiveTokenTotalSupplyThreshold: bigint;
-  currentActiveTokenIsAlwaysTradable: boolean;
-  currentActiveTokenHighestTotalSupply: bigint;
-  currentActiveTokenCreationBlockNumber: bigint;
-  lastInactiveTokenAddress: string;
-  lastInactiveTokenBalance: bigint;
-  lastInactiveTokenSymbol: string;
+  gameState: UseReadTempTokenGlobalStateType;
   currentTempTokenContract: ContractData;
   lastInactiveTempTokenContract: ContractData;
-  isPermanentGameModalOpen: boolean;
-  isSuccessGameModalOpen: boolean;
-  isFailedGameModalOpen: boolean;
-  isPermanentGameState: boolean;
-  isSuccessGameState: boolean;
-  isFailedGameState: boolean;
-  canPlayToken: boolean;
   onMintEvent: (totalSupply: bigint, highestTotalSupply: bigint) => void;
   onBurnEvent: (totalSupply: bigint) => void;
   onReachThresholdEvent: (newEndTimestamp: bigint) => void;
-  onThresholdUpdateEvent: (newThreshold: bigint) => void;
   onSendRemainingFundsToWinnerEvent: (
     tokenAddress: string,
     tokenIsCurrentlyActive: boolean
   ) => void;
-  handleIsGamePermanent: (value: boolean) => void;
-  handleIsGameSuccess: (value: boolean) => void;
-  handleIsGameFailed: (value: boolean) => void;
-  handleIsPermanentGameModalOpen: (value: boolean) => void;
-  handleIsSuccessGameModalOpen: (value: boolean) => void;
-  handleIsFailedGameModalOpen: (value: boolean) => void;
-  handleCanPlayToken: (value: boolean) => void;
-  handleCurrentActiveTokenEndTimestamp: (value: bigint) => void;
-  handleCurrentActiveTokenCreationBlockNumber: (value: bigint) => void;
-  handleCurrentActiveTokenAddress: (value: string) => void;
-  handleCurrentActiveTokenSymbol: (value: string) => void;
-  handleCurrentActiveTokenTotalSupplyThreshold: (value: bigint) => void;
-  handleCurrentActiveTokenHasHitTotalSupplyThreshold: (value: boolean) => void;
 } & UseReadTempTokenTxsType;
 
 export const useReadTempTokenInitialState: UseReadTempTokenContextStateType = {
-  currentActiveTokenSymbol: "",
-  currentActiveTokenAddress: NULL_ADDRESS,
-  currentActiveTokenEndTimestamp: undefined,
-  currentActiveTokenTotalSupply: BigInt(0),
-  currentActiveTokenHasHitTotalSupplyThreshold: false,
-  currentActiveTokenTotalSupplyThreshold: BigInt(0),
-  currentActiveTokenIsAlwaysTradable: false,
-  currentActiveTokenHighestTotalSupply: BigInt(0),
-  currentActiveTokenCreationBlockNumber: BigInt(0),
-  lastInactiveTokenAddress: NULL_ADDRESS,
-  lastInactiveTokenBalance: BigInt(0),
-  lastInactiveTokenSymbol: "",
+  gameState: useReadTempTokenGlobalStateInitial,
   currentTempTokenContract: {
     address: NULL_ADDRESS,
     abi: undefined,
@@ -90,31 +52,10 @@ export const useReadTempTokenInitialState: UseReadTempTokenContextStateType = {
     abi: undefined,
     chainId: 0,
   },
-  isPermanentGameModalOpen: false,
-  isSuccessGameModalOpen: false,
-  isFailedGameModalOpen: false,
-  isPermanentGameState: false,
-  isSuccessGameState: false,
-  isFailedGameState: false,
-  canPlayToken: false,
   onMintEvent: () => undefined,
   onBurnEvent: () => undefined,
   onReachThresholdEvent: () => undefined,
-  onThresholdUpdateEvent: () => undefined,
   onSendRemainingFundsToWinnerEvent: () => undefined,
-  handleIsGamePermanent: () => undefined,
-  handleIsGameSuccess: () => undefined,
-  handleIsGameFailed: () => undefined,
-  handleIsPermanentGameModalOpen: () => undefined,
-  handleIsSuccessGameModalOpen: () => undefined,
-  handleIsFailedGameModalOpen: () => undefined,
-  handleCanPlayToken: () => undefined,
-  handleCurrentActiveTokenEndTimestamp: () => undefined,
-  handleCurrentActiveTokenCreationBlockNumber: () => undefined,
-  handleCurrentActiveTokenAddress: () => undefined,
-  handleCurrentActiveTokenSymbol: () => undefined,
-  handleCurrentActiveTokenTotalSupplyThreshold: () => undefined,
-  handleCurrentActiveTokenHasHitTotalSupplyThreshold: () => undefined,
   ...useReadTempTokenTxsInitial,
 };
 
@@ -124,56 +65,7 @@ export const useReadTempTokenContextState = () => {
   const { network } = useNetworkContext();
   const { localNetwork } = network;
   const publicClient = usePublicClient();
-
-  // currentActiveTokenAddress is set on mount or by creation event
-  const [currentActiveTokenAddress, setCurrentActiveTokenAddress] =
-    useState<string>(NULL_ADDRESS);
-  const [currentActiveTokenEndTimestamp, setCurrentActiveTokenEndTimestamp] =
-    useState<bigint | undefined>(undefined);
-  const [currentActiveTokenSymbol, setCurrentActiveTokenSymbol] =
-    useState<string>("");
-  const [
-    currentActiveTokenCreationBlockNumber,
-    setCurrentActiveTokenCreationBlockNumber,
-  ] = useState<bigint>(BigInt(0));
-  const [currentActiveTokenTotalSupply, setCurrentActiveTokenTotalSupply] =
-    useState<bigint>(BigInt(0));
-  const [
-    currentActiveTokenHasHitTotalSupplyThreshold,
-    setCurrentActiveTokenHasHitTotalSupplyThreshold,
-  ] = useState<boolean>(false);
-  const [
-    currentActiveTokenTotalSupplyThreshold,
-    setCurrentActiveTokenTotalSupplyThreshold,
-  ] = useState<bigint>(BigInt(0));
-  const [
-    currentActiveTokenIsAlwaysTradable,
-    setCurrentActiveTokenIsAlwaysTradable,
-  ] = useState<boolean>(false);
-  const [
-    currentActiveTokenHighestTotalSupply,
-    setCurrentActiveTokenHighestTotalSupply,
-  ] = useState<bigint>(BigInt(0));
-
-  const [lastInactiveTokenAddress, setLastInactiveTokenAddress] =
-    useState<string>(NULL_ADDRESS);
-  const [lastInactiveTokenBalance, setLastInactiveTokenBalance] =
-    useState<bigint>(BigInt(0));
-  const [lastInactiveTokenSymbol, setLastInactiveTokenSymbol] =
-    useState<string>("");
-
-  const [isPermanentGameModalOpen, setIsPermanentGameModalOpen] =
-    useState<boolean>(false); // when the token becomes always tradeable
-  const [isSuccessGameModalOpen, setIsSuccessGameModalOpen] =
-    useState<boolean>(false); // when the token hits the total supply threshold
-  const [isFailedGameModalOpen, setIsFailedGameModalOpen] =
-    useState<boolean>(false); // when the token expires via countdown
-
-  const [isPermanentGameState, setIsPermanentGameState] =
-    useState<boolean>(false); // when the token becomes always tradeable
-  const [isSuccessGameState, setIsGameSuccessState] = useState<boolean>(false); // when the token hits the total supply threshold
-  const [isFailedGameState, setIsFailedGameState] = useState<boolean>(false); // when the token expires via countdown
-  const [canPlayToken, setCanPlayToken] = useState(false);
+  const globalState = useReadTempTokenGlobalState();
 
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
@@ -181,7 +73,7 @@ export const useReadTempTokenContextState = () => {
   );
 
   const tempTokenContract: ContractData = useMemo(() => {
-    if (currentActiveTokenAddress === NULL_ADDRESS) {
+    if (globalState.currentActiveTokenAddress === NULL_ADDRESS) {
       return {
         address: NULL_ADDRESS,
         abi: undefined,
@@ -189,14 +81,14 @@ export const useReadTempTokenContextState = () => {
       };
     }
     return {
-      address: currentActiveTokenAddress as `0x${string}`,
+      address: globalState.currentActiveTokenAddress as `0x${string}`,
       abi: TempTokenAbi,
       chainId: localNetwork.config.chainId,
     };
-  }, [currentActiveTokenAddress, localNetwork.config.chainId]);
+  }, [globalState.currentActiveTokenAddress, localNetwork.config.chainId]);
 
   const lastInactiveTempTokenContract: ContractData = useMemo(() => {
-    if (lastInactiveTokenAddress === NULL_ADDRESS) {
+    if (globalState.lastInactiveTokenAddress === NULL_ADDRESS) {
       return {
         address: NULL_ADDRESS,
         abi: undefined,
@@ -204,32 +96,34 @@ export const useReadTempTokenContextState = () => {
       };
     }
     return {
-      address: lastInactiveTokenAddress as `0x${string}`,
+      address: globalState.lastInactiveTokenAddress as `0x${string}`,
       abi: TempTokenAbi,
       chainId: localNetwork.config.chainId,
     };
-  }, [lastInactiveTokenAddress, localNetwork.config.chainId]);
+  }, [globalState.lastInactiveTokenAddress, localNetwork.config.chainId]);
 
   /**
    * functions to run when specific events are detected, not exposed outside of this hook,
    */
   const onMintEvent = useCallback(
     async (totalSupply: bigint, highestTotalSupply: bigint) => {
-      setCurrentActiveTokenTotalSupply(totalSupply);
-      setCurrentActiveTokenHighestTotalSupply(highestTotalSupply);
+      globalState.handleCurrentActiveTokenTotalSupply(totalSupply);
+      globalState.handleCurrentActiveTokenHighestTotalSupply(
+        highestTotalSupply
+      );
     },
     []
   );
 
   const onBurnEvent = useCallback(async (totalSupply: bigint) => {
-    setCurrentActiveTokenTotalSupply(totalSupply);
+    globalState.handleCurrentActiveTokenTotalSupply(totalSupply);
   }, []);
 
   const onReachThresholdEvent = useCallback(async (newEndTimestamp: bigint) => {
-    setCurrentActiveTokenHasHitTotalSupplyThreshold(true);
-    setCurrentActiveTokenEndTimestamp(newEndTimestamp);
-    handleIsGameSuccess(true);
-    handleIsSuccessGameModalOpen(true);
+    globalState.handleCurrentActiveTokenHasHitTotalSupplyThreshold(true);
+    globalState.handleCurrentActiveTokenEndTimestamp(newEndTimestamp);
+    globalState.handleIsGameSuccess(true);
+    globalState.handleIsSuccessGameModalOpen(true);
   }, []);
 
   /**
@@ -243,36 +137,39 @@ export const useReadTempTokenContextState = () => {
         tokenIsCurrentlyActive &&
         isAddressEqual(
           tokenAddress as `0x${string}`,
-          currentActiveTokenAddress as `0x${string}`
+          globalState.currentActiveTokenAddress as `0x${string}`
         )
       ) {
-        setCurrentActiveTokenSymbol("");
-        setCurrentActiveTokenAddress(NULL_ADDRESS);
-        setCurrentActiveTokenEndTimestamp(undefined);
-        setCurrentActiveTokenTotalSupply(BigInt(0));
-        setCurrentActiveTokenHasHitTotalSupplyThreshold(false);
-        setCurrentActiveTokenTotalSupplyThreshold(BigInt(0));
-        setCurrentActiveTokenIsAlwaysTradable(false);
-        setCurrentActiveTokenHighestTotalSupply(BigInt(0));
-        setCurrentActiveTokenCreationBlockNumber(BigInt(0));
+        globalState.handleCurrentActiveTokenSymbol("");
+        globalState.handleCurrentActiveTokenAddress(NULL_ADDRESS);
+        globalState.handleCurrentActiveTokenEndTimestamp(undefined);
+        globalState.handleCurrentActiveTokenTotalSupply(BigInt(0));
+        globalState.handleCurrentActiveTokenHasHitTotalSupplyThreshold(false);
+        globalState.handleCurrentActiveTokenTotalSupplyThreshold(BigInt(0));
+        globalState.handleCurrentActiveTokenIsAlwaysTradable(false);
+        globalState.handleCurrentActiveTokenHighestTotalSupply(BigInt(0));
+        globalState.handleCurrentActiveTokenCreationBlockNumber(BigInt(0));
       }
       if (
         !tokenIsCurrentlyActive &&
         isAddressEqual(
           tokenAddress as `0x${string}`,
-          lastInactiveTokenAddress as `0x${string}`
+          globalState.lastInactiveTokenAddress as `0x${string}`
         )
       ) {
-        setLastInactiveTokenAddress(NULL_ADDRESS);
-        setLastInactiveTokenBalance(BigInt(0));
-        setLastInactiveTokenSymbol("");
+        globalState.handleLastInactiveTokenAddress(NULL_ADDRESS);
+        globalState.handleLastInactiveTokenBalance(BigInt(0));
+        globalState.handleLastInactiveTokenSymbol("");
       }
     },
-    [currentActiveTokenAddress, lastInactiveTokenAddress]
+    [
+      globalState.currentActiveTokenAddress,
+      globalState.lastInactiveTokenAddress,
+    ]
   );
 
   const readTempTokenTxs = useReadTempTokenTxs({
-    tokenCreationBlockNumber: currentActiveTokenCreationBlockNumber,
+    tokenCreationBlockNumber: globalState.currentActiveTokenCreationBlockNumber,
     baseClient: publicClient,
     tempTokenContract,
   });
@@ -314,10 +211,10 @@ export const useReadTempTokenContextState = () => {
         );
         const latestActiveToken = activeTokens?.[0];
         if (latestActiveToken) {
-          setCurrentActiveTokenCreationBlockNumber(
+          globalState.handleCurrentActiveTokenCreationBlockNumber(
             BigInt(latestActiveToken.creationBlockNumber)
           );
-          setCurrentActiveTokenSymbol(latestActiveToken.symbol);
+          globalState.handleCurrentActiveTokenSymbol(latestActiveToken.symbol);
           const [
             endTimestamp,
             totalSupply,
@@ -367,17 +264,25 @@ export const useReadTempTokenContextState = () => {
             isAlwaysTradeable,
             hasHitTotalSupplyThreshold
           );
-          setCurrentActiveTokenEndTimestamp(BigInt(String(endTimestamp)));
-          setCurrentActiveTokenAddress(latestActiveToken.tokenAddress);
-          setCurrentActiveTokenTotalSupply(BigInt(String(totalSupply)));
-          setCurrentActiveTokenTotalSupplyThreshold(
+          globalState.handleCurrentActiveTokenEndTimestamp(
+            BigInt(String(endTimestamp))
+          );
+          globalState.handleCurrentActiveTokenAddress(
+            latestActiveToken.tokenAddress
+          );
+          globalState.handleCurrentActiveTokenTotalSupply(
+            BigInt(String(totalSupply))
+          );
+          globalState.handleCurrentActiveTokenTotalSupplyThreshold(
             BigInt(String(totalSupplyThreshold))
           );
-          setCurrentActiveTokenIsAlwaysTradable(Boolean(isAlwaysTradeable));
-          setCurrentActiveTokenHasHitTotalSupplyThreshold(
+          globalState.handleCurrentActiveTokenIsAlwaysTradable(
+            Boolean(isAlwaysTradeable)
+          );
+          globalState.handleCurrentActiveTokenHasHitTotalSupplyThreshold(
             Boolean(hasHitTotalSupplyThreshold)
           );
-          setCurrentActiveTokenHighestTotalSupply(
+          globalState.handleCurrentActiveTokenHighestTotalSupply(
             BigInt(String(highestTotalSupply))
           );
         }
@@ -410,11 +315,13 @@ export const useReadTempTokenContextState = () => {
           const lastInactiveTokenWithBalance =
             nonNullListOfTokensWithNonZeroBalances[0];
           if (lastInactiveTokenWithBalance.isAlwaysTradeable) return;
-          setLastInactiveTokenAddress(
+          globalState.handleLastInactiveTokenAddress(
             lastInactiveTokenWithBalance.tokenAddress
           );
-          setLastInactiveTokenSymbol(lastInactiveTokenWithBalance.symbol);
-          setLastInactiveTokenBalance(
+          globalState.handleLastInactiveTokenSymbol(
+            lastInactiveTokenWithBalance.symbol
+          );
+          globalState.handleLastInactiveTokenBalance(
             BigInt(lastInactiveTokenWithBalance.balance)
           );
         }
@@ -423,114 +330,14 @@ export const useReadTempTokenContextState = () => {
     init();
   }, [channelQueryData?.id, localNetwork.config.chainId, isOwner]);
 
-  const handleCanPlayToken = useCallback((value: boolean) => {
-    setCanPlayToken(value);
-  }, []);
-
-  /**
-   * functions to handle the state of the game when game is over
-   */
-
-  const handleIsGamePermanent = useCallback((value: boolean) => {
-    setIsPermanentGameState(value);
-  }, []);
-
-  const handleIsGameSuccess = useCallback((value: boolean) => {
-    setIsGameSuccessState(value);
-  }, []);
-
-  const handleIsGameFailed = useCallback((value: boolean) => {
-    setIsFailedGameState(value);
-  }, []);
-
-  /**
-   * functions to handle the modals for when game is over
-   */
-
-  const handleIsPermanentGameModalOpen = useCallback((value: boolean) => {
-    setIsPermanentGameModalOpen(value);
-  }, []);
-
-  const handleIsSuccessGameModalOpen = useCallback((value: boolean) => {
-    setIsSuccessGameModalOpen(value);
-  }, []);
-
-  const handleIsFailedGameModalOpen = useCallback((value: boolean) => {
-    setIsFailedGameModalOpen(value);
-  }, []);
-
-  const handleCurrentActiveTokenEndTimestamp = useCallback((value: bigint) => {
-    setCurrentActiveTokenEndTimestamp(value);
-  }, []);
-
-  const handleCurrentActiveTokenCreationBlockNumber = useCallback(
-    (value: bigint) => {
-      setCurrentActiveTokenCreationBlockNumber(value);
-    },
-    []
-  );
-
-  const handleCurrentActiveTokenAddress = useCallback((value: string) => {
-    setCurrentActiveTokenAddress(value);
-  }, []);
-
-  const handleCurrentActiveTokenSymbol = useCallback((value: string) => {
-    setCurrentActiveTokenSymbol(value);
-  }, []);
-
-  const handleCurrentActiveTokenTotalSupplyThreshold = useCallback(
-    (value: bigint) => {
-      setCurrentActiveTokenTotalSupplyThreshold(value);
-    },
-    []
-  );
-
-  const handleCurrentActiveTokenHasHitTotalSupplyThreshold = useCallback(
-    (value: boolean) => {
-      setCurrentActiveTokenHasHitTotalSupplyThreshold(value);
-    },
-    []
-  );
-
   return {
-    currentActiveTokenSymbol,
-    currentActiveTokenAddress,
-    currentActiveTokenEndTimestamp,
-    currentActiveTokenTotalSupply,
-    currentActiveTokenHasHitTotalSupplyThreshold,
-    currentActiveTokenTotalSupplyThreshold,
-    currentActiveTokenIsAlwaysTradable,
-    currentActiveTokenHighestTotalSupply,
-    currentActiveTokenCreationBlockNumber,
-    lastInactiveTokenAddress,
-    lastInactiveTokenBalance,
-    lastInactiveTokenSymbol,
+    gameState: globalState,
     currentTempTokenContract: tempTokenContract,
     lastInactiveTempTokenContract: lastInactiveTempTokenContract,
-    isPermanentGameModalOpen,
-    isSuccessGameModalOpen,
-    isFailedGameModalOpen,
-    isPermanentGameState,
-    isSuccessGameState,
-    isFailedGameState,
-    canPlayToken,
     onMintEvent,
     onBurnEvent,
     onReachThresholdEvent,
     onSendRemainingFundsToWinnerEvent,
-    handleIsGamePermanent,
-    handleIsGameSuccess,
-    handleIsGameFailed,
-    handleIsPermanentGameModalOpen,
-    handleIsSuccessGameModalOpen,
-    handleIsFailedGameModalOpen,
-    handleCanPlayToken,
-    handleCurrentActiveTokenEndTimestamp,
-    handleCurrentActiveTokenCreationBlockNumber,
-    handleCurrentActiveTokenAddress,
-    handleCurrentActiveTokenSymbol,
-    handleCurrentActiveTokenTotalSupplyThreshold,
-    handleCurrentActiveTokenHasHitTotalSupplyThreshold,
     ...readTempTokenTxs,
   };
 };

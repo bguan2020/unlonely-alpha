@@ -32,16 +32,18 @@ export const DesktopChannelPageTempToken = ({
 }) => {
   const { walletIsConnected } = useUser();
   const { channel } = useChannelContext();
-  const { tempToken } = useTempTokenContext();
-  const chat = useChat();
   const {
     loading: channelDataLoading,
     error: channelDataError,
     handleChannelStaticData,
     isOwner,
   } = channel;
+  const { tempToken } = useTempTokenContext();
+  const chat = useChat();
+
+  const { gameState } = tempToken;
   const { currentActiveTokenEndTimestamp, canPlayToken: canPlayTempToken } =
-    tempToken;
+    gameState;
 
   const toast = useToast();
   const { livepeerData, playbackInfo } = useLivepeerStreamData();

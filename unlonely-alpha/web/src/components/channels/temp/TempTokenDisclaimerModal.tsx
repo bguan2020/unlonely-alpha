@@ -14,13 +14,14 @@ export const TempTokenDisclaimerModal = ({
   priceOfThresholdInUsd?: string;
 }) => {
   const { tempToken } = useTempTokenContext();
+  const { gameState } = tempToken;
   const {
     currentActiveTokenSymbol,
     currentActiveTokenEndTimestamp,
     handleIsGameFailed,
     handleIsFailedGameModalOpen,
     handleCanPlayToken,
-  } = tempToken;
+  } = gameState;
   const { durationLeftForTempToken } = useTempTokenTimerState(
     currentActiveTokenEndTimestamp,
     () => {

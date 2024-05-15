@@ -50,16 +50,19 @@ export const TempTokenChart = ({
 
   const { tempToken } = useTempTokenContext();
   const {
+    gameState,
+    tempTokenChartTimeIndexes,
+    currentBlockNumberForTempTokenChart,
+    tempTokenTxs,
+  } = tempToken;
+  const {
     currentActiveTokenAddress,
     currentActiveTokenSymbol,
     currentActiveTokenHasHitTotalSupplyThreshold,
     currentActiveTokenTotalSupply,
     currentActiveTokenTotalSupplyThreshold,
     canPlayToken,
-    tempTokenChartTimeIndexes,
-    currentBlockNumberForTempTokenChart,
-    tempTokenTxs,
-  } = tempToken;
+  } = gameState;
   const { ethPriceInUsd } = useCacheContext();
 
   const { network } = useNetworkContext();
