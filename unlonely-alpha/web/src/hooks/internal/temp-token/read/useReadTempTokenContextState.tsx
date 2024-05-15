@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Contract, InteractionType, NULL_ADDRESS } from "../../../../constants";
+import { Contract, NULL_ADDRESS } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { useLazyQuery } from "@apollo/client";
@@ -15,13 +15,11 @@ import {
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 import { ContractData } from "../../../../constants/types";
 import useUpdateTempTokenHasRemainingFundsForCreator from "../../../server/temp-token/useUpdateTempTokenHasRemainingFundsForCreator";
-import { useUser } from "../../../context/useUser";
 import {
   UseReadTempTokenTxsType,
   useReadTempTokenTxs,
   useReadTempTokenTxsInitial,
 } from "./useReadTempTokenTxs";
-import { useRouter } from "next/router";
 import { useChannelContext } from "../../../context/useChannel";
 
 export type UseReadTempTokenContextStateType = {
@@ -49,8 +47,6 @@ export type UseReadTempTokenContextStateType = {
   onMintEvent: (totalSupply: bigint, highestTotalSupply: bigint) => void;
   onBurnEvent: (totalSupply: bigint) => void;
   onReachThresholdEvent: (newEndTimestamp: bigint) => void;
-  onDurationIncreaseEvent: (newEndTimestamp: bigint) => void;
-  onAlwaysTradeableEvent: () => void;
   onThresholdUpdateEvent: (newThreshold: bigint) => void;
   onSendRemainingFundsToWinnerEvent: (
     tokenAddress: string,
@@ -104,8 +100,6 @@ export const useReadTempTokenInitialState: UseReadTempTokenContextStateType = {
   onMintEvent: () => undefined,
   onBurnEvent: () => undefined,
   onReachThresholdEvent: () => undefined,
-  onDurationIncreaseEvent: () => undefined,
-  onAlwaysTradeableEvent: () => undefined,
   onThresholdUpdateEvent: () => undefined,
   onSendRemainingFundsToWinnerEvent: () => undefined,
   handleIsGamePermanent: () => undefined,
@@ -125,12 +119,8 @@ export const useReadTempTokenInitialState: UseReadTempTokenContextStateType = {
 };
 
 export const useReadTempTokenContextState = () => {
-  const { userAddress, user } = useUser();
-  const router = useRouter();
-
-  const { channel, chat } = useChannelContext();
+  const { channel } = useChannelContext();
   const { channelQueryData, isOwner } = channel;
-  const { addToChatbot: addToChatbotForTempToken } = chat;
   const { network } = useNetworkContext();
   const { localNetwork } = network;
   const publicClient = usePublicClient();
@@ -241,78 +231,6 @@ export const useReadTempTokenContextState = () => {
     handleIsGameSuccess(true);
     handleIsSuccessGameModalOpen(true);
   }, []);
-
-  const onDurationIncreaseEvent = useCallback(
-    async (newEndTimestamp: bigint) => {
-      if (isOwner && router.pathname.startsWith("/channels")) {
-        const title = `The $${currentActiveTokenSymbol} token's time has been extended!`;
-        addToChatbotForTempToken({
-          username: user?.username ?? "",
-          address: userAddress ?? "",
-          taskType: InteractionType.TEMP_TOKEN_DURATION_INCREASED,
-          title,
-          description: "",
-        });
-      }
-      setCurrentActiveTokenEndTimestamp(newEndTimestamp);
-    },
-    [
-      isOwner,
-      userAddress,
-      user,
-      currentActiveTokenSymbol,
-      addToChatbotForTempToken,
-      router.pathname,
-    ]
-  );
-
-  const onAlwaysTradeableEvent = useCallback(async () => {
-    if (isOwner && router.pathname.startsWith("/channels")) {
-      const title = `The $${currentActiveTokenSymbol} token is now permanently tradeable!`;
-      addToChatbotForTempToken({
-        username: user?.username ?? "",
-        address: userAddress ?? "",
-        taskType: InteractionType.TEMP_TOKEN_BECOMES_ALWAYS_TRADEABLE,
-        title,
-        description: "",
-      });
-    }
-    setCurrentActiveTokenIsAlwaysTradable(true);
-    handleIsGamePermanent(true);
-    handleIsPermanentGameModalOpen(true);
-  }, [
-    isOwner,
-    userAddress,
-    user,
-    currentActiveTokenSymbol,
-    addToChatbotForTempToken,
-    router.pathname,
-  ]);
-
-  const onThresholdUpdateEvent = useCallback(
-    async (newThreshold: bigint) => {
-      if (isOwner && router.pathname.startsWith("/channels")) {
-        const title = `The $${currentActiveTokenSymbol} token's price goal is increased!`;
-        addToChatbotForTempToken({
-          username: user?.username ?? "",
-          address: userAddress ?? "",
-          taskType: InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED,
-          title,
-          description: "",
-        });
-      }
-      setCurrentActiveTokenTotalSupplyThreshold(newThreshold);
-      setCurrentActiveTokenHasHitTotalSupplyThreshold(false);
-    },
-    [
-      isOwner,
-      userAddress,
-      user,
-      currentActiveTokenSymbol,
-      addToChatbotForTempToken,
-      router.pathname,
-    ]
-  );
 
   /**
    * function to run when sending remaining funds to winner
@@ -599,9 +517,6 @@ export const useReadTempTokenContextState = () => {
     onMintEvent,
     onBurnEvent,
     onReachThresholdEvent,
-    onDurationIncreaseEvent,
-    onAlwaysTradeableEvent,
-    onThresholdUpdateEvent,
     onSendRemainingFundsToWinnerEvent,
     handleIsGamePermanent,
     handleIsGameSuccess,

@@ -5,17 +5,12 @@ import {
   useEffect,
   useMemo,
 } from "react";
-import { useRouter } from "next/router";
 
 import {
   UseReadTempTokenTxsType,
   useReadTempTokenTxs,
   useReadTempTokenTxsInitial,
 } from "../internal/temp-token/read/useReadTempTokenTxs";
-import { InteractionType, VersusTokenDataType } from "../../constants";
-import { useChannelContext } from "./useChannel";
-import { useUser } from "./useUser";
-import { useVersusFactoryExternalListeners } from "../internal/versus-token/useVersusFactoryExternalListeners";
 import {
   useReadVersusTempTokenGlobalStateInitial,
   UseReadVersusTempTokenGlobalStateType,
@@ -51,11 +46,6 @@ const VersusTempTokenContext = createContext<{
       tokenIdentifier: "a" | "b"
     ) => void;
     onBurnEvent: (totalSupply: bigint, tokenIdentifier: "a" | "b") => void;
-    onDurationIncreaseEvent: (
-      newEndTimestamp: bigint,
-      tokenType: "a" | "b"
-    ) => void;
-    onAlwaysTradeableEvent: (tokenType: "a" | "b") => void;
   };
 }>({
   gameState: useReadVersusTempTokenGlobalStateInitial,
@@ -64,8 +54,6 @@ const VersusTempTokenContext = createContext<{
   callbacks: {
     onMintEvent: () => undefined,
     onBurnEvent: () => undefined,
-    onDurationIncreaseEvent: () => undefined,
-    onAlwaysTradeableEvent: () => undefined,
   },
 });
 
@@ -74,11 +62,6 @@ export const VersusTempTokenProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { userAddress, user } = useUser();
-  const router = useRouter();
-  const { channel, chat } = useChannelContext();
-  const { isOwner } = channel;
-  const { addToChatbot: addToChatbotForTempToken } = chat;
   const publicClient = usePublicClient();
 
   const globalState = useReadVersusTempTokenGlobalState();
@@ -176,108 +159,6 @@ export const VersusTempTokenProvider = ({
     []
   );
 
-  const onDurationIncreaseEvent = useCallback(
-    async (newEndTimestamp: bigint, tokenType: "a" | "b") => {
-      if (isOwner && router.pathname.startsWith("/channels")) {
-        const title = `The $${
-          tokenType === "a"
-            ? globalState.tokenA.symbol
-            : globalState.tokenB.symbol
-        } token's time has been extended!`;
-        addToChatbotForTempToken({
-          username: user?.username ?? "",
-          address: userAddress ?? "",
-          taskType: InteractionType.TEMP_TOKEN_DURATION_INCREASED,
-          title,
-          description: "",
-        });
-      }
-      if (tokenType === "a") {
-        globalState.setTokenA((prevTokenA) => {
-          if (prevTokenA) {
-            return {
-              ...prevTokenA,
-              endTimestamp: newEndTimestamp,
-            };
-          } else {
-            return prevTokenA;
-          }
-        });
-      } else if (tokenType === "b") {
-        globalState.setTokenB((prevTokenB) => {
-          if (prevTokenB) {
-            return {
-              ...prevTokenB,
-              endTimestamp: newEndTimestamp,
-            };
-          } else {
-            return prevTokenB;
-          }
-        });
-      }
-    },
-    [
-      isOwner,
-      userAddress,
-      user,
-      globalState.tokenA,
-      globalState.tokenB,
-      addToChatbotForTempToken,
-      router.pathname,
-    ]
-  );
-
-  const onAlwaysTradeableEvent = useCallback(
-    async (tokenType: "a" | "b") => {
-      if (isOwner && router.pathname.startsWith("/channels")) {
-        const title = `The $${
-          tokenType === "a"
-            ? globalState.tokenA.symbol
-            : globalState.tokenB.symbol
-        } token is now permanently tradeable!`;
-        addToChatbotForTempToken({
-          username: user?.username ?? "",
-          address: userAddress ?? "",
-          taskType: InteractionType.TEMP_TOKEN_BECOMES_ALWAYS_TRADEABLE,
-          title,
-          description: "",
-        });
-      }
-      if (tokenType === "a") {
-        globalState.setTokenA((prevTokenA) => {
-          if (prevTokenA) {
-            return {
-              ...prevTokenA,
-              isAlwaysTradeable: true,
-            };
-          } else {
-            return prevTokenA;
-          }
-        });
-      } else if (tokenType === "b") {
-        globalState.setTokenB((prevTokenB) => {
-          if (prevTokenB) {
-            return {
-              ...prevTokenB,
-              isAlwaysTradeable: true,
-            };
-          } else {
-            return prevTokenB;
-          }
-        });
-      }
-    },
-    [
-      isOwner,
-      userAddress,
-      user,
-      globalState.tokenA,
-      globalState.tokenB,
-      addToChatbotForTempToken,
-      router.pathname,
-    ]
-  );
-
   useReadVersusTempTokenOnMount({
     setTokenA: globalState.setTokenA,
     setTokenB: globalState.setTokenB,
@@ -287,25 +168,6 @@ export const VersusTempTokenProvider = ({
     handleIsGameOngoing: globalState.handleIsGameOngoing,
     handleLosingToken: globalState.handleLosingToken,
     handleOwnerMustPermamint: globalState.handleOwnerMustPermamint,
-  });
-
-  useVersusFactoryExternalListeners({
-    tokenA: globalState.tokenA,
-    tokenB: globalState.tokenB,
-    handleTokenA: (token: VersusTokenDataType) => globalState.setTokenA(token),
-    handleTokenB: (token: VersusTokenDataType) => globalState.setTokenB(token),
-    handleIsGameOngoing: globalState.handleIsGameOngoing,
-    handleIsGameFinished: globalState.handleIsGameFinished,
-    handleIsGameFinishedModalOpen: globalState.handleIsGameFinishedModalOpen,
-    handleOwnerMustMakeWinningTokenTradeable:
-      globalState.handleOwnerMustMakeWinningTokenTradeable,
-    handleOwnerMustPermamint: globalState.handleOwnerMustPermamint,
-    handleWinningToken: globalState.handleWinningToken,
-    handleLosingToken: globalState.handleLosingToken,
-    resetTempTokenTxs: () => {
-      readTempTokenTxs_a.resetTempTokenTxs();
-      readTempTokenTxs_b.resetTempTokenTxs();
-    },
   });
 
   /**
@@ -346,8 +208,6 @@ export const VersusTempTokenProvider = ({
       callbacks: {
         onMintEvent,
         onBurnEvent,
-        onDurationIncreaseEvent,
-        onAlwaysTradeableEvent,
       },
     }),
     [readTempTokenTxs_a, readTempTokenTxs_b, globalState]
