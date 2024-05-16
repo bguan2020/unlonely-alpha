@@ -21,8 +21,6 @@ import { getTimeFromMillis } from "../../utils/time";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { formatUnits } from "viem";
 import { useCacheContext } from "../../hooks/context/useCache";
-import { Contract } from "../../constants";
-import { getContractFromNetwork } from "../../utils/contract";
 
 const headers = ["rank", "token", "channel", "highest price", "time left"];
 
@@ -121,18 +119,11 @@ const TempTokenLeaderboard = () => {
     });
   }, [sortedDataRows, nowInSeconds]);
 
-  const factoryContract = getContractFromNetwork(
-    Contract.TEMP_TOKEN_FACTORY_V1,
-    localNetwork
-  );
-
   const fetch = useCallback(() => {
     getTempTokensQuery({
       variables: {
         data: {
-          factoryAddress: factoryContract.address as `0x${string}`,
           chainId: localNetwork.config.chainId,
-          onlyActiveTokens: true,
           fulfillAllNotAnyConditions: true,
         },
       },

@@ -6,7 +6,18 @@ import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { useUser } from "../../../../hooks/context/useUser";
 import { useLivepeerStreamData } from "../../../../hooks/internal/useLivepeerStreamData";
 import { useVipBadgeUi } from "../../../../hooks/internal/useVipBadgeUi";
-import { Button, Flex, Stack, useToast, Text, Spinner } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  Stack,
+  useToast,
+  Text,
+  Spinner,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+} from "@chakra-ui/react";
 import copy from "copy-to-clipboard";
 import { formatApolloError } from "../../../../utils/errorFormatting";
 import trailString from "../../../../utils/trailString";
@@ -180,6 +191,13 @@ export const DesktopChannelPageTempToken = ({
     });
   };
 
+  console.log(
+    "loading",
+    loadingOnMount,
+    loadingCurrentOnMount,
+    loadingLastOnMount
+  );
+
   return (
     <>
       {channelSSR && <ChannelNextHead channel={channelSSR} />}
@@ -262,20 +280,38 @@ export const DesktopChannelPageTempToken = ({
                       <Spinner />
                     </Flex>
                   ) : !isGameOngoing ? (
-                    <Flex justifyContent={"space-evenly"}>
-                      <Button
-                        onClick={() => setOwnerTokenStateView("single")}
+                    <Menu>
+                      <MenuButton
+                        as={Button}
                         _hover={{}}
+                        _focus={{}}
+                        _active={{}}
                       >
-                        single
-                      </Button>
-                      <Button
-                        onClick={() => setOwnerTokenStateView("versus")}
-                        _hover={{}}
-                      >
-                        versus
-                      </Button>
-                    </Flex>
+                        <Text fontFamily="LoRes15" fontSize="15px">
+                          launch token
+                        </Text>
+                      </MenuButton>
+                      <MenuList zIndex={1801} bg={"#131323"} borderRadius="0">
+                        <MenuItem
+                          bg={"#131323"}
+                          _hover={{ bg: "#1f1f3c" }}
+                          _focus={{}}
+                          _active={{}}
+                          onClick={() => setOwnerTokenStateView("single")}
+                        >
+                          30 minute token
+                        </MenuItem>
+                        <MenuItem
+                          bg={"#131323"}
+                          _hover={{ bg: "#1f1f3c" }}
+                          _focus={{}}
+                          _active={{}}
+                          onClick={() => setOwnerTokenStateView("versus")}
+                        >
+                          versus token
+                        </MenuItem>
+                      </MenuList>
+                    </Menu>
                   ) : null}
                   <ChatComponent
                     chat={chat}

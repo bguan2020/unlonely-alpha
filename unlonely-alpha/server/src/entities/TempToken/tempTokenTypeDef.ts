@@ -65,6 +65,7 @@ export const typeDef = gql`
     chainId: Int!
     channelId: Int!
     tokenType: TempTokenType!
+    factoryAddress: String
   }
 
   input UpdateTempTokenHighestTotalSupplyInput {

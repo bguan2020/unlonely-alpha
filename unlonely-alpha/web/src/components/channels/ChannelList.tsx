@@ -45,9 +45,13 @@ const ChannelList = memo(
     const filteredChannels = useMemo(() => {
       return channels?.filter((c) =>
         debouncedSearch.length > 0
-          ? (
-              c.owner.username?.toLowerCase() ?? c.owner.address.toLowerCase()
-            ).includes(debouncedSearch?.toLowerCase())
+          ? c.owner.username
+              ?.toLowerCase()
+              .includes(debouncedSearch?.toLowerCase()) ||
+            c.owner.address
+              .toLowerCase()
+              .includes(debouncedSearch?.toLowerCase()) ||
+            c.slug.toLowerCase().includes(debouncedSearch?.toLowerCase())
           : c
       );
     }, [channels, debouncedSearch]);

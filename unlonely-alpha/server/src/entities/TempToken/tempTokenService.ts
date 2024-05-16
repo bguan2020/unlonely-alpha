@@ -94,6 +94,7 @@ export interface IUpdateTempTokenHasRemainingFundsForCreatorInput {
   chainId: number;
   channelId: number;
   tokenType: TempTokenType;
+  factoryAddress?: string;
 }
 
 export const updateTempTokenHasRemainingFundsForCreator = async (
@@ -129,6 +130,7 @@ export const updateTempTokenHasRemainingFundsForCreator = async (
         endUnixTimestamp: {
           lt: Math.floor(Date.now() / 1000),
         },
+        factoryAddress: data.factoryAddress,
         /**
          *  we have this OR clause to include the temp tokens that are in single mode and have null tokenType,
          * this is because tokenType was added as a new column after the initial table was created, all existing tokens

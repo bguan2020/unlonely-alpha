@@ -1376,6 +1376,7 @@ export type UpdateTempTokenHasHitTotalSupplyThresholdInput = {
 export type UpdateTempTokenHasRemainingFundsForCreatorInput = {
   chainId: Scalars["Int"];
   channelId: Scalars["Int"];
+  factoryAddress?: InputMaybe<Scalars["String"]>;
   tokenType: TempTokenType;
 };
 

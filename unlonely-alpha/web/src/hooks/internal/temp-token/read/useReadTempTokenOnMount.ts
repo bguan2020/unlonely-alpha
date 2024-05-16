@@ -151,6 +151,7 @@ export const useReadTempTokenOnMount = ({
           channelId: Number(channelQueryData?.id ?? "0"),
           chainId: localNetwork.config.chainId,
           tokenType: TempTokenType.SingleMode,
+          factoryAddress: factoryContract.address as `0x${string}`,
         });
         const tempTokensWithNonZeroBalances = res?.res;
 
@@ -165,16 +166,26 @@ export const useReadTempTokenOnMount = ({
         ) {
           const lastInactiveTokenWithBalance =
             nonNullListOfTokensWithNonZeroBalances[0];
-          if (lastInactiveTokenWithBalance.isAlwaysTradeable) return;
-          globalState.handleLastInactiveTokenAddress(
-            lastInactiveTokenWithBalance.tokenAddress
-          );
-          globalState.handleLastInactiveTokenSymbol(
-            lastInactiveTokenWithBalance.symbol
-          );
-          globalState.handleLastInactiveTokenBalance(
-            BigInt(lastInactiveTokenWithBalance.balance)
-          );
+            const [
+              isAlwaysTradeable
+            ] = await Promise.all([
+              publicClient.readContract({
+                address: lastInactiveTokenWithBalance.tokenAddress as `0x${string}`,
+                abi: TempTokenAbi,
+                functionName: "isAlwaysTradeable",
+              })
+            ]);
+          if (!Boolean(isAlwaysTradeable)) {
+            globalState.handleLastInactiveTokenAddress(
+              lastInactiveTokenWithBalance.tokenAddress
+            );
+            globalState.handleLastInactiveTokenSymbol(
+              lastInactiveTokenWithBalance.symbol
+            );
+            globalState.handleLastInactiveTokenBalance(
+              BigInt(lastInactiveTokenWithBalance.balance)
+            );
+          };
         }
         setLoadingLastOnMount(false);
       }
