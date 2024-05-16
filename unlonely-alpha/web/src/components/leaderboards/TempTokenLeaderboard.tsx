@@ -151,8 +151,6 @@ const TempTokenLeaderboard = () => {
     return () => clearInterval(interval);
   }, [completedDataRows]);
 
-  console.log("completedDataRows", completedDataRows, datasetPaginated);
-
   return (
     <Flex
       direction="column"
