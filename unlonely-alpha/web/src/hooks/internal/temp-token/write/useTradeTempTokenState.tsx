@@ -509,6 +509,15 @@ export const useTradeTempTokenState = ({
     }
   }, [matchingChain, amount, userEthBalance?.value, mintCostAfterFees]);
 
+  useEffect(() => {
+    const refetchAfterPreSale = async () => {
+      if (!isPreSaleOngoing) {
+        await Promise.all([refetchMint(), refetchBurn()]);
+      }
+    };
+    refetchAfterPreSale();
+  }, [isPreSaleOngoing]);
+
   return {
     amount,
     mintCostAfterFees,

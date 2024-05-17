@@ -316,13 +316,17 @@ export const VersusTempTokensInterface = ({
             </Flex>
           )}
         </Flex>
-        <Flex justifyContent={"space-between"} alignItems={"center"} gap="10px">
-          {isFullChart && <VersusTempTokenTimerView disableChatbot={true} />}
-          {!isFullChart && !isOwner && isGameOngoing && !canPlayToken && (
-            <VersusTempTokenTimerView disableChatbot={true} fontSize={20} />
-          )}
-        </Flex>
-        <Flex flex="1" direction={"column"}>
+        {isFullChart && isGameOngoing && (
+          <VersusTempTokenTimerView disableChatbot={true} />
+        )}
+        {!isFullChart && !isOwner && isGameOngoing && !canPlayToken && (
+          <VersusTempTokenTimerView
+            disableChatbot={true}
+            fontSize={20}
+            direction={isOwner ? "column" : "row"}
+          />
+        )}
+        <Flex direction={"column"} flex="1" height="100%">
           <VersusTempTokenChart noChannelData={noChannelData} />
           {!canPlayToken &&
             isGameOngoing &&
@@ -340,9 +344,6 @@ export const VersusTempTokensInterface = ({
           <Text>
             Cannot play when stream is offline, please refresh and try again
           </Text>
-        )}
-        {!isGameOngoing && ownerMustMakeWinningTokenTradeable && isOwner && (
-          <TransferLiquidityModule />
         )}
         {ownerMustMakeWinningTokenTradeable && (
           <Stepper orientation="vertical" index={0}>
@@ -362,6 +363,9 @@ export const VersusTempTokensInterface = ({
               </Step>
             ))}
           </Stepper>
+        )}
+        {!isGameOngoing && ownerMustMakeWinningTokenTradeable && isOwner && (
+          <TransferLiquidityModule />
         )}
       </Flex>
     </>

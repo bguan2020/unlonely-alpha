@@ -89,7 +89,9 @@ export const TempTokenExchange = () => {
           <PopoverContent bg="#6c3daf" border="none" width="100%" p="2px">
             <PopoverArrow bg="#6c3daf" />
             <Text fontSize="12px" textAlign={"center"}>
-              click to show max temp tokens u currently own
+              {isPreSaleOngoing
+                ? "click to claim 1000 tokens"
+                : "click to show max temp tokens u currently own"}
             </Text>
           </PopoverContent>
         </Popover>

@@ -32,7 +32,6 @@ export const VersusTokenDisclaimerModal = ({
     chatbotMessages: {
       fiveMinuteWarningMessage: `The $${tokenA.symbol} and $${tokenB.symbol} tokens will expire in 5 minutes!`,
       presaleOverMessage: `The presale for $${tokenA.symbol} and $${tokenB.symbol} has ended!`,
-      expirationMessage: "Game finished! Both tokens are now expired!",
     },
   });
 

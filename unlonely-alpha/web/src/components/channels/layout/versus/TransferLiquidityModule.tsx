@@ -39,28 +39,23 @@ export const TransferLiquidityModule = () => {
   ]);
 
   return (
-    <Flex direction="column">
-      <Text textAlign={"center"}>select winner</Text>
-      <Flex justifyContent={"space-evenly"}>
-        <Button
-          bg="rgba(255, 36, 36, 1)"
-          onClick={() => callSetWinningTokenTradeableAndTransferLiquidity(true)}
-          isDisabled={loading || !isFunctionAvailable}
-          h="30px"
-        >
-          {loading ? <Spinner /> : <Text>${tokenA.symbol}</Text>}
-        </Button>
-        <Button
-          bg="rgba(42, 217, 255, 1)"
-          onClick={() =>
-            callSetWinningTokenTradeableAndTransferLiquidity(false)
-          }
-          isDisabled={loading || !isFunctionAvailable}
-          h="30px"
-        >
-          {loading ? <Spinner /> : <Text>${tokenB.symbol}</Text>}
-        </Button>
-      </Flex>
+    <Flex justifyContent={"space-evenly"}>
+      <Button
+        bg="rgba(255, 36, 36, 1)"
+        onClick={() => callSetWinningTokenTradeableAndTransferLiquidity(true)}
+        isDisabled={loading || !isFunctionAvailable}
+        h="30px"
+      >
+        {loading ? <Spinner /> : <Text>${tokenA.symbol}</Text>}
+      </Button>
+      <Button
+        bg="rgba(42, 217, 255, 1)"
+        onClick={() => callSetWinningTokenTradeableAndTransferLiquidity(false)}
+        isDisabled={loading || !isFunctionAvailable}
+        h="30px"
+      >
+        {loading ? <Spinner /> : <Text>${tokenB.symbol}</Text>}
+      </Button>
     </Flex>
   );
 };

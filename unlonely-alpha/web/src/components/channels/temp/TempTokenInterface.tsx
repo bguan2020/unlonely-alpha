@@ -347,6 +347,9 @@ export const TempTokenInterface = ({
                 priceOfThresholdInUsd={priceOfThresholdInUsd}
                 priceOfThreshold={priceOfThreshold}
                 noChannelData={noChannelData}
+                customChartHeightInPx={
+                  !canPlayToken && !isFullChart ? 80 : undefined
+                }
                 isFullChart={isFullChart}
               />
             )}

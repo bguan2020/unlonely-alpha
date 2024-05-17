@@ -40,9 +40,11 @@ export type ConsolidatedTradeData = {
 export const VersusTempTokenChart = ({
   noChannelData,
   isFullChart,
+  customChartHeightInPx,
 }: {
   noChannelData?: boolean;
   isFullChart?: boolean;
+  customChartHeightInPx?: number;
 }) => {
   const { ethPriceInUsd } = useCacheContext();
   const { gameState, tokenATxs, tokenBTxs } = useVersusTempTokenContext();
@@ -365,7 +367,10 @@ export const VersusTempTokenChart = ({
           no txs
         </Text>
       )}
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer
+        width="100%"
+        height={customChartHeightInPx ?? "100%"}
+      >
         <LineChart
           data={
             tokenAWon
@@ -418,7 +423,8 @@ export const VersusTempTokenChart = ({
                 isAddressEqual(
                   focusedTokenToTrade?.address,
                   gameState.tokenA.address as `0x${string}`
-                )
+                ) &&
+                !tokenAWon
                   ? 4
                   : 2
               }
@@ -439,7 +445,8 @@ export const VersusTempTokenChart = ({
                 isAddressEqual(
                   focusedTokenToTrade?.address,
                   gameState.tokenB.address as `0x${string}`
-                )
+                ) &&
+                !tokenBWon
                   ? 4
                   : 2
               }

@@ -5,9 +5,11 @@ import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempT
 
 export const VersusTempTokenTimerView = ({
   disableChatbot,
+  direction,
   fontSize,
 }: {
   disableChatbot: boolean;
+  direction?: "row" | "column";
   fontSize?: number;
 }) => {
   const { gameState } = useVersusTempTokenContext();
@@ -18,6 +20,7 @@ export const VersusTempTokenTimerView = ({
     handleIsGameFinished,
     handleIsPreSaleOngoing,
   } = gameState;
+
   const { durationLeftForTempToken, durationLeftForPreSale } =
     useTempTokenTimerState({
       tokenEndTimestamp: tokenA.endTimestamp,
@@ -29,13 +32,6 @@ export const VersusTempTokenTimerView = ({
       callbackonPresaleEnd: () => {
         handleIsPreSaleOngoing(false);
       },
-      // chatbotMessages: disableChatbot
-      //   ? undefined
-      //   : {
-      //       fiveMinuteWarningMessage: `The $${tokenA.symbol} and $${tokenB.symbol} tokens will expire in 5 minutes!`,
-      //       presaleOverMessage: `The presale for $${tokenA.symbol} and $${tokenB.symbol} has ended (view)!`,
-      //       expirationMessage: "Game finished! Both tokens are now expired!",
-      //     },
       chatbotMessages: undefined,
     });
 
@@ -47,7 +43,9 @@ export const VersusTempTokenTimerView = ({
             justifyContent={"center"}
             bg={"rgba(0, 0, 0, 0.2)"}
             mx="auto"
-            direction="column"
+            direction={direction ?? "column"}
+            alignItems={"center"}
+            gap="5px"
           >
             <Text
               fontSize={`${fontSize ?? 40}px`}
@@ -61,12 +59,13 @@ export const VersusTempTokenTimerView = ({
             </Text>
             <Flex justifyContent={"space-between"}>
               <Text color={durationLeftForPreSale > 0 ? "#37FF8B" : "#ec3f3f"}>
-                presale:
+                (presale:
               </Text>
               <Text color={durationLeftForPreSale > 0 ? "#37FF8B" : "#ec3f3f"}>
                 {durationLeftForPreSale > 0
                   ? getTimeFromMillis(durationLeftForPreSale * 1000, true, true)
                   : "over"}
+                )
               </Text>
             </Flex>
           </Flex>

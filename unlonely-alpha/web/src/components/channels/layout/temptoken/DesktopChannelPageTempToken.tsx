@@ -230,7 +230,7 @@ export const DesktopChannelPageTempToken = ({
                       mode={
                         currentActiveTokenEndTimestamp
                           ? "single-temp-token"
-                          : !isVersusGameFinished
+                          : isVersusGameOngoing
                           ? "versus-mode"
                           : ""
                       }
@@ -333,7 +333,7 @@ export const DesktopChannelPageTempToken = ({
                       maxW={["100%", "100%", "380px", "380px"]}
                       gap="1rem"
                     >
-                      <Flex direction="column">
+                      <Flex direction="column" h="40%">
                         {isOwner && !isGameOngoing && (
                           <Button
                             w="fit-content"
@@ -379,7 +379,14 @@ export const DesktopChannelPageTempToken = ({
                       maxW={["100%", "100%", "380px", "380px"]}
                       gap="1rem"
                     >
-                      <Flex direction="column">
+                      <Flex
+                        direction="column"
+                        h={
+                          isVersusGameOngoing || isVersusGameFinished
+                            ? "40%"
+                            : "30%"
+                        }
+                      >
                         {isOwner && !isGameOngoing && (
                           <Button
                             w="fit-content"
@@ -391,10 +398,7 @@ export const DesktopChannelPageTempToken = ({
                             single
                           </Button>
                         )}
-                        <VersusTempTokensInterface
-                          ablyChannel={chat.channel}
-                          customHeight="40%"
-                        />
+                        <VersusTempTokensInterface ablyChannel={chat.channel} />
                       </Flex>
                       <ChatComponent
                         chat={chat}

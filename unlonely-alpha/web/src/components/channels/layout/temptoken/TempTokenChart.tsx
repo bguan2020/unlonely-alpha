@@ -37,12 +37,14 @@ export const TempTokenChart = ({
   priceOfThresholdInUsd,
   noChannelData,
   isFullChart,
+  customChartHeightInPx,
 }: {
   interfaceChartData: UseInterfaceChartDataType;
   priceOfThreshold: number;
   priceOfThresholdInUsd: string;
   noChannelData?: boolean;
   isFullChart?: boolean;
+  customChartHeightInPx?: number;
 }) => {
   const { channel } = useChannelContext();
   const { isOwner } = channel;
@@ -331,7 +333,10 @@ export const TempTokenChart = ({
             <FaPause />
           </Text>
         )}
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer
+          width="100%"
+          height={customChartHeightInPx ?? "100%"}
+        >
           <LineChart
             data={
               interfaceChartData.isChartPaused

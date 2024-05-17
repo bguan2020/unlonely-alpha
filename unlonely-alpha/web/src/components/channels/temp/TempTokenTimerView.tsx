@@ -36,13 +36,6 @@ export const SingleTempTokenTimerView = ({
       callbackonPresaleEnd: () => {
         handleIsPreSaleOngoing(false);
       },
-      // chatbotMessages: disableChatbot
-      //   ? undefined
-      //   : {
-      //       fiveMinuteWarningMessage: `The $${currentActiveTokenSymbol} token will expire in 5 minutes!`,
-      //       presaleOverMessage: `The $${currentActiveTokenSymbol} token presale has ended!`,
-      //       expirationMessage: `The $${currentActiveTokenSymbol} token has expired (view)!`,
-      //     },
       chatbotMessages: undefined,
     });
 

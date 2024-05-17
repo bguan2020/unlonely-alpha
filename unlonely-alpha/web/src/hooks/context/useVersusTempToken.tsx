@@ -20,6 +20,10 @@ import { useReadVersusTempTokenOnMount } from "../internal/versus-token/read/use
 import { useVersusGameStateTransitioner } from "../internal/versus-token/ui/useVersusGameStateTransitioner";
 import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
+import { useChannelContext } from "./useChannel";
+import { useUser } from "./useUser";
+import { useRouter } from "next/router";
+import { InteractionType } from "../../constants";
 
 export const useVersusTempTokenContext = () => {
   return useContext(VersusTempTokenContext);
@@ -63,11 +67,16 @@ export const VersusTempTokenProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const { channel, chat } = useChannelContext();
+  const { isOwner } = channel;
+  const { addToChatbot: addToChatbotForTempToken } = chat;
+  const { user, userAddress } = useUser();
   const globalState = useReadVersusTempTokenGlobalState();
   const transitionGameState = useVersusGameStateTransitioner();
   const { loadingOnMount } = useReadVersusTempTokenOnMount({
     globalState,
   });
+  const router = useRouter();
 
   const baseClient = useMemo(
     () =>
@@ -173,6 +182,16 @@ export const VersusTempTokenProvider = ({
       globalState.handleIsGameOngoing(false);
       globalState.handleIsGameFinishedModalOpen(true);
 
+      if (isOwner && router.pathname.startsWith("/channels")) {
+        addToChatbotForTempToken({
+          username: user?.username ?? "",
+          address: userAddress ?? "",
+          taskType: InteractionType.TEMP_TOKEN_EXPIRED,
+          title: "Game finished! Both tokens are now expired!",
+          description: "",
+        });
+      }
+
       transitionGameState({
         tokenA: globalState.tokenA,
         tokenB: globalState.tokenB,
@@ -190,6 +209,8 @@ export const VersusTempTokenProvider = ({
     globalState.tokenA,
     globalState.tokenB,
     baseClient,
+    router,
+    isOwner,
   ]);
 
   const value = useMemo(

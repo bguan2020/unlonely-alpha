@@ -37,8 +37,7 @@ export const TempTokenDisclaimerModal = ({
     },
     chatbotMessages: {
       fiveMinuteWarningMessage: `The $${currentActiveTokenSymbol} token will expire in 5 minutes!`,
-      presaleOverMessage: `The $${currentActiveTokenSymbol} token presale has ended (discl)!`,
-      expirationMessage: `The $${currentActiveTokenSymbol} token has expired (discl)!`,
+      presaleOverMessage: `The $${currentActiveTokenSymbol} token presale has ended!`,
     },
   });
 

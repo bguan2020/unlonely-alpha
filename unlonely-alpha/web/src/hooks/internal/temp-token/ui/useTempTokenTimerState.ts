@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { InteractionType } from "../../../../constants";
 import { useChannelContext } from "../../../context/useChannel";
 import { useUser } from "../../../context/useUser";
+import { useRouter } from "next/router";
 
 // pure temp token function hook
 export const useTempTokenTimerState = ({
@@ -17,14 +18,14 @@ export const useTempTokenTimerState = ({
   callbackonPresaleEnd: () => void,
   chatbotMessages?: {
     fiveMinuteWarningMessage: string,
-    presaleOverMessage: string,
-    expirationMessage: string
+    presaleOverMessage: string
   }
 }) => {
   const { userAddress, user } = useUser();
   const { channel, chat } = useChannelContext();
   const { isOwner: isChannelOwner } = channel;
   const { addToChatbot: addToChatbotForTempToken } = chat;
+  const router = useRouter()
 
   const [durationLeftForTempToken, setDurationLeftForTempToken] = useState<
     number | "over" | "inactive"
@@ -80,7 +81,7 @@ export const useTempTokenTimerState = ({
       durationLeftForTempToken === 300 &&
       isChannelOwner &&
       chatbotMessages &&
-      chatbotMessages.fiveMinuteWarningMessage.length > 0
+      chatbotMessages.fiveMinuteWarningMessage.length > 0 && router.pathname.startsWith("/channels")
     ) {
       const title = chatbotMessages.fiveMinuteWarningMessage;
       addToChatbotForTempToken({
@@ -91,28 +92,17 @@ export const useTempTokenTimerState = ({
         description: "",
       });
     }
-    console.log(durationLeftForTempToken, canCallExpiration, isChannelOwner, chatbotMessages?.expirationMessage)
     if (durationLeftForTempToken === "over" && canCallExpiration) {
-      if (isChannelOwner && chatbotMessages &&
-        chatbotMessages.expirationMessage.length > 0) {
-        const title = chatbotMessages.expirationMessage;
-        addToChatbotForTempToken({
-          username: user?.username ?? "",
-          address: userAddress ?? "",
-          taskType: InteractionType.TEMP_TOKEN_EXPIRED,
-          title,
-          description: "",
-        });
-      }
+      console.log("useTempTokenTimerState", durationLeftForTempToken, canCallExpiration)
       callbackOnExpiration();
       setCanCallExpiration(false);
     }
-  }, [durationLeftForTempToken, isChannelOwner, chatbotMessages]);
+  }, [durationLeftForTempToken, isChannelOwner, chatbotMessages, router.pathname]);
 
   useEffect(() => {
     if (durationLeftForPreSale === 0 && canCallPresaleEnd) {
       if (isChannelOwner && chatbotMessages &&
-        chatbotMessages.presaleOverMessage.length > 0) {
+        chatbotMessages.presaleOverMessage.length > 0 && router.pathname.startsWith("/channels")) {
         const title = chatbotMessages.presaleOverMessage;
         addToChatbotForTempToken({
           username: user?.username ?? "",
@@ -130,7 +120,7 @@ export const useTempTokenTimerState = ({
       callbackonPresaleEnd();
       setCanCallPresaleEnd(false);
     }
-  }, [durationLeftForPreSale, isChannelOwner, chatbotMessages]);
+  }, [durationLeftForPreSale, isChannelOwner, chatbotMessages, router.pathname]);
 
   return {
     durationLeftForTempToken,
