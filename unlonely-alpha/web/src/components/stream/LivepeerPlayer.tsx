@@ -86,8 +86,10 @@ const LivepeerPlayer = memo(
                 margin: "auto",
                 objectFit: "contain",
               }}
+              onError={(e) => {
+                console.error("Error playing video", e);
+              }}
             />
-
             <Player.LoadingIndicator
               asChild
               style={{

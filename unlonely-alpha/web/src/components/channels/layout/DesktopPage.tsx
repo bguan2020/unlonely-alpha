@@ -15,14 +15,13 @@ import ChannelNextHead from "../../layout/ChannelNextHead";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 import ChannelDesc from "../ChannelDesc";
 import ChannelStreamerPerspective from "./ChannelStreamerPerspective";
-import ChannelViewerPerspective from "./ChannelViewerPerspective";
-// import Trade from "../bet/Trade";
 import { ChannelWideModals } from "../ChannelWideModals";
 import copy from "copy-to-clipboard";
 import trailString from "../../../utils/trailString";
 import { useVipBadgeUi } from "../../../hooks/internal/useVipBadgeUi";
 import { useLivepeerStreamData } from "../../../hooks/internal/useLivepeerStreamData";
 import { formatApolloError } from "../../../utils/errorFormatting";
+import StreamComponent from "../../stream/StreamComponent";
 
 export const DesktopPage = ({
   channelSSR,
@@ -171,16 +170,20 @@ export const DesktopPage = ({
                     />
                   </>
                 ) : (
-                  <ChannelViewerPerspective
-                    playbackData={
-                      playbackInfo
-                        ? {
-                            infra: "livepeer",
-                            livepeerPlaybackInfo: playbackInfo,
-                          }
-                        : { infra: "aws" }
-                    }
-                  />
+                  <Stack direction="column" width={"100%"} position={"unset"}>
+                    <Flex width={"100%"} position="relative">
+                      <StreamComponent
+                        playbackData={
+                          playbackInfo
+                            ? {
+                                infra: "livepeer",
+                                livepeerPlaybackInfo: playbackInfo,
+                              }
+                            : { infra: "aws" }
+                        }
+                      />
+                    </Flex>
+                  </Stack>
                 )}
                 <Flex
                   gap={4}

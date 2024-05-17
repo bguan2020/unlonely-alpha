@@ -283,12 +283,15 @@ export const useCreateMultipleTempTokensState = ({
         //   variables: {
         //     data: {
         //       title: `/${channel.channelQueryData?.slug} launched two new tokens!`,
-        //       body: "Claim 1000 free tokens now!",
+        //       body: "Claim 1000 tokens now!",
         //       channelId: undefined,
         //     },
         //   },
         // });
-        // console.log("send all notifications:", res);
+        // console.log(
+        //   "useCreateMutipleTempTokensState send all notifications:",
+        //   res
+        // );
         callbackOnTxSuccess();
         // wait for 5 seconds
         await new Promise((resolve) => setTimeout(resolve, 5000));

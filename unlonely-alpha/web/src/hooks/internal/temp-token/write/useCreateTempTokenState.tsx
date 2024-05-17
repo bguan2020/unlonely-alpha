@@ -236,12 +236,12 @@ export const useCreateTempTokenState = ({
         //   variables: {
         //     data: {
         //       title: `/${channel.channelQueryData?.slug} launched a new token!`,
-        //       body: "Claim 1000 free tokens now!",
+        //       body: "Claim 1000 tokens now!",
         //       channelId: undefined,
         //     },
         //   },
         // });
-        // console.log("send all notifications:", res);
+        // console.log("useCreateTempTokenState send all notifications:", res);
         callbackOnTxSuccess();
         // wait for 5 seconds
         await new Promise((resolve) => setTimeout(resolve, 5000));

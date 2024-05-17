@@ -21,7 +21,6 @@ import {
   useVersusTempTokenContext,
 } from "../../hooks/context/useVersusTempToken";
 import { VersusTempTokensInterface } from "../../components/channels/layout/versus/VersusTempTokensInterface";
-// import { CAN_USE_VERSUS_MODE_SLUGS } from "../../constants";
 import { useTempTokenAblyInterpreter } from "../../hooks/internal/temp-token/ui/useTempTokenAblyInterpreter";
 import { useVersusTempTokenAblyInterpreter } from "../../hooks/internal/versus-token/ui/useVersusTempTokenAblyInterpreter";
 import { NULL_ADDRESS } from "../../constants";
@@ -41,7 +40,7 @@ const ChannelLayer = () => {
   const router = useRouter();
   const { slug } = router.query;
   const { channel } = useChannelContext();
-  const { channelQueryData, handleChannelStaticData } = channel;
+  const { handleChannelStaticData } = channel;
   const {
     data: channelStatic,
     error: channelStaticError,
@@ -59,47 +58,14 @@ const ChannelLayer = () => {
   }, [channelStatic]);
 
   return (
-    <>
-      {/* {CAN_USE_VERSUS_MODE_SLUGS.includes(channelQueryData?.slug ?? "") ? (
-        <VersusTempTokenProvider>
-          <FullVersusTokenChart
-            channelStaticError={channelStaticError}
-            channelStaticLoading={channelStaticLoading}
-          />
-        </VersusTempTokenProvider>
-      ) : ( */}
-      <TempTokenProvider>
-        <VersusTempTokenProvider>
-          <FullTempTokenChart
-            channelStaticError={channelStaticError}
-            channelStaticLoading={channelStaticLoading}
-          />
-        </VersusTempTokenProvider>
-      </TempTokenProvider>
-      {/* )} */}
-    </>
-  );
-};
-
-const FullVersusTokenChart = ({
-  channelStaticError,
-  channelStaticLoading,
-}: {
-  channelStaticError?: any;
-  channelStaticLoading?: boolean;
-}) => {
-  const chat = useChat();
-  useVersusTempTokenAblyInterpreter(chat);
-
-  return (
-    <Flex h="100vh" justifyContent={"space-between"} bg="#131323" p="0.5rem">
-      <VersusTempTokensInterface
-        isFullChart
-        ablyChannel={chat.channel}
-        customLoading={channelStaticLoading}
-        noChannelData={channelStaticError !== undefined}
-      />
-    </Flex>
+    <TempTokenProvider>
+      <VersusTempTokenProvider>
+        <FullTempTokenChart
+          channelStaticError={channelStaticError}
+          channelStaticLoading={channelStaticLoading}
+        />
+      </VersusTempTokenProvider>
+    </TempTokenProvider>
   );
 };
 
