@@ -169,6 +169,7 @@ export const VersusTempTokenProvider = ({
   useEffect(() => {
     const onGameFinish = async () => {
       if (!globalState.isGameFinished || !baseClient) return;
+      console.log("game finished");
       globalState.handleIsGameOngoing(false);
       globalState.handleIsGameFinishedModalOpen(true);
 

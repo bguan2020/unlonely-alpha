@@ -28,6 +28,7 @@ contract TempTokenFactoryV1 is Ownable {
         uint256 protocolFeePercent;
         uint256 streamerFeePercent;
         uint256 creationBlockNumber;
+        uint256 preSaleEndTimestamp;
     }
 
     /**
@@ -62,8 +63,8 @@ contract TempTokenFactoryV1 is Ownable {
     bool public isPaused;
     uint256 public maxDuration;
 
-    event TempTokenCreated(address indexed tokenAddress, address indexed owner, string name, string symbol, uint256 endTimestamp, address protocolFeeDestination, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 totalSupplyThreshold, uint256 creationBlockNumber);
-    event MultipleTempTokensCreated(address[] tokenAddresses, address indexed owner, string[] names, string[] symbols, uint256 endTimestamp, address protocolFeeDestination, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 totalSupplyThreshold, uint256 creationBlockNumber);
+    event TempTokenCreated(address indexed tokenAddress, address indexed owner, string name, string symbol, uint256 endTimestamp, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 totalSupplyThreshold, uint256 creationBlockNumber, uint256 preSaleEndTimestamp);
+    event MultipleTempTokensCreated(address[] tokenAddresses, address indexed owner, string[] names, string[] symbols, uint256 endTimestamp, address protocolFeeDestination, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 totalSupplyThreshold, uint256 creationBlockNumber, uint256 preSaleEndTimestamp);
     event ProtocolFeeDestinationSet(address indexed protocolFeeDestination);
     event ProtocolFeePercentSet(uint256 feePercent);
     event StreamerFeePercentSet(uint256 feePercent);
@@ -95,31 +96,35 @@ contract TempTokenFactoryV1 is Ownable {
         * @dev name is the name of the token.
         * @dev symbol is the symbol of the token.
         * @dev duration is the duration in seconds for the lifespan of the TempToken.
+        * @dev totalSupplyThreshold is the total supply needed for the token to convert from a TempToken into a normal, permanent token. Enter 0 if you don't want to set a threshold.
+        * @dev preSaleDuration is the duration in seconds for the pre-sale period of the TempToken.
         * @dev The function returns the address of the new TempToken.
      */
     function createTempToken(
         string memory name,
         string memory symbol,
         uint256 duration,
-        uint256 totalSupplyThreshold
+        uint256 totalSupplyThreshold,
+        uint256 preSaleDuration
     ) public returns (address) {
         require(!isPaused, "Factory is paused");
         require(duration <= maxDuration, "Duration is longer than max duration");
         require(duration > 0, "Duration cannot be 0");
         uint256 endTimestamp = block.timestamp + duration;
+        uint256 preSaleEndTimestamp = block.timestamp + preSaleDuration;
         uint256 creationBlockNumber = block.number;
-        TempTokenV1 newToken = new TempTokenV1(name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, address(this), creationBlockNumber);        
+        TempTokenV1 newToken = new TempTokenV1(name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, address(this), creationBlockNumber, preSaleEndTimestamp);        
         
         /**
             * @dev We increment the numDeployedTokens and use the new value as the index to store the TokenInfo struct in the deployedTokens mapping.
             * @dev We also store the index of the token in the deployedTokenIndices mapping using the token's address as the key.
          */
         uint256 index = ++numDeployedTokens;
-        deployedTokens[index] = TokenInfo(address(newToken), msg.sender, name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, creationBlockNumber);
+        deployedTokens[index] = TokenInfo(address(newToken), msg.sender, name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, creationBlockNumber, preSaleEndTimestamp);
         deployedTokenIndices[address(newToken)] = index;
 
         newToken.transferOwnership(msg.sender); // Transfer ownership of the new token to the caller of this function.
-        emit TempTokenCreated(address(newToken), msg.sender, name, symbol, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, creationBlockNumber);
+        emit TempTokenCreated(address(newToken), msg.sender, name, symbol, endTimestamp, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, creationBlockNumber, preSaleEndTimestamp);
         return address(newToken);
     }
 
@@ -129,13 +134,15 @@ contract TempTokenFactoryV1 is Ownable {
         * @dev symbols is the array of symbols for the tokens
         * @dev duration is the duration in seconds for the lifespan of the TempTokens.
         * @dev totalSupplyThreshold is the total supply needed for the token to convert from a TempToken into a normal, permanent token. Enter 0 if you don't want to set a threshold.
+        * @dev preSaleDuration is the duration in seconds for the pre-sale period of the TempTokens.
         * @dev The function returns the addresses of the new TempTokens.
  */
     function createMultipleTempTokens(
         string[] memory names,
         string[] memory symbols,
         uint256 duration,
-        uint256 totalSupplyThreshold
+        uint256 totalSupplyThreshold,
+        uint256 preSaleDuration
     ) public returns (address[] memory) {
         require(!isPaused, "Factory is paused");
         require(duration <= maxDuration, "Duration is longer than max duration");
@@ -144,16 +151,17 @@ contract TempTokenFactoryV1 is Ownable {
         require(names.length == symbols.length, "Names and symbols arrays are not the same length");
         address[] memory tokenAddresses = new address[](names.length);
         uint256 endTimestamp = block.timestamp + duration;
+        uint256 preSaleEndTimestamp = block.timestamp + preSaleDuration;
         uint256 creationBlockNumber = block.number;
         for (uint256 i = 0; i < names.length; i++) {
-            TempTokenV1 newToken = new TempTokenV1(names[i], symbols[i], endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, address(this), creationBlockNumber);
+            TempTokenV1 newToken = new TempTokenV1(names[i], symbols[i], endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, address(this), creationBlockNumber, preSaleEndTimestamp);
             uint256 index = ++numDeployedTokens;
-            deployedTokens[index] = TokenInfo(address(newToken), msg.sender, names[i], symbols[i], endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, creationBlockNumber);
+            deployedTokens[index] = TokenInfo(address(newToken), msg.sender, names[i], symbols[i], endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, creationBlockNumber, preSaleEndTimestamp);
             deployedTokenIndices[address(newToken)] = index;
             newToken.transferOwnership(msg.sender);
             tokenAddresses[i] = address(newToken);
         }
-        emit MultipleTempTokensCreated(tokenAddresses, msg.sender, names, symbols, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, creationBlockNumber);
+        emit MultipleTempTokensCreated(tokenAddresses, msg.sender, names, symbols, endTimestamp, defaultProtocolFeeDestination, defaultProtocolFeePercent, defaultStreamerFeePercent, totalSupplyThreshold, creationBlockNumber, preSaleEndTimestamp);
         return tokenAddresses;
     }
 
@@ -233,28 +241,21 @@ contract TempTokenFactoryV1 is Ownable {
       * @dev setWinningTokenTradeableAndTransferLiquidity is a function to set the winning token as tradeable and transfer all liquidity (if any) 
       * from the losing token to the factory.
       */
-    function setWinningTokenTradeableAndTransferLiquidity(address[] calldata _tokenAddresses) public {
-        require(_tokenAddresses.length == 2, "Token addresses array must have 2 elements");
-        require(_tokenAddresses[0] != address(0) && _tokenAddresses[1] != address(0), "One or both token addresses are zero.");
-        TempTokenV1 tokenA = TempTokenV1(_tokenAddresses[0]);
-        TempTokenV1 tokenB = TempTokenV1(_tokenAddresses[1]);
-        require(tokenA.owner() == msg.sender && tokenB.owner() == msg.sender, "Caller is not the owner of both tokens");
-        require(tokenA.creationBlockNumber() == tokenB.creationBlockNumber(), "Tokens were not created in the same block");
-        require(tokenA.endTimestamp() < block.timestamp && tokenB.endTimestamp() < block.timestamp, "Both tokens must expire first");
+    function setWinningTokenTradeableAndTransferLiquidity(address _winningTokenAddress, address _losingTokenAddress) public {
+        require(_winningTokenAddress != address(0) && _losingTokenAddress != address(0), "One or both token addresses are zero.");
+        
+        TempTokenV1 winningToken = TempTokenV1(_winningTokenAddress);
+        TempTokenV1 losingToken = TempTokenV1(_losingTokenAddress);
+
+        require(winningToken.owner() == msg.sender && losingToken.owner() == msg.sender, "Caller is not the owner of both tokens");
+        require(winningToken.creationBlockNumber() == losingToken.creationBlockNumber(), "Tokens were not created in the same block");
+        require(winningToken.endTimestamp() < block.timestamp && losingToken.endTimestamp() < block.timestamp, "Both tokens must expire first");
+
+        winningToken.setAlwaysTradeable();
         uint256 transferredLiquidity = 0;
-        if (tokenA.totalSupply() >= tokenB.totalSupply()) {
-            tokenA.setAlwaysTradeable();
-            if (tokenB.getBalance() > 0) {
-                transferredLiquidity = tokenB.transferLiquidityToFactory();
-            }
-            emit SetWinningTokenTradeableAndTransferredLiquidity(_tokenAddresses[0], _tokenAddresses[1], tokenA.totalSupply(), tokenB.totalSupply(), transferredLiquidity);
-        } else {
-            tokenB.setAlwaysTradeable();
-            if (tokenA.getBalance() > 0) {
-                transferredLiquidity = tokenA.transferLiquidityToFactory();
-            }
-            emit SetWinningTokenTradeableAndTransferredLiquidity(_tokenAddresses[1], _tokenAddresses[0], tokenB.totalSupply(), tokenA.totalSupply(), transferredLiquidity);
-        }
+        if (losingToken.getBalance() > 0) transferredLiquidity = losingToken.transferLiquidityToFactory();
+
+        emit SetWinningTokenTradeableAndTransferredLiquidity(_winningTokenAddress, _losingTokenAddress, winningToken.totalSupply(), losingToken.totalSupply(), transferredLiquidity);
     }
     
     /**

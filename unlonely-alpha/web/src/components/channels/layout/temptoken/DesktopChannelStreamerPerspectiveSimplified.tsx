@@ -36,12 +36,10 @@ import { TransactionModalTemplate } from "../../../transactions/TransactionModal
 import { PlaybackInfo } from "livepeer/dist/models/components";
 import LivepeerPlayer from "../../../stream/LivepeerPlayer";
 import { getSrc } from "@livepeer/react/external";
-import {
-  SingleTempTokenTimerView,
-  VersusTempTokenTimerView,
-} from "../../temp/TempTokenTimer";
 import ChannelDesc from "../../ChannelDesc";
 import { MigrateToLivePeer } from "../MigrateToLivepeer";
+import { SingleTempTokenTimerView } from "../../temp/TempTokenTimerView";
+import { VersusTempTokenTimerView } from "../../versus/VersusTokenTimerView";
 
 export const DesktopChannelStreamerPerspectiveSimplified = ({
   ablyChannel,

@@ -33,6 +33,7 @@ export enum InteractionType {
   SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION = "send-remaining-funds-to-winner-after-temp-token-expiration-interaction",
   VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY = "versus-set-winning-token-tradeable-and-transfer-liquidity-interaction",
   VERSUS_WINNER_TOKENS_MINTED = "versus-winner-tokens-minted-interaction",
+  PRESALE_OVER = "presale-over-interaction",
 
   EVENT_LIVE = "event-live-interaction",
   EVENT_LOCK = "event-lock-interaction",
@@ -133,12 +134,16 @@ export type VersusTokenDataType = {
   address: string;
   totalSupply: bigint;
   isAlwaysTradeable: boolean;
-  highestTotalSupply: bigint;
+  preSaleEndTimestamp: bigint;
   contractData: ContractData;
   creationBlockNumber: bigint;
   transferredLiquidityOnExpiration: bigint;
   endTimestamp?: bigint;
 };
+
+export const PRE_SALE_MAX_MINT_AMOUNT = 1000
+export const PRE_SALE_MAX_SUPPLY = 100_000
+export const PRE_SALE_PRICE_PER_TOKEN = 4 * 10**10
 
 export const versusTokenDataInitial: VersusTokenDataType = {
   transferredLiquidityOnExpiration: BigInt(0),
@@ -146,7 +151,7 @@ export const versusTokenDataInitial: VersusTokenDataType = {
   address: "",
   totalSupply: BigInt(0),
   isAlwaysTradeable: false,
-  highestTotalSupply: BigInt(0),
+  preSaleEndTimestamp: BigInt(0),
   contractData: {
     address: NULL_ADDRESS,
     chainId: 0,

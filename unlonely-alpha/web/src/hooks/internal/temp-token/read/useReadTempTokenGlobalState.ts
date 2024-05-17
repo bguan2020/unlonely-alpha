@@ -9,8 +9,8 @@ export type UseReadTempTokenGlobalStateType = {
   currentActiveTokenHasHitTotalSupplyThreshold: boolean;
   currentActiveTokenTotalSupplyThreshold: bigint;
   currentActiveTokenIsAlwaysTradable: boolean;
-  currentActiveTokenHighestTotalSupply: bigint;
   currentActiveTokenCreationBlockNumber: bigint;
+  currentActiveTokenPreSaleEndTimestamp: bigint;
   lastInactiveTokenAddress: string;
   lastInactiveTokenBalance: bigint;
   lastInactiveTokenSymbol: string;
@@ -21,6 +21,8 @@ export type UseReadTempTokenGlobalStateType = {
   isSuccessGameState: boolean;
   isFailedGameState: boolean;
   canPlayToken: boolean;
+  isPreSaleOngoing: boolean;
+  handleIsPreSaleOngoing: (value: boolean) => void;
   handleIsGamePermanent: (value: boolean) => void;
   handleIsGameSuccess: (value: boolean) => void;
   handleIsGameFailed: (value: boolean) => void;
@@ -34,12 +36,12 @@ export type UseReadTempTokenGlobalStateType = {
   handleCurrentActiveTokenSymbol: (value: string) => void;
   handleCurrentActiveTokenTotalSupplyThreshold: (value: bigint) => void;
   handleCurrentActiveTokenHasHitTotalSupplyThreshold: (value: boolean) => void;
-  handleCurrentActiveTokenHighestTotalSupply: (value: bigint) => void;
   handleLastInactiveTokenAddress: (value: string) => void;
   handleLastInactiveTokenBalance: (value: bigint) => void;
   handleLastInactiveTokenSymbol: (value: string) => void;
   handleCurrentActiveTokenTotalSupply: (value: bigint) => void;
   handleCurrentActiveTokenIsAlwaysTradable: (value: boolean) => void;
+  handleCurrentActiveTokenPreSaleEndTimestamp: (value: bigint) => void;
 };
 
 export const useReadTempTokenGlobalStateInitial: UseReadTempTokenGlobalStateType =
@@ -51,8 +53,8 @@ export const useReadTempTokenGlobalStateInitial: UseReadTempTokenGlobalStateType
     currentActiveTokenHasHitTotalSupplyThreshold: false,
     currentActiveTokenTotalSupplyThreshold: BigInt(0),
     currentActiveTokenIsAlwaysTradable: false,
-    currentActiveTokenHighestTotalSupply: BigInt(0),
     currentActiveTokenCreationBlockNumber: BigInt(0),
+    currentActiveTokenPreSaleEndTimestamp: BigInt(0),
     lastInactiveTokenAddress: NULL_ADDRESS,
     lastInactiveTokenBalance: BigInt(0),
     lastInactiveTokenSymbol: "",
@@ -63,6 +65,8 @@ export const useReadTempTokenGlobalStateInitial: UseReadTempTokenGlobalStateType
     isSuccessGameState: false,
     isFailedGameState: false,
     canPlayToken: false,
+    isPreSaleOngoing: false,
+    handleIsPreSaleOngoing: () => undefined,
     handleIsGamePermanent: () => undefined,
     handleIsGameSuccess: () => undefined,
     handleIsGameFailed: () => undefined,
@@ -76,12 +80,12 @@ export const useReadTempTokenGlobalStateInitial: UseReadTempTokenGlobalStateType
     handleCurrentActiveTokenSymbol: () => undefined,
     handleCurrentActiveTokenTotalSupplyThreshold: () => undefined,
     handleCurrentActiveTokenHasHitTotalSupplyThreshold: () => undefined,
-    handleCurrentActiveTokenHighestTotalSupply: () => undefined,
     handleLastInactiveTokenAddress: () => undefined,
     handleLastInactiveTokenBalance: () => undefined,
     handleLastInactiveTokenSymbol: () => undefined,
     handleCurrentActiveTokenTotalSupply: () => undefined,
     handleCurrentActiveTokenIsAlwaysTradable: () => undefined,
+    handleCurrentActiveTokenPreSaleEndTimestamp: () => undefined,
   };
 
 export const useReadTempTokenGlobalState =
@@ -112,8 +116,8 @@ export const useReadTempTokenGlobalState =
       setCurrentActiveTokenIsAlwaysTradable,
     ] = useState<boolean>(false);
     const [
-      currentActiveTokenHighestTotalSupply,
-      setCurrentActiveTokenHighestTotalSupply,
+      currentActiveTokenPreSaleEndTimestamp,
+      setCurrentActiveTokenPreSaleEndTimestamp,
     ] = useState<bigint>(BigInt(0));
 
     const [lastInactiveTokenAddress, setLastInactiveTokenAddress] =
@@ -136,6 +140,7 @@ export const useReadTempTokenGlobalState =
       useState<boolean>(false); // when the token hits the total supply threshold
     const [isFailedGameState, setIsFailedGameState] = useState<boolean>(false); // when the token expires via countdown
     const [canPlayToken, setCanPlayToken] = useState(false);
+    const [isPreSaleOngoing, setIsPreSaleOngoing] = useState(false);
 
     const handleCanPlayToken = useCallback((value: boolean) => {
       setCanPlayToken(value);
@@ -209,13 +214,6 @@ export const useReadTempTokenGlobalState =
       []
     );
 
-    const handleCurrentActiveTokenHighestTotalSupply = useCallback(
-      (value: bigint) => {
-        setCurrentActiveTokenHighestTotalSupply(value);
-      },
-      []
-    );
-
     const handleLastInactiveTokenAddress = useCallback((value: string) => {
       setLastInactiveTokenAddress(value);
     }, []);
@@ -239,6 +237,17 @@ export const useReadTempTokenGlobalState =
       []
     );
 
+    const handleCurrentActiveTokenPreSaleEndTimestamp = useCallback(
+      (value: bigint) => {
+        setCurrentActiveTokenPreSaleEndTimestamp(value);
+      },
+      []
+    );
+
+    const handleIsPreSaleOngoing = useCallback((value: boolean) => {
+      setIsPreSaleOngoing(value);
+    }, []);
+
     return {
       currentActiveTokenSymbol,
       currentActiveTokenAddress,
@@ -247,8 +256,8 @@ export const useReadTempTokenGlobalState =
       currentActiveTokenHasHitTotalSupplyThreshold,
       currentActiveTokenTotalSupplyThreshold,
       currentActiveTokenIsAlwaysTradable,
-      currentActiveTokenHighestTotalSupply,
       currentActiveTokenCreationBlockNumber,
+      currentActiveTokenPreSaleEndTimestamp,
       lastInactiveTokenAddress,
       lastInactiveTokenBalance,
       lastInactiveTokenSymbol,
@@ -259,6 +268,8 @@ export const useReadTempTokenGlobalState =
       isSuccessGameState,
       isFailedGameState,
       canPlayToken,
+      isPreSaleOngoing,
+      handleIsPreSaleOngoing,
       handleIsGamePermanent,
       handleIsGameSuccess,
       handleIsGameFailed,
@@ -272,11 +283,11 @@ export const useReadTempTokenGlobalState =
       handleCurrentActiveTokenSymbol,
       handleCurrentActiveTokenTotalSupplyThreshold,
       handleCurrentActiveTokenHasHitTotalSupplyThreshold,
-      handleCurrentActiveTokenHighestTotalSupply,
       handleLastInactiveTokenAddress,
       handleLastInactiveTokenBalance,
       handleLastInactiveTokenSymbol,
       handleCurrentActiveTokenTotalSupply,
       handleCurrentActiveTokenIsAlwaysTradable,
+      handleCurrentActiveTokenPreSaleEndTimestamp,
     };
   };

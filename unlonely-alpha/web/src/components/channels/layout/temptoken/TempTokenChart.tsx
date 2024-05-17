@@ -17,7 +17,6 @@ import {
   blockNumberHoursAgo,
 } from "../../../../hooks/internal/useVibesCheck";
 import { useInterfaceChartMarkers } from "../../../../hooks/internal/temp-token/ui/useInterfaceChartMarkers";
-import { useTradeTempTokenState } from "../../../../hooks/internal/temp-token/write/useTradeTempTokenState";
 import { UseInterfaceChartDataType } from "../../../../hooks/internal/temp-token/ui/useInterfaceChartData";
 import { useTempTokenContext } from "../../../../hooks/context/useTempToken";
 import { formatUnits } from "viem";
@@ -53,11 +52,8 @@ export const TempTokenChart = ({
     gameState,
     tempTokenChartTimeIndexes,
     currentBlockNumberForTempTokenChart,
-    tempTokenTxs,
   } = tempToken;
   const {
-    currentActiveTokenAddress,
-    currentActiveTokenSymbol,
     currentActiveTokenHasHitTotalSupplyThreshold,
     currentActiveTokenTotalSupply,
     currentActiveTokenTotalSupplyThreshold,
@@ -69,12 +65,6 @@ export const TempTokenChart = ({
   const { matchingChain } = network;
 
   const [thresholdOn, setThresholdOn] = useState(true);
-
-  const tradeTempTokenState = useTradeTempTokenState({
-    tokenAddress: currentActiveTokenAddress,
-    tokenSymbol: currentActiveTokenSymbol,
-    tokenTxs: tempTokenTxs,
-  });
 
   const {
     CustomDot,
@@ -539,7 +529,7 @@ export const TempTokenChart = ({
               )}
             </Flex>
           </Flex>
-          <TempTokenExchange tradeTempTokenState={tradeTempTokenState} />
+          <TempTokenExchange />
         </Flex>
       )}
     </>

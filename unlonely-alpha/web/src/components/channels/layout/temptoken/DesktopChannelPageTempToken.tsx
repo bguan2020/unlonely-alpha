@@ -191,13 +191,6 @@ export const DesktopChannelPageTempToken = ({
     });
   };
 
-  console.log(
-    "loading",
-    loadingOnMount,
-    loadingCurrentOnMount,
-    loadingLastOnMount
-  );
-
   return (
     <>
       {channelSSR && <ChannelNextHead channel={channelSSR} />}

@@ -165,6 +165,12 @@
         "internalType": "uint256",
         "name": "creationBlockNumber",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "preSaleEndTimestamp",
+        "type": "uint256"
       }
     ],
     "name": "MultipleTempTokensCreated",
@@ -319,12 +325,6 @@
       },
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "protocolFeeDestination",
-        "type": "address"
-      },
-      {
-        "indexed": false,
         "internalType": "uint256",
         "name": "protocolFeePercent",
         "type": "uint256"
@@ -345,6 +345,12 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "creationBlockNumber",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "preSaleEndTimestamp",
         "type": "uint256"
       }
     ],
@@ -414,6 +420,11 @@
         "internalType": "uint256",
         "name": "totalSupplyThreshold",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "preSaleDuration",
+        "type": "uint256"
       }
     ],
     "name": "createMultipleTempTokens",
@@ -447,6 +458,11 @@
       {
         "internalType": "uint256",
         "name": "totalSupplyThreshold",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "preSaleDuration",
         "type": "uint256"
       }
     ],
@@ -573,6 +589,11 @@
         "internalType": "uint256",
         "name": "creationBlockNumber",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "preSaleEndTimestamp",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -646,6 +667,11 @@
           {
             "internalType": "uint256",
             "name": "creationBlockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "preSaleEndTimestamp",
             "type": "uint256"
           }
         ],
@@ -869,9 +895,14 @@
   {
     "inputs": [
       {
-        "internalType": "address[]",
-        "name": "_tokenAddresses",
-        "type": "address[]"
+        "internalType": "address",
+        "name": "_winningTokenAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_losingTokenAddress",
+        "type": "address"
       }
     ],
     "name": "setWinningTokenTradeableAndTransferLiquidity",

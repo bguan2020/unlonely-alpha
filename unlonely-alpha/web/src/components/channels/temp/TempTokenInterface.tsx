@@ -20,13 +20,13 @@ import { useCacheContext } from "../../../hooks/context/useCache";
 import { AblyChannelPromise, NULL_ADDRESS } from "../../../constants";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 import { useWindowSize } from "../../../hooks/internal/useWindowSize";
-import { SingleTempTokenTimerView } from "./TempTokenTimer";
 import { usePublicClient } from "wagmi";
 import { TempTokenDisclaimerModal } from "./TempTokenDisclaimerModal";
 import { useTempTokenContext } from "../../../hooks/context/useTempToken";
 import { TempTokenChart } from "../layout/temptoken/TempTokenChart";
 import { TempTokenCreationModal } from "./TempTokenCreationModal";
 import { SendRemainingFundsFromTokenModal } from "./SendRemainingFundsFromTokenModal";
+import { SingleTempTokenTimerView } from "./TempTokenTimerView";
 
 export const TempTokenInterface = ({
   customHeight,

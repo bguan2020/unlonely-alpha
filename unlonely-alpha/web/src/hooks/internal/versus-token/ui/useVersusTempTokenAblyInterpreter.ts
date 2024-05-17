@@ -31,6 +31,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
     handleIsGameFinishedModalOpen,
     handleWinningToken,
     handleLosingToken,
+    handleIsPreSaleOngoing,
     setTokenA,
     setTokenB,
     tokenA,
@@ -159,6 +160,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         const newTokenSymbols = JSON.parse(body.split(":")[3]);
         const chainId = Number(body.split(":")[4]);
         const newTokenCreationBlockNumber = BigInt(body.split(":")[5]);
+        const preSaleEndTimestamp = BigInt(body.split(":")[6]);
         handleRealTimeChannelDetails({
           isLive: true,
         });
@@ -178,7 +180,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           address: newTokenAddresses[0],
           totalSupply: BigInt(0),
           isAlwaysTradeable: false,
-          highestTotalSupply: BigInt(0),
+          preSaleEndTimestamp: preSaleEndTimestamp,
           contractData: {
             address: newTokenAddresses[0],
             chainId,
@@ -193,7 +195,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           address: newTokenAddresses[1],
           totalSupply: BigInt(0),
           isAlwaysTradeable: false,
-          highestTotalSupply: BigInt(0),
+          preSaleEndTimestamp: preSaleEndTimestamp,
           contractData: {
             address: newTokenAddresses[1],
             chainId,
@@ -202,6 +204,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           creationBlockNumber: newTokenCreationBlockNumber,
           endTimestamp: newEndTimestamp,
         });
+        handleIsPreSaleOngoing(Number(preSaleEndTimestamp) > Math.floor(Date.now() / 1000));
       }
       if (
         body.split(":")[0] === InteractionType.BUY_TEMP_TOKENS ||
@@ -214,9 +217,11 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         body.split(":")[0] ===
         InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY
       ) {
+        console.log("detected VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY", body)
         const transferredLiquidityInWei = BigInt(body.split(":")[4]);
         const winnerTokenType = body.split(":")[5];
         const maxNumTokens = Number(body.split(":")[6]);
+        const _winningToken = winnerTokenType === "a" ? tokenA : tokenB;
         const _losingToken = {
           ...((winnerTokenType === "a"
             ? tokenB
@@ -224,12 +229,13 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           transferredLiquidityOnExpiration: transferredLiquidityInWei,
         };
         if (winnerTokenType === "a") {
-          handleLosingToken(_losingToken);
           setTokenB(_losingToken);
         } else {
-          handleLosingToken(_losingToken);
+
           setTokenA(_losingToken);
         }
+        handleWinningToken(_winningToken);
+        handleLosingToken(_losingToken);
         handleOwnerMustMakeWinningTokenTradeable(false);
         handleOwnerMustPermamint(maxNumTokens);
       }

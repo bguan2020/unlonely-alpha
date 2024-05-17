@@ -11,6 +11,7 @@ import useUpdateTempTokenIsAlwaysTradeable from "../../../server/temp-token/useU
 import { useChannelContext } from "../../../context/useChannel";
 import { useUser } from "../../../context/useUser";
 import { calculateMaxWinnerTokensToMint } from "../../../../utils/calculateMaxWinnerTokensToMint";
+import { useCallback, useEffect, useState } from "react";
 
 export const useSetWinningTokenTradeableAndTransferLiquidityState = (
   callbackOnTxSuccess?: any
@@ -31,6 +32,10 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
     localNetwork
   );
 
+  const [isTokenATheWinner, setIsTokenATheWinner] = useState<
+    boolean | undefined
+  >(undefined);
+
   const { updateTempTokenTransferredLiquidityOnExpiration, loading } =
     useUpdateTempTokenTransferredLiquidityOnExpiration({});
 
@@ -45,7 +50,8 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
     isSetWinningTokenTradeableAndTransferLiquidityLoading,
   } = useSetWinningTokenTradeableAndTransferLiquidity(
     {
-      tokenAddresses: [tokenA.address, tokenB.address],
+      winningTokenAddress: isTokenATheWinner ? tokenA.address : tokenB.address,
+      losingTokenAddress: isTokenATheWinner ? tokenB.address : tokenA.address,
     },
     factoryContract,
     {
@@ -172,7 +178,12 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
             Number(transferredLiquidityInWei),
             Number(winnerTotalSupply)
           );
-
+        console.log(
+          "calculateMaxWinnerTokensToMint",
+          maxNumTokens,
+          transferredLiquidityInWei,
+          winnerTotalSupply
+        );
         if (lambdaError) {
           toast({
             render: () => (
@@ -237,9 +248,23 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
     }
   );
 
+  useEffect(() => {
+    if (isTokenATheWinner === undefined) return;
+    setWinningTokenTradeableAndTransferLiquidity?.();
+  }, [isTokenATheWinner, setWinningTokenTradeableAndTransferLiquidity]);
+
+  const callSetWinningTokenTradeableAndTransferLiquidity = useCallback(
+    (_isTokenATheWinner: boolean) => {
+      setIsTokenATheWinner(_isTokenATheWinner);
+    },
+    []
+  );
+
   return {
-    setWinningTokenTradeableAndTransferLiquidity,
+    callSetWinningTokenTradeableAndTransferLiquidity,
     refetchSetWinningTokenTradeableAndTransferLiquidity,
+    isFunctionAvailable:
+      setWinningTokenTradeableAndTransferLiquidity !== undefined,
     setWinningTokenTradeableAndTransferLiquidityData,
     setWinningTokenTradeableAndTransferLiquidityTxData,
     loading: loading || isSetWinningTokenTradeableAndTransferLiquidityLoading,

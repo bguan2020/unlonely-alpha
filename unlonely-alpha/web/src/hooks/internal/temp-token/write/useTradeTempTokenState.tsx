@@ -5,7 +5,12 @@ import {
 } from "../../../../constants/types";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 import { useMemo, useRef, useState, useCallback, useEffect } from "react";
-import { InteractionType, NULL_ADDRESS } from "../../../../constants";
+import {
+  InteractionType,
+  NULL_ADDRESS,
+  PRE_SALE_MAX_MINT_AMOUNT,
+  PRE_SALE_PRICE_PER_TOKEN,
+} from "../../../../constants";
 import { useNetworkContext } from "../../../context/useNetwork";
 import {
   useGetMintCostAfterFees,
@@ -57,10 +62,12 @@ export const useTradeTempTokenState = ({
   tokenAddress,
   tokenSymbol,
   tokenTxs,
+  isPreSaleOngoing,
 }: {
   tokenAddress: string;
   tokenSymbol: string;
   tokenTxs: TradeableTokenTx[];
+  isPreSaleOngoing: boolean;
 }): UseTradeTempTokenStateType => {
   const { walletIsConnected, userAddress, user } = useUser();
 
@@ -147,7 +154,9 @@ export const useTradeTempTokenState = ({
   } = useMint(
     {
       amount: amount_bigint,
-      value: mintCostAfterFees,
+      value: isPreSaleOngoing
+        ? BigInt(PRE_SALE_PRICE_PER_TOKEN * Number(amount_bigint))
+        : mintCostAfterFees,
     },
     tempTokenContract,
     {
@@ -424,11 +433,16 @@ export const useTradeTempTokenState = ({
     }
   );
 
-  const handleAmount = useCallback((event: any) => {
-    const input = event.target.value;
-    const filtered = filteredInput(input);
-    setAmount(filtered);
-  }, []);
+  const handleAmount = useCallback(
+    (event: any) => {
+      const input = event.target.value;
+      const filtered = filteredInput(input);
+      if (Number(filtered) > PRE_SALE_MAX_MINT_AMOUNT && isPreSaleOngoing)
+        return;
+      setAmount(filtered);
+    },
+    [isPreSaleOngoing]
+  );
 
   const handleAmountDirectly = useCallback((input: string) => {
     setAmount(input);

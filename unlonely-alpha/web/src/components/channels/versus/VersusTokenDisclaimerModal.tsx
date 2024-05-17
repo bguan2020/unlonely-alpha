@@ -12,18 +12,29 @@ export const VersusTokenDisclaimerModal = ({
   handleClose: () => void;
 }) => {
   const { gameState } = useVersusTempTokenContext();
-  const { tokenA, tokenB, handleCanPlayToken, handleIsGameFinished } =
-    gameState;
-  const { durationLeftForTempToken } = useTempTokenTimerState(
-    tokenA.endTimestamp,
-    () => {
+  const {
+    tokenA,
+    tokenB,
+    handleCanPlayToken,
+    handleIsGameFinished,
+    handleIsPreSaleOngoing,
+  } = gameState;
+  const { durationLeftForTempToken } = useTempTokenTimerState({
+    tokenEndTimestamp: tokenA.endTimestamp,
+    preSaleEndTimestamp: tokenA.preSaleEndTimestamp,
+    callbackOnExpiration: () => {
       handleCanPlayToken(false);
       handleIsGameFinished(true);
     },
-    true,
-    `The $${tokenA.symbol} and $${tokenB.symbol} tokens will expire in 5 minutes!`,
-    ""
-  );
+    callbackonPresaleEnd: () => {
+      handleIsPreSaleOngoing(false);
+    },
+    chatbotMessages: {
+      fiveMinuteWarningMessage: `The $${tokenA.symbol} and $${tokenB.symbol} tokens will expire in 5 minutes!`,
+      presaleOverMessage: `The presale for $${tokenA.symbol} and $${tokenB.symbol} has ended!`,
+      expirationMessage: "Game finished! Both tokens are now expired!",
+    },
+  });
 
   return (
     <TransactionModalTemplate
@@ -35,7 +46,7 @@ export const VersusTokenDisclaimerModal = ({
     >
       <Flex direction="column" gap="10px">
         <Flex direction="column" gap="10px">
-          {durationLeftForTempToken !== undefined && (
+          {typeof durationLeftForTempToken === "number" && (
             <Text
               textAlign="center"
               fontSize="1rem"

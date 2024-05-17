@@ -2,15 +2,13 @@ import { Flex, Text, Box, Button } from "@chakra-ui/react";
 import { ChatReturnType } from "../../hooks/chat/useChat";
 import MessageList from "./MessageList";
 import ChatForm from "./ChatForm";
-import {
-  SingleTempTokenTimerView,
-  VersusTempTokenTimerView,
-} from "../channels/temp/TempTokenTimer";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { EXCLUDED_SLUGS } from "./ChatComponent";
 import { useState } from "react";
 import Participants from "../presence/Participants";
 import { useChatBox } from "../../hooks/chat/useChatBox";
+import { SingleTempTokenTimerView } from "../channels/temp/TempTokenTimerView";
+import { VersusTempTokenTimerView } from "../channels/versus/VersusTokenTimerView";
 
 export const ChatWithTempTokenTimer = ({
   chat,

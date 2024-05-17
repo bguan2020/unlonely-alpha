@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
 
 /**
+    * @dev SaleState is an enum to check if the token is in the pre-sale or post-sale phase.
     * @dev factoryAddress is the address of the factory that deployed this token.
     * @dev protocolFeeDestination is the address where the protocol fees are sent.
     * @dev protocolFeePercent is the percentage of the protocol fee. ex: 2% = 2 * 10**16 = 20000000000000000
@@ -18,7 +19,13 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
            The goal of each TempToken is to have hit this threshold by the time the duration has expired.
            IT'S A GAME.
     * @dev hasHitTotalSupplyThreshold is a boolean to check if the total supply threshold has been hit.
+    * @dev highestTotalSupply is the highest total supply the token has reached.
+    * @dev creationBlockNumber is the block number when the token was created.
+    * @dev isAlwaysTradeable is a boolean to check if the token is always tradeable.
  */
+    enum SaleState { PRE_SALE, POST_SALE }
+
+    SaleState public saleState;
     address public factoryAddress;
     address public protocolFeeDestination;
     uint256 public protocolFeePercent;
@@ -29,6 +36,11 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     uint256 public creationBlockNumber;
     bool public hasHitTotalSupplyThreshold;
     bool public isAlwaysTradeable;
+
+    uint256 public constant PRE_SALE_PRICE_PER_TOKEN = 4 * 10**10; // wei per token
+    uint256 public constant PRE_SALE_MAX_MINT = 1000; // max tokens per transaction during PRE_SALE
+    uint256 public constant MAX_PRE_SALE_SUPPLY = 100_000; // max supply for PRE_SALE
+    uint256 public preSaleEndTimestamp; // tracks when the token sale ends
 
     event Mint(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 endTimestamp, bool hasHitTotalSupplyThreshold, uint256 highestTotalSupply);
     event Burn(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent);
@@ -41,7 +53,6 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     error InsufficientValue(uint256 minimumValue, uint256 value);
     error BurnAmountTooHigh(uint256 maximumAmount, uint256 amount);
     error EtherTransferFailed(address to, uint256 value);
-    // error ActionNotAllowed();
 
     /**
         * @dev activePhase modifier checks if the current block timestamp is less than or equal to the endTimestamp. 
@@ -70,7 +81,8 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         uint256 _streamerFeePercent,
         uint256 _totalSupplyThreshold,
         address _factoryAddress,
-        uint256 _creationBlockNumber
+        uint256 _creationBlockNumber,
+        uint256 _preSaleEndTimestamp
     ) ERC20(name, symbol) {
         require(_protocolFeeDestination != address(0), "Fee destination cannot be the zero address");
         
@@ -83,18 +95,32 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         hasHitTotalSupplyThreshold = false;
         isAlwaysTradeable = false;
         creationBlockNumber = _creationBlockNumber;
+        saleState = SaleState.PRE_SALE;
+        preSaleEndTimestamp = _preSaleEndTimestamp;
     }
 
     /**
         * @dev mint function allows users to mint tokens on the bonding curve. 
         * @param _amount is the amount of tokens to mint.
+        * During the presale, users can mint up to 1000 tokens per transaction a a fixed price per token.
+        * After the presale, users mint tokens at a price determined by the bonding curve.
         * If total supply threshold gets hit, extend the tokens lifespan by 24 hours.
      */
     function mint(uint256 _amount) external payable activePhase {
-        uint256 cost = mintCost(_amount);
-        uint256 protocolFee = cost * protocolFeePercent / 1 ether;
-        uint256 subjectFee = cost * streamerFeePercent / 1 ether;
-        uint256 totalCost = cost + protocolFee + subjectFee;
+        updateSaleState(); // Update state based on supply and time
+
+        uint256 totalCost;
+        uint256 protocolFee;
+        uint256 subjectFee;
+        if (saleState == SaleState.PRE_SALE) {
+            require(_amount <= PRE_SALE_MAX_MINT, "Exceeds max mint amount for PRE_SALE");
+            totalCost = _amount * PRE_SALE_PRICE_PER_TOKEN;
+        } else {
+            uint256 cost = mintCost(_amount);
+            protocolFee = cost * protocolFeePercent / 1 ether;
+            subjectFee = cost * streamerFeePercent / 1 ether;
+            totalCost = cost + protocolFee + subjectFee;
+        }
 
         if (msg.value < totalCost) {
             revert InsufficientValue(totalCost, msg.value);
@@ -132,14 +158,24 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         * @param _amount is the amount of tokens to burn.
      */
     function burn(uint256 _amount) external activePhase {
+        updateSaleState(); // Update state based on supply and time
+
         if (_amount > balanceOf(msg.sender)) {
             revert BurnAmountTooHigh(balanceOf(msg.sender), _amount);
         }
 
-        // Calculate refund before burn, to use the totalSupply before the burn
-        uint256 proceeds = burnProceeds(_amount);
-        uint256 protocolFee = proceeds * protocolFeePercent / 1 ether;
-        uint256 subjectFee = proceeds * streamerFeePercent / 1 ether;
+        uint256 proceeds;
+        uint256 protocolFee;
+        uint256 subjectFee;
+
+        if (saleState == SaleState.PRE_SALE) {
+            proceeds = _amount * PRE_SALE_PRICE_PER_TOKEN;
+        } else {
+            // Calculate refund before burn, to use the totalSupply before the burn
+            proceeds = burnProceeds(_amount);
+            protocolFee = proceeds * protocolFeePercent / 1 ether;
+            subjectFee = proceeds * streamerFeePercent / 1 ether;
+        }
 
         _burn(msg.sender, _amount);
 
@@ -282,6 +318,10 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         return block.timestamp < endTimestamp;
     }
 
+    function getIsPreSaleOver() public view returns (bool) {
+        return block.timestamp >= preSaleEndTimestamp;
+    }
+
     function getBalance() external view returns (uint256) {
         return address(this).balance;
     }
@@ -289,5 +329,11 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     // The price of *all* tokens from number 1 to n.
     function sumOfPriceToNTokens(uint256 n_) pure public returns (uint256) {
         return n_ * (n_ + 1) * (2 * n_ + 1) / 6;
+    }
+
+    function updateSaleState() internal {
+        if (saleState == SaleState.PRE_SALE && (totalSupply() >= MAX_PRE_SALE_SUPPLY || block.timestamp >= preSaleEndTimestamp)) {
+            saleState = SaleState.POST_SALE;
+        }
     }
 }

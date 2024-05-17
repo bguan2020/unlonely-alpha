@@ -5,6 +5,8 @@ import { NULL_ADDRESS, VersusTokenDataType } from "../../../../constants";
 export type UseReadVersusTempTokenGlobalStateType = {
   canPlayToken: boolean;
   handleCanPlayToken: (value: boolean) => void;
+  isPreSaleOngoing: boolean;
+  handleIsPreSaleOngoing: (value: boolean) => void;
   focusedTokenToTrade: ContractData | undefined;
   handleFocusedTokenToTrade: (value: ContractData | undefined) => void;
   winningToken: VersusTokenDataType;
@@ -33,7 +35,7 @@ const versusTokenDataInitial: VersusTokenDataType = {
   address: "",
   totalSupply: BigInt(0),
   isAlwaysTradeable: false,
-  highestTotalSupply: BigInt(0),
+  preSaleEndTimestamp: BigInt(0),
   contractData: {
     address: NULL_ADDRESS,
     chainId: 0,
@@ -47,6 +49,8 @@ export const useReadVersusTempTokenGlobalStateInitial: UseReadVersusTempTokenGlo
   {
     canPlayToken: false,
     handleCanPlayToken: () => undefined,
+    isPreSaleOngoing: false,
+    handleIsPreSaleOngoing: () => undefined,
     focusedTokenToTrade: undefined,
     handleFocusedTokenToTrade: () => undefined,
     winningToken: versusTokenDataInitial,
@@ -86,6 +90,7 @@ export const useReadVersusTempTokenGlobalState =
       ownerMustMakeWinningTokenTradeable,
       setOwnerMustMakeWinningTokenTradeable,
     ] = useState(false);
+    const [isPreSaleOngoing, setIsPreSaleOngoing] = useState(false);
     const [ownerMustPermamint, setOwnerMustPermamint] = useState<
       boolean | number
     >(false);
@@ -141,7 +146,13 @@ export const useReadVersusTempTokenGlobalState =
       setIsGameOngoing(value);
     }, []);
 
+    const handleIsPreSaleOngoing = useCallback((value: boolean) => {
+      setIsPreSaleOngoing(value);
+    }, []);
+
     return {
+      isPreSaleOngoing,
+      handleIsPreSaleOngoing,
       isGameOngoing,
       handleIsGameOngoing,
       canPlayToken,

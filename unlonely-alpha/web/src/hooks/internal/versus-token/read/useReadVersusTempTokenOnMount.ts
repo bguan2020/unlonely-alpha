@@ -70,11 +70,11 @@ export const useReadVersusTempTokenOnMount = ({
           const [
             endTimestampA,
             totalSupplyA,
-            highestTotalSupplyA,
+            preSaleEndTimestampA,
             isAlwaysTradeableA,
             endTimeStampB,
             totalSupplyB,
-            highestTotalSupplyB,
+            preSaleEndTimestampB,
             isAlwaysTradeableB,
           ] = await Promise.all([
             publicClient.readContract({
@@ -90,7 +90,7 @@ export const useReadVersusTempTokenOnMount = ({
             publicClient.readContract({
               address: _tokenA.tokenAddress as `0x${string}`,
               abi: TempTokenAbi,
-              functionName: "highestTotalSupply",
+              functionName: "preSaleEndTimestamp",
             }),
             publicClient.readContract({
               address: _tokenA.tokenAddress as `0x${string}`,
@@ -110,7 +110,7 @@ export const useReadVersusTempTokenOnMount = ({
             publicClient.readContract({
               address: _tokenB.tokenAddress as `0x${string}`,
               abi: TempTokenAbi,
-              functionName: "highestTotalSupply",
+              functionName: "preSaleEndTimestamp",
             }),
             publicClient.readContract({
               address: _tokenB.tokenAddress as `0x${string}`,
@@ -127,7 +127,7 @@ export const useReadVersusTempTokenOnMount = ({
             address: _tokenA.tokenAddress as `0x${string}`,
             totalSupply: BigInt(String(totalSupplyA)),
             isAlwaysTradeable: Boolean(isAlwaysTradeableA),
-            highestTotalSupply: BigInt(String(highestTotalSupplyA)),
+            preSaleEndTimestamp: BigInt(String(preSaleEndTimestampA)),
             contractData: {
               address: _tokenA.tokenAddress as `0x${string}`,
               chainId: localNetwork.config.chainId,
@@ -145,7 +145,7 @@ export const useReadVersusTempTokenOnMount = ({
             address: _tokenB.tokenAddress as `0x${string}`,
             totalSupply: BigInt(String(totalSupplyB)),
             isAlwaysTradeable: Boolean(isAlwaysTradeableB),
-            highestTotalSupply: BigInt(String(highestTotalSupplyB)),
+            preSaleEndTimestamp: BigInt(String(preSaleEndTimestampB)),
             contractData: {
               address: _tokenB.tokenAddress as `0x${string}`,
               chainId: localNetwork.config.chainId,

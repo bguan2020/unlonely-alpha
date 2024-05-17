@@ -60,12 +60,14 @@ export const VersusTokenCreationModal = ({
     newTokenASymbol,
     newTokenBName,
     newTokenBSymbol,
+    newPreSaleDuration,
     newDuration,
     createMultipleTempTokens,
     isCreateMultipleTempTokensLoading,
     handleTokenName,
     handleTokenSymbol,
     handleNewDuration,
+    handlePreSaleDuration,
   } = useCreateMultipleTempTokensState({ callbackOnTxSuccess: handleClose });
 
   return (
@@ -85,6 +87,27 @@ export const VersusTokenCreationModal = ({
         </Flex>
       ) : returnedIsLive === true ? (
         <Flex direction="column" gap="5px">
+          <Text>Token Symbol</Text>
+          <Flex gap="5px">
+            <Input
+              placeholder="token a symbol"
+              variant="redGlow"
+              value={newTokenASymbol}
+              onChange={(e) => {
+                handleTokenSymbol(alphanumericInput(e.target.value), "a");
+                handleTokenName(alphanumericInput(e.target.value), "a");
+              }}
+            />
+            <Input
+              placeholder="token b symbol"
+              variant="glow"
+              value={newTokenBSymbol}
+              onChange={(e) => {
+                handleTokenSymbol(alphanumericInput(e.target.value), "b");
+                handleTokenName(alphanumericInput(e.target.value), "b");
+              }}
+            />
+          </Flex>
           <Text>Token Names</Text>
           <Flex gap="5px">
             <Input
@@ -101,25 +124,6 @@ export const VersusTokenCreationModal = ({
               value={newTokenBName}
               onChange={(e) =>
                 handleTokenName(alphanumericInput(e.target.value), "b")
-              }
-            />
-          </Flex>
-          <Text>Token Symbol</Text>
-          <Flex gap="5px">
-            <Input
-              placeholder="token a symbol"
-              variant="redGlow"
-              value={newTokenASymbol}
-              onChange={(e) =>
-                handleTokenSymbol(alphanumericInput(e.target.value), "a")
-              }
-            />
-            <Input
-              placeholder="token b symbol"
-              variant="glow"
-              value={newTokenBSymbol}
-              onChange={(e) =>
-                handleTokenSymbol(alphanumericInput(e.target.value), "b")
               }
             />
           </Flex>
@@ -160,6 +164,45 @@ export const VersusTokenCreationModal = ({
               onClick={() => handleNewDuration(BigInt("1800"))}
             >
               30 mins
+            </Button>
+          </Flex>
+          <Text>Pre-sale Duration</Text>
+          <Flex gap="5px" justifyContent={"center"}>
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={newPreSaleDuration === BigInt("0") ? "#02d650" : "#ffffff"}
+              onClick={() => handlePreSaleDuration(BigInt("0"))}
+            >
+              0 mins
+            </Button>
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={newPreSaleDuration === BigInt("60") ? "#02d650" : "#ffffff"}
+              onClick={() => handlePreSaleDuration(BigInt("60"))}
+            >
+              1 mins
+            </Button>
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={newPreSaleDuration === BigInt("120") ? "#02d650" : "#ffffff"}
+              onClick={() => handlePreSaleDuration(BigInt("120"))}
+            >
+              2 mins
+            </Button>
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={newPreSaleDuration === BigInt("180") ? "#02d650" : "#ffffff"}
+              onClick={() => handlePreSaleDuration(BigInt("180"))}
+            >
+              3 mins
             </Button>
           </Flex>
           <Button

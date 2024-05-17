@@ -38,6 +38,8 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
     handleCurrentActiveTokenSymbol,
     handleCurrentActiveTokenTotalSupplyThreshold,
     handleCurrentActiveTokenHasHitTotalSupplyThreshold,
+    handleCurrentActiveTokenPreSaleEndTimestamp,
+    handleIsPreSaleOngoing,
   } = gameState;
 
   const mountingMessages = useRef(true);
@@ -99,7 +101,7 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           if (hasHitTotalSupplyThreshold) {
             onReachThresholdEvent(newEndTimestampForToken);
           }
-          onMintEvent(BigInt(totalSupply), BigInt(highestTotalSupply));
+          onMintEvent(BigInt(totalSupply));
         }
         if (interactionType === InteractionType.SELL_TEMP_TOKENS)
           onBurnEvent(BigInt(totalSupply));
@@ -140,6 +142,8 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         handleCurrentActiveTokenTotalSupplyThreshold(
           BigInt(body.split(":")[9])
         );
+        handleCurrentActiveTokenPreSaleEndTimestamp(BigInt(body.split(":")[10]));
+        handleIsPreSaleOngoing(Number(BigInt(body.split(":")[10])) > Math.floor(Date.now() / 1000));
       }
       if (
         body.split(":")[0] === InteractionType.BUY_TEMP_TOKENS ||

@@ -170,11 +170,14 @@ export const useReadTempTokenTxs = ({
       }
       fetching.current = true;
       const blockNumber = await baseClient.getBlockNumber();
-      await getTempTokenEvents(
-        tempTokenContract,
-        tokenCreationBlockNumber,
-        blockNumber
-      );
+      console.log("blockNumber", tokenCreationBlockNumber, blockNumber);
+      if (tokenCreationBlockNumber < blockNumber) {
+        await getTempTokenEvents(
+          tempTokenContract,
+          tokenCreationBlockNumber,
+          blockNumber
+        );
+      }
       fetching.current = false;
       setInitialTempTokenLoading(false);
     };

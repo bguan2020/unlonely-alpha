@@ -9,20 +9,22 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@chakra-ui/react";
-
-import { UseTradeTempTokenStateType } from "../../../hooks/internal/temp-token/write/useTradeTempTokenState";
 import { formatUnits } from "viem";
+
+import { useTradeTempTokenState } from "../../../hooks/internal/temp-token/write/useTradeTempTokenState";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { formatIncompleteNumber } from "../../../utils/validation/input";
 import { useTempTokenContext } from "../../../hooks/context/useTempToken";
+import { PRE_SALE_MAX_MINT_AMOUNT } from "../../../constants";
 
-export const TempTokenExchange = ({
-  tradeTempTokenState,
-}: {
-  tradeTempTokenState: UseTradeTempTokenStateType;
-}) => {
+export const TempTokenExchange = () => {
   const { tempToken } = useTempTokenContext();
-  const { userTempTokenBalance } = tempToken;
+  const { userTempTokenBalance, gameState, tempTokenTxs } = tempToken;
+  const {
+    isPreSaleOngoing,
+    currentActiveTokenAddress,
+    currentActiveTokenSymbol,
+  } = gameState;
 
   const {
     amount,
@@ -35,7 +37,12 @@ export const TempTokenExchange = ({
     burnProceedsAfterFees,
     burnProceedsAfterFeesLoading,
     errorMessage,
-  } = tradeTempTokenState;
+  } = useTradeTempTokenState({
+    tokenAddress: currentActiveTokenAddress,
+    tokenSymbol: currentActiveTokenSymbol,
+    tokenTxs: tempTokenTxs,
+    isPreSaleOngoing,
+  });
 
   return (
     <Flex direction="column" justifyContent={"center"} gap="10px">
@@ -69,7 +76,11 @@ export const TempTokenExchange = ({
                 bg: "#8884d8",
               }}
               onClick={() => {
-                handleAmountDirectly(userTempTokenBalance.toString());
+                handleAmountDirectly(
+                  isPreSaleOngoing
+                    ? String(PRE_SALE_MAX_MINT_AMOUNT)
+                    : userTempTokenBalance.toString()
+                );
               }}
             >
               max
@@ -122,7 +133,7 @@ export const TempTokenExchange = ({
           w="100%"
         >
           <Flex direction="column">
-            <Text>SELL</Text>
+            <Text>{"SELL"}</Text>
             <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
               {`(${truncateValue(
                 formatUnits(burnProceedsAfterFees, 18),

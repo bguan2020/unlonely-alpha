@@ -27,6 +27,7 @@ export type UseCreateTempTokenStateType = {
   newTokenSymbol: string;
   newTokenDuration: bigint;
   newTokenTotalSupplyThreshold: bigint;
+  newPreSaleDuration: bigint;
   createTempToken?: () => Promise<any>;
   createTempTokenData: any;
   createTempTokenTxData: any;
@@ -35,12 +36,14 @@ export type UseCreateTempTokenStateType = {
   handleNewTokenSymbol: (symbol: string) => void;
   handleNewTokenDuration: (duration: bigint) => void;
   handleNewTokenTotalSupplyThreshold: (totalSupplyThreshold: bigint) => void;
+  handlePreSaleDuration: (duration: bigint) => void;
 };
 
 export const useCreateTempTokenInitialState: UseCreateTempTokenStateType = {
   newTokenName: "temp",
   newTokenSymbol: "temp",
   newTokenDuration: BigInt(3600),
+  newPreSaleDuration: BigInt(60 * 2),
   newTokenTotalSupplyThreshold: MEDIUM_THRESHOLD,
   createTempToken: undefined,
   createTempTokenData: undefined,
@@ -50,6 +53,7 @@ export const useCreateTempTokenInitialState: UseCreateTempTokenStateType = {
   handleNewTokenSymbol: () => undefined,
   handleNewTokenDuration: () => undefined,
   handleNewTokenTotalSupplyThreshold: () => undefined,
+  handlePreSaleDuration: () => undefined,
 };
 
 export const useCreateTempTokenState = ({
@@ -68,6 +72,9 @@ export const useCreateTempTokenState = ({
   const [newTokenSymbol, setNewTokenSymbol] = useState<string>("");
   const [newTokenDuration, setNewTokenDuration] = useState<bigint>(
     BigInt(1800)
+  );
+  const [newPreSaleDuration, setNewPreSaleDuration] = useState<bigint>(
+    BigInt(60 * 2)
   );
   const [newTokenTotalSupplyThreshold, setNewTokenTotalSupplyThreshold] =
     useState<bigint>(MEDIUM_THRESHOLD);
@@ -97,6 +104,7 @@ export const useCreateTempTokenState = ({
       symbol: newTokenSymbol,
       duration: newTokenDuration,
       totalSupplyThreshold: newTokenTotalSupplyThreshold,
+      preSaleDuration: newPreSaleDuration,
     },
     factoryContract,
     {
@@ -199,6 +207,7 @@ export const useCreateTempTokenState = ({
           `${args.endTimestamp}`,
           `${String(args.creationBlockNumber)}`,
           `${String(args.totalSupplyThreshold)}`,
+          `${String(args.preSaleEndTimestamp)}`,
         ];
         addToChatbotForTempToken({
           username: user?.username ?? "",
@@ -275,6 +284,10 @@ export const useCreateTempTokenState = ({
               name: "_creationBlockNumber",
               type: "uint256",
             },
+            {
+              name: "_preSaleEndTimestamp",
+              type: "uint256",
+            },
           ],
           [
             args.name as string,
@@ -286,6 +299,7 @@ export const useCreateTempTokenState = ({
             args.totalSupplyThreshold as bigint,
             factoryContract.address as `0x${string}`,
             args.creationBlockNumber as bigint,
+            args.preSaleEndTimestamp as bigint,
           ]
         );
         await verifyTempTokenV1OnBase(
@@ -330,10 +344,15 @@ export const useCreateTempTokenState = ({
     []
   );
 
+  const handlePreSaleDuration = useCallback((duration: bigint) => {
+    setNewPreSaleDuration(duration);
+  }, []);
+
   return {
     newTokenName,
     newTokenSymbol,
     newTokenDuration,
+    newPreSaleDuration,
     newTokenTotalSupplyThreshold,
     createTempToken: _createTempToken,
     createTempTokenData,
@@ -343,5 +362,6 @@ export const useCreateTempTokenState = ({
     handleNewTokenSymbol,
     handleNewTokenDuration,
     handleNewTokenTotalSupplyThreshold,
+    handlePreSaleDuration,
   };
 };

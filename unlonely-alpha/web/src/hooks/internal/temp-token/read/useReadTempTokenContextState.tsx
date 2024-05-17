@@ -21,7 +21,7 @@ export type UseReadTempTokenContextStateType = {
   gameState: UseReadTempTokenGlobalStateType;
   currentTempTokenContract: ContractData;
   lastInactiveTempTokenContract: ContractData;
-  onMintEvent: (totalSupply: bigint, highestTotalSupply: bigint) => void;
+  onMintEvent: (totalSupply: bigint) => void;
   onBurnEvent: (totalSupply: bigint) => void;
   onReachThresholdEvent: (newEndTimestamp: bigint) => void;
   onSendRemainingFundsToWinnerEvent: (
@@ -95,15 +95,9 @@ export const useReadTempTokenContextState = () => {
   /**
    * functions to run when specific events are detected, not exposed outside of this hook,
    */
-  const onMintEvent = useCallback(
-    async (totalSupply: bigint, highestTotalSupply: bigint) => {
-      globalState.handleCurrentActiveTokenTotalSupply(totalSupply);
-      globalState.handleCurrentActiveTokenHighestTotalSupply(
-        highestTotalSupply
-      );
-    },
-    []
-  );
+  const onMintEvent = useCallback(async (totalSupply: bigint) => {
+    globalState.handleCurrentActiveTokenTotalSupply(totalSupply);
+  }, []);
 
   const onBurnEvent = useCallback(async (totalSupply: bigint) => {
     globalState.handleCurrentActiveTokenTotalSupply(totalSupply);
@@ -137,7 +131,6 @@ export const useReadTempTokenContextState = () => {
         globalState.handleCurrentActiveTokenHasHitTotalSupplyThreshold(false);
         globalState.handleCurrentActiveTokenTotalSupplyThreshold(BigInt(0));
         globalState.handleCurrentActiveTokenIsAlwaysTradable(false);
-        globalState.handleCurrentActiveTokenHighestTotalSupply(BigInt(0));
         globalState.handleCurrentActiveTokenCreationBlockNumber(BigInt(0));
       }
       if (

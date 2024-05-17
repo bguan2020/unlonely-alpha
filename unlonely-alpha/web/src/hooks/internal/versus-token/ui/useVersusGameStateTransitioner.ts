@@ -35,36 +35,10 @@ export const useVersusGameStateTransitioner = () => {
       let _losingToken: VersusTokenDataType | null = null;
       if (!tokenA.isAlwaysTradeable && !tokenB.isAlwaysTradeable) {
         /**
-         * if neither token is always tradeable, the token with the highest total supply wins,
-         * but only if the greater highest total supply of the two is greater than zero, because
-         * there is no winner between two non-tradeable tokens that have zero total supply
-         *
-         * in the case of a tie, tokenA is the default winner
+         * if neither token is always tradeable, the streamer must decide the winner, but only if at least 1 token has a non-zero supply
          */
-        if (
-          tokenA.totalSupply >= tokenB.totalSupply &&
-          tokenA.totalSupply > BigInt(0)
-        ) {
-          handleWinningToken(tokenA);
-          handleLosingToken(tokenB);
-          _winningToken = tokenA;
-          _losingToken = tokenB;
-        } else if (
-          tokenB.totalSupply > tokenA.totalSupply &&
-          tokenB.totalSupply > BigInt(0)
-        ) {
-          handleWinningToken(tokenB);
-          handleLosingToken(tokenA);
-          _winningToken = tokenB;
-          _losingToken = tokenA;
-        }
 
-        if (_winningToken !== null && _losingToken !== null) {
-          /**
-           * as long as we have a non-tradeable winning and non-tradeable losing token post game, the owner must call the
-           * setWinningTokenTradeableAndTransferLiquidity to make the winning token tradeable, even if the losing token
-           * does not have liquidity
-           */
+        if (tokenA.totalSupply > BigInt(0) || tokenB.totalSupply > BigInt(0)) {
           handleOwnerMustMakeWinningTokenTradeable(true);
           handleOwnerMustPermamint(false);
         } else {
@@ -80,16 +54,15 @@ export const useVersusGameStateTransitioner = () => {
          */
 
         if (tokenA.isAlwaysTradeable) {
-          handleWinningToken(tokenA);
-          handleLosingToken(tokenB);
           _winningToken = tokenA;
           _losingToken = tokenB;
         } else {
-          handleWinningToken(tokenB);
-          handleLosingToken(tokenA);
           _winningToken = tokenB;
           _losingToken = tokenA;
         }
+
+        handleWinningToken(_winningToken);
+        handleLosingToken(_losingToken);
 
         /**
          * double check losing balance because according to our factory smart contract, a token can be set tradeable through a separate function,

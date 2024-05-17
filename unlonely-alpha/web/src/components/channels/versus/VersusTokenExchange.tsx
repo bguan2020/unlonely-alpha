@@ -16,11 +16,12 @@ import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempT
 import { useTradeTempTokenState } from "../../../hooks/internal/temp-token/write/useTradeTempTokenState";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { formatIncompleteNumber } from "../../../utils/validation/input";
+import { PRE_SALE_MAX_MINT_AMOUNT } from "../../../constants";
 
 export const VersusTokenExchange = () => {
   const { gameState, tokenATxs, tokenBTxs } = useVersusTempTokenContext();
 
-  const { focusedTokenToTrade, tokenA, tokenB } = gameState;
+  const { focusedTokenToTrade, tokenA, tokenB, isPreSaleOngoing } = gameState;
 
   const focusedTokenData = useMemo(() => {
     if (
@@ -89,6 +90,7 @@ export const VersusTokenExchange = () => {
     tokenAddress: focusedTokenData.tokenAddress,
     tokenSymbol: focusedTokenData.tokenSymbol,
     tokenTxs: focusedTokenData.tokenTxs,
+    isPreSaleOngoing,
   });
 
   return (
@@ -132,11 +134,13 @@ export const VersusTokenExchange = () => {
                   }}
                   onClick={() => {
                     handleAmountDirectly(
-                      isAddress(tokenA.address) &&
-                        isAddressEqual(
-                          focusedTokenToTrade?.address as `0x${string}`,
-                          tokenA.address as `0x${string}`
-                        )
+                      isPreSaleOngoing
+                        ? String(PRE_SALE_MAX_MINT_AMOUNT)
+                        : isAddress(tokenA.address) &&
+                          isAddressEqual(
+                            focusedTokenToTrade?.address as `0x${string}`,
+                            tokenA.address as `0x${string}`
+                          )
                         ? tokenATxs.userTempTokenBalance.toString()
                         : isAddress(tokenB.address) &&
                           isAddressEqual(
@@ -237,7 +241,7 @@ export const VersusTokenExchange = () => {
           w="100%"
         >
           <Flex direction="column">
-            <Text>SELL</Text>
+            <Text>{"SELL"}</Text>
             <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
               {`(${truncateValue(
                 formatUnits(burnProceedsAfterFees, 18),

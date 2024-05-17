@@ -78,7 +78,7 @@ export const useReadTempTokenOnMount = ({
           const [
             endTimestamp,
             totalSupply,
-            highestTotalSupply,
+            preSaleEndTimestamp,
             totalSupplyThreshold,
             isAlwaysTradeable,
             hasHitTotalSupplyThreshold,
@@ -96,7 +96,7 @@ export const useReadTempTokenOnMount = ({
             publicClient.readContract({
               address: latestActiveToken.tokenAddress as `0x${string}`,
               abi: TempTokenAbi,
-              functionName: "highestTotalSupply",
+              functionName: "preSaleEndTimestamp",
             }),
             publicClient.readContract({
               address: latestActiveToken.tokenAddress as `0x${string}`,
@@ -132,8 +132,8 @@ export const useReadTempTokenOnMount = ({
           globalState.handleCurrentActiveTokenHasHitTotalSupplyThreshold(
             Boolean(hasHitTotalSupplyThreshold)
           );
-          globalState.handleCurrentActiveTokenHighestTotalSupply(
-            BigInt(String(highestTotalSupply))
+          globalState.handleCurrentActiveTokenPreSaleEndTimestamp(
+            BigInt(String(preSaleEndTimestamp))
           );
         }
       } catch (e) {

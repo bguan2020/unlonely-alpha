@@ -19,7 +19,6 @@ import {
 } from "@chakra-ui/react";
 import { AblyChannelPromise } from "../../../../constants";
 import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
-import { VersusTempTokenTimerView } from "../../temp/TempTokenTimer";
 import { useWindowSize } from "../../../../hooks/internal/useWindowSize";
 import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { VersusTempTokenChart } from "./VersusTempTokenChart";
@@ -27,15 +26,16 @@ import { useEffect, useState } from "react";
 import { VersusTokenCreationModal } from "../../versus/VersusTokenCreationModal";
 import { VersusTokenDisclaimerModal } from "../../versus/VersusTokenDisclaimerModal";
 import { isAddress, isAddressEqual } from "viem";
-import { VersusTokenGameFinishedModal } from "../../versus/VersusTokenGameFinishedModal";
 import { TransferLiquidityModule } from "./TransferLiquidityModule";
 import { PermamintModule } from "./PermamintModule";
 import centerEllipses from "../../../../utils/centerEllipses";
 import Link from "next/link";
 import { useNetworkContext } from "../../../../hooks/context/useNetwork";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { VersusTempTokenTimerView } from "../../versus/VersusTokenTimerView";
+import { TransactionModalTemplate } from "../../../transactions/TransactionModalTemplate";
 
-const steps = [{ title: "streamer must make winner token tradeable" }];
+const steps = [{ title: "streamer must select winner" }];
 
 export const VersusTempTokensInterface = ({
   customHeight,
@@ -116,11 +116,22 @@ export const VersusTempTokensInterface = ({
           isOpen={versusTempTokenDisclaimerModalOpen}
           handleClose={() => setVersusTempTokenDisclaimerModalOpen(false)}
         />
-        <VersusTokenGameFinishedModal
-          title={"Time's up"}
-          isOpen={isGameFinishedModalOpen && isAddress(winningToken.address)}
+        <TransactionModalTemplate
+          title={"Time's up!"}
+          isOpen={isGameFinishedModalOpen}
           handleClose={() => handleIsGameFinishedModalOpen(false)}
-        />
+          bg={"#18162F"}
+          hideFooter
+        >
+          <Text textAlign={"center"}>
+            The game is finished! The streamer will now decide the winner.
+          </Text>
+          <Flex justifyContent={"space-evenly"} gap="5px">
+            <Button onClick={() => handleIsGameFinishedModalOpen(false)}>
+              Continue
+            </Button>
+          </Flex>
+        </TransactionModalTemplate>
         <Flex justifyContent={"space-between"} alignItems={"center"} gap="10px">
           {!canPlayToken && (
             <Flex direction={"column"}>
@@ -205,9 +216,6 @@ export const VersusTempTokensInterface = ({
                     Create tokens
                   </Button>
                 )}
-              {!isGameOngoing && ownerMustMakeWinningTokenTradeable && (
-                <TransferLiquidityModule />
-              )}
             </>
           )}
           {!isGameOngoing &&
@@ -332,6 +340,9 @@ export const VersusTempTokensInterface = ({
           <Text>
             Cannot play when stream is offline, please refresh and try again
           </Text>
+        )}
+        {!isGameOngoing && ownerMustMakeWinningTokenTradeable && isOwner && (
+          <TransferLiquidityModule />
         )}
         {ownerMustMakeWinningTokenTradeable && (
           <Stepper orientation="vertical" index={0}>

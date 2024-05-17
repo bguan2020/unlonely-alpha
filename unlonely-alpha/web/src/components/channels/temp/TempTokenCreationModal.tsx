@@ -45,12 +45,14 @@ export const TempTokenCreationModal = ({
     newTokenName,
     newTokenSymbol,
     newTokenDuration,
+    newPreSaleDuration,
     newTokenTotalSupplyThreshold,
     isCreateTempTokenLoading,
     handleNewTokenName,
     handleNewTokenSymbol,
     handleNewTokenDuration,
     handleNewTokenTotalSupplyThreshold,
+    handlePreSaleDuration,
   } = useCreateTempTokenState({ callbackOnTxSuccess: handleClose });
 
   useEffect(() => {
@@ -93,22 +95,23 @@ export const TempTokenCreationModal = ({
         </Flex>
       ) : returnedIsLive === true ? (
         <Flex direction="column" gap="5px">
-          <Text>Name</Text>
+          <Text>Token Symbol</Text>
+          <Input
+            placeholder="token symbol"
+            variant="glow"
+            value={newTokenSymbol}
+            onChange={(e) => {
+              handleNewTokenSymbol(alphanumericInput(e.target.value));
+              handleNewTokenName(alphanumericInput(e.target.value));
+            }}
+          />
+          <Text>Token Name</Text>
           <Input
             placeholder="token name"
             variant="glow"
             value={newTokenName}
             onChange={(e) =>
               handleNewTokenName(alphanumericInput(e.target.value))
-            }
-          />
-          <Text>Symbol</Text>
-          <Input
-            placeholder="token symbol"
-            variant="glow"
-            value={newTokenSymbol}
-            onChange={(e) =>
-              handleNewTokenSymbol(alphanumericInput(e.target.value))
             }
           />
           <Text>Price goal difficulty</Text>
@@ -213,6 +216,45 @@ export const TempTokenCreationModal = ({
               onClick={() => handleNewTokenDuration(BigInt("1800"))}
             >
               30 mins
+            </Button>
+          </Flex>
+          <Text>Pre-sale Duration</Text>
+          <Flex gap="5px" justifyContent={"center"}>
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={newPreSaleDuration === BigInt("0") ? "#02d650" : "#ffffff"}
+              onClick={() => handlePreSaleDuration(BigInt("0"))}
+            >
+              0 mins
+            </Button>
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={newPreSaleDuration === BigInt("60") ? "#02d650" : "#ffffff"}
+              onClick={() => handlePreSaleDuration(BigInt("60"))}
+            >
+              1 mins
+            </Button>
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={newPreSaleDuration === BigInt("120") ? "#02d650" : "#ffffff"}
+              onClick={() => handlePreSaleDuration(BigInt("120"))}
+            >
+              2 mins
+            </Button>
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={newPreSaleDuration === BigInt("180") ? "#02d650" : "#ffffff"}
+              onClick={() => handlePreSaleDuration(BigInt("180"))}
+            >
+              3 mins
             </Button>
           </Flex>
           <Button

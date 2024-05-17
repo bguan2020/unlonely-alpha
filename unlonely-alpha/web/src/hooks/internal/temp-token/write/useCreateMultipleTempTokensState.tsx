@@ -24,6 +24,7 @@ export type UseCreateMultipleTempTokensState = {
   newTokenBName: string;
   newTokenBSymbol: string;
   newDuration: bigint;
+  newPreSaleDuration: bigint;
   createMultipleTempTokens?: () => Promise<any>;
   createMultipleTempTokensData: any;
   createMultipleTempTokensTxData: any;
@@ -31,6 +32,7 @@ export type UseCreateMultipleTempTokensState = {
   handleTokenName: (name: string, tokenType: "a" | "b") => void;
   handleTokenSymbol: (symbol: string, tokenType: "a" | "b") => void;
   handleNewDuration: (duration: bigint) => void;
+  handlePreSaleDuration: (duration: bigint) => void;
 };
 
 export const useCreateMultipleTempTokensInitialState: UseCreateMultipleTempTokensState =
@@ -40,6 +42,7 @@ export const useCreateMultipleTempTokensInitialState: UseCreateMultipleTempToken
     newTokenBName: "",
     newTokenBSymbol: "",
     newDuration: BigInt(3600),
+    newPreSaleDuration: BigInt(60 * 2),
     createMultipleTempTokens: undefined,
     createMultipleTempTokensData: undefined,
     createMultipleTempTokensTxData: undefined,
@@ -47,13 +50,14 @@ export const useCreateMultipleTempTokensInitialState: UseCreateMultipleTempToken
     handleTokenName: () => undefined,
     handleTokenSymbol: () => undefined,
     handleNewDuration: () => undefined,
+    handlePreSaleDuration: () => undefined,
   };
 
 export const useCreateMultipleTempTokensState = ({
   callbackOnTxSuccess,
 }: {
   callbackOnTxSuccess: () => void;
-}) => {
+}): UseCreateMultipleTempTokensState => {
   const { userAddress, user } = useUser();
   const { channel, chat } = useChannelContext();
   const { addToChatbot: addToChatbotForTempToken } = chat;
@@ -67,6 +71,9 @@ export const useCreateMultipleTempTokensState = ({
   const [newTokenBName, setNewTokenBName] = useState("");
   const [newTokenBSymbol, setNewTokenBSymbol] = useState("");
   const [newDuration, setNewDuration] = useState<bigint>(BigInt(1800));
+  const [newPreSaleDuration, setNewPreSaleDuration] = useState<bigint>(
+    BigInt(60 * 2)
+  );
 
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
@@ -95,6 +102,7 @@ export const useCreateMultipleTempTokensState = ({
       symbols: [newTokenASymbol, newTokenBSymbol],
       duration: newDuration,
       totalSupplyThreshold: BigInt(0),
+      preSaleDuration: newPreSaleDuration,
     },
     factoryContract,
     {
@@ -131,10 +139,6 @@ export const useCreateMultipleTempTokensState = ({
         canAddToChatbot_create.current = false;
       },
       onTxSuccess: async (data) => {
-        console.log(
-          "createMultipleTempTokens success 1",
-          canAddToChatbot_create.current
-        );
         if (!canAddToChatbot_create.current) return;
         const topics = decodeEventLog({
           abi: factoryContract.abi,
@@ -142,12 +146,13 @@ export const useCreateMultipleTempTokensState = ({
           topics: data.logs[data.logs.length - 1].topics,
         });
         const args: any = topics.args;
-        console.log("createMultipleTempTokens success 2", args, data);
+        console.log("createMultipleTempTokens success", args, data);
         const newEndTimestamp = args.endTimestamp as bigint;
         const newTokenAddresses = args.tokenAddresses as `0x${string}`[];
         const newTokenSymbols = args.symbols as string[];
         const newTokenNames = args.names as string[];
         const newTokenCreationBlockNumber = args.creationBlockNumber as bigint;
+        const preSaleEndTimestamp = args.preSaleEndTimestamp as bigint;
         await postTempToken({
           tokenAddress: newTokenAddresses[0],
           symbol: newTokenSymbols[0],
@@ -254,7 +259,9 @@ export const useCreateMultipleTempTokensState = ({
             newTokenAddresses
           )}:${JSON.stringify(newTokenSymbols)}:${String(
             localNetwork.config.chainId
-          )}:${String(newTokenCreationBlockNumber)}`,
+          )}:${String(newTokenCreationBlockNumber)}:${String(
+            preSaleEndTimestamp
+          )}`,
         });
         toast({
           render: () => (
@@ -324,6 +331,10 @@ export const useCreateMultipleTempTokensState = ({
               name: "_creationBlockNumber",
               type: "uint256",
             },
+            {
+              name: "_preSaleEndTimestamp",
+              type: "uint256",
+            },
           ],
           [
             newTokenNames[0] as string,
@@ -335,6 +346,7 @@ export const useCreateMultipleTempTokensState = ({
             args.totalSupplyThreshold as bigint,
             factoryContract.address as `0x${string}`,
             args.creationBlockNumber as bigint,
+            args.preSaleEndTimestamp as bigint,
           ]
         );
         await verifyTempTokenV1OnBase(
@@ -383,12 +395,17 @@ export const useCreateMultipleTempTokensState = ({
     setNewDuration(duration);
   }, []);
 
+  const handlePreSaleDuration = useCallback((duration: bigint) => {
+    setNewPreSaleDuration(duration);
+  }, []);
+
   return {
     newTokenAName,
     newTokenASymbol,
     newTokenBName,
     newTokenBSymbol,
     newDuration,
+    newPreSaleDuration,
     createMultipleTempTokens,
     createMultipleTempTokensData,
     createMultipleTempTokensTxData,
@@ -396,5 +413,6 @@ export const useCreateMultipleTempTokensState = ({
     handleTokenName,
     handleTokenSymbol,
     handleNewDuration,
+    handlePreSaleDuration,
   };
 };
