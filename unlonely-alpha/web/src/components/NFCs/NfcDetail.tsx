@@ -96,7 +96,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
@@ -117,7 +117,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               mint cancelled
@@ -142,7 +142,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
@@ -161,7 +161,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
               mint error

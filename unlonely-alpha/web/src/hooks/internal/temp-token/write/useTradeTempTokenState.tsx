@@ -175,7 +175,7 @@ export const useTradeTempTokenState = ({
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_mint.current = true;
       },
@@ -184,7 +184,7 @@ export const useTradeTempTokenState = ({
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               mint cancelled
@@ -209,7 +209,7 @@ export const useTradeTempTokenState = ({
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         if (channelQueryData) {
           const topics = decodeEventLog({
@@ -312,7 +312,7 @@ export const useTradeTempTokenState = ({
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_mint.current = false;
       },
@@ -345,7 +345,7 @@ export const useTradeTempTokenState = ({
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_burn.current = true;
       },
@@ -354,7 +354,7 @@ export const useTradeTempTokenState = ({
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               burn cancelled
@@ -379,7 +379,7 @@ export const useTradeTempTokenState = ({
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         const topics = decodeEventLog({
           abi: tempTokenContract.abi,
@@ -426,7 +426,7 @@ export const useTradeTempTokenState = ({
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_burn.current = false;
       },

@@ -68,7 +68,7 @@ export const useUpdateTotalSupplyThresholdState = (
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
@@ -76,7 +76,7 @@ export const useUpdateTotalSupplyThresholdState = (
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               setTotalSupplyThresholdForTokens cancelled
@@ -113,7 +113,7 @@ export const useUpdateTotalSupplyThresholdState = (
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onTxError: (error) => {
@@ -126,7 +126,7 @@ export const useUpdateTotalSupplyThresholdState = (
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
     }

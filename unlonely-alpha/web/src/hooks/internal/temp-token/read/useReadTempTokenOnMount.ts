@@ -166,15 +166,14 @@ export const useReadTempTokenOnMount = ({
         ) {
           const lastInactiveTokenWithBalance =
             nonNullListOfTokensWithNonZeroBalances[0];
-            const [
-              isAlwaysTradeable
-            ] = await Promise.all([
-              publicClient.readContract({
-                address: lastInactiveTokenWithBalance.tokenAddress as `0x${string}`,
-                abi: TempTokenAbi,
-                functionName: "isAlwaysTradeable",
-              })
-            ]);
+          const [isAlwaysTradeable] = await Promise.all([
+            publicClient.readContract({
+              address:
+                lastInactiveTokenWithBalance.tokenAddress as `0x${string}`,
+              abi: TempTokenAbi,
+              functionName: "isAlwaysTradeable",
+            }),
+          ]);
           if (!Boolean(isAlwaysTradeable)) {
             globalState.handleLastInactiveTokenAddress(
               lastInactiveTokenWithBalance.tokenAddress
@@ -185,7 +184,7 @@ export const useReadTempTokenOnMount = ({
             globalState.handleLastInactiveTokenBalance(
               BigInt(lastInactiveTokenWithBalance.balance)
             );
-          };
+          }
         }
         setLoadingLastOnMount(false);
       }

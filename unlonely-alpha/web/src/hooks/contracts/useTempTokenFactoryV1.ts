@@ -201,7 +201,13 @@ export const useCreateTempToken = (
   } = useWrite(
     contract,
     "createTempToken",
-    [args.name, args.symbol, args.duration, args.totalSupplyThreshold, args.preSaleDuration],
+    [
+      args.name,
+      args.symbol,
+      args.duration,
+      args.totalSupplyThreshold,
+      args.preSaleDuration,
+    ],
     createCallbackHandler("useTempTokenFactoryV1 createTempToken", callbacks),
     { enabled: args.name.length > 0 && args.symbol.length > 0 }
   );
@@ -233,7 +239,13 @@ export const useCreateMultipleTempTokens = (
   } = useWrite(
     contract,
     "createMultipleTempTokens",
-    [args.names, args.symbols, args.duration, args.totalSupplyThreshold, args.preSaleDuration],
+    [
+      args.names,
+      args.symbols,
+      args.duration,
+      args.totalSupplyThreshold,
+      args.preSaleDuration,
+    ],
     createCallbackHandler(
       "useTempTokenFactoryV1 createMultipleTempTokens",
       callbacks
@@ -251,8 +263,8 @@ export const useCreateMultipleTempTokens = (
 
 export const useSetWinningTokenTradeableAndTransferLiquidity = (
   args: {
-    winningTokenAddress: string,
-    losingTokenAddress: string,
+    winningTokenAddress: string;
+    losingTokenAddress: string;
   },
   contract: ContractData,
   callbacks?: WriteCallbacks

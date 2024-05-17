@@ -70,14 +70,14 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               transfer funds cancelled
@@ -107,7 +107,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         const winnerTokenAddress = args.winnerTokenAddress as `0x${string}`;
         const loserTokenAddress = args.loserTokenAddress as `0x${string}`;
@@ -127,7 +127,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
               ),
               duration: 9000,
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           })
           .catch((err) => {
@@ -140,7 +140,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
               ),
               duration: 9000,
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           });
         await updateTempTokenIsAlwaysTradeable({
@@ -157,7 +157,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
               ),
               duration: 9000,
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           })
           .catch((err) => {
@@ -170,7 +170,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
               ),
               duration: 9000,
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           });
         const { error: lambdaError, maxNumTokens } =
@@ -193,7 +193,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
             ),
             duration: 9000,
             isClosable: true,
-            position: "top-right",
+            position: "bottom", // chakra ui toast position
           });
         }
 
@@ -242,7 +242,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
     }

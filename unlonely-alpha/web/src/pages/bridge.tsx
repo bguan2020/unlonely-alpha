@@ -91,7 +91,7 @@ const BridgePage = () => {
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
@@ -110,7 +110,7 @@ const BridgePage = () => {
           toast({
             duration: 9000,
             isClosable: true,
-            position: "top-right",
+            position: "bottom", // chakra ui toast position
             render: () => (
               <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
                 <Link
@@ -133,7 +133,7 @@ const BridgePage = () => {
           toast({
             duration: 9000,
             isClosable: true,
-            position: "top-right",
+            position: "bottom", // chakra ui toast position
             render: () => (
               <Box as="button" borderRadius="md" bg="#FF0000" px={4} h={8}>
                 <Link

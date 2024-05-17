@@ -123,7 +123,7 @@ export const useCreateTempTokenState = ({
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_create.current = true;
       },
@@ -131,7 +131,7 @@ export const useCreateTempTokenState = ({
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               createTempToken cancelled
@@ -178,7 +178,7 @@ export const useCreateTempTokenState = ({
               ),
               duration: 9000,
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           })
           .catch((err) => {
@@ -191,7 +191,7 @@ export const useCreateTempTokenState = ({
               ),
               duration: 9000,
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           });
         const title = `${
@@ -230,7 +230,7 @@ export const useCreateTempTokenState = ({
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         // const res = await call({
         //   variables: {
@@ -318,7 +318,7 @@ export const useCreateTempTokenState = ({
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_create.current = false;
       },

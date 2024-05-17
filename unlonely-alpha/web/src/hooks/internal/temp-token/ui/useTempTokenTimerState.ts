@@ -10,28 +10,29 @@ export const useTempTokenTimerState = ({
   preSaleEndTimestamp,
   callbackOnExpiration,
   callbackonPresaleEnd,
-  chatbotMessages
-}:{
-  tokenEndTimestamp: bigint | undefined,
-  preSaleEndTimestamp: bigint,
-  callbackOnExpiration: () => void,
-  callbackonPresaleEnd: () => void,
+  chatbotMessages,
+}: {
+  tokenEndTimestamp: bigint | undefined;
+  preSaleEndTimestamp: bigint;
+  callbackOnExpiration: () => void;
+  callbackonPresaleEnd: () => void;
   chatbotMessages?: {
-    fiveMinuteWarningMessage: string,
-    presaleOverMessage: string
-  }
+    fiveMinuteWarningMessage: string;
+    presaleOverMessage: string;
+  };
 }) => {
   const { userAddress, user } = useUser();
   const { channel, chat } = useChannelContext();
   const { isOwner: isChannelOwner } = channel;
   const { addToChatbot: addToChatbotForTempToken } = chat;
-  const router = useRouter()
+  const router = useRouter();
 
   const [durationLeftForTempToken, setDurationLeftForTempToken] = useState<
     number | "over" | "inactive"
   >("inactive");
 
-  const [durationLeftForPreSale, setDurationLeftForPreSale] = useState<number>(0);
+  const [durationLeftForPreSale, setDurationLeftForPreSale] =
+    useState<number>(0);
   const [canCallExpiration, setCanCallExpiration] = useState<boolean>(false);
   const [canCallPresaleEnd, setCanCallPresaleEnd] = useState<boolean>(false);
 
@@ -81,7 +82,8 @@ export const useTempTokenTimerState = ({
       durationLeftForTempToken === 300 &&
       isChannelOwner &&
       chatbotMessages &&
-      chatbotMessages.fiveMinuteWarningMessage.length > 0 && router.pathname.startsWith("/channels")
+      chatbotMessages.fiveMinuteWarningMessage.length > 0 &&
+      router.pathname.startsWith("/channels")
     ) {
       const title = chatbotMessages.fiveMinuteWarningMessage;
       addToChatbotForTempToken({
@@ -93,16 +95,29 @@ export const useTempTokenTimerState = ({
       });
     }
     if (durationLeftForTempToken === "over" && canCallExpiration) {
-      console.log("useTempTokenTimerState", durationLeftForTempToken, canCallExpiration)
+      console.log(
+        "useTempTokenTimerState",
+        durationLeftForTempToken,
+        canCallExpiration
+      );
       callbackOnExpiration();
       setCanCallExpiration(false);
     }
-  }, [durationLeftForTempToken, isChannelOwner, chatbotMessages, router.pathname]);
+  }, [
+    durationLeftForTempToken,
+    isChannelOwner,
+    chatbotMessages,
+    router.pathname,
+  ]);
 
   useEffect(() => {
     if (durationLeftForPreSale === 0 && canCallPresaleEnd) {
-      if (isChannelOwner && chatbotMessages &&
-        chatbotMessages.presaleOverMessage.length > 0 && router.pathname.startsWith("/channels")) {
+      if (
+        isChannelOwner &&
+        chatbotMessages &&
+        chatbotMessages.presaleOverMessage.length > 0 &&
+        router.pathname.startsWith("/channels")
+      ) {
         const title = chatbotMessages.presaleOverMessage;
         addToChatbotForTempToken({
           username: user?.username ?? "",
@@ -120,7 +135,12 @@ export const useTempTokenTimerState = ({
       callbackonPresaleEnd();
       setCanCallPresaleEnd(false);
     }
-  }, [durationLeftForPreSale, isChannelOwner, chatbotMessages, router.pathname]);
+  }, [
+    durationLeftForPreSale,
+    isChannelOwner,
+    chatbotMessages,
+    router.pathname,
+  ]);
 
   return {
     durationLeftForTempToken,

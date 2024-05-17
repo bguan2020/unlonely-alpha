@@ -1,8 +1,12 @@
 import { Flex, Text } from "@chakra-ui/react";
 import { getTimeFromMillis } from "../../../utils/time";
-import { NULL_ADDRESS } from "../../../constants";
+import { InteractionType, NULL_ADDRESS } from "../../../constants";
 import { useTempTokenTimerState } from "../../../hooks/internal/temp-token/ui/useTempTokenTimerState";
 import { useTempTokenContext } from "../../../hooks/context/useTempToken";
+import { useCallback } from "react";
+import { useRouter } from "next/router";
+import { useChannelContext } from "../../../hooks/context/useChannel";
+import { useUser } from "../../../hooks/context/useUser";
 
 export const SingleTempTokenTimerView = ({
   disableChatbot,
@@ -11,12 +15,17 @@ export const SingleTempTokenTimerView = ({
   disableChatbot: boolean;
   fontSize?: number;
 }) => {
+  const { channel, chat } = useChannelContext();
+  const { isOwner } = channel;
+  const { addToChatbot: addToChatbotForTempToken } = chat;
+  const { user, userAddress } = useUser();
   const { tempToken } = useTempTokenContext();
   const { gameState } = tempToken;
+  const router = useRouter();
+
   const {
     currentActiveTokenIsAlwaysTradable,
     currentActiveTokenAddress,
-    currentActiveTokenSymbol,
     currentActiveTokenEndTimestamp,
     currentActiveTokenPreSaleEndTimestamp,
     handleIsGameFailed,
@@ -29,6 +38,7 @@ export const SingleTempTokenTimerView = ({
       tokenEndTimestamp: currentActiveTokenEndTimestamp,
       preSaleEndTimestamp: currentActiveTokenPreSaleEndTimestamp,
       callbackOnExpiration: () => {
+        onGameFinish();
         handleCanPlayToken(false);
         handleIsGameFailed(true);
         handleIsFailedGameModalOpen(true);
@@ -38,6 +48,18 @@ export const SingleTempTokenTimerView = ({
       },
       chatbotMessages: undefined,
     });
+
+  const onGameFinish = useCallback(() => {
+    if (isOwner && router.pathname.startsWith("/channels")) {
+      addToChatbotForTempToken({
+        username: user?.username ?? "",
+        address: userAddress ?? "",
+        taskType: InteractionType.TEMP_TOKEN_EXPIRED,
+        title: "Game finished! Token is now expired!",
+        description: "",
+      });
+    }
+  }, [isOwner, router.pathname]);
 
   return (
     <>

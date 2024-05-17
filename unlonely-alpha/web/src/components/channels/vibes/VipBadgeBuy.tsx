@@ -67,7 +67,7 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         callbacks?.callbackOnWriteSuccess?.(data);
       },
@@ -75,7 +75,7 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               {name} cancelled
@@ -99,7 +99,7 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         callbacks?.callbackOnTxSuccess?.(data);
       },
@@ -112,7 +112,7 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         callbacks?.callbackOnTxError?.(error);
       },

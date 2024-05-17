@@ -51,7 +51,7 @@ export const useUpdateTempTokenIsAlwaysTradeableState = (
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
@@ -59,7 +59,7 @@ export const useUpdateTempTokenIsAlwaysTradeableState = (
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               setAlwaysTradeableForTokens cancelled
@@ -95,7 +95,7 @@ export const useUpdateTempTokenIsAlwaysTradeableState = (
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onTxError: (error) => {
@@ -108,7 +108,7 @@ export const useUpdateTempTokenIsAlwaysTradeableState = (
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
     }

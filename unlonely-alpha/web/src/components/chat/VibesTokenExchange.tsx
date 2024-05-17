@@ -125,7 +125,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_mint.current = true;
       },
@@ -134,7 +134,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               mint cancelled
@@ -159,7 +159,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         if (channelQueryData) {
           const topics = decodeEventLog({
@@ -202,7 +202,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_mint.current = false;
       },
@@ -239,7 +239,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_burn.current = true;
       },
@@ -248,7 +248,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               burn cancelled
@@ -273,7 +273,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         const topics = decodeEventLog({
           abi: contract.abi,
@@ -314,7 +314,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_burn.current = false;
       },

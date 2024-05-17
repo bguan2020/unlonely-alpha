@@ -66,7 +66,7 @@ export const useUpdateEndTimestampForTokensState = (
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
@@ -74,7 +74,7 @@ export const useUpdateEndTimestampForTokensState = (
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               increaseEndTimestampForTokens cancelled
@@ -110,7 +110,7 @@ export const useUpdateEndTimestampForTokensState = (
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onTxError: (error) => {
@@ -123,7 +123,7 @@ export const useUpdateEndTimestampForTokensState = (
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
     }

@@ -1032,4 +1032,4 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     }
 }
 
-`
+`;

@@ -62,14 +62,14 @@ export const PermamintModule = () => {
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               mint winner tokens cancelled
@@ -102,7 +102,7 @@ export const PermamintModule = () => {
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
 
         let _winningToken = tokenA;
@@ -149,7 +149,7 @@ export const PermamintModule = () => {
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
     }

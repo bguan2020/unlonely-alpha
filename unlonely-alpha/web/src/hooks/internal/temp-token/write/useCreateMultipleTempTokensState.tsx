@@ -121,7 +121,7 @@ export const useCreateMultipleTempTokensState = ({
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_create.current = true;
       },
@@ -129,7 +129,7 @@ export const useCreateMultipleTempTokensState = ({
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               createMultipleTempTokens cancelled
@@ -180,7 +180,7 @@ export const useCreateMultipleTempTokensState = ({
               ),
               duration: 9000,
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           })
           .catch((err) => {
@@ -196,7 +196,7 @@ export const useCreateMultipleTempTokensState = ({
               ),
               duration: 9000,
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           });
         await postTempToken({
@@ -226,7 +226,7 @@ export const useCreateMultipleTempTokensState = ({
               ),
               duration: 9000,
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           })
           .catch((err) => {
@@ -242,7 +242,7 @@ export const useCreateMultipleTempTokensState = ({
               ),
               duration: 9000,
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           });
         const title = `${
@@ -277,7 +277,7 @@ export const useCreateMultipleTempTokensState = ({
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         // const res = await call({
         //   variables: {
@@ -368,7 +368,7 @@ export const useCreateMultipleTempTokensState = ({
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_create.current = false;
       },

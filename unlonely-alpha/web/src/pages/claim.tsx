@@ -235,14 +235,14 @@ const EventCard = ({
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               claimVotePayout cancelled
@@ -267,7 +267,7 @@ const EventCard = ({
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         const topics = decodeEventLog({
           abi: contractData.abi,
@@ -301,7 +301,7 @@ const EventCard = ({
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         setCalling(false);
       },

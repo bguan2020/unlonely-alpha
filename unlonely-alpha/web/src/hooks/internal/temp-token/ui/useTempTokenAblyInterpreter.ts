@@ -142,8 +142,12 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         handleCurrentActiveTokenTotalSupplyThreshold(
           BigInt(body.split(":")[9])
         );
-        handleCurrentActiveTokenPreSaleEndTimestamp(BigInt(body.split(":")[10]));
-        handleIsPreSaleOngoing(Number(BigInt(body.split(":")[10])) > Math.floor(Date.now() / 1000));
+        handleCurrentActiveTokenPreSaleEndTimestamp(
+          BigInt(body.split(":")[10])
+        );
+        handleIsPreSaleOngoing(
+          Number(BigInt(body.split(":")[10])) > Math.floor(Date.now() / 1000)
+        );
       }
       if (
         body.split(":")[0] === InteractionType.BUY_TEMP_TOKENS ||

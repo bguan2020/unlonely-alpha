@@ -85,14 +85,14 @@ export const useSendRemainingFundsToWinnerState = (
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         toast({
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               send remaining funds cancelled
@@ -125,7 +125,7 @@ export const useSendRemainingFundsToWinnerState = (
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         const identifiedUser: string = await client
           .query({
@@ -168,7 +168,7 @@ export const useSendRemainingFundsToWinnerState = (
           ),
           duration: 9000,
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
     }
