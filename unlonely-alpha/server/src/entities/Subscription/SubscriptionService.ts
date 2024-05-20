@@ -273,7 +273,7 @@ export const sendAllNotifications = async (
   );
 
   const subscriptions =
-    data.channelId === undefined
+    data.channelId === undefined || data.channelId === null
       ? await ctx.prisma.subscription.findMany({
           where: {
             softDelete: false,
@@ -300,7 +300,7 @@ export const sendAllNotifications = async (
           title: data.title,
           body: data.body,
           data: {
-            url: data.slug ? "/" : `/channels/${data.slug}`
+            url: data.slug ? `/channels/${data.slug}` : "/"
           },
         },
       };
