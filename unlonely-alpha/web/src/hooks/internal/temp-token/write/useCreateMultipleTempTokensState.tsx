@@ -1,5 +1,9 @@
 import { useCallback, useRef, useState } from "react";
-import { Contract, InteractionType } from "../../../../constants";
+import {
+  Contract,
+  InteractionType,
+  PRESALE_NOTIFICATION_URL_QUERY_PARAM,
+} from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { useCreateMultipleTempTokens } from "../../../contracts/useTempTokenFactoryV1";
@@ -280,20 +284,20 @@ export const useCreateMultipleTempTokensState = ({
           position: "bottom", // chakra ui toast position
         });
         if (Number(preSaleEndTimestamp) > Math.floor(Date.now() / 1000)) {
-          // const res = await call({
-          //   variables: {
-          //     data: {
-          //       title: `/${channel.channelQueryData?.slug} launched two new tokens!`,
-          //       body: "Claim 1000 tokens now!",
-          //       pathname: `/channels/${channel.channelQueryData?.slug}?{PRESALE_NOTIFICATION_URL_QUERY_PARAM}=true`,
-          //       channelId: undefined,
-          //     },
-          //   },
-          // });
-          // console.log(
-          //   "useCreateMutipleTempTokensState send all notifications:",
-          //   res
-          // );
+          const res = await call({
+            variables: {
+              data: {
+                title: `/${channel.channelQueryData?.slug} launched two new tokens!`,
+                body: "Claim 1000 tokens now!",
+                pathname: `/channels/${channel.channelQueryData?.slug}?${PRESALE_NOTIFICATION_URL_QUERY_PARAM}=true`,
+                channelId: undefined,
+              },
+            },
+          });
+          console.log(
+            "useCreateMutipleTempTokensState send all notifications:",
+            res
+          );
         }
         callbackOnTxSuccess();
         // wait for 5 seconds

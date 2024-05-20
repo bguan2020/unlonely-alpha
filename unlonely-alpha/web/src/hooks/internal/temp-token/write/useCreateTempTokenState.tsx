@@ -6,7 +6,11 @@ import { useNetworkContext } from "../../../context/useNetwork";
 import { useCreateTempToken } from "../../../contracts/useTempTokenFactoryV1";
 import { verifyTempTokenV1OnBase } from "../../../../utils/contract-verification/tempToken";
 import usePostTempToken from "../../../server/temp-token/usePostTempToken";
-import { Contract, InteractionType } from "../../../../constants";
+import {
+  Contract,
+  InteractionType,
+  PRESALE_NOTIFICATION_URL_QUERY_PARAM,
+} from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useChannelContext } from "../../../context/useChannel";
 import { useUser } from "../../../context/useUser";
@@ -233,17 +237,17 @@ export const useCreateTempTokenState = ({
           position: "bottom", // chakra ui toast position
         });
         if (Number(args.preSaleEndTimestamp) > Math.floor(Date.now() / 1000)) {
-          // const res = await call({
-          //   variables: {
-          //     data: {
-          //       title: `/${channel.channelQueryData?.slug} launched a new token!`,
-          //       body: "Claim 1000 tokens now!",
-          //       pathname: `/channels/${channel.channelQueryData?.slug}?{PRESALE_NOTIFICATION_URL_QUERY_PARAM}=true`,
-          //       channelId: undefined,
-          //     },
-          //   },
-          // });
-          // console.log("useCreateTempTokenState send all notifications:", res);
+          const res = await call({
+            variables: {
+              data: {
+                title: `/${channel.channelQueryData?.slug} launched a new token!`,
+                body: "Claim 1000 tokens now!",
+                pathname: `/channels/${channel.channelQueryData?.slug}?${PRESALE_NOTIFICATION_URL_QUERY_PARAM}=true`,
+                channelId: undefined,
+              },
+            },
+          });
+          console.log("useCreateTempTokenState send all notifications:", res);
         }
         callbackOnTxSuccess();
         // wait for 5 seconds
