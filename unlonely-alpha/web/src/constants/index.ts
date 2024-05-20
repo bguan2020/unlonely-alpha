@@ -103,6 +103,7 @@ export const MOBILE_VIDEO_VH = 25;
 
 export const NEW_STREAMER_URL_QUERY_PARAM = "new";
 export const STREAMER_MIGRATION_URL_QUERY_PARAM = "migrate";
+export const PRESALE_NOTIFICATION_URL_QUERY_PARAM = "presale";
 
 export const CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN = [
   "3",
@@ -121,12 +122,6 @@ export const CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN = [
   "127",
   "496",
   "688",
-];
-
-export const CAN_USE_VERSUS_MODE_SLUGS = [
-  // "danny",
-  "versus",
-  "brian",
 ];
 
 export type VersusTokenDataType = {

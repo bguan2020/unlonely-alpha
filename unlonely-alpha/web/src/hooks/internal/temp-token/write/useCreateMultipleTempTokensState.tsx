@@ -285,7 +285,7 @@ export const useCreateMultipleTempTokensState = ({
           //     data: {
           //       title: `/${channel.channelQueryData?.slug} launched two new tokens!`,
           //       body: "Claim 1000 tokens now!",
-          //       slug: `${channel.channelQueryData?.slug}`,
+          //       pathname: `/channels/${channel.channelQueryData?.slug}?{PRESALE_NOTIFICATION_URL_QUERY_PARAM}=true`,
           //       channelId: undefined,
           //     },
           //   },

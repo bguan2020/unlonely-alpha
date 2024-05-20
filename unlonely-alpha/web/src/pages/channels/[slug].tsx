@@ -58,13 +58,29 @@ const ChannelDetail = ({
           )}
         </>
       ) : (
-        <VibesProvider>
-          <MobilePage
-            channelSSR={channelSSR}
-            channelSSRDataLoading={channelDataLoading}
-            channelSSRDataError={channelDataError}
-          />
-        </VibesProvider>
+        <>
+          {CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN.includes(
+            channelSSR?.id ?? ""
+          ) ? (
+            <TempTokenProvider>
+              <VersusTempTokenProvider>
+                <MobilePage
+                  channelSSR={channelSSR}
+                  channelSSRDataLoading={channelDataLoading}
+                  channelSSRDataError={channelDataError}
+                />
+              </VersusTempTokenProvider>
+            </TempTokenProvider>
+          ) : (
+            <VibesProvider>
+              <MobilePage
+                channelSSR={channelSSR}
+                channelSSRDataLoading={channelDataLoading}
+                channelSSRDataError={channelDataError}
+              />
+            </VibesProvider>
+          )}
+        </>
       )}
     </ChannelProvider>
   );

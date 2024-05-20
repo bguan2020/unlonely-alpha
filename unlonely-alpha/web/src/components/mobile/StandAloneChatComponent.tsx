@@ -22,10 +22,24 @@ import useAddChannelToSubscription from "../../hooks/server/useAddChannelToSubsc
 import useRemoveChannelFromSubscription from "../../hooks/server/channel/useRemoveChannelFromSubscription";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import { TabsComponent } from "./TabsComponent";
+import { VersusTempTokensInterface } from "../channels/layout/versus/VersusTempTokensInterface";
+import { TempTokenInterface } from "../channels/temp/TempTokenInterface";
 
 export const EXCLUDED_SLUGS = ["loveonleverage"];
 
-const StandaloneChatComponent = ({ chat }: { chat: ChatReturnType }) => {
+const StandaloneChatComponent = ({
+  chat,
+  tokenStateView,
+  isGameOngoing,
+  channelStaticError,
+  channelStaticLoading,
+}: {
+  chat: ChatReturnType;
+  tokenStateView: "owner-choose" | "single" | "versus";
+  isGameOngoing: boolean;
+  channelStaticError?: any;
+  channelStaticLoading?: boolean;
+}) => {
   const { channel: channelContext, chat: chatInfo } = useChannelContext();
   const { channelQueryData } = channelContext;
   const { chatChannel } = chatInfo;
@@ -272,7 +286,23 @@ const StandaloneChatComponent = ({ chat }: { chat: ChatReturnType }) => {
           <InfoComponent />
         </Flex>
       )}
-      <TabsComponent chat={chat} />
+      {!isGameOngoing ? (
+        <TabsComponent chat={chat} />
+      ) : tokenStateView === "single" ? (
+        <TempTokenInterface
+          isFullChart
+          ablyChannel={chat.channel}
+          customLoading={channelStaticLoading}
+          noChannelData={channelStaticError !== undefined}
+        />
+      ) : (
+        <VersusTempTokensInterface
+          isFullChart
+          ablyChannel={chat.channel}
+          customLoading={channelStaticLoading}
+          noChannelData={channelStaticError !== undefined}
+        />
+      )}
     </Flex>
   );
 };

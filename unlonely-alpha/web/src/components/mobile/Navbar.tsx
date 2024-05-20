@@ -81,28 +81,6 @@ export const Navbar = () => {
         _focus={{}}
         _active={{}}
         onClick={() => {
-          router.push("/schedule");
-        }}
-      >
-        <Flex direction="column" alignItems="center">
-          <Image
-            src={`/svg/mobile/schedule-nav${
-              router.pathname.startsWith("/schedule") ? "-selected" : ""
-            }.svg`}
-            h="40px"
-          />
-          <Text fontFamily="LoRes15" fontWeight={"light"}>
-            schedule
-          </Text>
-        </Flex>
-      </Button>
-      <Button
-        color="white"
-        bg="transparent"
-        _hover={{}}
-        _focus={{}}
-        _active={{}}
-        onClick={() => {
           router.push("/profile");
         }}
       >

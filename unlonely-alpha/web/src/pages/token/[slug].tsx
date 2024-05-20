@@ -1,7 +1,7 @@
 import { Button, Flex } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect } from "react";
 
 import {
   ChannelProvider,
@@ -12,10 +12,7 @@ import AppLayout from "../../components/layout/AppLayout";
 import { ChannelStaticQuery } from "../../generated/graphql";
 import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
 import { TempTokenInterface } from "../../components/channels/temp/TempTokenInterface";
-import {
-  TempTokenProvider,
-  useTempTokenContext,
-} from "../../hooks/context/useTempToken";
+import { TempTokenProvider } from "../../hooks/context/useTempToken";
 import {
   VersusTempTokenProvider,
   useVersusTempTokenContext,
@@ -23,8 +20,8 @@ import {
 import { VersusTempTokensInterface } from "../../components/channels/layout/versus/VersusTempTokensInterface";
 import { useTempTokenAblyInterpreter } from "../../hooks/internal/temp-token/ui/useTempTokenAblyInterpreter";
 import { useVersusTempTokenAblyInterpreter } from "../../hooks/internal/versus-token/ui/useVersusTempTokenAblyInterpreter";
-import { NULL_ADDRESS } from "../../constants";
 import { calculateMaxWinnerTokensToMint } from "../../utils/calculateMaxWinnerTokensToMint";
+import { useIsGameOngoing } from "../../hooks/internal/temp-token/ui/useIsGameOngoing";
 
 const FullTempTokenChartPage = () => {
   return (
@@ -79,72 +76,19 @@ const FullTempTokenChart = ({
   const chat = useChat();
   const { channel } = useChannelContext();
   const { isOwner } = channel;
-  const { tempToken } = useTempTokenContext();
 
-  const { gameState, loadingCurrentOnMount, loadingLastOnMount } = tempToken;
-  const { currentActiveTokenAddress, lastInactiveTokenAddress } = gameState;
-  const { gameState: versusGameState, loadingOnMount } =
-    useVersusTempTokenContext();
+  const { gameState: versusGameState } = useVersusTempTokenContext();
   const {
-    isGameOngoing: isVersusGameOngoing,
     losingToken: losingVersusToken,
     winningToken: winningVersusToken,
     ownerMustPermamint,
-    ownerMustMakeWinningTokenTradeable,
     handleOwnerMustPermamint,
   } = versusGameState;
 
   useTempTokenAblyInterpreter(chat);
   useVersusTempTokenAblyInterpreter(chat);
-
-  const [ownerTokenStateView, setOwnerTokenStateView] = useState<
-    "single" | "versus"
-  >("versus");
-
-  const isVersusOnGoing = useMemo(() => {
-    return (
-      (isVersusGameOngoing ||
-        (typeof ownerMustPermamint === "number" && ownerMustPermamint > 0) ||
-        ownerMustMakeWinningTokenTradeable) &&
-      !loadingOnMount
-    );
-  }, [
-    isVersusGameOngoing,
-    ownerMustPermamint,
-    ownerMustMakeWinningTokenTradeable,
-    loadingOnMount,
-  ]);
-
-  const isSingleOnGoing = useMemo(() => {
-    return (
-      !loadingCurrentOnMount &&
-      (!loadingLastOnMount || !isOwner) &&
-      (currentActiveTokenAddress !== NULL_ADDRESS ||
-        lastInactiveTokenAddress !== NULL_ADDRESS)
-    );
-  }, [
-    loadingCurrentOnMount,
-    loadingLastOnMount,
-    currentActiveTokenAddress,
-    lastInactiveTokenAddress,
-    isOwner,
-  ]);
-
-  const isGameOngoing = useMemo(() => {
-    return isVersusOnGoing || isSingleOnGoing;
-  }, [isVersusOnGoing, isSingleOnGoing]);
-
-  useEffect(() => {
-    if (isVersusOnGoing || !isGameOngoing) {
-      setOwnerTokenStateView("versus");
-    }
-  }, [isVersusOnGoing, isGameOngoing]);
-
-  useEffect(() => {
-    if (isSingleOnGoing) {
-      setOwnerTokenStateView("single");
-    }
-  }, [isSingleOnGoing]);
+  const { isGameOngoing, tokenStateView, setTokenStateView } =
+    useIsGameOngoing();
 
   useEffect(() => {
     const init = async () => {
@@ -173,14 +117,14 @@ const FullTempTokenChart = ({
 
   return (
     <Flex h="100vh" justifyContent={"space-between"} bg="#131323" p="0.5rem">
-      {ownerTokenStateView === "single" ? (
+      {tokenStateView === "single" ? (
         <Flex direction="column" width="100%">
           {isOwner && !isGameOngoing && (
             <Button
               w="fit-content"
               h="20px"
               onClick={() => {
-                setOwnerTokenStateView("versus");
+                setTokenStateView("versus");
               }}
             >
               versus
@@ -200,7 +144,7 @@ const FullTempTokenChart = ({
               w="fit-content"
               h="20px"
               onClick={() => {
-                setOwnerTokenStateView("single");
+                setTokenStateView("single");
               }}
             >
               single

@@ -8,7 +8,7 @@ import { WavyText } from "../../general/WavyText";
 import AppLayout from "../../layout/AppLayout";
 import ChannelNextHead from "../../layout/ChannelNextHead";
 import ChannelStreamerPerspective from "./ChannelStreamerPerspective";
-import StandaloneAblyChatComponent from "../../mobile/StandAloneChatComponent";
+import StandaloneChatComponent from "../../mobile/StandAloneChatComponent";
 import { ChannelWideModals } from "../ChannelWideModals";
 import copy from "copy-to-clipboard";
 import trailString from "../../../utils/trailString";
@@ -16,6 +16,9 @@ import { useLivepeerStreamData } from "../../../hooks/internal/useLivepeerStream
 import { useVipBadgeUi } from "../../../hooks/internal/useVipBadgeUi";
 import { formatApolloError } from "../../../utils/errorFormatting";
 import StreamComponent from "../../stream/StreamComponent";
+import { useIsGameOngoing } from "../../../hooks/internal/temp-token/ui/useIsGameOngoing";
+import { useTempTokenAblyInterpreter } from "../../../hooks/internal/temp-token/ui/useTempTokenAblyInterpreter";
+import { useVersusTempTokenAblyInterpreter } from "../../../hooks/internal/versus-token/ui/useVersusTempTokenAblyInterpreter";
 
 export const MobilePage = ({
   channelSSR,
@@ -37,6 +40,10 @@ export const MobilePage = ({
   const { livepeerData, playbackInfo } = useLivepeerStreamData();
   const chat = useChat();
   useVipBadgeUi(chat);
+  useTempTokenAblyInterpreter(chat);
+  useVersusTempTokenAblyInterpreter(chat);
+  const { isGameOngoing, tokenStateView, setTokenStateView } =
+    useIsGameOngoing();
 
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
@@ -100,7 +107,13 @@ export const MobilePage = ({
                 </Flex>
               </Stack>
             )}
-            <StandaloneAblyChatComponent chat={chat} />
+            <StandaloneChatComponent
+              chat={chat}
+              tokenStateView={tokenStateView}
+              isGameOngoing={isGameOngoing}
+              channelStaticError={channelSSRDataLoading}
+              channelStaticLoading={channelSSRDataError}
+            />
           </>
         ) : (
           <Flex

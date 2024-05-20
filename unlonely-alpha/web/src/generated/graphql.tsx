@@ -1116,7 +1116,7 @@ export type QuerySendAllNotificationsArgs = {
 export type SendAllNotificationsInput = {
   body: Scalars["String"];
   channelId?: InputMaybe<Scalars["ID"]>;
-  slug?: InputMaybe<Scalars["String"]>;
+  pathname?: InputMaybe<Scalars["String"]>;
   title: Scalars["String"];
 };
 

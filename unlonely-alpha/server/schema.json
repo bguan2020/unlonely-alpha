@@ -9648,7 +9648,7 @@
             "deprecationReason": null
           },
           {
-            "name": "slug",
+            "name": "pathname",
             "description": null,
             "type": {
               "kind": "SCALAR",

@@ -217,7 +217,7 @@ export const getSubscriptionsByChannelId = async (
 export interface ISendAllNotificationsInput {
   title: string;
   body: string;
-  slug?: string;
+  pathname?: string;
   channelId?: number;
 }
 
@@ -300,7 +300,7 @@ export const sendAllNotifications = async (
           title: data.title,
           body: data.body,
           data: {
-            url: data.slug ? `/channels/${data.slug}` : "/"
+            url: data.pathname ? data.pathname : "/"
           },
         },
       };

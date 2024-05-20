@@ -8,6 +8,7 @@ import {
   PopoverArrow,
   PopoverContent,
   PopoverTrigger,
+  Spinner,
 } from "@chakra-ui/react";
 import { formatUnits } from "viem";
 
@@ -15,16 +16,28 @@ import { useTradeTempTokenState } from "../../../hooks/internal/temp-token/write
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { formatIncompleteNumber } from "../../../utils/validation/input";
 import { useTempTokenContext } from "../../../hooks/context/useTempToken";
-import { PRE_SALE_MAX_MINT_AMOUNT } from "../../../constants";
+import {
+  PRESALE_NOTIFICATION_URL_QUERY_PARAM,
+  PRE_SALE_MAX_MINT_AMOUNT,
+} from "../../../constants";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 
 export const TempTokenExchange = () => {
   const { tempToken } = useTempTokenContext();
-  const { userTempTokenBalance, gameState, tempTokenTxs } = tempToken;
+  const {
+    userTempTokenBalance,
+    gameState,
+    tempTokenTxs,
+    loadingCurrentOnMount,
+  } = tempToken;
   const {
     isPreSaleOngoing,
     currentActiveTokenAddress,
     currentActiveTokenSymbol,
   } = gameState;
+  const router = useRouter();
 
   const {
     amount,
@@ -44,9 +57,63 @@ export const TempTokenExchange = () => {
     isPreSaleOngoing,
   });
 
+  const [claimedPreSaleTokens, setClaimedPreSaleTokens] =
+    useState<boolean>(false);
+  const [presaleWelcomeModalOpen, setPresaleWelcomeModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (router.query[PRESALE_NOTIFICATION_URL_QUERY_PARAM]) {
+      setPresaleWelcomeModalOpen(true);
+      const newPath = router.pathname;
+      const newQuery = { ...router.query };
+      delete newQuery[PRESALE_NOTIFICATION_URL_QUERY_PARAM];
+
+      router.replace(
+        {
+          pathname: newPath,
+          query: newQuery,
+        },
+        undefined,
+        { shallow: true }
+      );
+    }
+  }, [router]);
+
   return (
     <Flex direction="column" justifyContent={"center"} gap="10px">
-      <Flex position="relative" gap="5px" alignItems={"center"}>
+      <TransactionModalTemplate
+        isOpen={presaleWelcomeModalOpen}
+        handleClose={() => setPresaleWelcomeModalOpen(false)}
+        cannotClose={loadingCurrentOnMount}
+      >
+        {loadingCurrentOnMount ? (
+          <Flex justifyContent="center">
+            <Spinner />
+          </Flex>
+        ) : isPreSaleOngoing ? (
+          <Flex direction="column">
+            <Text>hurray!</Text>
+            <Text>
+              you made it here early enough to claim 1000 tokens. make sure your
+              wallet is connected before time runs out
+            </Text>
+          </Flex>
+        ) : (
+          <Flex direction="column">
+            <Text>too late, but...</Text>
+            <Text>you can still join this game!</Text>
+            <Text>
+              come early next time a token launches to claim your tokens!
+            </Text>
+          </Flex>
+        )}
+      </TransactionModalTemplate>
+      <Flex
+        position="relative"
+        gap="5px"
+        alignItems={"center"}
+        opacity={isPreSaleOngoing ? 0 : 1}
+      >
         <ChakraTooltip
           label={errorMessage}
           placement="bottom-start"
@@ -89,9 +156,7 @@ export const TempTokenExchange = () => {
           <PopoverContent bg="#6c3daf" border="none" width="100%" p="2px">
             <PopoverArrow bg="#6c3daf" />
             <Text fontSize="12px" textAlign={"center"}>
-              {isPreSaleOngoing
-                ? "click to claim 1000 tokens"
-                : "click to show max temp tokens u currently own"}
+              click to show max temp tokens u currently own
             </Text>
           </PopoverContent>
         </Popover>
@@ -102,22 +167,46 @@ export const TempTokenExchange = () => {
           _focus={{}}
           _hover={{}}
           _active={{}}
-          bg="#46a800"
+          bg={isPreSaleOngoing ? "#00a862" : "#46a800"}
           isDisabled={
+            (isPreSaleOngoing && claimedPreSaleTokens) ||
             !mint ||
             mintCostAfterFeesLoading ||
             Number(formatIncompleteNumber(amount)) <= 0
           }
-          onClick={mint}
+          onClick={async () => {
+            await mint?.().then(() => {
+              if (isPreSaleOngoing) {
+                setClaimedPreSaleTokens(true);
+              }
+            });
+          }}
           p={"0px"}
           w="100%"
         >
-          <Flex direction="column">
-            <Text>BUY</Text>
-            <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
-              {`(${truncateValue(formatUnits(mintCostAfterFees, 18), 4)} ETH)`}
-            </Text>
-          </Flex>
+          {!isPreSaleOngoing ? (
+            <Flex direction="column">
+              <Text>BUY</Text>
+              <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
+                {`(${truncateValue(
+                  formatUnits(mintCostAfterFees, 18),
+                  4
+                )} ETH)`}
+              </Text>
+            </Flex>
+          ) : claimedPreSaleTokens ? (
+            <Text>CLAIMED</Text>
+          ) : (
+            <Flex direction="column">
+              <Text>CLAIM</Text>
+              <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
+                {`(${truncateValue(
+                  formatUnits(mintCostAfterFees, 18),
+                  4
+                )} ETH)`}
+              </Text>
+            </Flex>
+          )}
         </Button>
         <Button
           color="white"
@@ -133,6 +222,7 @@ export const TempTokenExchange = () => {
           onClick={burn}
           p={undefined}
           w="100%"
+          opacity={isPreSaleOngoing ? 0 : 1}
         >
           <Flex direction="column">
             <Text>{"SELL"}</Text>

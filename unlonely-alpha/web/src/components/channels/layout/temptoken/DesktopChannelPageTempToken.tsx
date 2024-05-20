@@ -1,6 +1,6 @@
 import { ApolloError } from "@apollo/client";
 import { ChannelStaticQuery } from "../../../../generated/graphql";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useChat } from "../../../../hooks/chat/useChat";
 import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { useUser } from "../../../../hooks/context/useUser";
@@ -33,9 +33,9 @@ import { useTempTokenAblyInterpreter } from "../../../../hooks/internal/temp-tok
 import { TempTokenInterface } from "../../temp/TempTokenInterface";
 import { useVersusTempTokenAblyInterpreter } from "../../../../hooks/internal/versus-token/ui/useVersusTempTokenAblyInterpreter";
 import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
-import { NULL_ADDRESS } from "../../../../constants";
 import { VersusTempTokensInterface } from "../versus/VersusTempTokensInterface";
 import { calculateMaxWinnerTokensToMint } from "../../../../utils/calculateMaxWinnerTokensToMint";
+import { useIsGameOngoing } from "../../../../hooks/internal/temp-token/ui/useIsGameOngoing";
 
 export const DesktopChannelPageTempToken = ({
   channelSSR,
@@ -59,12 +59,8 @@ export const DesktopChannelPageTempToken = ({
   const { tempToken } = useTempTokenContext();
 
   const { gameState, loadingCurrentOnMount, loadingLastOnMount } = tempToken;
-  const {
-    currentActiveTokenEndTimestamp,
-    canPlayToken: canPlayTempToken,
-    currentActiveTokenAddress,
-    lastInactiveTokenAddress,
-  } = gameState;
+  const { currentActiveTokenEndTimestamp, canPlayToken: canPlayTempToken } =
+    gameState;
   const { gameState: versusGameState, loadingOnMount } =
     useVersusTempTokenContext();
   const {
@@ -74,7 +70,6 @@ export const DesktopChannelPageTempToken = ({
     losingToken: losingVersusToken,
     winningToken: winningVersusToken,
     ownerMustPermamint,
-    ownerMustMakeWinningTokenTradeable,
     handleOwnerMustPermamint,
   } = versusGameState;
 
@@ -83,65 +78,12 @@ export const DesktopChannelPageTempToken = ({
   useVipBadgeUi(chat);
   useTempTokenAblyInterpreter(chat);
   useVersusTempTokenAblyInterpreter(chat);
-
-  const [ownerTokenStateView, setOwnerTokenStateView] = useState<
-    "choose" | "single" | "versus"
-  >("choose");
-
-  const isVersusOnGoing = useMemo(() => {
-    return (
-      (isVersusGameOngoing ||
-        (typeof ownerMustPermamint === "number" && ownerMustPermamint > 0) ||
-        ownerMustMakeWinningTokenTradeable) &&
-      !loadingOnMount
-    );
-  }, [
-    isVersusGameOngoing,
-    ownerMustPermamint,
-    ownerMustMakeWinningTokenTradeable,
-    loadingOnMount,
-  ]);
-
-  const isSingleOnGoing = useMemo(() => {
-    return (
-      !loadingCurrentOnMount &&
-      (!loadingLastOnMount || !isOwner) &&
-      (currentActiveTokenAddress !== NULL_ADDRESS ||
-        lastInactiveTokenAddress !== NULL_ADDRESS)
-    );
-  }, [
-    loadingCurrentOnMount,
-    loadingLastOnMount,
-    currentActiveTokenAddress,
-    lastInactiveTokenAddress,
-    isOwner,
-  ]);
-
-  const isGameOngoing = useMemo(() => {
-    return isVersusOnGoing || isSingleOnGoing;
-  }, [isVersusOnGoing, isSingleOnGoing]);
+  const { isGameOngoing, tokenStateView, setTokenStateView } =
+    useIsGameOngoing();
 
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
   }, [channelSSR]);
-
-  useEffect(() => {
-    if (isVersusOnGoing) {
-      setOwnerTokenStateView("versus");
-    }
-  }, [isVersusOnGoing]);
-
-  useEffect(() => {
-    if (isSingleOnGoing) {
-      setOwnerTokenStateView("single");
-    }
-  }, [isSingleOnGoing]);
-
-  useEffect(() => {
-    if (!isGameOngoing) {
-      setOwnerTokenStateView("choose");
-    }
-  }, [isGameOngoing]);
 
   const canShowInterface = useMemo(() => {
     return (
@@ -176,7 +118,7 @@ export const DesktopChannelPageTempToken = ({
           }
         }
       } else {
-        handleOwnerMustPermamint(false);
+        false;
       }
     };
     init();
@@ -259,7 +201,7 @@ export const DesktopChannelPageTempToken = ({
                   />
                 )}
               </Flex>
-              {isOwner && ownerTokenStateView === "choose" ? (
+              {isOwner && tokenStateView === "owner-choose" ? (
                 <Flex
                   direction="column"
                   minW={["100%", "100%", "380px", "380px"]}
@@ -290,7 +232,7 @@ export const DesktopChannelPageTempToken = ({
                           _hover={{ bg: "#1f1f3c" }}
                           _focus={{}}
                           _active={{}}
-                          onClick={() => setOwnerTokenStateView("single")}
+                          onClick={() => setTokenStateView("single")}
                         >
                           30 minute token
                         </MenuItem>
@@ -299,7 +241,7 @@ export const DesktopChannelPageTempToken = ({
                           _hover={{ bg: "#1f1f3c" }}
                           _focus={{}}
                           _active={{}}
-                          onClick={() => setOwnerTokenStateView("versus")}
+                          onClick={() => setTokenStateView("versus")}
                         >
                           versus token
                         </MenuItem>
@@ -312,7 +254,7 @@ export const DesktopChannelPageTempToken = ({
                     tokenForTransfer="tempToken"
                   />
                 </Flex>
-              ) : ownerTokenStateView === "single" ? (
+              ) : tokenStateView === "single" ? (
                 <>
                   {canPlayTempToken ? (
                     <Flex
@@ -339,7 +281,7 @@ export const DesktopChannelPageTempToken = ({
                             w="fit-content"
                             h="20px"
                             onClick={() => {
-                              setOwnerTokenStateView("versus");
+                              setTokenStateView("versus");
                             }}
                           >
                             versus
@@ -392,7 +334,7 @@ export const DesktopChannelPageTempToken = ({
                             w="fit-content"
                             h="20px"
                             onClick={() => {
-                              setOwnerTokenStateView("single");
+                              setTokenStateView("single");
                             }}
                           >
                             single

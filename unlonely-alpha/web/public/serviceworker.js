@@ -22,7 +22,7 @@ self.addEventListener("notificationclick", event => {
 
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true }).then(clientList => {
-      const targetUrl = event.notification.data.url || "/"; // Default to root if no URL is provided
+      const targetUrl = new URL(event.notification.data.url || "/", self.location.origin).href; // Construct full URL
 
       for (const client of clientList) {
         if (client.url === targetUrl && "focus" in client) {
