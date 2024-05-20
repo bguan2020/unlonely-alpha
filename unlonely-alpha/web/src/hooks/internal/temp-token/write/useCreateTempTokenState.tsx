@@ -238,6 +238,7 @@ export const useCreateTempTokenState = ({
           //     data: {
           //       title: `/${channel.channelQueryData?.slug} launched a new token!`,
           //       body: "Claim 1000 tokens now!",
+          //       slug: `/channels/${channel.channelQueryData?.slug}`,
           //       channelId: undefined,
           //     },
           //   },

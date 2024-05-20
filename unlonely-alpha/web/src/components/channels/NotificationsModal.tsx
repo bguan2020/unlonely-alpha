@@ -76,6 +76,7 @@ export default function NotificationsModal({
           data: {
             title: selectedType === "live" ? titleLive : titleNFCs,
             body: selectedType === "live" ? bodyLive : bodyNFCs,
+            slug: `/channels/${channelQueryData?.slug}`,
             channelId: channelQueryData?.id,
           },
         },
