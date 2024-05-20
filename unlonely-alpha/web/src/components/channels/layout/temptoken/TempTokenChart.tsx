@@ -169,39 +169,41 @@ export const TempTokenChart = ({
           >
             goal
           </Button>
-          <ChakraTooltip
-            label="toggle chart zooming, will pause live updates when enabled"
-            shouldWrapChildren
-            openDelay={300}
-          >
-            <Button
-              color="#ffffff"
-              bg={
-                interfaceChartData.isChartPaused
-                  ? "rgb(173, 169, 249)"
-                  : "#4741c1"
-              }
-              _hover={{
-                transform: "scale(1.15)",
-              }}
-              _focus={{}}
-              _active={{}}
-              p={3}
-              height={"20px"}
-              onClick={() =>
-                interfaceChartData.handleIsChartPaused(
-                  !interfaceChartData.isChartPaused
-                )
-              }
-              boxShadow={
-                interfaceChartData.isChartPaused
-                  ? "0px 0px 25px rgba(173, 169, 249, 0.847)"
-                  : undefined
-              }
+          {!isStandalone && (
+            <ChakraTooltip
+              label="toggle chart zooming, will pause live updates when enabled"
+              shouldWrapChildren
+              openDelay={300}
             >
-              <FaMagnifyingGlassChart />
-            </Button>
-          </ChakraTooltip>
+              <Button
+                color="#ffffff"
+                bg={
+                  interfaceChartData.isChartPaused
+                    ? "rgb(173, 169, 249)"
+                    : "#4741c1"
+                }
+                _hover={{
+                  transform: "scale(1.15)",
+                }}
+                _focus={{}}
+                _active={{}}
+                p={3}
+                height={"20px"}
+                onClick={() =>
+                  interfaceChartData.handleIsChartPaused(
+                    !interfaceChartData.isChartPaused
+                  )
+                }
+                boxShadow={
+                  interfaceChartData.isChartPaused
+                    ? "0px 0px 25px rgba(173, 169, 249, 0.847)"
+                    : undefined
+                }
+              >
+                <FaMagnifyingGlassChart />
+              </Button>
+            </ChakraTooltip>
+          )}
           {isOwner && currentActiveTokenHasHitTotalSupplyThreshold && (
             <ChakraTooltip
               label="increase the price goal"
@@ -282,6 +284,7 @@ export const TempTokenChart = ({
         )}
         {interfaceChartData.pausedData_1h.length === 0 &&
           interfaceChartData.timeFilter === "1h" &&
+          !isStandalone &&
           matchingChain && (
             <Text
               textAlign="center"
@@ -296,6 +299,7 @@ export const TempTokenChart = ({
           )}
         {interfaceChartData.pausedData_1d.length === 0 &&
           interfaceChartData.timeFilter === "1d" &&
+          !isStandalone &&
           matchingChain && (
             <Text
               textAlign="center"
@@ -310,6 +314,7 @@ export const TempTokenChart = ({
           )}
         {interfaceChartData.formattedData.length === 0 &&
           interfaceChartData.timeFilter === "all" &&
+          !isStandalone &&
           matchingChain && (
             <Text
               textAlign="center"

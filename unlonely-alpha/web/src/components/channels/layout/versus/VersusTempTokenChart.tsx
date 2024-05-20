@@ -359,7 +359,7 @@ export const VersusTempTokenChart = ({
           could not fetch channel data
         </Text>
       )}
-      {consolidatedChartData.length === 0 && matchingChain && (
+      {consolidatedChartData.length === 0 && matchingChain && !isStandalone && (
         <Text
           textAlign="center"
           position="absolute"
