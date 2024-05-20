@@ -217,6 +217,7 @@ export const getSubscriptionsByChannelId = async (
 export interface ISendAllNotificationsInput {
   title: string;
   body: string;
+  slug?: string;
   channelId?: number;
 }
 
@@ -298,6 +299,9 @@ export const sendAllNotifications = async (
         notification: {
           title: data.title,
           body: data.body,
+          data: {
+            url: data.slug ? "/" : `/channels/${data.slug}`
+          },
         },
       };
       const result = await webpush.sendNotification(

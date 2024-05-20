@@ -35,6 +35,7 @@ export const typeDef = gql`
   input SendAllNotificationsInput {
     title: String!
     body: String!
+    slug: String
     channelId: ID
   }
 
