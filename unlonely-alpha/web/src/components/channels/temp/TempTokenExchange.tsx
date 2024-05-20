@@ -85,22 +85,27 @@ export const TempTokenExchange = () => {
         isOpen={presaleWelcomeModalOpen}
         handleClose={() => setPresaleWelcomeModalOpen(false)}
         cannotClose={loadingCurrentOnMount}
+        hideFooter
       >
         {loadingCurrentOnMount ? (
           <Flex justifyContent="center">
             <Spinner />
           </Flex>
         ) : isPreSaleOngoing ? (
-          <Flex direction="column">
-            <Text>hurray!</Text>
+          <Flex direction="column" gap="10px">
+            <Text fontSize="25px" textAlign={"center"}>
+              hurray!
+            </Text>
             <Text>
               you made it here early enough to claim 1000 tokens. make sure your
               wallet is connected before time runs out
             </Text>
           </Flex>
         ) : (
-          <Flex direction="column">
-            <Text>too late, but...</Text>
+          <Flex direction="column" gap="10px">
+            <Text fontSize="25px" textAlign={"center"}>
+              too late, but...
+            </Text>
             <Text>you can still join this game!</Text>
             <Text>
               come early next time a token launches to claim your tokens!

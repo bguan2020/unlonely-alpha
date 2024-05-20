@@ -147,14 +147,17 @@ export const VersusTokenExchange = () => {
         isOpen={presaleWelcomeModalOpen}
         handleClose={() => setPresaleWelcomeModalOpen(false)}
         cannotClose={loadingOnMount}
+        hideFooter
       >
         {loadingOnMount ? (
           <Flex justifyContent="center">
             <Spinner />
           </Flex>
         ) : isPreSaleOngoing ? (
-          <Flex direction="column">
-            <Text>hurray!</Text>
+          <Flex direction="column" gap="10px">
+            <Text fontSize="25px" textAlign={"center"}>
+              hurray!
+            </Text>
             <Text>
               you made it here early enough to claim 1000 tokens. select a token
               to redeem and make sure your wallet is connected before time runs
@@ -162,8 +165,10 @@ export const VersusTokenExchange = () => {
             </Text>
           </Flex>
         ) : (
-          <Flex direction="column">
-            <Text>too late, but...</Text>
+          <Flex direction="column" gap="10px">
+            <Text fontSize="25px" textAlign={"center"}>
+              too late, but...
+            </Text>
             <Text>you can still join this VERSUS game!</Text>
             <Text>
               come early next time a token launches to claim your tokens!
