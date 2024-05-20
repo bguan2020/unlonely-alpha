@@ -19,7 +19,7 @@ import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { formatIncompleteNumber } from "../../../utils/validation/input";
 import {
   PRESALE_NOTIFICATION_URL_QUERY_PARAM,
-  PRE_SALE_MAX_MINT_AMOUNT,
+  DEFAULT_TOKEN_TRADE_AMOUNT,
 } from "../../../constants";
 import { useRouter } from "next/router";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
@@ -222,7 +222,7 @@ export const VersusTokenExchange = () => {
                   onClick={() => {
                     handleAmountDirectly(
                       isPreSaleOngoing
-                        ? String(PRE_SALE_MAX_MINT_AMOUNT)
+                        ? String(DEFAULT_TOKEN_TRADE_AMOUNT)
                         : isFocusedTokenEqualToTokenA
                         ? tokenATxs.userTempTokenBalance.toString()
                         : isFocusedTokenEqualToTokenB

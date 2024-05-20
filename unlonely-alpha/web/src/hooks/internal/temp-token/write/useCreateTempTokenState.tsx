@@ -241,7 +241,7 @@ export const useCreateTempTokenState = ({
             variables: {
               data: {
                 title: `/${channel.channelQueryData?.slug} launched a new token!`,
-                body: "Claim 1000 tokens now!",
+                body: `Claim 1000 free $${args.symbol} now!`,
                 pathname: `/channels/${channel.channelQueryData?.slug}?${PRESALE_NOTIFICATION_URL_QUERY_PARAM}=true`,
                 channelId: undefined,
               },

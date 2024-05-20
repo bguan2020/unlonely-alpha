@@ -292,15 +292,13 @@ const StandaloneChatComponent = ({
         <TempTokenInterface
           isFullChart
           ablyChannel={chat.channel}
-          customLoading={channelStaticLoading}
-          noChannelData={channelStaticError !== undefined}
+          customHeight="75vh"
         />
       ) : (
         <VersusTempTokensInterface
           isFullChart
           ablyChannel={chat.channel}
-          customLoading={channelStaticLoading}
-          noChannelData={channelStaticError !== undefined}
+          customHeight="75vh"
         />
       )}
     </Flex>

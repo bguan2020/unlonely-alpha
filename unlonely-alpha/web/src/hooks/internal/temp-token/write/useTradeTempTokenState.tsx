@@ -8,7 +8,7 @@ import { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import {
   InteractionType,
   NULL_ADDRESS,
-  PRE_SALE_MAX_MINT_AMOUNT,
+  DEFAULT_TOKEN_TRADE_AMOUNT,
   PRE_SALE_PRICE_PER_TOKEN,
 } from "../../../../constants";
 import { useNetworkContext } from "../../../context/useNetwork";
@@ -80,7 +80,9 @@ export const useTradeTempTokenState = ({
 
   const canAddToChatbot_mint = useRef(false);
   const canAddToChatbot_burn = useRef(false);
-  const [amount, setAmount] = useState<string>("1000");
+  const [amount, setAmount] = useState<string>(
+    String(DEFAULT_TOKEN_TRADE_AMOUNT)
+  );
   const debouncedAmount = useDebounce(amount, 300);
   const amount_bigint = useMemo(
     () => BigInt(debouncedAmount as `${number}`),
@@ -273,7 +275,7 @@ export const useTradeTempTokenState = ({
           } catch (err) {
             console.log("cannot update db on mint", err);
           }
-          setAmount("1000");
+          setAmount(String(DEFAULT_TOKEN_TRADE_AMOUNT));
           if (
             hasTotalSupplyThresholdReachedEvent &&
             hasHitTotalSupplyThreshold
@@ -404,7 +406,7 @@ export const useTradeTempTokenState = ({
           )}`,
         });
         canAddToChatbot_burn.current = false;
-        setAmount("1000");
+        setAmount(String(DEFAULT_TOKEN_TRADE_AMOUNT));
       },
       onTxError: (error) => {
         console.log("burn error", error);
@@ -437,7 +439,7 @@ export const useTradeTempTokenState = ({
     (event: any) => {
       const input = event.target.value;
       const filtered = filteredInput(input);
-      if (Number(filtered) > PRE_SALE_MAX_MINT_AMOUNT && isPreSaleOngoing)
+      if (Number(filtered) > DEFAULT_TOKEN_TRADE_AMOUNT && isPreSaleOngoing)
         return;
       setAmount(filtered);
     },

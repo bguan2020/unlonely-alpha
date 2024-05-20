@@ -20,6 +20,8 @@ import centerEllipses from "../../../../utils/centerEllipses";
 import { useApolloClient } from "@apollo/client";
 import { useInterfaceChartMarkers } from "../../../../hooks/internal/temp-token/ui/useInterfaceChartMarkers";
 import { VersusTokenExchange } from "../../versus/VersusTokenExchange";
+import useUserAgent from "../../../../hooks/internal/useUserAgent";
+import { VersusTempTokenTimerView } from "../../versus/VersusTokenTimerView";
 
 export type ConsolidatedTradeData = {
   tokenATrader: string;
@@ -46,6 +48,8 @@ export const VersusTempTokenChart = ({
   isFullChart?: boolean;
   customChartHeightInPx?: number;
 }) => {
+  const { isStandalone } = useUserAgent();
+
   const { ethPriceInUsd } = useCacheContext();
   const { gameState, tokenATxs, tokenBTxs } = useVersusTempTokenContext();
   const {
@@ -366,6 +370,17 @@ export const VersusTempTokenChart = ({
         >
           no txs
         </Text>
+      )}
+      {isStandalone && canPlayToken && (
+        <Flex
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%)"
+          textAlign="center"
+          position="absolute"
+        >
+          <VersusTempTokenTimerView disableChatbot={true} />
+        </Flex>
       )}
       <ResponsiveContainer
         width="100%"

@@ -136,7 +136,7 @@ export type VersusTokenDataType = {
   endTimestamp?: bigint;
 };
 
-export const PRE_SALE_MAX_MINT_AMOUNT = 1000;
+export const DEFAULT_TOKEN_TRADE_AMOUNT = 1000;
 export const PRE_SALE_MAX_SUPPLY = 100_000;
 export const PRE_SALE_PRICE_PER_TOKEN = 4 * 10 ** 10;
 

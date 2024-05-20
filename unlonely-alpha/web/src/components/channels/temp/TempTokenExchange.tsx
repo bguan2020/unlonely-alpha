@@ -18,7 +18,7 @@ import { formatIncompleteNumber } from "../../../utils/validation/input";
 import { useTempTokenContext } from "../../../hooks/context/useTempToken";
 import {
   PRESALE_NOTIFICATION_URL_QUERY_PARAM,
-  PRE_SALE_MAX_MINT_AMOUNT,
+  DEFAULT_TOKEN_TRADE_AMOUNT,
 } from "../../../constants";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
@@ -150,7 +150,7 @@ export const TempTokenExchange = () => {
               onClick={() => {
                 handleAmountDirectly(
                   isPreSaleOngoing
-                    ? String(PRE_SALE_MAX_MINT_AMOUNT)
+                    ? String(DEFAULT_TOKEN_TRADE_AMOUNT)
                     : userTempTokenBalance.toString()
                 );
               }}

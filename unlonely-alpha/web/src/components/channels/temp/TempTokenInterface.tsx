@@ -27,6 +27,7 @@ import { TempTokenChart } from "../layout/temptoken/TempTokenChart";
 import { TempTokenCreationModal } from "./TempTokenCreationModal";
 import { SendRemainingFundsFromTokenModal } from "./SendRemainingFundsFromTokenModal";
 import { SingleTempTokenTimerView } from "./TempTokenTimerView";
+import useUserAgent from "../../../hooks/internal/useUserAgent";
 
 export const TempTokenInterface = ({
   customHeight,
@@ -41,6 +42,7 @@ export const TempTokenInterface = ({
   customLoading?: boolean;
   noChannelData?: boolean;
 }) => {
+  const { isStandalone } = useUserAgent();
   const { channel } = useChannelContext();
   const { tempToken } = useTempTokenContext();
   const { ethPriceInUsd } = useCacheContext();
@@ -335,8 +337,10 @@ export const TempTokenInterface = ({
             )}
           </Flex>
           <Flex justifyContent={"space-between"} alignItems={"center"}>
-            {isFullChart && <SingleTempTokenTimerView disableChatbot={true} />}
-            {!isFullChart && !isOwner && !canPlayToken && (
+            {isFullChart && !isStandalone && (
+              <SingleTempTokenTimerView disableChatbot={true} />
+            )}
+            {!isFullChart && !isOwner && !canPlayToken && !isStandalone && (
               <SingleTempTokenTimerView disableChatbot={true} fontSize={20} />
             )}
           </Flex>

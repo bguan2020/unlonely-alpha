@@ -26,6 +26,8 @@ import { useMemo, useState } from "react";
 import { useCacheContext } from "../../../../hooks/context/useCache";
 import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { useOwnerUpdateTotalSupplyThresholdState } from "../../../../hooks/internal/temp-token/write/useOwnerUpdateTotalSupplyThresholdState";
+import useUserAgent from "../../../../hooks/internal/useUserAgent";
+import { SingleTempTokenTimerView } from "../../temp/TempTokenTimerView";
 
 const ZONE_BREADTH = 0.05;
 const NUMBER_OF_HOURS_IN_DAY = 24;
@@ -46,6 +48,8 @@ export const TempTokenChart = ({
   isFullChart?: boolean;
   customChartHeightInPx?: number;
 }) => {
+  const { isStandalone } = useUserAgent();
+
   const { channel } = useChannelContext();
   const { isOwner } = channel;
 
@@ -332,6 +336,17 @@ export const TempTokenChart = ({
           >
             <FaPause />
           </Text>
+        )}
+        {isStandalone && canPlayToken && (
+          <Flex
+            top="50%"
+            left="50%"
+            transform="translate(-50%, -50%)"
+            textAlign="center"
+            position="absolute"
+          >
+            <SingleTempTokenTimerView disableChatbot={true} />
+          </Flex>
         )}
         <ResponsiveContainer
           width="100%"
