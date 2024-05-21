@@ -287,8 +287,8 @@ export const useCreateMultipleTempTokensState = ({
           const res = await call({
             variables: {
               data: {
-                title: `/${channel.channelQueryData?.slug} launched two new tokens!`,
-                body: `Claim 1000 free $${newTokenSymbols[0]} and $${newTokenSymbols[1]} now!`,
+                title: `/${channel.channelQueryData?.slug} just launched $${newTokenSymbols[0]} vs. $${newTokenSymbols[1]} tokens!`,
+                body: "you have 2 min. to claim 1,000 free tokens",
                 pathname: `/channels/${channel.channelQueryData?.slug}?${PRESALE_NOTIFICATION_URL_QUERY_PARAM}=true`,
                 channelId: undefined,
               },
