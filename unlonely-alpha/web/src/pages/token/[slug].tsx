@@ -94,13 +94,12 @@ const FullTempTokenChart = ({
     const init = async () => {
       if (
         isOwner &&
-        losingVersusToken?.transferredLiquidityOnExpiration &&
-        winningVersusToken?.totalSupply
+        losingVersusToken.transferredLiquidityOnExpiration > BigInt(0)
       ) {
         if (ownerMustPermamint === true) {
           const { maxNumTokens } = await calculateMaxWinnerTokensToMint(
-            Number(losingVersusToken?.transferredLiquidityOnExpiration),
-            Number(winningVersusToken?.totalSupply)
+            Number(losingVersusToken.transferredLiquidityOnExpiration),
+            Number(winningVersusToken.totalSupply)
           );
           if (maxNumTokens === 0) {
             handleOwnerMustPermamint(false);
