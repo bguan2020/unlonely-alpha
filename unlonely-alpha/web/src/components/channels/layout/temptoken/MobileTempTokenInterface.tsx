@@ -206,7 +206,9 @@ export const MobileTempTokenInterface = ({
               priceOfThreshold={priceOfThreshold}
             />
           </Flex>
-          <MobileTempTokenExchange />
+          <Flex direction={"column"} height="150px">
+            <MobileTempTokenExchange />
+          </Flex>
         </Flex>
       }
     </>

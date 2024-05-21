@@ -89,7 +89,7 @@ const BridgePage = () => {
         setL1TxHash(response.hash);
         setL1TxStatus(TxStatus.Pending);
         toast({
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -108,7 +108,7 @@ const BridgePage = () => {
         if (res.status === 1) {
           setL1TxStatus(TxStatus.Confirmed);
           toast({
-            duration: 9000,
+            duration: 3000, // chakra ui toast duration
             isClosable: true,
             position: "bottom", // chakra ui toast position
             render: () => (
@@ -131,7 +131,7 @@ const BridgePage = () => {
         } else {
           setL1TxStatus(null);
           toast({
-            duration: 9000,
+            duration: 3000, // chakra ui toast duration
             isClosable: true,
             position: "bottom", // chakra ui toast position
             render: () => (

@@ -123,7 +123,7 @@ export const useCreateMultipleTempTokensState = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -131,7 +131,7 @@ export const useCreateMultipleTempTokensState = ({
       },
       onWriteError: (error) => {
         toast({
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -182,7 +182,7 @@ export const useCreateMultipleTempTokensState = ({
                   (1/2) createMultipleTempTokens update database success
                 </Box>
               ),
-              duration: 9000,
+              duration: 3000, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -198,7 +198,7 @@ export const useCreateMultipleTempTokensState = ({
                   (1/2) createMultipleTempTokens update database error
                 </Box>
               ),
-              duration: 9000,
+              duration: 3000, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -228,7 +228,7 @@ export const useCreateMultipleTempTokensState = ({
                   (2/2) createMultipleTempTokens update database success
                 </Box>
               ),
-              duration: 9000,
+              duration: 3000, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -244,7 +244,7 @@ export const useCreateMultipleTempTokensState = ({
                   (2/2) createMultipleTempTokens update database error
                 </Box>
               ),
-              duration: 9000,
+              duration: 3000, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -279,7 +279,7 @@ export const useCreateMultipleTempTokensState = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -373,7 +373,7 @@ export const useCreateMultipleTempTokensState = ({
               createMultipleTempTokens error
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });

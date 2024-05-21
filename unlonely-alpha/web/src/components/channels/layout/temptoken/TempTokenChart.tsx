@@ -386,6 +386,7 @@ export const TempTokenChart = ({
                   ? ["dataMin", priceOfThreshold * (1 + ZONE_BREADTH)]
                   : ["dataMin", "dataMax"]
               }
+              hide={isStandalone ?? false}
             />
             <Tooltip content={<CustomTooltip />} />
             {interfaceChartData.timeFilter === "all" && (

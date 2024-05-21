@@ -64,7 +64,7 @@ export const useUpdateEndTimestampForTokensState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -72,7 +72,7 @@ export const useUpdateEndTimestampForTokensState = (
       onWriteError: (error) => {
         console.log("increaseEndTimestampForTokens error", error);
         toast({
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -108,7 +108,7 @@ export const useUpdateEndTimestampForTokensState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -121,7 +121,7 @@ export const useUpdateEndTimestampForTokensState = (
               increaseEndTimestampForTokens error
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });

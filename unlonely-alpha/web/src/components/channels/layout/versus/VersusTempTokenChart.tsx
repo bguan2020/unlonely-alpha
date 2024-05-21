@@ -413,7 +413,7 @@ export const VersusTempTokenChart = ({
                 2
               )}`;
             }}
-            hide={!isFullChart && !canPlayToken}
+            hide={(!isFullChart && !canPlayToken) || (isStandalone ?? false)}
             domain={["dataMin", "dataMax"]}
           />
           {((!canPlayToken && (tokenAWon || tokenBWon)) ||

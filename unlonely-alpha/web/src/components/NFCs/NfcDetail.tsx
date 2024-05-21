@@ -94,7 +94,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
         setIsUploadingToIPFS(false);
         callingWrite.current = false;
         toast({
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -115,7 +115,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
         setIsUploadingToIPFS(false);
         callingWrite.current = false;
         toast({
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -140,7 +140,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
             : "",
         });
         toast({
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -159,7 +159,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
       onTxError: (error) => {
         console.log("nfc mint tx error", error);
         toast({
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -331,7 +331,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                                 description:
                                   "Please sign into your wallet first.",
                                 status: "warning",
-                                duration: 9000,
+                                duration: 3000, // chakra ui toast duration
                                 isClosable: true,
                                 position: "top",
                               });

@@ -91,14 +91,14 @@ export const ChatUserModal_token = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         toast({
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -121,7 +121,7 @@ export const ChatUserModal_token = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -145,7 +145,7 @@ export const ChatUserModal_token = ({
               transfer tokens error
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });

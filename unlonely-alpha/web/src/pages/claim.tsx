@@ -233,14 +233,14 @@ const EventCard = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         toast({
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -265,7 +265,7 @@ const EventCard = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -299,7 +299,7 @@ const EventCard = ({
               claimVotePayout error
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });

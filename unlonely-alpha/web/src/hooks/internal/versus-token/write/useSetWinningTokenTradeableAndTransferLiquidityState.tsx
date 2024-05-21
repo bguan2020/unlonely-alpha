@@ -68,14 +68,14 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         toast({
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -105,7 +105,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -125,7 +125,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                   (3/4) transfer loser liquidity update database success
                 </Box>
               ),
-              duration: 9000,
+              duration: 3000, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -138,7 +138,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                   transfer loser liquidity update database error
                 </Box>
               ),
-              duration: 9000,
+              duration: 3000, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -155,7 +155,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                   (4/4) transfer loser liquidity update database success
                 </Box>
               ),
-              duration: 9000,
+              duration: 3000, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -168,7 +168,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                   transfer loser liquidity update database error
                 </Box>
               ),
-              duration: 9000,
+              duration: 3000, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -191,7 +191,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                 cannot get max winner tokens, defaulting to 0: {lambdaError}
               </Box>
             ),
-            duration: 9000,
+            duration: 3000, // chakra ui toast duration
             isClosable: true,
             position: "bottom", // chakra ui toast position
           });
@@ -240,7 +240,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
               transfer funds error
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });

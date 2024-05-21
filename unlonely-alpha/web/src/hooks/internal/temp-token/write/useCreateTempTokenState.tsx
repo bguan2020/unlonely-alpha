@@ -125,7 +125,7 @@ export const useCreateTempTokenState = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -133,7 +133,7 @@ export const useCreateTempTokenState = ({
       },
       onWriteError: (error) => {
         toast({
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -180,7 +180,7 @@ export const useCreateTempTokenState = ({
                   createTempToken update database success
                 </Box>
               ),
-              duration: 9000,
+              duration: 3000, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -193,7 +193,7 @@ export const useCreateTempTokenState = ({
                   createTempToken update database error
                 </Box>
               ),
-              duration: 9000,
+              duration: 3000, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -232,7 +232,7 @@ export const useCreateTempTokenState = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -323,7 +323,7 @@ export const useCreateTempTokenState = ({
               createTempToken error
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });

@@ -155,7 +155,7 @@ export const useChatBox = (
         title: "Sign in first.",
         description: "Please sign into your wallet first.",
         status: "warning",
-        duration: 9000,
+        duration: 3000, // chakra ui toast duration
         isClosable: true,
         position: mobile ? "bottom" : "top",
       });

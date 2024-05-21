@@ -66,7 +66,7 @@ export const useUpdateTotalSupplyThresholdState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -74,7 +74,7 @@ export const useUpdateTotalSupplyThresholdState = (
       onWriteError: (error) => {
         console.log("setTotalSupplyThresholdForTokens error", error);
         toast({
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -111,7 +111,7 @@ export const useUpdateTotalSupplyThresholdState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -124,7 +124,7 @@ export const useUpdateTotalSupplyThresholdState = (
               setTotalSupplyThresholdForTokens error
             </Box>
           ),
-          duration: 9000,
+          duration: 3000, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
