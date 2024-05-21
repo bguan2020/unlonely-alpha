@@ -151,12 +151,13 @@ export const TempTokenInterface = ({
       isFailedGameState &&
       !canPlayToken &&
       isAddress(currentTempTokenContract.address as `0x${string}`)
-    )
+    ) {
       onSendRemainingFundsToWinnerEvent(
         currentTempTokenContract.address as `0x${string}`,
         true
       );
-    handleIsGameFailed(false);
+      handleIsGameFailed(false);
+    }
   }, [isOwner, isFailedGameState, canPlayToken, currentTempTokenContract]);
 
   return (

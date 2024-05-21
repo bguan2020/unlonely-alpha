@@ -9,7 +9,7 @@ import { useRouter } from "next/router";
 import { useState, useEffect, useMemo } from "react";
 import { TempTokenChart } from "./TempTokenChart";
 import { useInterfaceChartData } from "../../../../hooks/internal/temp-token/ui/useInterfaceChartData";
-import { formatUnits } from "viem";
+import { formatUnits, isAddress } from "viem";
 import { useCacheContext } from "../../../../hooks/context/useCache";
 import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
 import { MobileTempTokenExchange } from "../../temp/MobileTempTokenExchange";
@@ -29,7 +29,9 @@ export const MobileTempTokenInterface = ({
     gameState,
     loadingCurrentOnMount,
     tempTokenTxs,
+    currentTempTokenContract,
     tempTokenChartTimeIndexes,
+    onSendRemainingFundsToWinnerEvent,
   } = tempToken;
   const {
     currentActiveTokenSymbol,
@@ -38,7 +40,9 @@ export const MobileTempTokenInterface = ({
     isFailedGameModalOpen,
     isPermanentGameModalOpen,
     isPreSaleOngoing,
+    isFailedGameState,
     handleIsFailedGameModalOpen,
+    handleIsGameFailed,
     handleIsSuccessGameModalOpen,
     handleIsPermanentGameModalOpen,
   } = gameState;
@@ -87,6 +91,20 @@ export const MobileTempTokenInterface = ({
       );
     }
   }, [router]);
+
+  // if  game had just finished, remove current token info
+  useEffect(() => {
+    if (
+      isFailedGameState &&
+      isAddress(currentTempTokenContract.address as `0x${string}`)
+    ) {
+      onSendRemainingFundsToWinnerEvent(
+        currentTempTokenContract.address as `0x${string}`,
+        true
+      );
+      handleIsGameFailed(false);
+    }
+  }, [isFailedGameState, currentTempTokenContract]);
 
   return (
     <>
