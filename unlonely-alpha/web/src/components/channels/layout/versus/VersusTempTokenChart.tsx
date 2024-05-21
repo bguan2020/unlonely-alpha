@@ -371,7 +371,7 @@ export const VersusTempTokenChart = ({
           no txs
         </Text>
       )}
-      {isStandalone && canPlayToken && (
+      {(isStandalone || canPlayToken) && (
         <Flex
           top="50%"
           left="50%"
@@ -381,7 +381,7 @@ export const VersusTempTokenChart = ({
         >
           <VersusTempTokenTimerView
             disableChatbot={true}
-            hidePresaleTimer={isStandalone}
+            hidePresaleTimer={isStandalone ?? false}
           />
         </Flex>
       )}

@@ -17,6 +17,7 @@ export const MobileVersusTokenExchange = () => {
     tokenA,
     tokenB,
     isPreSaleOngoing,
+    ownerMustMakeWinningTokenTradeable,
     handleCanPlayToken,
     handleIsPreSaleOngoing,
     handleIsGameFinished,
@@ -143,9 +144,13 @@ export const MobileVersusTokenExchange = () => {
         </Flex>
       </TransactionModalTemplate>
       {!focusedTokenToTrade ? (
-        <Text>{`Select a token above to ${
-          isPreSaleOngoing ? "claim" : "buy"
-        }`}</Text>
+        <>
+          {!ownerMustMakeWinningTokenTradeable && (
+            <Text>{`Select a token above to ${
+              isPreSaleOngoing ? "claim" : "buy"
+            }`}</Text>
+          )}
+        </>
       ) : isPreSaleOngoing ? (
         <>
           {!claimedPreSaleTokens ? (

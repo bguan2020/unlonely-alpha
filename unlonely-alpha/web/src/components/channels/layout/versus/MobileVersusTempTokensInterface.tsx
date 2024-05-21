@@ -46,6 +46,7 @@ export const MobileVersusTempTokensInterface = ({
     tokenB,
     ownerMustMakeWinningTokenTradeable,
     handleFocusedTokenToTrade,
+    isGameOngoing,
   } = gameState;
   const { loadingOnMount } = useVersusTempTokenContext();
   const [presaleWelcomeModalOpen, setPresaleWelcomeModalOpen] = useState(false);
@@ -67,6 +68,11 @@ export const MobileVersusTempTokensInterface = ({
       );
     }
   }, [router]);
+
+  useEffect(() => {
+    if (ownerMustMakeWinningTokenTradeable)
+      handleFocusedTokenToTrade(undefined);
+  }, [ownerMustMakeWinningTokenTradeable]);
 
   return (
     <>
@@ -129,6 +135,7 @@ export const MobileVersusTempTokensInterface = ({
         </TransactionModalTemplate>
         <Flex justifyContent={"center"} gap="5px">
           <Button
+            color="white"
             _hover={{}}
             _focus={{}}
             _active={{}}
@@ -139,13 +146,14 @@ export const MobileVersusTempTokensInterface = ({
                 tokenA.address as `0x${string}`
               )
                 ? "rgba(255, 36, 36, 1)"
-                : "#ffffff"
+                : "#8f3636"
             }
             onClick={() => handleFocusedTokenToTrade(tokenA.contractData)}
           >
             ${tokenA.symbol}
           </Button>
           <Button
+            color="white"
             _hover={{}}
             _focus={{}}
             _active={{}}
@@ -156,7 +164,7 @@ export const MobileVersusTempTokensInterface = ({
                 tokenB.address as `0x${string}`
               )
                 ? "rgba(42, 217, 255, 1)"
-                : "#ffffff"
+                : "#4d99aa"
             }
             onClick={() => handleFocusedTokenToTrade(tokenB.contractData)}
           >
@@ -165,8 +173,8 @@ export const MobileVersusTempTokensInterface = ({
         </Flex>
         <Flex direction={"column"} flex="1" height="100%">
           <VersusTempTokenChart />
-          <MobileVersusTokenExchange />
         </Flex>
+        {isGameOngoing && <MobileVersusTokenExchange />}
         {ownerMustMakeWinningTokenTradeable && (
           <Stepper orientation="vertical" index={0}>
             {steps.map((step, index) => (
