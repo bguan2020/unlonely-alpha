@@ -191,7 +191,20 @@ export const MobileVersusTokenExchange = () => {
           ) : (
             <>
               <Flex>You have already claimed your free tokens</Flex>
-              <Button isDisabled w="100%" _hover={{}} _focus={{}} _active={{}}>
+              <Button
+                isDisabled
+                w="100%"
+                _hover={{}}
+                _focus={{}}
+                _active={{}}
+                bg={
+                  isFocusedTokenEqualToTokenA
+                    ? "rgba(255, 36, 36, 1)"
+                    : isFocusedTokenEqualToTokenB
+                    ? "rgba(42, 217, 255, 1)"
+                    : "#ffffff"
+                }
+              >
                 Claimed!
               </Button>
             </>

@@ -417,7 +417,8 @@ export const VersusTempTokenChart = ({
             domain={["dataMin", "dataMax"]}
           />
           {((!canPlayToken && (tokenAWon || tokenBWon)) ||
-            (canPlayToken && !tokenAWon && !tokenBWon)) && (
+            (canPlayToken && !tokenAWon && !tokenBWon) ||
+            isStandalone) && (
             <Tooltip
               content={
                 tokenAWon || tokenBWon ? (

@@ -174,7 +174,7 @@ export const MobileVersusTempTokensInterface = ({
         <Flex direction={"column"} flex="1" height="100%">
           <VersusTempTokenChart />
         </Flex>
-        <Flex direction={"column"} height="200px">
+        <Flex direction={"column"} height="150px">
           {ownerMustMakeWinningTokenTradeable && !isGameOngoing ? (
             <Stepper orientation="vertical" index={0}>
               {steps.map((step, index) => (
