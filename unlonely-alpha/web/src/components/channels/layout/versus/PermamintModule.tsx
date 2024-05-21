@@ -128,7 +128,7 @@ export const PermamintModule = () => {
           _tokenType = "b";
         }
 
-        const title = `The ${_winningToken.symbol} token's price increased!`;
+        const title = `The $${_winningToken.symbol} token's price increased!`;
 
         addToChatbot({
           username: user?.username ?? "",

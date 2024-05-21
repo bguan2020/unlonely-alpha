@@ -174,24 +174,27 @@ export const MobileVersusTempTokensInterface = ({
         <Flex direction={"column"} flex="1" height="100%">
           <VersusTempTokenChart />
         </Flex>
-        {isGameOngoing && <MobileVersusTokenExchange />}
-        {ownerMustMakeWinningTokenTradeable && (
-          <Stepper orientation="vertical" index={0}>
-            {steps.map((step, index) => (
-              <Step key={index}>
-                <StepIndicator>
-                  <StepStatus complete={<StepIcon />} />
-                </StepIndicator>
-                <Box>
-                  <StepTitle>
-                    <Text fontFamily="LoRes15">{step.title}</Text>
-                  </StepTitle>
-                </Box>
-                <StepSeparator />
-              </Step>
-            ))}
-          </Stepper>
-        )}
+        <Flex direction={"column"} height="200px">
+          {ownerMustMakeWinningTokenTradeable && !isGameOngoing ? (
+            <Stepper orientation="vertical" index={0}>
+              {steps.map((step, index) => (
+                <Step key={index}>
+                  <StepIndicator>
+                    <StepStatus complete={<StepIcon />} />
+                  </StepIndicator>
+                  <Box>
+                    <StepTitle>
+                      <Text fontFamily="LoRes15">{step.title}</Text>
+                    </StepTitle>
+                  </Box>
+                  <StepSeparator />
+                </Step>
+              ))}
+            </Stepper>
+          ) : (
+            <MobileVersusTokenExchange />
+          )}
+        </Flex>
       </Flex>
     </>
   );

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import usePostSubscription from "../../hooks/server/usePostSubscription";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useRouter } from "next/router";
 
 export const TurnOnNotificationsModal = ({
   handleInitialNotificationsGranted,
@@ -11,6 +12,7 @@ export const TurnOnNotificationsModal = ({
   handleInitialNotificationsGranted: (granted: boolean) => void;
 }) => {
   const { isStandalone } = useUserAgent();
+  const router = useRouter();
 
   const { ready, authenticated, login } = usePrivy();
 
@@ -110,13 +112,14 @@ export const TurnOnNotificationsModal = ({
   };
 
   useEffect(() => {
-    if (!ready || !isStandalone) return;
+    // show modal if is standalone, is at home page, and window.permission is default
+    if (!ready || !isStandalone || router.pathname !== "/") return;
     if ("Notification" in window && Notification.permission === "default") {
       setShowTurnOnNotificationsModal("start");
     } else {
       if (!authenticated) login();
     }
-  }, [isStandalone, ready, authenticated]);
+  }, [isStandalone, ready, authenticated, router]);
 
   return (
     <TransactionModalTemplate

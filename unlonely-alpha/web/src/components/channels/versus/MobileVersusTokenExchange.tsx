@@ -210,11 +210,16 @@ export const MobileVersusTokenExchange = () => {
                 fontSize={"14px"}
               />
               <Text color="#929292">
+                {isFocusedTokenEqualToTokenA
+                  ? `$${tokenA.symbol} `
+                  : isFocusedTokenEqualToTokenB
+                  ? `$${tokenB.symbol} `
+                  : ""}
                 balance:{" "}
                 {isFocusedTokenEqualToTokenA
-                  ? tokenATxs.userTempTokenBalance.toString()
+                  ? truncateValue(tokenATxs.userTempTokenBalance.toString())
                   : isFocusedTokenEqualToTokenB
-                  ? tokenBTxs.userTempTokenBalance.toString()
+                  ? truncateValue(tokenBTxs.userTempTokenBalance.toString())
                   : "0"}
               </Text>
             </Flex>

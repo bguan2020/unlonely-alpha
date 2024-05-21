@@ -371,7 +371,7 @@ export const VersusTempTokenChart = ({
           no txs
         </Text>
       )}
-      {(isStandalone || canPlayToken) && (
+      {isStandalone && (
         <Flex
           top="50%"
           left="50%"
