@@ -193,11 +193,16 @@ export const TempTokenInterface = ({
           h={customHeight ?? "100%"}
           p="10px"
         >
-          <TempTokenCreationModal
-            title="Create Temp Token"
-            isOpen={createTokenModalOpen}
-            handleClose={() => setCreateTokenModalOpen(false)}
-          />
+          {
+            // have to make sure this modal only appears when no current token
+          }
+          {currentActiveTokenAddress === NULL_ADDRESS && (
+            <TempTokenCreationModal
+              title="Create Temp Token"
+              isOpen={createTokenModalOpen}
+              handleClose={() => setCreateTokenModalOpen(false)}
+            />
+          )}
           <TempTokenDisclaimerModal
             isOpen={tempTokenDisclaimerModalOpen}
             handleClose={() => setTempTokenDisclaimerModalOpen(false)}
