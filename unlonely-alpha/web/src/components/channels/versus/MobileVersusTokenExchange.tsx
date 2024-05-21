@@ -143,6 +143,12 @@ export const MobileVersusTokenExchange = () => {
           </Text>
         </Flex>
       </TransactionModalTemplate>
+      {isPreSaleOngoing && (
+        <Flex>
+          {getTimeFromMillis(durationLeftForPreSale * 1000, true, true)} left to
+          claim free tokens
+        </Flex>
+      )}
       {!focusedTokenToTrade ? (
         <>
           {!ownerMustMakeWinningTokenTradeable && (
@@ -155,10 +161,6 @@ export const MobileVersusTokenExchange = () => {
         <>
           {!claimedPreSaleTokens ? (
             <>
-              <Flex>
-                {getTimeFromMillis(durationLeftForPreSale * 1000, true, true)}{" "}
-                left to claim free tokens
-              </Flex>
               <Button
                 _hover={{}}
                 _focus={{}}
