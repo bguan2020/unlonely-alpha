@@ -334,7 +334,12 @@ export const VersusTempTokensInterface = ({
             />
           )}
         <Flex direction={"column"} flex="1" height="100%">
-          <VersusTempTokenChart noChannelData={noChannelData} />
+          <VersusTempTokenChart
+            noChannelData={noChannelData}
+            customChartHeightInPx={
+              !canPlayToken && (!isFullChart || isStandalone) ? 80 : undefined
+            }
+          />
           {!canPlayToken &&
             isGameOngoing &&
             realTimeChannelDetails.isLive &&
