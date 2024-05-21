@@ -381,7 +381,7 @@ export const VersusTempTokenChart = ({
         >
           <VersusTempTokenTimerView
             disableChatbot={true}
-            hidePresaleTimer={isStandalone ?? false}
+            hidePresaleTimer={isStandalone}
           />
         </Flex>
       )}

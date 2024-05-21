@@ -116,7 +116,7 @@ export const TempTokenChart = ({
 
   return (
     <>
-      {canPlayToken && (
+      {canPlayToken && !isStandalone && (
         <Flex gap="5px" alignItems={"center"}>
           <Button
             bg={interfaceChartData.timeFilter === "1h" ? "#7874c9" : "#403c7d"}
@@ -342,7 +342,7 @@ export const TempTokenChart = ({
             <FaPause />
           </Text>
         )}
-        {isStandalone && canPlayToken && (
+        {isStandalone && (
           <Flex
             top="50%"
             left="50%"
@@ -350,7 +350,10 @@ export const TempTokenChart = ({
             textAlign="center"
             position="absolute"
           >
-            <SingleTempTokenTimerView disableChatbot={true} />
+            <SingleTempTokenTimerView
+              disableChatbot={true}
+              hidePresaleTimer={isStandalone}
+            />
           </Flex>
         )}
         <ResponsiveContainer

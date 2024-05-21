@@ -10,9 +10,11 @@ import { useUser } from "../../../hooks/context/useUser";
 
 export const SingleTempTokenTimerView = ({
   disableChatbot,
+  hidePresaleTimer,
   fontSize,
 }: {
   disableChatbot: boolean;
+  hidePresaleTimer?: boolean;
   fontSize?: number;
 }) => {
   const { channel, chat } = useChannelContext();
@@ -83,16 +85,26 @@ export const SingleTempTokenTimerView = ({
                 ? getTimeFromMillis(durationLeftForTempToken * 1000, true, true)
                 : "expired"}
             </Text>
-            <Flex justifyContent={"space-between"}>
-              <Text color={durationLeftForPreSale > 0 ? "#37FF8B" : "#ec3f3f"}>
-                presale:
-              </Text>
-              <Text color={durationLeftForPreSale > 0 ? "#37FF8B" : "#ec3f3f"}>
-                {durationLeftForPreSale > 0
-                  ? getTimeFromMillis(durationLeftForPreSale * 1000, true, true)
-                  : "over"}
-              </Text>
-            </Flex>
+            {!hidePresaleTimer && (
+              <Flex justifyContent={"space-between"}>
+                <Text
+                  color={durationLeftForPreSale > 0 ? "#37FF8B" : "#ec3f3f"}
+                >
+                  presale:
+                </Text>
+                <Text
+                  color={durationLeftForPreSale > 0 ? "#37FF8B" : "#ec3f3f"}
+                >
+                  {durationLeftForPreSale > 0
+                    ? getTimeFromMillis(
+                        durationLeftForPreSale * 1000,
+                        true,
+                        true
+                      )
+                    : "over"}
+                </Text>
+              </Flex>
+            )}
           </Flex>
         )}
     </>

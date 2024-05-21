@@ -1,9 +1,19 @@
-import { AblyChannelPromise, NULL_ADDRESS } from "../../../../constants";
+import {
+  AblyChannelPromise,
+  PRESALE_NOTIFICATION_URL_QUERY_PARAM,
+} from "../../../../constants";
 import { Flex, Text, Spinner, Button } from "@chakra-ui/react";
 import { useTempTokenContext } from "../../../../hooks/context/useTempToken";
 import { TransactionModalTemplate } from "../../../transactions/TransactionModalTemplate";
+import { useRouter } from "next/router";
+import { useState, useEffect, useMemo } from "react";
+import { TempTokenChart } from "./TempTokenChart";
+import { useInterfaceChartData } from "../../../../hooks/internal/temp-token/ui/useInterfaceChartData";
+import { formatUnits } from "viem";
+import { useCacheContext } from "../../../../hooks/context/useCache";
+import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
+import { MobileTempTokenExchange } from "../../temp/MobileTempTokenExchange";
 
-// todo: refine this
 export const MobileTempTokenInterface = ({
   ablyChannel,
   customHeight,
@@ -11,61 +21,76 @@ export const MobileTempTokenInterface = ({
   ablyChannel: AblyChannelPromise;
   customHeight?: string;
 }) => {
+  const router = useRouter();
+  const { ethPriceInUsd } = useCacheContext();
+
   const { tempToken } = useTempTokenContext();
   const {
     gameState,
-    tempTokenChartTimeIndexes,
-    initialTempTokenLoading,
+    loadingCurrentOnMount,
     tempTokenTxs,
-    currentTempTokenContract,
-    lastInactiveTempTokenContract,
-    onSendRemainingFundsToWinnerEvent,
+    tempTokenChartTimeIndexes,
   } = tempToken;
   const {
-    currentActiveTokenEndTimestamp,
-    currentActiveTokenAddress,
     currentActiveTokenSymbol,
     currentActiveTokenTotalSupplyThreshold,
-    canPlayToken,
-    isFailedGameState,
     isSuccessGameModalOpen,
     isFailedGameModalOpen,
     isPermanentGameModalOpen,
-    lastInactiveTokenAddress,
-    lastInactiveTokenBalance,
-    lastInactiveTokenSymbol,
-    handleIsGameFailed,
+    isPreSaleOngoing,
     handleIsFailedGameModalOpen,
     handleIsSuccessGameModalOpen,
     handleIsPermanentGameModalOpen,
-    handleCanPlayToken,
   } = gameState;
+
+  const [presaleWelcomeModalOpen, setPresaleWelcomeModalOpen] = useState(false);
+
+  const interfaceChartData = useInterfaceChartData({
+    chartTimeIndexes: tempTokenChartTimeIndexes,
+    txs: tempTokenTxs,
+  });
+
+  const priceOfThreshold = useMemo(() => {
+    if (currentActiveTokenTotalSupplyThreshold === BigInt(0)) return 0;
+    const n = Number(currentActiveTokenTotalSupplyThreshold);
+    const n_ = Math.max(n - 1, 0);
+    const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
+    const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+    const newPrice = priceForCurrent - priceForPrevious;
+    return newPrice;
+  }, [currentActiveTokenTotalSupplyThreshold]);
+
+  const priceOfThresholdInUsd = useMemo(
+    () =>
+      truncateValue(
+        Number(formatUnits(BigInt(priceOfThreshold), 18)) *
+          Number(ethPriceInUsd),
+        4
+      ),
+    [priceOfThreshold, ethPriceInUsd]
+  );
+
+  useEffect(() => {
+    if (router.query[PRESALE_NOTIFICATION_URL_QUERY_PARAM]) {
+      setPresaleWelcomeModalOpen(true);
+      const newPath = router.pathname;
+      const newQuery = { ...router.query };
+      delete newQuery[PRESALE_NOTIFICATION_URL_QUERY_PARAM];
+
+      router.replace(
+        {
+          pathname: newPath,
+          query: newQuery,
+        },
+        undefined,
+        { shallow: true }
+      );
+    }
+  }, [router]);
 
   return (
     <>
-      {currentActiveTokenAddress === NULL_ADDRESS ? (
-        <Flex
-          direction="column"
-          alignItems="center"
-          width="100%"
-          gap="5px"
-          justifyContent={"center"}
-        >
-          <Text>No active token detected for this channel yet</Text>
-        </Flex>
-      ) : initialTempTokenLoading &&
-        currentActiveTokenAddress !== NULL_ADDRESS ? (
-        <Flex
-          direction="column"
-          alignItems="center"
-          width="100%"
-          gap="5px"
-          justifyContent={"center"}
-        >
-          <Text>loading Temp Token chart</Text>
-          <Spinner size="md" />
-        </Flex>
-      ) : (
+      {
         <Flex
           direction={"column"}
           justifyContent={"space-between"}
@@ -74,6 +99,39 @@ export const MobileTempTokenInterface = ({
           h={customHeight ?? "100%"}
           p="10px"
         >
+          <TransactionModalTemplate
+            isOpen={presaleWelcomeModalOpen}
+            handleClose={() => setPresaleWelcomeModalOpen(false)}
+            cannotClose={loadingCurrentOnMount}
+            hideFooter
+          >
+            {loadingCurrentOnMount ? (
+              <Flex justifyContent="center">
+                <Spinner />
+              </Flex>
+            ) : isPreSaleOngoing ? (
+              <Flex direction="column" gap="10px">
+                <Text fontSize="25px" textAlign={"center"}>
+                  hurray!
+                </Text>
+                <Text>
+                  you made it here early enough to claim 1000 tokens. select a
+                  token to redeem and make sure your wallet is connected before
+                  time runs out
+                </Text>
+              </Flex>
+            ) : (
+              <Flex direction="column" gap="10px">
+                <Text fontSize="25px" textAlign={"center"}>
+                  too late, but...
+                </Text>
+                <Text>you can still join this VERSUS game!</Text>
+                <Text>
+                  come early next time a token launches to claim your tokens!
+                </Text>
+              </Flex>
+            )}
+          </TransactionModalTemplate>
           <TransactionModalTemplate
             title="Token didn't make it this time :("
             isOpen={isFailedGameModalOpen}
@@ -141,9 +199,16 @@ export const MobileTempTokenInterface = ({
               ${currentActiveTokenSymbol}
             </Text>
           </Flex>
-          <Flex gap="10px" flex="1" h="100%" direction="column"></Flex>
+          <Flex gap="10px" flex="1" h="100%" direction="column">
+            <TempTokenChart
+              interfaceChartData={interfaceChartData}
+              priceOfThresholdInUsd={priceOfThresholdInUsd}
+              priceOfThreshold={priceOfThreshold}
+            />
+          </Flex>
+          <MobileTempTokenExchange />
         </Flex>
-      )}
+      }
     </>
   );
 };

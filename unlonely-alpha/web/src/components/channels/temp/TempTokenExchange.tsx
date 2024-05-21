@@ -8,7 +8,6 @@ import {
   PopoverArrow,
   PopoverContent,
   PopoverTrigger,
-  Spinner,
 } from "@chakra-ui/react";
 import { formatUnits } from "viem";
 
@@ -16,28 +15,17 @@ import { useTradeTempTokenState } from "../../../hooks/internal/temp-token/write
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { formatIncompleteNumber } from "../../../utils/validation/input";
 import { useTempTokenContext } from "../../../hooks/context/useTempToken";
-import {
-  PRESALE_NOTIFICATION_URL_QUERY_PARAM,
-  DEFAULT_TOKEN_TRADE_AMOUNT,
-} from "../../../constants";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
+import { DEFAULT_TOKEN_TRADE_AMOUNT } from "../../../constants";
+import { useState } from "react";
 
 export const TempTokenExchange = () => {
   const { tempToken } = useTempTokenContext();
-  const {
-    userTempTokenBalance,
-    gameState,
-    tempTokenTxs,
-    loadingCurrentOnMount,
-  } = tempToken;
+  const { userTempTokenBalance, gameState, tempTokenTxs } = tempToken;
   const {
     isPreSaleOngoing,
     currentActiveTokenAddress,
     currentActiveTokenSymbol,
   } = gameState;
-  const router = useRouter();
 
   const {
     amount,
@@ -59,60 +47,9 @@ export const TempTokenExchange = () => {
 
   const [claimedPreSaleTokens, setClaimedPreSaleTokens] =
     useState<boolean>(false);
-  const [presaleWelcomeModalOpen, setPresaleWelcomeModalOpen] = useState(false);
-
-  useEffect(() => {
-    if (router.query[PRESALE_NOTIFICATION_URL_QUERY_PARAM]) {
-      setPresaleWelcomeModalOpen(true);
-      const newPath = router.pathname;
-      const newQuery = { ...router.query };
-      delete newQuery[PRESALE_NOTIFICATION_URL_QUERY_PARAM];
-
-      router.replace(
-        {
-          pathname: newPath,
-          query: newQuery,
-        },
-        undefined,
-        { shallow: true }
-      );
-    }
-  }, [router]);
 
   return (
     <Flex direction="column" justifyContent={"center"} gap="10px">
-      <TransactionModalTemplate
-        isOpen={presaleWelcomeModalOpen}
-        handleClose={() => setPresaleWelcomeModalOpen(false)}
-        cannotClose={loadingCurrentOnMount}
-        hideFooter
-      >
-        {loadingCurrentOnMount ? (
-          <Flex justifyContent="center">
-            <Spinner />
-          </Flex>
-        ) : isPreSaleOngoing ? (
-          <Flex direction="column" gap="10px">
-            <Text fontSize="25px" textAlign={"center"}>
-              hurray!
-            </Text>
-            <Text>
-              you made it here early enough to claim 1000 tokens. make sure your
-              wallet is connected before time runs out
-            </Text>
-          </Flex>
-        ) : (
-          <Flex direction="column" gap="10px">
-            <Text fontSize="25px" textAlign={"center"}>
-              too late, but...
-            </Text>
-            <Text>you can still join this game!</Text>
-            <Text>
-              come early next time a token launches to claim your tokens!
-            </Text>
-          </Flex>
-        )}
-      </TransactionModalTemplate>
       <Flex
         position="relative"
         gap="5px"
