@@ -34,7 +34,6 @@ import { useNetworkContext } from "../../../../hooks/context/useNetwork";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { VersusTempTokenTimerView } from "../../versus/VersusTokenTimerView";
 import { TransactionModalTemplate } from "../../../transactions/TransactionModalTemplate";
-import useUserAgent from "../../../../hooks/internal/useUserAgent";
 
 const steps = [{ title: "streamer must select winner" }];
 
@@ -51,8 +50,6 @@ export const VersusTempTokensInterface = ({
   customLoading?: boolean;
   noChannelData?: boolean;
 }) => {
-  const { isStandalone } = useUserAgent();
-
   const { channel } = useChannelContext();
   const { channelQueryData, isOwner, realTimeChannelDetails } = channel;
 
@@ -262,7 +259,6 @@ export const VersusTempTokensInterface = ({
               </Button>
             </Flex>
           )}
-
           {!isFullChart && (
             <Flex>
               {canPlayToken && (
@@ -319,25 +315,21 @@ export const VersusTempTokensInterface = ({
             </Flex>
           )}
         </Flex>
-        {isFullChart && isGameOngoing && !isStandalone && (
+        {isFullChart && isGameOngoing && (
           <VersusTempTokenTimerView disableChatbot={true} />
         )}
-        {!isFullChart &&
-          !isOwner &&
-          isGameOngoing &&
-          !canPlayToken &&
-          !isStandalone && (
-            <VersusTempTokenTimerView
-              disableChatbot={true}
-              fontSize={20}
-              direction={isOwner ? "column" : "row"}
-            />
-          )}
+        {!isFullChart && !isOwner && isGameOngoing && !canPlayToken && (
+          <VersusTempTokenTimerView
+            disableChatbot={true}
+            fontSize={20}
+            direction={isOwner ? "column" : "row"}
+          />
+        )}
         <Flex direction={"column"} flex="1" height="100%">
           <VersusTempTokenChart
             noChannelData={noChannelData}
             customChartHeightInPx={
-              !canPlayToken && (!isFullChart || isStandalone) ? 80 : undefined
+              !canPlayToken && !isFullChart ? 80 : undefined
             }
           />
           {!canPlayToken &&

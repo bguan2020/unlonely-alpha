@@ -30,7 +30,7 @@ import { DesktopChannelStreamerPerspectiveSimplified } from "../temptoken/Deskto
 import { DesktopChannelViewerPerspectiveSimplified } from "../temptoken/DesktopChannelViewerPerspectiveSimplified";
 import { useTempTokenContext } from "../../../../hooks/context/useTempToken";
 import { useTempTokenAblyInterpreter } from "../../../../hooks/internal/temp-token/ui/useTempTokenAblyInterpreter";
-import { TempTokenInterface } from "../../temp/TempTokenInterface";
+import { TempTokenInterface } from "./TempTokenInterface";
 import { useVersusTempTokenAblyInterpreter } from "../../../../hooks/internal/versus-token/ui/useVersusTempTokenAblyInterpreter";
 import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
 import { VersusTempTokensInterface } from "../versus/VersusTempTokensInterface";
@@ -213,7 +213,7 @@ export const DesktopChannelPageTempToken = ({
                     <Flex justifyContent={"center"}>
                       <Spinner />
                     </Flex>
-                  ) : !isGameOngoing ? (
+                  ) : (
                     <Menu>
                       <MenuButton
                         as={Button}
@@ -246,7 +246,7 @@ export const DesktopChannelPageTempToken = ({
                         </MenuItem>
                       </MenuList>
                     </Menu>
-                  ) : null}
+                  )}
                   <ChatComponent
                     chat={chat}
                     customHeight={"100%"}

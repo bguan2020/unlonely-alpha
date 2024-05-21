@@ -379,7 +379,10 @@ export const VersusTempTokenChart = ({
           textAlign="center"
           position="absolute"
         >
-          <VersusTempTokenTimerView disableChatbot={true} />
+          <VersusTempTokenTimerView
+            disableChatbot={true}
+            hidePresaleTimer={isStandalone}
+          />
         </Flex>
       )}
       <ResponsiveContainer
@@ -471,7 +474,9 @@ export const VersusTempTokenChart = ({
           )}
         </LineChart>
       </ResponsiveContainer>
-      {(canPlayToken || canBuyPostGame) && <VersusTokenExchange />}
+      {!isStandalone && (canPlayToken || canBuyPostGame) && (
+        <VersusTokenExchange />
+      )}
     </Flex>
   );
 };

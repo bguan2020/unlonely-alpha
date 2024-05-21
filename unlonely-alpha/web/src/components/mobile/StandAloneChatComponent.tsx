@@ -22,21 +22,18 @@ import useAddChannelToSubscription from "../../hooks/server/useAddChannelToSubsc
 import useRemoveChannelFromSubscription from "../../hooks/server/channel/useRemoveChannelFromSubscription";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import { TabsComponent } from "./TabsComponent";
-import { VersusTempTokensInterface } from "../channels/layout/versus/VersusTempTokensInterface";
-import { TempTokenInterface } from "../channels/temp/TempTokenInterface";
+import { useIsGameOngoingMobile } from "../../hooks/internal/temp-token/ui/useIsGameOngoingMobile";
+import { MobileTempTokenInterface } from "../channels/layout/temptoken/MobileTempTokenInterface";
+import { MobileVersusTempTokensInterface } from "../channels/layout/versus/MobileVersusTempTokensInterface";
 
 export const EXCLUDED_SLUGS = ["loveonleverage"];
 
 const StandaloneChatComponent = ({
   chat,
-  tokenStateView,
-  isGameOngoing,
   channelStaticError,
   channelStaticLoading,
 }: {
   chat: ChatReturnType;
-  tokenStateView: "owner-choose" | "single" | "versus";
-  isGameOngoing: boolean;
   channelStaticError?: any;
   channelStaticLoading?: boolean;
 }) => {
@@ -54,6 +51,8 @@ const StandaloneChatComponent = ({
   const infoRef = useRef<HTMLDivElement>(null);
   const vipRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const { tokenStateView } = useIsGameOngoingMobile();
 
   useOnClickOutside(infoRef, () => {
     if (showInfo) {
@@ -286,20 +285,12 @@ const StandaloneChatComponent = ({
           <InfoComponent />
         </Flex>
       )}
-      {!isGameOngoing ? (
+      {tokenStateView === "chat" ? (
         <TabsComponent chat={chat} />
       ) : tokenStateView === "single" ? (
-        <TempTokenInterface
-          isFullChart
-          ablyChannel={chat.channel}
-          customHeight="75vh"
-        />
+        <MobileTempTokenInterface ablyChannel={chat.channel} />
       ) : (
-        <VersusTempTokensInterface
-          isFullChart
-          ablyChannel={chat.channel}
-          customHeight="75vh"
-        />
+        <MobileVersusTempTokensInterface ablyChannel={chat.channel} />
       )}
     </Flex>
   );

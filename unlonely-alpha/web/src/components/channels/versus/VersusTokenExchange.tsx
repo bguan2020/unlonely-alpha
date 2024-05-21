@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Flex,
   Input,
@@ -9,7 +9,6 @@ import {
   Tooltip as ChakraTooltip,
   Text,
   PopoverArrow,
-  Spinner,
 } from "@chakra-ui/react";
 import { formatUnits, isAddress, isAddressEqual } from "viem";
 
@@ -17,24 +16,15 @@ import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempT
 import { useTradeTempTokenState } from "../../../hooks/internal/temp-token/write/useTradeTempTokenState";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { formatIncompleteNumber } from "../../../utils/validation/input";
-import {
-  PRESALE_NOTIFICATION_URL_QUERY_PARAM,
-  DEFAULT_TOKEN_TRADE_AMOUNT,
-} from "../../../constants";
-import { useRouter } from "next/router";
-import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
+import { DEFAULT_TOKEN_TRADE_AMOUNT } from "../../../constants";
 
 export const VersusTokenExchange = () => {
-  const { gameState, tokenATxs, tokenBTxs, loadingOnMount } =
-    useVersusTempTokenContext();
+  const { gameState, tokenATxs, tokenBTxs } = useVersusTempTokenContext();
 
   const { focusedTokenToTrade, tokenA, tokenB, isPreSaleOngoing } = gameState;
 
-  const [claimedPreSaleTokensA, setClaimedPreSaleTokensA] =
+  const [claimedPreSaleTokens, setClaimedPreSaleTokens] =
     useState<boolean>(false);
-  const [claimedPreSaleTokensB, setClaimedPreSaleTokensB] =
-    useState<boolean>(false);
-  const router = useRouter();
   const isFocusedTokenEqualToTokenA = useMemo(() => {
     return (
       focusedTokenToTrade &&
@@ -58,7 +48,6 @@ export const VersusTokenExchange = () => {
       )
     );
   }, [focusedTokenToTrade, tokenB]);
-  const [presaleWelcomeModalOpen, setPresaleWelcomeModalOpen] = useState(false);
 
   const focusedTokenData = useMemo(() => {
     if (
@@ -123,59 +112,8 @@ export const VersusTokenExchange = () => {
     isPreSaleOngoing,
   });
 
-  useEffect(() => {
-    if (router.query[PRESALE_NOTIFICATION_URL_QUERY_PARAM]) {
-      setPresaleWelcomeModalOpen(true);
-      const newPath = router.pathname;
-      const newQuery = { ...router.query };
-      delete newQuery[PRESALE_NOTIFICATION_URL_QUERY_PARAM];
-
-      router.replace(
-        {
-          pathname: newPath,
-          query: newQuery,
-        },
-        undefined,
-        { shallow: true }
-      );
-    }
-  }, [router]);
-
   return (
     <Flex direction="column" justifyContent={"center"} gap="10px">
-      <TransactionModalTemplate
-        isOpen={presaleWelcomeModalOpen}
-        handleClose={() => setPresaleWelcomeModalOpen(false)}
-        cannotClose={loadingOnMount}
-        hideFooter
-      >
-        {loadingOnMount ? (
-          <Flex justifyContent="center">
-            <Spinner />
-          </Flex>
-        ) : isPreSaleOngoing ? (
-          <Flex direction="column" gap="10px">
-            <Text fontSize="25px" textAlign={"center"}>
-              hurray!
-            </Text>
-            <Text>
-              you made it here early enough to claim 1000 tokens. select a token
-              to redeem and make sure your wallet is connected before time runs
-              out
-            </Text>
-          </Flex>
-        ) : (
-          <Flex direction="column" gap="10px">
-            <Text fontSize="25px" textAlign={"center"}>
-              too late, but...
-            </Text>
-            <Text>you can still join this VERSUS game!</Text>
-            <Text>
-              come early next time a token launches to claim your tokens!
-            </Text>
-          </Flex>
-        )}
-      </TransactionModalTemplate>
       <Flex
         position="relative"
         gap="5px"
@@ -259,12 +197,7 @@ export const VersusTokenExchange = () => {
               : "#ffffff"
           }
           isDisabled={
-            (isPreSaleOngoing &&
-              claimedPreSaleTokensA &&
-              isFocusedTokenEqualToTokenA) ||
-            (isPreSaleOngoing &&
-              claimedPreSaleTokensB &&
-              isFocusedTokenEqualToTokenB) ||
+            (isPreSaleOngoing && claimedPreSaleTokens) ||
             !mint ||
             mintCostAfterFeesLoading ||
             Number(formatIncompleteNumber(amount)) <= 0 ||
@@ -273,11 +206,7 @@ export const VersusTokenExchange = () => {
           onClick={async () => {
             await mint?.().then(() => {
               if (isPreSaleOngoing) {
-                if (isFocusedTokenEqualToTokenA) {
-                  setClaimedPreSaleTokensA(true);
-                } else if (isFocusedTokenEqualToTokenB) {
-                  setClaimedPreSaleTokensB(true);
-                }
+                setClaimedPreSaleTokens(true);
               }
             });
           }}
@@ -294,8 +223,7 @@ export const VersusTokenExchange = () => {
                 )} ETH)`}
               </Text>
             </Flex>
-          ) : (!claimedPreSaleTokensA && isFocusedTokenEqualToTokenA) ||
-            (!claimedPreSaleTokensB && isFocusedTokenEqualToTokenB) ? (
+          ) : !claimedPreSaleTokens ? (
             <Flex direction="column">
               <Text>CLAIM</Text>
               <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">

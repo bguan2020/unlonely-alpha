@@ -16,7 +16,6 @@ import { useLivepeerStreamData } from "../../../hooks/internal/useLivepeerStream
 import { useVipBadgeUi } from "../../../hooks/internal/useVipBadgeUi";
 import { formatApolloError } from "../../../utils/errorFormatting";
 import StreamComponent from "../../stream/StreamComponent";
-import { useIsGameOngoing } from "../../../hooks/internal/temp-token/ui/useIsGameOngoing";
 import { useTempTokenAblyInterpreter } from "../../../hooks/internal/temp-token/ui/useTempTokenAblyInterpreter";
 import { useVersusTempTokenAblyInterpreter } from "../../../hooks/internal/versus-token/ui/useVersusTempTokenAblyInterpreter";
 
@@ -42,8 +41,6 @@ export const MobilePage = ({
   useVipBadgeUi(chat);
   useTempTokenAblyInterpreter(chat);
   useVersusTempTokenAblyInterpreter(chat);
-  const { isGameOngoing, tokenStateView, setTokenStateView } =
-    useIsGameOngoing();
 
   useEffect(() => {
     if (channelSSR) handleChannelStaticData(channelSSR);
@@ -109,8 +106,6 @@ export const MobilePage = ({
             )}
             <StandaloneChatComponent
               chat={chat}
-              tokenStateView={tokenStateView}
-              isGameOngoing={isGameOngoing}
               channelStaticError={channelSSRDataLoading}
               channelStaticLoading={channelSSRDataError}
             />
