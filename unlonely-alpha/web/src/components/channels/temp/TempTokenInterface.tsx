@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { formatUnits } from "viem";
+import { formatUnits, isAddress } from "viem";
 import {
   Flex,
   Text,
@@ -143,6 +143,21 @@ export const TempTokenInterface = ({
     };
     if (isFailedGameState && isOwner) checkBalanceAfterExpiration();
   }, [currentTempTokenContract, isFailedGameState, publicClient, isOwner]);
+
+  // if is viewer and game had just finished, remove current token info
+  useEffect(() => {
+    if (
+      !isOwner &&
+      isFailedGameState &&
+      !canPlayToken &&
+      isAddress(currentTempTokenContract.address as `0x${string}`)
+    )
+      onSendRemainingFundsToWinnerEvent(
+        currentTempTokenContract.address as `0x${string}`,
+        true
+      );
+    handleIsGameFailed(false);
+  }, [isOwner, isFailedGameState, canPlayToken, currentTempTokenContract]);
 
   return (
     <>
