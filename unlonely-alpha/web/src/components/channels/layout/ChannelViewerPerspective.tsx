@@ -1,7 +1,7 @@
 import { Flex, Stack } from "@chakra-ui/react";
 
 import StreamComponent from "../../stream/StreamComponent";
-import { PlaybackInfo } from "livepeer/dist/models/components";
+import { PlaybackInfo } from "livepeer/models/components/playbackinfo";
 
 const ChannelViewerPerspective = ({
   playbackData,
