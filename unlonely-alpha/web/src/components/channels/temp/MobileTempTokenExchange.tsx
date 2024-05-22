@@ -8,6 +8,7 @@ import { useTradeTempTokenState } from "../../../hooks/internal/temp-token/write
 import { getTimeFromMillis } from "../../../utils/time";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { formatIncompleteNumber } from "../../../utils/validation/input";
+import { useScreenAnimationsContext } from "../../../hooks/context/useScreenAnimations";
 
 export const MobileTempTokenExchange = () => {
   const { tempToken } = useTempTokenContext();
@@ -23,6 +24,7 @@ export const MobileTempTokenExchange = () => {
     handleCanPlayToken,
     handleIsPreSaleOngoing,
   } = gameState;
+  const { fireworks } = useScreenAnimationsContext();
 
   const [claimedPreSaleTokens, setClaimedPreSaleTokens] =
     useState<boolean>(false);
@@ -44,6 +46,13 @@ export const MobileTempTokenExchange = () => {
     tokenSymbol: currentActiveTokenSymbol,
     tokenTxs: tempTokenTxs,
     isPreSaleOngoing,
+    callbackOnTxSuccess: () => {
+      if (isPreSaleOngoing) {
+        setClaimedPreSaleTokens(true);
+        setClaimedModalOpen(true);
+        fireworks();
+      }
+    },
   });
 
   const { durationLeftForPreSale } = useTempTokenTimerState({
@@ -87,19 +96,13 @@ export const MobileTempTokenExchange = () => {
           {!claimedPreSaleTokens ? (
             <>
               <Button
+                color="white"
                 _hover={{}}
                 _focus={{}}
                 _active={{}}
                 bg={"#5f5c9c"}
                 isDisabled={!mint || mintCostAfterFeesLoading}
-                onClick={async () => {
-                  await mint?.().then(() => {
-                    if (isPreSaleOngoing) {
-                      setClaimedPreSaleTokens(true);
-                      setClaimedModalOpen(true);
-                    }
-                  });
-                }}
+                onClick={mint}
                 w="100%"
               >
                 Claim
@@ -109,6 +112,7 @@ export const MobileTempTokenExchange = () => {
             <>
               <Flex>You have already claimed your free tokens</Flex>
               <Button
+                color="white"
                 isDisabled
                 w="100%"
                 _hover={{}}

@@ -8,9 +8,11 @@ import { getTimeFromMillis } from "../../../utils/time";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { formatIncompleteNumber } from "../../../utils/validation/input";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
+import { useScreenAnimationsContext } from "../../../hooks/context/useScreenAnimations";
 
 export const MobileVersusTokenExchange = () => {
   const { gameState, tokenATxs, tokenBTxs } = useVersusTempTokenContext();
+  const { fireworks } = useScreenAnimationsContext();
 
   const {
     focusedTokenToTrade,
@@ -112,6 +114,13 @@ export const MobileVersusTokenExchange = () => {
     tokenSymbol: focusedTokenData.tokenSymbol,
     tokenTxs: focusedTokenData.tokenTxs,
     isPreSaleOngoing,
+    callbackOnTxSuccess: () => {
+      if (isPreSaleOngoing) {
+        setClaimedPreSaleTokens(true);
+        setClaimedModalOpen(true);
+        fireworks();
+      }
+    },
   });
 
   const { durationLeftForPreSale } = useTempTokenTimerState({
@@ -165,6 +174,7 @@ export const MobileVersusTokenExchange = () => {
                 _hover={{}}
                 _focus={{}}
                 _active={{}}
+                color="white"
                 bg={
                   isFocusedTokenEqualToTokenA
                     ? "rgba(255, 36, 36, 1)"
@@ -177,14 +187,7 @@ export const MobileVersusTokenExchange = () => {
                   mintCostAfterFeesLoading ||
                   focusedTokenData.tokenAddress === ""
                 }
-                onClick={async () => {
-                  await mint?.().then(() => {
-                    if (isPreSaleOngoing) {
-                      setClaimedPreSaleTokens(true);
-                      setClaimedModalOpen(true);
-                    }
-                  });
-                }}
+                onClick={mint}
                 w="100%"
               >
                 Claim
@@ -199,6 +202,7 @@ export const MobileVersusTokenExchange = () => {
                 _hover={{}}
                 _focus={{}}
                 _active={{}}
+                color="white"
                 bg={
                   isFocusedTokenEqualToTokenA
                     ? "rgba(255, 36, 36, 1)"

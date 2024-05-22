@@ -63,11 +63,13 @@ export const useTradeTempTokenState = ({
   tokenSymbol,
   tokenTxs,
   isPreSaleOngoing,
+  callbackOnTxSuccess,
 }: {
   tokenAddress: string;
   tokenSymbol: string;
   tokenTxs: TradeableTokenTx[];
   isPreSaleOngoing: boolean;
+  callbackOnTxSuccess?: () => void;
 }): UseTradeTempTokenStateType => {
   const { walletIsConnected, userAddress, user } = useUser();
 
@@ -291,6 +293,7 @@ export const useTradeTempTokenState = ({
               description: "",
             });
           }
+          callbackOnTxSuccess?.();
           canAddToChatbot_mint.current = false;
         }
       },
