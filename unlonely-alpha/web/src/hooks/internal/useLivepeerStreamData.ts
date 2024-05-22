@@ -1,6 +1,6 @@
 import { useLazyQuery } from "@apollo/client";
 import { Livepeer } from "livepeer";
-import { PlaybackInfo } from "livepeer/dist/models/components";
+import { PlaybackInfo } from "livepeer/models/components/playbackinfo";
 import { useState, useEffect } from "react";
 import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../constants/queries";
 import { GetLivepeerStreamDataQuery } from "../../generated/graphql";

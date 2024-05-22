@@ -5,7 +5,7 @@ import IVSPlayer from "./IVSPlayer";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import LivepeerPlayer from "./LivepeerPlayer";
-import { PlaybackInfo } from "livepeer/dist/models/components";
+import { PlaybackInfo } from "livepeer/models/components/playbackinfo";
 import { getSrc } from "@livepeer/react/external";
 import { DESKTOP_VIDEO_VH, MOBILE_VIDEO_VH } from "../../constants";
 

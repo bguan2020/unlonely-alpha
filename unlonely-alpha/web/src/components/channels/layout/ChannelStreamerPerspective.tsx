@@ -33,10 +33,10 @@ import useUserAgent from "../../../hooks/internal/useUserAgent";
 import { GetLivepeerStreamDataQuery } from "../../../generated/graphql";
 import { useRouter } from "next/router";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
-import { PlaybackInfo } from "livepeer/dist/models/components";
 import LivepeerPlayer from "../../stream/LivepeerPlayer";
 import { getSrc } from "@livepeer/react/external";
 import { MigrateToLivePeer } from "./MigrateToLivepeer";
+import { PlaybackInfo } from "livepeer/models/components/playbackinfo";
 
 const ChannelStreamerPerspective = ({
   ablyChannel,

@@ -1,5 +1,5 @@
 import { Text, Flex, Spinner } from "@chakra-ui/react";
-import { PlaybackInfo } from "livepeer/dist/models/components";
+import { PlaybackInfo } from "livepeer/models/components/playbackinfo";
 import { useMemo, useRef, useState } from "react";
 import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { getSrc } from "@livepeer/react/external";
