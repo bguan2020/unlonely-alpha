@@ -1,5 +1,12 @@
 import { memo, useRef, useState } from "react";
-import { Flex, IconButton, Spinner, Text } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  IconButton,
+  Spinner,
+  Text,
+  useToast,
+} from "@chakra-ui/react";
 import { Src } from "@livepeer/react";
 import * as Player from "@livepeer/react/player";
 import {
@@ -12,6 +19,8 @@ import {
   UnmuteIcon,
 } from "@livepeer/react/assets";
 import { BiRefresh } from "react-icons/bi";
+import trailString from "../../utils/trailString";
+import copy from "copy-to-clipboard";
 
 const LivepeerPlayer = memo(
   ({
@@ -24,8 +33,10 @@ const LivepeerPlayer = memo(
     customSizePercentages?: { width: `${number}%`; height: `${number}%` };
   }) => {
     const [opacity, setOpacity] = useState(0);
+    const toast = useToast();
 
     const timeoutRef = useRef<number | NodeJS.Timeout | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const handleOpacity = () => {
       setOpacity(1); // Set opacity to 1 on touch
@@ -39,6 +50,15 @@ const LivepeerPlayer = memo(
         setOpacity(0); // Change back to 0 after 3 seconds
         timeoutRef.current = null; // Reset the ref after the timeout completes
       }, 2000);
+    };
+
+    const handleCopy = () => {
+      toast({
+        title: "copied to clipboard",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
     };
 
     if (!src) {
@@ -86,8 +106,11 @@ const LivepeerPlayer = memo(
                 margin: "auto",
                 objectFit: "contain",
               }}
+              onError={(e) => {
+                console.error("Error playing video", e);
+                setError(e.toString());
+              }}
             />
-
             <Player.LoadingIndicator
               asChild
               style={{
@@ -151,34 +174,66 @@ const LivepeerPlayer = memo(
                   p="5px"
                   gap="10px"
                 >
-                  <Text
-                    textAlign="center"
-                    fontSize={
-                      isPreview ? ["1rem", "1rem", "2rem", "2rem"] : "3rem"
-                    }
-                    fontFamily={"LoRes15"}
-                  >
-                    Stream is offline
-                  </Text>
-                  {!isPreview && (
-                    <Text textAlign="center">
-                      Refresh for the latest streaming updates
-                    </Text>
+                  {error ? (
+                    <>
+                      <Text
+                        textAlign="center"
+                        fontSize={
+                          isPreview ? ["1rem", "1rem", "2rem", "2rem"] : "3rem"
+                        }
+                        fontFamily={"LoRes15"}
+                      >
+                        Error detected while playing video
+                      </Text>
+                      <Text textAlign={"center"} mx="30%">
+                        {trailString(error, 60)}
+                      </Text>
+                      <Button
+                        color="white"
+                        width="100%"
+                        bg="#b82929"
+                        onClick={() => {
+                          copy(error);
+                          handleCopy();
+                        }}
+                        _focus={{}}
+                        _hover={{ background: "#f25719" }}
+                      >
+                        copy error
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Text
+                        textAlign="center"
+                        fontSize={
+                          isPreview ? ["1rem", "1rem", "2rem", "2rem"] : "3rem"
+                        }
+                        fontFamily={"LoRes15"}
+                      >
+                        Stream is offline
+                      </Text>
+                      {!isPreview && (
+                        <Text textAlign="center">
+                          Refresh for the latest streaming updates
+                        </Text>
+                      )}
+                      <IconButton
+                        color="white"
+                        aria-label="refresh"
+                        icon={<BiRefresh size="30px" />}
+                        bg="rgb(0, 0, 0, 0.5)"
+                        onClick={() => window?.location?.reload()}
+                        _hover={{
+                          bg: "rgb(255,255,255, 0.1)",
+                        }}
+                        _focus={{}}
+                        _active={{}}
+                        borderWidth="1px"
+                        zIndex="1"
+                      />
+                    </>
                   )}
-                  <IconButton
-                    color="white"
-                    aria-label="refresh"
-                    icon={<BiRefresh size="30px" />}
-                    bg="rgb(0, 0, 0, 0.5)"
-                    onClick={() => window?.location?.reload()}
-                    _hover={{
-                      bg: "rgb(255,255,255, 0.1)",
-                    }}
-                    _focus={{}}
-                    _active={{}}
-                    borderWidth="1px"
-                    zIndex="1"
-                  />{" "}
                 </Flex>
               </Flex>
             </Player.ErrorIndicator>

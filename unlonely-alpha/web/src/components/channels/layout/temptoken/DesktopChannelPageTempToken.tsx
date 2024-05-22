@@ -44,7 +44,8 @@ export const DesktopChannelPageTempToken = ({
   const { currentActiveTokenEndTimestamp, canPlayToken } = tempToken;
 
   const toast = useToast();
-  const { livepeerData, playbackInfo } = useLivepeerStreamData();
+  const { livepeerData, playbackInfo, checkedForLivepeerPlaybackInfo } =
+    useLivepeerStreamData();
   useVipBadgeUi(chat);
   useTempTokenAblyInterpreter(chat);
   useEffect(() => {
@@ -128,41 +129,47 @@ export const DesktopChannelPageTempToken = ({
                 {isOwner && walletIsConnected ? (
                   <>
                     <ChannelWideModals ablyChannel={chat.channel} />
-                    <DesktopChannelStreamerPerspectiveSimplified
-                      ablyChannel={chat.channel}
-                      livepeerData={livepeerData}
-                      playbackData={
-                        playbackInfo
-                          ? {
-                              infra: "livepeer",
-                              livepeerPlaybackInfo: playbackInfo,
-                            }
-                          : {
-                              infra: "aws",
-                            }
-                      }
-                      mode={
-                        shouldRenderTempTokenInterface
-                          ? "single-temp-token"
-                          : ""
-                      }
-                    />
+                    {checkedForLivepeerPlaybackInfo && (
+                      <DesktopChannelStreamerPerspectiveSimplified
+                        ablyChannel={chat.channel}
+                        livepeerData={livepeerData}
+                        playbackData={
+                          playbackInfo
+                            ? {
+                                infra: "livepeer",
+                                livepeerPlaybackInfo: playbackInfo,
+                              }
+                            : {
+                                infra: "aws",
+                              }
+                        }
+                        mode={
+                          shouldRenderTempTokenInterface
+                            ? "single-temp-token"
+                            : ""
+                        }
+                      />
+                    )}
                   </>
                 ) : (
-                  <DesktopChannelViewerPerspectiveSimplified
-                    playbackData={
-                      playbackInfo
-                        ? {
-                            infra: "livepeer",
-                            livepeerPlaybackInfo: playbackInfo,
-                          }
-                        : {
-                            infra: "aws",
-                          }
-                    }
-                    chat={chat}
-                    mode={canPlayToken ? "single-temp-token" : ""}
-                  />
+                  <>
+                    {checkedForLivepeerPlaybackInfo && (
+                      <DesktopChannelViewerPerspectiveSimplified
+                        playbackData={
+                          playbackInfo
+                            ? {
+                                infra: "livepeer",
+                                livepeerPlaybackInfo: playbackInfo,
+                              }
+                            : {
+                                infra: "aws",
+                              }
+                        }
+                        chat={chat}
+                        mode={canPlayToken ? "single-temp-token" : ""}
+                      />
+                    )}
+                  </>
                 )}
               </Flex>
               {canPlayToken && (
