@@ -62,60 +62,11 @@ const ConnectWallet = () => {
     <>
       {ready ? (
         <>
-          {user ? (
-            loginMethod === "privy" ||
-            (loginMethod && loginMethod !== "privy" && activeWallet) ? (
-              <ConnectedDisplay />
-            ) : (
-              <Menu>
-                <Flex
-                  p="1px"
-                  bg={
-                    "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-                  }
-                >
-                  <MenuButton
-                    color="white"
-                    width={"100%"}
-                    as={Button}
-                    borderRadius="0"
-                    _hover={{ bg: "#020202" }}
-                    _focus={{}}
-                    _active={{}}
-                    bg={"#131323"}
-                    px="10px"
-                    rightIcon={<ChevronDownIcon />}
-                  >
-                    <Text fontFamily="LoRes15" fontSize="15px">
-                      Connect
-                    </Text>
-                  </MenuButton>
-                </Flex>
-                <MenuList zIndex={1801} bg={"#131323"} borderRadius="0">
-                  <MenuItem
-                    bg={"#131323"}
-                    _hover={{ bg: "#1f1f3c" }}
-                    _focus={{}}
-                    _active={{}}
-                    onClick={() => {
-                      privyUser ? connectWallet() : login();
-                    }}
-                  >
-                    connect
-                  </MenuItem>
-                  <MenuItem
-                    bg={"#131323"}
-                    _hover={{ bg: "#1f1f3c" }}
-                    _focus={{}}
-                    _active={{}}
-                    onClick={redirectToBridge}
-                  >
-                    bridge ETH to base
-                    <ExternalLinkIcon />
-                  </MenuItem>
-                </MenuList>
-              </Menu>
-            )
+          {user &&
+          loginMethod &&
+          (loginMethod === "privy" ||
+            (loginMethod !== "privy" && activeWallet)) ? (
+            <ConnectedDisplay />
           ) : (
             <Menu>
               <Flex
@@ -141,7 +92,6 @@ const ConnectWallet = () => {
                   </Text>
                 </MenuButton>
               </Flex>
-
               <MenuList zIndex={1801} bg={"#131323"} borderRadius="0">
                 <MenuItem
                   bg={"#131323"}
@@ -152,7 +102,7 @@ const ConnectWallet = () => {
                     privyUser ? connectWallet() : login();
                   }}
                 >
-                  login
+                  {privyUser ? "connect wallet" : "login"}
                 </MenuItem>
                 <MenuItem
                   bg={"#131323"}
