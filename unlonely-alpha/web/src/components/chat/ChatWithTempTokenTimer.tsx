@@ -115,6 +115,7 @@ export const ChatWithTempTokenTimer = ({
         </Flex>
         <Flex w="100%" px="0.5rem" pb="0.5rem">
           <ChatForm
+            messages={chat.receivedMessages}
             sendChatMessage={sendChatMessage}
             additionalChatCommands={channelChatCommands}
             allowPopout

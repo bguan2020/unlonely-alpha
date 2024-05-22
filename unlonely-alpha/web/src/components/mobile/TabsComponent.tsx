@@ -233,6 +233,7 @@ const ChatTab = ({
       {(userIsChannelOwner || userIsModerator || isVip || !isVipChat) && (
         <Flex w="100%">
           <ChatForm
+            messages={chat.receivedMessages}
             sendChatMessage={sendChatMessage}
             additionalChatCommands={channelChatCommands}
             allowPopout
