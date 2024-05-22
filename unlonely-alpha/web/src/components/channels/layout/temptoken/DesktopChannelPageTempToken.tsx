@@ -74,7 +74,8 @@ export const DesktopChannelPageTempToken = ({
   } = versusGameState;
 
   const toast = useToast();
-  const { livepeerData, playbackInfo } = useLivepeerStreamData();
+  const { livepeerData, playbackInfo, checkedForLivepeerPlaybackInfo } =
+    useLivepeerStreamData();
   useVipBadgeUi(chat);
   useTempTokenAblyInterpreter(chat);
   useVersusTempTokenAblyInterpreter(chat);
@@ -155,49 +156,55 @@ export const DesktopChannelPageTempToken = ({
                 {isOwner && walletIsConnected ? (
                   <>
                     <ChannelWideModals ablyChannel={chat.channel} />
-                    <DesktopChannelStreamerPerspectiveSimplified
-                      ablyChannel={chat.channel}
-                      livepeerData={livepeerData}
-                      playbackData={
-                        playbackInfo
-                          ? {
-                              infra: "livepeer",
-                              livepeerPlaybackInfo: playbackInfo,
-                            }
-                          : {
-                              infra: "aws",
-                            }
-                      }
-                      mode={
-                        currentActiveTokenEndTimestamp
-                          ? "single-temp-token"
-                          : isVersusGameOngoing
-                          ? "versus-mode"
-                          : ""
-                      }
-                    />
+                    {checkedForLivepeerPlaybackInfo && (
+                      <DesktopChannelStreamerPerspectiveSimplified
+                        ablyChannel={chat.channel}
+                        livepeerData={livepeerData}
+                        playbackData={
+                          playbackInfo
+                            ? {
+                                infra: "livepeer",
+                                livepeerPlaybackInfo: playbackInfo,
+                              }
+                            : {
+                                infra: "aws",
+                              }
+                        }
+                        mode={
+                          currentActiveTokenEndTimestamp
+                            ? "single-temp-token"
+                            : isVersusGameOngoing
+                            ? "versus-mode"
+                            : ""
+                        }
+                      />
+                    )}
                   </>
                 ) : (
-                  <DesktopChannelViewerPerspectiveSimplified
-                    playbackData={
-                      playbackInfo
-                        ? {
-                            infra: "livepeer",
-                            livepeerPlaybackInfo: playbackInfo,
-                          }
-                        : {
-                            infra: "aws",
-                          }
-                    }
-                    chat={chat}
-                    mode={
-                      canPlayTempToken
-                        ? "single-temp-token"
-                        : canPlayVersusToken
-                        ? "versus-mode"
-                        : ""
-                    }
-                  />
+                  <>
+                    {checkedForLivepeerPlaybackInfo && (
+                      <DesktopChannelViewerPerspectiveSimplified
+                        playbackData={
+                          playbackInfo
+                            ? {
+                                infra: "livepeer",
+                                livepeerPlaybackInfo: playbackInfo,
+                              }
+                            : {
+                                infra: "aws",
+                              }
+                        }
+                        chat={chat}
+                        mode={
+                          canPlayTempToken
+                            ? "single-temp-token"
+                            : canPlayVersusToken
+                            ? "versus-mode"
+                            : ""
+                        }
+                      />
+                    )}
+                  </>
                 )}
               </Flex>
               {isOwner && tokenStateView === "owner-choose" ? (

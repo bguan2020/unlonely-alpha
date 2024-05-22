@@ -5,17 +5,52 @@ import {
   VideoJSIVSTech,
   VideoJSEvents,
 } from "amazon-ivs-player";
-import { Flex, Text } from "@chakra-ui/react";
+import { Flex, Spinner, Text } from "@chakra-ui/react";
 
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import Participants from "../presence/Participants";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import useScript from "../../hooks/internal/useScript";
 
 type Props = {
   playbackUrl: string;
 };
 
 const IVSPlayer: React.FunctionComponent<Props> = ({ playbackUrl }) => {
+  const { loading: scriptLoading, error } = useScript({
+    src: "https://player.live-video.net/1.2.0/amazon-ivs-videojs-tech.min.js",
+  });
+  // Load IVS quality plugin
+  const { loading: loadingPlugin, error: pluginError } = useScript({
+    src: "https://player.live-video.net/1.2.0/amazon-ivs-quality-plugin.min.js",
+  });
+
+  if (scriptLoading || loadingPlugin) {
+    return (
+      <>
+        <Flex
+          flexDirection="row"
+          justifyContent="center"
+          alignItems="center"
+          width="100%"
+          height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
+          bg="black"
+          borderRadius="10px"
+        >
+          <Spinner />
+        </Flex>
+      </>
+    );
+  }
+
+  if (error || pluginError) {
+    return <>error</>;
+  }
+
+  return <IVSPlayerView playbackUrl={playbackUrl} />;
+};
+
+const IVSPlayerView: React.FunctionComponent<Props> = ({ playbackUrl }) => {
   const [offline, setOffline] = useState<boolean>(false);
   const { chat } = useChannelContext();
   const { presenceChannel } = chat;

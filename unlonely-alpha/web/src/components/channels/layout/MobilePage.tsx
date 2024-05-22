@@ -36,7 +36,8 @@ export const MobilePage = ({
     handleChannelStaticData,
   } = channel;
   const toast = useToast();
-  const { livepeerData, playbackInfo } = useLivepeerStreamData();
+  const { livepeerData, playbackInfo, checkedForLivepeerPlaybackInfo } =
+    useLivepeerStreamData();
   const chat = useChat();
   useVipBadgeUi(chat);
   useTempTokenAblyInterpreter(chat);
@@ -73,34 +74,38 @@ export const MobilePage = ({
             {isOwner ? (
               <>
                 <ChannelWideModals ablyChannel={chat.channel} />
-                <ChannelStreamerPerspective
-                  livepeerData={livepeerData}
-                  ablyChannel={chat.channel}
-                  playbackData={
-                    playbackInfo
-                      ? {
-                          infra: "livepeer",
-                          livepeerPlaybackInfo: playbackInfo,
-                        }
-                      : {
-                          infra: "aws",
-                        }
-                  }
-                />
-              </>
-            ) : (
-              <Stack direction="column" width={"100%"} position={"fixed"}>
-                <Flex width={"100%"} position="relative">
-                  <StreamComponent
+                {checkedForLivepeerPlaybackInfo && (
+                  <ChannelStreamerPerspective
+                    livepeerData={livepeerData}
+                    ablyChannel={chat.channel}
                     playbackData={
                       playbackInfo
                         ? {
                             infra: "livepeer",
                             livepeerPlaybackInfo: playbackInfo,
                           }
-                        : { infra: "aws" }
+                        : {
+                            infra: "aws",
+                          }
                     }
                   />
+                )}
+              </>
+            ) : (
+              <Stack direction="column" width={"100%"} position={"fixed"}>
+                <Flex width={"100%"} position="relative">
+                  {checkedForLivepeerPlaybackInfo && (
+                    <StreamComponent
+                      playbackData={
+                        playbackInfo
+                          ? {
+                              infra: "livepeer",
+                              livepeerPlaybackInfo: playbackInfo,
+                            }
+                          : { infra: "aws" }
+                      }
+                    />
+                  )}
                 </Flex>
               </Stack>
             )}

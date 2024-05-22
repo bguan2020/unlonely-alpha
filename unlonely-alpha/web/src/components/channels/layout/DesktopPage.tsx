@@ -49,7 +49,8 @@ export const DesktopPage = ({
     handleSetTourSteps,
   } = ui;
   const toast = useToast();
-  const { livepeerData, playbackInfo } = useLivepeerStreamData();
+  const { livepeerData, playbackInfo, checkedForLivepeerPlaybackInfo } =
+    useLivepeerStreamData();
   useVipBadgeUi(chat);
 
   useEffect(() => {
@@ -156,23 +157,10 @@ export const DesktopPage = ({
                 {isOwner && walletIsConnected ? (
                   <>
                     <ChannelWideModals ablyChannel={chat.channel} />
-                    <ChannelStreamerPerspective
-                      ablyChannel={chat.channel}
-                      livepeerData={livepeerData}
-                      playbackData={
-                        playbackInfo
-                          ? {
-                              infra: "livepeer",
-                              livepeerPlaybackInfo: playbackInfo,
-                            }
-                          : { infra: "aws" }
-                      }
-                    />
-                  </>
-                ) : (
-                  <Stack direction="column" width={"100%"} position={"unset"}>
-                    <Flex width={"100%"} position="relative">
-                      <StreamComponent
+                    {checkedForLivepeerPlaybackInfo && (
+                      <ChannelStreamerPerspective
+                        ablyChannel={chat.channel}
+                        livepeerData={livepeerData}
                         playbackData={
                           playbackInfo
                             ? {
@@ -182,6 +170,23 @@ export const DesktopPage = ({
                             : { infra: "aws" }
                         }
                       />
+                    )}
+                  </>
+                ) : (
+                  <Stack direction="column" width={"100%"} position={"unset"}>
+                    <Flex width={"100%"} position="relative">
+                      {checkedForLivepeerPlaybackInfo && (
+                        <StreamComponent
+                          playbackData={
+                            playbackInfo
+                              ? {
+                                  infra: "livepeer",
+                                  livepeerPlaybackInfo: playbackInfo,
+                                }
+                              : { infra: "aws" }
+                          }
+                        />
+                      )}
                     </Flex>
                   </Stack>
                 )}

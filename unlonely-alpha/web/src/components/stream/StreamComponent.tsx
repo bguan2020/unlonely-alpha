@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { Text, Flex, Spinner } from "@chakra-ui/react";
 
 import IVSPlayer from "./IVSPlayer";
-// import useScript from "../../hooks/internal/useScript";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import LivepeerPlayer from "./LivepeerPlayer";
@@ -35,36 +34,6 @@ const StreamComponent = ({
         : channelQueryData?.playbackUrl,
     [channelQueryData]
   );
-
-  // const { loading: scriptLoading, error } = useScript({
-  //   src: "https://player.live-video.net/1.2.0/amazon-ivs-videojs-tech.min.js",
-  // });
-  // // Load IVS quality plugin
-  // const { loading: loadingPlugin, error: pluginError } = useScript({
-  //   src: "https://player.live-video.net/1.2.0/amazon-ivs-quality-plugin.min.js",
-  // });
-
-  // if (scriptLoading || loadingPlugin) {
-  //   return (
-  //     <>
-  //       <Flex
-  //         flexDirection="row"
-  //         justifyContent="center"
-  //         alignItems="center"
-  //         width="100%"
-  //         height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
-  //         bg="black"
-  //         borderRadius="10px"
-  //       >
-  //         <Spinner />
-  //       </Flex>
-  //     </>
-  //   );
-  // }
-
-  // if (error || pluginError) {
-  //   return <>error</>;
-  // }
 
   return (
     <Flex
