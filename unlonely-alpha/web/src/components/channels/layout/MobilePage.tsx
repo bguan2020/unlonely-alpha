@@ -1,5 +1,5 @@
 import { ApolloError } from "@apollo/client";
-import { Flex, Text, Image, useToast, Button } from "@chakra-ui/react";
+import { Flex, Text, Image, useToast, Button, Stack } from "@chakra-ui/react";
 import { useEffect } from "react";
 import { ChannelStaticQuery } from "../../../generated/graphql";
 import { useChat } from "../../../hooks/chat/useChat";
@@ -8,7 +8,6 @@ import { WavyText } from "../../general/WavyText";
 import AppLayout from "../../layout/AppLayout";
 import ChannelNextHead from "../../layout/ChannelNextHead";
 import ChannelStreamerPerspective from "./ChannelStreamerPerspective";
-import ChannelViewerPerspective from "./ChannelViewerPerspective";
 import StandaloneAblyChatComponent from "../../mobile/StandAloneChatComponent";
 import { ChannelWideModals } from "../ChannelWideModals";
 import copy from "copy-to-clipboard";
@@ -16,6 +15,7 @@ import trailString from "../../../utils/trailString";
 import { useLivepeerStreamData } from "../../../hooks/internal/useLivepeerStreamData";
 import { useVipBadgeUi } from "../../../hooks/internal/useVipBadgeUi";
 import { formatApolloError } from "../../../utils/errorFormatting";
+import StreamComponent from "../../stream/StreamComponent";
 
 export const MobilePage = ({
   channelSSR,
@@ -34,7 +34,8 @@ export const MobilePage = ({
     handleChannelStaticData,
   } = channel;
   const toast = useToast();
-  const { livepeerData, playbackInfo } = useLivepeerStreamData();
+  const { livepeerData, playbackInfo, checkedForLivepeerPlaybackInfo } =
+    useLivepeerStreamData();
   const chat = useChat();
   useVipBadgeUi(chat);
 
@@ -69,35 +70,40 @@ export const MobilePage = ({
             {isOwner ? (
               <>
                 <ChannelWideModals ablyChannel={chat.channel} />
-                <ChannelStreamerPerspective
-                  livepeerData={livepeerData}
-                  ablyChannel={chat.channel}
-                  playbackData={
-                    playbackInfo
-                      ? {
-                          infra: "livepeer",
-                          livepeerPlaybackInfo: playbackInfo,
-                        }
-                      : {
-                          infra: "aws",
-                        }
-                  }
-                />
+                {checkedForLivepeerPlaybackInfo && (
+                  <ChannelStreamerPerspective
+                    livepeerData={livepeerData}
+                    ablyChannel={chat.channel}
+                    playbackData={
+                      playbackInfo
+                        ? {
+                            infra: "livepeer",
+                            livepeerPlaybackInfo: playbackInfo,
+                          }
+                        : {
+                            infra: "aws",
+                          }
+                    }
+                  />
+                )}
               </>
             ) : (
-              <ChannelViewerPerspective
-                playbackData={
-                  playbackInfo
-                    ? {
-                        infra: "livepeer",
-                        livepeerPlaybackInfo: playbackInfo,
+              <Stack direction="column" width={"100%"} position={"fixed"}>
+                <Flex width={"100%"} position="relative">
+                  {checkedForLivepeerPlaybackInfo && (
+                    <StreamComponent
+                      playbackData={
+                        playbackInfo
+                          ? {
+                              infra: "livepeer",
+                              livepeerPlaybackInfo: playbackInfo,
+                            }
+                          : { infra: "aws" }
                       }
-                    : {
-                        infra: "aws",
-                      }
-                }
-                mobile
-              />
+                    />
+                  )}
+                </Flex>
+              </Stack>
             )}
             <StandaloneAblyChatComponent chat={chat} />
           </>

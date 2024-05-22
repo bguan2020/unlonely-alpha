@@ -45,8 +45,8 @@ export default class UnlonelyDocument extends Document {
           />
           <link rel="manifest" href="/manifest.webmanifest" />
           <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.6.6/video.min.js"></script>
-          <script src="https://player.live-video.net/1.2.0/amazon-ivs-videojs-tech.min.js"></script>
-          <script src="https://player.live-video.net/1.2.0/amazon-ivs-quality-plugin.min.js"></script>
+          {/* <script src="https://player.live-video.net/1.2.0/amazon-ivs-videojs-tech.min.js"></script>
+          <script src="https://player.live-video.net/1.2.0/amazon-ivs-quality-plugin.min.js"></script> */}
         </Head>
         <body>
           <ColorModeScript

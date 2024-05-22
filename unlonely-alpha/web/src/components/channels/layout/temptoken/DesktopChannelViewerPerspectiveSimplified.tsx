@@ -2,7 +2,6 @@ import { Text, Flex, Spinner } from "@chakra-ui/react";
 import { PlaybackInfo } from "livepeer/dist/models/components";
 import { useMemo, useRef, useState } from "react";
 import { useChannelContext } from "../../../../hooks/context/useChannel";
-import useScript from "../../../../hooks/internal/useScript";
 import { getSrc } from "@livepeer/react/external";
 import IVSPlayer from "../../../stream/IVSPlayer";
 import LivepeerPlayer from "../../../stream/LivepeerPlayer";
@@ -54,36 +53,6 @@ export const DesktopChannelViewerPerspectiveSimplified = ({
       timeoutRef.current = null; // Reset the ref after the timeout completes
     }, 2000);
   };
-
-  const { loading: scriptLoading, error } = useScript({
-    src: "https://player.live-video.net/1.2.0/amazon-ivs-videojs-tech.min.js",
-  });
-  // Load IVS quality plugin
-  const { loading: loadingPlugin, error: pluginError } = useScript({
-    src: "https://player.live-video.net/1.2.0/amazon-ivs-quality-plugin.min.js",
-  });
-
-  if (scriptLoading || loadingPlugin) {
-    return (
-      <>
-        <Flex
-          flexDirection="row"
-          justifyContent="center"
-          alignItems="center"
-          width="100%"
-          height={{ base: "80%", sm: "300px", md: "400px", lg: "500px" }}
-          bg="black"
-          borderRadius="10px"
-        >
-          <Spinner />
-        </Flex>
-      </>
-    );
-  }
-
-  if (error || pluginError) {
-    return <>error</>;
-  }
 
   return (
     <Flex

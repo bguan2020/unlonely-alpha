@@ -43,7 +43,8 @@ export const DesktopChannelPageVersus = ({
   const { canPlayToken, isGameFinished } = gameState;
 
   const toast = useToast();
-  const { livepeerData, playbackInfo } = useLivepeerStreamData();
+  const { livepeerData, playbackInfo, checkedForLivepeerPlaybackInfo } =
+    useLivepeerStreamData();
   useVipBadgeUi(chat);
   useVersusTempTokenAblyInterpreter(chat);
   useEffect(() => {
@@ -96,37 +97,43 @@ export const DesktopChannelPageVersus = ({
                 {isOwner && walletIsConnected ? (
                   <>
                     <ChannelWideModals ablyChannel={chat.channel} />
-                    <DesktopChannelStreamerPerspectiveSimplified
-                      ablyChannel={chat.channel}
-                      livepeerData={livepeerData}
-                      playbackData={
-                        playbackInfo
-                          ? {
-                              infra: "livepeer",
-                              livepeerPlaybackInfo: playbackInfo,
-                            }
-                          : {
-                              infra: "aws",
-                            }
-                      }
-                      mode={!isGameFinished ? "versus-mode" : ""}
-                    />
+                    {checkedForLivepeerPlaybackInfo && (
+                      <DesktopChannelStreamerPerspectiveSimplified
+                        ablyChannel={chat.channel}
+                        livepeerData={livepeerData}
+                        playbackData={
+                          playbackInfo
+                            ? {
+                                infra: "livepeer",
+                                livepeerPlaybackInfo: playbackInfo,
+                              }
+                            : {
+                                infra: "aws",
+                              }
+                        }
+                        mode={!isGameFinished ? "versus-mode" : ""}
+                      />
+                    )}
                   </>
                 ) : (
-                  <DesktopChannelViewerPerspectiveSimplified
-                    playbackData={
-                      playbackInfo
-                        ? {
-                            infra: "livepeer",
-                            livepeerPlaybackInfo: playbackInfo,
-                          }
-                        : {
-                            infra: "aws",
-                          }
-                    }
-                    chat={chat}
-                    mode={canPlayToken ? "versus-mode" : ""}
-                  />
+                  <>
+                    {checkedForLivepeerPlaybackInfo && (
+                      <DesktopChannelViewerPerspectiveSimplified
+                        playbackData={
+                          playbackInfo
+                            ? {
+                                infra: "livepeer",
+                                livepeerPlaybackInfo: playbackInfo,
+                              }
+                            : {
+                                infra: "aws",
+                              }
+                        }
+                        chat={chat}
+                        mode={canPlayToken ? "versus-mode" : ""}
+                      />
+                    )}
+                  </>
                 )}
               </Flex>
               {canPlayToken ? (
