@@ -617,11 +617,15 @@ const compileParticipantsInfo = (messages: Message[]) => {
 const formatChatHistory = (messages: Message[]) => {
   let chatHistory = "Chat History:\n";
 
-  messages.forEach((message) => {
-    const date = new Date(message.timestamp).toLocaleString();
-    const usernameOrAddress = message.data.username || message.data.address;
-    chatHistory += `${date} - ${usernameOrAddress}: ${message.data.messageText}\n`;
-  });
+  messages
+    .filter(
+      (m) => !isAddressEqual(NULL_ADDRESS, m.data.address as `0x${string}`)
+    )
+    .forEach((message) => {
+      const date = new Date(message.timestamp).toLocaleString();
+      const usernameOrAddress = message.data.username || message.data.address;
+      chatHistory += `${date} - ${usernameOrAddress}: ${message.data.messageText}\n`;
+    });
 
   return chatHistory;
 };
