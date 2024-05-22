@@ -172,15 +172,6 @@ export const VersusTokenCreationModal = ({
               _hover={{}}
               _focus={{}}
               _active={{}}
-              bg={newPreSaleDuration === BigInt("0") ? "#02d650" : "#ffffff"}
-              onClick={() => handlePreSaleDuration(BigInt("0"))}
-            >
-              0 mins
-            </Button>
-            <Button
-              _hover={{}}
-              _focus={{}}
-              _active={{}}
               bg={newPreSaleDuration === BigInt("60") ? "#02d650" : "#ffffff"}
               onClick={() => handlePreSaleDuration(BigInt("60"))}
             >

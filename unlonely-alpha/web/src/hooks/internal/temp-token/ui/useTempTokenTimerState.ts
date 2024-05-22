@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { InteractionType } from "../../../../constants";
 import { useChannelContext } from "../../../context/useChannel";
 import { useUser } from "../../../context/useUser";
@@ -76,9 +76,18 @@ export const useTempTokenTimerState = ({
     return () => clearInterval(interval);
   }, [tokenEndTimestamp, preSaleEndTimestamp]);
 
+  const onExpire = useCallback((message: string) => {
+    addToChatbotForTempToken({
+      username: user?.username ?? "",
+      address: userAddress ?? "",
+      taskType: InteractionType.TEMP_TOKEN_EXPIRATION_WARNING,
+      title: message,
+      description: "",
+    });
+  }, [user, userAddress]);
+
   useEffect(() => {
     if (
-      durationLeftForTempToken !== "over" &&
       durationLeftForTempToken === 300 &&
       isChannelOwner &&
       chatbotMessages &&
@@ -86,13 +95,7 @@ export const useTempTokenTimerState = ({
       router.pathname.startsWith("/channels")
     ) {
       const title = chatbotMessages.fiveMinuteWarningMessage;
-      addToChatbotForTempToken({
-        username: user?.username ?? "",
-        address: userAddress ?? "",
-        taskType: InteractionType.TEMP_TOKEN_EXPIRATION_WARNING,
-        title,
-        description: "",
-      });
+      onExpire(title)
     }
     if (durationLeftForTempToken === "over" && canCallExpiration) {
       console.log(
@@ -105,9 +108,6 @@ export const useTempTokenTimerState = ({
     }
   }, [
     durationLeftForTempToken,
-    isChannelOwner,
-    chatbotMessages,
-    router.pathname,
   ]);
 
   useEffect(() => {

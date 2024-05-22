@@ -41,7 +41,7 @@ export const useLivepeerStreamData = () => {
       setCheckedForLivepeerPlaybackInfo(true);
     };
     init();
-  }, [channelQueryData?.livepeerPlaybackId]);
+  }, [channelQueryData]);
 
   useEffect(() => {
     const init = async () => {
