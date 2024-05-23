@@ -638,8 +638,8 @@ const downloadChatHistory = (messages: Message[], slug: string) => {
 
   const blob = new Blob([fileContent], { type: "text/plain" });
   const link = document.createElement("a");
-  const now = Date.now();
-  link.download = `chat_history_${slug}_${now}.txt`;
+  const now = new Date(Date.now()).toLocaleString();
+  link.download = `chat_history_${slug}_(${now}).txt`;
   link.href = window.URL.createObjectURL(blob);
   link.click();
 };
