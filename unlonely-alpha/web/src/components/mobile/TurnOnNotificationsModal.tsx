@@ -1,9 +1,9 @@
 import { Button, Flex, Text } from "@chakra-ui/react";
-import { usePrivy } from "@privy-io/react-auth";
 import { useState, useEffect } from "react";
 import usePostSubscription from "../../hooks/server/usePostSubscription";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useUser } from "../../hooks/context/useUser";
 
 export const TurnOnNotificationsModal = ({
   handleInitialNotificationsGranted,
@@ -12,7 +12,7 @@ export const TurnOnNotificationsModal = ({
 }) => {
   const { isStandalone } = useUserAgent();
 
-  const { ready, authenticated, login } = usePrivy();
+  const { ready, authenticated, login } = useUser();
 
   const [showTurnOnNotifications, setShowTurnOnNotificationsModal] = useState<
     "off" | "start" | "loading" | "granted" | "denied"

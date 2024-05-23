@@ -8,13 +8,13 @@ import {
   Tooltip,
   useToast,
   IconButton,
+  Box,
 } from "@chakra-ui/react";
 import AppLayout from "../components/layout/AppLayout";
 import { useUser } from "../hooks/context/useUser";
 import usePostChannel from "../hooks/server/channel/usePostChannel";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { usePrivy } from "@privy-io/react-auth";
 import { FaRegCopy } from "react-icons/fa";
 import copy from "copy-to-clipboard";
 import { useLazyQuery } from "@apollo/client";
@@ -23,13 +23,57 @@ import { GetChannelSearchResultsQuery } from "../generated/graphql";
 import { alphanumericInput } from "../utils/validation/input";
 import { NEW_STREAMER_URL_QUERY_PARAM } from "../constants";
 import { useNetworkContext } from "../hooks/context/useNetwork";
+import { useConnectWallet, ConnectedWallet } from "@privy-io/react-auth";
+import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 
 const SLUG_MAX_CHARS = 25;
 
 const Onboard = () => {
-  const { user, walletIsConnected } = useUser();
-
-  const { login, connectWallet, user: privyUser } = usePrivy();
+  const { login, privyUser, user, walletIsConnected } = useUser();
+  const { setActiveWallet } = usePrivyWagmi();
+  const toast = useToast();
+  const { connectWallet } = useConnectWallet({
+    onSuccess: (wallet) => {
+      setActiveWallet(wallet as ConnectedWallet);
+    },
+    onError: (err) => {
+      console.error("connect wallet error", err);
+      toast({
+        render: () => (
+          <Box as="button" borderRadius="md" bg="#b82929" p={4}>
+            <Flex direction="column">
+              <Text fontFamily={"LoRes15"} fontSize="20px">
+                connect wallet error
+              </Text>
+              <Text>please copy error log to help developer diagnose</Text>
+              <Button
+                color="#b82929"
+                width="100%"
+                bg="white"
+                onClick={() => {
+                  copy(err.toString());
+                  toast({
+                    title: "copied to clipboard",
+                    status: "success",
+                    duration: 2000,
+                    isClosable: true,
+                  });
+                }}
+                _focus={{}}
+                _active={{}}
+                _hover={{ background: "#f44343", color: "white" }}
+              >
+                copy error
+              </Button>
+            </Flex>
+          </Box>
+        ),
+        duration: 12000,
+        isClosable: true,
+        position: "top",
+      });
+    },
+  });
 
   return (
     <AppLayout isCustomHeader={false}>

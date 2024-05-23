@@ -285,12 +285,6 @@ export const sendAllNotifications = async (
             : data.channelId
         );
 
-  console.log(
-    "sendAllNotifications subscriptions count",
-    subscriptions,
-    subscriptions.length
-  );
-
   const promises = subscriptions.map(async (subscription) => {
     const pushSubscription = toPushSubscription(subscription);
     try {

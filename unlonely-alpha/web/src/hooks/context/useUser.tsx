@@ -10,6 +10,7 @@ import { useLazyQuery } from "@apollo/client";
 import {
   ConnectedWallet,
   usePrivy,
+  User as PrivyUser,
   useWallets,
   WalletWithMetadata,
 } from "@privy-io/react-auth";
@@ -29,6 +30,7 @@ export const useUser = () => {
 };
 
 const UserContext = createContext<{
+  privyUser: PrivyUser | null;
   user?: User;
   username?: string;
   userAddress?: `0x${string}`;
@@ -36,8 +38,14 @@ const UserContext = createContext<{
   loginMethod?: string;
   initialNotificationsGranted: boolean;
   activeWallet?: ConnectedWallet;
+  ready: boolean;
+  authenticated: boolean;
   fetchUser: () => void;
+  login: () => void;
+  logout: () => void;
+  exportWallet: () => Promise<void>;
 }>({
+  privyUser: null,
   user: undefined,
   username: undefined,
   userAddress: undefined,
@@ -45,7 +53,12 @@ const UserContext = createContext<{
   loginMethod: undefined,
   initialNotificationsGranted: false,
   activeWallet: undefined,
+  ready: false,
+  authenticated: false,
   fetchUser: () => undefined,
+  login: () => undefined,
+  logout: () => undefined,
+  exportWallet: () => Promise.resolve(),
 });
 
 export const UserProvider = ({
@@ -55,7 +68,14 @@ export const UserProvider = ({
 }) => {
   const [user, setUser] = useState<User | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>();
-  const { authenticated, user: privyUser, logout } = usePrivy();
+  const {
+    authenticated,
+    user: privyUser,
+    ready,
+    login,
+    logout,
+    exportWallet,
+  } = usePrivy();
   const { wallet: activeWallet } = usePrivyWagmi();
   const { wallets } = useWallets();
   const [differentWallet, setDifferentWallet] = useState(false);
@@ -133,6 +153,7 @@ export const UserProvider = ({
 
   const value = useMemo(
     () => ({
+      privyUser,
       user,
       username,
       userAddress: address as `0x${string}`,
@@ -140,9 +161,15 @@ export const UserProvider = ({
       loginMethod,
       initialNotificationsGranted,
       activeWallet,
+      ready,
+      authenticated,
       fetchUser,
+      login,
+      logout,
+      exportWallet,
     }),
     [
+      privyUser,
       user,
       username,
       address,
@@ -150,7 +177,12 @@ export const UserProvider = ({
       loginMethod,
       initialNotificationsGranted,
       activeWallet,
+      ready,
+      authenticated,
       fetchUser,
+      login,
+      logout,
+      exportWallet,
     ]
   );
 
