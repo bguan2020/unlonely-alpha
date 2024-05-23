@@ -99,7 +99,7 @@ const Onboard = () => {
               privyUser ? connectWallet() : login();
             }}
           >
-            Sign in now
+            {privyUser ? "Connect wallet now" : "Sign in now"}
           </Button>
         </Flex>
       ) : (
