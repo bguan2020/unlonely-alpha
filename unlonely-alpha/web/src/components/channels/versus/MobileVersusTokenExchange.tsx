@@ -153,10 +153,10 @@ export const MobileVersusTokenExchange = () => {
         </Flex>
       </TransactionModalTemplate>
       {isPreSaleOngoing && (
-        <Flex>
+        <Text fontSize="13px" color="#8e8e8eff">
           {getTimeFromMillis(durationLeftForPreSale * 1000, true, true)} left to
           claim free tokens
-        </Flex>
+        </Text>
       )}
       {!focusedTokenToTrade ? (
         <>
@@ -174,14 +174,8 @@ export const MobileVersusTokenExchange = () => {
                 _hover={{}}
                 _focus={{}}
                 _active={{}}
-                color="white"
-                bg={
-                  isFocusedTokenEqualToTokenA
-                    ? "rgba(255, 36, 36, 1)"
-                    : isFocusedTokenEqualToTokenB
-                    ? "rgba(42, 217, 255, 1)"
-                    : "#ffffff"
-                }
+                bg={"#8fee00"}
+                color="black"
                 isDisabled={
                   !mint ||
                   mintCostAfterFeesLoading ||
@@ -190,7 +184,7 @@ export const MobileVersusTokenExchange = () => {
                 onClick={mint}
                 w="100%"
               >
-                Claim
+                <Text fontSize="20px">FREE MONEY</Text>
               </Button>
             </>
           ) : (

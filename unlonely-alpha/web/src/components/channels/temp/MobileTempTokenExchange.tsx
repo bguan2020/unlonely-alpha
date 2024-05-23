@@ -86,26 +86,26 @@ export const MobileTempTokenExchange = () => {
         </Flex>
       </TransactionModalTemplate>
       {isPreSaleOngoing && (
-        <Flex>
+        <Text fontSize="13px" color="#8e8e8eff">
           {getTimeFromMillis(durationLeftForPreSale * 1000, true, true)} left to
           claim free tokens
-        </Flex>
+        </Text>
       )}
       {isPreSaleOngoing ? (
         <>
           {!claimedPreSaleTokens ? (
             <>
               <Button
-                color="white"
                 _hover={{}}
                 _focus={{}}
                 _active={{}}
-                bg={"#5f5c9c"}
+                bg={"#8fee00"}
+                color="black"
                 isDisabled={!mint || mintCostAfterFeesLoading}
                 onClick={mint}
                 w="100%"
               >
-                Claim
+                <Text fontSize="20px">FREE MONEY</Text>
               </Button>
             </>
           ) : (

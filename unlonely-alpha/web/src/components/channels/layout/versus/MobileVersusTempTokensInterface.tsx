@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   Flex,
-  Spinner,
   Step,
   StepIcon,
   StepIndicator,
@@ -12,12 +11,8 @@ import {
   Stepper,
   Text,
 } from "@chakra-ui/react";
-import {
-  AblyChannelPromise,
-  PRESALE_NOTIFICATION_URL_QUERY_PARAM,
-} from "../../../../constants";
-import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
+import { AblyChannelPromise } from "../../../../constants";
+import { useEffect } from "react";
 import { TransactionModalTemplate } from "../../../transactions/TransactionModalTemplate";
 import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
 import { isAddressEqual } from "viem";
@@ -33,12 +28,9 @@ export const MobileVersusTempTokensInterface = ({
   ablyChannel?: AblyChannelPromise;
   customHeight?: string;
 }) => {
-  const router = useRouter();
-
   const { gameState } = useVersusTempTokenContext();
 
   const {
-    isPreSaleOngoing,
     isGameFinishedModalOpen,
     handleIsGameFinishedModalOpen,
     focusedTokenToTrade,
@@ -48,26 +40,6 @@ export const MobileVersusTempTokensInterface = ({
     handleFocusedTokenToTrade,
     isGameOngoing,
   } = gameState;
-  const { loadingOnMount } = useVersusTempTokenContext();
-  const [presaleWelcomeModalOpen, setPresaleWelcomeModalOpen] = useState(false);
-
-  useEffect(() => {
-    if (router.query[PRESALE_NOTIFICATION_URL_QUERY_PARAM]) {
-      setPresaleWelcomeModalOpen(true);
-      const newPath = router.pathname;
-      const newQuery = { ...router.query };
-      delete newQuery[PRESALE_NOTIFICATION_URL_QUERY_PARAM];
-
-      router.replace(
-        {
-          pathname: newPath,
-          query: newQuery,
-        },
-        undefined,
-        { shallow: true }
-      );
-    }
-  }, [router]);
 
   useEffect(() => {
     if (ownerMustMakeWinningTokenTradeable)
@@ -84,39 +56,6 @@ export const MobileVersusTempTokensInterface = ({
         h={customHeight ?? "100%"}
         p="10px"
       >
-        <TransactionModalTemplate
-          isOpen={presaleWelcomeModalOpen}
-          handleClose={() => setPresaleWelcomeModalOpen(false)}
-          cannotClose={loadingOnMount}
-          hideFooter
-        >
-          {loadingOnMount ? (
-            <Flex justifyContent="center">
-              <Spinner />
-            </Flex>
-          ) : isPreSaleOngoing ? (
-            <Flex direction="column" gap="10px">
-              <Text fontSize="25px" textAlign={"center"}>
-                hurray!
-              </Text>
-              <Text>
-                you made it here early enough to claim 1000 tokens. select a
-                token to redeem and make sure your wallet is connected before
-                time runs out
-              </Text>
-            </Flex>
-          ) : (
-            <Flex direction="column" gap="10px">
-              <Text fontSize="25px" textAlign={"center"}>
-                too late, but...
-              </Text>
-              <Text>you can still join this VERSUS game!</Text>
-              <Text>
-                come early next time a token launches to claim your tokens!
-              </Text>
-            </Flex>
-          )}
-        </TransactionModalTemplate>
         <TransactionModalTemplate
           title={"Time's up!"}
           isOpen={isGameFinishedModalOpen}

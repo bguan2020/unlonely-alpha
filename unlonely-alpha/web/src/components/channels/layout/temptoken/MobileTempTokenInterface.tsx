@@ -1,12 +1,8 @@
-import {
-  AblyChannelPromise,
-  PRESALE_NOTIFICATION_URL_QUERY_PARAM,
-} from "../../../../constants";
-import { Flex, Text, Spinner, Button } from "@chakra-ui/react";
+import { AblyChannelPromise } from "../../../../constants";
+import { Flex, Text, Button } from "@chakra-ui/react";
 import { useTempTokenContext } from "../../../../hooks/context/useTempToken";
 import { TransactionModalTemplate } from "../../../transactions/TransactionModalTemplate";
-import { useRouter } from "next/router";
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { TempTokenChart } from "./TempTokenChart";
 import { useInterfaceChartData } from "../../../../hooks/internal/temp-token/ui/useInterfaceChartData";
 import { formatUnits, isAddress } from "viem";
@@ -21,13 +17,11 @@ export const MobileTempTokenInterface = ({
   ablyChannel: AblyChannelPromise;
   customHeight?: string;
 }) => {
-  const router = useRouter();
   const { ethPriceInUsd } = useCacheContext();
 
   const { tempToken } = useTempTokenContext();
   const {
     gameState,
-    loadingCurrentOnMount,
     tempTokenTxs,
     currentTempTokenContract,
     tempTokenChartTimeIndexes,
@@ -38,14 +32,11 @@ export const MobileTempTokenInterface = ({
     currentActiveTokenTotalSupplyThreshold,
     isSuccessGameModalOpen,
     isPermanentGameModalOpen,
-    isPreSaleOngoing,
     isFailedGameState,
     handleIsGameFailed,
     handleIsSuccessGameModalOpen,
     handleIsPermanentGameModalOpen,
   } = gameState;
-
-  const [presaleWelcomeModalOpen, setPresaleWelcomeModalOpen] = useState(false);
 
   const interfaceChartData = useInterfaceChartData({
     chartTimeIndexes: tempTokenChartTimeIndexes,
@@ -72,24 +63,6 @@ export const MobileTempTokenInterface = ({
     [priceOfThreshold, ethPriceInUsd]
   );
 
-  useEffect(() => {
-    if (router.query[PRESALE_NOTIFICATION_URL_QUERY_PARAM]) {
-      setPresaleWelcomeModalOpen(true);
-      const newPath = router.pathname;
-      const newQuery = { ...router.query };
-      delete newQuery[PRESALE_NOTIFICATION_URL_QUERY_PARAM];
-
-      router.replace(
-        {
-          pathname: newPath,
-          query: newQuery,
-        },
-        undefined,
-        { shallow: true }
-      );
-    }
-  }, [router]);
-
   // if  game had just finished, remove current token info
   useEffect(() => {
     if (
@@ -115,40 +88,6 @@ export const MobileTempTokenInterface = ({
           h={customHeight ?? "100%"}
           p="10px"
         >
-          <TransactionModalTemplate
-            isOpen={presaleWelcomeModalOpen}
-            handleClose={() => setPresaleWelcomeModalOpen(false)}
-            cannotClose={loadingCurrentOnMount}
-            hideFooter
-          >
-            {loadingCurrentOnMount ? (
-              <Flex justifyContent="center">
-                <Spinner />
-              </Flex>
-            ) : isPreSaleOngoing ? (
-              <Flex direction="column" gap="10px">
-                <Text fontSize="25px" textAlign={"center"}>
-                  hurray!
-                </Text>
-                <Text>
-                  you made it here early enough to claim 1000 tokens. select a
-                  token to redeem and make sure your wallet is connected before
-                  time runs out
-                </Text>
-              </Flex>
-            ) : (
-              <Flex direction="column" gap="10px">
-                <Text fontSize="25px" textAlign={"center"}>
-                  too late, but...
-                </Text>
-                <Text>you can still join this VERSUS game!</Text>
-                <Text>
-                  come early next time a token launches to claim your tokens!
-                </Text>
-              </Flex>
-            )}
-          </TransactionModalTemplate>
-
           <TransactionModalTemplate
             title="Success - token lives to see another day"
             isOpen={isSuccessGameModalOpen}
