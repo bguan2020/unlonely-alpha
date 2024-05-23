@@ -10,11 +10,13 @@ import { useLazyQuery } from "@apollo/client";
 import {
   ConnectedWallet,
   usePrivy,
+  User as PrivyUser,
   useWallets,
   WalletWithMetadata,
+  useLogin,
 } from "@privy-io/react-auth";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, useToast } from "@chakra-ui/react";
 import { isAddress } from "viem";
 
 import { User } from "../../generated/graphql";
@@ -23,12 +25,14 @@ import { GET_USER_QUERY } from "../../constants/queries";
 import centerEllipses from "../../utils/centerEllipses";
 import { Tos } from "../../components/general/Tos";
 import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
+import copy from "copy-to-clipboard";
 
 export const useUser = () => {
   return useContext(UserContext);
 };
 
 const UserContext = createContext<{
+  privyUser: PrivyUser | null;
   user?: User;
   username?: string;
   userAddress?: `0x${string}`;
@@ -36,8 +40,14 @@ const UserContext = createContext<{
   loginMethod?: string;
   initialNotificationsGranted: boolean;
   activeWallet?: ConnectedWallet;
+  ready: boolean;
+  authenticated: boolean;
   fetchUser: () => void;
+  login: () => void;
+  logout: () => void;
+  exportWallet: () => Promise<void>;
 }>({
+  privyUser: null,
   user: undefined,
   username: undefined,
   userAddress: undefined,
@@ -45,7 +55,12 @@ const UserContext = createContext<{
   loginMethod: undefined,
   initialNotificationsGranted: false,
   activeWallet: undefined,
+  ready: false,
+  authenticated: false,
   fetchUser: () => undefined,
+  login: () => undefined,
+  logout: () => undefined,
+  exportWallet: () => Promise.resolve(),
 });
 
 export const UserProvider = ({
@@ -55,9 +70,72 @@ export const UserProvider = ({
 }) => {
   const [user, setUser] = useState<User | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>();
-  const { authenticated, user: privyUser, logout } = usePrivy();
+  const {
+    authenticated,
+    user: privyUser,
+    ready,
+    logout,
+    exportWallet,
+  } = usePrivy();
   const { wallet: activeWallet } = usePrivyWagmi();
   const { wallets } = useWallets();
+  const toast = useToast();
+  const { login } = useLogin({
+    onComplete: (
+      user,
+      isNewUser,
+      wasAlreadyAuthenticated,
+      loginMethod,
+      linkedAccount
+    ) => {
+      console.log(
+        user,
+        isNewUser,
+        wasAlreadyAuthenticated,
+        loginMethod,
+        linkedAccount
+      );
+      // Any logic you'd like to execute if the user is/becomes authenticated while this
+      // component is mounted
+    },
+    onError: (error) => {
+      console.error("login error", error);
+      toast({
+        render: () => (
+          <Box as="button" borderRadius="md" bg="#b82929" p={4}>
+            <Flex direction="column">
+              <Text fontFamily={"LoRes15"} fontSize="20px">
+                login error
+              </Text>
+              <Text>please copy error log to help developer diagnose</Text>
+              <Button
+                color="#b82929"
+                width="100%"
+                bg="white"
+                onClick={() => {
+                  copy(error.toString());
+                  toast({
+                    title: "copied to clipboard",
+                    status: "success",
+                    duration: 2000,
+                    isClosable: true,
+                  });
+                }}
+                _focus={{}}
+                _active={{}}
+                _hover={{ background: "#f44343", color: "white" }}
+              >
+                copy error
+              </Button>
+            </Flex>
+          </Box>
+        ),
+        duration: 12000,
+        isClosable: true,
+        position: "top",
+      });
+    },
+  });
   const [differentWallet, setDifferentWallet] = useState(false);
   const [initialNotificationsGranted, setInitialNotificationsGranted] =
     useState(false);
@@ -133,6 +211,7 @@ export const UserProvider = ({
 
   const value = useMemo(
     () => ({
+      privyUser,
       user,
       username,
       userAddress: address as `0x${string}`,
@@ -140,9 +219,15 @@ export const UserProvider = ({
       loginMethod,
       initialNotificationsGranted,
       activeWallet,
+      ready,
+      authenticated,
       fetchUser,
+      login,
+      logout,
+      exportWallet,
     }),
     [
+      privyUser,
       user,
       username,
       address,
@@ -150,7 +235,12 @@ export const UserProvider = ({
       loginMethod,
       initialNotificationsGranted,
       activeWallet,
+      ready,
+      authenticated,
       fetchUser,
+      login,
+      logout,
+      exportWallet,
     ]
   );
 

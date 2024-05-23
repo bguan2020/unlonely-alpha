@@ -14,12 +14,9 @@ import {
   MenuList,
   Spinner,
   Text,
+  Box,
 } from "@chakra-ui/react";
-import {
-  ConnectedWallet,
-  useConnectWallet,
-  usePrivy,
-} from "@privy-io/react-auth";
+import { ConnectedWallet, useConnectWallet } from "@privy-io/react-auth";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -37,16 +34,54 @@ import useUpdateUser from "../../hooks/server/useUpdateUser";
 import trailString from "../../utils/trailString";
 import { OwnedChannelsModal } from "../channels/OwnedChannelsModal";
 import { formatUnits } from "viem";
+import copy from "copy-to-clipboard";
 
 const ConnectWallet = () => {
   const router = useRouter();
-  const { user, loginMethod } = useUser();
+  const { user, loginMethod, ready, privyUser, login } = useUser();
   const { isStandalone } = useUserAgent();
-  const { login, ready, user: privyUser } = usePrivy();
   const { wallet: activeWallet, setActiveWallet } = usePrivyWagmi();
+  const toast = useToast();
   const { connectWallet } = useConnectWallet({
     onSuccess: (wallet) => {
       setActiveWallet(wallet as ConnectedWallet);
+    },
+    onError: (err) => {
+      console.error("connect wallet error", err);
+      toast({
+        render: () => (
+          <Box as="button" borderRadius="md" bg="#b82929" p={4}>
+            <Flex direction="column">
+              <Text fontFamily={"LoRes15"} fontSize="20px">
+                connect wallet error
+              </Text>
+              <Text>please copy error log to help developer diagnose</Text>
+              <Button
+                color="#b82929"
+                width="100%"
+                bg="white"
+                onClick={() => {
+                  copy(err.toString());
+                  toast({
+                    title: "copied to clipboard",
+                    status: "success",
+                    duration: 2000,
+                    isClosable: true,
+                  });
+                }}
+                _focus={{}}
+                _active={{}}
+                _hover={{ background: "#f44343", color: "white" }}
+              >
+                copy error
+              </Button>
+            </Flex>
+          </Box>
+        ),
+        duration: 12000,
+        isClosable: true,
+        position: "top",
+      });
     },
   });
 
@@ -130,8 +165,8 @@ export default ConnectWallet;
 const ConnectedDisplay = () => {
   const router = useRouter();
 
-  const { logout } = usePrivy();
-  const { user, userAddress, fetchUser } = useUser();
+  const { user, userAddress, loginMethod, fetchUser, logout, exportWallet } =
+    useUser();
   const { claimableBets } = useCacheContext();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork } = network;
@@ -392,6 +427,17 @@ const ConnectedDisplay = () => {
             )}
             {!isStandalone && <ExternalLinkIcon />}
           </MenuItem>
+          {loginMethod === "privy" && (
+            <MenuItem
+              bg={"#131323"}
+              _hover={{ bg: "#1f1f3c" }}
+              _focus={{}}
+              _active={{}}
+              onClick={exportWallet}
+            >
+              export wallet
+            </MenuItem>
+          )}
           <MenuItem
             bg={"#131323"}
             _hover={{ bg: "#1f1f3c" }}
