@@ -1,9 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import {
-  Contract,
-  InteractionType,
-  PRESALE_NOTIFICATION_URL_QUERY_PARAM,
-} from "../../../../constants";
+import { Contract, InteractionType } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { useCreateMultipleTempTokens } from "../../../contracts/useTempTokenFactoryV1";
@@ -289,7 +285,7 @@ export const useCreateMultipleTempTokensState = ({
               data: {
                 title: `/${channel.channelQueryData?.slug} just launched $${newTokenSymbols[0]} vs. $${newTokenSymbols[1]} tokens!`,
                 body: "you have 2 min. to claim 1,000 free tokens",
-                pathname: `/channels/${channel.channelQueryData?.slug}?${PRESALE_NOTIFICATION_URL_QUERY_PARAM}=true`,
+                pathname: `/channels/${channel.channelQueryData?.slug}`,
                 channelId: undefined,
               },
             },
