@@ -2700,39 +2700,39 @@
   dependencies:
     "@lit-labs/ssr-dom-shim" "^1.0.0"
 
-"@livepeer/core-react@3.1.17":
-  version "3.1.17"
-  resolved "https://registry.yarnpkg.com/@livepeer/core-react/-/core-react-3.1.17.tgz#1abf84189b7e360406b618ed75528f83dfe01289"
-  integrity sha512-jziWQLmce8T34Fmm5C0IJ6wcfxHjTNEdEx9/k8jII70PxH87DGWkOYrJH0vSZ+CUlTw0mK0TaztdvuIQuXl+8w==
+"@livepeer/core-react@3.1.18":
+  version "3.1.18"
+  resolved "https://registry.yarnpkg.com/@livepeer/core-react/-/core-react-3.1.18.tgz#1cf304c101805fbec052edfeee8a84c8437ca544"
+  integrity sha512-tb6YWa0QRMVgbUpobOmfEoxIR78vcjLmyJRCVewTObbDjxudxnlzUYXbn11nMJt7k2kXoLQq+CG2sR2giLuWrQ==
   dependencies:
-    "@livepeer/core" "3.1.17"
-    zustand "^4.5.0"
+    "@livepeer/core" "3.1.18"
+    zustand "^4.5.2"
 
-"@livepeer/core-web@4.1.17":
-  version "4.1.17"
-  resolved "https://registry.yarnpkg.com/@livepeer/core-web/-/core-web-4.1.17.tgz#1e49072c718a1601af37cf201d63a492a9597b85"
-  integrity sha512-lOhI8te5f41MSSim3QXvfXglei9vCGtZJrRgtPTj+LU5purq6wrq8knztxK/UW02ZzZT7EVvmXYyoRaK2kqPnw==
+"@livepeer/core-web@4.1.18":
+  version "4.1.18"
+  resolved "https://registry.yarnpkg.com/@livepeer/core-web/-/core-web-4.1.18.tgz#2730180bbbc07f28094e7b7c3d3610ef8bce2a56"
+  integrity sha512-QHt/VvgYxj9tsXXP6FZmgO5bP8Lo6aE8r+ZxuBDLFs5awn9A6DSlPMqpQLOBhp4ahNOXk6g+l32/DiCCLaCpRA==
   dependencies:
-    "@livepeer/core" "3.1.17"
-    hls.js "^1.5.2"
-    zustand "^4.5.0"
+    "@livepeer/core" "3.1.18"
+    hls.js "^1.5.8"
+    zustand "^4.5.2"
 
-"@livepeer/core@3.1.17":
-  version "3.1.17"
-  resolved "https://registry.yarnpkg.com/@livepeer/core/-/core-3.1.17.tgz#cc1f976c10b0a6694fe0f81f47b29e4f4059af1c"
-  integrity sha512-OKiWMTdeKKWMy/UJolaA3sISI+8i90YfwV0tfvFRDXHYTNCsZGE7YDMRAdSum1SUnf9hyMsBfySr2URjs8EkBw==
+"@livepeer/core@3.1.18":
+  version "3.1.18"
+  resolved "https://registry.yarnpkg.com/@livepeer/core/-/core-3.1.18.tgz#095565bf1bb02cc4562f390b2d0ca8e4c4b56a7d"
+  integrity sha512-OsQyedL54OlHYfmxgmXC80S0n6RQp7wyLeEDt4ujIuU/UFoZto1Kb3PHskZ7H47ePyyYi7EWThnwhyeBpACK8Q==
   dependencies:
-    multiformats "^13.0.1"
-    zustand "^4.5.0"
+    multiformats "^13.1.0"
+    zustand "^4.5.2"
 
-"@livepeer/react@4.1.17":
-  version "4.1.17"
-  resolved "https://registry.yarnpkg.com/@livepeer/react/-/react-4.1.17.tgz#90831fb6a309c3c039b2a33fe3675b6bdd5ab4dc"
-  integrity sha512-BcgV19SPVuS+GDHZGP7pXR+WAkcRUjIKVIqezdwCUrJQ1Qbqevdbbx5RMoxTDK7ufl97UjwWjK4L+M3Ct8qkuw==
+"@livepeer/react@4.1.18":
+  version "4.1.18"
+  resolved "https://registry.yarnpkg.com/@livepeer/react/-/react-4.1.18.tgz#5d32a43bc701486ad9b6a7f8a5cd83589fe71bfa"
+  integrity sha512-ePnhCHfhzdNjFhqrFy7bcerPe7pVtgMnRUahH0dmUByt1E3XGlOcNf0B4+Ub+Tl2+s0yXWV5oaBzsLgTPCX8SA==
   dependencies:
-    "@livepeer/core" "3.1.17"
-    "@livepeer/core-react" "3.1.17"
-    "@livepeer/core-web" "4.1.17"
+    "@livepeer/core" "3.1.18"
+    "@livepeer/core-react" "3.1.18"
+    "@livepeer/core-web" "4.1.18"
     "@radix-ui/primitive" "^1.0.1"
     "@radix-ui/react-aspect-ratio" "^1.0.3"
     "@radix-ui/react-compose-refs" "^1.0.1"
@@ -2747,7 +2747,7 @@
     "@radix-ui/react-slot" "^1.0.2"
     "@radix-ui/react-use-controllable-state" "^1.0.1"
     "@radix-ui/react-use-layout-effect" "^1.0.1"
-    zustand "^4.5.0"
+    zustand "^4.5.2"
 
 "@marsidev/react-turnstile@^0.4.1":
   version "0.4.1"
@@ -8147,10 +8147,10 @@ hey-listen@^1.0.8:
   resolved "https://registry.yarnpkg.com/hey-listen/-/hey-listen-1.0.8.tgz#8e59561ff724908de1aa924ed6ecc84a56a9aa68"
   integrity sha512-COpmrF2NOg4TBWUJ5UVyaCU2A88wEMkUPK4hNqyCkqHbxT92BbvfjoSozkAIIm6XhicGlJHhFdullInrdhwU8Q==
 
-hls.js@^1.5.2:
-  version "1.5.6"
-  resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-1.5.6.tgz#af342933b70bf1938cacf7961a1308406fb7b774"
-  integrity sha512-rmlaIEfLuSwqRtYLeTk30ebYli5qNK2urdkEcqYoBezRpV+MFHhZnMX77lHWW+EMjNlwr2sx2apfqq54E3yXnA==
+hls.js@^1.5.8:
+  version "1.5.8"
+  resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-1.5.8.tgz#73c3d2984a56f103e6900bf7a5e65b288dba846e"
+  integrity sha512-hJYMPfLhWO7/7+n4f9pn6bOheCGx0WgvVz7k3ouq3Pp1bja48NN+HeCQu3XCGYzqWQF/wo7Sk6dJAyWVJD8ECA==
 
 hmac-drbg@^1.0.1:
   version "1.0.1"
@@ -9666,7 +9666,7 @@ multiformats@^11.0.0:
   resolved "https://registry.yarnpkg.com/multiformats/-/multiformats-11.0.1.tgz#ba58c3f69f032ab67dab4b48cc70f01ac2ca07fe"
   integrity sha512-atWruyH34YiknSdL5yeIir00EDlJRpHzELYQxG7Iy29eCyL+VrZHpPrX5yqlik3jnuqpLpRKVZ0SGVb9UzKaSA==
 
-multiformats@^13.0.1:
+multiformats@^13.1.0:
   version "13.1.0"
   resolved "https://registry.yarnpkg.com/multiformats/-/multiformats-13.1.0.tgz#5aa9d2175108a448fc3bdb54ba8a3d0b6cab3ac3"
   integrity sha512-HzdtdBwxsIkzpeXzhQ5mAhhuxcHbjEHH+JQoxt7hG/2HGFjjwyolLo7hbaexcnhoEuV4e0TNJ8kkpMjiEYY4VQ==
@@ -12702,9 +12702,9 @@ zustand@^4.3.1:
   dependencies:
     use-sync-external-store "1.2.0"
 
-zustand@^4.5.0:
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/zustand/-/zustand-4.5.1.tgz#2088956ee454759fb8b866ca335a2373e76736c5"
-  integrity sha512-XlauQmH64xXSC1qGYNv00ODaQ3B+tNPoy22jv2diYiP4eoDKr9LA+Bh5Bc3gplTrFdb6JVI+N4kc1DZ/tbtfPg==
+zustand@^4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/zustand/-/zustand-4.5.2.tgz#fddbe7cac1e71d45413b3682cdb47b48034c3848"
+  integrity sha512-2cN1tPkDVkwCy5ickKrI7vijSjPksFRfqS6237NzT0vqSsztTNnQdHw9mmN7uBdk3gceVXU0a+21jFzFzAc9+g==
   dependencies:
     use-sync-external-store "1.2.0"
