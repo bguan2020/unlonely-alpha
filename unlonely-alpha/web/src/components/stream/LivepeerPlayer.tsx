@@ -19,8 +19,8 @@ import {
   UnmuteIcon,
 } from "@livepeer/react/assets";
 import { BiRefresh } from "react-icons/bi";
-import trailString from "../../utils/trailString";
 import copy from "copy-to-clipboard";
+import useUserAgent from "../../hooks/internal/useUserAgent";
 
 const LivepeerPlayer = memo(
   ({
@@ -32,6 +32,7 @@ const LivepeerPlayer = memo(
     isPreview?: boolean;
     customSizePercentages?: { width: `${number}%`; height: `${number}%` };
   }) => {
+    const { isStandalone } = useUserAgent();
     const [opacity, setOpacity] = useState(0);
     const toast = useToast();
 
@@ -107,8 +108,8 @@ const LivepeerPlayer = memo(
                 objectFit: "contain",
               }}
               onError={(e) => {
-                console.error("Error playing video", e);
-                setError(e.toString());
+                console.error("Error playing video", stringifyEvent(e));
+                setError(stringifyEvent(e));
               }}
             />
             <Player.LoadingIndicator
@@ -179,14 +180,15 @@ const LivepeerPlayer = memo(
                       <Text
                         textAlign="center"
                         fontSize={
-                          isPreview ? ["1rem", "1rem", "2rem", "2rem"] : "3rem"
+                          isPreview
+                            ? ["1rem", "1rem", "2rem", "2rem"]
+                            : !isStandalone
+                            ? "3rem"
+                            : "1rem"
                         }
                         fontFamily={"LoRes15"}
                       >
                         Error detected while playing video
-                      </Text>
-                      <Text textAlign={"center"} mx="30%">
-                        {trailString(error, 60)}
                       </Text>
                       <Button
                         color="white"
@@ -207,7 +209,11 @@ const LivepeerPlayer = memo(
                       <Text
                         textAlign="center"
                         fontSize={
-                          isPreview ? ["1rem", "1rem", "2rem", "2rem"] : "3rem"
+                          isPreview
+                            ? ["1rem", "1rem", "2rem", "2rem"]
+                            : !isStandalone
+                            ? "3rem"
+                            : "1rem"
                         }
                         fontFamily={"LoRes15"}
                       >
@@ -354,5 +360,21 @@ const LivepeerPlayer = memo(
     return prevProps.src === nextProps.src;
   }
 );
+
+const stringifyEvent = (event: any) => {
+  const obj: any = {};
+  for (const key in event) {
+    obj[key] = event[key];
+  }
+  return JSON.stringify(
+    obj,
+    (key, value) => {
+      if (value instanceof Node) return "Node";
+      if (value instanceof Window) return "Window";
+      return value;
+    },
+    "  "
+  );
+};
 
 export default LivepeerPlayer;
