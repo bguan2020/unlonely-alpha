@@ -19,7 +19,11 @@ import { LikeObj, NfcDetailQuery } from "../../generated/graphql";
 import useLike from "../../hooks/server/useLike";
 import { useUser } from "../../hooks/context/useUser";
 import { LikeIcon, LikedIcon } from "../icons/LikeIcon";
-import { IPFS_PROJECT_ID, IPFS_PROJECT_SECRET } from "../../constants";
+import {
+  CHAKRA_UI_TX_TOAST_DURATION,
+  IPFS_PROJECT_ID,
+  IPFS_PROJECT_SECRET,
+} from "../../constants";
 import { useWrite } from "../../hooks/contracts/useWrite";
 import useUpdateNFC from "../../hooks/server/useUpdateNFC";
 import centerEllipses from "../../utils/centerEllipses";
@@ -94,7 +98,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
         setIsUploadingToIPFS(false);
         callingWrite.current = false;
         toast({
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -115,7 +119,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
         setIsUploadingToIPFS(false);
         callingWrite.current = false;
         toast({
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -140,7 +144,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
             : "",
         });
         toast({
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -159,7 +163,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
       onTxError: (error) => {
         console.log("nfc mint tx error", error);
         toast({
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -331,7 +335,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                                 description:
                                   "Please sign into your wallet first.",
                                 status: "warning",
-                                duration: 3000, // chakra ui toast duration
+                                duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
                                 isClosable: true,
                                 position: "top",
                               });

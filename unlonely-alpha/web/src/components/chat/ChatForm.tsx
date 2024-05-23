@@ -21,6 +21,7 @@ import { FaFileDownload } from "react-icons/fa";
 
 import {
   AblyChannelPromise,
+  CHAKRA_UI_TX_TOAST_DURATION,
   CommandData,
   InteractionType,
 } from "../../constants";
@@ -198,7 +199,7 @@ const ChatForm = ({
       title: "Sign in first.",
       description: "Please sign into your wallet first.",
       status: "warning",
-      duration: 3000, // chakra ui toast duration
+      duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
       isClosable: true,
       position: "top",
     });
@@ -291,7 +292,7 @@ const ChatForm = ({
                               toast({
                                 title: "Clipping is disabled for this stream.",
                                 status: "warning",
-                                duration: 3000, // chakra ui toast duration
+                                duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
                                 isClosable: true,
                                 position: "bottom",
                               });

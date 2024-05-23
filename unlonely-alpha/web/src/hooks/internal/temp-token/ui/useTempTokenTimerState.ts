@@ -76,15 +76,18 @@ export const useTempTokenTimerState = ({
     return () => clearInterval(interval);
   }, [tokenEndTimestamp, preSaleEndTimestamp]);
 
-  const onExpire = useCallback((message: string) => {
-    addToChatbotForTempToken({
-      username: user?.username ?? "",
-      address: userAddress ?? "",
-      taskType: InteractionType.TEMP_TOKEN_EXPIRATION_WARNING,
-      title: message,
-      description: "",
-    });
-  }, [user, userAddress]);
+  const onExpire = useCallback(
+    (message: string) => {
+      addToChatbotForTempToken({
+        username: user?.username ?? "",
+        address: userAddress ?? "",
+        taskType: InteractionType.TEMP_TOKEN_EXPIRATION_WARNING,
+        title: message,
+        description: "",
+      });
+    },
+    [user, userAddress]
+  );
 
   useEffect(() => {
     if (
@@ -95,7 +98,7 @@ export const useTempTokenTimerState = ({
       router.pathname.startsWith("/channels")
     ) {
       const title = chatbotMessages.fiveMinuteWarningMessage;
-      onExpire(title)
+      onExpire(title);
     }
     if (durationLeftForTempToken === "over" && canCallExpiration) {
       console.log(
@@ -106,9 +109,7 @@ export const useTempTokenTimerState = ({
       callbackOnExpiration();
       setCanCallExpiration(false);
     }
-  }, [
-    durationLeftForTempToken,
-  ]);
+  }, [durationLeftForTempToken]);
 
   useEffect(() => {
     if (durationLeftForPreSale === 0 && canCallPresaleEnd) {

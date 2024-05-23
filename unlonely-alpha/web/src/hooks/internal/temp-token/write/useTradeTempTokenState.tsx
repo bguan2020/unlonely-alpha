@@ -10,6 +10,7 @@ import {
   NULL_ADDRESS,
   DEFAULT_TOKEN_TRADE_AMOUNT,
   PRE_SALE_PRICE_PER_TOKEN,
+  CHAKRA_UI_TX_TOAST_DURATION,
 } from "../../../../constants";
 import { useNetworkContext } from "../../../context/useNetwork";
 import {
@@ -177,7 +178,7 @@ export const useTradeTempTokenState = ({
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -186,7 +187,7 @@ export const useTradeTempTokenState = ({
       onWriteError: (error) => {
         console.log("mint write error", error);
         toast({
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -211,7 +212,7 @@ export const useTradeTempTokenState = ({
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -315,7 +316,7 @@ export const useTradeTempTokenState = ({
               </Flex>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -348,7 +349,7 @@ export const useTradeTempTokenState = ({
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -357,7 +358,7 @@ export const useTradeTempTokenState = ({
       onWriteError: (error) => {
         console.log("burn write error", error);
         toast({
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -382,7 +383,7 @@ export const useTradeTempTokenState = ({
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -429,7 +430,7 @@ export const useTradeTempTokenState = ({
               </Flex>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });

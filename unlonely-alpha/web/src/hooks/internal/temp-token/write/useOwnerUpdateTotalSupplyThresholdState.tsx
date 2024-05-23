@@ -7,7 +7,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useUpdateTotalSupplyThreshold } from "../../../contracts/useTempTokenV1";
 import { useTempTokenContext } from "../../../context/useTempToken";
 import { useChannelContext } from "../../../context/useChannel";
-import { InteractionType } from "../../../../constants";
+import {
+  CHAKRA_UI_TX_TOAST_DURATION,
+  InteractionType,
+} from "../../../../constants";
 import { useUser } from "../../../context/useUser";
 
 export const useOwnerUpdateTotalSupplyThresholdState = (
@@ -63,7 +66,7 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -72,7 +75,7 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
       onWriteError: (error) => {
         console.log("setTotalSupplyThresholdForTokens error", error);
         toast({
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -119,7 +122,7 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -132,7 +135,7 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
               setTotalSupplyThresholdForTokens error
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });

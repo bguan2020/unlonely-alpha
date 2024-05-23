@@ -26,11 +26,12 @@ export const useLivepeerStreamData = () => {
   const [playbackInfo, setPlaybackInfo] = useState<PlaybackInfo | undefined>(
     undefined
   );
-  const [checkedForLivepeerPlaybackInfo, setCheckedForLivepeerPlaybackInfo] = useState<boolean>(false);
+  const [checkedForLivepeerPlaybackInfo, setCheckedForLivepeerPlaybackInfo] =
+    useState<boolean>(false);
 
   useEffect(() => {
     const init = async () => {
-      if (!channelQueryData) return
+      if (!channelQueryData) return;
       if (channelQueryData?.livepeerPlaybackId) {
         const res = await livepeer.playback.get(
           channelQueryData?.livepeerPlaybackId
@@ -60,6 +61,6 @@ export const useLivepeerStreamData = () => {
   return {
     livepeerData,
     playbackInfo,
-    checkedForLivepeerPlaybackInfo
+    checkedForLivepeerPlaybackInfo,
   };
 };

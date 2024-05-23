@@ -1,7 +1,11 @@
 import { useVersusTempTokenContext } from "../../../context/useVersusTempToken";
 import { useSetWinningTokenTradeableAndTransferLiquidity } from "../../../contracts/useTempTokenFactoryV1";
 import { decodeEventLog, isAddressEqual } from "viem";
-import { Contract, InteractionType } from "../../../../constants";
+import {
+  CHAKRA_UI_TX_TOAST_DURATION,
+  Contract,
+  InteractionType,
+} from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { Box, useToast } from "@chakra-ui/react";
@@ -68,14 +72,14 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         toast({
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -105,7 +109,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -125,7 +129,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                   (3/4) transfer loser liquidity update database success
                 </Box>
               ),
-              duration: 3000, // chakra ui toast duration
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -138,7 +142,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                   transfer loser liquidity update database error
                 </Box>
               ),
-              duration: 3000, // chakra ui toast duration
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -155,7 +159,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                   (4/4) transfer loser liquidity update database success
                 </Box>
               ),
-              duration: 3000, // chakra ui toast duration
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -168,7 +172,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                   transfer loser liquidity update database error
                 </Box>
               ),
-              duration: 3000, // chakra ui toast duration
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -191,7 +195,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                 cannot get max winner tokens, defaulting to 0: {lambdaError}
               </Box>
             ),
-            duration: 3000, // chakra ui toast duration
+            duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
             isClosable: true,
             position: "bottom", // chakra ui toast position
           });
@@ -240,7 +244,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
               transfer funds error
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });

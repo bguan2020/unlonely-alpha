@@ -6,7 +6,10 @@ import Link from "next/link";
 import { useSendRemainingFundsToWinnerAfterTokenExpiration } from "../../../contracts/useTempTokenV1";
 import { decodeEventLog, isAddress } from "viem";
 import { useChannelContext } from "../../../context/useChannel";
-import { InteractionType } from "../../../../constants";
+import {
+  CHAKRA_UI_TX_TOAST_DURATION,
+  InteractionType,
+} from "../../../../constants";
 import { useUser } from "../../../context/useUser";
 import { useApolloClient } from "@apollo/client";
 import { GET_USER_QUERY } from "../../../../constants/queries";
@@ -83,14 +86,14 @@ export const useSendRemainingFundsToWinnerState = (
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         toast({
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -123,7 +126,7 @@ export const useSendRemainingFundsToWinnerState = (
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -166,7 +169,7 @@ export const useSendRemainingFundsToWinnerState = (
               send remaining funds error
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { filteredInput } from "../../../../utils/validation/input";
 import { Box, useToast } from "@chakra-ui/react";
-import { Contract } from "../../../../constants";
+import { CHAKRA_UI_TX_TOAST_DURATION, Contract } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useIncreaseEndTimestampForTokens as use_call_updateOnchain_increaseEndTimestamps } from "../../../contracts/useTempTokenFactoryV1";
 import Link from "next/link";
@@ -64,7 +64,7 @@ export const useUpdateEndTimestampForTokensState = (
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -72,7 +72,7 @@ export const useUpdateEndTimestampForTokensState = (
       onWriteError: (error) => {
         console.log("increaseEndTimestampForTokens error", error);
         toast({
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -108,7 +108,7 @@ export const useUpdateEndTimestampForTokensState = (
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -121,7 +121,7 @@ export const useUpdateEndTimestampForTokensState = (
               increaseEndTimestampForTokens error
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });

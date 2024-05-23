@@ -7,6 +7,7 @@ import {
   CHAT_MESSAGE_EVENT,
   RANDOM_CHAT_COLOR,
   NULL_ADDRESS,
+  CHAKRA_UI_TX_TOAST_DURATION,
 } from "../../constants";
 import { Message, SenderStatus } from "../../constants/types/chat";
 import { useChannelContext } from "../context/useChannel";
@@ -155,7 +156,7 @@ export const useChatBox = (
         title: "Sign in first.",
         description: "Please sign into your wallet first.",
         status: "warning",
-        duration: 3000, // chakra ui toast duration
+        duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
         isClosable: true,
         position: mobile ? "bottom" : "top",
       });

@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useBalance } from "wagmi";
 
 import {
+  CHAKRA_UI_TX_TOAST_DURATION,
   Contract,
   DEFAULT_TOKEN_TRADE_AMOUNT,
   InteractionType,
@@ -129,7 +130,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -138,7 +139,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
       onWriteError: (error) => {
         console.log("mint write error", error);
         toast({
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -163,7 +164,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -206,7 +207,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
               </Flex>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -243,7 +244,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -252,7 +253,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
       onWriteError: (error) => {
         console.log("burn write error", error);
         toast({
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -277,7 +278,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -318,7 +319,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
               </Flex>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });

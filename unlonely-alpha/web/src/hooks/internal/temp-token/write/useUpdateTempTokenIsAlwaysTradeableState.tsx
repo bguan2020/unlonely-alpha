@@ -1,5 +1,5 @@
 import { useNetworkContext } from "../../../context/useNetwork";
-import { Contract } from "../../../../constants";
+import { CHAKRA_UI_TX_TOAST_DURATION, Contract } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useToast, Box } from "@chakra-ui/react";
 import { useSetAlwaysTradeableForTokens as use_call_updateOnchain_alwaysTradeable } from "../../../contracts/useTempTokenFactoryV1";
@@ -49,7 +49,7 @@ export const useUpdateTempTokenIsAlwaysTradeableState = (
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -57,7 +57,7 @@ export const useUpdateTempTokenIsAlwaysTradeableState = (
       onWriteError: (error) => {
         console.log("setAlwaysTradeableForTokens error", error);
         toast({
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -93,7 +93,7 @@ export const useUpdateTempTokenIsAlwaysTradeableState = (
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -106,7 +106,7 @@ export const useUpdateTempTokenIsAlwaysTradeableState = (
               setAlwaysTradeableForTokens error
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });

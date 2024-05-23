@@ -5,17 +5,12 @@ import { useVersusTempTokenContext } from "../../../context/useVersusTempToken";
 import { useChannelContext } from "../../../context/useChannel";
 
 export const useIsGameOngoing = () => {
-    const { channel } = useChannelContext();
-    const {
-      isOwner,
-    } = channel;
+  const { channel } = useChannelContext();
+  const { isOwner } = channel;
   const { tempToken } = useTempTokenContext();
   const { gameState, loadingCurrentOnMount, loadingLastOnMount } = tempToken;
-  const {
-    currentActiveTokenAddress,
-    lastInactiveTokenAddress,
-  } = gameState;
-  
+  const { currentActiveTokenAddress, lastInactiveTokenAddress } = gameState;
+
   const { gameState: versusGameState, loadingOnMount } =
     useVersusTempTokenContext();
   const {
@@ -24,44 +19,43 @@ export const useIsGameOngoing = () => {
     ownerMustMakeWinningTokenTradeable,
   } = versusGameState;
   const [tokenStateView, setTokenStateView] = useState<
-  "owner-choose" | "single" | "versus"
->("owner-choose");
+    "owner-choose" | "single" | "versus"
+  >("owner-choose");
 
-const isVersusOnGoing = useMemo(() => {
-  return (
-    (isVersusGameOngoing ||
-      (typeof ownerMustPermamint === "number" && ownerMustPermamint > 0) ||
-      ownerMustMakeWinningTokenTradeable) &&
-    !loadingOnMount
-  );
-}, [
-  isVersusGameOngoing,
-  ownerMustPermamint,
-  ownerMustMakeWinningTokenTradeable,
-  loadingOnMount,
-]);
+  const isVersusOnGoing = useMemo(() => {
+    return (
+      (isVersusGameOngoing ||
+        (typeof ownerMustPermamint === "number" && ownerMustPermamint > 0) ||
+        ownerMustMakeWinningTokenTradeable) &&
+      !loadingOnMount
+    );
+  }, [
+    isVersusGameOngoing,
+    ownerMustPermamint,
+    ownerMustMakeWinningTokenTradeable,
+    loadingOnMount,
+  ]);
 
-const isSingleOnGoing = useMemo(() => {
-  return (
-    !loadingCurrentOnMount &&
-    (!loadingLastOnMount || !isOwner) &&
-    (currentActiveTokenAddress !== NULL_ADDRESS ||
-      lastInactiveTokenAddress !== NULL_ADDRESS)
-  );
-}, [
-  loadingCurrentOnMount,
-  loadingLastOnMount,
-  currentActiveTokenAddress,
-  lastInactiveTokenAddress,
-  isOwner,
-]);
+  const isSingleOnGoing = useMemo(() => {
+    return (
+      !loadingCurrentOnMount &&
+      (!loadingLastOnMount || !isOwner) &&
+      (currentActiveTokenAddress !== NULL_ADDRESS ||
+        lastInactiveTokenAddress !== NULL_ADDRESS)
+    );
+  }, [
+    loadingCurrentOnMount,
+    loadingLastOnMount,
+    currentActiveTokenAddress,
+    lastInactiveTokenAddress,
+    isOwner,
+  ]);
 
-const isGameOngoing = useMemo(() => {
-  return isVersusOnGoing || isSingleOnGoing;
-}, [isVersusOnGoing, isSingleOnGoing]);
+  const isGameOngoing = useMemo(() => {
+    return isVersusOnGoing || isSingleOnGoing;
+  }, [isVersusOnGoing, isSingleOnGoing]);
 
-
-useEffect(() => {
+  useEffect(() => {
     if (isVersusOnGoing) {
       setTokenStateView("versus");
     }
@@ -79,5 +73,5 @@ useEffect(() => {
     }
   }, [isGameOngoing]);
 
-    return { isGameOngoing, tokenStateView, setTokenStateView };
-}
+  return { isGameOngoing, tokenStateView, setTokenStateView };
+};

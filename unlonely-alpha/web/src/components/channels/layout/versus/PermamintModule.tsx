@@ -2,7 +2,11 @@ import { Box, Button, Spinner, useToast } from "@chakra-ui/react";
 import { useMintWinnerTokens } from "../../../../hooks/contracts/useTempTokenFactoryV1";
 import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
 import { useEffect, useState } from "react";
-import { Contract, InteractionType } from "../../../../constants";
+import {
+  CHAKRA_UI_TX_TOAST_DURATION,
+  Contract,
+  InteractionType,
+} from "../../../../constants";
 import { useNetworkContext } from "../../../../hooks/context/useNetwork";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { decodeEventLog, isAddressEqual } from "viem";
@@ -60,14 +64,14 @@ export const PermamintModule = () => {
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         toast({
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -100,7 +104,7 @@ export const PermamintModule = () => {
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -147,7 +151,7 @@ export const PermamintModule = () => {
               mint winner tokens error
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });

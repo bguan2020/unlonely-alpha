@@ -31,7 +31,7 @@ import useCloseSharesEvent from "../hooks/server/channel/useCloseSharesEvent";
 import usePostClaimPayout from "../hooks/server/usePostClaimPayout";
 import { getColorFromString } from "../styles/Colors";
 import { useCacheContext } from "../hooks/context/useCache";
-import { Contract } from "../constants";
+import { CHAKRA_UI_TX_TOAST_DURATION, Contract } from "../constants";
 
 export default function ClaimPage() {
   const { user, walletIsConnected } = useUser();
@@ -233,14 +233,14 @@ const EventCard = ({
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         toast({
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -265,7 +265,7 @@ const EventCard = ({
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -299,7 +299,7 @@ const EventCard = ({
               claimVotePayout error
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });

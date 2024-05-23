@@ -6,10 +6,8 @@ import { useVersusTempTokenContext } from "../../../context/useVersusTempToken";
 export const useIsGameOngoingMobile = () => {
   const { tempToken } = useTempTokenContext();
   const { gameState, loadingCurrentOnMount } = tempToken;
-  const {
-    currentActiveTokenAddress,
-  } = gameState;
-  
+  const { currentActiveTokenAddress } = gameState;
+
   const { gameState: versusGameState, loadingOnMount } =
     useVersusTempTokenContext();
   const {
@@ -17,37 +15,25 @@ export const useIsGameOngoingMobile = () => {
     ownerMustMakeWinningTokenTradeable,
   } = versusGameState;
   const [tokenStateView, setTokenStateView] = useState<
-  "chat" | "single" | "versus"
->("chat");
+    "chat" | "single" | "versus"
+  >("chat");
 
-const isVersusOnGoing = useMemo(() => {
-  return (
-    (isVersusGameOngoing ||
-      ownerMustMakeWinningTokenTradeable) &&
-    !loadingOnMount
-  );
-}, [
-  isVersusGameOngoing,
-  ownerMustMakeWinningTokenTradeable,
-  loadingOnMount,
-]);
+  const isVersusOnGoing = useMemo(() => {
+    return (
+      (isVersusGameOngoing || ownerMustMakeWinningTokenTradeable) &&
+      !loadingOnMount
+    );
+  }, [isVersusGameOngoing, ownerMustMakeWinningTokenTradeable, loadingOnMount]);
 
-const isSingleOnGoing = useMemo(() => {
-  return (
-    !loadingCurrentOnMount &&
-    (currentActiveTokenAddress !== NULL_ADDRESS)
-  );
-}, [
-  loadingCurrentOnMount,
-  currentActiveTokenAddress,
-]);
+  const isSingleOnGoing = useMemo(() => {
+    return !loadingCurrentOnMount && currentActiveTokenAddress !== NULL_ADDRESS;
+  }, [loadingCurrentOnMount, currentActiveTokenAddress]);
 
-const isGameOngoing = useMemo(() => {
-  return isVersusOnGoing || isSingleOnGoing;
-}, [isVersusOnGoing, isSingleOnGoing]);
+  const isGameOngoing = useMemo(() => {
+    return isVersusOnGoing || isSingleOnGoing;
+  }, [isVersusOnGoing, isSingleOnGoing]);
 
-
-useEffect(() => {
+  useEffect(() => {
     if (isVersusOnGoing) {
       setTokenStateView("versus");
     }
@@ -65,5 +51,5 @@ useEffect(() => {
     }
   }, [isGameOngoing]);
 
-    return { tokenStateView };
-}
+  return { tokenStateView };
+};

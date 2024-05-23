@@ -137,7 +137,7 @@ export const useReadTempTokenOnMount = ({
           );
           globalState.handleIsPreSaleOngoing(
             Number(String(preSaleEndTimestamp)) > Math.floor(Date.now() / 1000)
-          )
+          );
         }
       } catch (e) {
         console.error("getTempTokensQuery", e);

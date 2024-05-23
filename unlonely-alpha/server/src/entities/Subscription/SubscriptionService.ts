@@ -294,7 +294,7 @@ export const sendAllNotifications = async (
           title: data.title,
           body: data.body,
           data: {
-            url: data.pathname ? data.pathname : "/"
+            url: data.pathname ? data.pathname : "/",
           },
         },
       };

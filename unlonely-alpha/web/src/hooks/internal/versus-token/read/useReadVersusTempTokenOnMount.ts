@@ -179,7 +179,9 @@ export const useReadVersusTempTokenOnMount = ({
             });
           } else {
             globalState.handleIsGameOngoing(true);
-            globalState.handleIsPreSaleOngoing(_newTokenA.preSaleEndTimestamp > nowInSeconds);
+            globalState.handleIsPreSaleOngoing(
+              _newTokenA.preSaleEndTimestamp > nowInSeconds
+            );
           }
         }
       } catch (e) {

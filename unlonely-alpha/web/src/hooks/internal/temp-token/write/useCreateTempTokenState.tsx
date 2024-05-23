@@ -6,7 +6,11 @@ import { useNetworkContext } from "../../../context/useNetwork";
 import { useCreateTempToken } from "../../../contracts/useTempTokenFactoryV1";
 import { verifyTempTokenV1OnBase } from "../../../../utils/contract-verification/tempToken";
 import usePostTempToken from "../../../server/temp-token/usePostTempToken";
-import { Contract, InteractionType } from "../../../../constants";
+import {
+  CHAKRA_UI_TX_TOAST_DURATION,
+  Contract,
+  InteractionType,
+} from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useChannelContext } from "../../../context/useChannel";
 import { useUser } from "../../../context/useUser";
@@ -121,7 +125,7 @@ export const useCreateTempTokenState = ({
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -129,7 +133,7 @@ export const useCreateTempTokenState = ({
       },
       onWriteError: (error) => {
         toast({
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -176,7 +180,7 @@ export const useCreateTempTokenState = ({
                   createTempToken update database success
                 </Box>
               ),
-              duration: 3000, // chakra ui toast duration
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -189,7 +193,7 @@ export const useCreateTempTokenState = ({
                   createTempToken update database error
                 </Box>
               ),
-              duration: 3000, // chakra ui toast duration
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -228,7 +232,7 @@ export const useCreateTempTokenState = ({
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -319,7 +323,7 @@ export const useCreateTempTokenState = ({
               createTempToken error
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });

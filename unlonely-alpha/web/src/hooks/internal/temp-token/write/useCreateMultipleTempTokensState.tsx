@@ -1,5 +1,9 @@
 import { useCallback, useRef, useState } from "react";
-import { Contract, InteractionType } from "../../../../constants";
+import {
+  CHAKRA_UI_TX_TOAST_DURATION,
+  Contract,
+  InteractionType,
+} from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { useCreateMultipleTempTokens } from "../../../contracts/useTempTokenFactoryV1";
@@ -119,7 +123,7 @@ export const useCreateMultipleTempTokensState = ({
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -127,7 +131,7 @@ export const useCreateMultipleTempTokensState = ({
       },
       onWriteError: (error) => {
         toast({
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
           render: () => (
@@ -178,7 +182,7 @@ export const useCreateMultipleTempTokensState = ({
                   (1/2) createMultipleTempTokens update database success
                 </Box>
               ),
-              duration: 3000, // chakra ui toast duration
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -194,7 +198,7 @@ export const useCreateMultipleTempTokensState = ({
                   (1/2) createMultipleTempTokens update database error
                 </Box>
               ),
-              duration: 3000, // chakra ui toast duration
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -224,7 +228,7 @@ export const useCreateMultipleTempTokensState = ({
                   (2/2) createMultipleTempTokens update database success
                 </Box>
               ),
-              duration: 3000, // chakra ui toast duration
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -240,7 +244,7 @@ export const useCreateMultipleTempTokensState = ({
                   (2/2) createMultipleTempTokens update database error
                 </Box>
               ),
-              duration: 3000, // chakra ui toast duration
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
               position: "bottom", // chakra ui toast position
             });
@@ -275,7 +279,7 @@ export const useCreateMultipleTempTokensState = ({
               </Link>
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
@@ -369,7 +373,7 @@ export const useCreateMultipleTempTokensState = ({
               createMultipleTempTokens error
             </Box>
           ),
-          duration: 3000, // chakra ui toast duration
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
