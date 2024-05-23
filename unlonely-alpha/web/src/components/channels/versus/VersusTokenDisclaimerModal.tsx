@@ -18,12 +18,14 @@ export const VersusTokenDisclaimerModal = ({
     handleCanPlayToken,
     handleIsGameFinished,
     handleIsPreSaleOngoing,
+    handleFocusedTokenToTrade,
   } = gameState;
   const { durationLeftForTempToken } = useTempTokenTimerState({
     tokenEndTimestamp: tokenA.endTimestamp,
     preSaleEndTimestamp: tokenA.preSaleEndTimestamp,
     callbackOnExpiration: () => {
       handleCanPlayToken(false);
+      handleFocusedTokenToTrade(undefined);
       handleIsGameFinished(true);
     },
     callbackonPresaleEnd: () => {

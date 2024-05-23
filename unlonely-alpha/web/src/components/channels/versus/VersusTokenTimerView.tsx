@@ -17,10 +17,10 @@ export const VersusTempTokenTimerView = ({
   const { gameState } = useVersusTempTokenContext();
   const {
     tokenA,
-    tokenB,
     handleCanPlayToken,
     handleIsGameFinished,
     handleIsPreSaleOngoing,
+    handleFocusedTokenToTrade,
   } = gameState;
 
   const { durationLeftForTempToken, durationLeftForPreSale } =
@@ -30,6 +30,7 @@ export const VersusTempTokenTimerView = ({
       callbackOnExpiration: () => {
         handleCanPlayToken(false);
         handleIsGameFinished(true);
+        handleFocusedTokenToTrade(undefined);
       },
       callbackonPresaleEnd: () => {
         handleIsPreSaleOngoing(false);

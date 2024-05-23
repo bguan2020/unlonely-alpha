@@ -54,7 +54,7 @@ export const TempTokenExchange = () => {
         position="relative"
         gap="5px"
         alignItems={"center"}
-        opacity={isPreSaleOngoing ? 0 : 1}
+        opacity={isPreSaleOngoing ? "0 !important" : 1}
       >
         <ChakraTooltip
           label={errorMessage}
@@ -109,7 +109,7 @@ export const TempTokenExchange = () => {
           _focus={{}}
           _hover={{}}
           _active={{}}
-          bg={isPreSaleOngoing ? "#00a862" : "#46a800"}
+          bg={isPreSaleOngoing && !claimedPreSaleTokens ? "#8fee00" : "#46a800"}
           isDisabled={
             (isPreSaleOngoing && claimedPreSaleTokens) ||
             !mint ||
@@ -136,18 +136,12 @@ export const TempTokenExchange = () => {
                 )} ETH)`}
               </Text>
             </Flex>
-          ) : claimedPreSaleTokens ? (
-            <Text>CLAIMED</Text>
+          ) : !claimedPreSaleTokens ? (
+            <Text fontSize="20px" color="black">
+              FREE MONEY
+            </Text>
           ) : (
-            <Flex direction="column">
-              <Text>CLAIM</Text>
-              <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
-                {`(${truncateValue(
-                  formatUnits(mintCostAfterFees, 18),
-                  4
-                )} ETH)`}
-              </Text>
-            </Flex>
+            <Text>CLAIMED</Text>
           )}
         </Button>
         <Button
@@ -164,7 +158,7 @@ export const TempTokenExchange = () => {
           onClick={burn}
           p={undefined}
           w="100%"
-          opacity={isPreSaleOngoing ? 0 : 1}
+          opacity={isPreSaleOngoing ? "0 !important" : 1}
         >
           <Flex direction="column">
             <Text>{"SELL"}</Text>

@@ -236,7 +236,7 @@ export const useCreateTempTokenState = ({
           const res = await call({
             variables: {
               data: {
-                title: `/${channel.channelQueryData?.slug} just launched $${args.symbol} token!`,
+                title: `/${channel.channelQueryData?.slug} launched $${args.symbol} token!`,
                 body: "you have 2 min. to claim 1,000 free tokens",
                 pathname: `/channels/${channel.channelQueryData?.slug}`,
                 channelId: undefined,

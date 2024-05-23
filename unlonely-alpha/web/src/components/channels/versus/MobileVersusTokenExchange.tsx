@@ -23,6 +23,7 @@ export const MobileVersusTokenExchange = () => {
     handleCanPlayToken,
     handleIsPreSaleOngoing,
     handleIsGameFinished,
+    handleFocusedTokenToTrade,
   } = gameState;
 
   const [claimedPreSaleTokens, setClaimedPreSaleTokens] =
@@ -129,6 +130,7 @@ export const MobileVersusTokenExchange = () => {
     callbackOnExpiration: () => {
       handleCanPlayToken(false);
       handleIsGameFinished(true);
+      handleFocusedTokenToTrade(undefined);
     },
     callbackonPresaleEnd: () => {
       handleIsPreSaleOngoing(false);

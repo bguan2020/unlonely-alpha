@@ -16,7 +16,6 @@ import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempT
 import { useTradeTempTokenState } from "../../../hooks/internal/temp-token/write/useTradeTempTokenState";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { formatIncompleteNumber } from "../../../utils/validation/input";
-import { DEFAULT_TOKEN_TRADE_AMOUNT } from "../../../constants";
 
 export const VersusTokenExchange = () => {
   const { gameState, tokenATxs, tokenBTxs } = useVersusTempTokenContext();
@@ -114,21 +113,15 @@ export const VersusTokenExchange = () => {
 
   return (
     <Flex direction="column" justifyContent={"center"} gap="10px">
-      <Flex
-        position="relative"
-        gap="5px"
-        alignItems={"center"}
-        mx="auto"
-        opacity={isPreSaleOngoing ? 0 : 1}
-      >
+      <Flex position="relative" gap="5px" alignItems={"center"} mx="auto">
         <Flex h="40px">
-          {focusedTokenToTrade?.address &&
-          isAddress(focusedTokenToTrade?.address) ? (
+          {focusedTokenToTrade ? (
             <ChakraTooltip
               label={errorMessage}
               placement="bottom-start"
               isOpen={errorMessage !== undefined}
               bg="red.600"
+              opacity={isPreSaleOngoing ? "0 !important" : 1}
             >
               <Input
                 variant={errorMessage.length > 0 ? "redGlow" : "glow"}
@@ -143,45 +136,42 @@ export const VersusTokenExchange = () => {
             <Text>Select a token above to trade</Text>
           )}
         </Flex>
-        {focusedTokenToTrade?.address &&
-          isAddress(focusedTokenToTrade?.address) && (
-            <Popover trigger="hover" placement="top" openDelay={500}>
-              <PopoverTrigger>
-                <Button
-                  bg={"#403c7d"}
-                  color="white"
-                  p={2}
-                  height={"20px"}
-                  _focus={{}}
-                  _active={{}}
-                  _hover={{
-                    bg: "#8884d8",
-                  }}
-                  onClick={() => {
-                    handleAmountDirectly(
-                      isPreSaleOngoing
-                        ? String(DEFAULT_TOKEN_TRADE_AMOUNT)
-                        : isFocusedTokenEqualToTokenA
-                        ? tokenATxs.userTempTokenBalance.toString()
-                        : isFocusedTokenEqualToTokenB
-                        ? tokenBTxs.userTempTokenBalance.toString()
-                        : "0"
-                    );
-                  }}
-                >
-                  max
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent bg="#6c3daf" border="none" width="100%" p="2px">
-                <PopoverArrow bg="#6c3daf" />
-                <Text fontSize="12px" textAlign={"center"}>
-                  {isPreSaleOngoing
-                    ? "click to claim 1000 tokens"
-                    : "click to show max temp tokens u currently own"}
-                </Text>
-              </PopoverContent>
-            </Popover>
-          )}
+        {focusedTokenToTrade && !isPreSaleOngoing && (
+          <Popover trigger="hover" placement="top" openDelay={500}>
+            <PopoverTrigger>
+              <Button
+                bg={"#403c7d"}
+                color="white"
+                p={2}
+                height={"20px"}
+                _focus={{}}
+                _active={{}}
+                _hover={{
+                  bg: "#8884d8",
+                }}
+                onClick={() => {
+                  handleAmountDirectly(
+                    isFocusedTokenEqualToTokenA
+                      ? tokenATxs.userTempTokenBalance.toString()
+                      : isFocusedTokenEqualToTokenB
+                      ? tokenBTxs.userTempTokenBalance.toString()
+                      : "0"
+                  );
+                }}
+              >
+                max
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent bg="#6c3daf" border="none" width="100%" p="2px">
+              <PopoverArrow bg="#6c3daf" />
+              <Text fontSize="12px" textAlign={"center"}>
+                {isPreSaleOngoing
+                  ? "click to claim 1000 tokens"
+                  : "click to show max temp tokens u currently own"}
+              </Text>
+            </PopoverContent>
+          </Popover>
+        )}
       </Flex>
       <Flex gap="2px" justifyContent={"center"} direction="column" mx="auto">
         <Button
@@ -190,7 +180,9 @@ export const VersusTokenExchange = () => {
           _hover={{}}
           _active={{}}
           bg={
-            isFocusedTokenEqualToTokenA
+            isPreSaleOngoing && !claimedPreSaleTokens
+              ? "#8fee00"
+              : isFocusedTokenEqualToTokenA
               ? "rgba(255, 36, 36, 1)"
               : isFocusedTokenEqualToTokenB
               ? "rgba(42, 217, 255, 1)"
@@ -210,7 +202,6 @@ export const VersusTokenExchange = () => {
               }
             });
           }}
-          p={"0px"}
           w="100%"
         >
           {!isPreSaleOngoing ? (
@@ -224,15 +215,9 @@ export const VersusTokenExchange = () => {
               </Text>
             </Flex>
           ) : !claimedPreSaleTokens ? (
-            <Flex direction="column">
-              <Text>CLAIM</Text>
-              <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
-                {`(${truncateValue(
-                  formatUnits(mintCostAfterFees, 18),
-                  4
-                )} ETH)`}
-              </Text>
-            </Flex>
+            <Text fontSize="20px" color="black">
+              FREE MONEY
+            </Text>
           ) : (
             <Text>CLAIMED</Text>
           )}
@@ -242,7 +227,7 @@ export const VersusTokenExchange = () => {
           _focus={{}}
           _hover={{}}
           _active={{}}
-          opacity={isPreSaleOngoing ? 0 : 1}
+          opacity={isPreSaleOngoing ? "0 !important" : 1}
           bg={
             isFocusedTokenEqualToTokenA
               ? "rgba(75, 0, 1, 1)"
@@ -257,7 +242,6 @@ export const VersusTokenExchange = () => {
             focusedTokenData.tokenAddress === ""
           }
           onClick={burn}
-          p={undefined}
           w="100%"
         >
           <Flex direction="column">
