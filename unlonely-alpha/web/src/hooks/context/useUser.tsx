@@ -13,9 +13,10 @@ import {
   User as PrivyUser,
   useWallets,
   WalletWithMetadata,
+  useLogin,
 } from "@privy-io/react-auth";
 import { usePrivyWagmi } from "@privy-io/wagmi-connector";
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, useToast } from "@chakra-ui/react";
 import { isAddress } from "viem";
 
 import { User } from "../../generated/graphql";
@@ -24,6 +25,7 @@ import { GET_USER_QUERY } from "../../constants/queries";
 import centerEllipses from "../../utils/centerEllipses";
 import { Tos } from "../../components/general/Tos";
 import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
+import copy from "copy-to-clipboard";
 
 export const useUser = () => {
   return useContext(UserContext);
@@ -72,12 +74,68 @@ export const UserProvider = ({
     authenticated,
     user: privyUser,
     ready,
-    login,
     logout,
     exportWallet,
   } = usePrivy();
   const { wallet: activeWallet } = usePrivyWagmi();
   const { wallets } = useWallets();
+  const toast = useToast();
+  const { login } = useLogin({
+    onComplete: (
+      user,
+      isNewUser,
+      wasAlreadyAuthenticated,
+      loginMethod,
+      linkedAccount
+    ) => {
+      console.log(
+        user,
+        isNewUser,
+        wasAlreadyAuthenticated,
+        loginMethod,
+        linkedAccount
+      );
+      // Any logic you'd like to execute if the user is/becomes authenticated while this
+      // component is mounted
+    },
+    onError: (error) => {
+      console.error("login error", error);
+      toast({
+        render: () => (
+          <Box as="button" borderRadius="md" bg="#b82929" p={4}>
+            <Flex direction="column">
+              <Text fontFamily={"LoRes15"} fontSize="20px">
+                login error
+              </Text>
+              <Text>please copy error log to help developer diagnose</Text>
+              <Button
+                color="#b82929"
+                width="100%"
+                bg="white"
+                onClick={() => {
+                  copy(error.toString());
+                  toast({
+                    title: "copied to clipboard",
+                    status: "success",
+                    duration: 2000,
+                    isClosable: true,
+                  });
+                }}
+                _focus={{}}
+                _active={{}}
+                _hover={{ background: "#f44343", color: "white" }}
+              >
+                copy error
+              </Button>
+            </Flex>
+          </Box>
+        ),
+        duration: 12000,
+        isClosable: true,
+        position: "top",
+      });
+    },
+  });
   const [differentWallet, setDifferentWallet] = useState(false);
   const [initialNotificationsGranted, setInitialNotificationsGranted] =
     useState(false);
