@@ -150,7 +150,7 @@ export async function getServerSideProps(
 ) {
   const { nfcId } = context.params!;
 
-  const apolloClient = initializeApollo(null, context.req.cookies, true);
+  const apolloClient = initializeApollo(null);
 
   const { data } = await apolloClient.query({
     query: NFC_DETAIL_QUERY,

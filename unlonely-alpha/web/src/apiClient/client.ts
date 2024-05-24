@@ -29,7 +29,7 @@ const authLink = setContext(async (_, { headers }) => {
   };
 });
 
-function createApolloClient(cookies: Cookies, isSSR?: boolean) {
+function createApolloClient() {
   const server = String(process.env.NEXT_PUBLIC_DIGITAL_OCEAN_SERVER_URL);
   return new ApolloClient({
     cache: new InMemoryCache(),
@@ -53,10 +53,8 @@ type InitialState = NormalizedCacheObject | null;
 
 export function initializeApollo(
   initialState: InitialState = null,
-  cookies: Cookies,
-  isSSR?: boolean
 ) {
-  const _apolloClient = apolloClient ?? createApolloClient(cookies, isSSR);
+  const _apolloClient = apolloClient ?? createApolloClient();
 
   // If your page has Next.js data fetching methods that use Apollo Client, the initial state
   // gets hydrated here
@@ -74,10 +72,10 @@ export function initializeApollo(
   return _apolloClient;
 }
 
-export function useApollo(initialState: InitialState, cookies: Cookies) {
+export function useApollo(initialState: InitialState) {
   const store = useMemo(
-    () => initializeApollo(initialState, cookies),
-    [cookies, initialState]
+    () => initializeApollo(initialState),
+    [initialState]
   );
   return store;
 }

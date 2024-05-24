@@ -124,10 +124,9 @@ interface InitialProps {
 
 type Props = AppProps & InitialProps;
 
-function App({ Component, pageProps, cookies }: Props) {
+function App({ Component, pageProps }: Props) {
   const apolloClient = useApollo(
-    pageProps ? pageProps.initialApolloState : null,
-    cookies
+    pageProps ? pageProps.initialApolloState : null
   );
 
   const configureChainsConfig = configureChains(

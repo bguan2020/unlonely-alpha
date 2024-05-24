@@ -13,7 +13,6 @@ import {
 import { useForm } from "react-hook-form";
 import * as OP from "@eth-optimism/sdk";
 import { ethers } from "ethers";
-import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 import Link from "next/link";
 
 import AppLayout from "../components/layout/AppLayout";
@@ -21,6 +20,7 @@ import { useUser } from "../hooks/context/useUser";
 import usePostBaseLeaderboard from "../hooks/server/usePostBaseLeaderboard";
 import BaseLeaderboard from "../components/leaderboards/BaseLeaderboard";
 import { CHAKRA_UI_TX_TOAST_DURATION } from "../constants";
+import { useWallets } from "@privy-io/react-auth";
 
 enum TxStatus {
   Pending,
@@ -37,7 +37,7 @@ const BridgePage = () => {
   const { register, handleSubmit, formState } = useForm({
     defaultValues: { amount: "0.01" }, // you can set a default value here
   });
-  const { wallet } = usePrivyWagmi();
+  const { wallets } = useWallets();
   const { postBaseLeaderboard } = usePostBaseLeaderboard({
     onError: (m: any) => {
       console.log(m);
@@ -159,18 +159,18 @@ const BridgePage = () => {
 
   useEffect(() => {
     const getSigner = async () => {
-      if (!wallet) return undefined;
-      const p = await wallet.getEthersProvider();
+      if (!wallets[0]) return undefined;
+      const p = await wallets[0].getEthersProvider();
       const l1Signer = p.getSigner();
       setL1Signer(l1Signer);
     };
     getSigner();
-  }, [wallet]);
+  }, [wallets]);
 
   useEffect(() => {
-    const chain = wallet?.chainId;
+    const chain = wallets[0]?.chainId;
     setMatchingChain(chain?.split(":")[1] === STARTING_CHAIN_ID);
-  }, [wallet]);
+  }, [wallets]);
 
   return (
     <>

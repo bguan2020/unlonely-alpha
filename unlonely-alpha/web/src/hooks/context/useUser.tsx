@@ -15,7 +15,6 @@ import {
   WalletWithMetadata,
   useLogin,
 } from "@privy-io/react-auth";
-import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 import { Box, Button, Flex, Text, useToast } from "@chakra-ui/react";
 import { isAddress } from "viem";
 
@@ -77,7 +76,6 @@ export const UserProvider = ({
     logout,
     exportWallet,
   } = usePrivy();
-  const { wallet: activeWallet } = usePrivyWagmi();
   const { wallets } = useWallets();
   const toast = useToast();
   const { login } = useLogin({
@@ -86,7 +84,7 @@ export const UserProvider = ({
       isNewUser,
       wasAlreadyAuthenticated,
       loginMethod,
-      linkedAccount
+      loginAccount
     ) => {
       console.log(
         "login complete",
@@ -94,10 +92,8 @@ export const UserProvider = ({
         isNewUser,
         wasAlreadyAuthenticated,
         loginMethod,
-        linkedAccount
+        loginAccount
       );
-      // Any logic you'd like to execute if the user is/becomes authenticated while this
-      // component is mounted
     },
     onError: (error) => {
       console.error("login error", error);
@@ -155,6 +151,10 @@ export const UserProvider = ({
   }, [privyUser]);
 
   const address = useMemo(() => {
+    /*
+      check for the first non-privy wallet in the wallets array, which should be the latest wallet to be verified
+      if the wallet is in the linked accounts, return the address
+    */
     const filteredWallets = wallets?.filter(
       (wallet) => wallet.walletClientType !== "privy"
     );
@@ -165,6 +165,10 @@ export const UserProvider = ({
     );
     if (isInLinkedAccounts) return firstWallet?.address;
 
+    /*
+      check for the first wallet in the wallets array, which should be the latest wallet to be verified
+      if the wallet is in the linked accounts, return the address
+    */
     const firstWalletFromFullArray = wallets?.[0];
     const isInLinkedAccountsFromFullArray = privyUser?.linkedAccounts?.find(
       (account) =>
@@ -189,10 +193,10 @@ export const UserProvider = ({
 
   const walletIsConnected = useMemo(() => {
     const auth =
-      authenticated && activeWallet !== undefined && user !== undefined;
-    const matchingWallet = activeWallet?.address === address;
+      authenticated && wallets[0] !== undefined && user !== undefined;
+    const matchingWallet = wallets[0]?.address === address;
     return auth && matchingWallet;
-  }, [authenticated, activeWallet, user, address]);
+  }, [authenticated, wallets, user, address]);
 
   useEffect(() => {
     setUser(data?.getUser);
@@ -203,12 +207,12 @@ export const UserProvider = ({
     const f = async () => {
       const isUsingDifferentWallet =
         user?.address !== undefined &&
-        isAddress(activeWallet?.address as `${string}`) &&
-        activeWallet?.address !== user?.address;
+        isAddress(wallets[0]?.address as `${string}`) &&
+        wallets[0]?.address !== user?.address;
       setDifferentWallet(isUsingDifferentWallet);
     };
     f();
-  }, [activeWallet, user]);
+  }, [wallets, user]);
 
   const value = useMemo(
     () => ({
@@ -219,7 +223,7 @@ export const UserProvider = ({
       walletIsConnected,
       loginMethod,
       initialNotificationsGranted,
-      activeWallet,
+      activeWallet: wallets[0],
       ready,
       authenticated,
       fetchUser,
@@ -235,7 +239,7 @@ export const UserProvider = ({
       walletIsConnected,
       loginMethod,
       initialNotificationsGranted,
-      activeWallet,
+      wallets,
       ready,
       authenticated,
       fetchUser,
@@ -277,7 +281,7 @@ export const UserProvider = ({
               logged in as {user?.address}
             </Text>
             <Text textAlign={"center"} fontSize={"12px"} color="#85c71b">
-              connected {activeWallet?.address}
+              connected {wallets[0]?.address}
             </Text>
           </Box>
           <Text textAlign={"center"} fontSize="15px">
