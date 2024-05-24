@@ -7,7 +7,7 @@ export const calculateMaxWinnerTokensToMint = async (
   error: string | null;
   maxNumTokens: number;
 }> => {
-  const total_fee_percent: number = 10 * 10 ** 16; // 5% protocol fee and 5% streamer fee
+  const total_fee_percent: number = (7 + 7) * 10 ** 16; // todo: make sure fees are accurate (7% protocol fee and 7% streamer fee)
   const lambda = new AWS.Lambda({
     region: "us-west-2",
     accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY,
