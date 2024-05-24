@@ -109,6 +109,11 @@ export const VersusTokenExchange = () => {
     tokenSymbol: focusedTokenData.tokenSymbol,
     tokenTxs: focusedTokenData.tokenTxs,
     isPreSaleOngoing,
+    callbackOnTxSuccess: () => {
+      if (isPreSaleOngoing) {
+        setClaimedPreSaleTokens(true);
+      }
+    },
   });
 
   return (
@@ -121,7 +126,6 @@ export const VersusTokenExchange = () => {
               placement="bottom-start"
               isOpen={errorMessage !== undefined}
               bg="red.600"
-              opacity={isPreSaleOngoing ? "0 !important" : 1}
             >
               <Input
                 variant={errorMessage.length > 0 ? "redGlow" : "glow"}
@@ -130,6 +134,7 @@ export const VersusTokenExchange = () => {
                 onChange={handleAmount}
                 p="1"
                 fontSize={"14px"}
+                opacity={isPreSaleOngoing ? "0 !important" : 1}
               />
             </ChakraTooltip>
           ) : (
@@ -195,13 +200,7 @@ export const VersusTokenExchange = () => {
             Number(formatIncompleteNumber(amount)) <= 0 ||
             focusedTokenData.tokenAddress === ""
           }
-          onClick={async () => {
-            await mint?.().then(() => {
-              if (isPreSaleOngoing) {
-                setClaimedPreSaleTokens(true);
-              }
-            });
-          }}
+          onClick={mint}
           w="100%"
         >
           {!isPreSaleOngoing ? (

@@ -43,6 +43,11 @@ export const TempTokenExchange = () => {
     tokenSymbol: currentActiveTokenSymbol,
     tokenTxs: tempTokenTxs,
     isPreSaleOngoing,
+    callbackOnTxSuccess: () => {
+      if (isPreSaleOngoing) {
+        setClaimedPreSaleTokens(true);
+      }
+    },
   });
 
   const [claimedPreSaleTokens, setClaimedPreSaleTokens] =
@@ -116,13 +121,7 @@ export const TempTokenExchange = () => {
             mintCostAfterFeesLoading ||
             Number(formatIncompleteNumber(amount)) <= 0
           }
-          onClick={async () => {
-            await mint?.().then(() => {
-              if (isPreSaleOngoing) {
-                setClaimedPreSaleTokens(true);
-              }
-            });
-          }}
+          onClick={mint}
           p={"0px"}
           w="100%"
         >
