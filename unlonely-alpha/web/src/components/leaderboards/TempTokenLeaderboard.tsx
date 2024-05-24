@@ -21,8 +21,6 @@ import { getTimeFromMillis } from "../../utils/time";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { formatUnits } from "viem";
 import { useCacheContext } from "../../hooks/context/useCache";
-import { Contract } from "../../constants";
-import { getContractFromNetwork } from "../../utils/contract";
 
 const headers = ["rank", "token", "channel", "highest price", "time left"];
 
@@ -30,14 +28,14 @@ const ITEMS_PER_PAGE = 10;
 
 const TempTokenLeaderboard = () => {
   const { network } = useNetworkContext();
-  const { localNetwork } = network;
+  const { localNetwork, explorerUrl } = network;
   const { ethPriceInUsd } = useCacheContext();
 
   const visibleColumns = useBreakpointValue({
     base: [1, 3],
     sm: [0, 1, 3],
-    md: [0, 1, 2, 3, 4, 5],
-    lg: [0, 1, 2, 3, 4, 5],
+    md: [0, 1, 2, 3, 4],
+    lg: [0, 1, 2, 3, 4],
   });
 
   const [getTempTokensQuery, { loading, data, error }] =
@@ -75,7 +73,7 @@ const TempTokenLeaderboard = () => {
     });
   }, [datasetPaginated]);
 
-  const sortedDataRows = useMemo(() => {
+  const datasetPaginatedSorted = useMemo(() => {
     return datasetPaginated
       .map((token, index) => {
         return {
@@ -88,28 +86,31 @@ const TempTokenLeaderboard = () => {
         const nB = b.highestPrice;
         if (nA !== nB) return nB - nA;
         return b.endUnixTimestamp - a.endUnixTimestamp;
-      })
-      .map((token, index) => {
-        return {
-          data: [
-            `${index + page * ITEMS_PER_PAGE + 1}`,
-            token.symbol,
-            token.channel.slug,
-            `$${truncateValue(
-              Number(formatUnits(BigInt(token.highestPrice), 18)) *
-                Number(ethPriceInUsd),
-              4
-            )}`,
-          ],
-        };
       });
-  }, [datasetPaginated, calculatedHighestPrices, ethPriceInUsd]);
+  }, [datasetPaginated, calculatedHighestPrices]);
+
+  const sortedDataRows = useMemo(() => {
+    return datasetPaginatedSorted.map((token, index) => {
+      return {
+        data: [
+          `${index + page * ITEMS_PER_PAGE + 1}`,
+          token.symbol,
+          token.channel.slug,
+          `$${truncateValue(
+            Number(formatUnits(BigInt(token.highestPrice), 18)) *
+              Number(ethPriceInUsd),
+            4
+          )}`,
+        ],
+      };
+    });
+  }, [datasetPaginatedSorted, calculatedHighestPrices, ethPriceInUsd]);
 
   const completedDataRows = useMemo(() => {
     return sortedDataRows.map((row, i) => {
       const timeLeft = getTimeFromMillis(
         Math.max(
-          Number(datasetPaginated[i].endUnixTimestamp) - nowInSeconds,
+          Number(datasetPaginatedSorted[i].endUnixTimestamp) - nowInSeconds,
           0
         ) * 1000,
         true,
@@ -121,18 +122,11 @@ const TempTokenLeaderboard = () => {
     });
   }, [sortedDataRows, nowInSeconds]);
 
-  const factoryContract = getContractFromNetwork(
-    Contract.TEMP_TOKEN_FACTORY_V1,
-    localNetwork
-  );
-
   const fetch = useCallback(() => {
     getTempTokensQuery({
       variables: {
         data: {
-          factoryAddress: factoryContract.address as `0x${string}`,
           chainId: localNetwork.config.chainId,
-          onlyActiveTokens: true,
           fulfillAllNotAnyConditions: true,
         },
       },
@@ -209,17 +203,37 @@ const TempTokenLeaderboard = () => {
                       return (
                         <Tr
                           key={rowIndex}
-                          _hover={{ background: "#615C5C", color: "white" }}
-                          onClick={() => {
-                            window.open(
-                              `${window.location.origin}/channels/${row.data[2]}`,
-                              "_blank"
-                            );
-                          }}
+                          // _hover={{ background: "#615C5C", color: "white" }}
+                          // onClick={() => {
+                          //   window.open(
+                          //     `${window.location.origin}/channels/${row.data[2]}`,
+                          //     "_blank"
+                          //   );
+                          // }}
                         >
                           {visibleColumns &&
                             visibleColumns.map((index) => (
                               <Td
+                                _hover={
+                                  visibleColumns[index] === 1 ||
+                                  visibleColumns[index] === 2
+                                    ? { background: "#615C5C", color: "white" }
+                                    : undefined
+                                }
+                                onClick={() => {
+                                  if (visibleColumns[index] === 1) {
+                                    window.open(
+                                      `${explorerUrl}/address/${datasetPaginatedSorted[rowIndex].tokenAddress}`,
+                                      "_blank"
+                                    );
+                                  }
+                                  if (visibleColumns[index] === 2) {
+                                    window.open(
+                                      `${window.location.origin}/channels/${row.data[2]}`,
+                                      "_blank"
+                                    );
+                                  }
+                                }}
                                 fontSize={["20px", "24px"]}
                                 p="10px"
                                 textAlign="center"

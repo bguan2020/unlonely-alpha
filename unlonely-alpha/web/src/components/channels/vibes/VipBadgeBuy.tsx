@@ -7,6 +7,7 @@ import { useBalance } from "wagmi";
 import { useUser } from "../../../hooks/context/useUser";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import {
+  CHAKRA_UI_TX_TOAST_DURATION,
   CHAT_MESSAGE_EVENT,
   Contract,
   InteractionType,
@@ -65,17 +66,17 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         callbacks?.callbackOnWriteSuccess?.(data);
       },
       onWriteError: (error: any) => {
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               {name} cancelled
@@ -97,9 +98,9 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         callbacks?.callbackOnTxSuccess?.(data);
       },
@@ -110,9 +111,9 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
               {name} error
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         callbacks?.callbackOnTxError?.(error);
       },

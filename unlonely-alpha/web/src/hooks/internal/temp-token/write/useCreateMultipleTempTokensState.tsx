@@ -1,5 +1,9 @@
 import { useCallback, useRef, useState } from "react";
-import { Contract, InteractionType } from "../../../../constants";
+import {
+  CHAKRA_UI_TX_TOAST_DURATION,
+  Contract,
+  InteractionType,
+} from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { useCreateMultipleTempTokens } from "../../../contracts/useTempTokenFactoryV1";
@@ -11,7 +15,12 @@ import usePostTempToken from "../../../server/temp-token/usePostTempToken";
 import centerEllipses from "../../../../utils/centerEllipses";
 import { useUser } from "../../../context/useUser";
 import { verifyTempTokenV1OnBase } from "../../../../utils/contract-verification/tempToken";
-import { TempTokenType } from "../../../../generated/graphql";
+import {
+  QuerySendAllNotificationsArgs,
+  TempTokenType,
+} from "../../../../generated/graphql";
+import { useLazyQuery } from "@apollo/client";
+import { SEND_ALL_NOTIFICATIONS_QUERY } from "../../../../constants/queries";
 
 export type UseCreateMultipleTempTokensState = {
   newTokenAName: string;
@@ -19,6 +28,7 @@ export type UseCreateMultipleTempTokensState = {
   newTokenBName: string;
   newTokenBSymbol: string;
   newDuration: bigint;
+  newPreSaleDuration: bigint;
   createMultipleTempTokens?: () => Promise<any>;
   createMultipleTempTokensData: any;
   createMultipleTempTokensTxData: any;
@@ -26,6 +36,7 @@ export type UseCreateMultipleTempTokensState = {
   handleTokenName: (name: string, tokenType: "a" | "b") => void;
   handleTokenSymbol: (symbol: string, tokenType: "a" | "b") => void;
   handleNewDuration: (duration: bigint) => void;
+  handlePreSaleDuration: (duration: bigint) => void;
 };
 
 export const useCreateMultipleTempTokensInitialState: UseCreateMultipleTempTokensState =
@@ -35,6 +46,7 @@ export const useCreateMultipleTempTokensInitialState: UseCreateMultipleTempToken
     newTokenBName: "",
     newTokenBSymbol: "",
     newDuration: BigInt(3600),
+    newPreSaleDuration: BigInt(60 * 2),
     createMultipleTempTokens: undefined,
     createMultipleTempTokensData: undefined,
     createMultipleTempTokensTxData: undefined,
@@ -42,13 +54,14 @@ export const useCreateMultipleTempTokensInitialState: UseCreateMultipleTempToken
     handleTokenName: () => undefined,
     handleTokenSymbol: () => undefined,
     handleNewDuration: () => undefined,
+    handlePreSaleDuration: () => undefined,
   };
 
 export const useCreateMultipleTempTokensState = ({
   callbackOnTxSuccess,
 }: {
   callbackOnTxSuccess: () => void;
-}) => {
+}): UseCreateMultipleTempTokensState => {
   const { userAddress, user } = useUser();
   const { channel, chat } = useChannelContext();
   const { addToChatbot: addToChatbotForTempToken } = chat;
@@ -62,6 +75,9 @@ export const useCreateMultipleTempTokensState = ({
   const [newTokenBName, setNewTokenBName] = useState("");
   const [newTokenBSymbol, setNewTokenBSymbol] = useState("");
   const [newDuration, setNewDuration] = useState<bigint>(BigInt(1800));
+  const [newPreSaleDuration, setNewPreSaleDuration] = useState<bigint>(
+    BigInt(60 * 2)
+  );
 
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
@@ -71,6 +87,13 @@ export const useCreateMultipleTempTokensState = ({
   const canAddToChatbot_create = useRef(false);
 
   const { postTempToken } = usePostTempToken({});
+
+  const [call] = useLazyQuery<QuerySendAllNotificationsArgs>(
+    SEND_ALL_NOTIFICATIONS_QUERY,
+    {
+      fetchPolicy: "network-only",
+    }
+  );
 
   const {
     createMultipleTempTokens,
@@ -83,6 +106,7 @@ export const useCreateMultipleTempTokensState = ({
       symbols: [newTokenASymbol, newTokenBSymbol],
       duration: newDuration,
       totalSupplyThreshold: BigInt(0),
+      preSaleDuration: newPreSaleDuration,
     },
     factoryContract,
     {
@@ -99,17 +123,17 @@ export const useCreateMultipleTempTokensState = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_create.current = true;
       },
       onWriteError: (error) => {
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               createMultipleTempTokens cancelled
@@ -119,10 +143,6 @@ export const useCreateMultipleTempTokensState = ({
         canAddToChatbot_create.current = false;
       },
       onTxSuccess: async (data) => {
-        console.log(
-          "createMultipleTempTokens success 1",
-          canAddToChatbot_create.current
-        );
         if (!canAddToChatbot_create.current) return;
         const topics = decodeEventLog({
           abi: factoryContract.abi,
@@ -130,12 +150,13 @@ export const useCreateMultipleTempTokensState = ({
           topics: data.logs[data.logs.length - 1].topics,
         });
         const args: any = topics.args;
-        console.log("createMultipleTempTokens success 2", args, data);
+        console.log("createMultipleTempTokens success", args, data);
         const newEndTimestamp = args.endTimestamp as bigint;
         const newTokenAddresses = args.tokenAddresses as `0x${string}`[];
         const newTokenSymbols = args.symbols as string[];
         const newTokenNames = args.names as string[];
         const newTokenCreationBlockNumber = args.creationBlockNumber as bigint;
+        const preSaleEndTimestamp = args.preSaleEndTimestamp as bigint;
         await postTempToken({
           tokenAddress: newTokenAddresses[0],
           symbol: newTokenSymbols[0],
@@ -161,9 +182,9 @@ export const useCreateMultipleTempTokensState = ({
                   (1/2) createMultipleTempTokens update database success
                 </Box>
               ),
-              duration: 9000,
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           })
           .catch((err) => {
@@ -177,9 +198,9 @@ export const useCreateMultipleTempTokensState = ({
                   (1/2) createMultipleTempTokens update database error
                 </Box>
               ),
-              duration: 9000,
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           });
         await postTempToken({
@@ -207,9 +228,9 @@ export const useCreateMultipleTempTokensState = ({
                   (2/2) createMultipleTempTokens update database success
                 </Box>
               ),
-              duration: 9000,
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           })
           .catch((err) => {
@@ -223,9 +244,9 @@ export const useCreateMultipleTempTokensState = ({
                   (2/2) createMultipleTempTokens update database error
                 </Box>
               ),
-              duration: 9000,
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           });
         const title = `${
@@ -242,7 +263,9 @@ export const useCreateMultipleTempTokensState = ({
             newTokenAddresses
           )}:${JSON.stringify(newTokenSymbols)}:${String(
             localNetwork.config.chainId
-          )}:${String(newTokenCreationBlockNumber)}`,
+          )}:${String(newTokenCreationBlockNumber)}:${String(
+            preSaleEndTimestamp
+          )}`,
         });
         toast({
           render: () => (
@@ -256,10 +279,26 @@ export const useCreateMultipleTempTokensState = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
+        if (Number(preSaleEndTimestamp) > Math.floor(Date.now() / 1000)) {
+          const res = await call({
+            variables: {
+              data: {
+                title: `/${channel.channelQueryData?.slug} launched $${newTokenSymbols[0]} vs. $${newTokenSymbols[1]} tokens!`,
+                body: "you have 2 min. to claim 1,000 free tokens",
+                pathname: `/channels/${channel.channelQueryData?.slug}`,
+                channelId: undefined,
+              },
+            },
+          });
+          console.log(
+            "useCreateMutipleTempTokensState send all notifications:",
+            res
+          );
+        }
         callbackOnTxSuccess();
         // wait for 5 seconds
         await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -302,6 +341,10 @@ export const useCreateMultipleTempTokensState = ({
               name: "_creationBlockNumber",
               type: "uint256",
             },
+            {
+              name: "_preSaleEndTimestamp",
+              type: "uint256",
+            },
           ],
           [
             newTokenNames[0] as string,
@@ -313,6 +356,7 @@ export const useCreateMultipleTempTokensState = ({
             args.totalSupplyThreshold as bigint,
             factoryContract.address as `0x${string}`,
             args.creationBlockNumber as bigint,
+            args.preSaleEndTimestamp as bigint,
           ]
         );
         await verifyTempTokenV1OnBase(
@@ -329,9 +373,9 @@ export const useCreateMultipleTempTokensState = ({
               createMultipleTempTokens error
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_create.current = false;
       },
@@ -361,12 +405,17 @@ export const useCreateMultipleTempTokensState = ({
     setNewDuration(duration);
   }, []);
 
+  const handlePreSaleDuration = useCallback((duration: bigint) => {
+    setNewPreSaleDuration(duration);
+  }, []);
+
   return {
     newTokenAName,
     newTokenASymbol,
     newTokenBName,
     newTokenBSymbol,
     newDuration,
+    newPreSaleDuration,
     createMultipleTempTokens,
     createMultipleTempTokensData,
     createMultipleTempTokensTxData,
@@ -374,5 +423,6 @@ export const useCreateMultipleTempTokensState = ({
     handleTokenName,
     handleTokenSymbol,
     handleNewDuration,
+    handlePreSaleDuration,
   };
 };

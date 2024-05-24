@@ -46,6 +46,7 @@ const useUpdateTempTokenHasRemainingFundsForCreator = ({ onError }: Props) => {
               channelId: data.channelId as number,
               chainId: data.chainId as number,
               tokenType: data.tokenType,
+              factoryAddress: data.factoryAddress,
             },
           },
         });

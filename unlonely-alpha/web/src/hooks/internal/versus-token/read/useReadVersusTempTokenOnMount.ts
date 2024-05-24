@@ -1,7 +1,11 @@
 import { useLazyQuery } from "@apollo/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { GET_TEMP_TOKENS_QUERY } from "../../../../constants/queries";
-import { GetTempTokensQuery, TempToken, TempTokenType } from "../../../../generated/graphql";
+import {
+  GetTempTokensQuery,
+  TempToken,
+  TempTokenType,
+} from "../../../../generated/graphql";
 import { useChannelContext } from "../../../context/useChannel";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { usePublicClient } from "wagmi";
@@ -9,28 +13,19 @@ import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 import { Contract, VersusTokenDataType } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useVersusGameStateTransitioner } from "../ui/useVersusGameStateTransitioner";
+import { UseReadVersusTempTokenGlobalStateType } from "./useReadVersusTempTokenGlobalState";
 
 export const useReadVersusTempTokenOnMount = ({
-  setTokenA,
-  setTokenB,
-  handleIsGameOngoing,
-  handleWinningToken,
-  handleLosingToken,
-  handleOwnerMustMakeWinningTokenTradeable,
-  handleOwnerMustPermamint,
+  globalState,
 }: {
-  setTokenA: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
-  setTokenB: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
-  handleWinningToken: (token: VersusTokenDataType) => void;
-  handleOwnerMustMakeWinningTokenTradeable: (value: boolean) => void;
-  handleOwnerMustPermamint: (value: boolean | number) => void;
-  handleIsGameOngoing: (value: boolean) => void;
-  handleLosingToken: (token: VersusTokenDataType) => void;
+  globalState: UseReadVersusTempTokenGlobalStateType;
 }) => {
   const { channel } = useChannelContext();
   const { channelQueryData } = channel;
   const { network } = useNetworkContext();
   const { localNetwork } = network;
+
+  const [loadingOnMount, setLoadingOnMount] = useState(true);
 
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
@@ -75,11 +70,11 @@ export const useReadVersusTempTokenOnMount = ({
           const [
             endTimestampA,
             totalSupplyA,
-            highestTotalSupplyA,
+            preSaleEndTimestampA,
             isAlwaysTradeableA,
             endTimeStampB,
             totalSupplyB,
-            highestTotalSupplyB,
+            preSaleEndTimestampB,
             isAlwaysTradeableB,
           ] = await Promise.all([
             publicClient.readContract({
@@ -95,7 +90,7 @@ export const useReadVersusTempTokenOnMount = ({
             publicClient.readContract({
               address: _tokenA.tokenAddress as `0x${string}`,
               abi: TempTokenAbi,
-              functionName: "highestTotalSupply",
+              functionName: "preSaleEndTimestamp",
             }),
             publicClient.readContract({
               address: _tokenA.tokenAddress as `0x${string}`,
@@ -115,7 +110,7 @@ export const useReadVersusTempTokenOnMount = ({
             publicClient.readContract({
               address: _tokenB.tokenAddress as `0x${string}`,
               abi: TempTokenAbi,
-              functionName: "highestTotalSupply",
+              functionName: "preSaleEndTimestamp",
             }),
             publicClient.readContract({
               address: _tokenB.tokenAddress as `0x${string}`,
@@ -125,12 +120,14 @@ export const useReadVersusTempTokenOnMount = ({
           ]);
           const _newTokenA: VersusTokenDataType = {
             transferredLiquidityOnExpiration:
-              _tokenA.transferredLiquidityOnExpiration !== null ? BigInt(_tokenA.transferredLiquidityOnExpiration) : BigInt(0),
+              _tokenA.transferredLiquidityOnExpiration !== null
+                ? BigInt(_tokenA.transferredLiquidityOnExpiration)
+                : BigInt(0),
             symbol: _tokenA.symbol,
             address: _tokenA.tokenAddress as `0x${string}`,
             totalSupply: BigInt(String(totalSupplyA)),
             isAlwaysTradeable: Boolean(isAlwaysTradeableA),
-            highestTotalSupply: BigInt(String(highestTotalSupplyA)),
+            preSaleEndTimestamp: BigInt(String(preSaleEndTimestampA)),
             contractData: {
               address: _tokenA.tokenAddress as `0x${string}`,
               chainId: localNetwork.config.chainId,
@@ -141,12 +138,14 @@ export const useReadVersusTempTokenOnMount = ({
           };
           const _newTokenB: VersusTokenDataType = {
             transferredLiquidityOnExpiration:
-              _tokenB.transferredLiquidityOnExpiration !== null ? BigInt(_tokenB.transferredLiquidityOnExpiration) : BigInt(0),
+              _tokenB.transferredLiquidityOnExpiration !== null
+                ? BigInt(_tokenB.transferredLiquidityOnExpiration)
+                : BigInt(0),
             symbol: _tokenB.symbol,
             address: _tokenB.tokenAddress as `0x${string}`,
             totalSupply: BigInt(String(totalSupplyB)),
             isAlwaysTradeable: Boolean(isAlwaysTradeableB),
-            highestTotalSupply: BigInt(String(highestTotalSupplyB)),
+            preSaleEndTimestamp: BigInt(String(preSaleEndTimestampB)),
             contractData: {
               address: _tokenB.tokenAddress as `0x${string}`,
               chainId: localNetwork.config.chainId,
@@ -155,8 +154,8 @@ export const useReadVersusTempTokenOnMount = ({
             creationBlockNumber: BigInt(_tokenB.creationBlockNumber),
             endTimestamp: BigInt(String(endTimeStampB)),
           };
-          setTokenA(_newTokenA);
-          setTokenB(_newTokenB);
+          globalState.setTokenA(_newTokenA);
+          globalState.setTokenB(_newTokenB);
 
           /**
            * check if the game is finished through using endTimestamps
@@ -167,24 +166,31 @@ export const useReadVersusTempTokenOnMount = ({
             BigInt(String(endTimestampA)) < nowInSeconds &&
             BigInt(String(endTimeStampB)) < nowInSeconds
           ) {
-            handleIsGameOngoing(false);
+            globalState.handleIsGameOngoing(false);
 
             transitionGameState({
               tokenA: _newTokenA,
               tokenB: _newTokenB,
-              handleWinningToken,
-              handleLosingToken,
-              handleOwnerMustMakeWinningTokenTradeable,
-              handleOwnerMustPermamint,
+              handleWinningToken: globalState.handleWinningToken,
+              handleLosingToken: globalState.handleLosingToken,
+              handleOwnerMustMakeWinningTokenTradeable:
+                globalState.handleOwnerMustMakeWinningTokenTradeable,
+              handleOwnerMustPermamint: globalState.handleOwnerMustPermamint,
             });
           } else {
-            handleIsGameOngoing(true);
+            globalState.handleIsGameOngoing(true);
+            globalState.handleIsPreSaleOngoing(
+              _newTokenA.preSaleEndTimestamp > nowInSeconds
+            );
           }
         }
       } catch (e) {
         console.error("getTempTokensQuery", e);
       }
+      setLoadingOnMount(false);
     };
     fetchVersusTempTokens();
   }, [channelQueryData?.id, localNetwork.config.chainId]);
+
+  return { loadingOnMount };
 };

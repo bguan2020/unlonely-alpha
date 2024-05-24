@@ -569,7 +569,13 @@ function MobileHomePage({
   const filteredChannels = useMemo(() => {
     return sortedChannels?.filter((c) =>
       debouncedSearch.length > 0
-        ? (c.owner.username ?? c.owner.address).includes(debouncedSearch)
+        ? c.owner.username
+            ?.toLowerCase()
+            .includes(debouncedSearch?.toLowerCase()) ||
+          c.owner.address
+            .toLowerCase()
+            .includes(debouncedSearch?.toLowerCase()) ||
+          c.slug.toLowerCase().includes(debouncedSearch?.toLowerCase())
         : c
     );
   }, [sortedChannels, debouncedSearch]);

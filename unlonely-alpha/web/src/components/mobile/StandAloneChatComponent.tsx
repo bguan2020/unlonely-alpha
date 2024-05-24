@@ -7,6 +7,7 @@ import {
   Spinner,
   SimpleGrid,
   Stack,
+  Button,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
@@ -22,10 +23,23 @@ import useAddChannelToSubscription from "../../hooks/server/useAddChannelToSubsc
 import useRemoveChannelFromSubscription from "../../hooks/server/channel/useRemoveChannelFromSubscription";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import { TabsComponent } from "./TabsComponent";
+import { useIsGameOngoingMobile } from "../../hooks/internal/temp-token/ui/useIsGameOngoingMobile";
+import { MobileTempTokenInterface } from "../channels/layout/temptoken/MobileTempTokenInterface";
+import { MobileVersusTempTokensInterface } from "../channels/layout/versus/MobileVersusTempTokensInterface";
+import { useTempTokenContext } from "../../hooks/context/useTempToken";
+import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 
 export const EXCLUDED_SLUGS = ["loveonleverage"];
 
-const StandaloneChatComponent = ({ chat }: { chat: ChatReturnType }) => {
+const StandaloneChatComponent = ({
+  chat,
+  channelStaticError,
+  channelStaticLoading,
+}: {
+  chat: ChatReturnType;
+  channelStaticError?: any;
+  channelStaticLoading?: boolean;
+}) => {
   const { channel: channelContext, chat: chatInfo } = useChannelContext();
   const { channelQueryData } = channelContext;
   const { chatChannel } = chatInfo;
@@ -40,6 +54,12 @@ const StandaloneChatComponent = ({ chat }: { chat: ChatReturnType }) => {
   const infoRef = useRef<HTMLDivElement>(null);
   const vipRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const { tokenStateView } = useIsGameOngoingMobile();
+
+  const { tempToken } = useTempTokenContext();
+  const { gameState } = tempToken;
+  const { isFailedGameModalOpen, handleIsFailedGameModalOpen } = gameState;
 
   useOnClickOutside(infoRef, () => {
     if (showInfo) {
@@ -272,7 +292,35 @@ const StandaloneChatComponent = ({ chat }: { chat: ChatReturnType }) => {
           <InfoComponent />
         </Flex>
       )}
-      <TabsComponent chat={chat} />
+      <TransactionModalTemplate
+        title="Token didn't make it this time :("
+        isOpen={isFailedGameModalOpen}
+        handleClose={() => handleIsFailedGameModalOpen(false)}
+        bg={"#18162F"}
+        hideFooter
+      >
+        <Text>
+          {
+            "This token couldn't reach the price goal. All remaining liquidity will be sent to the streamer. Better luck next time!"
+          }
+        </Text>
+        <Flex justifyContent={"space-evenly"} gap="5px" my="15px" p={4}>
+          <Button
+            onClick={() => {
+              handleIsFailedGameModalOpen(false);
+            }}
+          >
+            Continue
+          </Button>
+        </Flex>
+      </TransactionModalTemplate>
+      {tokenStateView === "chat" ? (
+        <TabsComponent chat={chat} />
+      ) : tokenStateView === "single" ? (
+        <MobileTempTokenInterface ablyChannel={chat.channel} />
+      ) : (
+        <MobileVersusTempTokensInterface ablyChannel={chat.channel} />
+      )}
     </Flex>
   );
 };

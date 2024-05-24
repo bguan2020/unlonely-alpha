@@ -1,7 +1,11 @@
 import { useVersusTempTokenContext } from "../../../context/useVersusTempToken";
 import { useSetWinningTokenTradeableAndTransferLiquidity } from "../../../contracts/useTempTokenFactoryV1";
 import { decodeEventLog, isAddressEqual } from "viem";
-import { Contract, InteractionType } from "../../../../constants";
+import {
+  CHAKRA_UI_TX_TOAST_DURATION,
+  Contract,
+  InteractionType,
+} from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { Box, useToast } from "@chakra-ui/react";
@@ -11,6 +15,7 @@ import useUpdateTempTokenIsAlwaysTradeable from "../../../server/temp-token/useU
 import { useChannelContext } from "../../../context/useChannel";
 import { useUser } from "../../../context/useUser";
 import { calculateMaxWinnerTokensToMint } from "../../../../utils/calculateMaxWinnerTokensToMint";
+import { useCallback, useEffect, useState } from "react";
 
 export const useSetWinningTokenTradeableAndTransferLiquidityState = (
   callbackOnTxSuccess?: any
@@ -31,6 +36,10 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
     localNetwork
   );
 
+  const [isTokenATheWinner, setIsTokenATheWinner] = useState<
+    boolean | undefined
+  >(undefined);
+
   const { updateTempTokenTransferredLiquidityOnExpiration, loading } =
     useUpdateTempTokenTransferredLiquidityOnExpiration({});
 
@@ -45,7 +54,8 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
     isSetWinningTokenTradeableAndTransferLiquidityLoading,
   } = useSetWinningTokenTradeableAndTransferLiquidity(
     {
-      tokenAddresses: [tokenA.address, tokenB.address],
+      winningTokenAddress: isTokenATheWinner ? tokenA.address : tokenB.address,
+      losingTokenAddress: isTokenATheWinner ? tokenB.address : tokenA.address,
     },
     factoryContract,
     {
@@ -62,16 +72,16 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               transfer funds cancelled
@@ -99,9 +109,9 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         const winnerTokenAddress = args.winnerTokenAddress as `0x${string}`;
         const loserTokenAddress = args.loserTokenAddress as `0x${string}`;
@@ -119,9 +129,9 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                   (3/4) transfer loser liquidity update database success
                 </Box>
               ),
-              duration: 9000,
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           })
           .catch((err) => {
@@ -132,9 +142,9 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                   transfer loser liquidity update database error
                 </Box>
               ),
-              duration: 9000,
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           });
         await updateTempTokenIsAlwaysTradeable({
@@ -149,9 +159,9 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                   (4/4) transfer loser liquidity update database success
                 </Box>
               ),
-              duration: 9000,
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           })
           .catch((err) => {
@@ -162,9 +172,9 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                   transfer loser liquidity update database error
                 </Box>
               ),
-              duration: 9000,
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           });
         const { error: lambdaError, maxNumTokens } =
@@ -172,7 +182,12 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
             Number(transferredLiquidityInWei),
             Number(winnerTotalSupply)
           );
-
+        console.log(
+          "calculateMaxWinnerTokensToMint",
+          maxNumTokens,
+          transferredLiquidityInWei,
+          winnerTotalSupply
+        );
         if (lambdaError) {
           toast({
             render: () => (
@@ -180,9 +195,9 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
                 cannot get max winner tokens, defaulting to 0: {lambdaError}
               </Box>
             ),
-            duration: 9000,
+            duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
             isClosable: true,
-            position: "top-right",
+            position: "bottom", // chakra ui toast position
           });
         }
 
@@ -209,7 +224,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
           _tokenType = "b";
         }
 
-        const title = `The ${_winningToken.symbol} token is now tradeable!`;
+        const title = `The $${_winningToken.symbol} token is now tradeable!`;
         addToChatbot({
           username: user?.username ?? "",
           address: userAddress ?? "",
@@ -229,17 +244,31 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
               transfer funds error
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
     }
   );
 
+  useEffect(() => {
+    if (isTokenATheWinner === undefined) return;
+    setWinningTokenTradeableAndTransferLiquidity?.();
+  }, [isTokenATheWinner, setWinningTokenTradeableAndTransferLiquidity]);
+
+  const callSetWinningTokenTradeableAndTransferLiquidity = useCallback(
+    (_isTokenATheWinner: boolean) => {
+      setIsTokenATheWinner(_isTokenATheWinner);
+    },
+    []
+  );
+
   return {
-    setWinningTokenTradeableAndTransferLiquidity,
+    callSetWinningTokenTradeableAndTransferLiquidity,
     refetchSetWinningTokenTradeableAndTransferLiquidity,
+    isFunctionAvailable:
+      setWinningTokenTradeableAndTransferLiquidity !== undefined,
     setWinningTokenTradeableAndTransferLiquidityData,
     setWinningTokenTradeableAndTransferLiquidityTxData,
     loading: loading || isSetWinningTokenTradeableAndTransferLiquidityLoading,

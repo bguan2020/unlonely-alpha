@@ -100,7 +100,6 @@ const MessageBody = ({
     const adminTempTokenInteractionTypes = [
       InteractionType.CREATE_TEMP_TOKEN,
       InteractionType.CREATE_MULTIPLE_TEMP_TOKENS,
-      InteractionType.TEMP_TOKEN_EXPIRED,
       InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
       InteractionType.TEMP_TOKEN_DURATION_INCREASED,
       InteractionType.TEMP_TOKEN_BECOMES_ALWAYS_TRADEABLE,
@@ -115,6 +114,8 @@ const MessageBody = ({
     const redTempTokenInteractionTypes = [
       InteractionType.SELL_TEMP_TOKENS,
       InteractionType.TEMP_TOKEN_EXPIRATION_WARNING,
+      InteractionType.TEMP_TOKEN_EXPIRED,
+      InteractionType.PRESALE_OVER,
     ];
 
     if (

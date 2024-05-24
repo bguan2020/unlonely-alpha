@@ -20,6 +20,7 @@ import AppLayout from "../components/layout/AppLayout";
 import { useUser } from "../hooks/context/useUser";
 import usePostBaseLeaderboard from "../hooks/server/usePostBaseLeaderboard";
 import BaseLeaderboard from "../components/leaderboards/BaseLeaderboard";
+import { CHAKRA_UI_TX_TOAST_DURATION } from "../constants";
 
 enum TxStatus {
   Pending,
@@ -89,9 +90,9 @@ const BridgePage = () => {
         setL1TxHash(response.hash);
         setL1TxStatus(TxStatus.Pending);
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
@@ -108,9 +109,9 @@ const BridgePage = () => {
         if (res.status === 1) {
           setL1TxStatus(TxStatus.Confirmed);
           toast({
-            duration: 9000,
+            duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
             isClosable: true,
-            position: "top-right",
+            position: "bottom", // chakra ui toast position
             render: () => (
               <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
                 <Link
@@ -131,9 +132,9 @@ const BridgePage = () => {
         } else {
           setL1TxStatus(null);
           toast({
-            duration: 9000,
+            duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
             isClosable: true,
-            position: "top-right",
+            position: "bottom", // chakra ui toast position
             render: () => (
               <Box as="button" borderRadius="md" bg="#FF0000" px={4} h={8}>
                 <Link

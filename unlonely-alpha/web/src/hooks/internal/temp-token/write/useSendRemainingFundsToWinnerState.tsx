@@ -6,7 +6,10 @@ import Link from "next/link";
 import { useSendRemainingFundsToWinnerAfterTokenExpiration } from "../../../contracts/useTempTokenV1";
 import { decodeEventLog, isAddress } from "viem";
 import { useChannelContext } from "../../../context/useChannel";
-import { InteractionType } from "../../../../constants";
+import {
+  CHAKRA_UI_TX_TOAST_DURATION,
+  InteractionType,
+} from "../../../../constants";
 import { useUser } from "../../../context/useUser";
 import { useApolloClient } from "@apollo/client";
 import { GET_USER_QUERY } from "../../../../constants/queries";
@@ -83,16 +86,16 @@ export const useSendRemainingFundsToWinnerState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               send remaining funds cancelled
@@ -123,9 +126,9 @@ export const useSendRemainingFundsToWinnerState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         const identifiedUser: string = await client
           .query({
@@ -166,9 +169,9 @@ export const useSendRemainingFundsToWinnerState = (
               send remaining funds error
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
     }

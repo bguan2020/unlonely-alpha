@@ -217,6 +217,7 @@ export const getSubscriptionsByChannelId = async (
 export interface ISendAllNotificationsInput {
   title: string;
   body: string;
+  pathname?: string;
   channelId?: number;
 }
 
@@ -272,7 +273,7 @@ export const sendAllNotifications = async (
   );
 
   const subscriptions =
-    data.channelId === undefined
+    data.channelId === undefined || data.channelId === null
       ? await ctx.prisma.subscription.findMany({
           where: {
             softDelete: false,
@@ -292,6 +293,9 @@ export const sendAllNotifications = async (
         notification: {
           title: data.title,
           body: data.body,
+          data: {
+            url: data.pathname ? data.pathname : "/",
+          },
         },
       };
       const result = await webpush.sendNotification(

@@ -78,6 +78,7 @@ const excludedChatbotInteractionTypesInVipChat = [
 
   InteractionType.CREATE_TEMP_TOKEN,
   InteractionType.TEMP_TOKEN_EXPIRED,
+  InteractionType.PRESALE_OVER,
   InteractionType.TEMP_TOKEN_EXPIRATION_WARNING,
   InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
   InteractionType.TEMP_TOKEN_DURATION_INCREASED,

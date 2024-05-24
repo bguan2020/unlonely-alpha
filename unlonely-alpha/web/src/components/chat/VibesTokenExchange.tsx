@@ -16,7 +16,12 @@ import { decodeEventLog, formatUnits, isAddress } from "viem";
 import Link from "next/link";
 import { useBalance } from "wagmi";
 
-import { Contract, InteractionType } from "../../constants";
+import {
+  CHAKRA_UI_TX_TOAST_DURATION,
+  Contract,
+  DEFAULT_TOKEN_TRADE_AMOUNT,
+  InteractionType,
+} from "../../constants";
 import {
   useGetMintCostAfterFees,
   useMint,
@@ -64,7 +69,9 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   const { channelQueryData } = channel;
   const { addToChatbot } = chat;
 
-  const [amountOfVibes, setAmountOfVibes] = useState<string>("1000");
+  const [amountOfVibes, setAmountOfVibes] = useState<string>(
+    String(DEFAULT_TOKEN_TRADE_AMOUNT)
+  );
   const debouncedAmountOfVotes = useDebounce(amountOfVibes, 300);
   const amount_votes_bigint = useMemo(
     () => BigInt(debouncedAmountOfVotes as `${number}`),
@@ -123,18 +130,18 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_mint.current = true;
       },
       onWriteError: (error) => {
         console.log("mint write error", error);
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               mint cancelled
@@ -157,9 +164,9 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         if (channelQueryData) {
           const topics = decodeEventLog({
@@ -180,7 +187,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           });
         }
         canAddToChatbot_mint.current = false;
-        setAmountOfVibes("1000");
+        setAmountOfVibes(String(DEFAULT_TOKEN_TRADE_AMOUNT));
       },
       onTxError: (error) => {
         console.log("mint error", error);
@@ -200,9 +207,9 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
               </Flex>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_mint.current = false;
       },
@@ -237,18 +244,18 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_burn.current = true;
       },
       onWriteError: (error) => {
         console.log("burn write error", error);
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               burn cancelled
@@ -271,9 +278,9 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         const topics = decodeEventLog({
           abi: contract.abi,
@@ -292,7 +299,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           description: `${userAddress}:${Number(args.amount as bigint)}`,
         });
         canAddToChatbot_burn.current = false;
-        setAmountOfVibes("1000");
+        setAmountOfVibes(String(DEFAULT_TOKEN_TRADE_AMOUNT));
       },
       onTxError: (error) => {
         console.log("burn error", error);
@@ -312,9 +319,9 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
               </Flex>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_burn.current = false;
       },

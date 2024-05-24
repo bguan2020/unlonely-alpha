@@ -2,7 +2,7 @@ import { Flex, Button, Text, ListItem, UnorderedList } from "@chakra-ui/react";
 import { getTimeFromMillis } from "../../../utils/time";
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempToken";
-import { useVersusTempTokenTimerState } from "../../../hooks/internal/versus-token/ui/useVersusTempTokenTimerState";
+import { useTempTokenTimerState } from "../../../hooks/internal/temp-token/ui/useTempTokenTimerState";
 
 export const VersusTokenDisclaimerModal = ({
   isOpen,
@@ -12,18 +12,30 @@ export const VersusTokenDisclaimerModal = ({
   handleClose: () => void;
 }) => {
   const { gameState } = useVersusTempTokenContext();
-  const { tokenA, tokenB, handleCanPlayToken, handleIsGameFinished } =
-    gameState;
-  const { durationLeftForTempToken } = useVersusTempTokenTimerState(
-    tokenA.endTimestamp,
-    () => {
+  const {
+    tokenA,
+    tokenB,
+    handleCanPlayToken,
+    handleIsGameFinished,
+    handleIsPreSaleOngoing,
+    handleFocusedTokenToTrade,
+  } = gameState;
+  const { durationLeftForTempToken } = useTempTokenTimerState({
+    tokenEndTimestamp: tokenA.endTimestamp,
+    preSaleEndTimestamp: tokenA.preSaleEndTimestamp,
+    callbackOnExpiration: () => {
       handleCanPlayToken(false);
+      handleFocusedTokenToTrade(undefined);
       handleIsGameFinished(true);
     },
-    true,
-    `The $${tokenA.symbol} and $${tokenB.symbol} tokens will expire in 5 minutes!`,
-    ""
-  );
+    callbackonPresaleEnd: () => {
+      handleIsPreSaleOngoing(false);
+    },
+    chatbotMessages: {
+      fiveMinuteWarningMessage: `The $${tokenA.symbol} and $${tokenB.symbol} tokens will expire in 5 minutes!`,
+      presaleOverMessage: `The presale for $${tokenA.symbol} and $${tokenB.symbol} has ended!`,
+    },
+  });
 
   return (
     <TransactionModalTemplate
@@ -35,7 +47,7 @@ export const VersusTokenDisclaimerModal = ({
     >
       <Flex direction="column" gap="10px">
         <Flex direction="column" gap="10px">
-          {durationLeftForTempToken !== undefined && (
+          {typeof durationLeftForTempToken === "number" && (
             <Text
               textAlign="center"
               fontSize="1rem"

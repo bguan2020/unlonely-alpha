@@ -1,6 +1,11 @@
 import { useRef, useState, useEffect } from "react";
 import { isAddress, isAddressEqual } from "viem";
-import { InteractionType, CHAT_MESSAGE_EVENT, versusTokenDataInitial, VersusTokenDataType } from "../../../../constants";
+import {
+  InteractionType,
+  CHAT_MESSAGE_EVENT,
+  versusTokenDataInitial,
+  VersusTokenDataType,
+} from "../../../../constants";
 import { calculateMaxWinnerTokensToMint } from "../../../../utils/calculateMaxWinnerTokensToMint";
 import { ChatReturnType } from "../../../chat/useChat";
 import { useChannelContext } from "../../../context/useChannel";
@@ -10,45 +15,45 @@ import useDebounce from "../../useDebounce";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 
 export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
-    const { userAddress } = useUser();
-    const { channel } = useChannelContext();
-    const { handleRealTimeChannelDetails } = channel;
-    const mountingMessages = useRef(true);
-    const fetching = useRef(false);
-  
-    const { gameState, tokenATxs, tokenBTxs, callbacks } =
-      useVersusTempTokenContext();
-    const {
-      handleIsGameFinished,
-      handleIsGameOngoing,
-      handleOwnerMustPermamint,
-      handleOwnerMustMakeWinningTokenTradeable,
-      handleIsGameFinishedModalOpen,
-      handleWinningToken,
-      handleLosingToken,
-      setTokenA,
-      setTokenB,
-      tokenA,
-      tokenB,
-      ownerMustPermamint,
-      losingToken,
-    } = gameState;
-    const {
-      resetTempTokenTxs: resetTempTokenTxsA,
-      getTempTokenEvents: getTempTokenEventsA,
-      refetchUserTempTokenBalance: refetchUserTempTokenBalanceA,
-      tempTokenTxs: tempTokenTxsA,
-    } = tokenATxs;
-    const {
-      resetTempTokenTxs: resetTempTokenTxsB,
-      getTempTokenEvents: getTempTokenEventsB,
-      refetchUserTempTokenBalance: refetchUserTempTokenBalanceB,
-      tempTokenTxs: tempTokenTxsB,
-    } = tokenBTxs;
-    const { onMintEvent, onBurnEvent } = callbacks;
-  
+  const { userAddress } = useUser();
+  const { channel } = useChannelContext();
+  const { handleRealTimeChannelDetails } = channel;
+  const mountingMessages = useRef(true);
+  const fetching = useRef(false);
 
-    const [blockNumberOfLastInAppTrade, setBlockNumberOfLastInAppTrade] =
+  const { gameState, tokenATxs, tokenBTxs, callbacks } =
+    useVersusTempTokenContext();
+  const {
+    handleIsGameFinished,
+    handleIsGameOngoing,
+    handleOwnerMustPermamint,
+    handleOwnerMustMakeWinningTokenTradeable,
+    handleIsGameFinishedModalOpen,
+    handleWinningToken,
+    handleLosingToken,
+    handleIsPreSaleOngoing,
+    setTokenA,
+    setTokenB,
+    tokenA,
+    tokenB,
+    ownerMustPermamint,
+    losingToken,
+  } = gameState;
+  const {
+    resetTempTokenTxs: resetTempTokenTxsA,
+    getTempTokenEvents: getTempTokenEventsA,
+    refetchUserTempTokenBalance: refetchUserTempTokenBalanceA,
+    tempTokenTxs: tempTokenTxsA,
+  } = tokenATxs;
+  const {
+    resetTempTokenTxs: resetTempTokenTxsB,
+    getTempTokenEvents: getTempTokenEventsB,
+    refetchUserTempTokenBalance: refetchUserTempTokenBalanceB,
+    tempTokenTxs: tempTokenTxsB,
+  } = tokenBTxs;
+  const { onMintEvent, onBurnEvent } = callbacks;
+
+  const [blockNumberOfLastInAppTrade, setBlockNumberOfLastInAppTrade] =
     useState<bigint>(BigInt(0));
 
   useEffect(() => {
@@ -155,6 +160,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         const newTokenSymbols = JSON.parse(body.split(":")[3]);
         const chainId = Number(body.split(":")[4]);
         const newTokenCreationBlockNumber = BigInt(body.split(":")[5]);
+        const preSaleEndTimestamp = BigInt(body.split(":")[6]);
         handleRealTimeChannelDetails({
           isLive: true,
         });
@@ -174,7 +180,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           address: newTokenAddresses[0],
           totalSupply: BigInt(0),
           isAlwaysTradeable: false,
-          highestTotalSupply: BigInt(0),
+          preSaleEndTimestamp: preSaleEndTimestamp,
           contractData: {
             address: newTokenAddresses[0],
             chainId,
@@ -189,7 +195,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           address: newTokenAddresses[1],
           totalSupply: BigInt(0),
           isAlwaysTradeable: false,
-          highestTotalSupply: BigInt(0),
+          preSaleEndTimestamp: preSaleEndTimestamp,
           contractData: {
             address: newTokenAddresses[1],
             chainId,
@@ -198,6 +204,9 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           creationBlockNumber: newTokenCreationBlockNumber,
           endTimestamp: newEndTimestamp,
         });
+        handleIsPreSaleOngoing(
+          Number(preSaleEndTimestamp) > Math.floor(Date.now() / 1000)
+        );
       }
       if (
         body.split(":")[0] === InteractionType.BUY_TEMP_TOKENS ||
@@ -210,9 +219,14 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         body.split(":")[0] ===
         InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY
       ) {
+        console.log(
+          "detected VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY",
+          body
+        );
         const transferredLiquidityInWei = BigInt(body.split(":")[4]);
         const winnerTokenType = body.split(":")[5];
         const maxNumTokens = Number(body.split(":")[6]);
+        const _winningToken = winnerTokenType === "a" ? tokenA : tokenB;
         const _losingToken = {
           ...((winnerTokenType === "a"
             ? tokenB
@@ -220,15 +234,15 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           transferredLiquidityOnExpiration: transferredLiquidityInWei,
         };
         if (winnerTokenType === "a") {
-          handleLosingToken(_losingToken);
           setTokenB(_losingToken);
         } else {
-          handleLosingToken(_losingToken);
           setTokenA(_losingToken);
         }
+        handleWinningToken(_winningToken);
+        handleLosingToken(_losingToken);
         handleOwnerMustMakeWinningTokenTradeable(false);
         handleOwnerMustPermamint(maxNumTokens);
       }
     }
   }, [chat.receivedMessages]);
-}
+};

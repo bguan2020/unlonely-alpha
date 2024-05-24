@@ -14,24 +14,32 @@ export const TempTokenDisclaimerModal = ({
   priceOfThresholdInUsd?: string;
 }) => {
   const { tempToken } = useTempTokenContext();
+  const { gameState } = tempToken;
   const {
     currentActiveTokenSymbol,
     currentActiveTokenEndTimestamp,
+    currentActiveTokenPreSaleEndTimestamp,
     handleIsGameFailed,
     handleIsFailedGameModalOpen,
     handleCanPlayToken,
-  } = tempToken;
-  const { durationLeftForTempToken } = useTempTokenTimerState(
-    currentActiveTokenEndTimestamp,
-    () => {
+    handleIsPreSaleOngoing,
+  } = gameState;
+  const { durationLeftForTempToken } = useTempTokenTimerState({
+    tokenEndTimestamp: currentActiveTokenEndTimestamp,
+    preSaleEndTimestamp: currentActiveTokenPreSaleEndTimestamp,
+    callbackOnExpiration: () => {
       handleCanPlayToken(false);
       handleIsGameFailed(true);
       handleIsFailedGameModalOpen(true);
     },
-    true,
-    `The $${currentActiveTokenSymbol} token will expire in 5 minutes!`,
-    `The $${currentActiveTokenSymbol} token has expired!`
-  );
+    callbackonPresaleEnd: () => {
+      handleIsPreSaleOngoing(false);
+    },
+    chatbotMessages: {
+      fiveMinuteWarningMessage: `The $${currentActiveTokenSymbol} token will expire in 5 minutes!`,
+      presaleOverMessage: `The $${currentActiveTokenSymbol} token presale has ended!`,
+    },
+  });
 
   return (
     <TransactionModalTemplate
@@ -43,7 +51,7 @@ export const TempTokenDisclaimerModal = ({
     >
       <Flex direction="column" gap="10px">
         <Flex direction="column" gap="10px">
-          {durationLeftForTempToken !== undefined && (
+          {typeof durationLeftForTempToken === "number" && (
             <Text
               textAlign="center"
               fontSize="1rem"

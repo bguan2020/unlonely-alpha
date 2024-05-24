@@ -5,7 +5,13 @@ import {
 } from "../../../../constants/types";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 import { useMemo, useRef, useState, useCallback, useEffect } from "react";
-import { InteractionType, NULL_ADDRESS } from "../../../../constants";
+import {
+  InteractionType,
+  NULL_ADDRESS,
+  DEFAULT_TOKEN_TRADE_AMOUNT,
+  PRE_SALE_PRICE_PER_TOKEN,
+  CHAKRA_UI_TX_TOAST_DURATION,
+} from "../../../../constants";
 import { useNetworkContext } from "../../../context/useNetwork";
 import {
   useGetMintCostAfterFees,
@@ -57,10 +63,14 @@ export const useTradeTempTokenState = ({
   tokenAddress,
   tokenSymbol,
   tokenTxs,
+  isPreSaleOngoing,
+  callbackOnTxSuccess,
 }: {
   tokenAddress: string;
   tokenSymbol: string;
   tokenTxs: TradeableTokenTx[];
+  isPreSaleOngoing: boolean;
+  callbackOnTxSuccess?: () => void;
 }): UseTradeTempTokenStateType => {
   const { walletIsConnected, userAddress, user } = useUser();
 
@@ -73,7 +83,9 @@ export const useTradeTempTokenState = ({
 
   const canAddToChatbot_mint = useRef(false);
   const canAddToChatbot_burn = useRef(false);
-  const [amount, setAmount] = useState<string>("1000");
+  const [amount, setAmount] = useState<string>(
+    String(DEFAULT_TOKEN_TRADE_AMOUNT)
+  );
   const debouncedAmount = useDebounce(amount, 300);
   const amount_bigint = useMemo(
     () => BigInt(debouncedAmount as `${number}`),
@@ -147,7 +159,9 @@ export const useTradeTempTokenState = ({
   } = useMint(
     {
       amount: amount_bigint,
-      value: mintCostAfterFees,
+      value: isPreSaleOngoing
+        ? BigInt(PRE_SALE_PRICE_PER_TOKEN * Number(amount_bigint))
+        : mintCostAfterFees,
     },
     tempTokenContract,
     {
@@ -164,18 +178,18 @@ export const useTradeTempTokenState = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_mint.current = true;
       },
       onWriteError: (error) => {
         console.log("mint write error", error);
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               mint cancelled
@@ -198,9 +212,9 @@ export const useTradeTempTokenState = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         if (channelQueryData) {
           const topics = decodeEventLog({
@@ -264,7 +278,7 @@ export const useTradeTempTokenState = ({
           } catch (err) {
             console.log("cannot update db on mint", err);
           }
-          setAmount("1000");
+          setAmount(String(DEFAULT_TOKEN_TRADE_AMOUNT));
           if (
             hasTotalSupplyThresholdReachedEvent &&
             hasHitTotalSupplyThreshold
@@ -280,6 +294,7 @@ export const useTradeTempTokenState = ({
               description: "",
             });
           }
+          callbackOnTxSuccess?.();
           canAddToChatbot_mint.current = false;
         }
       },
@@ -301,9 +316,9 @@ export const useTradeTempTokenState = ({
               </Flex>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_mint.current = false;
       },
@@ -334,18 +349,18 @@ export const useTradeTempTokenState = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_burn.current = true;
       },
       onWriteError: (error) => {
         console.log("burn write error", error);
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               burn cancelled
@@ -368,9 +383,9 @@ export const useTradeTempTokenState = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         const topics = decodeEventLog({
           abi: tempTokenContract.abi,
@@ -395,7 +410,7 @@ export const useTradeTempTokenState = ({
           )}`,
         });
         canAddToChatbot_burn.current = false;
-        setAmount("1000");
+        setAmount(String(DEFAULT_TOKEN_TRADE_AMOUNT));
       },
       onTxError: (error) => {
         console.log("burn error", error);
@@ -415,20 +430,25 @@ export const useTradeTempTokenState = ({
               </Flex>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_burn.current = false;
       },
     }
   );
 
-  const handleAmount = useCallback((event: any) => {
-    const input = event.target.value;
-    const filtered = filteredInput(input);
-    setAmount(filtered);
-  }, []);
+  const handleAmount = useCallback(
+    (event: any) => {
+      const input = event.target.value;
+      const filtered = filteredInput(input);
+      if (Number(filtered) > DEFAULT_TOKEN_TRADE_AMOUNT && isPreSaleOngoing)
+        return;
+      setAmount(filtered);
+    },
+    [isPreSaleOngoing]
+  );
 
   const handleAmountDirectly = useCallback((input: string) => {
     setAmount(input);
@@ -494,6 +514,15 @@ export const useTradeTempTokenState = ({
       setErrorMessage("");
     }
   }, [matchingChain, amount, userEthBalance?.value, mintCostAfterFees]);
+
+  useEffect(() => {
+    const refetchAfterPreSale = async () => {
+      if (!isPreSaleOngoing) {
+        await Promise.all([refetchMint(), refetchBurn()]);
+      }
+    };
+    refetchAfterPreSale();
+  }, [isPreSaleOngoing]);
 
   return {
     amount,

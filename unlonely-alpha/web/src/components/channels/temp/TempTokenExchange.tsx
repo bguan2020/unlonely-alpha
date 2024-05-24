@@ -9,20 +9,23 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@chakra-ui/react";
-
-import { UseTradeTempTokenStateType } from "../../../hooks/internal/temp-token/write/useTradeTempTokenState";
 import { formatUnits } from "viem";
+
+import { useTradeTempTokenState } from "../../../hooks/internal/temp-token/write/useTradeTempTokenState";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { formatIncompleteNumber } from "../../../utils/validation/input";
 import { useTempTokenContext } from "../../../hooks/context/useTempToken";
+import { DEFAULT_TOKEN_TRADE_AMOUNT } from "../../../constants";
+import { useState } from "react";
 
-export const TempTokenExchange = ({
-  tradeTempTokenState,
-}: {
-  tradeTempTokenState: UseTradeTempTokenStateType;
-}) => {
+export const TempTokenExchange = () => {
   const { tempToken } = useTempTokenContext();
-  const { userTempTokenBalance } = tempToken;
+  const { userTempTokenBalance, gameState, tempTokenTxs } = tempToken;
+  const {
+    isPreSaleOngoing,
+    currentActiveTokenAddress,
+    currentActiveTokenSymbol,
+  } = gameState;
 
   const {
     amount,
@@ -35,11 +38,24 @@ export const TempTokenExchange = ({
     burnProceedsAfterFees,
     burnProceedsAfterFeesLoading,
     errorMessage,
-  } = tradeTempTokenState;
+  } = useTradeTempTokenState({
+    tokenAddress: currentActiveTokenAddress,
+    tokenSymbol: currentActiveTokenSymbol,
+    tokenTxs: tempTokenTxs,
+    isPreSaleOngoing,
+  });
+
+  const [claimedPreSaleTokens, setClaimedPreSaleTokens] =
+    useState<boolean>(false);
 
   return (
     <Flex direction="column" justifyContent={"center"} gap="10px">
-      <Flex position="relative" gap="5px" alignItems={"center"}>
+      <Flex
+        position="relative"
+        gap="5px"
+        alignItems={"center"}
+        opacity={isPreSaleOngoing ? "0 !important" : 1}
+      >
         <ChakraTooltip
           label={errorMessage}
           placement="bottom-start"
@@ -69,7 +85,11 @@ export const TempTokenExchange = ({
                 bg: "#8884d8",
               }}
               onClick={() => {
-                handleAmountDirectly(userTempTokenBalance.toString());
+                handleAmountDirectly(
+                  isPreSaleOngoing
+                    ? String(DEFAULT_TOKEN_TRADE_AMOUNT)
+                    : userTempTokenBalance.toString()
+                );
               }}
             >
               max
@@ -89,22 +109,40 @@ export const TempTokenExchange = ({
           _focus={{}}
           _hover={{}}
           _active={{}}
-          bg="#46a800"
+          bg={isPreSaleOngoing && !claimedPreSaleTokens ? "#8fee00" : "#46a800"}
           isDisabled={
+            (isPreSaleOngoing && claimedPreSaleTokens) ||
             !mint ||
             mintCostAfterFeesLoading ||
             Number(formatIncompleteNumber(amount)) <= 0
           }
-          onClick={mint}
+          onClick={async () => {
+            await mint?.().then(() => {
+              if (isPreSaleOngoing) {
+                setClaimedPreSaleTokens(true);
+              }
+            });
+          }}
           p={"0px"}
           w="100%"
         >
-          <Flex direction="column">
-            <Text>BUY</Text>
-            <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
-              {`(${truncateValue(formatUnits(mintCostAfterFees, 18), 4)} ETH)`}
+          {!isPreSaleOngoing ? (
+            <Flex direction="column">
+              <Text>BUY</Text>
+              <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
+                {`(${truncateValue(
+                  formatUnits(mintCostAfterFees, 18),
+                  4
+                )} ETH)`}
+              </Text>
+            </Flex>
+          ) : !claimedPreSaleTokens ? (
+            <Text fontSize="20px" color="black">
+              FREE MONEY
             </Text>
-          </Flex>
+          ) : (
+            <Text>CLAIMED</Text>
+          )}
         </Button>
         <Button
           color="white"
@@ -120,9 +158,10 @@ export const TempTokenExchange = ({
           onClick={burn}
           p={undefined}
           w="100%"
+          opacity={isPreSaleOngoing ? "0 !important" : 1}
         >
           <Flex direction="column">
-            <Text>SELL</Text>
+            <Text>{"SELL"}</Text>
             <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
               {`(${truncateValue(
                 formatUnits(burnProceedsAfterFees, 18),

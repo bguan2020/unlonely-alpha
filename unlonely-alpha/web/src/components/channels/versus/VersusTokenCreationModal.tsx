@@ -60,12 +60,14 @@ export const VersusTokenCreationModal = ({
     newTokenASymbol,
     newTokenBName,
     newTokenBSymbol,
+    newPreSaleDuration,
     newDuration,
     createMultipleTempTokens,
     isCreateMultipleTempTokensLoading,
     handleTokenName,
     handleTokenSymbol,
     handleNewDuration,
+    handlePreSaleDuration,
   } = useCreateMultipleTempTokensState({ callbackOnTxSuccess: handleClose });
 
   return (
@@ -85,6 +87,27 @@ export const VersusTokenCreationModal = ({
         </Flex>
       ) : returnedIsLive === true ? (
         <Flex direction="column" gap="5px">
+          <Text>Token Symbol</Text>
+          <Flex gap="5px">
+            <Input
+              placeholder="token a symbol"
+              variant="redGlow"
+              value={newTokenASymbol}
+              onChange={(e) => {
+                handleTokenSymbol(alphanumericInput(e.target.value), "a");
+                handleTokenName(alphanumericInput(e.target.value), "a");
+              }}
+            />
+            <Input
+              placeholder="token b symbol"
+              variant="glow"
+              value={newTokenBSymbol}
+              onChange={(e) => {
+                handleTokenSymbol(alphanumericInput(e.target.value), "b");
+                handleTokenName(alphanumericInput(e.target.value), "b");
+              }}
+            />
+          </Flex>
           <Text>Token Names</Text>
           <Flex gap="5px">
             <Input
@@ -101,25 +124,6 @@ export const VersusTokenCreationModal = ({
               value={newTokenBName}
               onChange={(e) =>
                 handleTokenName(alphanumericInput(e.target.value), "b")
-              }
-            />
-          </Flex>
-          <Text>Token Symbol</Text>
-          <Flex gap="5px">
-            <Input
-              placeholder="token a symbol"
-              variant="redGlow"
-              value={newTokenASymbol}
-              onChange={(e) =>
-                handleTokenSymbol(alphanumericInput(e.target.value), "a")
-              }
-            />
-            <Input
-              placeholder="token b symbol"
-              variant="glow"
-              value={newTokenBSymbol}
-              onChange={(e) =>
-                handleTokenSymbol(alphanumericInput(e.target.value), "b")
               }
             />
           </Flex>

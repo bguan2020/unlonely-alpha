@@ -1,20 +1,24 @@
-import { Button, Spinner } from "@chakra-ui/react";
+import { Button, Spinner, Flex, Text } from "@chakra-ui/react";
 import { useSetWinningTokenTradeableAndTransferLiquidityState } from "../../../../hooks/internal/versus-token/write/useSetWinningTokenTradeableAndTransferLiquidityState";
 import { useState, useEffect } from "react";
+import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
 
 export const TransferLiquidityModule = () => {
   const {
-    setWinningTokenTradeableAndTransferLiquidity,
+    callSetWinningTokenTradeableAndTransferLiquidity,
     refetchSetWinningTokenTradeableAndTransferLiquidity,
+    isFunctionAvailable,
     loading,
   } = useSetWinningTokenTradeableAndTransferLiquidityState();
+  const { gameState } = useVersusTempTokenContext();
+  const { tokenA, tokenB } = gameState;
 
   // State to control the interval
   const [intervalId, setIntervalId] = useState<any>(null);
 
   // Effect to start polling
   useEffect(() => {
-    if (!setWinningTokenTradeableAndTransferLiquidity && !intervalId) {
+    if (!isFunctionAvailable && !intervalId) {
       const id = setInterval(() => {
         console.log("Refetching the availability of the transfer function...");
         refetchSetWinningTokenTradeableAndTransferLiquidity();
@@ -29,18 +33,29 @@ export const TransferLiquidityModule = () => {
       }
     };
   }, [
-    setWinningTokenTradeableAndTransferLiquidity,
+    isFunctionAvailable,
     intervalId,
     refetchSetWinningTokenTradeableAndTransferLiquidity,
   ]);
 
   return (
-    <Button
-      onClick={setWinningTokenTradeableAndTransferLiquidity}
-      isDisabled={loading || !setWinningTokenTradeableAndTransferLiquidity}
-      h="20px"
-    >
-      {loading ? <Spinner /> : "Make Winner Token Tradeable"}
-    </Button>
+    <Flex justifyContent={"space-evenly"}>
+      <Button
+        bg="rgba(255, 36, 36, 1)"
+        onClick={() => callSetWinningTokenTradeableAndTransferLiquidity(true)}
+        isDisabled={loading || !isFunctionAvailable}
+        h="30px"
+      >
+        {loading ? <Spinner /> : <Text>${tokenA.symbol}</Text>}
+      </Button>
+      <Button
+        bg="rgba(42, 217, 255, 1)"
+        onClick={() => callSetWinningTokenTradeableAndTransferLiquidity(false)}
+        isDisabled={loading || !isFunctionAvailable}
+        h="30px"
+      >
+        {loading ? <Spinner /> : <Text>${tokenB.symbol}</Text>}
+      </Button>
+    </Flex>
   );
 };

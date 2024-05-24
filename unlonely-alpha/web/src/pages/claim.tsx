@@ -31,7 +31,7 @@ import useCloseSharesEvent from "../hooks/server/channel/useCloseSharesEvent";
 import usePostClaimPayout from "../hooks/server/usePostClaimPayout";
 import { getColorFromString } from "../styles/Colors";
 import { useCacheContext } from "../hooks/context/useCache";
-import { Contract } from "../constants";
+import { CHAKRA_UI_TX_TOAST_DURATION, Contract } from "../constants";
 
 export default function ClaimPage() {
   const { user, walletIsConnected } = useUser();
@@ -233,16 +233,16 @@ const EventCard = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               claimVotePayout cancelled
@@ -265,9 +265,9 @@ const EventCard = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         const topics = decodeEventLog({
           abi: contractData.abi,
@@ -299,9 +299,9 @@ const EventCard = ({
               claimVotePayout error
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         setCalling(false);
       },

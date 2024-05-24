@@ -26,6 +26,7 @@ app.post("/webhook", (req, res) => {
   res.sendStatus(200);
 });
 
+// we currently only have one aws-scheduler for the master server, but not the staging server, some differences will occur
 app.get("/aws-scheduler-update", (req, res) => {
   const secretKey = req.headers["x-secret-key"] || req.query.secretKey;
 

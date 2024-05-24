@@ -20,6 +20,7 @@ import {
   useGetClaimBetEvents,
   useGetClaimBetEventsInitial,
 } from "../internal/useGetClaimBetEvents";
+import useUserAgent from "../internal/useUserAgent";
 
 export const useCacheContext = () => {
   return useContext(CacheContext);
@@ -53,6 +54,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast();
 
   const { walletIsConnected } = useUser();
+  const { isStandalone } = useUserAgent();
   const toastIdRef = useRef<ToastId | undefined>();
 
   const router = useRouter();
@@ -104,7 +106,8 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       walletIsConnected &&
       appErrors.filter((err) => err.name?.includes("ConnectorNotFoundError"))
         .length > 0 &&
-      !toast.isActive("no-connector")
+      !toast.isActive("no-connector") &&
+      !isStandalone
     ) {
       toastIdRef.current = toast({
         id: "no-connector",
@@ -148,6 +151,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
       addAppError,
       popAppError,
       ethPriceInUsd,
+      isStandalone,
       ...claimBetEvents,
     };
   }, [

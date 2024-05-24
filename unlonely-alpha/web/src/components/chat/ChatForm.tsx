@@ -17,9 +17,11 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import copy from "copy-to-clipboard";
 import { GiTalk } from "react-icons/gi";
 import { IoIosHelpCircle } from "react-icons/io";
+import { FaFileDownload } from "react-icons/fa";
 
 import {
   AblyChannelPromise,
+  CHAKRA_UI_TX_TOAST_DURATION,
   CommandData,
   InteractionType,
 } from "../../constants";
@@ -33,7 +35,12 @@ import { ChatClip } from "./ChatClip";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { streamerTourSteps } from "../../pages/_app";
 
+import { isAddress, isAddressEqual } from "viem";
+import { NULL_ADDRESS } from "../../constants";
+import { Message } from "../../constants/types/chat";
+
 type Props = {
+  messages: Message[];
   sendChatMessage: (
     message: string,
     isGif: boolean,
@@ -48,6 +55,7 @@ type Props = {
 };
 
 const ChatForm = ({
+  messages,
   sendChatMessage,
   additionalChatCommands,
   allowPopout,
@@ -191,7 +199,7 @@ const ChatForm = ({
       title: "Sign in first.",
       description: "Please sign into your wallet first.",
       status: "warning",
-      duration: 9000,
+      duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
       isClosable: true,
       position: "top",
     });
@@ -284,7 +292,7 @@ const ChatForm = ({
                               toast({
                                 title: "Clipping is disabled for this stream.",
                                 status: "warning",
-                                duration: 9000,
+                                duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
                                 isClosable: true,
                                 position: "bottom",
                               });
@@ -366,6 +374,36 @@ const ChatForm = ({
                       <PopoverArrow bg="#925800" />
                       <Text fontSize="12px" textAlign={"center"}>
                         use chat commands for this stream!
+                      </Text>
+                    </PopoverContent>
+                  </Popover>
+                  <Popover trigger="hover" placement="top" openDelay={500}>
+                    <PopoverTrigger>
+                      <IconButton
+                        _focus={{}}
+                        _hover={{ transform: "scale(1.15)" }}
+                        _active={{ transform: "scale(1.3)" }}
+                        icon={<FaFileDownload size={20} color="white" />}
+                        bg="transparent"
+                        minWidth="auto"
+                        aria-label="chat-history"
+                        onClick={() =>
+                          downloadChatHistory(
+                            messages,
+                            channelQueryData?.slug ?? ""
+                          )
+                        }
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent
+                      bg="#0a9216"
+                      border="none"
+                      width="100%"
+                      p="2px"
+                    >
+                      <PopoverArrow bg="#0a9216" />
+                      <Text fontSize="12px" textAlign={"center"}>
+                        save chat transcript!
                       </Text>
                     </PopoverContent>
                   </Popover>
@@ -539,6 +577,72 @@ const ChatForm = ({
       </form>
     </>
   );
+};
+
+// Function to compile participants' information
+const compileParticipantsInfo = (messages: Message[]) => {
+  const participants = new Map();
+  let numberOfParticipants = 0;
+
+  messages
+    .filter(
+      (m) => !isAddressEqual(NULL_ADDRESS, m.data.address as `0x${string}`)
+    )
+    .forEach((message) => {
+      const usernameOrAddress = message.data.username || message.data.address;
+      if (!participants.has(usernameOrAddress)) {
+        numberOfParticipants++;
+        participants.set(usernameOrAddress, message.data.address);
+      }
+    });
+
+  let participantsInfo = `Participants (${numberOfParticipants}):\n`;
+
+  let participantsWithUsernames = "";
+  let participantsWithoutUsernames = "";
+  participants.forEach((address, username) => {
+    const isUsernameEqualToAddress =
+      isAddress(username) &&
+      isAddressEqual(username as `0x${string}`, address as `0x${string}`);
+    if (isUsernameEqualToAddress) {
+      participantsWithoutUsernames += `Address: ${address}\n`;
+    } else {
+      participantsWithUsernames += `Username: ${username}, Address: ${address}\n`;
+    }
+  });
+  participantsInfo += participantsWithUsernames + participantsWithoutUsernames;
+  return participantsInfo;
+};
+
+// Function to format chat history
+const formatChatHistory = (messages: Message[]) => {
+  let chatHistory = "Chat History:\n";
+
+  messages
+    .filter(
+      (m) => !isAddressEqual(NULL_ADDRESS, m.data.address as `0x${string}`)
+    )
+    .forEach((message) => {
+      const date = new Date(message.timestamp).toLocaleString();
+      const usernameOrAddress = message.data.username || message.data.address;
+      chatHistory += `${date} - ${usernameOrAddress}: ${message.data.messageText}\n`;
+    });
+
+  return chatHistory;
+};
+
+// Function to download chat history as a txt file
+const downloadChatHistory = (messages: Message[], slug: string) => {
+  const participantsInfo = compileParticipantsInfo(messages);
+  const chatHistory = formatChatHistory(messages);
+  const fileContent = `${participantsInfo}\n${chatHistory}`;
+
+  const blob = new Blob([fileContent], { type: "text/plain" });
+  const link = document.createElement("a");
+  const now = new Date(Date.now()).toLocaleString();
+  link.download = `chat_history_${slug}_(${now}).txt`;
+  link.href = window.URL.createObjectURL(blob);
+  link.click();
 };
 
 export default ChatForm;

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { filteredInput } from "../../../../utils/validation/input";
 import { Box, useToast } from "@chakra-ui/react";
-import { Contract } from "../../../../constants";
+import { CHAKRA_UI_TX_TOAST_DURATION, Contract } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useIncreaseEndTimestampForTokens as use_call_updateOnchain_increaseEndTimestamps } from "../../../contracts/useTempTokenFactoryV1";
 import Link from "next/link";
@@ -64,17 +64,17 @@ export const useUpdateEndTimestampForTokensState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         console.log("increaseEndTimestampForTokens error", error);
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               increaseEndTimestampForTokens cancelled
@@ -108,9 +108,9 @@ export const useUpdateEndTimestampForTokensState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onTxError: (error) => {
@@ -121,9 +121,9 @@ export const useUpdateEndTimestampForTokensState = (
               increaseEndTimestampForTokens error
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
     }

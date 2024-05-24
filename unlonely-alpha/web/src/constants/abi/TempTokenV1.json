@@ -45,6 +45,11 @@
         "internalType": "uint256",
         "name": "_creationBlockNumber",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_preSaleEndTimestamp",
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -391,6 +396,45 @@
     "type": "event"
   },
   {
+    "inputs": [],
+    "name": "MAX_PRE_SALE_SUPPLY",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PRE_SALE_MAX_MINT",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PRE_SALE_PRICE_PER_TOKEN",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -612,6 +656,19 @@
   },
   {
     "inputs": [],
+    "name": "getIsPreSaleOver",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "hasHitTotalSupplyThreshold",
     "outputs": [
       {
@@ -765,6 +822,19 @@
   },
   {
     "inputs": [],
+    "name": "preSaleEndTimestamp",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "protocolFeeDestination",
     "outputs": [
       {
@@ -794,6 +864,19 @@
     "name": "renounceOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "saleState",
+    "outputs": [
+      {
+        "internalType": "enum TempTokenV1.SaleState",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {

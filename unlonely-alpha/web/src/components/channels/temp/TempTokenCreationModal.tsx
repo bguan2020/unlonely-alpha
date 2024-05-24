@@ -45,13 +45,15 @@ export const TempTokenCreationModal = ({
     newTokenName,
     newTokenSymbol,
     newTokenDuration,
+    newPreSaleDuration,
     newTokenTotalSupplyThreshold,
     isCreateTempTokenLoading,
     handleNewTokenName,
     handleNewTokenSymbol,
     handleNewTokenDuration,
     handleNewTokenTotalSupplyThreshold,
-  } = useCreateTempTokenState();
+    handlePreSaleDuration,
+  } = useCreateTempTokenState({ callbackOnTxSuccess: handleClose });
 
   useEffect(() => {
     const checkIfLiveBeforeCreateToken = async () => {
@@ -93,22 +95,23 @@ export const TempTokenCreationModal = ({
         </Flex>
       ) : returnedIsLive === true ? (
         <Flex direction="column" gap="5px">
-          <Text>Name</Text>
+          <Text>Token Symbol</Text>
+          <Input
+            placeholder="token symbol"
+            variant="glow"
+            value={newTokenSymbol}
+            onChange={(e) => {
+              handleNewTokenSymbol(alphanumericInput(e.target.value));
+              handleNewTokenName(alphanumericInput(e.target.value));
+            }}
+          />
+          <Text>Token Name</Text>
           <Input
             placeholder="token name"
             variant="glow"
             value={newTokenName}
             onChange={(e) =>
               handleNewTokenName(alphanumericInput(e.target.value))
-            }
-          />
-          <Text>Symbol</Text>
-          <Input
-            placeholder="token symbol"
-            variant="glow"
-            value={newTokenSymbol}
-            onChange={(e) =>
-              handleNewTokenSymbol(alphanumericInput(e.target.value))
             }
           />
           <Text>Price goal difficulty</Text>

@@ -20,6 +20,8 @@ import centerEllipses from "../../../../utils/centerEllipses";
 import { useApolloClient } from "@apollo/client";
 import { useInterfaceChartMarkers } from "../../../../hooks/internal/temp-token/ui/useInterfaceChartMarkers";
 import { VersusTokenExchange } from "../../versus/VersusTokenExchange";
+import useUserAgent from "../../../../hooks/internal/useUserAgent";
+import { VersusTempTokenTimerView } from "../../versus/VersusTokenTimerView";
 
 export type ConsolidatedTradeData = {
   tokenATrader: string;
@@ -40,10 +42,14 @@ export type ConsolidatedTradeData = {
 export const VersusTempTokenChart = ({
   noChannelData,
   isFullChart,
+  customChartHeightInPx,
 }: {
   noChannelData?: boolean;
   isFullChart?: boolean;
+  customChartHeightInPx?: number;
 }) => {
+  const { isStandalone } = useUserAgent();
+
   const { ethPriceInUsd } = useCacheContext();
   const { gameState, tokenATxs, tokenBTxs } = useVersusTempTokenContext();
   const {
@@ -353,7 +359,7 @@ export const VersusTempTokenChart = ({
           could not fetch channel data
         </Text>
       )}
-      {consolidatedChartData.length === 0 && matchingChain && (
+      {consolidatedChartData.length === 0 && matchingChain && !isStandalone && (
         <Text
           textAlign="center"
           position="absolute"
@@ -365,7 +371,24 @@ export const VersusTempTokenChart = ({
           no txs
         </Text>
       )}
-      <ResponsiveContainer width="100%" height="100%">
+      {isStandalone && (
+        <Flex
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%)"
+          textAlign="center"
+          position="absolute"
+        >
+          <VersusTempTokenTimerView
+            disableChatbot={true}
+            hidePresaleTimer={isStandalone}
+          />
+        </Flex>
+      )}
+      <ResponsiveContainer
+        width="100%"
+        height={customChartHeightInPx ?? "100%"}
+      >
         <LineChart
           data={
             tokenAWon
@@ -390,11 +413,12 @@ export const VersusTempTokenChart = ({
                 2
               )}`;
             }}
-            hide={!isFullChart && !canPlayToken}
+            hide={(!isFullChart && !canPlayToken) || (isStandalone ?? false)}
             domain={["dataMin", "dataMax"]}
           />
           {((!canPlayToken && (tokenAWon || tokenBWon)) ||
-            (canPlayToken && !tokenAWon && !tokenBWon)) && (
+            (canPlayToken && !tokenAWon && !tokenBWon) ||
+            isStandalone) && (
             <Tooltip
               content={
                 tokenAWon || tokenBWon ? (
@@ -418,7 +442,8 @@ export const VersusTempTokenChart = ({
                 isAddressEqual(
                   focusedTokenToTrade?.address,
                   gameState.tokenA.address as `0x${string}`
-                )
+                ) &&
+                !tokenAWon
                   ? 4
                   : 2
               }
@@ -439,7 +464,8 @@ export const VersusTempTokenChart = ({
                 isAddressEqual(
                   focusedTokenToTrade?.address,
                   gameState.tokenB.address as `0x${string}`
-                )
+                ) &&
+                !tokenBWon
                   ? 4
                   : 2
               }
@@ -449,7 +475,9 @@ export const VersusTempTokenChart = ({
           )}
         </LineChart>
       </ResponsiveContainer>
-      {(canPlayToken || canBuyPostGame) && <VersusTokenExchange />}
+      {!isStandalone && (canPlayToken || canBuyPostGame) && (
+        <VersusTokenExchange />
+      )}
     </Flex>
   );
 };

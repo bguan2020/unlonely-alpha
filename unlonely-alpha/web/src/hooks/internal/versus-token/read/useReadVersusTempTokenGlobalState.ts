@@ -5,6 +5,8 @@ import { NULL_ADDRESS, VersusTokenDataType } from "../../../../constants";
 export type UseReadVersusTempTokenGlobalStateType = {
   canPlayToken: boolean;
   handleCanPlayToken: (value: boolean) => void;
+  isPreSaleOngoing: boolean;
+  handleIsPreSaleOngoing: (value: boolean) => void;
   focusedTokenToTrade: ContractData | undefined;
   handleFocusedTokenToTrade: (value: ContractData | undefined) => void;
   winningToken: VersusTokenDataType;
@@ -19,7 +21,7 @@ export type UseReadVersusTempTokenGlobalStateType = {
   handleIsGameFinishedModalOpen: (value: boolean) => void;
   ownerMustMakeWinningTokenTradeable: boolean;
   handleOwnerMustMakeWinningTokenTradeable: (value: boolean) => void;
-  ownerMustPermamint: boolean| number;
+  ownerMustPermamint: boolean | number;
   handleOwnerMustPermamint: (value: boolean | number) => void;
   tokenA: VersusTokenDataType;
   setTokenA: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
@@ -33,7 +35,7 @@ const versusTokenDataInitial: VersusTokenDataType = {
   address: "",
   totalSupply: BigInt(0),
   isAlwaysTradeable: false,
-  highestTotalSupply: BigInt(0),
+  preSaleEndTimestamp: BigInt(0),
   contractData: {
     address: NULL_ADDRESS,
     chainId: 0,
@@ -47,6 +49,8 @@ export const useReadVersusTempTokenGlobalStateInitial: UseReadVersusTempTokenGlo
   {
     canPlayToken: false,
     handleCanPlayToken: () => undefined,
+    isPreSaleOngoing: false,
+    handleIsPreSaleOngoing: () => undefined,
     focusedTokenToTrade: undefined,
     handleFocusedTokenToTrade: () => undefined,
     winningToken: versusTokenDataInitial,
@@ -82,8 +86,14 @@ export const useReadVersusTempTokenGlobalState =
     const [isGameFinished, setIsGameFinished] = useState(false); // had the game just finished? use this flag to manage transitions in state
     const [isGameFinishedModalOpen, setIsGameFinishedModalOpen] =
       useState(false);
-    const [ownerMustMakeWinningTokenTradeable, setOwnerMustMakeWinningTokenTradeable] = useState(false);
-    const [ownerMustPermamint, setOwnerMustPermamint] = useState<boolean | number>(false);
+    const [
+      ownerMustMakeWinningTokenTradeable,
+      setOwnerMustMakeWinningTokenTradeable,
+    ] = useState(false);
+    const [isPreSaleOngoing, setIsPreSaleOngoing] = useState(false);
+    const [ownerMustPermamint, setOwnerMustPermamint] = useState<
+      boolean | number
+    >(false);
     const [losingToken, setLosingToken] = useState<VersusTokenDataType>(
       versusTokenDataInitial
     );
@@ -113,9 +123,12 @@ export const useReadVersusTempTokenGlobalState =
       setIsGameFinishedModalOpen(value);
     }, []);
 
-    const handleOwnerMustMakeWinningTokenTradeable = useCallback((value: boolean) => {
-      setOwnerMustMakeWinningTokenTradeable(value);
-    }, []);
+    const handleOwnerMustMakeWinningTokenTradeable = useCallback(
+      (value: boolean) => {
+        setOwnerMustMakeWinningTokenTradeable(value);
+      },
+      []
+    );
 
     const handleOwnerMustPermamint = useCallback((value: boolean | number) => {
       setOwnerMustPermamint(value);
@@ -133,7 +146,13 @@ export const useReadVersusTempTokenGlobalState =
       setIsGameOngoing(value);
     }, []);
 
+    const handleIsPreSaleOngoing = useCallback((value: boolean) => {
+      setIsPreSaleOngoing(value);
+    }, []);
+
     return {
+      isPreSaleOngoing,
+      handleIsPreSaleOngoing,
       isGameOngoing,
       handleIsGameOngoing,
       canPlayToken,

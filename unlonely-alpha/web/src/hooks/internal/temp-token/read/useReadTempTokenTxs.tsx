@@ -48,18 +48,12 @@ export const useReadTempTokenTxsInitial = {
  */
 export const useReadTempTokenTxs = ({
   tokenCreationBlockNumber,
-  tokenSymbol,
   baseClient,
   tempTokenContract,
-  onMintCallback, // passed in from the parent component to trigger ui changes
-  onBurnCallback, // passed in from the parent component to trigger ui changes
 }: {
   tokenCreationBlockNumber: bigint;
-  tokenSymbol: string;
   baseClient: any;
   tempTokenContract: ContractData;
-  onMintCallback: (totalSupply: bigint, highestTotalSupply: bigint) => void;
-  onBurnCallback: (totalSupply: bigint) => void;
 }): UseReadTempTokenTxsType => {
   const { userAddress } = useUser();
   const fetching = useRef(false);
@@ -89,6 +83,7 @@ export const useReadTempTokenTxs = ({
       fromBlock: bigint,
       toBlock: bigint
     ) => {
+      console.log("getTempTokenEvents", tempTokenContract, fromBlock, toBlock);
       const [mintLogs, burnLogs] = await Promise.all([
         baseClient.getLogs({
           address: tempTokenContract.address,
@@ -175,11 +170,13 @@ export const useReadTempTokenTxs = ({
       }
       fetching.current = true;
       const blockNumber = await baseClient.getBlockNumber();
-      await getTempTokenEvents(
-        tempTokenContract,
-        tokenCreationBlockNumber,
-        blockNumber
-      );
+      if (tokenCreationBlockNumber < blockNumber) {
+        await getTempTokenEvents(
+          tempTokenContract,
+          tokenCreationBlockNumber,
+          blockNumber
+        );
+      }
       fetching.current = false;
       setInitialTempTokenLoading(false);
     };

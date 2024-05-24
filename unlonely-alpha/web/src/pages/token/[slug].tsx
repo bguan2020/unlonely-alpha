@@ -1,4 +1,4 @@
-import { Flex } from "@chakra-ui/react";
+import { Button, Flex } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -11,13 +11,17 @@ import { useChat } from "../../hooks/chat/useChat";
 import AppLayout from "../../components/layout/AppLayout";
 import { ChannelStaticQuery } from "../../generated/graphql";
 import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
-import { TempTokenInterface } from "../../components/channels/temp/TempTokenInterface";
+import { TempTokenInterface } from "../../components/channels/layout/temptoken/TempTokenInterface";
 import { TempTokenProvider } from "../../hooks/context/useTempToken";
-import { VersusTempTokenProvider } from "../../hooks/context/useVersusTempToken";
+import {
+  VersusTempTokenProvider,
+  useVersusTempTokenContext,
+} from "../../hooks/context/useVersusTempToken";
 import { VersusTempTokensInterface } from "../../components/channels/layout/versus/VersusTempTokensInterface";
-import { CAN_USE_VERSUS_MODE_SLUGS } from "../../constants";
 import { useTempTokenAblyInterpreter } from "../../hooks/internal/temp-token/ui/useTempTokenAblyInterpreter";
 import { useVersusTempTokenAblyInterpreter } from "../../hooks/internal/versus-token/ui/useVersusTempTokenAblyInterpreter";
+import { calculateMaxWinnerTokensToMint } from "../../utils/calculateMaxWinnerTokensToMint";
+import { useIsGameOngoing } from "../../hooks/internal/temp-token/ui/useIsGameOngoing";
 
 const FullTempTokenChartPage = () => {
   return (
@@ -33,7 +37,7 @@ const ChannelLayer = () => {
   const router = useRouter();
   const { slug } = router.query;
   const { channel } = useChannelContext();
-  const { channelQueryData, handleChannelStaticData } = channel;
+  const { handleChannelStaticData } = channel;
   const {
     data: channelStatic,
     error: channelStaticError,
@@ -51,23 +55,14 @@ const ChannelLayer = () => {
   }, [channelStatic]);
 
   return (
-    <>
-      {CAN_USE_VERSUS_MODE_SLUGS.includes(channelQueryData?.slug ?? "") ? (
-        <VersusTempTokenProvider>
-          <FullVersusTokenChart
-            channelStaticError={channelStaticError}
-            channelStaticLoading={channelStaticLoading}
-          />
-        </VersusTempTokenProvider>
-      ) : (
-        <TempTokenProvider>
-          <FullTempTokenChart
-            channelStaticError={channelStaticError}
-            channelStaticLoading={channelStaticLoading}
-          />
-        </TempTokenProvider>
-      )}
-    </>
+    <TempTokenProvider>
+      <VersusTempTokenProvider>
+        <FullTempTokenChart
+          channelStaticError={channelStaticError}
+          channelStaticLoading={channelStaticLoading}
+        />
+      </VersusTempTokenProvider>
+    </TempTokenProvider>
   );
 };
 
@@ -79,38 +74,89 @@ const FullTempTokenChart = ({
   channelStaticLoading?: boolean;
 }) => {
   const chat = useChat();
+  const { channel } = useChannelContext();
+  const { isOwner } = channel;
+
+  const { gameState: versusGameState } = useVersusTempTokenContext();
+  const {
+    losingToken: losingVersusToken,
+    winningToken: winningVersusToken,
+    ownerMustPermamint,
+    handleOwnerMustPermamint,
+  } = versusGameState;
+
   useTempTokenAblyInterpreter(chat);
-
-  return (
-    <Flex h="100vh" justifyContent={"space-between"} bg="#131323" p="0.5rem">
-      <TempTokenInterface
-        isFullChart
-        ablyChannel={chat.channel}
-        customLoading={channelStaticLoading}
-        noChannelData={channelStaticError !== undefined}
-      />
-    </Flex>
-  );
-};
-
-const FullVersusTokenChart = ({
-  channelStaticError,
-  channelStaticLoading,
-}: {
-  channelStaticError?: any;
-  channelStaticLoading?: boolean;
-}) => {
-  const chat = useChat();
   useVersusTempTokenAblyInterpreter(chat);
+  const { isGameOngoing, tokenStateView, setTokenStateView } =
+    useIsGameOngoing();
+
+  useEffect(() => {
+    const init = async () => {
+      if (
+        isOwner &&
+        losingVersusToken.transferredLiquidityOnExpiration > BigInt(0)
+      ) {
+        if (ownerMustPermamint === true) {
+          const { maxNumTokens } = await calculateMaxWinnerTokensToMint(
+            Number(losingVersusToken.transferredLiquidityOnExpiration),
+            Number(winningVersusToken.totalSupply)
+          );
+          if (maxNumTokens === 0) {
+            handleOwnerMustPermamint(false);
+          } else {
+            handleOwnerMustPermamint(maxNumTokens);
+          }
+        }
+      } else {
+        handleOwnerMustPermamint(false);
+      }
+    };
+    init();
+  }, [losingVersusToken, ownerMustPermamint, isOwner, winningVersusToken]);
 
   return (
     <Flex h="100vh" justifyContent={"space-between"} bg="#131323" p="0.5rem">
-      <VersusTempTokensInterface
-        isFullChart
-        ablyChannel={chat.channel}
-        customLoading={channelStaticLoading}
-        noChannelData={channelStaticError !== undefined}
-      />
+      {tokenStateView === "single" ? (
+        <Flex direction="column" width="100%">
+          {isOwner && !isGameOngoing && (
+            <Button
+              w="fit-content"
+              h="20px"
+              onClick={() => {
+                setTokenStateView("versus");
+              }}
+            >
+              versus
+            </Button>
+          )}
+          <TempTokenInterface
+            isFullChart
+            ablyChannel={chat.channel}
+            customLoading={channelStaticLoading}
+            noChannelData={channelStaticError !== undefined}
+          />
+        </Flex>
+      ) : (
+        <Flex direction="column" width="100%">
+          {isOwner && !isGameOngoing && (
+            <Button
+              w="fit-content"
+              h="20px"
+              onClick={() => {
+                setTokenStateView("single");
+              }}
+            >
+              single
+            </Button>
+          )}
+          <VersusTempTokensInterface
+            isFullChart
+            ablyChannel={chat.channel}
+            customLoading={channelStaticLoading}
+            noChannelData={channelStaticError !== undefined}
+          />
+        </Flex>
+      )}
     </Flex>
   );
 };

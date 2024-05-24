@@ -2,7 +2,11 @@ import { Box, Button, Spinner, useToast } from "@chakra-ui/react";
 import { useMintWinnerTokens } from "../../../../hooks/contracts/useTempTokenFactoryV1";
 import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
 import { useEffect, useState } from "react";
-import { Contract, InteractionType } from "../../../../constants";
+import {
+  CHAKRA_UI_TX_TOAST_DURATION,
+  Contract,
+  InteractionType,
+} from "../../../../constants";
 import { useNetworkContext } from "../../../../hooks/context/useNetwork";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { decodeEventLog, isAddressEqual } from "viem";
@@ -10,9 +14,8 @@ import Link from "next/link";
 import { usePublicClient } from "wagmi";
 import { useUser } from "../../../../hooks/context/useUser";
 import { useChannelContext } from "../../../../hooks/context/useChannel";
-import { calculateMaxWinnerTokensToMint } from "../../../../utils/calculateMaxWinnerTokensToMint";
 
-export const PermamintModule = (callbackOnTxSuccess?: any) => {
+export const PermamintModule = () => {
   const { userAddress, user } = useUser();
 
   const { gameState } = useVersusTempTokenContext();
@@ -61,16 +64,16 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               mint winner tokens cancelled
@@ -101,9 +104,9 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
 
         let _winningToken = tokenA;
@@ -129,7 +132,7 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
           _tokenType = "b";
         }
 
-        const title = `The ${_winningToken.symbol} token's price increased!`;
+        const title = `The $${_winningToken.symbol} token's price increased!`;
 
         addToChatbot({
           username: user?.username ?? "",
@@ -140,7 +143,6 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
             args.amount as bigint
           )}:${String(data.blockNumber)}:${_tokenType}`,
         });
-        callbackOnTxSuccess?.();
       },
       onTxError: (error) => {
         toast({
@@ -149,9 +151,9 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
               mint winner tokens error
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
     }
@@ -160,16 +162,6 @@ export const PermamintModule = (callbackOnTxSuccess?: any) => {
   useEffect(() => {
     const init = async () => {
       if (
-        ownerMustPermamint === true &&
-        isOwner &&
-        losingToken?.transferredLiquidityOnExpiration
-      ) {
-        const { maxNumTokens } = await calculateMaxWinnerTokensToMint(
-          Number(losingToken?.transferredLiquidityOnExpiration),
-          Number(winningToken?.totalSupply)
-        );
-        setAmountOfTokensToMint(maxNumTokens);
-      } else if (
         typeof ownerMustPermamint === "number" &&
         ownerMustPermamint > 0 &&
         isOwner

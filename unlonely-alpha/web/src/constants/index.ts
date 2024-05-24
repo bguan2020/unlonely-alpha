@@ -33,6 +33,7 @@ export enum InteractionType {
   SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION = "send-remaining-funds-to-winner-after-temp-token-expiration-interaction",
   VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY = "versus-set-winning-token-tradeable-and-transfer-liquidity-interaction",
   VERSUS_WINNER_TOKENS_MINTED = "versus-winner-tokens-minted-interaction",
+  PRESALE_OVER = "presale-over-interaction",
 
   EVENT_LIVE = "event-live-interaction",
   EVENT_LOCK = "event-lock-interaction",
@@ -99,6 +100,7 @@ export const SECONDS_PER_HOUR = MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE;
 export const SECONDS_PER_DAY = HOURS_IN_A_DAY * SECONDS_PER_HOUR;
 export const DESKTOP_VIDEO_VH = 80;
 export const MOBILE_VIDEO_VH = 25;
+export const CHAKRA_UI_TX_TOAST_DURATION = 3000;
 
 export const NEW_STREAMER_URL_QUERY_PARAM = "new";
 export const STREAMER_MIGRATION_URL_QUERY_PARAM = "migrate";
@@ -119,25 +121,24 @@ export const CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN = [
   "554",
   "127",
   "496",
-  "688"
+  "688",
 ];
-
-export const CAN_USE_VERSUS_MODE_SLUGS = [
-  // "danny",
-  "versus", 
-  "brian"];
 
 export type VersusTokenDataType = {
   symbol: string;
   address: string;
   totalSupply: bigint;
   isAlwaysTradeable: boolean;
-  highestTotalSupply: bigint;
+  preSaleEndTimestamp: bigint;
   contractData: ContractData;
   creationBlockNumber: bigint;
   transferredLiquidityOnExpiration: bigint;
   endTimestamp?: bigint;
 };
+
+export const DEFAULT_TOKEN_TRADE_AMOUNT = 1000;
+export const PRE_SALE_MAX_SUPPLY = 100_000;
+export const PRE_SALE_PRICE_PER_TOKEN = 4 * 10 ** 10;
 
 export const versusTokenDataInitial: VersusTokenDataType = {
   transferredLiquidityOnExpiration: BigInt(0),
@@ -145,7 +146,7 @@ export const versusTokenDataInitial: VersusTokenDataType = {
   address: "",
   totalSupply: BigInt(0),
   isAlwaysTradeable: false,
-  highestTotalSupply: BigInt(0),
+  preSaleEndTimestamp: BigInt(0),
   contractData: {
     address: NULL_ADDRESS,
     chainId: 0,

@@ -148,7 +148,8 @@ export const MigrateToLivePeer = () => {
               Unlonely has recently upgraded its livestreaming framework.
             </Text>
             <Text textAlign={"center"}>
-              Please click the button below to migrate.
+              Please click the button below to migrate and get your new stream
+              key.
             </Text>
             <Button
               color="white"

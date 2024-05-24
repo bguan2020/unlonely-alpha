@@ -7,7 +7,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useUpdateTotalSupplyThreshold } from "../../../contracts/useTempTokenV1";
 import { useTempTokenContext } from "../../../context/useTempToken";
 import { useChannelContext } from "../../../context/useChannel";
-import { InteractionType } from "../../../../constants";
+import {
+  CHAKRA_UI_TX_TOAST_DURATION,
+  InteractionType,
+} from "../../../../constants";
 import { useUser } from "../../../context/useUser";
 
 export const useOwnerUpdateTotalSupplyThresholdState = (
@@ -16,7 +19,8 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
   const { userAddress, user } = useUser();
 
   const { tempToken } = useTempTokenContext();
-  const { currentTempTokenContract, currentActiveTokenSymbol } = tempToken;
+  const { gameState, currentTempTokenContract } = tempToken;
+  const { currentActiveTokenSymbol } = gameState;
   const { chat } = useChannelContext();
   const { addToChatbot } = chat;
   const { network } = useNetworkContext();
@@ -62,18 +66,18 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         setNewSupplyThreshold(BigInt(0));
       },
       onWriteError: (error) => {
         console.log("setTotalSupplyThresholdForTokens error", error);
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               setTotalSupplyThresholdForTokens cancelled
@@ -118,9 +122,9 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onTxError: (error) => {
@@ -131,9 +135,9 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
               setTotalSupplyThresholdForTokens error
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         setNewSupplyThreshold(BigInt(0));
       },

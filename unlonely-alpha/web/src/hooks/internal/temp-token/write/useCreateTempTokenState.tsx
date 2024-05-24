@@ -6,12 +6,21 @@ import { useNetworkContext } from "../../../context/useNetwork";
 import { useCreateTempToken } from "../../../contracts/useTempTokenFactoryV1";
 import { verifyTempTokenV1OnBase } from "../../../../utils/contract-verification/tempToken";
 import usePostTempToken from "../../../server/temp-token/usePostTempToken";
-import { Contract, InteractionType } from "../../../../constants";
+import {
+  CHAKRA_UI_TX_TOAST_DURATION,
+  Contract,
+  InteractionType,
+} from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useChannelContext } from "../../../context/useChannel";
 import { useUser } from "../../../context/useUser";
 import centerEllipses from "../../../../utils/centerEllipses";
-import { TempTokenType } from "../../../../generated/graphql";
+import {
+  QuerySendAllNotificationsArgs,
+  TempTokenType,
+} from "../../../../generated/graphql";
+import { useLazyQuery } from "@apollo/client";
+import { SEND_ALL_NOTIFICATIONS_QUERY } from "../../../../constants/queries";
 
 export const EASY_THRESHOLD = BigInt(420_000);
 export const MEDIUM_THRESHOLD = BigInt(690_000);
@@ -22,6 +31,7 @@ export type UseCreateTempTokenStateType = {
   newTokenSymbol: string;
   newTokenDuration: bigint;
   newTokenTotalSupplyThreshold: bigint;
+  newPreSaleDuration: bigint;
   createTempToken?: () => Promise<any>;
   createTempTokenData: any;
   createTempTokenTxData: any;
@@ -30,12 +40,14 @@ export type UseCreateTempTokenStateType = {
   handleNewTokenSymbol: (symbol: string) => void;
   handleNewTokenDuration: (duration: bigint) => void;
   handleNewTokenTotalSupplyThreshold: (totalSupplyThreshold: bigint) => void;
+  handlePreSaleDuration: (duration: bigint) => void;
 };
 
 export const useCreateTempTokenInitialState: UseCreateTempTokenStateType = {
   newTokenName: "temp",
   newTokenSymbol: "temp",
   newTokenDuration: BigInt(3600),
+  newPreSaleDuration: BigInt(60 * 2),
   newTokenTotalSupplyThreshold: MEDIUM_THRESHOLD,
   createTempToken: undefined,
   createTempTokenData: undefined,
@@ -45,9 +57,14 @@ export const useCreateTempTokenInitialState: UseCreateTempTokenStateType = {
   handleNewTokenSymbol: () => undefined,
   handleNewTokenDuration: () => undefined,
   handleNewTokenTotalSupplyThreshold: () => undefined,
+  handlePreSaleDuration: () => undefined,
 };
 
-export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
+export const useCreateTempTokenState = ({
+  callbackOnTxSuccess,
+}: {
+  callbackOnTxSuccess: () => void;
+}): UseCreateTempTokenStateType => {
   const { userAddress, user } = useUser();
   const { chat, channel } = useChannelContext();
   const { network } = useNetworkContext();
@@ -60,6 +77,9 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
   const [newTokenDuration, setNewTokenDuration] = useState<bigint>(
     BigInt(1800)
   );
+  const [newPreSaleDuration, setNewPreSaleDuration] = useState<bigint>(
+    BigInt(60 * 2)
+  );
   const [newTokenTotalSupplyThreshold, setNewTokenTotalSupplyThreshold] =
     useState<bigint>(MEDIUM_THRESHOLD);
 
@@ -68,6 +88,13 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
   const factoryContract = getContractFromNetwork(
     Contract.TEMP_TOKEN_FACTORY_V1,
     localNetwork
+  );
+
+  const [call] = useLazyQuery<QuerySendAllNotificationsArgs>(
+    SEND_ALL_NOTIFICATIONS_QUERY,
+    {
+      fetchPolicy: "network-only",
+    }
   );
 
   const {
@@ -81,6 +108,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
       symbol: newTokenSymbol,
       duration: newTokenDuration,
       totalSupplyThreshold: newTokenTotalSupplyThreshold,
+      preSaleDuration: newPreSaleDuration,
     },
     factoryContract,
     {
@@ -97,17 +125,17 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_create.current = true;
       },
       onWriteError: (error) => {
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               createTempToken cancelled
@@ -152,9 +180,9 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
                   createTempToken update database success
                 </Box>
               ),
-              duration: 9000,
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           })
           .catch((err) => {
@@ -165,9 +193,9 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
                   createTempToken update database error
                 </Box>
               ),
-              duration: 9000,
+              duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
               isClosable: true,
-              position: "top-right",
+              position: "bottom", // chakra ui toast position
             });
           });
         const title = `${
@@ -183,6 +211,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
           `${args.endTimestamp}`,
           `${String(args.creationBlockNumber)}`,
           `${String(args.totalSupplyThreshold)}`,
+          `${String(args.preSaleEndTimestamp)}`,
         ];
         addToChatbotForTempToken({
           username: user?.username ?? "",
@@ -203,10 +232,24 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
+        if (Number(args.preSaleEndTimestamp) > Math.floor(Date.now() / 1000)) {
+          const res = await call({
+            variables: {
+              data: {
+                title: `/${channel.channelQueryData?.slug} launched $${args.symbol} token!`,
+                body: "you have 2 min. to claim 1,000 free tokens",
+                pathname: `/channels/${channel.channelQueryData?.slug}`,
+                channelId: undefined,
+              },
+            },
+          });
+          console.log("useCreateTempTokenState send all notifications:", res);
+        }
+        callbackOnTxSuccess();
         // wait for 5 seconds
         await new Promise((resolve) => setTimeout(resolve, 5000));
         // verify the contract on base
@@ -248,6 +291,10 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
               name: "_creationBlockNumber",
               type: "uint256",
             },
+            {
+              name: "_preSaleEndTimestamp",
+              type: "uint256",
+            },
           ],
           [
             args.name as string,
@@ -259,6 +306,7 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
             args.totalSupplyThreshold as bigint,
             factoryContract.address as `0x${string}`,
             args.creationBlockNumber as bigint,
+            args.preSaleEndTimestamp as bigint,
           ]
         );
         await verifyTempTokenV1OnBase(
@@ -275,9 +323,9 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
               createTempToken error
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         canAddToChatbot_create.current = false;
       },
@@ -303,10 +351,15 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
     []
   );
 
+  const handlePreSaleDuration = useCallback((duration: bigint) => {
+    setNewPreSaleDuration(duration);
+  }, []);
+
   return {
     newTokenName,
     newTokenSymbol,
     newTokenDuration,
+    newPreSaleDuration,
     newTokenTotalSupplyThreshold,
     createTempToken: _createTempToken,
     createTempTokenData,
@@ -316,5 +369,6 @@ export const useCreateTempTokenState = (): UseCreateTempTokenStateType => {
     handleNewTokenSymbol,
     handleNewTokenDuration,
     handleNewTokenTotalSupplyThreshold,
+    handlePreSaleDuration,
   };
 };

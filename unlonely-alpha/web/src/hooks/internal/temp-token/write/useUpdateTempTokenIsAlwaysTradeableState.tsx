@@ -1,5 +1,5 @@
 import { useNetworkContext } from "../../../context/useNetwork";
-import { Contract } from "../../../../constants";
+import { CHAKRA_UI_TX_TOAST_DURATION, Contract } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useToast, Box } from "@chakra-ui/react";
 import { useSetAlwaysTradeableForTokens as use_call_updateOnchain_alwaysTradeable } from "../../../contracts/useTempTokenFactoryV1";
@@ -49,17 +49,17 @@ export const useUpdateTempTokenIsAlwaysTradeableState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         console.log("setAlwaysTradeableForTokens error", error);
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               setAlwaysTradeableForTokens cancelled
@@ -93,9 +93,9 @@ export const useUpdateTempTokenIsAlwaysTradeableState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onTxError: (error) => {
@@ -106,9 +106,9 @@ export const useUpdateTempTokenIsAlwaysTradeableState = (
               setAlwaysTradeableForTokens error
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
     }

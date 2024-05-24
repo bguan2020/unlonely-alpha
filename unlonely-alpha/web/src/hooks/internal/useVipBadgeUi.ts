@@ -61,8 +61,17 @@ export const useVipBadgeUi = (chat: ChatReturnType) => {
           Date.now() - latestMessage.timestamp < 12000
         ) {
           if (body.split(":")[4] === generatedKey) {
-            if (userAddress && isAddress(body.split(":")[1]) && isAddressEqual(body.split(":")[1] as `0x${string}`, userAddress as `0x${string}`)) {
-              setVipBadgeBalance((prev) => String(Number(prev) + Number(body.split(":")[2])));
+            if (
+              userAddress &&
+              isAddress(body.split(":")[1]) &&
+              isAddressEqual(
+                body.split(":")[1] as `0x${string}`,
+                userAddress as `0x${string}`
+              )
+            ) {
+              setVipBadgeBalance((prev) =>
+                String(Number(prev) + Number(body.split(":")[2]))
+              );
             }
             setVipBadgeSupply(BigInt(body.split(":")[3]));
           }
@@ -71,7 +80,7 @@ export const useVipBadgeUi = (chat: ChatReturnType) => {
     };
     init();
   }, [chat.receivedMessages]);
-  
+
   useEffect(() => {
     if (Number(vipBadgeBalance) > 0) {
       handleIsVip(true);

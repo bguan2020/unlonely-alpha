@@ -15,6 +15,7 @@ import { useState, useMemo, useEffect } from "react";
 import { formatUnits, isAddress } from "viem";
 import {
   AblyChannelPromise,
+  CHAKRA_UI_TX_TOAST_DURATION,
   CHANGE_USER_ROLE_EVENT,
   Contract,
   TOKEN_TRANSFER_EVENT,
@@ -88,16 +89,16 @@ export const ChatUserModal = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               transfer vibes cancelled
@@ -118,9 +119,9 @@ export const ChatUserModal = ({
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
         channel.publish({
           name: TOKEN_TRANSFER_EVENT,
@@ -142,9 +143,9 @@ export const ChatUserModal = ({
               transfer vibes error
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
     }

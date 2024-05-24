@@ -1116,6 +1116,7 @@ export type QuerySendAllNotificationsArgs = {
 export type SendAllNotificationsInput = {
   body: Scalars["String"];
   channelId?: InputMaybe<Scalars["ID"]>;
+  pathname?: InputMaybe<Scalars["String"]>;
   title: Scalars["String"];
 };
 
@@ -1376,6 +1377,7 @@ export type UpdateTempTokenHasHitTotalSupplyThresholdInput = {
 export type UpdateTempTokenHasRemainingFundsForCreatorInput = {
   chainId: Scalars["Int"];
   channelId: Scalars["Int"];
+  factoryAddress?: InputMaybe<Scalars["String"]>;
   tokenType: TempTokenType;
 };
 

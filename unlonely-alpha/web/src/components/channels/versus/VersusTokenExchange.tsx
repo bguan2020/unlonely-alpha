@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Flex,
   Input,
@@ -20,7 +20,33 @@ import { formatIncompleteNumber } from "../../../utils/validation/input";
 export const VersusTokenExchange = () => {
   const { gameState, tokenATxs, tokenBTxs } = useVersusTempTokenContext();
 
-  const { focusedTokenToTrade, tokenA, tokenB } = gameState;
+  const { focusedTokenToTrade, tokenA, tokenB, isPreSaleOngoing } = gameState;
+
+  const [claimedPreSaleTokens, setClaimedPreSaleTokens] =
+    useState<boolean>(false);
+  const isFocusedTokenEqualToTokenA = useMemo(() => {
+    return (
+      focusedTokenToTrade &&
+      isAddress(tokenA.address) &&
+      isAddress(focusedTokenToTrade?.address as `0x${string}`) &&
+      isAddressEqual(
+        focusedTokenToTrade?.address as `0x${string}`,
+        tokenA.address as `0x${string}`
+      )
+    );
+  }, [focusedTokenToTrade, tokenA]);
+
+  const isFocusedTokenEqualToTokenB = useMemo(() => {
+    return (
+      focusedTokenToTrade &&
+      isAddress(tokenB.address) &&
+      isAddress(focusedTokenToTrade?.address as `0x${string}`) &&
+      isAddressEqual(
+        focusedTokenToTrade?.address as `0x${string}`,
+        tokenB.address as `0x${string}`
+      )
+    );
+  }, [focusedTokenToTrade, tokenB]);
 
   const focusedTokenData = useMemo(() => {
     if (
@@ -36,28 +62,14 @@ export const VersusTokenExchange = () => {
         userBalance: BigInt(0),
       };
     }
-    if (
-      isAddress(tokenA.address) &&
-      isAddress(focusedTokenToTrade?.address) &&
-      isAddressEqual(
-        focusedTokenToTrade?.address as `0x${string}`,
-        tokenA.address as `0x${string}`
-      )
-    ) {
+    if (isFocusedTokenEqualToTokenA) {
       return {
         tokenAddress: tokenA.address,
         tokenSymbol: tokenA.symbol,
         tokenTxs: tokenATxs.tempTokenTxs,
         userBalance: tokenATxs.userTempTokenBalance,
       };
-    } else if (
-      isAddress(tokenB.address) &&
-      isAddress(focusedTokenToTrade?.address) &&
-      isAddressEqual(
-        focusedTokenToTrade?.address as `0x${string}`,
-        tokenB.address as `0x${string}`
-      )
-    ) {
+    } else if (isFocusedTokenEqualToTokenB) {
       return {
         tokenAddress: tokenB.address,
         tokenSymbol: tokenB.symbol,
@@ -72,7 +84,14 @@ export const VersusTokenExchange = () => {
         userBalance: BigInt(0),
       };
     }
-  }, [focusedTokenToTrade, tokenA, tokenB, tokenATxs, tokenBTxs]);
+  }, [
+    isFocusedTokenEqualToTokenA,
+    isFocusedTokenEqualToTokenB,
+    tokenA,
+    tokenB,
+    tokenATxs,
+    tokenBTxs,
+  ]);
 
   const {
     amount,
@@ -89,19 +108,20 @@ export const VersusTokenExchange = () => {
     tokenAddress: focusedTokenData.tokenAddress,
     tokenSymbol: focusedTokenData.tokenSymbol,
     tokenTxs: focusedTokenData.tokenTxs,
+    isPreSaleOngoing,
   });
 
   return (
     <Flex direction="column" justifyContent={"center"} gap="10px">
       <Flex position="relative" gap="5px" alignItems={"center"} mx="auto">
         <Flex h="40px">
-          {focusedTokenToTrade?.address &&
-          isAddress(focusedTokenToTrade?.address) ? (
+          {focusedTokenToTrade ? (
             <ChakraTooltip
               label={errorMessage}
               placement="bottom-start"
               isOpen={errorMessage !== undefined}
               bg="red.600"
+              opacity={isPreSaleOngoing ? "0 !important" : 1}
             >
               <Input
                 variant={errorMessage.length > 0 ? "redGlow" : "glow"}
@@ -116,49 +136,42 @@ export const VersusTokenExchange = () => {
             <Text>Select a token above to trade</Text>
           )}
         </Flex>
-        {focusedTokenToTrade?.address &&
-          isAddress(focusedTokenToTrade?.address) && (
-            <Popover trigger="hover" placement="top" openDelay={500}>
-              <PopoverTrigger>
-                <Button
-                  bg={"#403c7d"}
-                  color="white"
-                  p={2}
-                  height={"20px"}
-                  _focus={{}}
-                  _active={{}}
-                  _hover={{
-                    bg: "#8884d8",
-                  }}
-                  onClick={() => {
-                    handleAmountDirectly(
-                      isAddress(tokenA.address) &&
-                        isAddressEqual(
-                          focusedTokenToTrade?.address as `0x${string}`,
-                          tokenA.address as `0x${string}`
-                        )
-                        ? tokenATxs.userTempTokenBalance.toString()
-                        : isAddress(tokenB.address) &&
-                          isAddressEqual(
-                            focusedTokenToTrade?.address as `0x${string}`,
-                            tokenB.address as `0x${string}`
-                          )
-                        ? tokenBTxs.userTempTokenBalance.toString()
-                        : "0"
-                    );
-                  }}
-                >
-                  max
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent bg="#6c3daf" border="none" width="100%" p="2px">
-                <PopoverArrow bg="#6c3daf" />
-                <Text fontSize="12px" textAlign={"center"}>
-                  click to show max temp tokens u currently own
-                </Text>
-              </PopoverContent>
-            </Popover>
-          )}
+        {focusedTokenToTrade && !isPreSaleOngoing && (
+          <Popover trigger="hover" placement="top" openDelay={500}>
+            <PopoverTrigger>
+              <Button
+                bg={"#403c7d"}
+                color="white"
+                p={2}
+                height={"20px"}
+                _focus={{}}
+                _active={{}}
+                _hover={{
+                  bg: "#8884d8",
+                }}
+                onClick={() => {
+                  handleAmountDirectly(
+                    isFocusedTokenEqualToTokenA
+                      ? tokenATxs.userTempTokenBalance.toString()
+                      : isFocusedTokenEqualToTokenB
+                      ? tokenBTxs.userTempTokenBalance.toString()
+                      : "0"
+                  );
+                }}
+              >
+                max
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent bg="#6c3daf" border="none" width="100%" p="2px">
+              <PopoverArrow bg="#6c3daf" />
+              <Text fontSize="12px" textAlign={"center"}>
+                {isPreSaleOngoing
+                  ? "click to claim 1000 tokens"
+                  : "click to show max temp tokens u currently own"}
+              </Text>
+            </PopoverContent>
+          </Popover>
+        )}
       </Flex>
       <Flex gap="2px" justifyContent={"center"} direction="column" mx="auto">
         <Button
@@ -167,62 +180,58 @@ export const VersusTokenExchange = () => {
           _hover={{}}
           _active={{}}
           bg={
-            focusedTokenToTrade?.address &&
-            isAddress(tokenA.address) &&
-            isAddress(focusedTokenToTrade?.address) &&
-            isAddressEqual(
-              focusedTokenToTrade?.address as `0x${string}`,
-              tokenA.address as `0x${string}`
-            )
+            isPreSaleOngoing && !claimedPreSaleTokens
+              ? "#8fee00"
+              : isFocusedTokenEqualToTokenA
               ? "rgba(255, 36, 36, 1)"
-              : focusedTokenToTrade?.address &&
-                isAddress(tokenB.address) &&
-                isAddress(focusedTokenToTrade?.address) &&
-                isAddressEqual(
-                  focusedTokenToTrade?.address as `0x${string}`,
-                  tokenB.address as `0x${string}`
-                )
+              : isFocusedTokenEqualToTokenB
               ? "rgba(42, 217, 255, 1)"
               : "#ffffff"
           }
           isDisabled={
+            (isPreSaleOngoing && claimedPreSaleTokens) ||
             !mint ||
             mintCostAfterFeesLoading ||
             Number(formatIncompleteNumber(amount)) <= 0 ||
             focusedTokenData.tokenAddress === ""
           }
-          onClick={mint}
-          p={"0px"}
+          onClick={async () => {
+            await mint?.().then(() => {
+              if (isPreSaleOngoing) {
+                setClaimedPreSaleTokens(true);
+              }
+            });
+          }}
           w="100%"
         >
-          <Flex direction="column">
-            <Text>BUY</Text>
-            <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
-              {`(${truncateValue(formatUnits(mintCostAfterFees, 18), 4)} ETH)`}
+          {!isPreSaleOngoing ? (
+            <Flex direction="column">
+              <Text>BUY</Text>
+              <Text fontSize={"12px"} noOfLines={1} color="#eeeeee">
+                {`(${truncateValue(
+                  formatUnits(mintCostAfterFees, 18),
+                  4
+                )} ETH)`}
+              </Text>
+            </Flex>
+          ) : !claimedPreSaleTokens ? (
+            <Text fontSize="20px" color="black">
+              FREE MONEY
             </Text>
-          </Flex>
+          ) : (
+            <Text>CLAIMED</Text>
+          )}
         </Button>
         <Button
           color="white"
           _focus={{}}
           _hover={{}}
           _active={{}}
+          opacity={isPreSaleOngoing ? "0 !important" : 1}
           bg={
-            focusedTokenToTrade?.address &&
-            isAddress(tokenA.address) &&
-            isAddress(focusedTokenToTrade?.address) &&
-            isAddressEqual(
-              focusedTokenToTrade?.address as `0x${string}`,
-              tokenA.address as `0x${string}`
-            )
+            isFocusedTokenEqualToTokenA
               ? "rgba(75, 0, 1, 1)"
-              : focusedTokenToTrade?.address &&
-                isAddress(tokenB.address) &&
-                isAddress(focusedTokenToTrade?.address) &&
-                isAddressEqual(
-                  focusedTokenToTrade?.address as `0x${string}`,
-                  tokenB.address as `0x${string}`
-                )
+              : isFocusedTokenEqualToTokenB
               ? "rgba(66, 101, 136, 1)"
               : "#ffffff"
           }
@@ -233,7 +242,6 @@ export const VersusTokenExchange = () => {
             focusedTokenData.tokenAddress === ""
           }
           onClick={burn}
-          p={undefined}
           w="100%"
         >
           <Flex direction="column">

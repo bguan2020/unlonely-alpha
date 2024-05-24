@@ -258,6 +258,15 @@ const ConnectedDisplay = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const handleCopy = () => {
+    toast({
+      title: "copied to clipboard",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
+
   return (
     <>
       <TransactionModalTemplate
@@ -436,6 +445,20 @@ const ConnectedDisplay = () => {
               onClick={exportWallet}
             >
               export wallet
+            </MenuItem>
+          )}
+          {userAddress && (
+            <MenuItem
+              bg={"#131323"}
+              _hover={{ bg: "#1f1f3c" }}
+              _focus={{}}
+              _active={{}}
+              onClick={() => {
+                copy(userAddress);
+                handleCopy();
+              }}
+            >
+              copy wallet address
             </MenuItem>
           )}
           <MenuItem

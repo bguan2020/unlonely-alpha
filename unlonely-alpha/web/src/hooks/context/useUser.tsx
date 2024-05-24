@@ -89,6 +89,7 @@ export const UserProvider = ({
       linkedAccount
     ) => {
       console.log(
+        "login complete",
         user,
         isNewUser,
         wasAlreadyAuthenticated,

@@ -1,7 +1,6 @@
 import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
-
   enum TempTokenType {
     SINGLE_MODE
     VERSUS_MODE
@@ -66,6 +65,7 @@ export const typeDef = gql`
     chainId: Int!
     channelId: Int!
     tokenType: TempTokenType!
+    factoryAddress: String
   }
 
   input UpdateTempTokenHighestTotalSupplyInput {

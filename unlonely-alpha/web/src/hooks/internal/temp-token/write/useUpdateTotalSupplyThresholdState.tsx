@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import useUpdateTempTokenHasHitTotalSupplyThreshold from "../../../server/temp-token/useUpdateTempTokenHasHitTotalSupplyThreshold";
-import { Contract } from "../../../../constants";
+import { CHAKRA_UI_TX_TOAST_DURATION, Contract } from "../../../../constants";
 
 import { useSetTotalSupplyThresholdForTokens as use_call_updateOnchain_hasHitTotalSupplyThreshold } from "../../../contracts/useTempTokenFactoryV1";
 import { useToast, Box } from "@chakra-ui/react";
@@ -66,17 +66,17 @@ export const useUpdateTotalSupplyThresholdState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onWriteError: (error) => {
         console.log("setTotalSupplyThresholdForTokens error", error);
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               setTotalSupplyThresholdForTokens cancelled
@@ -111,9 +111,9 @@ export const useUpdateTotalSupplyThresholdState = (
               </Link>
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
       onTxError: (error) => {
@@ -124,9 +124,9 @@ export const useUpdateTotalSupplyThresholdState = (
               setTotalSupplyThresholdForTokens error
             </Box>
           ),
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
         });
       },
     }

@@ -19,7 +19,11 @@ import { LikeObj, NfcDetailQuery } from "../../generated/graphql";
 import useLike from "../../hooks/server/useLike";
 import { useUser } from "../../hooks/context/useUser";
 import { LikeIcon, LikedIcon } from "../icons/LikeIcon";
-import { IPFS_PROJECT_ID, IPFS_PROJECT_SECRET } from "../../constants";
+import {
+  CHAKRA_UI_TX_TOAST_DURATION,
+  IPFS_PROJECT_ID,
+  IPFS_PROJECT_SECRET,
+} from "../../constants";
 import { useWrite } from "../../hooks/contracts/useWrite";
 import useUpdateNFC from "../../hooks/server/useUpdateNFC";
 import centerEllipses from "../../utils/centerEllipses";
@@ -94,9 +98,9 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
         setIsUploadingToIPFS(false);
         callingWrite.current = false;
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
               <Link
@@ -115,9 +119,9 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
         setIsUploadingToIPFS(false);
         callingWrite.current = false;
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
               mint cancelled
@@ -140,9 +144,9 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
             : "",
         });
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
               <Link
@@ -159,9 +163,9 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
       onTxError: (error) => {
         console.log("nfc mint tx error", error);
         toast({
-          duration: 9000,
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
           isClosable: true,
-          position: "top-right",
+          position: "bottom", // chakra ui toast position
           render: () => (
             <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
               mint error
@@ -331,7 +335,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                                 description:
                                   "Please sign into your wallet first.",
                                 status: "warning",
-                                duration: 9000,
+                                duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
                                 isClosable: true,
                                 position: "top",
                               });
