@@ -17,12 +17,12 @@ import {
   Image,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 import { TbWorldExclamation } from "react-icons/tb";
 
 import { NETWORKS } from "../../constants/networks";
 import { Network } from "../../constants/types";
 import { useUser } from "./useUser";
+import { useWallets } from "@privy-io/react-auth";
 
 export const useNetworkContext = () => {
   return useContext(NetworkContext);
@@ -54,14 +54,14 @@ export const NetworkProvider = ({
   const router = useRouter();
 
   const [matchingChain, setMatchingChain] = useState<boolean>(true);
-  const { wallet } = usePrivyWagmi();
+  const { wallets } = useWallets();
   const { user } = useUser();
   const localNetwork = useMemo(() => {
-    const chain = wallet?.chainId?.split(":")[1];
+    const chain = wallets[0]?.chainId?.split(":")[1];
     return (
       NETWORKS.find((n) => String(n.config.chainId) === chain) ?? NETWORKS[0]
     );
-  }, [wallet]);
+  }, [wallets]);
 
   const _explorerUrl = useMemo(
     () => localNetwork.blockExplorers?.default.url,
@@ -70,10 +70,11 @@ export const NetworkProvider = ({
 
   useEffect(() => {
     if (
-      wallet &&
+      wallets[0] &&
       user?.address &&
-      wallet?.chainId?.split(":")[1] &&
-      wallet?.chainId?.split(":")[1] !== String(NETWORKS[0].config.chainId) &&
+      wallets[0]?.chainId?.split(":")[1] &&
+      wallets[0]?.chainId?.split(":")[1] !==
+        String(NETWORKS[0].config.chainId) &&
       !router.pathname.startsWith("/bridge")
     ) {
       toastIdRef.current = toast({
@@ -111,7 +112,7 @@ export const NetworkProvider = ({
                 color="white"
                 onClick={async () => {
                   if (toastIdRef.current) toast.close(toastIdRef.current);
-                  await wallet.switchChain(NETWORKS[0].config.chainId);
+                  await wallets[0].switchChain(NETWORKS[0].config.chainId);
                 }}
               >
                 <Text fontSize="20px">switch to base</Text>
@@ -127,19 +128,20 @@ export const NetworkProvider = ({
       }
       setMatchingChain(true);
     }
-  }, [user, wallet, router.pathname]);
+  }, [user, wallets, router.pathname]);
 
   const value = useMemo(() => {
     return {
       network: {
         chainId:
-          Number(wallet?.chainId?.split(":")[1]) ?? NETWORKS[0].config.chainId,
+          Number(wallets[0]?.chainId?.split(":")[1]) ??
+          NETWORKS[0].config.chainId,
         matchingChain,
         localNetwork,
         explorerUrl: _explorerUrl ?? "",
       },
     };
-  }, [wallet, matchingChain, localNetwork, _explorerUrl]);
+  }, [wallets, matchingChain, localNetwork, _explorerUrl]);
 
   return (
     <NetworkContext.Provider value={value}>{children}</NetworkContext.Provider>

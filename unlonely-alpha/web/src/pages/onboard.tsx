@@ -23,19 +23,14 @@ import { GetChannelSearchResultsQuery } from "../generated/graphql";
 import { alphanumericInput } from "../utils/validation/input";
 import { NEW_STREAMER_URL_QUERY_PARAM } from "../constants";
 import { useNetworkContext } from "../hooks/context/useNetwork";
-import { useConnectWallet, ConnectedWallet } from "@privy-io/react-auth";
-import { usePrivyWagmi } from "@privy-io/wagmi-connector";
+import { useConnectWallet } from "@privy-io/react-auth";
 
 const SLUG_MAX_CHARS = 25;
 
 const Onboard = () => {
   const { login, privyUser, user, walletIsConnected } = useUser();
-  const { setActiveWallet } = usePrivyWagmi();
   const toast = useToast();
   const { connectWallet } = useConnectWallet({
-    onSuccess: (wallet) => {
-      setActiveWallet(wallet as ConnectedWallet);
-    },
     onError: (err) => {
       console.error("connect wallet error", err);
       toast({
