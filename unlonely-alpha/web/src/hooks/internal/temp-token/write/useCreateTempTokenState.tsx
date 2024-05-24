@@ -236,19 +236,19 @@ export const useCreateTempTokenState = ({
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
-        // if (Number(args.preSaleEndTimestamp) > Math.floor(Date.now() / 1000)) {
-        //   const res = await call({
-        //     variables: {
-        //       data: {
-        //         title: `/${channel.channelQueryData?.slug} launched $${args.symbol} token!`,
-        //         body: "you have 2 min. to claim 1,000 free tokens",
-        //         pathname: `/channels/${channel.channelQueryData?.slug}`,
-        //         channelId: undefined,
-        //       },
-        //     },
-        //   });
-        //   console.log("useCreateTempTokenState send all notifications:", res);
-        // }
+        if (Number(args.preSaleEndTimestamp) > Math.floor(Date.now() / 1000)) {
+          const res = await call({
+            variables: {
+              data: {
+                title: `/${channel.channelQueryData?.slug} launched $${args.symbol} token!`,
+                body: "you have 2 min. to claim 1,000 free tokens",
+                pathname: `/channels/${channel.channelQueryData?.slug}`,
+                channelId: undefined,
+              },
+            },
+          });
+          console.log("useCreateTempTokenState send all notifications:", res);
+        }
         callbackOnTxSuccess();
         // wait for 5 seconds
         await new Promise((resolve) => setTimeout(resolve, 5000));
