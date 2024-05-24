@@ -24,25 +24,24 @@ export const getContext: ContextFunction = async ({
     : null;
 
   let validated = false;
-  let address = null;
+  const latestVerifiedAddress = req.headers["latest-verified-address"] || null;
+
   try {
     const { userId } = await privyClient.verifyAuthToken(authToken);
-    const user = await privyClient.getUser(userId);
 
     console.log(
       "Authentication underway:",
       new Date(Date.now()).toLocaleString(),
-      user.wallet?.address,
+      latestVerifiedAddress,
       userId
     );
 
-    address = user.wallet?.address; // the address last linked to the user
     validated = true;
   } catch (e) {
-    if (authToken !== null) console.error("Authentication failed  :", e);
+    // if (authToken !== null) console.error("Authentication failed  :", e);
   }
 
-  const user = address ? await findOrCreateUser({ address }) : null;
+  const user = latestVerifiedAddress ? await findOrCreateUser({ address: latestVerifiedAddress }) : null;
 
   if (user)
     console.log(

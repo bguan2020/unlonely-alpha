@@ -26,6 +26,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import { Tos } from "../../components/general/Tos";
 import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
 import copy from "copy-to-clipboard";
+import { useApolloContext } from "./useApollo";
 
 export const useUser = () => {
   return useContext(UserContext);
@@ -68,6 +69,7 @@ export const UserProvider = ({
 }: {
   children: JSX.Element[] | JSX.Element;
 }) => {
+  const { handleLatestVerifiedAddress } = useApolloContext();
   const [user, setUser] = useState<User | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>();
   const {
@@ -82,7 +84,7 @@ export const UserProvider = ({
   const toast = useToast();
   const { login } = useLogin({
     onComplete: (
-      user,
+      _user,
       isNewUser,
       wasAlreadyAuthenticated,
       loginMethod,
@@ -90,12 +92,19 @@ export const UserProvider = ({
     ) => {
       console.log(
         "login complete",
-        user,
+        _user,
         isNewUser,
         wasAlreadyAuthenticated,
         loginMethod,
-        loginAccount
+        loginAccount,
+        privyUser,
+        authenticated,
+        user
       );
+      // todo: on mount, _user is defined and wasAlreadyAuthenticated is true, but privyUser and authenticated remained undefined and false
+      if (loginAccount?.type === "wallet") {
+        handleLatestVerifiedAddress(loginAccount.address);
+      }
     },
     onError: (error) => {
       console.error("login error", error);
