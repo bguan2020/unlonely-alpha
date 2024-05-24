@@ -218,36 +218,6 @@ export const TempTokenCreationModal = ({
               30 mins
             </Button>
           </Flex>
-          <Text>Pre-sale Duration</Text>
-          <Flex gap="5px" justifyContent={"center"}>
-            <Button
-              _hover={{}}
-              _focus={{}}
-              _active={{}}
-              bg={newPreSaleDuration === BigInt("60") ? "#02d650" : "#ffffff"}
-              onClick={() => handlePreSaleDuration(BigInt("60"))}
-            >
-              1 mins
-            </Button>
-            <Button
-              _hover={{}}
-              _focus={{}}
-              _active={{}}
-              bg={newPreSaleDuration === BigInt("120") ? "#02d650" : "#ffffff"}
-              onClick={() => handlePreSaleDuration(BigInt("120"))}
-            >
-              2 mins
-            </Button>
-            <Button
-              _hover={{}}
-              _focus={{}}
-              _active={{}}
-              bg={newPreSaleDuration === BigInt("180") ? "#02d650" : "#ffffff"}
-              onClick={() => handlePreSaleDuration(BigInt("180"))}
-            >
-              3 mins
-            </Button>
-          </Flex>
           <Button
             onClick={createTempToken}
             isDisabled={
