@@ -95,7 +95,8 @@ export const UserProvider = ({
         loginAccount,
         authenticated,
         privyUser,
-        user
+        user,
+        ready
       );
     },
     onError: (error) => {
