@@ -259,6 +259,16 @@ export const CHANNEL_FEED_QUERY = gql`
   }
 `;
 
+export const GET_CHANNELS_QUERY = gql`
+query GetChannels($data: ChannelFeedInput!) {
+  getChannelFeed(data: $data) {
+    id
+    livepeerPlaybackId
+    slug
+  }
+}
+`
+
 export const NFC_FEED_QUERY = gql`
   query NFCFeed($data: NFCFeedInput!) {
     getNFCFeed(data: $data) {
@@ -349,6 +359,17 @@ export const GET_LIVEPEER_STREAM_SESSIONS_DATA_QUERY = gql`
     }
   }
 `;
+
+export const GET_LIVEPEER_VIEWERSHIP_METRICS_QUERY = gql`
+query GetLivepeerViewershipMetrics($data: IGetLivepeerViewershipMetricsInput!) {
+  getLivepeerViewershipMetrics(data: $data) {
+    timestamp
+    viewCount
+    playtimeMins
+    playbackId
+  }
+}
+`
 
 export const GET_CHANNEL_SEARCH_RESULTS_QUERY = gql`
   query GetChannelSearchResults($data: ChannelSearchInput!) {

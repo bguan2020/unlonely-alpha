@@ -15,11 +15,15 @@ export const COLORS = [
   "#F5B041", // Banana Yellow
 
   "#9c9f71", // Desert Camo
+  "#4c5432", // Olive Drab
+  "#405432", // Verdant Green
 
   "#28B463", // Shamrock Green
   "#138D75", // Medium Sea Green
   "#2ECC71", // Emerald Green
+  "#0ec238", // Neon Green
 
+  "#5a9e94", // Arctic Cyan
   "#03b472", // Poison Cyan
   "#1ABC9C", // Strong Cyan
   "#16A085", // Dark Cyan
@@ -27,7 +31,9 @@ export const COLORS = [
   "#AED6F1", // Light Sky Blue
   "#5DADE2", // Bright Sky Blue
   "#3498DB", // Dodger Blue
+  "#0063d4", // Summer Blue
 
+  "#dda4f5", // Light Purple
   "#9B59B6", // Medium Purple
   "#ae77d2", // Lavender Purple
 ];
