@@ -165,9 +165,8 @@ const Metrics = () => {
         </Button>
         {turnOnChannelLines && (
           <Text>
-            note: to prevent lag, channels whose values are less than 1% of the
-            channel with the largest value do not get to have their lines shown
-            on the graph
+            note: to prevent lag, lines of channels whose values are less than
+            1% of the channel with the largest value are not shown
           </Text>
         )}
       </Flex>
@@ -274,7 +273,7 @@ const Graphs = memo(
           if (fromDate === "1w") timeStepsToTry = ["hour", "day"];
           if (fromDate === "1m") {
             timeStepsToTry = ["day", "week"];
-          } else {
+          } else if (fromDate.includes("m")) {
             timeStepsToTry = ["week", "month"];
           }
           let metricData: LivepeerViewershipMetrics[] = [];
@@ -581,6 +580,7 @@ const Graphs = memo(
                       dot={false}
                     />
                     {turnOnChannelLines &&
+                      playbackIdToViewCountTotal[fromDate] &&
                       convertToObjectArray(
                         playbackIdToViewCountTotal[fromDate],
                         0.01
@@ -667,6 +667,7 @@ const Graphs = memo(
                     dot={false}
                   />
                   {turnOnChannelLines &&
+                    playbackIdToPlaytimeMinsTotal[fromDate] &&
                     convertToObjectArray(
                       playbackIdToPlaytimeMinsTotal[fromDate],
                       0.01
