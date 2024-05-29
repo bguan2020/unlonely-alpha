@@ -14,6 +14,8 @@ import { useUser } from "../hooks/context/useUser";
 import AdminNotifications from "../components/general/AdminNotifications";
 import useSoftDeleteChannel from "../hooks/server/channel/useSoftDeleteChannel";
 import { TempTokenAdmin } from "../components/admin/TempTokenAdmin";
+import Metrics from "./metrics";
+import Header from "../components/navigation/Header";
 const admins = process.env.NEXT_PUBLIC_ADMINS?.split(",");
 
 export default function AdminPage() {
@@ -28,7 +30,8 @@ export default function AdminPage() {
   }, [user, admins]);
 
   return (
-    <AppLayout isCustomHeader={false}>
+    <AppLayout isCustomHeader={false} noHeader>
+      <Header />
       {isAdmin && <AdminContent />}
       {!isAdmin && <Text>You're not supposed to be here.</Text>}
     </AppLayout>
@@ -37,6 +40,7 @@ export default function AdminPage() {
 
 const AdminContent = () => {
   const toast = useToast();
+  const [isGraphs, setIsGraphs] = useState<boolean>(false);
 
   const [channelSlugToDelete, setChannelSlugToDelete] = useState<string>("");
   const { softDeleteChannel, loading: softDeleteChannelLoading } =
@@ -64,45 +68,54 @@ const AdminContent = () => {
 
   return (
     <Flex direction="column" p="10px" gap="20px" bg="#131323">
-      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
-        delete channel
-      </Text>
-      <Flex gap={"10px"} alignItems="flex-end">
-        <VStack>
-          <Text>slug</Text>
-          <Input
-            variant="glow"
-            width="300px"
-            isInvalid={channelSlugToDelete.length === 0}
-            value={channelSlugToDelete}
-            onChange={(e) => setChannelSlugToDelete(e.target.value)}
-          />
-        </VStack>
-        {softDeleteChannelLoading ? (
-          <Spinner />
-        ) : (
-          <Button
-            color="white"
-            bg="#2562db"
-            _hover={{}}
-            _focus={{}}
-            _active={{}}
-            onClick={() =>
-              softDeleteChannel({
-                slug: channelSlugToDelete,
-              })
-            }
-            isDisabled={channelSlugToDelete.length === 0}
-          >
-            Send
-          </Button>
-        )}
-      </Flex>
-      <Text fontSize="25px" fontFamily="Neue Pixel Sans">
-        admin notifications
-      </Text>
-      <AdminNotifications />
-      <TempTokenAdmin />
+      <Button onClick={() => setIsGraphs((prev) => !prev)}>
+        {isGraphs ? "go to functions" : "go to graphs"}
+      </Button>
+      {isGraphs ? (
+        <Metrics />
+      ) : (
+        <>
+          <Text fontSize="25px" fontFamily="Neue Pixel Sans">
+            delete channel
+          </Text>
+          <Flex gap={"10px"} alignItems="flex-end">
+            <VStack>
+              <Text>slug</Text>
+              <Input
+                variant="glow"
+                width="300px"
+                isInvalid={channelSlugToDelete.length === 0}
+                value={channelSlugToDelete}
+                onChange={(e) => setChannelSlugToDelete(e.target.value)}
+              />
+            </VStack>
+            {softDeleteChannelLoading ? (
+              <Spinner />
+            ) : (
+              <Button
+                color="white"
+                bg="#2562db"
+                _hover={{}}
+                _focus={{}}
+                _active={{}}
+                onClick={() =>
+                  softDeleteChannel({
+                    slug: channelSlugToDelete,
+                  })
+                }
+                isDisabled={channelSlugToDelete.length === 0}
+              >
+                Send
+              </Button>
+            )}
+          </Flex>
+          <Text fontSize="25px" fontFamily="Neue Pixel Sans">
+            admin notifications
+          </Text>
+          <AdminNotifications />
+          <TempTokenAdmin />
+        </>
+      )}
     </Flex>
   );
 };

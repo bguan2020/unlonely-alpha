@@ -145,8 +145,6 @@ export const UserProvider = ({
     setInitialNotificationsGranted(granted);
   }, []);
 
-  console.log("useUser", authenticated, user, privyUser, wallets);
-
   const loginMethod = useMemo(() => {
     const wallet = privyUser?.linkedAccounts?.find(
       (account): account is WalletWithMetadata =>
