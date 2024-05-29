@@ -80,7 +80,7 @@ export const UserProvider = ({
   const toast = useToast();
   const { login } = useLogin({
     onComplete: (
-      user,
+      _user,
       isNewUser,
       wasAlreadyAuthenticated,
       loginMethod,
@@ -88,11 +88,14 @@ export const UserProvider = ({
     ) => {
       console.log(
         "login complete",
-        user,
+        _user,
         isNewUser,
         wasAlreadyAuthenticated,
         loginMethod,
-        loginAccount
+        loginAccount,
+        authenticated,
+        privyUser,
+        user
       );
     },
     onError: (error) => {
