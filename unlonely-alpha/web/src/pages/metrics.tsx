@@ -548,84 +548,80 @@ const Graphs = memo(
               height="50vh"
               width="100%"
             >
-              <Flex>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={totalViewCountChartData[fromDate]}
-                    margin={{ top: 15, right: 30, left: 20, bottom: 20 }}
-                  >
-                    <XAxis
-                      tickFormatter={(value) => formatTimestampToDate(value)}
-                      dataKey="timestamp"
-                      type="number"
-                      domain={["dataMin", "dataMax"]}
-                      allowDataOverflow={false}
-                    >
-                      <Label value="time" offset={0} position="insideBottom" />
-                    </XAxis>
-                    <YAxis
-                      label={{
-                        value: "ViewCount",
-                        angle: -90,
-                        position: "insideLeft",
-                      }}
-                    />
-                    <Tooltip content={<ViewCustomTooltip />} />
-                    <Line
-                      type="monotone"
-                      dataKey="totalViewCount"
-                      stroke="#8884d8"
-                      strokeWidth={3}
-                      animationDuration={200}
-                      dot={false}
-                    />
-                    {turnOnChannelLines &&
-                      playbackIdToViewCountTotal[fromDate] &&
-                      convertToObjectArray(
-                        playbackIdToViewCountTotal[fromDate],
-                        0.01
-                      ).map((playbackId) => (
-                        <Line
-                          key={playbackId}
-                          type="monotone"
-                          dataKey={`${playbackId}_viewCount`}
-                          stroke={getColorFromString(playbackId)}
-                          animationDuration={200}
-                          dot={false}
-                        />
-                      ))}
-                  </LineChart>
-                </ResponsiveContainer>
-                <Flex
-                  width="15%"
-                  direction="column"
-                  height="50vh"
-                  p="5px"
-                  gap="10px"
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={totalViewCountChartData[fromDate]}
+                  margin={{ top: 15, right: 30, left: 20, bottom: 20 }}
                 >
-                  <Text textAlign={"center"}>Total Views per Channel</Text>
-                  <Flex direction="column" overflowY={"scroll"}>
-                    {playbackIdToViewCountTotal[fromDate] &&
-                      convertToObjectArray(
-                        playbackIdToViewCountTotal[fromDate],
-                        0
-                      ).map((p) => {
-                        return (
-                          <Flex
-                            key={p}
-                            gap="5px"
-                            justifyContent={"space-between"}
-                          >
-                            <Text color={getColorFromString(p)}>
-                              {playbackIdToChannelSlugMap[p] ?? p}
-                            </Text>
-                            <Text>
-                              {playbackIdToViewCountTotal[fromDate][p]}
-                            </Text>
-                          </Flex>
-                        );
-                      })}
-                  </Flex>
+                  <XAxis
+                    tickFormatter={(value) => formatTimestampToDate(value)}
+                    dataKey="timestamp"
+                    type="number"
+                    domain={["dataMin", "dataMax"]}
+                    allowDataOverflow={false}
+                  >
+                    <Label value="time" offset={0} position="insideBottom" />
+                  </XAxis>
+                  <YAxis
+                    label={{
+                      value: "ViewCount",
+                      angle: -90,
+                      position: "insideLeft",
+                    }}
+                  />
+                  <Tooltip content={<ViewCustomTooltip />} />
+                  <Line
+                    type="monotone"
+                    dataKey="totalViewCount"
+                    stroke="#8884d8"
+                    strokeWidth={3}
+                    animationDuration={200}
+                    dot={false}
+                  />
+                  {turnOnChannelLines &&
+                    playbackIdToViewCountTotal[fromDate] &&
+                    convertToObjectArray(
+                      playbackIdToViewCountTotal[fromDate],
+                      0.01
+                    ).map((playbackId) => (
+                      <Line
+                        key={playbackId}
+                        type="monotone"
+                        dataKey={`${playbackId}_viewCount`}
+                        stroke={getColorFromString(playbackId)}
+                        animationDuration={200}
+                        dot={false}
+                      />
+                    ))}
+                </LineChart>
+              </ResponsiveContainer>
+              <Flex
+                width="15%"
+                direction="column"
+                height="50vh"
+                p="5px"
+                gap="10px"
+              >
+                <Text textAlign={"center"}>Total Views per Channel</Text>
+                <Flex direction="column" overflowY={"scroll"}>
+                  {playbackIdToViewCountTotal[fromDate] &&
+                    convertToObjectArray(
+                      playbackIdToViewCountTotal[fromDate],
+                      0
+                    ).map((p) => {
+                      return (
+                        <Flex
+                          key={p}
+                          gap="5px"
+                          justifyContent={"space-between"}
+                        >
+                          <Text color={getColorFromString(p)}>
+                            {playbackIdToChannelSlugMap[p] ?? p}
+                          </Text>
+                          <Text>{playbackIdToViewCountTotal[fromDate][p]}</Text>
+                        </Flex>
+                      );
+                    })}
                 </Flex>
               </Flex>
             </Flex>
