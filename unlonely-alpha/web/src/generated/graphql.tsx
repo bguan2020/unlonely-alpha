@@ -387,6 +387,13 @@ export type IGetLivepeerStreamSessionsDataInput = {
   streamId: Scalars["String"];
 };
 
+export type IGetLivepeerViewershipMetricsInput = {
+  fromTimestampInMilliseconds: Scalars["String"];
+  playbackId?: InputMaybe<Scalars["String"]>;
+  timeStep: Scalars["String"];
+  toTimestampInMilliseconds: Scalars["String"];
+};
+
 export type Likable = {
   disliked?: Maybe<Scalars["Boolean"]>;
   id: Scalars["ID"];
@@ -422,6 +429,14 @@ export type LivepeerStreamSessionsData = {
   duration: Scalars["Float"];
   id: Scalars["String"];
   mp4Url: Scalars["String"];
+};
+
+export type LivepeerViewershipMetrics = {
+  __typename?: "LivepeerViewershipMetrics";
+  playbackId: Scalars["String"];
+  playtimeMins: Scalars["String"];
+  timestamp: Scalars["String"];
+  viewCount: Scalars["String"];
 };
 
 export type MigrateChannelToLivepeerInput = {
@@ -940,6 +955,7 @@ export type Query = {
   getLivepeerStreamSessionsData?: Maybe<
     Array<Maybe<LivepeerStreamSessionsData>>
   >;
+  getLivepeerViewershipMetrics?: Maybe<Array<Maybe<LivepeerViewershipMetrics>>>;
   getNFC?: Maybe<Nfc>;
   getNFCFeed?: Maybe<Array<Maybe<Nfc>>>;
   getPoap?: Maybe<Poap>;
@@ -1027,6 +1043,10 @@ export type QueryGetLivepeerStreamDataArgs = {
 
 export type QueryGetLivepeerStreamSessionsDataArgs = {
   data: IGetLivepeerStreamSessionsDataInput;
+};
+
+export type QueryGetLivepeerViewershipMetricsArgs = {
+  data: IGetLivepeerViewershipMetricsInput;
 };
 
 export type QueryGetNfcArgs = {
@@ -1915,6 +1935,21 @@ export type GetLivepeerStreamSessionsDataQuery = {
     id: string;
     createdAt: any;
     duration: number;
+  } | null> | null;
+};
+
+export type GetLivepeerViewershipMetricsQueryVariables = Exact<{
+  data: IGetLivepeerViewershipMetricsInput;
+}>;
+
+export type GetLivepeerViewershipMetricsQuery = {
+  __typename?: "Query";
+  getLivepeerViewershipMetrics?: Array<{
+    __typename?: "LivepeerViewershipMetrics";
+    timestamp: string;
+    viewCount: string;
+    playtimeMins: string;
+    playbackId: string;
   } | null> | null;
 };
 
@@ -4045,6 +4080,69 @@ export type GetLivepeerStreamSessionsDataLazyQueryHookResult = ReturnType<
 export type GetLivepeerStreamSessionsDataQueryResult = Apollo.QueryResult<
   GetLivepeerStreamSessionsDataQuery,
   GetLivepeerStreamSessionsDataQueryVariables
+>;
+export const GetLivepeerViewershipMetricsDocument = gql`
+  query GetLivepeerViewershipMetrics(
+    $data: IGetLivepeerViewershipMetricsInput!
+  ) {
+    getLivepeerViewershipMetrics(data: $data) {
+      timestamp
+      viewCount
+      playtimeMins
+      playbackId
+    }
+  }
+`;
+
+/**
+ * __useGetLivepeerViewershipMetricsQuery__
+ *
+ * To run a query within a React component, call `useGetLivepeerViewershipMetricsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLivepeerViewershipMetricsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLivepeerViewershipMetricsQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetLivepeerViewershipMetricsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetLivepeerViewershipMetricsQuery,
+    GetLivepeerViewershipMetricsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetLivepeerViewershipMetricsQuery,
+    GetLivepeerViewershipMetricsQueryVariables
+  >(GetLivepeerViewershipMetricsDocument, options);
+}
+export function useGetLivepeerViewershipMetricsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetLivepeerViewershipMetricsQuery,
+    GetLivepeerViewershipMetricsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetLivepeerViewershipMetricsQuery,
+    GetLivepeerViewershipMetricsQueryVariables
+  >(GetLivepeerViewershipMetricsDocument, options);
+}
+export type GetLivepeerViewershipMetricsQueryHookResult = ReturnType<
+  typeof useGetLivepeerViewershipMetricsQuery
+>;
+export type GetLivepeerViewershipMetricsLazyQueryHookResult = ReturnType<
+  typeof useGetLivepeerViewershipMetricsLazyQuery
+>;
+export type GetLivepeerViewershipMetricsQueryResult = Apollo.QueryResult<
+  GetLivepeerViewershipMetricsQuery,
+  GetLivepeerViewershipMetricsQueryVariables
 >;
 export const GetChannelSearchResultsDocument = gql`
   query GetChannelSearchResults($data: ChannelSearchInput!) {

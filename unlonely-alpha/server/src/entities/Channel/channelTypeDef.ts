@@ -93,6 +93,13 @@ export const typeDef = gql`
     duration: Float!
   }
 
+  type LivepeerViewershipMetrics {
+    timestamp: String!
+    viewCount: String!
+    playtimeMins: String!
+    playbackId: String!
+  }
+
   type UpdateManyResponse {
     count: Int!
   }
@@ -189,6 +196,13 @@ export const typeDef = gql`
     streamId: String
   }
 
+  input IGetLivepeerViewershipMetricsInput {
+    playbackId: String
+    fromTimestampInMilliseconds: String!
+    toTimestampInMilliseconds: String!
+    timeStep: String!
+  }
+
   input IGetLivepeerStreamSessionsDataInput {
     streamId: String!
     limit: Int!
@@ -212,6 +226,9 @@ export const typeDef = gql`
     getLivepeerStreamSessionsData(
       data: IGetLivepeerStreamSessionsDataInput!
     ): [LivepeerStreamSessionsData]
+    getLivepeerViewershipMetrics(
+      data: IGetLivepeerViewershipMetricsInput!
+    ): [LivepeerViewershipMetrics]
   }
 
   extend type Mutation {

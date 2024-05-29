@@ -350,6 +350,17 @@ export const GET_LIVEPEER_STREAM_SESSIONS_DATA_QUERY = gql`
   }
 `;
 
+export const GET_LIVEPEER_VIEWERSHIP_METRICS_QUERY = gql`
+query GetLivepeerViewershipMetrics($data: IGetLivepeerViewershipMetricsInput!) {
+  getLivepeerViewershipMetrics(data: $data) {
+    timestamp
+    viewCount
+    playtimeMins
+    playbackId
+  }
+}
+`
+
 export const GET_CHANNEL_SEARCH_RESULTS_QUERY = gql`
   query GetChannelSearchResults($data: ChannelSearchInput!) {
     getChannelSearchResults(data: $data) {
