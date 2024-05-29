@@ -112,15 +112,21 @@ export const mergeMetrics = (data: LivepeerViewershipMetrics[]) => {
     };
   };
 
-  export const convertToObjectArray = (data: Record<string, number>): string[] => {
+  export const convertToObjectArray = (data: Record<string, number>, thresholdPercentage: number): string[] => {
     // Convert the object to an array of entries
     const entries = Object.entries(data);
-  
-    // Sort the entries by the number values in descending order
-    entries.sort((a, b) => b[1] - a[1]);
-  
+
+    // Determine the largest value
+    const largestValue = Math.max(...entries.map(entry => entry[1]));
+
+    // Filter entries to include only those with values >= 1% of the largest value
+    const filteredEntries = entries.filter(entry => entry[1] >= largestValue * thresholdPercentage);
+
+    // Sort the filtered entries by the number values in descending order
+    filteredEntries.sort((a, b) => b[1] - a[1]);
+
     // Map the sorted entries to an array of keys
-    const sortedKeys = entries.map(entry => entry[0]);
+    const sortedKeys = filteredEntries.map(entry => entry[0]);
   
     return sortedKeys;
   };

@@ -15,6 +15,7 @@ import AdminNotifications from "../components/general/AdminNotifications";
 import useSoftDeleteChannel from "../hooks/server/channel/useSoftDeleteChannel";
 import { TempTokenAdmin } from "../components/admin/TempTokenAdmin";
 import Metrics from "./metrics";
+import Header from "../components/navigation/Header";
 const admins = process.env.NEXT_PUBLIC_ADMINS?.split(",");
 
 export default function AdminPage() {
@@ -29,7 +30,8 @@ export default function AdminPage() {
   }, [user, admins]);
 
   return (
-    <AppLayout isCustomHeader={false}>
+    <AppLayout isCustomHeader={false} noHeader>
+      <Header />
       {isAdmin && <AdminContent />}
       {!isAdmin && <Text>You're not supposed to be here.</Text>}
     </AppLayout>
