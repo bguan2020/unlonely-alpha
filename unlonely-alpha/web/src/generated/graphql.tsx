@@ -1831,6 +1831,20 @@ export type GetChannelFeedQuery = {
   } | null> | null;
 };
 
+export type GetChannelsQueryVariables = Exact<{
+  data: ChannelFeedInput;
+}>;
+
+export type GetChannelsQuery = {
+  __typename?: "Query";
+  getChannelFeed?: Array<{
+    __typename?: "Channel";
+    id: string;
+    livepeerPlaybackId?: string | null;
+    slug: string;
+  } | null> | null;
+};
+
 export type NfcFeedQueryVariables = Exact<{
   data: NfcFeedInput;
 }>;
@@ -3750,6 +3764,64 @@ export type GetChannelFeedLazyQueryHookResult = ReturnType<
 export type GetChannelFeedQueryResult = Apollo.QueryResult<
   GetChannelFeedQuery,
   GetChannelFeedQueryVariables
+>;
+export const GetChannelsDocument = gql`
+  query GetChannels($data: ChannelFeedInput!) {
+    getChannelFeed(data: $data) {
+      id
+      livepeerPlaybackId
+      slug
+    }
+  }
+`;
+
+/**
+ * __useGetChannelsQuery__
+ *
+ * To run a query within a React component, call `useGetChannelsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetChannelsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetChannelsQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetChannelsQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetChannelsQuery,
+    GetChannelsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetChannelsQuery, GetChannelsQueryVariables>(
+    GetChannelsDocument,
+    options
+  );
+}
+export function useGetChannelsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetChannelsQuery,
+    GetChannelsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetChannelsQuery, GetChannelsQueryVariables>(
+    GetChannelsDocument,
+    options
+  );
+}
+export type GetChannelsQueryHookResult = ReturnType<typeof useGetChannelsQuery>;
+export type GetChannelsLazyQueryHookResult = ReturnType<
+  typeof useGetChannelsLazyQuery
+>;
+export type GetChannelsQueryResult = Apollo.QueryResult<
+  GetChannelsQuery,
+  GetChannelsQueryVariables
 >;
 export const NfcFeedDocument = gql`
   query NFCFeed($data: NFCFeedInput!) {

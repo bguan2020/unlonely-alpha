@@ -1,7 +1,11 @@
 import { useLazyQuery } from "@apollo/client";
 import AppLayout from "../components/layout/AppLayout";
-import { GET_LIVEPEER_VIEWERSHIP_METRICS_QUERY } from "../constants/queries";
 import {
+  GET_CHANNELS_QUERY,
+  GET_LIVEPEER_VIEWERSHIP_METRICS_QUERY,
+} from "../constants/queries";
+import {
+  GetChannelsQuery,
   GetLivepeerViewershipMetricsQuery,
   LivepeerViewershipMetrics,
 } from "../generated/graphql";
@@ -91,6 +95,18 @@ const Metrics = () => {
     ConsolidatedPlaytimeMinsMetrics[]
   >([]);
 
+  const [playbackIdToChannelSlugMap, setPlaybackIdToChannelSlugMap] = useState<
+    Record<string, string>
+  >({});
+
+  const [getChannels, { data: channels, loading: channelsLoading, error }] =
+    useLazyQuery<GetChannelsQuery>(GET_CHANNELS_QUERY, {
+      variables: {
+        data: {},
+      },
+      fetchPolicy: "cache-first",
+    });
+
   const [getLivepeerViewershipMetricsQuery] =
     useLazyQuery<GetLivepeerViewershipMetricsQuery>(
       GET_LIVEPEER_VIEWERSHIP_METRICS_QUERY,
@@ -102,6 +118,7 @@ const Metrics = () => {
   useEffect(() => {
     const call = async () => {
       try {
+        await getChannels();
         const dateNow = Date.now();
         const res = await getLivepeerViewershipMetricsQuery({
           variables: {
@@ -158,6 +175,16 @@ const Metrics = () => {
     call();
   }, []);
 
+  useEffect(() => {
+    if (!channels?.getChannelFeed) return;
+    const channelSlugMap: Record<string, string> = {};
+    channels?.getChannelFeed.forEach((channel) => {
+      if (channel?.livepeerPlaybackId)
+        channelSlugMap[channel?.livepeerPlaybackId] = channel.slug;
+    });
+    setPlaybackIdToChannelSlugMap(channelSlugMap);
+  }, [channels]);
+
   const CustomTooltip = ({ active, payload }: any) => {
     const [loading, setLoading] = useState(false);
     const [activeChannels, setActiveChannels] = useState<any[]>([]);
@@ -182,7 +209,6 @@ const Metrics = () => {
       const _topTenPerformingChannels = activeChannels
         .sort((a, b) => (b[1] as number) - (a[1] as number))
         .slice(0, 10);
-      console.log(_activeChannels);
       setActiveChannels(_activeChannels);
       setTopTenPerformingChannels(_topTenPerformingChannels);
     }, [active, payload]);
@@ -200,14 +226,17 @@ const Metrics = () => {
         </Flex>
         <Text>{activeChannels.length} active channels</Text>
         <Text>Top Channels</Text>
-        {topTenPerformingChannels.map(([key, value]) => (
-          <Flex key={key} gap="5px">
-            <Text color={stringToHexColor(key.replace("_viewCount", ""))}>
-              {key.replace("_viewCount", "")}
-            </Text>
-            <Text>{value}</Text>
-          </Flex>
-        ))}
+        {topTenPerformingChannels.map(([key, value]) => {
+          const _key = key.replace("_viewCount", "");
+          return (
+            <Flex key={_key} gap="5px">
+              <Text color={stringToHexColor(_key)}>
+                {playbackIdToChannelSlugMap[_key] ?? _key}
+              </Text>
+              <Text>{value}</Text>
+            </Flex>
+          );
+        })}
       </Flex>
     );
   };

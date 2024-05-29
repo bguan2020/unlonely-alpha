@@ -259,6 +259,16 @@ export const CHANNEL_FEED_QUERY = gql`
   }
 `;
 
+export const GET_CHANNELS_QUERY = gql`
+query GetChannels($data: ChannelFeedInput!) {
+  getChannelFeed(data: $data) {
+    id
+    livepeerPlaybackId
+    slug
+  }
+}
+`
+
 export const NFC_FEED_QUERY = gql`
   query NFCFeed($data: NFCFeedInput!) {
     getNFCFeed(data: $data) {
