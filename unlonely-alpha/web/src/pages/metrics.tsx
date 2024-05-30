@@ -83,8 +83,12 @@ const Metrics = () => {
           _focus={{}}
           bg={selectedButton === "1d" ? "#15b8ce" : undefined}
           onClick={() => {
-            setToDate(Date.now());
-            setFromDate(Date.now() - 1000 * 60 * 60 * 24);
+            if (selectedButton === "custom") setToDate(Date.now());
+            setFromDate(
+              selectedButton === "custom"
+                ? Date.now()
+                : toDate - 1000 * 60 * 60 * 24
+            );
             setSelectedButton("1d");
             setTurnOnChannelLines(false);
           }}
@@ -97,8 +101,12 @@ const Metrics = () => {
           _focus={{}}
           bg={selectedButton === "1w" ? "#15b8ce" : undefined}
           onClick={() => {
-            setToDate(Date.now());
-            setFromDate(Date.now() - 1000 * 60 * 60 * 24 * 7);
+            if (selectedButton === "custom") setToDate(Date.now());
+            setFromDate(
+              selectedButton === "custom"
+                ? Date.now()
+                : toDate - 1000 * 60 * 60 * 24 * 7
+            );
             setSelectedButton("1w");
             setTurnOnChannelLines(false);
           }}
@@ -111,8 +119,12 @@ const Metrics = () => {
           _focus={{}}
           bg={selectedButton === "1m" ? "#15b8ce" : undefined}
           onClick={() => {
-            setToDate(Date.now());
-            setFromDate(Date.now() - 1000 * 60 * 60 * 24 * 30);
+            if (selectedButton === "custom") setToDate(Date.now());
+            setFromDate(
+              selectedButton === "custom"
+                ? Date.now()
+                : toDate - 1000 * 60 * 60 * 24 * 30
+            );
             setSelectedButton("1m");
             setTurnOnChannelLines(false);
           }}
@@ -125,8 +137,12 @@ const Metrics = () => {
           _focus={{}}
           bg={selectedButton === "3m" ? "#15b8ce" : undefined}
           onClick={() => {
-            setToDate(Date.now());
-            setFromDate(Date.now() - 1000 * 60 * 60 * 24 * 30 * 3);
+            if (selectedButton === "custom") setToDate(Date.now());
+            setFromDate(
+              selectedButton === "custom"
+                ? Date.now()
+                : toDate - 1000 * 60 * 60 * 24 * 30 * 3
+            );
             setSelectedButton("3m");
             setTurnOnChannelLines(false);
           }}
@@ -139,8 +155,12 @@ const Metrics = () => {
           _focus={{}}
           bg={selectedButton === "4m" ? "#15b8ce" : undefined}
           onClick={() => {
-            setToDate(Date.now());
-            setFromDate(Date.now() - 1000 * 60 * 60 * 24 * 30 * 4);
+            if (selectedButton === "custom") setToDate(Date.now());
+            setFromDate(
+              selectedButton === "custom"
+                ? Date.now()
+                : toDate - 1000 * 60 * 60 * 24 * 30 * 4
+            );
             setSelectedButton("4m");
             setTurnOnChannelLines(false);
           }}
@@ -153,8 +173,12 @@ const Metrics = () => {
           _focus={{}}
           bg={selectedButton === "5m" ? "#15b8ce" : undefined}
           onClick={() => {
-            setToDate(Date.now());
-            setFromDate(Date.now() - 1000 * 60 * 60 * 24 * 30 * 5);
+            if (selectedButton === "custom") setToDate(Date.now());
+            setFromDate(
+              selectedButton === "custom"
+                ? Date.now()
+                : toDate - 1000 * 60 * 60 * 24 * 30 * 5
+            );
             setSelectedButton("5m");
             setTurnOnChannelLines(false);
           }}
@@ -167,8 +191,12 @@ const Metrics = () => {
           _focus={{}}
           bg={selectedButton === "6m" ? "#15b8ce" : undefined}
           onClick={() => {
-            setToDate(Date.now());
-            setFromDate(Date.now() - 1000 * 60 * 60 * 24 * 30 * 6);
+            if (selectedButton === "custom") setToDate(Date.now());
+            setFromDate(
+              selectedButton === "custom"
+                ? Date.now()
+                : toDate - 1000 * 60 * 60 * 24 * 30 * 6
+            );
             setSelectedButton("6m");
             setTurnOnChannelLines(false);
           }}
@@ -221,8 +249,8 @@ const Metrics = () => {
         </Button>
         {turnOnChannelLines && (
           <Text>
-            note: to prevent lag, lines of channels whose values are less than
-            1% of the channel with the largest value are not shown
+            note: to reduce lag, lines of channels whose values are less than 1%
+            of the channel with the largest value are not shown
           </Text>
         )}
       </Flex>
@@ -331,6 +359,7 @@ const Graphs = memo(
             );
             if (nonNullData && nonNullData.length > 0) {
               metricData = nonNullData;
+              setGraphsLoading("assembling");
               break;
             } else if (t === timeStepsToTry.length - 1) {
               setGraphsLoading(false);
@@ -338,7 +367,6 @@ const Graphs = memo(
               return;
             }
           }
-          setGraphsLoading("assembling");
           const {
             viewCounts,
             playtimeMins,
