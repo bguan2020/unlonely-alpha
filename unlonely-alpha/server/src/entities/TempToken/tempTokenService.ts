@@ -14,15 +14,16 @@ enum TempTokenType {
 
 export interface IPostTempTokenInput {
   tokenAddress: string;
-  chainId: number;
-  channelId: number;
-  name: string;
   symbol: string;
-  endUnixTimestamp: string;
+  streamerFeePercentage: string;
+  protocolFeePercentage: string;
+  ownerAddress: string;
   factoryAddress: string;
   creationBlockNumber: string;
-  protocolFeePercentage: string;
-  streamerFeePercentage: string;
+  name: string;
+  endUnixTimestamp: string;
+  channelId: number;
+  chainId: number;
   tokenType: TempTokenType;
 }
 
@@ -36,7 +37,7 @@ export const postTempToken = async (
       uniqueTempTokenId: `${data.tokenAddress}-${String(data.chainId)}`,
       tokenAddress: data.tokenAddress,
       chainId: data.chainId,
-      ownerAddress: user.address,
+      ownerAddress: data.ownerAddress,
       factoryAddress: data.factoryAddress,
       name: data.name,
       symbol: data.symbol,
