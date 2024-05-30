@@ -16,7 +16,7 @@ import {
   useLogin,
 } from "@privy-io/react-auth";
 import { Box, Button, Flex, Text, useToast } from "@chakra-ui/react";
-import { isAddress } from "viem";
+import { isAddress, isAddressEqual } from "viem";
 
 import { User } from "../../generated/graphql";
 import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
@@ -155,34 +155,31 @@ export const UserProvider = ({
   }, [privyUser]);
 
   const address = useMemo(() => {
-    /*
-      check for the first non-privy wallet in the wallets array, which should be the latest wallet to be verified
-      if the wallet is in the linked accounts, return the address
-    */
-    const filteredWallets = wallets?.filter(
-      (wallet) => wallet.walletClientType !== "privy"
+    /**
+     * check for the first wallet in the privy user linked accounts, we assume that each
+     * user will only have one embedded wallet and one EOA at most
+     */
+    const theWallet = privyUser?.linkedAccounts?.find(
+      (account): account is WalletWithMetadata => account.type === "wallet"
     );
-    const firstWallet = filteredWallets?.[0];
-    const isInLinkedAccounts = privyUser?.linkedAccounts?.find(
-      (account) =>
-        account.type === "wallet" && account.address === firstWallet?.address
-    );
-    if (isInLinkedAccounts) return firstWallet?.address;
 
-    /*
-      check for the first wallet in the wallets array, which should be the latest wallet to be verified
-      if the wallet is in the linked accounts, return the address
-    */
-    const firstWalletFromFullArray = wallets?.[0];
-    const isInLinkedAccountsFromFullArray = privyUser?.linkedAccounts?.find(
-      (account) =>
-        account.type === "wallet" &&
-        account.address === firstWalletFromFullArray?.address
+    /**
+     * foundWallet is undefined if a wallet from the privyUser's linked accounts
+     * cannot be found in the wallets array
+     *
+     * OR
+     *
+     * privyUser is undefined and we can't find a linked account to search for anyway
+     */
+    const foundWallet = wallets.find((wallet) =>
+      isAddressEqual(
+        wallet.address as `0x${string}`,
+        theWallet?.address as `0x${string}`
+      )
     );
-    if (isInLinkedAccountsFromFullArray)
-      return firstWalletFromFullArray?.address;
-
-    return wallets?.[0]?.address;
+    return foundWallet?.address;
+    // return logged in but no wallet found, meaning privyUser is defined
+    // return not logged in at all, meaning privyUser is undefined
   }, [wallets, privyUser?.linkedAccounts]);
 
   const [fetchUser, { data }] = useLazyQuery(GET_USER_QUERY, {
