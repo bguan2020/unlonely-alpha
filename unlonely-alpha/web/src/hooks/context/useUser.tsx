@@ -100,10 +100,6 @@ export const UserProvider = ({
         user,
         ready
       );
-      // todo: on mount, _user is defined and wasAlreadyAuthenticated is true, but privyUser and authenticated remained undefined and false
-      if (loginAccount?.type === "wallet") {
-        handleLatestVerifiedAddress(loginAccount.address);
-      }
     },
     onError: (error) => {
       console.error("login error", error);
@@ -161,29 +157,27 @@ export const UserProvider = ({
   }, [privyUser]);
 
   const address = useMemo(() => {
-    /**
-     * check for the first wallet in the privy user linked accounts, we assume that each
-     * user will only have one embedded wallet and one EOA at most
-     */
-    const theWallet = privyUser?.linkedAccounts?.find(
-      (account): account is WalletWithMetadata => account.type === "wallet"
+    let foundWalletAddress: string | undefined;
+
+    const filteredAccounts = privyUser?.linkedAccounts.filter(
+      (a): a is WalletWithMetadata => a.type === "wallet"
     );
 
-    /**
-     * foundWallet is undefined if a wallet from the privyUser's linked accounts
-     * cannot be found in the wallets array
-     *
-     * OR
-     *
-     * privyUser is undefined and we can't find a linked account to search for anyway
-     */
-    const foundWallet = wallets.find((wallet) =>
-      isAddressEqual(
-        wallet.address as `0x${string}`,
-        theWallet?.address as `0x${string}`
-      )
-    );
-    return foundWallet?.address;
+    for (const wallet of wallets) {
+      if (
+        filteredAccounts?.find((account) =>
+          isAddressEqual(
+            wallet.address as `0x${string}`,
+            account.address as `0x${string}`
+          )
+        )
+      ) {
+        foundWalletAddress = wallet.address;
+        break;
+      }
+    }
+
+    return foundWalletAddress;
     // return logged in but no wallet found, meaning privyUser is defined
     // return not logged in at all, meaning privyUser is undefined
   }, [wallets, privyUser?.linkedAccounts]);
@@ -196,6 +190,7 @@ export const UserProvider = ({
   useEffect(() => {
     if (!address) return;
     fetchUser();
+    handleLatestVerifiedAddress(address);
   }, [address]);
 
   const walletIsConnected = useMemo(() => {

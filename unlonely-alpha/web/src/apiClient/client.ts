@@ -61,6 +61,7 @@ export function initializeApollo(
 }
 
 export function useApollo(initialState: InitialState, latestVerifiedAddress: string | null) {
+  console.log("latestVerifiedAddress", latestVerifiedAddress);
   const store = useMemo(
     () => initializeApollo(initialState, latestVerifiedAddress),
     [initialState, latestVerifiedAddress]
