@@ -8,7 +8,7 @@ import {
   GetLivepeerViewershipMetricsQuery,
   LivepeerViewershipMetrics,
 } from "../generated/graphql";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import {
   Label,
   Line,
@@ -18,13 +18,14 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Button, Flex, Spinner, Text, useToast } from "@chakra-ui/react";
+import { Button, Flex, Input, Spinner, Text, useToast } from "@chakra-ui/react";
 import { formatTimestampToDate } from "../utils/time";
 import { getColorFromString } from "../styles/Colors";
 import {
   mergeMetrics,
   convertToObjectArray,
 } from "../utils/dataMetricsFormatting";
+import useDebounce from "../hooks/internal/useDebounce";
 
 export type MergedMetrics = {
   timestamp: number;
@@ -40,11 +41,18 @@ type ConsolidatedPlaytimeMinsMetrics = MergedMetrics & {
 };
 
 const Metrics = () => {
-  const [fromDate, setFromDate] = useState<
-    "1d" | "1w" | "1m" | "3m" | "4m" | "5m" | "6m"
-  >("1d");
-  const [dateNow, setDateNow] = useState<number>(Date.now());
+  const [toDate, setToDate] = useState<number>(0);
+  const [fromDate, setFromDate] = useState<number>(0);
+  const [selectedButton, setSelectedButton] = useState<
+    "1d" | "1w" | "1m" | "3m" | "4m" | "5m" | "6m" | "custom" | "none"
+  >("none");
   const [turnOnChannelLines, setTurnOnChannelLines] = useState<boolean>(false);
+
+  const [fromString, setFromString] = useState<string>("");
+  const [toString, setToString] = useState<string>("");
+
+  const debouncedFromString = useDebounce(fromString, 500);
+  const debouncedToString = useDebounce(toString, 500);
 
   const [getChannels, { data: channels, loading: channelsLoading, error }] =
     useLazyQuery<GetChannelsQuery>(GET_CHANNELS_QUERY, {
@@ -63,7 +71,7 @@ const Metrics = () => {
       }
     };
     _getChannels();
-    setDateNow(Date.now());
+    setToDate(Date.now());
   }, []);
 
   return (
@@ -73,9 +81,15 @@ const Metrics = () => {
           _hover={{}}
           _active={{}}
           _focus={{}}
-          bg={fromDate === "1d" ? "#15b8ce" : undefined}
+          bg={selectedButton === "1d" ? "#15b8ce" : undefined}
           onClick={() => {
-            setFromDate("1d");
+            if (selectedButton === "custom") setToDate(Date.now());
+            setFromDate(
+              selectedButton === "custom"
+                ? Date.now()
+                : toDate - 1000 * 60 * 60 * 24
+            );
+            setSelectedButton("1d");
             setTurnOnChannelLines(false);
           }}
         >
@@ -85,9 +99,15 @@ const Metrics = () => {
           _hover={{}}
           _active={{}}
           _focus={{}}
-          bg={fromDate === "1w" ? "#15b8ce" : undefined}
+          bg={selectedButton === "1w" ? "#15b8ce" : undefined}
           onClick={() => {
-            setFromDate("1w");
+            if (selectedButton === "custom") setToDate(Date.now());
+            setFromDate(
+              selectedButton === "custom"
+                ? Date.now()
+                : toDate - 1000 * 60 * 60 * 24 * 7
+            );
+            setSelectedButton("1w");
             setTurnOnChannelLines(false);
           }}
         >
@@ -97,22 +117,33 @@ const Metrics = () => {
           _hover={{}}
           _active={{}}
           _focus={{}}
-          bg={fromDate === "1m" ? "#15b8ce" : undefined}
+          bg={selectedButton === "1m" ? "#15b8ce" : undefined}
           onClick={() => {
-            setFromDate("1m");
+            if (selectedButton === "custom") setToDate(Date.now());
+            setFromDate(
+              selectedButton === "custom"
+                ? Date.now()
+                : toDate - 1000 * 60 * 60 * 24 * 30
+            );
+            setSelectedButton("1m");
             setTurnOnChannelLines(false);
           }}
         >
           1m
         </Button>
-
         <Button
           _hover={{}}
           _active={{}}
           _focus={{}}
-          bg={fromDate === "3m" ? "#15b8ce" : undefined}
+          bg={selectedButton === "3m" ? "#15b8ce" : undefined}
           onClick={() => {
-            setFromDate("3m");
+            if (selectedButton === "custom") setToDate(Date.now());
+            setFromDate(
+              selectedButton === "custom"
+                ? Date.now()
+                : toDate - 1000 * 60 * 60 * 24 * 30 * 3
+            );
+            setSelectedButton("3m");
             setTurnOnChannelLines(false);
           }}
         >
@@ -122,9 +153,15 @@ const Metrics = () => {
           _hover={{}}
           _active={{}}
           _focus={{}}
-          bg={fromDate === "4m" ? "#15b8ce" : undefined}
+          bg={selectedButton === "4m" ? "#15b8ce" : undefined}
           onClick={() => {
-            setFromDate("4m");
+            if (selectedButton === "custom") setToDate(Date.now());
+            setFromDate(
+              selectedButton === "custom"
+                ? Date.now()
+                : toDate - 1000 * 60 * 60 * 24 * 30 * 4
+            );
+            setSelectedButton("4m");
             setTurnOnChannelLines(false);
           }}
         >
@@ -134,9 +171,15 @@ const Metrics = () => {
           _hover={{}}
           _active={{}}
           _focus={{}}
-          bg={fromDate === "5m" ? "#15b8ce" : undefined}
+          bg={selectedButton === "5m" ? "#15b8ce" : undefined}
           onClick={() => {
-            setFromDate("5m");
+            if (selectedButton === "custom") setToDate(Date.now());
+            setFromDate(
+              selectedButton === "custom"
+                ? Date.now()
+                : toDate - 1000 * 60 * 60 * 24 * 30 * 5
+            );
+            setSelectedButton("5m");
             setTurnOnChannelLines(false);
           }}
         >
@@ -146,15 +189,56 @@ const Metrics = () => {
           _hover={{}}
           _active={{}}
           _focus={{}}
-          bg={fromDate === "6m" ? "#15b8ce" : undefined}
+          bg={selectedButton === "6m" ? "#15b8ce" : undefined}
           onClick={() => {
-            setFromDate("6m");
+            if (selectedButton === "custom") setToDate(Date.now());
+            setFromDate(
+              selectedButton === "custom"
+                ? Date.now()
+                : toDate - 1000 * 60 * 60 * 24 * 30 * 6
+            );
+            setSelectedButton("6m");
             setTurnOnChannelLines(false);
           }}
         >
           6m
         </Button>
+        <Flex direction={"column"} gap="5px">
+          <Text>From</Text>
+          <Input
+            variant={isValidDate(debouncedFromString) ? undefined : "redGlow"}
+            placeholder="MM/DD/YYYY"
+            value={fromString}
+            onChange={(e) => setFromString(e.target.value)}
+          />
+          <Text>To</Text>
+          <Input
+            variant={isValidDate(debouncedToString) ? undefined : "redGlow"}
+            placeholder="MM/DD/YYYY"
+            value={toString}
+            onChange={(e) => setToString(e.target.value)}
+          />
+          <Button
+            _hover={{}}
+            _active={{}}
+            _focus={{}}
+            bg={selectedButton === "custom" ? "#15b8ce" : undefined}
+            onClick={() => {
+              if (
+                isValidDate(debouncedFromString) &&
+                isValidDate(debouncedToString)
+              ) {
+                setFromDate(new Date(debouncedFromString).getTime());
+                setToDate(new Date(debouncedToString).getTime());
+                setSelectedButton("custom");
+              }
+            }}
+          >
+            enter
+          </Button>
+        </Flex>
         <Button
+          mt="10px"
           _hover={{}}
           _active={{}}
           _focus={{}}
@@ -165,14 +249,14 @@ const Metrics = () => {
         </Button>
         {turnOnChannelLines && (
           <Text>
-            note: to prevent lag, lines of channels whose values are less than
-            1% of the channel with the largest value are not shown
+            note: to reduce lag, lines of channels whose values are less than 1%
+            of the channel with the largest value are not shown
           </Text>
         )}
       </Flex>
       <Graphs
         fromDate={fromDate}
-        dateNow={dateNow}
+        toDate={toDate}
         channels={channels}
         turnOnChannelLines={turnOnChannelLines}
       />
@@ -185,12 +269,12 @@ export default Metrics;
 const Graphs = memo(
   ({
     fromDate,
-    dateNow,
+    toDate,
     turnOnChannelLines,
     channels,
   }: {
-    fromDate: "1d" | "1w" | "1m" | "3m" | "4m" | "5m" | "6m";
-    dateNow: number;
+    fromDate: number;
+    toDate: number;
     turnOnChannelLines: boolean;
     channels?: GetChannelsQuery;
   }) => {
@@ -215,13 +299,6 @@ const Graphs = memo(
     const [playbackIdToChannelSlugMap, setPlaybackIdToChannelSlugMap] =
       useState<Record<string, string>>({});
 
-    const canUseTooltip = useMemo(() => {
-      if (turnOnChannelLines && fromDate.includes("m")) {
-        return false;
-      }
-      return true;
-    }, [fromDate, turnOnChannelLines]);
-
     const [getLivepeerViewershipMetricsQuery] =
       useLazyQuery<GetLivepeerViewershipMetricsQuery>(
         GET_LIVEPEER_VIEWERSHIP_METRICS_QUERY,
@@ -244,36 +321,24 @@ const Graphs = memo(
       const call = async () => {
         if (
           graphsLoading ||
-          playbackIdToPlaytimeMinsTotal[fromDate] !== undefined
+          playbackIdToPlaytimeMinsTotal[
+            fromDate.toString().concat(toDate.toString())
+          ] !== undefined ||
+          fromDate === 0 ||
+          toDate === 0
         ) {
           return;
         }
         setGraphsLoading("fetching");
         try {
-          const fromDateInMilliseconds = (() => {
-            switch (fromDate) {
-              case "1d":
-                return dateNow - 1000 * 60 * 60 * 24;
-              case "1w":
-                return dateNow - 1000 * 60 * 60 * 24 * 7;
-              case "1m":
-                return dateNow - 1000 * 60 * 60 * 24 * 30;
-              case "3m":
-                return dateNow - 1000 * 60 * 60 * 24 * 30 * 3;
-              case "4m":
-                return dateNow - 1000 * 60 * 60 * 24 * 30 * 4;
-              case "5m":
-                return dateNow - 1000 * 60 * 60 * 24 * 30 * 5;
-              case "6m":
-                return dateNow - 1000 * 60 * 60 * 24 * 30 * 6;
-            }
-          })();
           let timeStepsToTry: string[] = [];
-          if (fromDate === "1d") timeStepsToTry = ["hour"];
-          if (fromDate === "1w") timeStepsToTry = ["hour", "day"];
-          if (fromDate === "1m") {
+          if (toDate - fromDate < 1000 * 60 * 60 * 24) {
+            timeStepsToTry = ["hour"];
+          } else if (toDate - fromDate < 1000 * 60 * 60 * 24 * 7) {
+            timeStepsToTry = ["hour", "day"];
+          } else if (toDate - fromDate < 1000 * 60 * 60 * 24 * 30) {
             timeStepsToTry = ["day", "week"];
-          } else if (fromDate.includes("m")) {
+          } else {
             timeStepsToTry = ["week", "month"];
           }
           let metricData: LivepeerViewershipMetrics[] = [];
@@ -283,9 +348,8 @@ const Graphs = memo(
                 data: {
                   // playbackId: "a9f1du5ebhy53prt",
                   timeStep: timeStepsToTry[t],
-                  fromTimestampInMilliseconds:
-                    fromDateInMilliseconds.toString(),
-                  toTimestampInMilliseconds: dateNow.toString(),
+                  fromTimestampInMilliseconds: fromDate.toString(),
+                  toTimestampInMilliseconds: toDate.toString(),
                 },
               },
             });
@@ -295,14 +359,14 @@ const Graphs = memo(
             );
             if (nonNullData && nonNullData.length > 0) {
               metricData = nonNullData;
+              setGraphsLoading("assembling");
               break;
             } else if (t === timeStepsToTry.length - 1) {
               setGraphsLoading(false);
-              handleGraphError("No data found for this time period");
+              handleGraphError("Reached data limit for this time period");
               return;
             }
           }
-          setGraphsLoading("assembling");
           const {
             viewCounts,
             playtimeMins,
@@ -330,20 +394,30 @@ const Graphs = memo(
           setPlaybackIdToViewCountTotal((prev) => {
             return {
               ...prev,
-              [fromDate]: _playbackIdToViewCountTotal,
+              [fromDate.toString().concat(toDate.toString())]:
+                _playbackIdToViewCountTotal,
             };
           });
           setPlaybackIdToPlaytimeMinsTotal((prev) => {
             return {
               ...prev,
-              [fromDate]: _playbackIdToPlaytimeMinsTotal,
+              [fromDate.toString().concat(toDate.toString())]:
+                _playbackIdToPlaytimeMinsTotal,
             };
           });
           setTotalViewCountChartData((prev) => {
-            return { ...prev, [fromDate]: consolidatedTotalViewCountArray };
+            return {
+              ...prev,
+              [fromDate.toString().concat(toDate.toString())]:
+                consolidatedTotalViewCountArray,
+            };
           });
           setTotalPlaytimeMinsChartData((prev) => {
-            return { ...prev, [fromDate]: consolidatedTotalPlaytimeMinsArray };
+            return {
+              ...prev,
+              [fromDate.toString().concat(toDate.toString())]:
+                consolidatedTotalPlaytimeMinsArray,
+            };
           });
         } catch (e) {
           console.error(e);
@@ -351,7 +425,7 @@ const Graphs = memo(
         setGraphsLoading(false);
       };
       call();
-    }, [fromDate, dateNow]);
+    }, [fromDate, toDate]);
 
     useEffect(() => {
       if (!channels?.getChannelFeed) return;
@@ -550,7 +624,11 @@ const Graphs = memo(
             >
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
-                  data={totalViewCountChartData[fromDate]}
+                  data={
+                    totalViewCountChartData[
+                      fromDate.toString().concat(toDate.toString())
+                    ]
+                  }
                   margin={{ top: 15, right: 30, left: 20, bottom: 20 }}
                 >
                   <XAxis
@@ -579,9 +657,13 @@ const Graphs = memo(
                     dot={false}
                   />
                   {turnOnChannelLines &&
-                    playbackIdToViewCountTotal[fromDate] &&
+                    playbackIdToViewCountTotal[
+                      fromDate.toString().concat(toDate.toString())
+                    ] &&
                     convertToObjectArray(
-                      playbackIdToViewCountTotal[fromDate],
+                      playbackIdToViewCountTotal[
+                        fromDate.toString().concat(toDate.toString())
+                      ],
                       0.01
                     ).map((playbackId) => (
                       <Line
@@ -602,11 +684,34 @@ const Graphs = memo(
                 p="5px"
                 gap="10px"
               >
+                <Button
+                  bg={"#1d6f42"}
+                  color="white"
+                  _hover={{}}
+                  _active={{}}
+                  _focus={{}}
+                  onClick={() => {
+                    saveMetricsAsCsv(
+                      totalViewCountChartData[
+                        fromDate.toString().concat(toDate.toString())
+                      ],
+                      "viewCount",
+                      fromDate,
+                      toDate
+                    );
+                  }}
+                >
+                  save graph as csv
+                </Button>
                 <Text textAlign={"center"}>Total Views per Channel</Text>
                 <Flex direction="column" overflowY={"scroll"}>
-                  {playbackIdToViewCountTotal[fromDate] &&
+                  {playbackIdToViewCountTotal[
+                    fromDate.toString().concat(toDate.toString())
+                  ] &&
                     convertToObjectArray(
-                      playbackIdToViewCountTotal[fromDate],
+                      playbackIdToViewCountTotal[
+                        fromDate.toString().concat(toDate.toString())
+                      ],
                       0
                     ).map((p) => {
                       return (
@@ -618,7 +723,13 @@ const Graphs = memo(
                           <Text color={getColorFromString(p)}>
                             {playbackIdToChannelSlugMap[p] ?? p}
                           </Text>
-                          <Text>{playbackIdToViewCountTotal[fromDate][p]}</Text>
+                          <Text>
+                            {
+                              playbackIdToViewCountTotal[
+                                fromDate.toString().concat(toDate.toString())
+                              ][p]
+                            }
+                          </Text>
                         </Flex>
                       );
                     })}
@@ -634,7 +745,11 @@ const Graphs = memo(
             >
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
-                  data={totalPlaytimeMinsChartData[fromDate]}
+                  data={
+                    totalPlaytimeMinsChartData[
+                      fromDate.toString().concat(toDate.toString())
+                    ]
+                  }
                   margin={{ top: 15, right: 30, left: 20, bottom: 20 }}
                 >
                   <XAxis
@@ -663,9 +778,13 @@ const Graphs = memo(
                     dot={false}
                   />
                   {turnOnChannelLines &&
-                    playbackIdToPlaytimeMinsTotal[fromDate] &&
+                    playbackIdToPlaytimeMinsTotal[
+                      fromDate.toString().concat(toDate.toString())
+                    ] &&
                     convertToObjectArray(
-                      playbackIdToPlaytimeMinsTotal[fromDate],
+                      playbackIdToPlaytimeMinsTotal[
+                        fromDate.toString().concat(toDate.toString())
+                      ],
                       0.01
                     ).map((playbackId) => (
                       <Line
@@ -686,13 +805,36 @@ const Graphs = memo(
                 p="5px"
                 gap="10px"
               >
+                <Button
+                  bg={"#1d6f42"}
+                  color="white"
+                  _hover={{}}
+                  _active={{}}
+                  _focus={{}}
+                  onClick={() => {
+                    saveMetricsAsCsv(
+                      totalPlaytimeMinsChartData[
+                        fromDate.toString().concat(toDate.toString())
+                      ],
+                      "playtimeMins",
+                      fromDate,
+                      toDate
+                    );
+                  }}
+                >
+                  save graph as csv
+                </Button>
                 <Text textAlign={"center"}>
                   Total play time (mins) per Channel
                 </Text>
                 <Flex direction="column" overflowY={"scroll"}>
-                  {playbackIdToPlaytimeMinsTotal[fromDate] &&
+                  {playbackIdToPlaytimeMinsTotal[
+                    fromDate.toString().concat(toDate.toString())
+                  ] &&
                     convertToObjectArray(
-                      playbackIdToPlaytimeMinsTotal[fromDate],
+                      playbackIdToPlaytimeMinsTotal[
+                        fromDate.toString().concat(toDate.toString())
+                      ],
                       0
                     ).map((p) => {
                       return (
@@ -706,7 +848,9 @@ const Graphs = memo(
                           </Text>
                           <Text>
                             {Math.floor(
-                              playbackIdToPlaytimeMinsTotal[fromDate][p]
+                              playbackIdToPlaytimeMinsTotal[
+                                fromDate.toString().concat(toDate.toString())
+                              ][p]
                             )}
                           </Text>
                         </Flex>
@@ -721,3 +865,83 @@ const Graphs = memo(
     );
   }
 );
+
+const isValidDate = (dateString: string) => {
+  // Regular expression to check if string is in MM/DD/YYYY format
+  const regexPattern = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+
+  // Check if the date string matches the regex pattern
+  if (!regexPattern.test(dateString)) {
+    return false;
+  }
+
+  // Parse the date parts to integers
+  const parts = dateString.split("/");
+  const month = parseInt(parts[0], 10);
+  const day = parseInt(parts[1], 10);
+  const year = parseInt(parts[2], 10);
+
+  // Check if the date is valid using Date object
+  const date = new Date(year, month - 1, day); // Months are 0-based in JavaScript Date
+  return (
+    date &&
+    date.getMonth() + 1 === month &&
+    date.getDate() === day &&
+    date.getFullYear() === year
+  );
+};
+
+const saveMetricsAsCsv = (
+  data: ConsolidatedPlaytimeMinsMetrics[] | ConsolidatedViewCountMetrics[],
+  keyword: "playtimeMins" | "viewCount",
+  fromDate: number,
+  toDate: number
+) => {
+  if (data.length === 0) return;
+
+  const convertedFromDate = formatTimestampToDate(fromDate, true);
+  const convertedToDate = formatTimestampToDate(toDate, true);
+
+  const totalKeyword =
+    keyword === "playtimeMins" ? "totalPlaytimeMins" : "totalViewCount";
+  const playbackIdKeyword =
+    keyword === "playtimeMins" ? "_playtimeMins" : "_viewCount";
+
+  // Extract all unique playbackIds
+  const playbackIds = Object.keys(data[0]).filter(
+    (key) => key !== "timestamp" && key !== totalKeyword
+  );
+
+  const renamedPlaybackIds = playbackIds.map((id) =>
+    id.replace(playbackIdKeyword, "")
+  );
+
+  // Create CSV headers
+  const headers = ["timestamp", totalKeyword, ...renamedPlaybackIds];
+  const csvRows = [headers.join(",")];
+
+  // Create CSV rows
+  data.forEach((row) => {
+    const formattedDate = formatTimestampToDate(row.timestamp);
+    const rowData = [formattedDate, row[totalKeyword]];
+
+    playbackIds.forEach((id) => {
+      rowData.push(row[id] || 0); // Default to 0 if the playtimeMins is not available
+    });
+
+    csvRows.push(rowData.join(","));
+  });
+
+  // Create a Blob from the CSV string
+  const csvString = csvRows.join("\n");
+  const blob = new Blob([csvString], { type: "text/csv" });
+
+  // Create a link element and trigger a download
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${keyword}_${convertedFromDate}_${convertedToDate}.csv`;
+  link.click();
+
+  // Clean up
+  URL.revokeObjectURL(link.href);
+};
