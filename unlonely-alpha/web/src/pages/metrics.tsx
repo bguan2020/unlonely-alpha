@@ -697,7 +697,8 @@ const Graphs = memo(
                       ],
                       "viewCount",
                       fromDate,
-                      toDate
+                      toDate,
+                      playbackIdToChannelSlugMap
                     );
                   }}
                 >
@@ -818,7 +819,8 @@ const Graphs = memo(
                       ],
                       "playtimeMins",
                       fromDate,
-                      toDate
+                      toDate,
+                      playbackIdToChannelSlugMap
                     );
                   }}
                 >
@@ -895,7 +897,8 @@ const saveMetricsAsCsv = (
   data: ConsolidatedPlaytimeMinsMetrics[] | ConsolidatedViewCountMetrics[],
   keyword: "playtimeMins" | "viewCount",
   fromDate: number,
-  toDate: number
+  toDate: number,
+  playbackIdToChannelSlugMap: Record<string, string>
 ) => {
   if (data.length === 0) return;
 
@@ -912,12 +915,15 @@ const saveMetricsAsCsv = (
     (key) => key !== "timestamp" && key !== totalKeyword
   );
 
-  const renamedPlaybackIds = playbackIds.map((id) =>
-    id.replace(playbackIdKeyword, "")
-  );
+  const slugs = playbackIds.map((id) => {
+    const formattedPlaybackId = id.replace(playbackIdKeyword, "");
+    const slug =
+      playbackIdToChannelSlugMap[formattedPlaybackId] ?? formattedPlaybackId;
+    return slug;
+  });
 
   // Create CSV headers
-  const headers = ["timestamp", totalKeyword, ...renamedPlaybackIds];
+  const headers = ["timestamp", totalKeyword, ...slugs];
   const csvRows = [headers.join(",")];
 
   // Create CSV rows
