@@ -51,9 +51,7 @@ function createApolloClient() {
 
 type InitialState = NormalizedCacheObject | null;
 
-export function initializeApollo(
-  initialState: InitialState = null,
-) {
+export function initializeApollo(initialState: InitialState = null) {
   const _apolloClient = apolloClient ?? createApolloClient();
 
   // If your page has Next.js data fetching methods that use Apollo Client, the initial state
@@ -73,9 +71,6 @@ export function initializeApollo(
 }
 
 export function useApollo(initialState: InitialState) {
-  const store = useMemo(
-    () => initializeApollo(initialState),
-    [initialState]
-  );
+  const store = useMemo(() => initializeApollo(initialState), [initialState]);
   return store;
 }
