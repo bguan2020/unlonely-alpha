@@ -8,6 +8,10 @@ import { setContext } from "@apollo/client/link/context";
 import { getAccessToken } from "@privy-io/react-auth";
 import { useMemo } from "react";
 
+export interface Context {
+  signedMessage?: string;
+}
+
 let apolloClient: ApolloClient<NormalizedCacheObject>;
 const server = String(process.env.NEXT_PUBLIC_DIGITAL_OCEAN_SERVER_URL);
 
