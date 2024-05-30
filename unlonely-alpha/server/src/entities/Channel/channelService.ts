@@ -759,6 +759,51 @@ export const getLivepeerStreamSessionsData = async (
   }
 };
 
+export interface IGetLivepeerViewershipMetricsInput {
+  playbackId?: string;
+  fromTimestampInMilliseconds: string;
+  toTimestampInMilliseconds: string;
+  timeStep: string;
+}
+
+export const getLivepeerViewershipMetrics = async (
+  data: IGetLivepeerViewershipMetricsInput
+) => {
+  const playbackParam = data.playbackId ? { playbackId: data.playbackId } : {};
+
+  const params = {
+    ...playbackParam,
+    from: data.fromTimestampInMilliseconds,
+    to: data.toTimestampInMilliseconds,
+    timeStep: data.timeStep.toString(),
+    "breakdownBy[]": "playbackId",
+  };
+
+  try {
+    const response = await axios.get(
+      "https://livepeer.studio/api/data/views/query",
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
+        },
+        params,
+      }
+    );
+    const metrics = response.data.map((metric: any) => {
+      return {
+        timestamp: metric.timestamp.toString(),
+        viewCount: metric.viewCount.toString(),
+        playtimeMins: metric.playtimeMins.toString(),
+        playbackId: metric.playbackId.toString(),
+      };
+    });
+    return metrics;
+  } catch (e) {
+    console.log("getLivepeerViewershipMetrics error", e);
+    throw e;
+  }
+};
+
 export interface IUpdateLivepeerStreamDataInput {
   streamId: string;
   canRecord: boolean;

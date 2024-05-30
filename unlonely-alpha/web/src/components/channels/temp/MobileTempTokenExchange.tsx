@@ -127,7 +127,7 @@ export const MobileTempTokenExchange = () => {
         </>
       ) : (
         <>
-          <Flex>
+          <Flex gap="5px">
             <Flex direction="column">
               <Input
                 variant={errorMessage.length > 0 ? "redGlow" : "glow"}

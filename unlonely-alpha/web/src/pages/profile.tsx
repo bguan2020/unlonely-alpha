@@ -1,7 +1,6 @@
 import { Spinner, Flex, Text, Avatar, Switch, Button } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { useLazyQuery } from "@apollo/client";
-import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 
 import AppLayout from "../components/layout/AppLayout";
 import { useUser } from "../hooks/context/useUser";
@@ -16,13 +15,14 @@ import { useNetworkContext } from "../hooks/context/useNetwork";
 import { NETWORKS } from "../constants/networks";
 import { getColorFromString } from "../styles/Colors";
 import { OwnedChannelsModal } from "../components/channels/OwnedChannelsModal";
+import { useWallets } from "@privy-io/react-auth";
 
 const Profile = () => {
   const { user } = useUser();
   const { network } = useNetworkContext();
   const { localNetwork } = network;
   const { ready } = useUserAgent();
-  const { wallet } = usePrivyWagmi();
+  const { wallets } = useWallets();
   const [endpoint, setEndpoint] = useState<string>("");
   const [systemNotifLoading, setSystemNotifLoading] = useState<boolean>(false);
   const [isChannelsModalOpen, setIsChannelsModalOpen] = useState(false);
@@ -205,8 +205,8 @@ const Profile = () => {
             <Flex justifyContent={"space-between"} alignItems="center">
               <Text fontSize={"20px"}>{localNetwork.name}</Text>
               {user &&
-                wallet &&
-                wallet?.chainId?.split(":")[1] !==
+                wallets[0] &&
+                wallets[0]?.chainId?.split(":")[1] !==
                   String(NETWORKS[0].config.chainId) && (
                   <Flex
                     p="1px"
@@ -224,7 +224,9 @@ const Profile = () => {
                       borderRadius="10px"
                       width={"100%"}
                       onClick={async () => {
-                        await wallet?.switchChain(NETWORKS[0].config.chainId);
+                        await wallets[0]?.switchChain(
+                          NETWORKS[0].config.chainId
+                        );
                       }}
                     >
                       <Text>switch to Base</Text>

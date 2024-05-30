@@ -16,8 +16,7 @@ import {
   Text,
   Box,
 } from "@chakra-ui/react";
-import { ConnectedWallet, useConnectWallet } from "@privy-io/react-auth";
-import { usePrivyWagmi } from "@privy-io/wagmi-connector";
+import { useConnectWallet } from "@privy-io/react-auth";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HiDotsVertical } from "react-icons/hi";
@@ -38,14 +37,10 @@ import copy from "copy-to-clipboard";
 
 const ConnectWallet = () => {
   const router = useRouter();
-  const { user, loginMethod, ready, privyUser, login } = useUser();
+  const { user, userAddress, ready, privyUser, login } = useUser();
   const { isStandalone } = useUserAgent();
-  const { wallet: activeWallet, setActiveWallet } = usePrivyWagmi();
   const toast = useToast();
   const { connectWallet } = useConnectWallet({
-    onSuccess: (wallet) => {
-      setActiveWallet(wallet as ConnectedWallet);
-    },
     onError: (err) => {
       console.error("connect wallet error", err);
       toast({
@@ -97,10 +92,7 @@ const ConnectWallet = () => {
     <>
       {ready ? (
         <>
-          {user &&
-          loginMethod &&
-          (loginMethod === "privy" ||
-            (loginMethod !== "privy" && activeWallet)) ? (
+          {user && userAddress ? (
             <ConnectedDisplay />
           ) : (
             <Menu>
@@ -123,7 +115,7 @@ const ConnectWallet = () => {
                   rightIcon={<ChevronDownIcon />}
                 >
                   <Text fontFamily="LoRes15" fontSize="15px">
-                    Login
+                    {privyUser ? "Connect" : "Login"}
                   </Text>
                 </MenuButton>
               </Flex>

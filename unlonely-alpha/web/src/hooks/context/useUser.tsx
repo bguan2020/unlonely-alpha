@@ -15,9 +15,8 @@ import {
   WalletWithMetadata,
   useLogin,
 } from "@privy-io/react-auth";
-import { usePrivyWagmi } from "@privy-io/wagmi-connector";
 import { Box, Button, Flex, Text, useToast } from "@chakra-ui/react";
-import { isAddress } from "viem";
+import { isAddress, isAddressEqual } from "viem";
 
 import { User } from "../../generated/graphql";
 import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
@@ -79,7 +78,6 @@ export const UserProvider = ({
     logout,
     exportWallet,
   } = usePrivy();
-  const { wallet: activeWallet } = usePrivyWagmi();
   const { wallets } = useWallets();
   const toast = useToast();
   const { login } = useLogin({
@@ -97,9 +95,10 @@ export const UserProvider = ({
         wasAlreadyAuthenticated,
         loginMethod,
         loginAccount,
-        privyUser,
         authenticated,
-        user
+        privyUser,
+        user,
+        ready
       );
       // todo: on mount, _user is defined and wasAlreadyAuthenticated is true, but privyUser and authenticated remained undefined and false
       if (loginAccount?.type === "wallet") {
@@ -162,34 +161,31 @@ export const UserProvider = ({
   }, [privyUser]);
 
   const address = useMemo(() => {
-    /*
-      check for the first non-privy wallet in the wallets array, which should be the latest wallet to be verified
-      if the wallet is in the linked accounts, return the address
-    */
-    const filteredWallets = wallets?.filter(
-      (wallet) => wallet.walletClientType !== "privy"
+    /**
+     * check for the first wallet in the privy user linked accounts, we assume that each
+     * user will only have one embedded wallet and one EOA at most
+     */
+    const theWallet = privyUser?.linkedAccounts?.find(
+      (account): account is WalletWithMetadata => account.type === "wallet"
     );
-    const firstWallet = filteredWallets?.[0];
-    const isInLinkedAccounts = privyUser?.linkedAccounts?.find(
-      (account) =>
-        account.type === "wallet" && account.address === firstWallet?.address
-    );
-    if (isInLinkedAccounts) return firstWallet?.address;
 
-    /*
-      check for the first wallet in the wallets array, which should be the latest wallet to be verified
-      if the wallet is in the linked accounts, return the address
-    */
-    const firstWalletFromFullArray = wallets?.[0];
-    const isInLinkedAccountsFromFullArray = privyUser?.linkedAccounts?.find(
-      (account) =>
-        account.type === "wallet" &&
-        account.address === firstWalletFromFullArray?.address
+    /**
+     * foundWallet is undefined if a wallet from the privyUser's linked accounts
+     * cannot be found in the wallets array
+     *
+     * OR
+     *
+     * privyUser is undefined and we can't find a linked account to search for anyway
+     */
+    const foundWallet = wallets.find((wallet) =>
+      isAddressEqual(
+        wallet.address as `0x${string}`,
+        theWallet?.address as `0x${string}`
+      )
     );
-    if (isInLinkedAccountsFromFullArray)
-      return firstWalletFromFullArray?.address;
-
-    return wallets?.[0]?.address;
+    return foundWallet?.address;
+    // return logged in but no wallet found, meaning privyUser is defined
+    // return not logged in at all, meaning privyUser is undefined
   }, [wallets, privyUser?.linkedAccounts]);
 
   const [fetchUser, { data }] = useLazyQuery(GET_USER_QUERY, {
@@ -204,10 +200,10 @@ export const UserProvider = ({
 
   const walletIsConnected = useMemo(() => {
     const auth =
-      authenticated && activeWallet !== undefined && user !== undefined;
-    const matchingWallet = activeWallet?.address === address;
+      authenticated && wallets[0] !== undefined && user !== undefined;
+    const matchingWallet = wallets[0]?.address === address;
     return auth && matchingWallet;
-  }, [authenticated, activeWallet, user, address]);
+  }, [authenticated, wallets, user, address]);
 
   useEffect(() => {
     setUser(data?.getUser);
@@ -218,12 +214,12 @@ export const UserProvider = ({
     const f = async () => {
       const isUsingDifferentWallet =
         user?.address !== undefined &&
-        isAddress(activeWallet?.address as `${string}`) &&
-        activeWallet?.address !== user?.address;
+        isAddress(wallets[0]?.address as `${string}`) &&
+        wallets[0]?.address !== user?.address;
       setDifferentWallet(isUsingDifferentWallet);
     };
     f();
-  }, [activeWallet, user]);
+  }, [wallets, user]);
 
   const value = useMemo(
     () => ({
@@ -234,7 +230,7 @@ export const UserProvider = ({
       walletIsConnected,
       loginMethod,
       initialNotificationsGranted,
-      activeWallet,
+      activeWallet: wallets[0],
       ready,
       authenticated,
       fetchUser,
@@ -250,7 +246,7 @@ export const UserProvider = ({
       walletIsConnected,
       loginMethod,
       initialNotificationsGranted,
-      activeWallet,
+      wallets,
       ready,
       authenticated,
       fetchUser,
@@ -292,7 +288,7 @@ export const UserProvider = ({
               logged in as {user?.address}
             </Text>
             <Text textAlign={"center"} fontSize={"12px"} color="#85c71b">
-              connected {activeWallet?.address}
+              connected {wallets[0]?.address}
             </Text>
           </Box>
           <Text textAlign={"center"} fontSize="15px">
