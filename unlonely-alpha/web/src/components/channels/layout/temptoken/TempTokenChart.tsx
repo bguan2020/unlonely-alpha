@@ -29,9 +29,9 @@ import { useOwnerUpdateTotalSupplyThresholdState } from "../../../../hooks/inter
 import useUserAgent from "../../../../hooks/internal/useUserAgent";
 import { SingleTempTokenTimerView } from "../../temp/TempTokenTimerView";
 
-const ZONE_BREADTH = 0.05;
-const NUMBER_OF_HOURS_IN_DAY = 24;
-const NUMBER_OF_DAYS_IN_MONTH = 30;
+export const ZONE_BREADTH = 0.05;
+export const NUMBER_OF_HOURS_IN_DAY = 24;
+export const NUMBER_OF_DAYS_IN_MONTH = 30;
 
 export const TempTokenChart = ({
   interfaceChartData,
