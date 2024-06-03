@@ -18,7 +18,6 @@ export interface IPostTempTokenInput {
   streamerFeePercentage: string;
   protocolFeePercentage: string;
   ownerAddress: string;
-  endUnixTimestamp: string;
   factoryAddress: string;
   creationBlockNumber: string;
   name: string;

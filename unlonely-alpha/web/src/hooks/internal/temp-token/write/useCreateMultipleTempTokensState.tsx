@@ -88,7 +88,7 @@ export const useCreateMultipleTempTokensState = ({
 
   const { postTempToken } = usePostTempToken({});
 
-  const [call] = useLazyQuery<QuerySendAllNotificationsArgs>(
+  const [sendNotifications] = useLazyQuery<QuerySendAllNotificationsArgs>(
     SEND_ALL_NOTIFICATIONS_QUERY,
     {
       fetchPolicy: "network-only",
@@ -284,7 +284,7 @@ export const useCreateMultipleTempTokensState = ({
           position: "bottom", // chakra ui toast position
         });
         if (Number(preSaleEndTimestamp) > Math.floor(Date.now() / 1000)) {
-          const res = await call({
+          const res = await sendNotifications({
             variables: {
               data: {
                 title: `/${channel.channelQueryData?.slug} launched $${newTokenSymbols[0]} vs. $${newTokenSymbols[1]} tokens!`,
