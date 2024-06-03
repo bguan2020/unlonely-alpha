@@ -111,6 +111,7 @@ export const useReadTempTokenTxs = ({
         burnLogs.length
       );
       const logs = [...mintLogs, ...burnLogs];
+      if (logs.length === 0) return;
       logs.sort((a, b) => {
         if (a.blockNumber === null || b.blockNumber === null) return 0;
         if (a.blockNumber < b.blockNumber) return -1;
@@ -154,6 +155,8 @@ export const useReadTempTokenTxs = ({
     },
     []
   );
+
+  console.log("tempTokenTxs", tempTokenTxs);
 
   // on mount or newly detected token's creationBlockNumber, fetch for logs to populate historical transactions on the chart
   useEffect(() => {

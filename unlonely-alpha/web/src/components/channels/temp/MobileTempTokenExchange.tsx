@@ -46,7 +46,7 @@ export const MobileTempTokenExchange = () => {
     tokenSymbol: currentActiveTokenSymbol,
     tokenTxs: tempTokenTxs,
     isPreSaleOngoing,
-    callbackOnTxSuccess: () => {
+    callbackOnMintTxSuccess: () => {
       if (isPreSaleOngoing) {
         setClaimedPreSaleTokens(true);
         setClaimedModalOpen(true);

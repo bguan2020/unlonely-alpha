@@ -43,7 +43,7 @@ export const TempTokenExchange = () => {
     tokenSymbol: currentActiveTokenSymbol,
     tokenTxs: tempTokenTxs,
     isPreSaleOngoing,
-    callbackOnTxSuccess: () => {
+    callbackOnMintTxSuccess: () => {
       if (isPreSaleOngoing) {
         setClaimedPreSaleTokens(true);
       }
