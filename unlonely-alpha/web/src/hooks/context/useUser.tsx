@@ -25,6 +25,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import { Tos } from "../../components/general/Tos";
 import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
 import copy from "copy-to-clipboard";
+import { useApolloContext } from "./useApollo";
 
 export const useUser = () => {
   return useContext(UserContext);
@@ -67,6 +68,7 @@ export const UserProvider = ({
 }: {
   children: JSX.Element[] | JSX.Element;
 }) => {
+  const { handleLatestVerifiedAddress } = useApolloContext();
   const [user, setUser] = useState<User | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>();
   const {
@@ -188,6 +190,7 @@ export const UserProvider = ({
   useEffect(() => {
     if (!address) return;
     fetchUser();
+    handleLatestVerifiedAddress(address);
   }, [address]);
 
   const walletIsConnected = useMemo(() => {

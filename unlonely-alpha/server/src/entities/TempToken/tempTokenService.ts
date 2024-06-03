@@ -14,16 +14,16 @@ enum TempTokenType {
 
 export interface IPostTempTokenInput {
   tokenAddress: string;
-  chainId: number;
-  channelId: number;
-  name: string;
   symbol: string;
+  streamerFeePercentage: string;
+  protocolFeePercentage: string;
   ownerAddress: string;
-  endUnixTimestamp: string;
   factoryAddress: string;
   creationBlockNumber: string;
-  protocolFeePercentage: string;
-  streamerFeePercentage: string;
+  name: string;
+  endUnixTimestamp: string;
+  channelId: number;
+  chainId: number;
   tokenType: TempTokenType;
 }
 

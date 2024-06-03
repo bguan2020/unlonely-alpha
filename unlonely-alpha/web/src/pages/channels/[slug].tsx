@@ -93,7 +93,7 @@ export async function getServerSideProps(
 ) {
   const { slug } = context.params!;
 
-  const apolloClient = initializeApollo(null);
+  const apolloClient = initializeApollo(null, null);
 
   const { data, loading, error } = await apolloClient.query({
     query: CHANNEL_STATIC_QUERY,
