@@ -156,8 +156,6 @@ export const useReadTempTokenTxs = ({
     []
   );
 
-  console.log("tempTokenTxs", tempTokenTxs);
-
   // on mount or newly detected token's creationBlockNumber, fetch for logs to populate historical transactions on the chart
   useEffect(() => {
     const init = async () => {
