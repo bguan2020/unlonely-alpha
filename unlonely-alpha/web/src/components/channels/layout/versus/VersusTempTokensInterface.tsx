@@ -86,7 +86,7 @@ export const VersusTempTokensInterface = ({
       windowSize[1] + 100
     },menubar=yes,toolbar=yes`;
     window.open(
-      `${window.location.origin}/token/${channelQueryData?.slug}`,
+      `${window.location.origin}/temptoken/${channelQueryData?.slug}`,
       "_blank",
       windowFeatures
     );

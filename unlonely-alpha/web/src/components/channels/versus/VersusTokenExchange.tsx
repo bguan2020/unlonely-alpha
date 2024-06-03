@@ -109,7 +109,7 @@ export const VersusTokenExchange = () => {
     tokenSymbol: focusedTokenData.tokenSymbol,
     tokenTxs: focusedTokenData.tokenTxs,
     isPreSaleOngoing,
-    callbackOnTxSuccess: () => {
+    callbackOnMintTxSuccess: () => {
       if (isPreSaleOngoing) {
         setClaimedPreSaleTokens(true);
       }

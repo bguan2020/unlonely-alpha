@@ -115,7 +115,7 @@ export const MobileVersusTokenExchange = () => {
     tokenSymbol: focusedTokenData.tokenSymbol,
     tokenTxs: focusedTokenData.tokenTxs,
     isPreSaleOngoing,
-    callbackOnTxSuccess: () => {
+    callbackOnMintTxSuccess: () => {
       if (isPreSaleOngoing) {
         setClaimedPreSaleTokens(true);
         setClaimedModalOpen(true);
