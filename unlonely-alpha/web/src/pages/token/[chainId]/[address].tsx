@@ -133,6 +133,7 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
   const [totalSupplyThreshold, setTotalSupplyThreshold] = useState<bigint>(
     BigInt(0)
   );
+  const [isActive, setIsActive] = useState<boolean>(false);
 
   const { network } = useNetworkContext();
   const { explorerUrl } = network;
@@ -196,7 +197,7 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
 
   useEffect(() => {
     const init = async () => {
-      const [totalSupplyThreshold, hasHitTotalSupplyThreshold] =
+      const [_totalSupplyThreshold, _hasHitTotalSupplyThreshold, _getIsActive] =
         await Promise.all([
           publicClient.readContract({
             address: tempToken.tokenAddress as `0x${string}`,
@@ -208,9 +209,15 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
             abi: TempTokenAbi,
             functionName: "hasHitTotalSupplyThreshold",
           }),
+          publicClient.readContract({
+            address: tempToken.tokenAddress as `0x${string}`,
+            abi: TempTokenAbi,
+            functionName: "getIsActive",
+          }),
         ]);
-      setTotalSupplyThreshold(totalSupplyThreshold as bigint);
-      setHasReachedTotalSupplyThreshold(hasHitTotalSupplyThreshold as boolean);
+      setIsActive(_getIsActive as boolean);
+      setTotalSupplyThreshold(_totalSupplyThreshold as bigint);
+      setHasReachedTotalSupplyThreshold(_hasHitTotalSupplyThreshold as boolean);
     };
     init();
   }, [tempToken]);
@@ -488,11 +495,29 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
               )}
             </LineChart>
           </ResponsiveContainer>
-          <Exchange
-            tempToken={tempToken}
-            tempTokenContract={tempTokenContract}
-            readTempTokenTxs={readTempTokenTxs}
-          />
+          <Flex
+            h="150px"
+            width="100%"
+            justifyContent={"center"}
+            alignItems="center"
+          >
+            {isActive ? (
+              <Text fontSize="25px" textAlign="center">
+                Token still active, please trade this token in its owner's
+                channel
+              </Text>
+            ) : !tempToken.isAlwaysTradeable ? (
+              <Text fontSize="25px" textAlign="center">
+                Token not tradeable
+              </Text>
+            ) : (
+              <Exchange
+                tempToken={tempToken}
+                tempTokenContract={tempTokenContract}
+                readTempTokenTxs={readTempTokenTxs}
+              />
+            )}
+          </Flex>
         </Flex>
       </Flex>
     </Flex>
@@ -557,7 +582,7 @@ const Exchange = ({
   }, [getEvents]);
 
   return (
-    <Flex direction="column" justifyContent={"center"} gap="10px">
+    <Flex direction="column" justifyContent={"center"} gap="10px" width="100%">
       <Flex position="relative" gap="5px" alignItems={"center"}>
         <ChakraTooltip
           label={errorMessage}
