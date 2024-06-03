@@ -56,29 +56,18 @@ const TempTokenLeaderboard = () => {
     [data]
   );
 
-  const datasetPaginated = useMemo(() => {
-    const start = page * ITEMS_PER_PAGE;
-    const end = start + ITEMS_PER_PAGE;
-    return dataset.slice(start, end);
-  }, [dataset, page]);
+  const datasetSorted = useMemo(() => {
+    return dataset
+      .map((token) => {
+        const n = token.highestTotalSupply;
+        const n_ = Math.max(n - 1, 0);
+        const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
+        const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+        const newPrice = priceForCurrent - priceForPrevious;
 
-  const calculatedHighestPrices = useMemo(() => {
-    return datasetPaginated.map((token) => {
-      const n = token.highestTotalSupply;
-      const n_ = Math.max(n - 1, 0);
-      const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-      const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
-      const newPrice = priceForCurrent - priceForPrevious;
-      return newPrice;
-    });
-  }, [datasetPaginated]);
-
-  const datasetPaginatedSorted = useMemo(() => {
-    return datasetPaginated
-      .map((token, index) => {
         return {
           ...token,
-          highestPrice: calculatedHighestPrices[index],
+          highestPrice: newPrice,
         };
       })
       .sort((a, b) => {
@@ -87,10 +76,10 @@ const TempTokenLeaderboard = () => {
         if (nA !== nB) return nB - nA;
         return b.endUnixTimestamp - a.endUnixTimestamp;
       });
-  }, [datasetPaginated, calculatedHighestPrices]);
+  }, [dataset]);
 
-  const sortedDataRows = useMemo(() => {
-    return datasetPaginatedSorted.map((token, index) => {
+  const completedDataRows = useMemo(() => {
+    return datasetSorted.map((token, index) => {
       return {
         data: [
           `${index + page * ITEMS_PER_PAGE + 1}`,
@@ -101,26 +90,25 @@ const TempTokenLeaderboard = () => {
               Number(ethPriceInUsd),
             4
           )}`,
+          token.isAlwaysTradeable
+            ? "permanent"
+            : getTimeFromMillis(
+                Math.max(Number(token.endUnixTimestamp) - nowInSeconds, 0) *
+                  1000,
+                true,
+                true
+              ),
         ],
       };
     });
-  }, [datasetPaginatedSorted, calculatedHighestPrices, ethPriceInUsd]);
+  }, [datasetSorted, ethPriceInUsd]);
 
-  const completedDataRows = useMemo(() => {
-    return sortedDataRows.map((row, i) => {
-      const timeLeft = getTimeFromMillis(
-        Math.max(
-          Number(datasetPaginatedSorted[i].endUnixTimestamp) - nowInSeconds,
-          0
-        ) * 1000,
-        true,
-        true
-      );
-      return {
-        data: [...row.data, timeLeft],
-      };
-    });
-  }, [sortedDataRows, nowInSeconds]);
+  const rowsPaginated = useMemo(() => {
+    return completedDataRows.slice(
+      page * ITEMS_PER_PAGE,
+      page * ITEMS_PER_PAGE + ITEMS_PER_PAGE
+    );
+  }, [completedDataRows, page]);
 
   const fetch = useCallback(() => {
     getTempTokensQuery({
@@ -199,18 +187,9 @@ const TempTokenLeaderboard = () => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {completedDataRows.map((row, rowIndex) => {
+                    {rowsPaginated.map((row, rowIndex) => {
                       return (
-                        <Tr
-                          key={rowIndex}
-                          // _hover={{ background: "#615C5C", color: "white" }}
-                          // onClick={() => {
-                          //   window.open(
-                          //     `${window.location.origin}/channels/${row.data[2]}`,
-                          //     "_blank"
-                          //   );
-                          // }}
-                        >
+                        <Tr key={rowIndex}>
                           {visibleColumns &&
                             visibleColumns.map((index) => (
                               <Td
@@ -223,7 +202,7 @@ const TempTokenLeaderboard = () => {
                                 onClick={() => {
                                   if (visibleColumns[index] === 1) {
                                     window.open(
-                                      `${explorerUrl}/address/${datasetPaginatedSorted[rowIndex].tokenAddress}`,
+                                      `${window.location.origin}/token/${datasetSorted[rowIndex].chainId}/${datasetSorted[rowIndex].tokenAddress}`,
                                       "_blank"
                                     );
                                   }
@@ -264,7 +243,7 @@ const TempTokenLeaderboard = () => {
                   onClick={() => {
                     setPage(page + 1);
                   }}
-                  isDisabled={datasetPaginated.length < ITEMS_PER_PAGE}
+                  isDisabled={rowsPaginated.length < ITEMS_PER_PAGE}
                 >
                   next
                 </Button>

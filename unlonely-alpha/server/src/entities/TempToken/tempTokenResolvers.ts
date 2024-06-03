@@ -109,7 +109,7 @@ export const resolvers = {
         throw new AuthenticationError("User is not authenticated");
       }
 
-      return tempTokenService.postTempToken(data, ctx.user, ctx);
+      return tempTokenService.postTempToken(data, ctx);
     },
   },
   TempToken: {

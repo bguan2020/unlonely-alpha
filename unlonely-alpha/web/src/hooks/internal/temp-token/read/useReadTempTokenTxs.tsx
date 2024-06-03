@@ -111,6 +111,7 @@ export const useReadTempTokenTxs = ({
         burnLogs.length
       );
       const logs = [...mintLogs, ...burnLogs];
+      if (logs.length === 0) return;
       logs.sort((a, b) => {
         if (a.blockNumber === null || b.blockNumber === null) return 0;
         if (a.blockNumber < b.blockNumber) return -1;

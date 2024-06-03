@@ -1,4 +1,4 @@
-import { TempToken, User } from "@prisma/client";
+import { TempToken } from "@prisma/client";
 import { Context } from "../../context";
 
 import { createPublicClient, http as viemHttp } from "viem";
@@ -18,6 +18,7 @@ export interface IPostTempTokenInput {
   channelId: number;
   name: string;
   symbol: string;
+  ownerAddress: string;
   endUnixTimestamp: string;
   factoryAddress: string;
   creationBlockNumber: string;
@@ -28,7 +29,6 @@ export interface IPostTempTokenInput {
 
 export const postTempToken = async (
   data: IPostTempTokenInput,
-  user: User,
   ctx: Context
 ) => {
   return await ctx.prisma.tempToken.create({
@@ -36,7 +36,7 @@ export const postTempToken = async (
       uniqueTempTokenId: `${data.tokenAddress}-${String(data.chainId)}`,
       tokenAddress: data.tokenAddress,
       chainId: data.chainId,
-      ownerAddress: user.address,
+      ownerAddress: data.ownerAddress,
       factoryAddress: data.factoryAddress,
       name: data.name,
       symbol: data.symbol,

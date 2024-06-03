@@ -64,13 +64,15 @@ export const useTradeTempTokenState = ({
   tokenSymbol,
   tokenTxs,
   isPreSaleOngoing,
-  callbackOnTxSuccess,
+  callbackOnMintTxSuccess,
+  callbackOnBurnTxSuccess,
 }: {
   tokenAddress: string;
   tokenSymbol: string;
   tokenTxs: TradeableTokenTx[];
   isPreSaleOngoing: boolean;
-  callbackOnTxSuccess?: () => void;
+  callbackOnMintTxSuccess?: () => void;
+  callbackOnBurnTxSuccess?: () => void;
 }): UseTradeTempTokenStateType => {
   const { walletIsConnected, userAddress, user } = useUser();
 
@@ -294,7 +296,7 @@ export const useTradeTempTokenState = ({
               description: "",
             });
           }
-          callbackOnTxSuccess?.();
+          callbackOnMintTxSuccess?.();
           canAddToChatbot_mint.current = false;
         }
       },
@@ -409,6 +411,7 @@ export const useTradeTempTokenState = ({
             totalSupply
           )}`,
         });
+        callbackOnBurnTxSuccess?.();
         canAddToChatbot_burn.current = false;
         setAmount(String(DEFAULT_TOKEN_TRADE_AMOUNT));
       },
