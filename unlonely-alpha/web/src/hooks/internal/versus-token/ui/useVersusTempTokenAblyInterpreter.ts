@@ -33,7 +33,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
     handleLosingToken,
     handleIsPreSaleOngoing,
     setTokenA,
-    setTokenB,
+    setTokenB,handleFocusedTokenToTrade,
     tokenA,
     tokenB,
     ownerMustPermamint,
@@ -165,6 +165,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           isLive: true,
         });
 
+        handleFocusedTokenToTrade(undefined)
         handleIsGameFinished(false);
         handleIsGameOngoing(true);
         handleOwnerMustPermamint(false);

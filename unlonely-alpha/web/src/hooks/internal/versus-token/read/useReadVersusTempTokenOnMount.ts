@@ -154,6 +154,7 @@ export const useReadVersusTempTokenOnMount = ({
             creationBlockNumber: BigInt(_tokenB.creationBlockNumber),
             endTimestamp: BigInt(String(endTimeStampB)),
           };
+          globalState.handleFocusedTokenToTrade(undefined)
           globalState.setTokenA(_newTokenA);
           globalState.setTokenB(_newTokenB);
 
