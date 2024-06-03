@@ -202,7 +202,15 @@ const TempTokenLeaderboard = () => {
                                 onClick={() => {
                                   if (visibleColumns[index] === 1) {
                                     window.open(
-                                      `${window.location.origin}/token/${datasetSorted[rowIndex].chainId}/${datasetSorted[rowIndex].tokenAddress}`,
+                                      `${window.location.origin}/token/${
+                                        datasetSorted[
+                                          page * ITEMS_PER_PAGE + rowIndex
+                                        ].chainId
+                                      }/${
+                                        datasetSorted[
+                                          page * ITEMS_PER_PAGE + rowIndex
+                                        ].tokenAddress
+                                      }`,
                                       "_blank"
                                     );
                                   }
