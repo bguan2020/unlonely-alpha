@@ -476,7 +476,9 @@ export const VersusTempTokenChart = ({
         </LineChart>
       </ResponsiveContainer>
       {!isStandalone && (canPlayToken || canBuyPostGame) && (
-        <VersusTokenExchange />
+        <Flex direction={"column"} height={isFullChart ? "150px" : undefined}>
+          <VersusTokenExchange />
+        </Flex>
       )}
     </Flex>
   );

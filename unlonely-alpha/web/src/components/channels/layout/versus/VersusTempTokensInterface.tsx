@@ -331,6 +331,7 @@ export const VersusTempTokensInterface = ({
             customChartHeightInPx={
               !canPlayToken && !isFullChart ? 80 : undefined
             }
+            isFullChart={isFullChart}
           />
           {!canPlayToken &&
             isGameOngoing &&

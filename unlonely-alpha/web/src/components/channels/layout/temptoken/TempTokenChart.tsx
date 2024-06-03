@@ -558,7 +558,9 @@ export const TempTokenChart = ({
               )}
             </Flex>
           </Flex>
-          <TempTokenExchange />
+          <Flex direction={"column"} height={isFullChart ? "150px" : undefined}>
+            <TempTokenExchange />
+          </Flex>
         </Flex>
       )}
     </>
