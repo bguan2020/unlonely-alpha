@@ -66,13 +66,11 @@ export const TempTokenInterface = ({
     canPlayToken,
     isFailedGameState,
     isSuccessGameModalOpen,
-    isFailedGameModalOpen,
     isPermanentGameModalOpen,
     lastInactiveTokenAddress,
     lastInactiveTokenBalance,
     lastInactiveTokenSymbol,
     handleIsGameFailed,
-    handleIsFailedGameModalOpen,
     handleIsSuccessGameModalOpen,
     handleIsPermanentGameModalOpen,
     handleCanPlayToken,
@@ -226,28 +224,6 @@ export const TempTokenInterface = ({
               handleIsGameFailed(false);
             }}
           />
-          <TransactionModalTemplate
-            title="Token didn't make it this time :("
-            isOpen={isFailedGameModalOpen}
-            handleClose={() => handleIsFailedGameModalOpen(false)}
-            bg={"#18162F"}
-            hideFooter
-          >
-            <Text>
-              {
-                "This token couldn't reach the price goal. All remaining liquidity will be sent to the streamer. Better luck next time!"
-              }
-            </Text>
-            <Flex justifyContent={"space-evenly"} gap="5px" my="15px" p={4}>
-              <Button
-                onClick={() => {
-                  handleIsFailedGameModalOpen(false);
-                }}
-              >
-                Continue
-              </Button>
-            </Flex>
-          </TransactionModalTemplate>
           <TransactionModalTemplate
             title="Success - token lives to see another day"
             isOpen={isSuccessGameModalOpen}

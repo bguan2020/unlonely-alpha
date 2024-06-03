@@ -1,4 +1,4 @@
-import { Button, Flex } from "@chakra-ui/react";
+import { Button, Flex, Text } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -12,7 +12,10 @@ import AppLayout from "../../components/layout/AppLayout";
 import { ChannelStaticQuery } from "../../generated/graphql";
 import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
 import { TempTokenInterface } from "../../components/channels/layout/temptoken/TempTokenInterface";
-import { TempTokenProvider } from "../../hooks/context/useTempToken";
+import {
+  TempTokenProvider,
+  useTempTokenContext,
+} from "../../hooks/context/useTempToken";
 import {
   VersusTempTokenProvider,
   useVersusTempTokenContext,
@@ -22,6 +25,7 @@ import { useTempTokenAblyInterpreter } from "../../hooks/internal/temp-token/ui/
 import { useVersusTempTokenAblyInterpreter } from "../../hooks/internal/versus-token/ui/useVersusTempTokenAblyInterpreter";
 import { calculateMaxWinnerTokensToMint } from "../../utils/calculateMaxWinnerTokensToMint";
 import { useIsGameOngoing } from "../../hooks/internal/temp-token/ui/useIsGameOngoing";
+import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
 
 const FullTempTokenChartPage = () => {
   return (
@@ -77,6 +81,9 @@ const FullTempTokenChart = ({
   const { channel } = useChannelContext();
   const { isOwner } = channel;
 
+  const { tempToken } = useTempTokenContext();
+  const { gameState } = tempToken;
+  const { isFailedGameModalOpen, handleIsFailedGameModalOpen } = gameState;
   const { gameState: versusGameState } = useVersusTempTokenContext();
   const {
     losingToken: losingVersusToken,
@@ -118,6 +125,28 @@ const FullTempTokenChart = ({
     <Flex h="100vh" justifyContent={"space-between"} bg="#131323" p="0.5rem">
       {tokenStateView === "single" ? (
         <Flex direction="column" width="100%">
+          <TransactionModalTemplate
+            title="Token didn't make it this time :("
+            isOpen={isFailedGameModalOpen}
+            handleClose={() => handleIsFailedGameModalOpen(false)}
+            bg={"#18162F"}
+            hideFooter
+          >
+            <Text>
+              {
+                "This token couldn't reach the price goal. All remaining liquidity will be sent to the streamer. Better luck next time!"
+              }
+            </Text>
+            <Flex justifyContent={"space-evenly"} gap="5px" my="15px" p={4}>
+              <Button
+                onClick={() => {
+                  handleIsFailedGameModalOpen(false);
+                }}
+              >
+                Continue
+              </Button>
+            </Flex>
+          </TransactionModalTemplate>
           {isOwner && !isGameOngoing && (
             <Button
               w="fit-content"
