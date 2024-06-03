@@ -1,36 +1,40 @@
 import {
   ApolloClient,
-  // ApolloLink,
   HttpLink,
   InMemoryCache,
   NormalizedCacheObject,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
-import { useMemo } from "react";
 import { getAccessToken } from "@privy-io/react-auth";
-
-let apolloClient: ApolloClient<NormalizedCacheObject>;
-
-export type Cookies = Record<string, string | undefined>;
+import { useMemo } from "react";
 
 export interface Context {
   signedMessage?: string;
 }
 
+let apolloClient: ApolloClient<NormalizedCacheObject>;
+const server = String(process.env.NEXT_PUBLIC_DIGITAL_OCEAN_SERVER_URL);
+
 const authLink = setContext(async (_, { headers }) => {
-  // get the authentication token from local storage if it exists
   const token = await getAccessToken();
-  // return the headers to the context so httpLink can read them
+  const latestVerifiedAddress = headers["latest-verified-address"];
   return {
     headers: {
       ...headers,
       authorization: token ? `Bearer ${token}` : "",
+      "latest-verified-address": latestVerifiedAddress || "",
     },
   };
 });
 
 function createApolloClient() {
-  const server = String(process.env.NEXT_PUBLIC_DIGITAL_OCEAN_SERVER_URL);
+  const httpLink = new HttpLink({
+    uri:
+      process.env.NODE_ENV === "production"
+        ? server
+        : "http://localhost:4000/graphql",
+  });
+
   return new ApolloClient({
     cache: new InMemoryCache(),
     defaultOptions: {
@@ -38,39 +42,51 @@ function createApolloClient() {
         errorPolicy: "all",
       },
     },
-    link: authLink.concat(
+    link: authLink.concat(httpLink),
+  });
+}
+
+type InitialState = NormalizedCacheObject | null;
+
+export function initializeApollo(
+  initialState: InitialState = null,
+  latestVerifiedAddress: string | null
+) {
+  const _apolloClient = apolloClient ?? createApolloClient();
+
+  const contextLink = setContext((_, { headers }) => {
+    return {
+      headers: {
+        ...headers,
+        "latest-verified-address": latestVerifiedAddress || "",
+      },
+    };
+  });
+
+  _apolloClient.setLink(
+    contextLink.concat(authLink).concat(
       new HttpLink({
         uri:
           process.env.NODE_ENV === "production"
             ? server
             : "http://localhost:4000/graphql",
       })
-    ),
-  });
-}
+    )
+  );
 
-type InitialState = NormalizedCacheObject | null;
-
-export function initializeApollo(initialState: InitialState = null) {
-  const _apolloClient = apolloClient ?? createApolloClient();
-
-  // If your page has Next.js data fetching methods that use Apollo Client, the initial state
-  // gets hydrated here
   if (initialState) {
-    // Get existing cache, loaded during client side data fetching
     const existingCache = _apolloClient.extract();
-    // Restore the cache using the data passed from getStaticProps/getServerSideProps
-    // combined with the existing cached data
     _apolloClient.cache.restore({ ...existingCache, ...initialState });
   }
-  // For SSG and SSR always create a new Apollo Client
   if (typeof window === "undefined") return _apolloClient;
-  // Create the Apollo Client once in the client
   if (!apolloClient) apolloClient = _apolloClient;
   return _apolloClient;
 }
 
-export function useApollo(initialState: InitialState) {
-  const store = useMemo(() => initializeApollo(initialState), [initialState]);
+export function useApollo(initialState: InitialState, latestVerifiedAddress: string | null) {
+  const store = useMemo(
+    () => initializeApollo(initialState, latestVerifiedAddress),
+    [initialState, latestVerifiedAddress]
+  );
   return store;
 }

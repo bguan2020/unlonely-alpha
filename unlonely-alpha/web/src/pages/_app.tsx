@@ -3,7 +3,6 @@ import "../styles/fireworks.css";
 import "../styles/bell.css";
 
 import { ChakraProvider, Flex, IconButton, Text } from "@chakra-ui/react";
-import { ApolloProvider } from "@apollo/client";
 import { configureChains } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
@@ -16,7 +15,6 @@ import { FaArrowRight } from "react-icons/fa";
 import { FaArrowLeft } from "react-icons/fa";
 
 import { Base, NETWORKS } from "../constants/networks";
-import { Cookies, useApollo } from "../apiClient/client";
 import { UserProvider } from "../hooks/context/useUser";
 import { ScreenAnimationsProvider } from "../hooks/context/useScreenAnimations";
 import theme from "../styles/theme";
@@ -24,6 +22,9 @@ import { NetworkProvider } from "../hooks/context/useNetwork";
 import { CacheProvider } from "../hooks/context/useCache";
 import { TourProvider } from "@reactour/tour";
 import Link from "next/link";
+import { ApolloProvider } from "../hooks/context/useApollo";
+
+export type Cookies = Record<string, string | undefined>;
 
 const tourStyles = {
   highlightedArea: (base: any, { x, y }: any) => ({
@@ -125,10 +126,6 @@ interface InitialProps {
 type Props = AppProps & InitialProps;
 
 function App({ Component, pageProps }: Props) {
-  const apolloClient = useApollo(
-    pageProps ? pageProps.initialApolloState : null
-  );
-
   const configureChainsConfig = configureChains(
     NETWORKS, // first chain in array determines the first chain to interact with via publicClient
     [
@@ -169,7 +166,7 @@ function App({ Component, pageProps }: Props) {
         }}
       >
         <PrivyWagmiConnector wagmiChainsConfig={configureChainsConfig}>
-          <ApolloProvider client={apolloClient}>
+          <ApolloProvider pageProps={pageProps}>
             <TourProvider
               steps={streamerTourSteps}
               styles={tourStyles}
