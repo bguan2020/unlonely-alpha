@@ -325,7 +325,7 @@ export const VersusTempTokensInterface = ({
             direction={isOwner ? "column" : "row"}
           />
         )}
-        <Flex direction={"column"} flex="1" height="100%">
+        <Flex gap="10px" flex="1" h="100%" direction="column">
           <VersusTempTokenChart
             noChannelData={noChannelData}
             customChartHeightInPx={

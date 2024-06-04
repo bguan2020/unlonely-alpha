@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Flex,
   Input,
@@ -99,6 +99,8 @@ export const VersusTokenExchange = () => {
     handleAmountDirectly,
     mint,
     burn,
+    refetchMint,
+    refetchBurn,
     mintCostAfterFees,
     mintCostAfterFeesLoading,
     burnProceedsAfterFees,
@@ -115,6 +117,13 @@ export const VersusTokenExchange = () => {
       }
     },
   });
+
+  useEffect(() => {
+    if (!isPreSaleOngoing) {
+      refetchMint();
+      refetchBurn();
+    }
+  }, [isPreSaleOngoing]);
 
   return (
     <Flex direction="column" justifyContent={"center"} gap="10px">
