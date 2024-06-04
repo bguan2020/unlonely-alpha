@@ -105,8 +105,6 @@ export const MobileVersusTokenExchange = () => {
     handleAmountDirectly,
     mint,
     burn,
-    refetchMint,
-    refetchBurn,
     mintCostAfterFees,
     mintCostAfterFeesLoading,
     burnProceedsAfterFees,
@@ -135,8 +133,6 @@ export const MobileVersusTokenExchange = () => {
       handleFocusedTokenToTrade(undefined);
     },
     callbackonPresaleEnd: () => {
-      refetchMint();
-      refetchBurn();
       handleIsPreSaleOngoing(false);
     },
   });

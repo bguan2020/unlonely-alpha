@@ -36,8 +36,6 @@ export const MobileTempTokenExchange = () => {
     handleAmountDirectly,
     mint,
     burn,
-    refetchMint,
-    refetchBurn,
     mintCostAfterFees,
     mintCostAfterFeesLoading,
     burnProceedsAfterFees,
@@ -67,8 +65,6 @@ export const MobileTempTokenExchange = () => {
     },
     callbackonPresaleEnd: () => {
       handleIsPreSaleOngoing(false);
-      refetchMint();
-      refetchBurn();
     },
   });
 

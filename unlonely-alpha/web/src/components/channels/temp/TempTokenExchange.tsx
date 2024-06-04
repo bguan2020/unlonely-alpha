@@ -16,7 +16,7 @@ import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { formatIncompleteNumber } from "../../../utils/validation/input";
 import { useTempTokenContext } from "../../../hooks/context/useTempToken";
 import { DEFAULT_TOKEN_TRADE_AMOUNT } from "../../../constants";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export const TempTokenExchange = () => {
   const { tempToken } = useTempTokenContext();
@@ -33,8 +33,6 @@ export const TempTokenExchange = () => {
     handleAmountDirectly,
     mint,
     burn,
-    refetchMint,
-    refetchBurn,
     mintCostAfterFees,
     mintCostAfterFeesLoading,
     burnProceedsAfterFees,
@@ -54,13 +52,6 @@ export const TempTokenExchange = () => {
 
   const [claimedPreSaleTokens, setClaimedPreSaleTokens] =
     useState<boolean>(false);
-
-  useEffect(() => {
-    if (!isPreSaleOngoing) {
-      refetchMint();
-      refetchBurn();
-    }
-  }, [isPreSaleOngoing]);
 
   return (
     <Flex direction="column" justifyContent={"center"} gap="10px">

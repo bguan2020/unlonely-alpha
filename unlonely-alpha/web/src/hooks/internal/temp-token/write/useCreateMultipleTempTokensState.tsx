@@ -284,7 +284,6 @@ export const useCreateMultipleTempTokensState = ({
           position: "bottom", // chakra ui toast position
         });
         if (Number(preSaleEndTimestamp) > Math.floor(Date.now() / 1000)) {
-          // todo: uncomment this line
           const res = await sendNotifications({
             variables: {
               data: {

@@ -462,7 +462,6 @@ export const useTradeTempTokenState = ({
    */
   useEffect(() => {
     if (
-      tokenTxs.length === 0 ||
       fetching.current ||
       !tempTokenContract.address ||
       !userAddress ||
@@ -498,7 +497,7 @@ export const useTradeTempTokenState = ({
       fetching.current = false;
     };
     fetch();
-  }, [tokenTxs.length]);
+  }, [tokenTxs.length, isPreSaleOngoing]);
 
   /**
    * Error handling
@@ -517,15 +516,6 @@ export const useTradeTempTokenState = ({
       setErrorMessage("");
     }
   }, [matchingChain, amount, userEthBalance?.value, mintCostAfterFees]);
-
-  useEffect(() => {
-    const refetchAfterPreSale = async () => {
-      if (!isPreSaleOngoing) {
-        await Promise.all([refetchMint(), refetchBurn()]);
-      }
-    };
-    refetchAfterPreSale();
-  }, [isPreSaleOngoing]);
 
   return {
     amount,
