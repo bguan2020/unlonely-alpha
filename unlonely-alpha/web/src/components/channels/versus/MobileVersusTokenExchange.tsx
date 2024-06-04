@@ -135,8 +135,8 @@ export const MobileVersusTokenExchange = () => {
       handleFocusedTokenToTrade(undefined);
     },
     callbackonPresaleEnd: () => {
-      refetchMint();
-      refetchBurn();
+      // refetchMint();
+      // refetchBurn();
       handleIsPreSaleOngoing(false);
     },
   });

@@ -67,8 +67,8 @@ export const MobileTempTokenExchange = () => {
     },
     callbackonPresaleEnd: () => {
       handleIsPreSaleOngoing(false);
-      refetchMint();
-      refetchBurn();
+      // refetchMint();
+      // refetchBurn();
     },
   });
 
