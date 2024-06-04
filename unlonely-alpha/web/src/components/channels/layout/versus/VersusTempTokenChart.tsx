@@ -339,142 +339,142 @@ export const VersusTempTokenChart = ({
   );
 
   return (
-    <Flex
-      w="100%"
-      gap="10px"
-      flex="1"
-      h="100%"
-      position="relative"
-      direction={canBuyPostGame ? "row" : "column"}
-    >
-      {noChannelData && (
-        <Text
-          textAlign="center"
-          position="absolute"
-          color="gray"
-          top="50%"
-          left="50%"
-          transform="translate(-50%, -50%)"
-        >
-          could not fetch channel data
-        </Text>
-      )}
-      {consolidatedChartData.length === 0 && matchingChain && !isStandalone && (
-        <Text
-          textAlign="center"
-          position="absolute"
-          color="gray"
-          top="50%"
-          left="50%"
-          transform="translate(-50%, -50%)"
-        >
-          no txs
-        </Text>
-      )}
-      {isStandalone && (
-        <Flex
-          top="50%"
-          left="50%"
-          transform="translate(-50%, -50%)"
-          textAlign="center"
-          position="absolute"
-        >
-          <VersusTempTokenTimerView
-            disableChatbot={true}
-            hidePresaleTimer={isStandalone}
-          />
-        </Flex>
-      )}
-      <ResponsiveContainer
-        width="100%"
-        height={customChartHeightInPx ?? "100%"}
+    <Flex h="100%" gap="10px" direction={canBuyPostGame ? "row" : "column"}>
+      <Flex
+        direction="column"
+        w="100%"
+        position="relative"
+        h={canPlayToken && !isFullChart ? "100%" : "70%"}
       >
-        <LineChart
-          data={
-            tokenAWon
-              ? tokenAChartData.chartTxs
-              : tokenBWon
-              ? tokenBChartData.chartTxs
-              : consolidatedChartData
-          }
+        {noChannelData && (
+          <Text
+            textAlign="center"
+            position="absolute"
+            color="gray"
+            top="50%"
+            left="50%"
+            transform="translate(-50%, -50%)"
+          >
+            could not fetch channel data
+          </Text>
+        )}
+        {consolidatedChartData.length === 0 && matchingChain && !isStandalone && (
+          <Text
+            textAlign="center"
+            position="absolute"
+            color="gray"
+            top="50%"
+            left="50%"
+            transform="translate(-50%, -50%)"
+          >
+            no txs
+          </Text>
+        )}
+        {isStandalone && (
+          <Flex
+            top="50%"
+            left="50%"
+            transform="translate(-50%, -50%)"
+            textAlign="center"
+            position="absolute"
+          >
+            <VersusTempTokenTimerView
+              disableChatbot={true}
+              hidePresaleTimer={isStandalone}
+            />
+          </Flex>
+        )}
+        <ResponsiveContainer
+          width="100%"
+          height={customChartHeightInPx ?? "100%"}
         >
-          <XAxis
-            hide
-            dataKey="blockNumber"
-            type="number"
-            domain={["dataMin", "dataMax"]}
-            allowDataOverflow={false}
-          />
-          <YAxis
-            tickFormatter={(tick: number) => {
-              return `$${truncateValue(
-                Number(formatUnits(BigInt(Math.floor(tick)), 18)) *
-                  Number(ethPriceInUsd ?? "0"),
-                2
-              )}`;
-            }}
-            hide={(!isFullChart && !canPlayToken) || (isStandalone ?? false)}
-            domain={["dataMin", "dataMax"]}
-          />
-          {((!canPlayToken && (tokenAWon || tokenBWon)) ||
-            (canPlayToken && !tokenAWon && !tokenBWon) ||
-            isStandalone) && (
-            <Tooltip
-              content={
-                tokenAWon || tokenBWon ? (
-                  <SingleCustomTooltip />
-                ) : (
-                  <VersusCustomTooltip />
-                )
-              }
+          <LineChart
+            data={
+              tokenAWon
+                ? tokenAChartData.chartTxs
+                : tokenBWon
+                ? tokenBChartData.chartTxs
+                : consolidatedChartData
+            }
+          >
+            <XAxis
+              hide
+              dataKey="blockNumber"
+              type="number"
+              domain={["dataMin", "dataMax"]}
+              allowDataOverflow={false}
             />
-          )}
-          {!tokenBWon && (
-            <Line
-              key="0"
-              type="monotone"
-              dataKey={!tokenBWon && tokenAWon ? "price" : "tokenAPrice"}
-              stroke={"rgba(255, 36, 36, 1)"}
-              strokeWidth={
-                focusedTokenToTrade?.address !== undefined &&
-                isAddress(focusedTokenToTrade?.address) &&
-                isAddress(gameState.tokenA.address) &&
-                isAddressEqual(
-                  focusedTokenToTrade?.address,
-                  gameState.tokenA.address as `0x${string}`
-                ) &&
-                !tokenAWon
-                  ? 4
-                  : 2
-              }
-              animationDuration={200}
-              dot={false}
+            <YAxis
+              tickFormatter={(tick: number) => {
+                return `$${truncateValue(
+                  Number(formatUnits(BigInt(Math.floor(tick)), 18)) *
+                    Number(ethPriceInUsd ?? "0"),
+                  2
+                )}`;
+              }}
+              hide={(!isFullChart && !canPlayToken) || (isStandalone ?? false)}
+              domain={["dataMin", "dataMax"]}
             />
-          )}
-          {!tokenAWon && (
-            <Line
-              key="1"
-              type="monotone"
-              dataKey={!tokenAWon && tokenBWon ? "price" : "tokenBPrice"}
-              stroke={"rgba(42, 217, 255, 1)"}
-              strokeWidth={
-                focusedTokenToTrade?.address !== undefined &&
-                isAddress(focusedTokenToTrade?.address) &&
-                isAddress(gameState.tokenB.address) &&
-                isAddressEqual(
-                  focusedTokenToTrade?.address,
-                  gameState.tokenB.address as `0x${string}`
-                ) &&
-                !tokenBWon
-                  ? 4
-                  : 2
-              }
-              animationDuration={200}
-              dot={false}
-            />
-          )}
-        </LineChart>
-      </ResponsiveContainer>
+            {((!canPlayToken && (tokenAWon || tokenBWon)) ||
+              (canPlayToken && !tokenAWon && !tokenBWon) ||
+              isStandalone) && (
+              <Tooltip
+                content={
+                  tokenAWon || tokenBWon ? (
+                    <SingleCustomTooltip />
+                  ) : (
+                    <VersusCustomTooltip />
+                  )
+                }
+              />
+            )}
+            {!tokenBWon && (
+              <Line
+                key="0"
+                type="monotone"
+                dataKey={!tokenBWon && tokenAWon ? "price" : "tokenAPrice"}
+                stroke={"rgba(255, 36, 36, 1)"}
+                strokeWidth={
+                  focusedTokenToTrade?.address !== undefined &&
+                  isAddress(focusedTokenToTrade?.address) &&
+                  isAddress(gameState.tokenA.address) &&
+                  isAddressEqual(
+                    focusedTokenToTrade?.address,
+                    gameState.tokenA.address as `0x${string}`
+                  ) &&
+                  !tokenAWon
+                    ? 4
+                    : 2
+                }
+                animationDuration={200}
+                dot={false}
+              />
+            )}
+            {!tokenAWon && (
+              <Line
+                key="1"
+                type="monotone"
+                dataKey={!tokenAWon && tokenBWon ? "price" : "tokenBPrice"}
+                stroke={"rgba(42, 217, 255, 1)"}
+                strokeWidth={
+                  focusedTokenToTrade?.address !== undefined &&
+                  isAddress(focusedTokenToTrade?.address) &&
+                  isAddress(gameState.tokenB.address) &&
+                  isAddressEqual(
+                    focusedTokenToTrade?.address,
+                    gameState.tokenB.address as `0x${string}`
+                  ) &&
+                  !tokenBWon
+                    ? 4
+                    : 2
+                }
+                animationDuration={200}
+                dot={false}
+              />
+            )}
+          </LineChart>
+        </ResponsiveContainer>
+      </Flex>
       {!isStandalone && (canPlayToken || canBuyPostGame) && (
         <Flex direction={"column"} height={isFullChart ? "150px" : undefined}>
           <VersusTokenExchange />
