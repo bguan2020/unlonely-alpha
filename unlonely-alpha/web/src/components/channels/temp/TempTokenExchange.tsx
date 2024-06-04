@@ -33,8 +33,6 @@ export const TempTokenExchange = () => {
     handleAmountDirectly,
     mint,
     burn,
-    refetchMint,
-    refetchBurn,
     mintCostAfterFees,
     mintCostAfterFeesLoading,
     burnProceedsAfterFees,
@@ -54,13 +52,6 @@ export const TempTokenExchange = () => {
 
   const [claimedPreSaleTokens, setClaimedPreSaleTokens] =
     useState<boolean>(false);
-
-  // useEffect(() => {
-  //   if (!isPreSaleOngoing) {
-  //     refetchMint();
-  //     refetchBurn();
-  //   }
-  // }, [isPreSaleOngoing]);
 
   return (
     <Flex direction="column" justifyContent={"center"} gap="10px">

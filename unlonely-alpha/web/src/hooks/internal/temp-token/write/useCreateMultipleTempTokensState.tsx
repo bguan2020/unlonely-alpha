@@ -284,21 +284,20 @@ export const useCreateMultipleTempTokensState = ({
           position: "bottom", // chakra ui toast position
         });
         if (Number(preSaleEndTimestamp) > Math.floor(Date.now() / 1000)) {
-          // todo: uncomment this line
-          // const res = await sendNotifications({
-          //   variables: {
-          //     data: {
-          //       title: `/${channel.channelQueryData?.slug} launched $${newTokenSymbols[0]} vs. $${newTokenSymbols[1]} tokens!`,
-          //       body: "you have 2 min. to claim 1,000 free tokens",
-          //       pathname: `/channels/${channel.channelQueryData?.slug}`,
-          //       channelId: undefined,
-          //     },
-          //   },
-          // });
-          // console.log(
-          //   "useCreateMutipleTempTokensState send all notifications:",
-          //   res
-          // );
+          const res = await sendNotifications({
+            variables: {
+              data: {
+                title: `/${channel.channelQueryData?.slug} launched $${newTokenSymbols[0]} vs. $${newTokenSymbols[1]} tokens!`,
+                body: "you have 2 min. to claim 1,000 free tokens",
+                pathname: `/channels/${channel.channelQueryData?.slug}`,
+                channelId: undefined,
+              },
+            },
+          });
+          console.log(
+            "useCreateMutipleTempTokensState send all notifications:",
+            res
+          );
         }
         callbackOnTxSuccess();
         // wait for 5 seconds
