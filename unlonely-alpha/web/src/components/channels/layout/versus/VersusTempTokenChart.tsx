@@ -358,7 +358,7 @@ export const VersusTempTokenChart = ({
             could not fetch channel data
           </Text>
         )}
-        {consolidatedChartData.length === 0 && matchingChain && !isStandalone && (
+        {!tokenA.symbol && !tokenB.symbol && (
           <Text
             textAlign="center"
             position="absolute"
@@ -367,9 +367,25 @@ export const VersusTempTokenChart = ({
             left="50%"
             transform="translate(-50%, -50%)"
           >
-            no txs
+            streamer has not launched versus token yet
           </Text>
         )}
+        {consolidatedChartData.length === 0 &&
+          matchingChain &&
+          !isStandalone &&
+          tokenA.symbol &&
+          tokenB.symbol && (
+            <Text
+              textAlign="center"
+              position="absolute"
+              color="gray"
+              top="50%"
+              left="50%"
+              transform="translate(-50%, -50%)"
+            >
+              no txs
+            </Text>
+          )}
         {isStandalone && (
           <Flex
             top="50%"
