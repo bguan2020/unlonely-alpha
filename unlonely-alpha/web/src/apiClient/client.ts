@@ -83,7 +83,10 @@ export function initializeApollo(
   return _apolloClient;
 }
 
-export function useApollo(initialState: InitialState, latestVerifiedAddress: string | null) {
+export function useApollo(
+  initialState: InitialState,
+  latestVerifiedAddress: string | null
+) {
   const store = useMemo(
     () => initializeApollo(initialState, latestVerifiedAddress),
     [initialState, latestVerifiedAddress]

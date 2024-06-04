@@ -83,7 +83,10 @@ export function formatTimestampToTime(timestampInMilliseconds: number) {
   return hours + ":" + formattedMinutes + " " + ampm;
 }
 
-export function formatTimestampToDate(timestampInMilliseconds: number, noClock?: boolean) {
+export function formatTimestampToDate(
+  timestampInMilliseconds: number,
+  noClock?: boolean
+) {
   const date = new Date(timestampInMilliseconds);
   const year = date.getFullYear();
   const months = [
@@ -103,5 +106,7 @@ export function formatTimestampToDate(timestampInMilliseconds: number, noClock?:
   const month = months[date.getMonth()]; // getMonth() is zero-indexed
   const day = date.getDate().toString().padStart(2, "0");
 
-  return `${month}-${day}-${year}${noClock ? "" : " " + formatTimestampToTime(timestampInMilliseconds)}`;
+  return `${month}-${day}-${year}${
+    noClock ? "" : " " + formatTimestampToTime(timestampInMilliseconds)
+  }`;
 }
