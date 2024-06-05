@@ -100,14 +100,24 @@ const ConnectWallet = () => {
       {ready ? (
         <>
           <TransactionModalTemplate
-            confirmButton="logout"
             title="are you sure you want to log out?"
             isOpen={isCloseModalOpen}
-            canSend={true}
-            onSend={callLogout}
-            isModalLoading={false}
             handleClose={() => setIsCloseModalOpen(false)}
-          />
+            hideFooter
+          >
+            <Button
+              color="white"
+              bg="#E09025"
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              onClick={callLogout}
+              width="100%"
+              borderRadius="25px"
+            >
+              logout
+            </Button>
+          </TransactionModalTemplate>
           {user && userAddress ? (
             <ConnectedDisplay />
           ) : (
