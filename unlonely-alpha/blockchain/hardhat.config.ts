@@ -63,65 +63,47 @@ module.exports = {
     hardhat: {
       chainId: 1337, // REF: https://hardhat.org/metamask-issue.html
     },
-    goerli: {
-      url: "https://eth-goerli.g.alchemy.com/v2/ULCyunLDcNW53XFkRWRKLLrFpOPofWiT",
-      accounts: [
-        "deb65044913e5f8f24e1407c4e4abea0873e07bcdeabab477d931e9e4825cdd2",
-      ],
-    },
-    mumbai: {
-      url: "https://polygon-mumbai.g.alchemy.com/v2/a1bbMNkXZ1P7DQAdUZBo2kboXihjBqDY",
-      accounts: [
-        "deb65044913e5f8f24e1407c4e4abea0873e07bcdeabab477d931e9e4825cdd2",
-      ],
-    },
-    matic: {
-      url: "https://polygon-mainnet.g.alchemy.com/v2/QaFNUobXWyTgqnqFD_vKFEoy0oW8oB76",
-      accounts: [
-        "deb65044913e5f8f24e1407c4e4abea0873e07bcdeabab477d931e9e4825cdd2",
-      ],
-    },
     mainnet: {
-      url: "https://eth-mainnet.g.alchemy.com/v2/45C69MoK06_swCglhy3SexohbJFogC9F",
+      url: `https://eth-mainnet.g.alchemy.com/v2/${String(process.env.ALCHEMY_API_KEY)}`,
       accounts: [
-        "deb65044913e5f8f24e1407c4e4abea0873e07bcdeabab477d931e9e4825cdd2",
+        String(process.env.TEST_PRIVATE_KEY)
       ],
     },
     base_goerli: {
       url: "https://goerli.base.org",
       accounts: [
-        // "deb65044913e5f8f24e1407c4e4abea0873e07bcdeabab477d931e9e4825cdd2",
+        String(process.env.TEST_PRIVATE_KEY)
       ],
       verify: {
         etherscan: {
           apiUrl: "https://api-goerli.basescan.org",
-          apiKey: "YI2EP6PXGKQ614AJABB3W5FRG8TSG539E9"
+          apiKey: String(process.env.EXPLORER_API_KEY)
         }
       }
     },
     base_sepolia: {
-      url: "https://base-sepolia.g.alchemy.com/v2/y-6uxcy5eHDKqKKBmvmFXbGxe7E5Z0gd",
+      url: `https://base-sepolia.g.alchemy.com/v2/${String(process.env.ALCHEMY_SEPOLIA_KEY)}`,
       accounts: [
-        // "deb65044913e5f8f24e1407c4e4abea0873e07bcdeabab477d931e9e4825cdd2",
-        "a56ca0f8d1737207afa59328b3d5a282806434d08f35f2e7f7b41084c0ad3704"
+        String(process.env.TEST_PRIVATE_KEY)
+        // String(process.env.PROD_PRIVATE_KEY)
       ],
       verify: {
         etherscan: {
           apiUrl: "https://api-sepolia.basescan.org",
-          apiKey: "YI2EP6PXGKQ614AJABB3W5FRG8TSG539E9"
+          apiKey: String(process.env.EXPLORER_API_KEY)
         }
       }
     },
     base: {
-      url: "https://base-mainnet.g.alchemy.com/v2/aR93M6MdEC4lgh4VjPXLaMnfBveve1fC",
+      url: `https://base-mainnet.g.alchemy.com/v2/${String(process.env.ALCHEMY_BASE_API_KEY)}`,
       accounts: [
-        "deb65044913e5f8f24e1407c4e4abea0873e07bcdeabab477d931e9e4825cdd2",
-        // "a56ca0f8d1737207afa59328b3d5a282806434d08f35f2e7f7b41084c0ad3704" // todo: change to other account during production
+        // String(process.env.TEST_PRIVATE_KEY)
+        String(process.env.PROD_PRIVATE_KEY)
       ],
       verify: {
         etherscan: {
           apiUrl: "https://api.basescan.org",
-          apiKey: "YI2EP6PXGKQ614AJABB3W5FRG8TSG539E9"
+          apiKey: String(process.env.EXPLORER_API_KEY)
         }
       }
     }

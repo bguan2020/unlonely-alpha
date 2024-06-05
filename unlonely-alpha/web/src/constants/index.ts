@@ -87,7 +87,7 @@ export type AblyChannelPromise = Ably.Types.RealtimeChannelPromise;
 export const MAX_VIBES_PRICE = 399999999934464;
 
 export const IPFS_PROJECT_ID = "2L4KPgsXhXNwOtkELX7xt2Sbrl4";
-export const IPFS_PROJECT_SECRET = "7d400aacc9bc6c0f0d6e59b65a83d764";
+export const IPFS_PROJECT_SECRET = String(process.env.NEXT_PUBLIC_IPFS_PROJECT_SECRET);
 
 export const CREATION_BLOCK = BigInt(9018023); // vibes token creation block number
 
