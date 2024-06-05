@@ -130,16 +130,16 @@ function App({ Component, pageProps }: Props) {
     NETWORKS, // first chain in array determines the first chain to interact with via publicClient
     [
       alchemyProvider({
-        apiKey: "aR93M6MdEC4lgh4VjPXLaMnfBveve1fC", // base
+        apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_BASE_API_KEY), // base
       }),
       alchemyProvider({
-        apiKey: "45C69MoK06_swCglhy3SexohbJFogC9F", // eth mainnet
+        apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_API_KEY), // eth mainnet
       }),
       alchemyProvider({
-        apiKey: "Yv5gKmch-fSlMcOygB5jgDbNd3PL5fSv", // goerli
+        apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_GOERLI_API_KEY), // goerli
       }),
       alchemyProvider({
-        apiKey: "y-6uxcy5eHDKqKKBmvmFXbGxe7E5Z0gd", // base sepolia
+        apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_SEPOLIA_KEY), // base sepolia
       }),
       publicProvider(),
     ]
