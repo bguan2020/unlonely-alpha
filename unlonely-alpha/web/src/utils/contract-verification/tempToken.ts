@@ -16,7 +16,7 @@ export const verifyTempTokenV1OnBase = async (
     type: "POST",
     url: "//api.basescan.org/api",
     data: {
-      apikey: "YI2EP6PXGKQ614AJABB3W5FRG8TSG539E9",
+      apikey: String(process.env.NEXT_PUBLIC_EXPLORER_API_KEY),
       module: "contract",
       action: "verifysourcecode",
       sourceCode: flattened, // this is a flattened version of the contract
@@ -49,7 +49,7 @@ export const checkVerificationStatusOnBase = async (
   );
   // Prepare query parameters
   const params = new URLSearchParams({
-    apikey: "YI2EP6PXGKQ614AJABB3W5FRG8TSG539E9",
+    apikey: String(process.env.NEXT_PUBLIC_EXPLORER_API_KEY),
     module: "contract",
     action: "checkverifystatus",
     guid: globalUniqueIdentifierForVerification,

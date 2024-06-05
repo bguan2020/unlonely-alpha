@@ -65,7 +65,9 @@ export const useVibesCheck = () => {
       createPublicClient({
         chain: base,
         transport: http(
-          "https://base-mainnet.g.alchemy.com/v2/aR93M6MdEC4lgh4VjPXLaMnfBveve1fC"
+          `https://base-mainnet.g.alchemy.com/v2/${String(
+            process.env.NEXT_PUBLIC_ALCHEMY_BASE_API_KEY
+          )}`
         ),
       }),
     []
