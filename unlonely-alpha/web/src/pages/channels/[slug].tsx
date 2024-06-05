@@ -8,12 +8,9 @@ import { ChannelProvider } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { ApolloError } from "@apollo/client";
 import { MobilePage } from "../../components/channels/layout/MobilePage";
-import { DesktopPage } from "../../components/channels/layout/DesktopPage";
-import { CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN } from "../../constants";
 import { TempTokenProvider } from "../../hooks/context/useTempToken";
 import { DesktopChannelPageTempToken } from "../../components/channels/layout/temptoken/DesktopChannelPageTempToken";
 import { VersusTempTokenProvider } from "../../hooks/context/useVersusTempToken";
-import { VibesProvider } from "../../hooks/context/useVibes";
 
 const ChannelDetail = ({
   channelData,
@@ -34,53 +31,25 @@ const ChannelDetail = ({
   return (
     <ChannelProvider>
       {!isStandalone ? (
-        <>
-          {CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN.includes(
-            channelSSR?.id ?? ""
-          ) ? (
-            <TempTokenProvider>
-              <VersusTempTokenProvider>
-                <DesktopChannelPageTempToken
-                  channelSSR={channelSSR}
-                  channelSSRDataLoading={channelDataLoading}
-                  channelSSRDataError={channelDataError}
-                />
-              </VersusTempTokenProvider>
-            </TempTokenProvider>
-          ) : (
-            <VibesProvider>
-              <DesktopPage
-                channelSSR={channelSSR}
-                channelSSRDataLoading={channelDataLoading}
-                channelSSRDataError={channelDataError}
-              />
-            </VibesProvider>
-          )}
-        </>
+        <TempTokenProvider>
+          <VersusTempTokenProvider>
+            <DesktopChannelPageTempToken
+              channelSSR={channelSSR}
+              channelSSRDataLoading={channelDataLoading}
+              channelSSRDataError={channelDataError}
+            />
+          </VersusTempTokenProvider>
+        </TempTokenProvider>
       ) : (
-        <>
-          {CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN.includes(
-            channelSSR?.id ?? ""
-          ) ? (
-            <TempTokenProvider>
-              <VersusTempTokenProvider>
-                <MobilePage
-                  channelSSR={channelSSR}
-                  channelSSRDataLoading={channelDataLoading}
-                  channelSSRDataError={channelDataError}
-                />
-              </VersusTempTokenProvider>
-            </TempTokenProvider>
-          ) : (
-            <VibesProvider>
-              <MobilePage
-                channelSSR={channelSSR}
-                channelSSRDataLoading={channelDataLoading}
-                channelSSRDataError={channelDataError}
-              />
-            </VibesProvider>
-          )}
-        </>
+        <TempTokenProvider>
+          <VersusTempTokenProvider>
+            <MobilePage
+              channelSSR={channelSSR}
+              channelSSRDataLoading={channelDataLoading}
+              channelSSRDataError={channelDataError}
+            />
+          </VersusTempTokenProvider>
+        </TempTokenProvider>
       )}
     </ChannelProvider>
   );
