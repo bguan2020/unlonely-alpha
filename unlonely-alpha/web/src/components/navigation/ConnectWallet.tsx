@@ -37,9 +37,11 @@ import copy from "copy-to-clipboard";
 
 const ConnectWallet = () => {
   const router = useRouter();
-  const { user, userAddress, ready, privyUser, login } = useUser();
+  const { user, userAddress, ready, privyUser, login, logout } = useUser();
   const { isStandalone } = useUserAgent();
   const toast = useToast();
+  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+
   const { connectWallet } = useConnectWallet({
     onError: (err) => {
       console.error("connect wallet error", err);
@@ -80,6 +82,11 @@ const ConnectWallet = () => {
     },
   });
 
+  const callLogout = useCallback(() => {
+    logout();
+    setIsCloseModalOpen(false);
+  }, []);
+
   const redirectToBridge = useCallback(() => {
     if (isStandalone) {
       router.push("/bridge");
@@ -92,6 +99,15 @@ const ConnectWallet = () => {
     <>
       {ready ? (
         <>
+          <TransactionModalTemplate
+            confirmButton="logout"
+            title="are you sure you want to log out?"
+            isOpen={isCloseModalOpen}
+            canSend={true}
+            onSend={callLogout}
+            isModalLoading={false}
+            handleClose={() => setIsCloseModalOpen(false)}
+          />
           {user && userAddress ? (
             <ConnectedDisplay />
           ) : (
@@ -141,6 +157,17 @@ const ConnectWallet = () => {
                   bridge ETH to base
                   <ExternalLinkIcon />
                 </MenuItem>
+                {privyUser && (
+                  <MenuItem
+                    bg={"#131323"}
+                    _hover={{ bg: "#1f1f3c" }}
+                    _focus={{}}
+                    _active={{}}
+                    onClick={() => setIsCloseModalOpen(true)}
+                  >
+                    logout
+                  </MenuItem>
+                )}
               </MenuList>
             </Menu>
           )}
