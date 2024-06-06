@@ -9,6 +9,7 @@ import {
   PopoverArrow,
   PopoverContent,
   PopoverTrigger,
+  Button,
 } from "@chakra-ui/react";
 import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { useEffect, useMemo, useState } from "react";
@@ -16,7 +17,6 @@ import { IoMdEye } from "react-icons/io";
 import { IoMdEyeOff } from "react-icons/io";
 import { FaRegCopy } from "react-icons/fa";
 import copy from "copy-to-clipboard";
-import LivepeerBroadcast from "../../../stream/LivepeerBroadcast";
 import useUpdateChannelAllowNfcs from "../../../../hooks/server/channel/useUpdateChannelAllowNfcs";
 import {
   AblyChannelPromise,
@@ -203,11 +203,12 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
         >
           {playbackId && streamKey ? (
             <>
-              <LivepeerBroadcast streamKey={streamKey} />
+              {/* <LivepeerBroadcast streamKey={streamKey} /> */}
               {playbackData.infra === "livepeer" && !isStandalone && (
                 <Flex
                   direction="column"
-                  width={"30%"}
+                  // width={"30%"}
+                  width="100%"
                   justifyContent={"center"}
                   gap="5px"
                 >
@@ -217,22 +218,22 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
                   {mode === "versus-mode" && (
                     <VersusTempTokenTimerView disableChatbot={false} />
                   )}
-                  <Text fontSize="20px">viewer pov</Text>
+                  {/* <Text fontSize="20px">viewer pov</Text> */}
                   <LivepeerPlayer
                     src={getSrc(playbackData.livepeerPlaybackInfo)}
-                    isPreview={true}
-                    customSizePercentages={{
-                      width: "100%",
-                      height: "30%",
-                    }}
+                    // isPreview={true}
+                    // customSizePercentages={{
+                    //   width: "100%",
+                    //   height: "30%",
+                    // }}
                   />
-                  <Text fontSize="12px">
+                  {/* <Text fontSize="12px">
                     It may take a few seconds for the livestream to appear. If
                     you're streaming from a different software like OBS, you
                     might need to refresh the page. If you're streaming directly
                     in-browser here, DON'T refresh as it will stop the
                     livestream.
-                  </Text>
+                  </Text> */}
                 </Flex>
               )}
             </>
@@ -372,6 +373,16 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
                   </Flex>
                 </Flex>
               </Flex>
+              <Button
+                onClick={() =>
+                  window.open(
+                    `https://lvpr.tv/broadcast/${streamKey}`,
+                    "_blank"
+                  )
+                }
+              >
+                inbrowser stream
+              </Button>
               <Flex
                 gap="0.5rem"
                 justifyContent={"space-evenly"}
