@@ -163,6 +163,11 @@ function App({ Component, pageProps }: Props) {
             logo: "/icons/icon-192x192.png",
             showWalletLoginFirst: false,
           },
+          externalWallets: {
+            coinbaseWallet: {
+              connectionOptions: "all",
+            },
+          },
         }}
       >
         <PrivyWagmiConnector wagmiChainsConfig={configureChainsConfig}>
