@@ -92,7 +92,17 @@ const LivepeerPlayer = memo(
         onTouchStart={handleOpacity} // Handle touch event
         onMouseMove={handleOpacity} // Set opacity to 1 on mouse enter
       >
-        <Player.Root aspectRatio={null} src={src} autoPlay>
+        <Player.Root
+          aspectRatio={null}
+          src={src}
+          autoPlay
+          onError={(e) => {
+            if (e?.message) {
+              console.log("Error playing video", JSON.stringify(e));
+              setError(JSON.stringify(e));
+            }
+          }}
+        >
           <Player.Container
             style={{
               backgroundColor: "black",
@@ -106,10 +116,6 @@ const LivepeerPlayer = memo(
                 height: "100%",
                 margin: "auto",
                 objectFit: "contain",
-              }}
-              onError={(e) => {
-                console.error("Error playing video", stringifyEvent(e));
-                setError(stringifyEvent(e));
               }}
             />
             <Player.LoadingIndicator
