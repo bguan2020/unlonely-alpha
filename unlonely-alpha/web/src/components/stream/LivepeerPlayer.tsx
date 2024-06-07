@@ -97,7 +97,7 @@ const LivepeerPlayer = memo(
           src={src}
           autoPlay
           onError={(e) => {
-            if (e?.message) {
+            if (e?.message && e.type === "unknown") {
               console.log("Error playing video", JSON.stringify(e));
               setError(JSON.stringify(e));
             }
@@ -366,21 +366,5 @@ const LivepeerPlayer = memo(
     return prevProps.src === nextProps.src;
   }
 );
-
-const stringifyEvent = (event: any) => {
-  const obj: any = {};
-  for (const key in event) {
-    obj[key] = event[key];
-  }
-  return JSON.stringify(
-    obj,
-    (key, value) => {
-      if (value instanceof Node) return "Node";
-      if (value instanceof Window) return "Window";
-      return value;
-    },
-    "  "
-  );
-};
 
 export default LivepeerPlayer;
