@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { useToast, Box } from "@chakra-ui/react";
 import Link from "next/link";
-import { decodeEventLog, encodeAbiParameters } from "viem";
+import { encodeAbiParameters } from "viem";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { useCreateTempToken } from "../../../contracts/useTempTokenFactoryV1";
 import { verifyTempTokenV1OnBase } from "../../../../utils/contract-verification/tempToken";
@@ -11,7 +11,10 @@ import {
   Contract,
   InteractionType,
 } from "../../../../constants";
-import { getContractFromNetwork } from "../../../../utils/contract";
+import {
+  getContractFromNetwork,
+  returnDecodedTopics,
+} from "../../../../utils/contract";
 import { useChannelContext } from "../../../context/useChannel";
 import { useUser } from "../../../context/useUser";
 import centerEllipses from "../../../../utils/centerEllipses";
@@ -151,11 +154,15 @@ export const useCreateTempTokenState = ({
           canAddToChatbot_create.current
         );
         if (!canAddToChatbot_create.current) return;
-        const topics = decodeEventLog({
-          abi: factoryContract.abi,
-          data: data.logs[2].data,
-          topics: data.logs[2].topics,
-        });
+        const topics = returnDecodedTopics(
+          data.logs,
+          factoryContract.abi,
+          "TempTokenCreated"
+        );
+        if (!topics) {
+          canAddToChatbot_create.current = false;
+          return;
+        }
         const args: any = topics.args;
         console.log("createTempToken success 2", args, data);
         await postTempToken({
@@ -199,7 +206,7 @@ export const useCreateTempTokenState = ({
             });
           });
         const title = `${
-          user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
+          user?.username ?? centerEllipses(args.owner as `0x${string}`, 15)
         } created the $${args.symbol} token!`;
         const dataToSend = [
           `${args.tokenAddress}`,

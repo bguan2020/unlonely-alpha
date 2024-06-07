@@ -9,7 +9,7 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 import { useCallback, useState, useMemo } from "react";
-import { decodeEventLog, formatUnits } from "viem";
+import { formatUnits } from "viem";
 import Link from "next/link";
 
 import { WavyText } from "../components/general/WavyText";
@@ -25,7 +25,7 @@ import { useNetworkContext } from "../hooks/context/useNetwork";
 import { useUser } from "../hooks/context/useUser";
 import { useClaimVotePayout } from "../hooks/contracts/useSharesContractV2";
 import centerEllipses from "../utils/centerEllipses";
-import { getContractFromNetwork } from "../utils/contract";
+import { getContractFromNetwork, returnDecodedTopics } from "../utils/contract";
 import { truncateValue } from "../utils/tokenDisplayFormatting";
 import useCloseSharesEvent from "../hooks/server/channel/useCloseSharesEvent";
 import usePostClaimPayout from "../hooks/server/usePostClaimPayout";
@@ -269,11 +269,15 @@ const EventCard = ({
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
-        const topics = decodeEventLog({
-          abi: contractData.abi,
-          data: data.logs[0].data,
-          topics: data.logs[0].topics,
-        });
+        const topics = returnDecodedTopics(
+          data.logs,
+          contractData.abi,
+          "Payout"
+        );
+        if (!topics) {
+          setCalling(false);
+          return;
+        }
         const args: any = topics.args;
         await postClaimPayout({
           channelId: event.channelId as string,

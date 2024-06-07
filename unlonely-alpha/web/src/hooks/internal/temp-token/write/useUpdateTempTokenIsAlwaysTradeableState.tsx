@@ -1,10 +1,12 @@
 import { useNetworkContext } from "../../../context/useNetwork";
 import { CHAKRA_UI_TX_TOAST_DURATION, Contract } from "../../../../constants";
-import { getContractFromNetwork } from "../../../../utils/contract";
+import {
+  getContractFromNetwork,
+  returnDecodedTopics,
+} from "../../../../utils/contract";
 import { useToast, Box } from "@chakra-ui/react";
 import { useSetAlwaysTradeableForTokens as use_call_updateOnchain_alwaysTradeable } from "../../../contracts/useTempTokenFactoryV1";
 import Link from "next/link";
-import { decodeEventLog } from "viem";
 import useUpdateTempTokenIsAlwaysTradeable from "../../../server/temp-token/useUpdateTempTokenIsAlwaysTradeable";
 
 export const useUpdateTempTokenIsAlwaysTradeableState = (
@@ -68,11 +70,12 @@ export const useUpdateTempTokenIsAlwaysTradeableState = (
         });
       },
       onTxSuccess: async (data) => {
-        const topics = decodeEventLog({
-          abi: factoryContract.abi,
-          data: data.logs[1].data,
-          topics: data.logs[1].topics,
-        });
+        const topics = returnDecodedTopics(
+          data.logs,
+          factoryContract.abi,
+          "AlwaysTradeableSetForTokens"
+        );
+        if (!topics) return;
         const args: any = topics.args;
         console.log("setAlwaysTradeableForTokens success", data, args);
         await updateTempTokenIsAlwaysTradeable({

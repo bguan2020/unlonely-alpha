@@ -4,12 +4,15 @@ import {
   Contract,
   InteractionType,
 } from "../../../../constants";
-import { getContractFromNetwork } from "../../../../utils/contract";
+import {
+  getContractFromNetwork,
+  returnDecodedTopics,
+} from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { useCreateMultipleTempTokens } from "../../../contracts/useTempTokenFactoryV1";
 import { useToast, Box } from "@chakra-ui/react";
 import Link from "next/link";
-import { decodeEventLog, encodeAbiParameters } from "viem";
+import { encodeAbiParameters } from "viem";
 import { useChannelContext } from "../../../context/useChannel";
 import usePostTempToken from "../../../server/temp-token/usePostTempToken";
 import centerEllipses from "../../../../utils/centerEllipses";
@@ -144,11 +147,15 @@ export const useCreateMultipleTempTokensState = ({
       },
       onTxSuccess: async (data) => {
         if (!canAddToChatbot_create.current) return;
-        const topics = decodeEventLog({
-          abi: factoryContract.abi,
-          data: data.logs[data.logs.length - 1].data,
-          topics: data.logs[data.logs.length - 1].topics,
-        });
+        const topics = returnDecodedTopics(
+          data.logs,
+          factoryContract.abi,
+          "MultipleTempTokensCreated"
+        );
+        if (!topics) {
+          canAddToChatbot_create.current = false;
+          return;
+        }
         const args: any = topics.args;
         console.log("createMultipleTempTokens success", args, data);
         const newEndTimestamp = args.endTimestamp as bigint;
