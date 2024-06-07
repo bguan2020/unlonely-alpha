@@ -113,7 +113,6 @@ export const useSendRemainingFundsToWinnerState = (
         if (!topics) return;
         console.log("send remaining funds success", data, topics.args);
         const args: any = topics.args;
-        const to = data.to as `0x${string}`;
         const balance = args.balance as bigint;
         const winnerWallet = args.winnerWallet as `0x${string}`;
         toast({
@@ -157,9 +156,9 @@ export const useSendRemainingFundsToWinnerState = (
           taskType:
             InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION,
           title,
-          description: `${userAddress}:${winnerWallet}:${to}:${String(
-            balance
-          )}`,
+          description: `${userAddress}:${winnerWallet}:${
+            tokenContractData.address
+          }:${String(balance)}`,
         });
         setWinner("");
         callbackOnTxSuccess?.();
