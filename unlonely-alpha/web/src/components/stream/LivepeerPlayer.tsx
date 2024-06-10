@@ -97,7 +97,7 @@ const LivepeerPlayer = memo(
           src={src}
           autoPlay
           onError={(e) => {
-            if (e?.message && e.type === "unknown") {
+            if (e?.message && e?.message?.length > 0 && e?.type === "unknown") {
               console.log("Error playing video", JSON.stringify(e));
               setError(JSON.stringify(e));
             }
@@ -195,6 +195,9 @@ const LivepeerPlayer = memo(
                         fontFamily={"LoRes15"}
                       >
                         Error detected while playing video
+                      </Text>
+                      <Text textAlign="center">
+                        {JSON.parse(error).message}
                       </Text>
                       <Button
                         color="white"
