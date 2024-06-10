@@ -3,10 +3,12 @@ import { useNetworkContext } from "../../../context/useNetwork";
 import { filteredInput } from "../../../../utils/validation/input";
 import { Box, useToast } from "@chakra-ui/react";
 import { CHAKRA_UI_TX_TOAST_DURATION, Contract } from "../../../../constants";
-import { getContractFromNetwork } from "../../../../utils/contract";
+import {
+  getContractFromNetwork,
+  returnDecodedTopics,
+} from "../../../../utils/contract";
 import { useIncreaseEndTimestampForTokens as use_call_updateOnchain_increaseEndTimestamps } from "../../../contracts/useTempTokenFactoryV1";
 import Link from "next/link";
-import { decodeEventLog } from "viem";
 import useUpdateEndTimestampForTokens from "../../../server/temp-token/useUpdateEndTimestampForTokens";
 
 export const useUpdateEndTimestampForTokensState = (
@@ -83,11 +85,12 @@ export const useUpdateEndTimestampForTokensState = (
         });
       },
       onTxSuccess: async (data) => {
-        const topics = decodeEventLog({
-          abi: factoryContract.abi,
-          data: data.logs[1].data,
-          topics: data.logs[1].topics,
-        });
+        const topics = returnDecodedTopics(
+          data.logs,
+          factoryContract.abi,
+          "EndTimestampIncreasedForTokens"
+        );
+        if (!topics) return;
         const args: any = topics.args;
         console.log("increaseEndTimestampForTokens success", data, args);
         await updateEndTimestampForTokens({

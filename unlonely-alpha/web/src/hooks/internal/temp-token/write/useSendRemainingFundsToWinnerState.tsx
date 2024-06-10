@@ -4,7 +4,7 @@ import { ContractData } from "../../../../constants/types";
 import { Box, useToast } from "@chakra-ui/react";
 import Link from "next/link";
 import { useSendRemainingFundsToWinnerAfterTokenExpiration } from "../../../contracts/useTempTokenV1";
-import { decodeEventLog, isAddress } from "viem";
+import { isAddress } from "viem";
 import { useChannelContext } from "../../../context/useChannel";
 import {
   CHAKRA_UI_TX_TOAST_DURATION,
@@ -17,6 +17,7 @@ import centerEllipses from "../../../../utils/centerEllipses";
 import { usePublicClient } from "wagmi";
 import { init, useQuery } from "@airstack/airstack-react";
 import useDebounce from "../../useDebounce";
+import { returnDecodedTopics } from "../../../../utils/contract";
 
 init(String(process.env.NEXT_PUBLIC_AIRSTACK_API_KEY));
 
@@ -104,14 +105,14 @@ export const useSendRemainingFundsToWinnerState = (
         });
       },
       onTxSuccess: async (data) => {
-        const topics = decodeEventLog({
-          abi: tokenContractData.abi,
-          data: data.logs[0].data,
-          topics: data.logs[0].topics,
-        });
+        const topics = returnDecodedTopics(
+          data.logs,
+          tokenContractData.abi,
+          "SendRemainingFundsToWinnerAfterTokenExpiration"
+        );
+        if (!topics) return;
         console.log("send remaining funds success", data, topics.args);
         const args: any = topics.args;
-        const to = data.to as `0x${string}`;
         const balance = args.balance as bigint;
         const winnerWallet = args.winnerWallet as `0x${string}`;
         toast({
@@ -155,9 +156,9 @@ export const useSendRemainingFundsToWinnerState = (
           taskType:
             InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION,
           title,
-          description: `${userAddress}:${winnerWallet}:${to}:${String(
-            balance
-          )}`,
+          description: `${userAddress}:${winnerWallet}:${
+            tokenContractData.address
+          }:${String(balance)}`,
         });
         setWinner("");
         callbackOnTxSuccess?.();

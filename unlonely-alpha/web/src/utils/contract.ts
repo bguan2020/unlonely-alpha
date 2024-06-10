@@ -1,3 +1,4 @@
+import { decodeEventLog } from "viem";
 import { ContractData, Network, WriteCallbacks } from "../constants/types";
 
 export const getContractFromNetwork = (
@@ -52,3 +53,24 @@ export const createCallbackHandler = (
     callbacks?.onTxError?.(error);
   },
 });
+
+
+export const returnDecodedTopics = (logs: any[], contractAbi: any[], eventName: string) => {
+  let topics = null;
+  for (let i = logs.length - 1; i >= 0; i--) {
+    try {
+      const _topics = decodeEventLog({
+        abi: contractAbi,
+        data: logs[i].data,
+        topics: logs[i].topics,
+      });
+      if (_topics && _topics.eventName === eventName) {
+        topics = _topics;
+        break;
+      }
+    } catch (e) {
+      console.log(`${eventName} success decodeEventLog error`, e);
+    }
+  }
+  return topics;
+}

@@ -8,8 +8,11 @@ import {
   InteractionType,
 } from "../../../../constants";
 import { useNetworkContext } from "../../../../hooks/context/useNetwork";
-import { getContractFromNetwork } from "../../../../utils/contract";
-import { decodeEventLog, isAddressEqual } from "viem";
+import {
+  getContractFromNetwork,
+  returnDecodedTopics,
+} from "../../../../utils/contract";
+import { isAddressEqual } from "viem";
 import Link from "next/link";
 import { usePublicClient } from "wagmi";
 import { useUser } from "../../../../hooks/context/useUser";
@@ -82,15 +85,15 @@ export const PermamintModule = () => {
         });
       },
       onTxSuccess: async (data) => {
-        const topics = decodeEventLog({
-          abi: factoryContract.abi,
-          data: data.logs[data.logs.length - 1].data,
-          topics: data.logs[data.logs.length - 1].topics,
-        });
+        const topics = returnDecodedTopics(
+          data.logs,
+          factoryContract.abi,
+          "FactoryMintedWinnerTokens"
+        );
+        if (!topics) return;
         const args: any = topics.args;
         console.log("mint winner tokens success", data, args);
         const winnerTokenAddress = args.winnerTokenAddress as `0x${string}`;
-        const amount = args.amount as bigint;
 
         toast({
           render: () => (

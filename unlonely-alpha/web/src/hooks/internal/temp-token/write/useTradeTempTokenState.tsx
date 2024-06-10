@@ -22,7 +22,7 @@ import {
 import useDebounce from "../../useDebounce";
 import { Flex, Box, useToast, Text } from "@chakra-ui/react";
 import Link from "next/link";
-import { decodeEventLog, isAddress } from "viem";
+import { isAddress } from "viem";
 import centerEllipses from "../../../../utils/centerEllipses";
 import {
   burnErrors,
@@ -37,6 +37,7 @@ import { useUser } from "../../../context/useUser";
 import { useBalance } from "wagmi";
 import useUpdateTempTokenHighestTotalSupply from "../../../server/temp-token/useUpdateTempTokenHighestTotalSupply";
 import useUpdateTempTokenHasHitTotalSupplyThreshold from "../../../server/temp-token/useUpdateTempTokenHasHitTotalSupplyThreshold";
+import { returnDecodedTopics } from "../../../../utils/contract";
 
 export type UseTradeTempTokenStateType = {
   amount: string;
@@ -219,13 +220,20 @@ export const useTradeTempTokenState = ({
           position: "bottom", // chakra ui toast position
         });
         if (channelQueryData) {
-          const topics = decodeEventLog({
-            abi: tempTokenContract.abi,
-            data: data.logs[data.logs.length - 1].data,
-            topics: data.logs[data.logs.length - 1].topics,
-          });
+          console.log("mint success data", data);
+          const topics = returnDecodedTopics(
+            data.logs,
+            tempTokenContract.abi,
+            "Mint"
+          );
+          if (!topics) {
+            console.log("mint success topics not found");
+            canAddToChatbot_mint.current = false;
+            setAmount(String(DEFAULT_TOKEN_TRADE_AMOUNT));
+            return;
+          }
           const args: any = topics.args;
-          console.log("mint success", args, data);
+          console.log("mint success args", args);
           const hasHitTotalSupplyThreshold =
             args.hasHitTotalSupplyThreshold as boolean;
           const highestTotalSupply = args.highestTotalSupply as bigint;
@@ -389,31 +397,41 @@ export const useTradeTempTokenState = ({
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
-        const topics = decodeEventLog({
-          abi: tempTokenContract.abi,
-          data: data.logs[1].data,
-          topics: data.logs[1].topics,
-        });
-        const args: any = topics.args;
-        const tokenAddress = args.tokenAddress as `0x${string}`;
-        const totalSupply = args.totalSupply as bigint;
-        const title = `${
-          user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
-        } sold ${Number(args.amount as bigint)} $${tokenSymbol}!`;
-        addToChatbotForTempToken({
-          username: user?.username ?? "",
-          address: userAddress ?? "",
-          taskType: InteractionType.SELL_TEMP_TOKENS,
-          title,
-          description: `${userAddress}:${Number(
-            args.amount as bigint
-          )}:${String(data.blockNumber)}:${tokenAddress}:${String(
-            totalSupply
-          )}`,
-        });
-        callbackOnBurnTxSuccess?.();
-        canAddToChatbot_burn.current = false;
-        setAmount(String(DEFAULT_TOKEN_TRADE_AMOUNT));
+        if (channelQueryData) {
+          console.log("burn success data", data);
+          const topics = returnDecodedTopics(
+            data.logs,
+            tempTokenContract.abi,
+            "Burn"
+          );
+          if (!topics) {
+            console.log("burn success topics not found");
+            canAddToChatbot_burn.current = false;
+            setAmount(String(DEFAULT_TOKEN_TRADE_AMOUNT));
+            return;
+          }
+          const args: any = topics.args;
+          console.log("burn success args", args);
+          const tokenAddress = args.tokenAddress as `0x${string}`;
+          const totalSupply = args.totalSupply as bigint;
+          const title = `${
+            user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
+          } sold ${Number(args.amount as bigint)} $${tokenSymbol}!`;
+          addToChatbotForTempToken({
+            username: user?.username ?? "",
+            address: userAddress ?? "",
+            taskType: InteractionType.SELL_TEMP_TOKENS,
+            title,
+            description: `${userAddress}:${Number(
+              args.amount as bigint
+            )}:${String(data.blockNumber)}:${tokenAddress}:${String(
+              totalSupply
+            )}`,
+          });
+          callbackOnBurnTxSuccess?.();
+          canAddToChatbot_burn.current = false;
+          setAmount(String(DEFAULT_TOKEN_TRADE_AMOUNT));
+        }
       },
       onTxError: (error) => {
         console.log("burn error", error);

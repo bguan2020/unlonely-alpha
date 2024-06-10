@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useNetworkContext } from "../../../context/useNetwork";
-import { getContractFromNetwork } from "../../../../utils/contract";
+import {
+  getContractFromNetwork,
+  returnDecodedTopics,
+} from "../../../../utils/contract";
 import useUpdateTempTokenHasHitTotalSupplyThreshold from "../../../server/temp-token/useUpdateTempTokenHasHitTotalSupplyThreshold";
 import { CHAKRA_UI_TX_TOAST_DURATION, Contract } from "../../../../constants";
 
 import { useSetTotalSupplyThresholdForTokens as use_call_updateOnchain_hasHitTotalSupplyThreshold } from "../../../contracts/useTempTokenFactoryV1";
 import { useToast, Box } from "@chakra-ui/react";
 import Link from "next/link";
-import { decodeEventLog } from "viem";
 import { filteredInput } from "../../../../utils/validation/input";
 
 // for admins
@@ -90,11 +92,12 @@ export const useUpdateTotalSupplyThresholdState = (
           tokenAddressesSetFalse: tokenAddresses,
           chainId: localNetwork.config.chainId,
         });
-        const topics = decodeEventLog({
-          abi: factoryContract.abi,
-          data: data.logs[0].data,
-          topics: data.logs[0].topics,
-        });
+        const topics = returnDecodedTopics(
+          data.logs,
+          factoryContract.abi,
+          "TotalSupplyThresholdSetForTokens"
+        );
+        if (!topics) return;
         const args: any = topics.args;
         console.log("setTotalSupplyThresholdForTokens success", data, args);
 

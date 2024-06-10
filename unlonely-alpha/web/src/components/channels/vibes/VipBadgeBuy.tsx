@@ -1,7 +1,7 @@
 import { Button, Text, Box, useToast, Flex } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { decodeEventLog, formatUnits, isAddress } from "viem";
+import { formatUnits, isAddress } from "viem";
 import { useBalance } from "wagmi";
 
 import { useUser } from "../../../hooks/context/useUser";
@@ -20,7 +20,10 @@ import {
 } from "../../../hooks/contracts/useTournament";
 import usePostBadgeTrade from "../../../hooks/server/gamblable/usePostBadgeTrade";
 import centerEllipses from "../../../utils/centerEllipses";
-import { getContractFromNetwork } from "../../../utils/contract";
+import {
+  getContractFromNetwork,
+  returnDecodedTopics,
+} from "../../../utils/contract";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { ChatReturnType } from "../../../hooks/chat/useChat";
@@ -85,7 +88,7 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
         });
         callbacks?.callbackOnWriteError?.(error);
       },
-      onTxSuccess: (data: any) => {
+      onTxSuccess: async (data: any) => {
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
@@ -162,11 +165,15 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
       },
       callbackOnTxSuccess: async (data: any) => {
         if (!canAddToChatbot.current) return;
-        const topics = decodeEventLog({
-          abi: tournamentContract.abi,
-          data: data.logs[0].data,
-          topics: data.logs[0].topics,
-        });
+        const topics = returnDecodedTopics(
+          data.logs,
+          tournamentContract.abi,
+          "Trade"
+        );
+        if (!topics) {
+          canAddToChatbot.current = false;
+          return;
+        }
         const args: any = topics.args;
         console.log("VipBadgeBuy", args);
         const newSupply = args.trade.supply as bigint;

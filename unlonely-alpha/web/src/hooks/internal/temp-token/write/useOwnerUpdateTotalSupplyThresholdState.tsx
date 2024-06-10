@@ -1,6 +1,5 @@
 import { useToast, Box } from "@chakra-ui/react";
 import Link from "next/link";
-import { decodeEventLog } from "viem";
 import { useNetworkContext } from "../../../context/useNetwork";
 import useUpdateTempTokenHasHitTotalSupplyThreshold from "../../../server/temp-token/useUpdateTempTokenHasHitTotalSupplyThreshold";
 import { useCallback, useEffect, useState } from "react";
@@ -12,6 +11,7 @@ import {
   InteractionType,
 } from "../../../../constants";
 import { useUser } from "../../../context/useUser";
+import { returnDecodedTopics } from "../../../../utils/contract";
 
 export const useOwnerUpdateTotalSupplyThresholdState = (
   onSuccess?: () => void
@@ -92,11 +92,12 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
           tokenAddressesSetFalse: [currentTempTokenContract.address],
           chainId: localNetwork.config.chainId,
         });
-        const topics = decodeEventLog({
-          abi: currentTempTokenContract.abi,
-          data: data.logs[0].data,
-          topics: data.logs[0].topics,
-        });
+        const topics = returnDecodedTopics(
+          data.logs,
+          currentTempTokenContract.abi,
+          "TotalSupplyThresholdUpdated"
+        );
+        if (!topics) return;
         const args: any = topics.args;
         console.log("setTotalSupplyThresholdForTokens success", data, args);
         const newThreshold = args.totalSupplyThreshold as bigint;

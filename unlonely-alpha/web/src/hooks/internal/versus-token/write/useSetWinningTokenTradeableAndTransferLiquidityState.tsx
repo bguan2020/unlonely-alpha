@@ -1,12 +1,15 @@
 import { useVersusTempTokenContext } from "../../../context/useVersusTempToken";
 import { useSetWinningTokenTradeableAndTransferLiquidity } from "../../../contracts/useTempTokenFactoryV1";
-import { decodeEventLog, isAddressEqual } from "viem";
+import { isAddressEqual } from "viem";
 import {
   CHAKRA_UI_TX_TOAST_DURATION,
   Contract,
   InteractionType,
 } from "../../../../constants";
-import { getContractFromNetwork } from "../../../../utils/contract";
+import {
+  getContractFromNetwork,
+  returnDecodedTopics,
+} from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { Box, useToast } from "@chakra-ui/react";
 import Link from "next/link";
@@ -90,11 +93,12 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
         });
       },
       onTxSuccess: async (data) => {
-        const topics = decodeEventLog({
-          abi: factoryContract.abi,
-          data: data.logs[data.logs.length - 1].data,
-          topics: data.logs[data.logs.length - 1].topics,
-        });
+        const topics = returnDecodedTopics(
+          data.logs,
+          factoryContract.abi,
+          "SetWinningTokenTradeableAndTransferredLiquidity"
+        );
+        if (!topics) return;
         const args: any = topics.args;
         console.log("transfer funds success", data, args);
         toast({

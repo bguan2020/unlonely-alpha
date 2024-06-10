@@ -164,11 +164,11 @@ function App({ Component, pageProps }: Props) {
             showWalletLoginFirst: false,
           },
           // support for coinbase smart wallets, still in testing
-          // externalWallets: {
-          //   coinbaseWallet: {
-          //     connectionOptions: "all",
-          //   },
-          // },
+          externalWallets: {
+            coinbaseWallet: {
+              connectionOptions: "all",
+            },
+          },
         }}
       >
         <PrivyWagmiConnector wagmiChainsConfig={configureChainsConfig}>

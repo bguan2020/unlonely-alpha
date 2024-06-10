@@ -12,7 +12,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 import { useState, useMemo, useRef, useEffect } from "react";
-import { decodeEventLog, formatUnits, isAddress } from "viem";
+import { formatUnits, isAddress } from "viem";
 import Link from "next/link";
 import { useBalance } from "wagmi";
 
@@ -38,7 +38,10 @@ import {
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useUser } from "../../hooks/context/useUser";
-import { getContractFromNetwork } from "../../utils/contract";
+import {
+  getContractFromNetwork,
+  returnDecodedTopics,
+} from "../../utils/contract";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useVibesContext } from "../../hooks/context/useVibes";
@@ -169,11 +172,11 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           position: "bottom", // chakra ui toast position
         });
         if (channelQueryData) {
-          const topics = decodeEventLog({
-            abi: contract.abi,
-            data: data.logs[1].data,
-            topics: data.logs[1].topics,
-          });
+          const topics = returnDecodedTopics(data.logs, contract.abi, "Mint");
+          if (!topics) {
+            canAddToChatbot_mint.current = false;
+            return;
+          }
           const args: any = topics.args;
           const title = `${
             user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
@@ -282,11 +285,11 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           isClosable: true,
           position: "bottom", // chakra ui toast position
         });
-        const topics = decodeEventLog({
-          abi: contract.abi,
-          data: data.logs[1].data,
-          topics: data.logs[1].topics,
-        });
+        const topics = returnDecodedTopics(data.logs, contract.abi, "Burn");
+        if (!topics) {
+          canAddToChatbot_burn.current = false;
+          return;
+        }
         const args: any = topics.args;
         const title = `${
           user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
