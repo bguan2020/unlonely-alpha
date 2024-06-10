@@ -75,6 +75,8 @@ export const DesktopChannelPageTempToken = ({
     losingToken: losingVersusToken,
     winningToken: winningVersusToken,
     ownerMustPermamint,
+    tokenA,
+    tokenB,
     handleOwnerMustPermamint,
   } = versusGameState;
 
@@ -354,27 +356,31 @@ export const DesktopChannelPageTempToken = ({
                       maxW={["100%", "100%", "380px", "380px"]}
                       gap="1rem"
                     >
-                      <Flex
-                        direction="column"
-                        h={
-                          isVersusGameOngoing || isVersusGameFinished
-                            ? "40%"
-                            : "30%"
-                        }
-                      >
-                        {isOwner && !isGameOngoing && (
-                          <Button
-                            w="fit-content"
-                            h="20px"
-                            onClick={() => {
-                              setTokenStateView("single");
-                            }}
-                          >
-                            single
-                          </Button>
-                        )}
-                        <VersusTempTokensInterface ablyChannel={chat.channel} />
-                      </Flex>
+                      {(isOwner || (tokenA.symbol && tokenB.symbol)) && (
+                        <Flex
+                          direction="column"
+                          h={
+                            isVersusGameOngoing || isVersusGameFinished
+                              ? "40%"
+                              : "30%"
+                          }
+                        >
+                          {isOwner && !isGameOngoing && (
+                            <Button
+                              w="fit-content"
+                              h="20px"
+                              onClick={() => {
+                                setTokenStateView("single");
+                              }}
+                            >
+                              single
+                            </Button>
+                          )}
+                          <VersusTempTokensInterface
+                            ablyChannel={chat.channel}
+                          />
+                        </Flex>
+                      )}
                       <ChatComponent
                         chat={chat}
                         customHeight={"100%"}
