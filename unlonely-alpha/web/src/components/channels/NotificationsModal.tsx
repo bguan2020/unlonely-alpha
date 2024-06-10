@@ -21,7 +21,7 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import { PreviewNotification } from "../mobile/PreviewNotification";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 
-const BRIAN = "0x141Edb16C70307Cf2F0f04aF2dDa75423a0E1bEa";
+const BRIAN = "0xf6B640ED09927C90185D3a7aF4b186317Cc8df3e";
 
 export default function NotificationsModal({
   title,

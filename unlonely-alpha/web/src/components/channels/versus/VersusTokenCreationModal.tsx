@@ -129,7 +129,7 @@ export const VersusTokenCreationModal = ({
           </Flex>
           <Text>Duration</Text>
           <Flex gap="5px" justifyContent={"center"}>
-            <Button
+            {/* <Button
               _hover={{}}
               _focus={{}}
               _active={{}}
@@ -146,7 +146,7 @@ export const VersusTokenCreationModal = ({
               onClick={() => handleNewDuration(BigInt("300"))}
             >
               5 mins
-            </Button>
+            </Button> */}
             <Button
               _hover={{}}
               _focus={{}}
@@ -164,6 +164,15 @@ export const VersusTokenCreationModal = ({
               onClick={() => handleNewDuration(BigInt("1800"))}
             >
               30 mins
+            </Button>
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={newDuration === BigInt("2700") ? "#02d650" : "#ffffff"}
+              onClick={() => handleNewDuration(BigInt("2700"))}
+            >
+              45 mins
             </Button>
           </Flex>
           <Button
