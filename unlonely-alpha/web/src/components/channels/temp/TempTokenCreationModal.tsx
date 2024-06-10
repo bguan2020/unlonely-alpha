@@ -181,7 +181,7 @@ export const TempTokenCreationModal = ({
           </Text>
           <Text>Duration</Text>
           <Flex gap="5px" justifyContent={"center"}>
-            <Button
+            {/* <Button
               _hover={{}}
               _focus={{}}
               _active={{}}
@@ -198,7 +198,7 @@ export const TempTokenCreationModal = ({
               onClick={() => handleNewTokenDuration(BigInt("300"))}
             >
               5 mins
-            </Button>
+            </Button> */}
             <Button
               _hover={{}}
               _focus={{}}
@@ -216,6 +216,15 @@ export const TempTokenCreationModal = ({
               onClick={() => handleNewTokenDuration(BigInt("1800"))}
             >
               30 mins
+            </Button>
+            <Button
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              bg={newTokenDuration === BigInt("2700") ? "#02d650" : "#ffffff"}
+              onClick={() => handleNewTokenDuration(BigInt("2700"))}
+            >
+              45 mins
             </Button>
           </Flex>
           <Button
