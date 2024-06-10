@@ -356,7 +356,7 @@ export const DesktopChannelPageTempToken = ({
                       maxW={["100%", "100%", "380px", "380px"]}
                       gap="1rem"
                     >
-                      {!isOwner && !tokenA.symbol && !tokenB.symbol ? null : (
+                      {(isOwner || (tokenA.symbol && tokenB.symbol)) && (
                         <Flex
                           direction="column"
                           h={
