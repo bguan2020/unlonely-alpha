@@ -40,7 +40,7 @@ type Presence = {
 
 const limit = 6;
 
-const Participants = ({ ablyPresenceChannel, mobile, show }: Props) => {
+const Participants = ({ ablyPresenceChannel, show }: Props) => {
   const { user } = useUser();
   const { isStandalone } = useUserAgent();
   const { leaderboard } = useChannelContext();
