@@ -8,7 +8,6 @@ import {
 import { Flex, Spinner, Text } from "@chakra-ui/react";
 
 import useUserAgent from "../../hooks/internal/useUserAgent";
-import Participants from "../presence/Participants";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import useScript from "../../hooks/internal/useScript";
 
@@ -132,27 +131,6 @@ const IVSPlayerView: React.FunctionComponent<Props> = ({ playbackUrl }) => {
             minHeight: "100%",
           }}
         />
-        {!offline && isStandalone && (
-          <Flex
-            direction="column"
-            bg="rgba(0, 0, 0, 0)"
-            position="absolute"
-            top={0}
-            right={0}
-            bottom={0}
-            left={0}
-            justifyContent="center"
-            alignItems="center"
-            className="show-then-hide"
-            id="video-overlay"
-          >
-            {presenceChannel && (
-              <Flex position="absolute" left="20px" top="10px">
-                <Participants ablyPresenceChannel={presenceChannel} mobile />
-              </Flex>
-            )}
-          </Flex>
-        )}
         {offline && (
           <Flex
             direction="column"

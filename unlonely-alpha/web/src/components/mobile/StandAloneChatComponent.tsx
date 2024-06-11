@@ -28,6 +28,7 @@ import { MobileTempTokenInterface } from "../channels/layout/temptoken/MobileTem
 import { MobileVersusTempTokensInterface } from "../channels/layout/versus/MobileVersusTempTokensInterface";
 import { useTempTokenContext } from "../../hooks/context/useTempToken";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
+import Participants from "../presence/Participants";
 
 export const EXCLUDED_SLUGS = ["loveonleverage"];
 
@@ -42,7 +43,7 @@ const StandaloneChatComponent = ({
 }) => {
   const { channel: channelContext, chat: chatInfo } = useChannelContext();
   const { channelQueryData } = channelContext;
-  const { chatChannel } = chatInfo;
+  const { chatChannel, presenceChannel } = chatInfo;
 
   const router = useRouter();
   const [isBellAnimating, setIsBellAnimating] = useState(false);
@@ -317,9 +318,19 @@ const StandaloneChatComponent = ({
       {tokenStateView === "chat" ? (
         <TabsComponent chat={chat} />
       ) : tokenStateView === "single" ? (
-        <MobileTempTokenInterface ablyChannel={chat.channel} />
+        <>
+          {presenceChannel && (
+            <Participants ablyPresenceChannel={presenceChannel} />
+          )}
+          <MobileTempTokenInterface ablyChannel={chat.channel} />
+        </>
       ) : (
-        <MobileVersusTempTokensInterface ablyChannel={chat.channel} />
+        <>
+          {presenceChannel && (
+            <Participants ablyPresenceChannel={presenceChannel} />
+          )}
+          <MobileVersusTempTokensInterface ablyChannel={chat.channel} />
+        </>
       )}
     </Flex>
   );
