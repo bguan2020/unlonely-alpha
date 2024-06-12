@@ -17,6 +17,7 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import copy from "copy-to-clipboard";
 import { formatApolloError } from "../../../../utils/errorFormatting";
@@ -140,6 +141,13 @@ export const DesktopChannelPageTempToken = ({
     });
   };
 
+  const canScrollPage = useBreakpointValue({
+    base: true,
+    sm: true,
+    md: false,
+    xl: false,
+  });
+
   return (
     <>
       {channelSSR && <ChannelNextHead channel={channelSSR} />}
@@ -147,7 +155,7 @@ export const DesktopChannelPageTempToken = ({
         h="100vh"
         bg="rgba(5, 0, 31, 1)"
         position={"relative"}
-        overflowY={"hidden"}
+        overflowY={canScrollPage ? "scroll" : "hidden"}
       >
         {canShowInterface ? (
           <Flex direction="column" width="100%">
