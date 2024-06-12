@@ -501,14 +501,17 @@ export const useTradeTempTokenState = ({
       const startTime = Date.now();
       console.log("useTradeTokenState, fetching", startTime);
       let endTime = 0;
-      try {
-        await Promise.all([
-          refetchMint(),
+      let calls: any[] = [];
+      calls = calls.concat([refetchUserEthBalance(), refetchMint()]);
+      if (!isPreSaleOngoing) {
+        calls = calls.concat([
           refetchBurn(),
           refetchMintCostAfterFees(),
           refetchBurnProceedsAfterFees(),
-          refetchUserEthBalance(),
-        ]).then(() => {
+        ]);
+      }
+      try {
+        await Promise.all(calls).then(() => {
           endTime = Date.now();
         });
       } catch (err) {
@@ -528,10 +531,11 @@ export const useTradeTempTokenState = ({
 
   useEffect(() => {
     const fetch = async () => {
-      if (!isPreSaleOngoing) {
-        await refetchMintCostAfterFees();
-        await refetchMint();
-      }
+      await new Promise((resolve) => {
+        setTimeout(resolve, 1000);
+      });
+      await refetchMintCostAfterFees();
+      await refetchMint();
     };
     fetch();
   }, [isPreSaleOngoing]);
