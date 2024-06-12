@@ -11,6 +11,7 @@ import {
   DEFAULT_TOKEN_TRADE_AMOUNT,
   PRE_SALE_PRICE_PER_TOKEN,
   CHAKRA_UI_TX_TOAST_DURATION,
+  DEFAULT_TOKEN_CLAIM_AMOUNT,
 } from "../../../../constants";
 import { useNetworkContext } from "../../../context/useNetwork";
 import {
@@ -40,7 +41,7 @@ import useUpdateTempTokenHasHitTotalSupplyThreshold from "../../../server/temp-t
 import { returnDecodedTopics } from "../../../../utils/contract";
 
 export type UseTradeTempTokenStateType = {
-  amount: string;
+  tradeAmount: string;
   mintCostAfterFees: bigint;
   mintCostAfterFeesLoading: boolean;
   burnProceedsAfterFees: bigint;
@@ -86,16 +87,15 @@ export const useTradeTempTokenState = ({
 
   const canAddToChatbot_mint = useRef(false);
   const canAddToChatbot_burn = useRef(false);
-  const [amount, setAmount] = useState<string>(
+  const [tradeAmount, setTradeAmount] = useState<string>(
     String(DEFAULT_TOKEN_TRADE_AMOUNT)
   );
-  const debouncedAmount = useDebounce(amount, 300);
-  const amount_bigint = useMemo(
-    () => BigInt(debouncedAmount as `${number}`),
-    [debouncedAmount]
+  const debouncedTradeAmount = useDebounce(tradeAmount, 300);
+  const trade_amount_bigint = useMemo(
+    () => BigInt(debouncedTradeAmount as `${number}`),
+    [debouncedTradeAmount]
   );
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const fetching = useRef(false);
 
   const tempTokenContract: ContractData = useMemo(() => {
     if (!tokenAddress) {
@@ -146,13 +146,25 @@ export const useTradeTempTokenState = ({
     mintCostAfterFees,
     refetch: refetchMintCostAfterFees,
     loading: mintCostAfterFeesLoading,
-  } = useGetMintCostAfterFees(amount_bigint, tempTokenContract);
+  } = useGetMintCostAfterFees(trade_amount_bigint, tempTokenContract);
 
   const {
     burnProceedsAfterFees,
     refetch: refetchBurnProceedsAfterFees,
     loading: burnProceedsAfterFeesLoading,
-  } = useGetBurnProceedsAfterFees(amount_bigint, tempTokenContract);
+  } = useGetBurnProceedsAfterFees(trade_amount_bigint, tempTokenContract);
+
+  const amountToMint = useMemo(() => {
+    return isPreSaleOngoing
+      ? BigInt(DEFAULT_TOKEN_CLAIM_AMOUNT)
+      : trade_amount_bigint;
+  }, [isPreSaleOngoing, trade_amount_bigint]);
+
+  const valueToSendForMint = useMemo(() => {
+    return isPreSaleOngoing
+      ? BigInt(PRE_SALE_PRICE_PER_TOKEN * DEFAULT_TOKEN_CLAIM_AMOUNT)
+      : mintCostAfterFees;
+  }, [isPreSaleOngoing, mintCostAfterFees]);
 
   const {
     mint,
@@ -161,10 +173,8 @@ export const useTradeTempTokenState = ({
     mintTxLoading,
   } = useMint(
     {
-      amount: amount_bigint,
-      value: isPreSaleOngoing
-        ? BigInt(PRE_SALE_PRICE_PER_TOKEN * Number(amount_bigint))
-        : mintCostAfterFees,
+      amount: amountToMint,
+      value: valueToSendForMint,
     },
     tempTokenContract,
     {
@@ -229,7 +239,7 @@ export const useTradeTempTokenState = ({
           if (!topics) {
             console.log("mint success topics not found");
             canAddToChatbot_mint.current = false;
-            setAmount(String(DEFAULT_TOKEN_TRADE_AMOUNT));
+            setTradeAmount(String(DEFAULT_TOKEN_TRADE_AMOUNT));
             return;
           }
           const args: any = topics.args;
@@ -240,9 +250,15 @@ export const useTradeTempTokenState = ({
           const totalSupply = args.totalSupply as bigint;
           const tokenAddress = args.tokenAddress as `0x${string}`;
           const endTimestamp = args.endTimestamp as bigint;
-          const title = `${
-            user?.username ?? centerEllipses(args.account as `0x${string}`, 15)
-          } bought ${Number(args.amount as bigint)} $${tokenSymbol}!`;
+          const title = isPreSaleOngoing
+            ? `${
+                user?.username ??
+                centerEllipses(args.account as `0x${string}`, 15)
+              } claimed their free $${tokenSymbol}!`
+            : `${
+                user?.username ??
+                centerEllipses(args.account as `0x${string}`, 15)
+              } bought ${Number(args.amount as bigint)} $${tokenSymbol}!`;
 
           /**
            * perform a check to see data.logs.length is greater than 2 to determine
@@ -288,7 +304,7 @@ export const useTradeTempTokenState = ({
           } catch (err) {
             console.log("cannot update db on mint", err);
           }
-          setAmount(String(DEFAULT_TOKEN_TRADE_AMOUNT));
+          setTradeAmount(String(DEFAULT_TOKEN_TRADE_AMOUNT));
           if (
             hasTotalSupplyThresholdReachedEvent &&
             hasHitTotalSupplyThreshold
@@ -342,7 +358,7 @@ export const useTradeTempTokenState = ({
     burnTxLoading,
   } = useBurn(
     {
-      amount: amount_bigint,
+      amount: trade_amount_bigint,
     },
     tempTokenContract,
     {
@@ -407,7 +423,7 @@ export const useTradeTempTokenState = ({
           if (!topics) {
             console.log("burn success topics not found");
             canAddToChatbot_burn.current = false;
-            setAmount(String(DEFAULT_TOKEN_TRADE_AMOUNT));
+            setTradeAmount(String(DEFAULT_TOKEN_TRADE_AMOUNT));
             return;
           }
           const args: any = topics.args;
@@ -430,7 +446,7 @@ export const useTradeTempTokenState = ({
           });
           callbackOnBurnTxSuccess?.();
           canAddToChatbot_burn.current = false;
-          setAmount(String(DEFAULT_TOKEN_TRADE_AMOUNT));
+          setTradeAmount(String(DEFAULT_TOKEN_TRADE_AMOUNT));
         }
       },
       onTxError: (error) => {
@@ -466,28 +482,22 @@ export const useTradeTempTokenState = ({
       const filtered = filteredInput(input);
       if (Number(filtered) > DEFAULT_TOKEN_TRADE_AMOUNT && isPreSaleOngoing)
         return;
-      setAmount(filtered);
+      setTradeAmount(filtered);
     },
     [isPreSaleOngoing]
   );
 
   const handleAmountDirectly = useCallback((input: string) => {
-    setAmount(input);
+    setTradeAmount(input);
   }, []);
 
   /**
    * For every new transaction, fetch the new balances and costs
    */
   useEffect(() => {
-    if (
-      fetching.current ||
-      !tempTokenContract.address ||
-      !userAddress ||
-      !walletIsConnected
-    )
+    if (!tempTokenContract.address || !userAddress || !walletIsConnected)
       return;
     const fetch = async () => {
-      fetching.current = true;
       const startTime = Date.now();
       console.log("useTradeTokenState, fetching", startTime);
       let endTime = 0;
@@ -512,10 +522,19 @@ export const useTradeTempTokenState = ({
       await new Promise((resolve) => {
         setTimeout(resolve, timeToWait);
       });
-      fetching.current = false;
     };
     fetch();
-  }, [tokenTxs.length, isPreSaleOngoing]);
+  }, [tokenTxs.length]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (!isPreSaleOngoing) {
+        await refetchMintCostAfterFees();
+        await refetchMint();
+      }
+    };
+    fetch();
+  }, [isPreSaleOngoing]);
 
   /**
    * Error handling
@@ -523,7 +542,7 @@ export const useTradeTempTokenState = ({
   useEffect(() => {
     if (!matchingChain) {
       setErrorMessage("wrong network");
-    } else if (Number(formatIncompleteNumber(amount)) <= 0) {
+    } else if (Number(formatIncompleteNumber(tradeAmount)) <= 0) {
       setErrorMessage("enter amount");
     } else if (
       userEthBalance?.value &&
@@ -533,10 +552,10 @@ export const useTradeTempTokenState = ({
     } else {
       setErrorMessage("");
     }
-  }, [matchingChain, amount, userEthBalance?.value, mintCostAfterFees]);
+  }, [matchingChain, tradeAmount, userEthBalance?.value, mintCostAfterFees]);
 
   return {
-    amount,
+    tradeAmount,
     mintCostAfterFees,
     mintCostAfterFeesLoading,
     burnProceedsAfterFees,

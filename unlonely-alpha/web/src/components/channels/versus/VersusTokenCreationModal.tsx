@@ -137,8 +137,8 @@ export const VersusTokenCreationModal = ({
               onClick={() => handleNewDuration(BigInt("120"))}
             >
               2 mins
-            </Button>
-            <Button
+            </Button> */}
+            {/* <Button
               _hover={{}}
               _focus={{}}
               _active={{}}

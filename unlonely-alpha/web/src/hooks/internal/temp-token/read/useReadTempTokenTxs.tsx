@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { parseAbiItem } from "viem";
 import { NULL_ADDRESS } from "../../../../constants";
 import { ContractData, TradeableTokenTx } from "../../../../constants/types";
@@ -57,7 +57,6 @@ export const useReadTempTokenTxs = ({
   tempTokenContract: ContractData;
 }): UseReadTempTokenTxsType => {
   const { userAddress } = useUser();
-  const fetching = useRef(false);
   const [tempTokenTxs, setTempTokenTxs] = useState<TradeableTokenTx[]>([]);
   const [initialTempTokenLoading, setInitialTempTokenLoading] = useState(true);
 
@@ -161,16 +160,13 @@ export const useReadTempTokenTxs = ({
   useEffect(() => {
     const init = async () => {
       if (
-        fetching.current ||
         tempTokenTxs.length > 0 ||
         !baseClient ||
         !tempTokenContract.address ||
         tempTokenContract.address === NULL_ADDRESS
       ) {
-        fetching.current = false;
         return;
       }
-      fetching.current = true;
       const blockNumber = await baseClient.getBlockNumber();
       if (tokenCreationBlockNumber < blockNumber) {
         await getTempTokenEvents(
@@ -179,7 +175,6 @@ export const useReadTempTokenTxs = ({
           blockNumber
         );
       }
-      fetching.current = false;
       setInitialTempTokenLoading(false);
     };
     init();

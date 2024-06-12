@@ -56,6 +56,7 @@ import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import centerEllipses from "../../../utils/centerEllipses";
 import Header from "../../../components/navigation/Header";
 import { WavyText } from "../../../components/general/WavyText";
+import { bondingCurve } from "../../../utils/contract";
 
 const TokenTradePage = () => {
   const router = useRouter();
@@ -96,7 +97,7 @@ const TokenTradePage = () => {
   }, [handleGetTempTokens]);
 
   return (
-    <AppLayout isCustomHeader noHeader>
+    <AppLayout isCustomHeader={false} noHeader>
       <Flex bg="#131323" direction="column">
         <Header />
         {!getTempTokensLoading && tempToken ? (
@@ -179,8 +180,8 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
     if (totalSupplyThreshold === BigInt(0)) return 0;
     const n = Number(totalSupplyThreshold);
     const n_ = Math.max(n - 1, 0);
-    const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-    const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+    const priceForCurrent = Math.floor(bondingCurve(n));
+    const priceForPrevious = Math.floor(bondingCurve(n_));
     const newPrice = priceForCurrent - priceForPrevious;
     return newPrice;
   }, [totalSupplyThreshold]);
@@ -536,7 +537,7 @@ const Exchange = ({
   const publicClient = usePublicClient();
 
   const {
-    amount,
+    tradeAmount,
     handleAmount,
     handleAmountDirectly,
     mint,
@@ -593,7 +594,7 @@ const Exchange = ({
           <Input
             variant={errorMessage.length > 0 ? "redGlow" : "glow"}
             textAlign="center"
-            value={amount}
+            value={tradeAmount}
             onChange={handleAmount}
             mx="auto"
             p="1"
@@ -639,7 +640,7 @@ const Exchange = ({
           isDisabled={
             !mint ||
             mintCostAfterFeesLoading ||
-            Number(formatIncompleteNumber(amount)) <= 0
+            Number(formatIncompleteNumber(tradeAmount)) <= 0
           }
           onClick={mint}
           p={"0px"}
@@ -661,7 +662,7 @@ const Exchange = ({
           isDisabled={
             !burn ||
             burnProceedsAfterFeesLoading ||
-            Number(formatIncompleteNumber(amount)) <= 0
+            Number(formatIncompleteNumber(tradeAmount)) <= 0
           }
           onClick={burn}
           p={undefined}
