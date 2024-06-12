@@ -73,10 +73,14 @@ const ChannelDesc = () => {
               label="this shows how many VIP badges have been purchased on this channel!"
               shouldWrapChildren
             >
-              <Text fontSize="14px" textAlign={"center"} fontFamily="LoRes15">
-                <Text fontSize="20px">{truncateValue(totalBadges, 0)}</Text>
-                badges
-              </Text>
+              <Flex alignItems={"center"} direction="column">
+                <Text fontSize="20px" fontFamily="LoRes15">
+                  {truncateValue(totalBadges, 0)}
+                </Text>
+                <Text fontSize="14px" textAlign={"center"} fontFamily="LoRes15">
+                  badges
+                </Text>
+              </Flex>
             </Tooltip>
           </Flex>
         </OuterBorder>

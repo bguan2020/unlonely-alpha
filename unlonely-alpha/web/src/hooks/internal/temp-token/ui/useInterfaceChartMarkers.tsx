@@ -100,8 +100,23 @@ export const useInterfaceChartMarkers = (
     }
 
     const percentage = Number(
-      truncateValue(payload[0].payload.priceChangePercentage, 2, true, 2, false)
+      truncateValue(
+        payload[0].payload.priceChangePercentage,
+        2,
+        false,
+        2,
+        false
+      )
     );
+
+    const percentageDisplay = truncateValue(
+      payload[0].payload.priceChangePercentage,
+      2,
+      true,
+      2,
+      false
+    );
+
     return (
       <Flex
         direction="column"
@@ -161,15 +176,9 @@ export const useInterfaceChartMarkers = (
               )} ETH`}</Text>
             )}
             {percentage !== 0 && (
-              <Text
-                color={
-                  payload[0].payload.priceChangePercentage > 0
-                    ? "#46a800"
-                    : "#fe2815"
-                }
-              >{`${
-                payload[0].payload.priceChangePercentage > 0 ? "+" : ""
-              }${percentage}%`}</Text>
+              <Text color={percentage > 0 ? "#46a800" : "#fe2815"}>{`${
+                percentage > 0 ? "+" : ""
+              }${percentageDisplay}%`}</Text>
             )}
           </>
         )}

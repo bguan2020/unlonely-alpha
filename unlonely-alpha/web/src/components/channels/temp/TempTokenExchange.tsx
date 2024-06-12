@@ -28,7 +28,7 @@ export const TempTokenExchange = () => {
   } = gameState;
 
   const {
-    amount,
+    tradeAmount,
     handleAmount,
     handleAmountDirectly,
     mint,
@@ -70,7 +70,7 @@ export const TempTokenExchange = () => {
           <Input
             variant={errorMessage.length > 0 ? "redGlow" : "glow"}
             textAlign="center"
-            value={amount}
+            value={tradeAmount}
             onChange={handleAmount}
             mx="auto"
             p="1"
@@ -119,7 +119,7 @@ export const TempTokenExchange = () => {
             (isPreSaleOngoing && claimedPreSaleTokens) ||
             !mint ||
             mintCostAfterFeesLoading ||
-            Number(formatIncompleteNumber(amount)) <= 0
+            Number(formatIncompleteNumber(tradeAmount)) <= 0
           }
           onClick={mint}
           p={"0px"}
@@ -152,7 +152,7 @@ export const TempTokenExchange = () => {
           isDisabled={
             !burn ||
             burnProceedsAfterFeesLoading ||
-            Number(formatIncompleteNumber(amount)) <= 0
+            Number(formatIncompleteNumber(tradeAmount)) <= 0
           }
           onClick={burn}
           p={undefined}

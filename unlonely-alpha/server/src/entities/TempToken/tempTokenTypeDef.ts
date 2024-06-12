@@ -54,6 +54,7 @@ export const typeDef = gql`
     chainId: Int
     channelId: Int
     onlyActiveTokens: Boolean
+    onlyTradeableTokens: Boolean
     hasHitTotalSupplyThreshold: Boolean
     isAlwaysTradeable: Boolean
     factoryAddress: String

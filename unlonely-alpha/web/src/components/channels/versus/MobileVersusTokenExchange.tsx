@@ -100,7 +100,7 @@ export const MobileVersusTokenExchange = () => {
   ]);
 
   const {
-    amount,
+    tradeAmount,
     handleAmount,
     handleAmountDirectly,
     mint,
@@ -219,7 +219,7 @@ export const MobileVersusTokenExchange = () => {
               <Input
                 variant={errorMessage.length > 0 ? "redGlow" : "glow"}
                 textAlign="center"
-                value={amount}
+                value={tradeAmount}
                 onChange={handleAmount}
                 p="1"
                 fontSize={"14px"}
@@ -276,7 +276,7 @@ export const MobileVersusTokenExchange = () => {
               isDisabled={
                 !mint ||
                 mintCostAfterFeesLoading ||
-                Number(formatIncompleteNumber(amount)) <= 0 ||
+                Number(formatIncompleteNumber(tradeAmount)) <= 0 ||
                 focusedTokenData.tokenAddress === ""
               }
               onClick={mint}
@@ -307,7 +307,7 @@ export const MobileVersusTokenExchange = () => {
               isDisabled={
                 !burn ||
                 burnProceedsAfterFeesLoading ||
-                Number(formatIncompleteNumber(amount)) <= 0 ||
+                Number(formatIncompleteNumber(tradeAmount)) <= 0 ||
                 focusedTokenData.tokenAddress === ""
               }
               onClick={burn}

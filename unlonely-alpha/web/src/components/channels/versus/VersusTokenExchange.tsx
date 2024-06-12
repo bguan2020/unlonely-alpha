@@ -94,7 +94,7 @@ export const VersusTokenExchange = () => {
   ]);
 
   const {
-    amount,
+    tradeAmount,
     handleAmount,
     handleAmountDirectly,
     mint,
@@ -130,7 +130,7 @@ export const VersusTokenExchange = () => {
               <Input
                 variant={errorMessage.length > 0 ? "redGlow" : "glow"}
                 textAlign="center"
-                value={amount}
+                value={tradeAmount}
                 onChange={handleAmount}
                 p="1"
                 fontSize={"14px"}
@@ -197,7 +197,7 @@ export const VersusTokenExchange = () => {
             (isPreSaleOngoing && claimedPreSaleTokens) ||
             !mint ||
             mintCostAfterFeesLoading ||
-            Number(formatIncompleteNumber(amount)) <= 0 ||
+            Number(formatIncompleteNumber(tradeAmount)) <= 0 ||
             focusedTokenData.tokenAddress === ""
           }
           onClick={mint}
@@ -237,7 +237,7 @@ export const VersusTokenExchange = () => {
           isDisabled={
             !burn ||
             burnProceedsAfterFeesLoading ||
-            Number(formatIncompleteNumber(amount)) <= 0 ||
+            Number(formatIncompleteNumber(tradeAmount)) <= 0 ||
             focusedTokenData.tokenAddress === ""
           }
           onClick={burn}

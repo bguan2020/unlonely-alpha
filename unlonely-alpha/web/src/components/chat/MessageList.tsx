@@ -172,9 +172,10 @@ const MessageList = memo(
         )}
         {!hidePinnedMessages && pinnedChatMessages.length > 0 && (
           <Flex direction="column">
-            {pinnedChatMessages.map((m) => {
+            {pinnedChatMessages.map((m, i) => {
               return (
                 <PinnedMessageBody
+                  key={i}
                   messageText={m}
                   handlePinCallback={handleUpdatePinnedChatMessages}
                 />

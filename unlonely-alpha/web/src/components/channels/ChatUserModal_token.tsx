@@ -35,6 +35,7 @@ import Link from "next/link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useTempTokenContext } from "../../hooks/context/useTempToken";
+import { bondingCurve } from "../../utils/contract";
 
 export const ChatUserModal_token = ({
   isOpen,
@@ -658,14 +659,13 @@ export const ChatUserModal_token = ({
   );
 };
 
-const calculateBurnProceeds = (currentSupply: number, amountToBurn: number) => {
+export const calculateBurnProceeds = (
+  currentSupply: number,
+  amountToBurn: number
+) => {
   const newSupply = Math.max(currentSupply - amountToBurn, 0);
-  const priceForCurrent = Math.floor(
-    (currentSupply * (currentSupply + 1) * (2 * currentSupply + 1)) / 6
-  );
-  const priceForPrevious = Math.floor(
-    (newSupply * (newSupply + 1) * (2 * newSupply + 1)) / 6
-  );
+  const priceForCurrent = Math.floor(bondingCurve(currentSupply));
+  const priceForPrevious = Math.floor(bondingCurve(newSupply));
   const newPrice = priceForCurrent - priceForPrevious;
 
   // returns in wei

@@ -180,7 +180,12 @@ export const VersusTempTokenProvider = ({
       if (!globalState.isGameFinished || !baseClient) return;
       console.log("game finished");
       globalState.handleIsGameOngoing(false);
-      globalState.handleIsGameFinishedModalOpen(true);
+      if (
+        globalState.tokenA.totalSupply > BigInt(0) ||
+        globalState.tokenB.totalSupply > BigInt(0)
+      ) {
+        globalState.handleIsGameFinishedModalOpen(true);
+      }
 
       if (isOwner && router.pathname.startsWith("/channels")) {
         addToChatbotForTempToken({

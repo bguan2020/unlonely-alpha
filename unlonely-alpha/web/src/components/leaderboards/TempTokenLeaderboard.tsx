@@ -21,6 +21,7 @@ import { getTimeFromMillis } from "../../utils/time";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { formatUnits } from "viem";
 import { useCacheContext } from "../../hooks/context/useCache";
+import { bondingCurve } from "../../utils/contract";
 
 const headers = ["rank", "token", "channel", "highest price", "time left"];
 
@@ -61,8 +62,8 @@ const TempTokenLeaderboard = () => {
       .map((token) => {
         const n = token.highestTotalSupply;
         const n_ = Math.max(n - 1, 0);
-        const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-        const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+        const priceForCurrent = Math.floor(bondingCurve(n));
+        const priceForPrevious = Math.floor(bondingCurve(n_));
         const newPrice = priceForCurrent - priceForPrevious;
 
         return {
@@ -115,6 +116,7 @@ const TempTokenLeaderboard = () => {
       variables: {
         data: {
           chainId: localNetwork.config.chainId,
+          onlyTradeableTokens: true,
           fulfillAllNotAnyConditions: true,
         },
       },
