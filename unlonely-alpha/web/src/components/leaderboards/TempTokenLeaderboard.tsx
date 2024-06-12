@@ -115,6 +115,7 @@ const TempTokenLeaderboard = () => {
       variables: {
         data: {
           chainId: localNetwork.config.chainId,
+          onlyTradeableTokens: true,
           fulfillAllNotAnyConditions: true,
         },
       },

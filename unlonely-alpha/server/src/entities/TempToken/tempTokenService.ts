@@ -332,6 +332,7 @@ export interface IGetTempTokensInput {
   channelId?: number;
   chainId?: number;
   onlyActiveTokens?: boolean;
+  onlyTradeableTokens?: boolean;
   hasHitTotalSupplyThreshold?: boolean;
   isAlwaysTradeable?: boolean;
   factoryAddress?: string;
@@ -345,11 +346,27 @@ export const getTempTokens = async (
 ) => {
   let endTimestampClause: any = {};
   try {
+
+    if (data.onlyTradeableTokens === true) {
+      endTimestampClause = {
+        OR: [
+          {
+            endUnixTimestamp: {
+              gt: Math.floor(Date.now() / 1000),
+            },
+          },
+          {
+            isAlwaysTradeable: true,
+          },
+        ],
+      };
+    }
+
     if (data.onlyActiveTokens === true) {
       endTimestampClause = {
         endUnixTimestamp: {
           gt: Math.floor(Date.now() / 1000),
-        },
+        }
       };
     }
 

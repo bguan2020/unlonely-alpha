@@ -341,6 +341,7 @@ export type GetTempTokensInput = {
   hasHitTotalSupplyThreshold?: InputMaybe<Scalars["Boolean"]>;
   isAlwaysTradeable?: InputMaybe<Scalars["Boolean"]>;
   onlyActiveTokens?: InputMaybe<Scalars["Boolean"]>;
+  onlyTradeableTokens?: InputMaybe<Scalars["Boolean"]>;
   ownerAddress?: InputMaybe<Scalars["String"]>;
   tokenAddress?: InputMaybe<Scalars["String"]>;
   tokenType?: InputMaybe<TempTokenType>;
