@@ -181,7 +181,7 @@ export const VersusTempTokenProvider = ({
       console.log("game finished");
       globalState.handleIsGameOngoing(false);
       if (
-        globalState.tokenA.totalSupply > BigInt(0) &&
+        globalState.tokenA.totalSupply > BigInt(0) ||
         globalState.tokenB.totalSupply > BigInt(0)
       ) {
         globalState.handleIsGameFinishedModalOpen(true);
