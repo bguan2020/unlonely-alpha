@@ -196,7 +196,9 @@ export const VersusTokenCreationModal = ({
       ) : (
         <Flex direction="column" gap="5px">
           <Text textAlign="center">You don't seem to be live</Text>
-          <Text textAlign="center">please again later once you are live</Text>
+          <Text textAlign="center">
+            please try again later once you are live
+          </Text>
           <Button onClick={handleClose}>close</Button>
         </Flex>
       )}
