@@ -3,7 +3,7 @@ import { createPublicClient, parseAbiItem, http } from "viem";
 import { base } from "viem/chains";
 
 import { ContractData, TradeableTokenTx } from "../../constants/types";
-import { getContractFromNetwork } from "../../utils/contract";
+import { bondingCurve, getContractFromNetwork } from "../../utils/contract";
 import useUserAgent from "./useUserAgent";
 import { NETWORKS } from "../../constants/networks";
 import {
@@ -105,8 +105,8 @@ export const useVibesCheck = () => {
         const event = logs[i];
         const n = Number(event.args.totalSupply as bigint);
         const n_ = Math.max(n - 1, 0);
-        const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-        const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+        const priceForCurrent = Math.floor(bondingCurve(n));
+        const priceForPrevious = Math.floor(bondingCurve(n_));
         const newPrice = priceForCurrent - priceForPrevious;
         const previousTxPrice =
           i === 0

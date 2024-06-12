@@ -9,6 +9,7 @@ import { formatUnits, isAddress } from "viem";
 import { useCacheContext } from "../../../../hooks/context/useCache";
 import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
 import { MobileTempTokenExchange } from "../../temp/MobileTempTokenExchange";
+import { bondingCurve } from "../../../../utils/contract";
 
 export const MobileTempTokenInterface = ({
   ablyChannel,
@@ -47,8 +48,8 @@ export const MobileTempTokenInterface = ({
     if (currentActiveTokenTotalSupplyThreshold === BigInt(0)) return 0;
     const n = Number(currentActiveTokenTotalSupplyThreshold);
     const n_ = Math.max(n - 1, 0);
-    const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-    const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+    const priceForCurrent = Math.floor(bondingCurve(n));
+    const priceForPrevious = Math.floor(bondingCurve(n_));
     const newPrice = priceForCurrent - priceForPrevious;
     return newPrice;
   }, [currentActiveTokenTotalSupplyThreshold]);

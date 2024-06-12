@@ -10,6 +10,7 @@ import {
 import { useUser } from "../../../context/useUser";
 import { useGetUserBalance } from "../../../contracts/useToken";
 import React from "react";
+import { bondingCurve } from "../../../../utils/contract";
 
 export type UseReadTempTokenTxsType = {
   tempTokenTxs: TradeableTokenTx[];
@@ -127,8 +128,8 @@ export const useReadTempTokenTxs = ({
         const event = logs[i];
         const n = Number(event.args.totalSupply as bigint);
         const n_ = Math.max(n - 1, 0);
-        const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-        const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+        const priceForCurrent = Math.floor(bondingCurve(n));
+        const priceForPrevious = Math.floor(bondingCurve(n_));
         const newPrice = priceForCurrent - priceForPrevious;
         const previousTxPrice =
           i === 0

@@ -38,6 +38,7 @@ import Link from "next/link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useVibesContext } from "../../hooks/context/useVibes";
+import { calculateBurnProceeds } from "./ChatUserModal_token";
 
 export const ChatUserModal = ({
   isOpen,
@@ -644,18 +645,4 @@ export const ChatUserModal = ({
       )}
     </Modal>
   );
-};
-
-const calculateBurnProceeds = (currentSupply: number, amountToBurn: number) => {
-  const newSupply = Math.max(currentSupply - amountToBurn, 0);
-  const priceForCurrent = Math.floor(
-    (currentSupply * (currentSupply + 1) * (2 * currentSupply + 1)) / 6
-  );
-  const priceForPrevious = Math.floor(
-    (newSupply * (newSupply + 1) * (2 * newSupply + 1)) / 6
-  );
-  const newPrice = priceForCurrent - priceForPrevious;
-
-  // returns in wei
-  return newPrice;
 };

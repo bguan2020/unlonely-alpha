@@ -15,6 +15,7 @@ import { alphanumericInput } from "../../../utils/validation/input";
 import { formatUnits } from "viem";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { useCacheContext } from "../../../hooks/context/useCache";
+import { bondingCurve } from "../../../utils/contract";
 
 export const TempTokenCreationModal = ({
   title,
@@ -260,8 +261,8 @@ const getEthPriceOfThreshold = (threshold: bigint) => {
   if (threshold === BigInt(0)) return 0;
   const n = Number(threshold);
   const n_ = Math.max(n - 1, 0);
-  const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-  const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+  const priceForCurrent = Math.floor(bondingCurve(n));
+  const priceForPrevious = Math.floor(bondingCurve(n_));
   const newPrice = priceForCurrent - priceForPrevious;
   return newPrice;
 };
@@ -278,6 +279,6 @@ const getUsdPriceFromEthPriceOfThreshold = (
 
 const getCostInEthToBuyToThreshold = (threshold: bigint) => {
   const n = Number(threshold);
-  const cost = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
+  const cost = Math.floor(bondingCurve(n));
   return cost;
 };

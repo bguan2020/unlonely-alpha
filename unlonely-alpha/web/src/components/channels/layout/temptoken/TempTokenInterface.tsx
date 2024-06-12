@@ -28,6 +28,7 @@ import { TempTokenCreationModal } from "../../temp/TempTokenCreationModal";
 import { SendRemainingFundsFromTokenModal } from "../../temp/SendRemainingFundsFromTokenModal";
 import { SingleTempTokenTimerView } from "../../temp/TempTokenTimerView";
 import useUserAgent from "../../../../hooks/internal/useUserAgent";
+import { bondingCurve } from "../../../../utils/contract";
 
 export const TempTokenInterface = ({
   customHeight,
@@ -98,8 +99,8 @@ export const TempTokenInterface = ({
     if (currentActiveTokenTotalSupplyThreshold === BigInt(0)) return 0;
     const n = Number(currentActiveTokenTotalSupplyThreshold);
     const n_ = Math.max(n - 1, 0);
-    const priceForCurrent = Math.floor((n * (n + 1) * (2 * n + 1)) / 6);
-    const priceForPrevious = Math.floor((n_ * (n_ + 1) * (2 * n_ + 1)) / 6);
+    const priceForCurrent = Math.floor(bondingCurve(n));
+    const priceForPrevious = Math.floor(bondingCurve(n_));
     const newPrice = priceForCurrent - priceForPrevious;
     return newPrice;
   }, [currentActiveTokenTotalSupplyThreshold]);

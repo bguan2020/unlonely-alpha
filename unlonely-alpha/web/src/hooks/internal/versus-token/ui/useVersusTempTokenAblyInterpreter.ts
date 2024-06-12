@@ -11,7 +11,6 @@ import { ChatReturnType } from "../../../chat/useChat";
 import { useChannelContext } from "../../../context/useChannel";
 import { useUser } from "../../../context/useUser";
 import { useVersusTempTokenContext } from "../../../context/useVersusTempToken";
-import useDebounce from "../../useDebounce";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 
 export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
@@ -19,7 +18,6 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   const { channel } = useChannelContext();
   const { handleRealTimeChannelDetails } = channel;
   const mountingMessages = useRef(true);
-  const fetching = useRef(false);
 
   const { gameState, tokenATxs, tokenBTxs, callbacks } =
     useVersusTempTokenContext();
@@ -54,54 +52,62 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   } = tokenBTxs;
   const { onMintEvent, onBurnEvent } = callbacks;
 
-  const [blockNumberOfLastInAppTrade, setBlockNumberOfLastInAppTrade] =
-    useState<bigint>(BigInt(0));
+  const blockNumberOfLastInAppTrade = useRef(BigInt(0));
 
   useEffect(() => {
     if (chat.mounted) mountingMessages.current = false;
   }, [chat.mounted]);
 
   const [tempTokenTransactionBody, setTempTokenTransactionBody] = useState("");
-  const debouncedTempTokenTransactionBody = useDebounce(
-    tempTokenTransactionBody,
-    500
-  );
+
+  const eventQueueRef = useRef<string[]>([]);
 
   useEffect(() => {
-    const processVersusTokenEvents = async (body: string) => {
-      if (!body || fetching.current) return;
-      fetching.current = true;
-      const interactionType = body.split(":")[0];
-      const _userAddress = body.split(":")[1];
-      const txBlockNumber = BigInt(body.split(":")[3]);
-      await Promise.all([
-        getTempTokenEventsA(
-          tokenA.contractData,
-          blockNumberOfLastInAppTrade === BigInt(0) && tempTokenTxsA.length > 0
-            ? BigInt(tempTokenTxsA[tempTokenTxsA.length - 1].blockNumber)
-            : blockNumberOfLastInAppTrade,
-          txBlockNumber
-        ),
-        getTempTokenEventsB(
-          tokenB.contractData,
-          blockNumberOfLastInAppTrade === BigInt(0) && tempTokenTxsB.length > 0
-            ? BigInt(tempTokenTxsB[tempTokenTxsB.length - 1].blockNumber)
-            : blockNumberOfLastInAppTrade,
-          txBlockNumber
-        ),
-      ]);
-      if (body.split(":")[0] === InteractionType.VERSUS_WINNER_TOKENS_MINTED) {
-        const tokenType = String(body.split(":")[4]);
-        if (tokenType === "a") {
-          refetchUserTempTokenBalanceA?.();
-        } else {
-          refetchUserTempTokenBalanceB?.();
-        }
-        handleOwnerMustPermamint(false);
-        setBlockNumberOfLastInAppTrade(txBlockNumber);
-        fetching.current = false;
-        return;
+    if (!tempTokenTransactionBody) return;
+    eventQueueRef.current.push(tempTokenTransactionBody);
+    if (eventQueueRef.current.length === 1) {
+      processQueue();
+    }
+  }, [tempTokenTransactionBody]);
+
+  const processQueue = async () => {
+    while (eventQueueRef.current.length > 0) {
+      const log = eventQueueRef.current[0];
+      await handleEvent(log);
+      eventQueueRef.current.shift();
+    }
+  };
+
+  const handleEvent = async (body: string) => {
+    const interactionType = body.split(":")[0];
+    const _userAddress = body.split(":")[1];
+    const txBlockNumber = BigInt(body.split(":")[3]);
+    await Promise.all([
+      getTempTokenEventsA(
+        tokenA.contractData,
+        blockNumberOfLastInAppTrade.current === BigInt(0) && tempTokenTxsA.length > 0
+          ? BigInt(tempTokenTxsA[tempTokenTxsA.length - 1].blockNumber)
+          : blockNumberOfLastInAppTrade.current,
+        txBlockNumber
+      ),
+      getTempTokenEventsB(
+        tokenB.contractData,
+        blockNumberOfLastInAppTrade.current === BigInt(0) && tempTokenTxsB.length > 0
+          ? BigInt(tempTokenTxsB[tempTokenTxsB.length - 1].blockNumber)
+          : blockNumberOfLastInAppTrade.current,
+        txBlockNumber
+      ),
+    ]);
+    if (body.split(":")[0] === InteractionType.VERSUS_WINNER_TOKENS_MINTED) {
+      const tokenType = String(body.split(":")[4]);
+      if (tokenType === "a") {
+        await refetchUserTempTokenBalanceA?.();
+      } else {
+        await refetchUserTempTokenBalanceB?.();
       }
+      handleOwnerMustPermamint(false);
+      blockNumberOfLastInAppTrade.current = txBlockNumber;
+    } else {
       const incomingTxTokenAddress = body.split(":")[4];
       const tokenType =
         isAddress(tokenB.address) &&
@@ -119,14 +125,14 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         )
       ) {
         if (tokenType === "a") {
-          refetchUserTempTokenBalanceA?.();
+          await refetchUserTempTokenBalanceA?.();
         } else {
-          refetchUserTempTokenBalanceB?.();
+          await refetchUserTempTokenBalanceB?.();
         }
       }
       const totalSupply = BigInt(body.split(":")[5]);
       const highestTotalSupply = body.split(":")[6];
-      setBlockNumberOfLastInAppTrade(txBlockNumber);
+      blockNumberOfLastInAppTrade.current = txBlockNumber;
       if (interactionType === InteractionType.BUY_TEMP_TOKENS)
         onMintEvent(BigInt(totalSupply), BigInt(highestTotalSupply), tokenType);
       if (interactionType === InteractionType.SELL_TEMP_TOKENS)
@@ -139,10 +145,8 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           );
         handleOwnerMustPermamint(newMaxWinnerTokens);
       }
-      fetching.current = false;
-    };
-    processVersusTokenEvents(debouncedTempTokenTransactionBody);
-  }, [debouncedTempTokenTransactionBody]);
+    }
+  }
 
   useEffect(() => {
     if (chat.receivedMessages.length === 0) return;
