@@ -179,18 +179,17 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
 
   const priceOfThreshold = useMemo(() => {
     if (totalSupplyThreshold === BigInt(0)) return 0;
-    const n = Number(totalSupplyThreshold);
-    const n_ = Math.max(n - 1, 0);
-    const priceForCurrent = Math.floor(bondingCurve(n));
-    const priceForPrevious = Math.floor(bondingCurve(n_));
-    const newPrice = Number(
-      BigInt(priceForCurrent) -
-        BigInt(priceForPrevious) +
-        tempTokenMinBaseTokenPrices[
-          `${tempToken.factoryAddress.toLowerCase()}:${tempToken.chainId}`
-        ] ?? BigInt(0)
-    );
-    return newPrice;
+
+    const n = totalSupplyThreshold;
+    const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
+    const priceForCurrent = BigInt(Math.floor(bondingCurve(Number(n))));
+    const priceForPrevious = BigInt(Math.floor(bondingCurve(Number(n_))));
+    const basePrice =
+      tempTokenMinBaseTokenPrices[
+        `${tempToken.factoryAddress.toLowerCase()}:${tempToken.chainId}`
+      ] ?? BigInt(0);
+    const newPrice = priceForCurrent - priceForPrevious + basePrice;
+    return Number(newPrice);
   }, [totalSupplyThreshold, tempToken]);
 
   const priceOfThresholdInUsd = useMemo(

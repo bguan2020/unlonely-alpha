@@ -83,7 +83,7 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           blockNumberOfLastInAppTrade === BigInt(0) && tempTokenTxs.length > 0
             ? BigInt(tempTokenTxs[tempTokenTxs.length - 1].blockNumber)
             : blockNumberOfLastInAppTrade,
-          txBlockNumber
+          txBlockNumber,
         );
         if (
           userAddress &&

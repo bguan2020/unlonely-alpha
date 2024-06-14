@@ -48,20 +48,18 @@ export const MobileTempTokenInterface = ({
 
   const priceOfThreshold = useMemo(() => {
     if (currentActiveTokenTotalSupplyThreshold === BigInt(0)) return 0;
-    const n = Number(currentActiveTokenTotalSupplyThreshold);
-    const n_ = Math.max(n - 1, 0);
-    const priceForCurrent = Math.floor(bondingCurve(n));
-    const priceForPrevious = Math.floor(bondingCurve(n_));
-    const newPrice = Number(
-      BigInt(priceForCurrent) -
-        BigInt(priceForPrevious) +
-        tempTokenMinBaseTokenPrices[
-          `${currentActiveTokenFactoryAddress.toLowerCase()}:${
-            currentTempTokenContract.chainId
-          }`
-        ] ?? BigInt(0)
-    );
-    return newPrice;
+    const n = currentActiveTokenTotalSupplyThreshold;
+    const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
+    const priceForCurrent = BigInt(Math.floor(bondingCurve(Number(n))));
+    const priceForPrevious = BigInt(Math.floor(bondingCurve(Number(n_))));
+    const basePrice =
+      tempTokenMinBaseTokenPrices[
+        `${currentActiveTokenFactoryAddress.toLowerCase()}:${
+          currentTempTokenContract.chainId
+        }`
+      ] ?? BigInt(0);
+    const newPrice = priceForCurrent - priceForPrevious + basePrice;
+    return Number(newPrice);
   }, [
     currentActiveTokenTotalSupplyThreshold,
     currentActiveTokenFactoryAddress,

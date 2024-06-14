@@ -1887,6 +1887,7 @@ export type GetTempTokensQuery = {
     protocolFeePercentage: any;
     ownerAddress: string;
     name: string;
+    factoryAddress: string;
     isAlwaysTradeable: boolean;
     highestTotalSupply: any;
     hasRemainingFundsForCreator: boolean;
@@ -3895,6 +3896,7 @@ export const GetTempTokensDocument = gql`
       protocolFeePercentage
       ownerAddress
       name
+      factoryAddress
       isAlwaysTradeable
       highestTotalSupply
       hasRemainingFundsForCreator

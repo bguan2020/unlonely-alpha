@@ -676,10 +676,10 @@ export const calculateBurnProceeds = (
   minBaseTokenPrice: bigint
 ): bigint => {
   const newSupply = Math.max(currentSupply - amountToBurn, 0);
-  const priceForCurrent = Math.floor(bondingCurve(currentSupply));
-  const priceForPrevious = Math.floor(bondingCurve(newSupply));
+  const priceForCurrent = BigInt(Math.floor(bondingCurve(currentSupply)));
+  const priceForPrevious = BigInt(Math.floor(bondingCurve(newSupply)));
   const newPrice = priceForCurrent - priceForPrevious;
 
   // returns in wei
-  return BigInt(newPrice) + BigInt(amountToBurn) * minBaseTokenPrice;
+  return newPrice + BigInt(amountToBurn) * minBaseTokenPrice;
 };

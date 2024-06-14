@@ -61,21 +61,18 @@ const TempTokenLeaderboard = () => {
   const datasetSorted = useMemo(() => {
     return dataset
       .map((token) => {
-        const n = token.highestTotalSupply;
-        const n_ = Math.max(n - 1, 0);
-        const priceForCurrent = Math.floor(bondingCurve(n));
-        const priceForPrevious = Math.floor(bondingCurve(n_));
-        const newPrice = Number(
-          BigInt(priceForCurrent) -
-            BigInt(priceForPrevious) +
-            tempTokenMinBaseTokenPrices[
-              `${token.factoryAddress.toLowerCase()}:${token.chainId}`
-            ] ?? BigInt(0)
-        );
-
+        const n = BigInt(token.highestTotalSupply);
+        const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
+        const priceForCurrent = BigInt(Math.floor(bondingCurve(Number(n))));
+        const priceForPrevious = BigInt(Math.floor(bondingCurve(Number(n_))));
+        const basePrice =
+          tempTokenMinBaseTokenPrices[
+            `${token.factoryAddress.toLowerCase()}:${token.chainId}`
+          ] ?? BigInt(0);
+        const newPrice = priceForCurrent - priceForPrevious + basePrice;
         return {
           ...token,
-          highestPrice: newPrice,
+          highestPrice: Number(newPrice),
         };
       })
       .sort((a, b) => {

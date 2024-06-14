@@ -128,17 +128,17 @@ export const useReadTempTokenTxs = ({
           : undefined;
       for (let i = 0; i < logs.length; i++) {
         const event = logs[i];
-        const n = Number(event.args.totalSupply as bigint);
-        const n_ = Math.max(n - 1, 0);
-        const priceForCurrent = Math.floor(bondingCurve(n));
-        const priceForPrevious = Math.floor(bondingCurve(n_));
-        const newPrice = Number(
-          BigInt(priceForCurrent) -
-            BigInt(priceForPrevious) +
-            tempTokenMinBaseTokenPrices[
-              `${factoryAddress.toLowerCase()}:${tempTokenContract.chainId}`
-            ] ?? BigInt(0)
-        );
+        const n = event.args.totalSupply as bigint; // Make sure this is BigInt
+        const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
+        const priceForCurrent = BigInt(Math.floor(bondingCurve(Number(n))));
+        const priceForPrevious = BigInt(Math.floor(bondingCurve(Number(n_))));
+
+        const basePrice =
+          tempTokenMinBaseTokenPrices[
+            `${factoryAddress.toLowerCase()}:${_tempTokenContract.chainId}`
+          ] ?? BigInt(0);
+        const newPrice = priceForCurrent - priceForPrevious + basePrice;
+
         const previousTxPrice =
           i === 0
             ? previousFetchedTx?.price ?? 0
@@ -147,13 +147,13 @@ export const useReadTempTokenTxs = ({
             : 0;
         const priceChangePercentage =
           previousTxPrice > 0
-            ? ((newPrice - previousTxPrice) / previousTxPrice) * 100
+            ? ((Number(newPrice) - previousTxPrice) / previousTxPrice) * 100
             : 0;
         const tx: TradeableTokenTx = {
           eventName: event.eventName,
           user: event.args.account as `0x${string}`,
           amount: event.args.amount as bigint,
-          price: newPrice,
+          price: Number(newPrice),
           blockNumber: Number(event.blockNumber),
           supply: event.args.totalSupply as bigint,
           priceChangePercentage,
@@ -172,7 +172,8 @@ export const useReadTempTokenTxs = ({
         tempTokenTxs.length > 0 ||
         !baseClient ||
         !tempTokenContract.address ||
-        tempTokenContract.address === NULL_ADDRESS
+        tempTokenContract.address === NULL_ADDRESS ||
+        tempTokenContract.chainId === 0
       ) {
         return;
       }

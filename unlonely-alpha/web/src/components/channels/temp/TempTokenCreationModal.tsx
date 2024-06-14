@@ -284,12 +284,12 @@ const getEthPriceOfThreshold = (
   minBaseTokenPrice: bigint
 ) => {
   if (threshold === BigInt(0)) return 0;
-  const n = Number(threshold);
-  const n_ = Math.max(n - 1, 0);
-  const priceForCurrent = Math.floor(bondingCurve(n));
-  const priceForPrevious = Math.floor(bondingCurve(n_));
-  const newPrice =
-    BigInt(priceForCurrent) - BigInt(priceForPrevious) + minBaseTokenPrice;
+  const n = threshold;
+  const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
+  const priceForCurrent = BigInt(Math.floor(bondingCurve(Number(n))));
+  const priceForPrevious = BigInt(Math.floor(bondingCurve(Number(n_))));
+
+  const newPrice = priceForCurrent - priceForPrevious + minBaseTokenPrice;
   return Number(newPrice);
 };
 
@@ -306,9 +306,9 @@ const getUsdPriceFromEthPriceOfThreshold = (
 const getCostInWeiToBuyToThreshold = (
   threshold: bigint,
   minBaseTokenPrice: bigint
-) => {
-  const n = Number(threshold);
-  const cost = Math.floor(bondingCurve(n));
-  const modifiedCost = BigInt(cost) + BigInt(n) * minBaseTokenPrice;
+): bigint => {
+  const n = threshold;
+  const cost = BigInt(Math.floor(bondingCurve(Number(n))));
+  const modifiedCost = cost + n * minBaseTokenPrice;
   return modifiedCost;
 };

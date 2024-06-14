@@ -300,6 +300,7 @@ export const GET_TEMP_TOKENS_QUERY = gql`
       protocolFeePercentage
       ownerAddress
       name
+      factoryAddress
       isAlwaysTradeable
       highestTotalSupply
       hasRemainingFundsForCreator
