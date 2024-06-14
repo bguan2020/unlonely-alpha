@@ -128,7 +128,7 @@ export const useReadTempTokenTxs = ({
           : undefined;
       for (let i = 0; i < logs.length; i++) {
         const event = logs[i];
-        const n = event.args.totalSupply as bigint; // Make sure this is BigInt
+        const n = event.args.totalSupply as bigint;
         const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
         const priceForCurrent = BigInt(Math.floor(bondingCurve(Number(n))));
         const priceForPrevious = BigInt(Math.floor(bondingCurve(Number(n_))));

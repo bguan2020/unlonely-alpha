@@ -7,7 +7,7 @@
  * 
  * id format is {lowercasedFactoryAddress}:{chainId}
  * 
- * // todo whenever the factory contract is redeployed from now on, 
+ * // todo: whenever the factory contract is redeployed from now on, 
  * we need to update this list, you can find the needed minimum base token price on
  * the associating token contract file.
  */

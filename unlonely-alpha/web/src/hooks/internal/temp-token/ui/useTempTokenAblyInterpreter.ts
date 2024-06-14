@@ -152,7 +152,7 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           body.split(":")[7]
         )
         handleIsPreSaleOngoing(
-          Number(BigInt(body.split(":")[10])) > Math.floor(Date.now() / 1000)
+          Number(BigInt(body.split(":")[6])) > Math.floor(Date.now() / 1000)
         );
       }
       if (

@@ -99,6 +99,7 @@ export const TempTokenInterface = ({
 
   const priceOfThreshold = useMemo(() => {
     if (currentActiveTokenTotalSupplyThreshold === BigInt(0)) return 0;
+
     const n = currentActiveTokenTotalSupplyThreshold;
     const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
     const priceForCurrent = BigInt(Math.floor(bondingCurve(Number(n))));
