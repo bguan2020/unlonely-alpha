@@ -29,6 +29,7 @@ import { SendRemainingFundsFromTokenModal } from "../../temp/SendRemainingFundsF
 import { SingleTempTokenTimerView } from "../../temp/TempTokenTimerView";
 import useUserAgent from "../../../../hooks/internal/useUserAgent";
 import { bondingCurve } from "../../../../utils/contract";
+import { tempTokenMinBaseTokenPrices } from "../../../../constants/tempTokenMinBaseTokenPrices";
 
 export const TempTokenInterface = ({
   customHeight,
@@ -64,6 +65,7 @@ export const TempTokenInterface = ({
     currentActiveTokenAddress,
     currentActiveTokenSymbol,
     currentActiveTokenTotalSupplyThreshold,
+    currentActiveTokenFactoryAddress,
     canPlayToken,
     isFailedGameState,
     isSuccessGameModalOpen,
@@ -101,9 +103,21 @@ export const TempTokenInterface = ({
     const n_ = Math.max(n - 1, 0);
     const priceForCurrent = Math.floor(bondingCurve(n));
     const priceForPrevious = Math.floor(bondingCurve(n_));
-    const newPrice = priceForCurrent - priceForPrevious;
+    const newPrice = Number(
+      BigInt(priceForCurrent) -
+        BigInt(priceForPrevious) +
+        tempTokenMinBaseTokenPrices[
+          `${currentActiveTokenFactoryAddress.toLowerCase()}:${
+            currentTempTokenContract.chainId
+          }`
+        ] ?? BigInt(0)
+    );
     return newPrice;
-  }, [currentActiveTokenTotalSupplyThreshold]);
+  }, [
+    currentActiveTokenTotalSupplyThreshold,
+    currentActiveTokenFactoryAddress,
+    currentTempTokenContract,
+  ]);
 
   const priceOfThresholdInUsd = useMemo(
     () =>

@@ -272,7 +272,7 @@ export const useCreateMultipleTempTokensState = ({
             localNetwork.config.chainId
           )}:${String(newTokenCreationBlockNumber)}:${String(
             preSaleEndTimestamp
-          )}`,
+          )}:${String(factoryContract.address)}`,
         });
         toast({
           render: () => (

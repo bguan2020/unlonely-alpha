@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { ContractData } from "../../../../constants/types";
-import { NULL_ADDRESS, VersusTokenDataType } from "../../../../constants";
+import { NULL_ADDRESS } from "../../../../constants";
+import { VersusTokenDataType } from "../../../../constants/types/token";
 
 export type UseReadVersusTempTokenGlobalStateType = {
   canPlayToken: boolean;
@@ -42,6 +43,7 @@ const versusTokenDataInitial: VersusTokenDataType = {
     abi: undefined,
   },
   creationBlockNumber: BigInt(0),
+  factoryAddress: NULL_ADDRESS,
   endTimestamp: undefined,
 };
 

@@ -180,11 +180,10 @@ export const ChatUserModal = ({
     return vibesTokenTxs.length > 0
       ? Number(
           formatUnits(
-            BigInt(
-              calculateBurnProceeds(
-                Number(vibesTokenTxs[vibesTokenTxs.length - 1].supply),
-                Number(amountOfVibesToSend)
-              )
+            calculateBurnProceeds(
+              Number(vibesTokenTxs[vibesTokenTxs.length - 1].supply),
+              Number(amountOfVibesToSend),
+              BigInt(0)
             ),
             18
           )

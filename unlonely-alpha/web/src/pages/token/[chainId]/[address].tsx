@@ -57,6 +57,7 @@ import centerEllipses from "../../../utils/centerEllipses";
 import Header from "../../../components/navigation/Header";
 import { WavyText } from "../../../components/general/WavyText";
 import { bondingCurve } from "../../../utils/contract";
+import { tempTokenMinBaseTokenPrices } from "../../../constants/tempTokenMinBaseTokenPrices";
 
 const TokenTradePage = () => {
   const router = useRouter();
@@ -182,9 +183,15 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
     const n_ = Math.max(n - 1, 0);
     const priceForCurrent = Math.floor(bondingCurve(n));
     const priceForPrevious = Math.floor(bondingCurve(n_));
-    const newPrice = priceForCurrent - priceForPrevious;
+    const newPrice = Number(
+      BigInt(priceForCurrent) -
+        BigInt(priceForPrevious) +
+        tempTokenMinBaseTokenPrices[
+          `${tempToken.factoryAddress.toLowerCase()}:${tempToken.chainId}`
+        ] ?? BigInt(0)
+    );
     return newPrice;
-  }, [totalSupplyThreshold]);
+  }, [totalSupplyThreshold, tempToken]);
 
   const priceOfThresholdInUsd = useMemo(
     () =>
@@ -564,6 +571,7 @@ const Exchange = ({
     if (readTempTokenTxs.tempTokenTxs.length > 0) {
       await readTempTokenTxs.getTempTokenEvents(
         tempTokenContract,
+        tempToken.factoryAddress,
         BigInt(
           readTempTokenTxs.tempTokenTxs[
             readTempTokenTxs.tempTokenTxs.length - 1
@@ -572,7 +580,12 @@ const Exchange = ({
         BigInt(0)
       );
     }
-  }, [publicClient, tempTokenContract, readTempTokenTxs.tempTokenTxs.length]);
+  }, [
+    publicClient,
+    tempTokenContract,
+    readTempTokenTxs.tempTokenTxs.length,
+    tempToken,
+  ]);
 
   useEffect(() => {
     const interval = setInterval(() => {

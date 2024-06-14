@@ -1,4 +1,4 @@
-import { task } from "hardhat/config";
+import { task, vars } from "hardhat/config";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-watcher";
 import "@nomiclabs/hardhat-ethers";
@@ -64,46 +64,46 @@ module.exports = {
       chainId: 1337, // REF: https://hardhat.org/metamask-issue.html
     },
     mainnet: {
-      url: `https://eth-mainnet.g.alchemy.com/v2/${String(process.env.ALCHEMY_API_KEY)}`,
+      url: `https://eth-mainnet.g.alchemy.com/v2/${vars.get("ALCHEMY_API_KEY")}`,
       accounts: [
-        String(process.env.TEST_PRIVATE_KEY)
+        vars.get("TEST_PRIVATE_KEY")
       ],
     },
     base_goerli: {
       url: "https://goerli.base.org",
       accounts: [
-        String(process.env.TEST_PRIVATE_KEY)
+        vars.get("TEST_PRIVATE_KEY")
       ],
       verify: {
         etherscan: {
           apiUrl: "https://api-goerli.basescan.org",
-          apiKey: String(process.env.EXPLORER_API_KEY)
+          apiKey: vars.get("EXPLORER_API_KEY")
         }
       }
     },
     base_sepolia: {
-      url: `https://base-sepolia.g.alchemy.com/v2/${String(process.env.ALCHEMY_SEPOLIA_KEY)}`,
+      url: `https://base-sepolia.g.alchemy.com/v2/${vars.get("ALCHEMY_SEPOLIA_KEY")}`,
       accounts: [
-        String(process.env.TEST_PRIVATE_KEY)
-        // String(process.env.PROD_PRIVATE_KEY)
+        vars.get("TEST_PRIVATE_KEY")
+        // vars.get("PROD_PRIVATE_KEY")
       ],
       verify: {
         etherscan: {
           apiUrl: "https://api-sepolia.basescan.org",
-          apiKey: String(process.env.EXPLORER_API_KEY)
+          apiKey: vars.get("EXPLORER_API_KEY")
         }
       }
     },
     base: {
-      url: `https://base-mainnet.g.alchemy.com/v2/${String(process.env.ALCHEMY_BASE_API_KEY)}`,
+      url: `https://base-mainnet.g.alchemy.com/v2/${vars.get("ALCHEMY_BASE_API_KEY")}`,
       accounts: [
-        // String(process.env.TEST_PRIVATE_KEY)
-        String(process.env.PROD_PRIVATE_KEY)
+         vars.get("TEST_PRIVATE_KEY")
+        // vars.get("PROD_PRIVATE_KEY")
       ],
       verify: {
         etherscan: {
           apiUrl: "https://api.basescan.org",
-          apiKey: String(process.env.EXPLORER_API_KEY)
+          apiKey: vars.get("EXPLORER_API_KEY")
         }
       }
     }

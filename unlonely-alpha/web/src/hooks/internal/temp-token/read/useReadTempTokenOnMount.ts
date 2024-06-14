@@ -112,7 +112,7 @@ export const useReadTempTokenOnMount = ({
               address: latestActiveToken.tokenAddress as `0x${string}`,
               abi: TempTokenAbi,
               functionName: "hasHitTotalSupplyThreshold",
-            }),
+            })
           ]);
           globalState.handleCurrentActiveTokenEndTimestamp(
             BigInt(String(endTimestamp))
@@ -137,6 +137,9 @@ export const useReadTempTokenOnMount = ({
           );
           globalState.handleIsPreSaleOngoing(
             Number(String(preSaleEndTimestamp)) > Math.floor(Date.now() / 1000)
+          );
+          globalState.handleCurrentActiveTokenFactoryAddress(
+            latestActiveToken.factoryAddress
           );
         }
       } catch (e) {

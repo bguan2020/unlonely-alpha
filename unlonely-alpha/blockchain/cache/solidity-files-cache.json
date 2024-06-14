@@ -1273,8 +1273,8 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\TempTokenV1.sol": {
-      "lastModificationDate": 1715962121587,
-      "contentHash": "1e3dce05981abc41d196e859d6dfe840",
+      "lastModificationDate": 1718303129155,
+      "contentHash": "0d347fa08591eb23a5e8a326570ff91c",
       "sourceName": "contracts/TempTokenV1.sol",
       "solcConfig": {
         "version": "0.8.8",
@@ -1319,7 +1319,7 @@
       ]
     },
     "C:\\Dev\\work\\unlonely\\unlonely-alpha\\unlonely-alpha\\blockchain\\contracts\\TempTokenFactoryV1.sol": {
-      "lastModificationDate": 1715893574841,
+      "lastModificationDate": 1716570244899,
       "contentHash": "acc3f2f527b62c1d4961d2b436249966",
       "sourceName": "contracts/TempTokenFactoryV1.sol",
       "solcConfig": {

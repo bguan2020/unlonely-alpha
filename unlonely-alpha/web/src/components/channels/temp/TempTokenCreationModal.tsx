@@ -15,7 +15,10 @@ import { alphanumericInput } from "../../../utils/validation/input";
 import { formatUnits } from "viem";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { useCacheContext } from "../../../hooks/context/useCache";
-import { bondingCurve } from "../../../utils/contract";
+import { bondingCurve, getContractFromNetwork } from "../../../utils/contract";
+import { Contract } from "../../../constants";
+import { useNetworkContext } from "../../../hooks/context/useNetwork";
+import { tempTokenMinBaseTokenPrices } from "../../../constants/tempTokenMinBaseTokenPrices";
 
 export const TempTokenCreationModal = ({
   title,
@@ -27,6 +30,13 @@ export const TempTokenCreationModal = ({
   handleClose: () => void;
 }) => {
   const { ethPriceInUsd } = useCacheContext();
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
+
+  const factoryContract = getContractFromNetwork(
+    Contract.TEMP_TOKEN_FACTORY_V1,
+    localNetwork
+  );
 
   const { channel } = useChannelContext();
   const { channelQueryData, realTimeChannelDetails } = channel;
@@ -166,13 +176,25 @@ export const TempTokenCreationModal = ({
             hit{" "}
             {`$${getUsdPriceFromEthPriceOfThreshold(
               Number(ethPriceInUsd),
-              getEthPriceOfThreshold(newTokenTotalSupplyThreshold)
+              getEthPriceOfThreshold(
+                newTokenTotalSupplyThreshold,
+                tempTokenMinBaseTokenPrices[
+                  `${factoryContract.address?.toLowerCase()}:${
+                    factoryContract.chainId
+                  }`
+                ] ?? BigInt(0)
+              )
             )}`}
             , needs{" "}
             {truncateValue(
               formatUnits(
-                BigInt(
-                  getCostInEthToBuyToThreshold(newTokenTotalSupplyThreshold)
+                getCostInWeiToBuyToThreshold(
+                  newTokenTotalSupplyThreshold,
+                  tempTokenMinBaseTokenPrices[
+                    `${factoryContract.address?.toLowerCase()}:${
+                      factoryContract.chainId
+                    }`
+                  ] ?? BigInt(0)
                 ),
                 18
               ),
@@ -257,14 +279,18 @@ export const TempTokenCreationModal = ({
   );
 };
 
-const getEthPriceOfThreshold = (threshold: bigint) => {
+const getEthPriceOfThreshold = (
+  threshold: bigint,
+  minBaseTokenPrice: bigint
+) => {
   if (threshold === BigInt(0)) return 0;
   const n = Number(threshold);
   const n_ = Math.max(n - 1, 0);
   const priceForCurrent = Math.floor(bondingCurve(n));
   const priceForPrevious = Math.floor(bondingCurve(n_));
-  const newPrice = priceForCurrent - priceForPrevious;
-  return newPrice;
+  const newPrice =
+    BigInt(priceForCurrent) - BigInt(priceForPrevious) + minBaseTokenPrice;
+  return Number(newPrice);
 };
 
 const getUsdPriceFromEthPriceOfThreshold = (
@@ -277,8 +303,12 @@ const getUsdPriceFromEthPriceOfThreshold = (
   );
 };
 
-const getCostInEthToBuyToThreshold = (threshold: bigint) => {
+const getCostInWeiToBuyToThreshold = (
+  threshold: bigint,
+  minBaseTokenPrice: bigint
+) => {
   const n = Number(threshold);
   const cost = Math.floor(bondingCurve(n));
-  return cost;
+  const modifiedCost = BigInt(cost) + BigInt(n) * minBaseTokenPrice;
+  return modifiedCost;
 };

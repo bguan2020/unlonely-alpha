@@ -3,8 +3,6 @@ import { isAddress, isAddressEqual } from "viem";
 import {
   InteractionType,
   CHAT_MESSAGE_EVENT,
-  versusTokenDataInitial,
-  VersusTokenDataType,
 } from "../../../../constants";
 import { calculateMaxWinnerTokensToMint } from "../../../../utils/calculateMaxWinnerTokensToMint";
 import { ChatReturnType } from "../../../chat/useChat";
@@ -12,6 +10,7 @@ import { useChannelContext } from "../../../context/useChannel";
 import { useUser } from "../../../context/useUser";
 import { useVersusTempTokenContext } from "../../../context/useVersusTempToken";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
+import { versusTokenDataInitial, VersusTokenDataType } from "../../../../constants/types/token";
 
 export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   const { userAddress } = useUser();
@@ -85,6 +84,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
     await Promise.all([
       getTempTokenEventsA(
         tokenA.contractData,
+        tokenA.factoryAddress,
         blockNumberOfLastInAppTrade.current === BigInt(0) && tempTokenTxsA.length > 0
           ? BigInt(tempTokenTxsA[tempTokenTxsA.length - 1].blockNumber)
           : blockNumberOfLastInAppTrade.current,
@@ -92,6 +92,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
       ),
       getTempTokenEventsB(
         tokenB.contractData,
+        tokenB.factoryAddress,
         blockNumberOfLastInAppTrade.current === BigInt(0) && tempTokenTxsB.length > 0
           ? BigInt(tempTokenTxsB[tempTokenTxsB.length - 1].blockNumber)
           : blockNumberOfLastInAppTrade.current,
@@ -166,6 +167,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         const chainId = Number(body.split(":")[4]);
         const newTokenCreationBlockNumber = BigInt(body.split(":")[5]);
         const preSaleEndTimestamp = BigInt(body.split(":")[6]);
+        const factoryAddress = body.split(":")[7];
         handleRealTimeChannelDetails({
           isLive: true,
         });
@@ -194,6 +196,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           },
           creationBlockNumber: newTokenCreationBlockNumber,
           endTimestamp: newEndTimestamp,
+          factoryAddress,
         });
         setTokenB({
           transferredLiquidityOnExpiration: BigInt(0),
@@ -209,6 +212,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           },
           creationBlockNumber: newTokenCreationBlockNumber,
           endTimestamp: newEndTimestamp,
+          factoryAddress
         });
         handleIsPreSaleOngoing(
           Number(preSaleEndTimestamp) > Math.floor(Date.now() / 1000)

@@ -22,6 +22,7 @@ import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { formatUnits } from "viem";
 import { useCacheContext } from "../../hooks/context/useCache";
 import { bondingCurve } from "../../utils/contract";
+import { tempTokenMinBaseTokenPrices } from "../../constants/tempTokenMinBaseTokenPrices";
 
 const headers = ["rank", "token", "channel", "highest price", "time left"];
 
@@ -29,7 +30,7 @@ const ITEMS_PER_PAGE = 10;
 
 const TempTokenLeaderboard = () => {
   const { network } = useNetworkContext();
-  const { localNetwork, explorerUrl } = network;
+  const { localNetwork } = network;
   const { ethPriceInUsd } = useCacheContext();
 
   const visibleColumns = useBreakpointValue({
@@ -64,7 +65,13 @@ const TempTokenLeaderboard = () => {
         const n_ = Math.max(n - 1, 0);
         const priceForCurrent = Math.floor(bondingCurve(n));
         const priceForPrevious = Math.floor(bondingCurve(n_));
-        const newPrice = priceForCurrent - priceForPrevious;
+        const newPrice = Number(
+          BigInt(priceForCurrent) -
+            BigInt(priceForPrevious) +
+            tempTokenMinBaseTokenPrices[
+              `${token.factoryAddress.toLowerCase()}:${token.chainId}`
+            ] ?? BigInt(0)
+        );
 
         return {
           ...token,

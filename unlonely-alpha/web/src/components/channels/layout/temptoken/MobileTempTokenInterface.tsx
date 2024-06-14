@@ -10,6 +10,7 @@ import { useCacheContext } from "../../../../hooks/context/useCache";
 import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
 import { MobileTempTokenExchange } from "../../temp/MobileTempTokenExchange";
 import { bondingCurve } from "../../../../utils/contract";
+import { tempTokenMinBaseTokenPrices } from "../../../../constants/tempTokenMinBaseTokenPrices";
 
 export const MobileTempTokenInterface = ({
   ablyChannel,
@@ -31,6 +32,7 @@ export const MobileTempTokenInterface = ({
   const {
     currentActiveTokenSymbol,
     currentActiveTokenTotalSupplyThreshold,
+    currentActiveTokenFactoryAddress,
     isSuccessGameModalOpen,
     isPermanentGameModalOpen,
     isFailedGameState,
@@ -50,9 +52,21 @@ export const MobileTempTokenInterface = ({
     const n_ = Math.max(n - 1, 0);
     const priceForCurrent = Math.floor(bondingCurve(n));
     const priceForPrevious = Math.floor(bondingCurve(n_));
-    const newPrice = priceForCurrent - priceForPrevious;
+    const newPrice = Number(
+      BigInt(priceForCurrent) -
+        BigInt(priceForPrevious) +
+        tempTokenMinBaseTokenPrices[
+          `${currentActiveTokenFactoryAddress.toLowerCase()}:${
+            currentTempTokenContract.chainId
+          }`
+        ] ?? BigInt(0)
+    );
     return newPrice;
-  }, [currentActiveTokenTotalSupplyThreshold]);
+  }, [
+    currentActiveTokenTotalSupplyThreshold,
+    currentActiveTokenFactoryAddress,
+    currentTempTokenContract,
+  ]);
 
   const priceOfThresholdInUsd = useMemo(
     () =>

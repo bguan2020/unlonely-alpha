@@ -211,14 +211,11 @@ export const useCreateTempTokenState = ({
         const dataToSend = [
           `${args.tokenAddress}`,
           `${args.symbol}`,
-          `${String(args.streamerFeePercent)}`,
-          `${String(args.protocolFeePercent)}`,
-          `${args.owner}`,
-          `${args.name}`,
           `${args.endTimestamp}`,
           `${String(args.creationBlockNumber)}`,
           `${String(args.totalSupplyThreshold)}`,
           `${String(args.preSaleEndTimestamp)}`,
+          `${String(factoryContract.address)}`,
         ];
         addToChatbotForTempToken({
           username: user?.username ?? "",

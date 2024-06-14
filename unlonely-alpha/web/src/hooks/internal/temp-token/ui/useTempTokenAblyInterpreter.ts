@@ -28,6 +28,7 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   } = tempToken;
   const {
     currentActiveTokenAddress,
+    currentActiveTokenFactoryAddress,
     lastInactiveTokenAddress,
     handleIsGamePermanent,
     handleIsGameSuccess,
@@ -40,6 +41,7 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
     handleCurrentActiveTokenHasHitTotalSupplyThreshold,
     handleCurrentActiveTokenPreSaleEndTimestamp,
     handleIsPreSaleOngoing,
+    handleCurrentActiveTokenFactoryAddress
   } = gameState;
 
   const mountingMessages = useRef(true);
@@ -77,6 +79,7 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
       ) {
         await getTempTokenEvents(
           currentTempTokenContract,
+          currentActiveTokenFactoryAddress,
           blockNumberOfLastInAppTrade === BigInt(0) && tempTokenTxs.length > 0
             ? BigInt(tempTokenTxs[tempTokenTxs.length - 1].blockNumber)
             : blockNumberOfLastInAppTrade,
@@ -135,16 +138,19 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         handleIsGameFailed(false);
         resetTempTokenTxs();
 
-        handleCurrentActiveTokenEndTimestamp(BigInt(body.split(":")[7]));
-        handleCurrentActiveTokenCreationBlockNumber(BigInt(body.split(":")[8]));
         handleCurrentActiveTokenAddress(body.split(":")[1]);
         handleCurrentActiveTokenSymbol(body.split(":")[2]);
+        handleCurrentActiveTokenEndTimestamp(BigInt(body.split(":")[3]));
+        handleCurrentActiveTokenCreationBlockNumber(BigInt(body.split(":")[4]));
         handleCurrentActiveTokenTotalSupplyThreshold(
-          BigInt(body.split(":")[9])
+          BigInt(body.split(":")[5])
         );
         handleCurrentActiveTokenPreSaleEndTimestamp(
-          BigInt(body.split(":")[10])
+          BigInt(body.split(":")[6])
         );
+        handleCurrentActiveTokenFactoryAddress(
+          body.split(":")[7]
+        )
         handleIsPreSaleOngoing(
           Number(BigInt(body.split(":")[10])) > Math.floor(Date.now() / 1000)
         );
