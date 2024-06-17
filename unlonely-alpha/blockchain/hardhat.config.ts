@@ -84,8 +84,8 @@ module.exports = {
     base_sepolia: {
       url: `https://base-sepolia.g.alchemy.com/v2/${vars.get("ALCHEMY_SEPOLIA_KEY")}`,
       accounts: [
-        vars.get("TEST_PRIVATE_KEY")
-        // vars.get("PROD_PRIVATE_KEY")
+        // vars.get("TEST_PRIVATE_KEY")
+        vars.get("PROD_PRIVATE_KEY")
       ],
       verify: {
         etherscan: {
