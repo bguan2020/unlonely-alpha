@@ -31,6 +31,7 @@
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.0.0",
     "ethers": "^5.5.4",
+    "hardhat": "^2.22.5",
     "hardhat-deploy": "^0.11.43",
     "ts-node": "^10.4.0",
     "typechain": "^6.0.3",
@@ -40,7 +41,6 @@
   "dependencies": {
     "@openzeppelin/contracts": "4.8.1",
     "dotenv": "^16.0.0",
-    "hardhat": "^2.22.5",
     "hardhat-watcher": "^2.1.1"
   }
 }
