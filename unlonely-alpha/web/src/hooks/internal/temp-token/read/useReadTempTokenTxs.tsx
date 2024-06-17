@@ -11,7 +11,6 @@ import { useUser } from "../../../context/useUser";
 import { useGetUserBalance } from "../../../contracts/useToken";
 import React from "react";
 import { bondingCurve } from "../../../../utils/contract";
-import { tempTokenMinBaseTokenPrices } from "../../../../constants/tempTokenMinBaseTokenPrices";
 
 export type UseReadTempTokenTxsType = {
   tempTokenTxs: TradeableTokenTx[];
@@ -27,7 +26,7 @@ export type UseReadTempTokenTxsType = {
   setTempTokenTxs: React.Dispatch<React.SetStateAction<TradeableTokenTx[]>>;
   getTempTokenEvents: (
     tempTokenContract: ContractData,
-    factoryAddress: string,
+    minBaseTokenPrice: bigint,
     fromBlock: bigint,
     toBlock: bigint
   ) => Promise<void>;
@@ -82,7 +81,7 @@ export const useReadTempTokenTxs = ({
   const getTempTokenEvents = useCallback(
     async (
       _tempTokenContract: ContractData,
-      factoryAddress: string,
+      minBaseTokenPrice: bigint,
       fromBlock: bigint,
       toBlock: bigint
     ) => {
@@ -132,12 +131,7 @@ export const useReadTempTokenTxs = ({
         const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
         const priceForCurrent = BigInt(Math.floor(bondingCurve(Number(n))));
         const priceForPrevious = BigInt(Math.floor(bondingCurve(Number(n_))));
-
-        const basePrice =
-          tempTokenMinBaseTokenPrices[
-            `${factoryAddress.toLowerCase()}:${_tempTokenContract.chainId}`
-          ] ?? BigInt(0);
-        const newPrice = priceForCurrent - priceForPrevious + basePrice;
+        const newPrice = priceForCurrent - priceForPrevious + minBaseTokenPrice;
 
         const previousTxPrice =
           i === 0
@@ -177,18 +171,20 @@ export const useReadTempTokenTxs = ({
       ) {
         return;
       }
-      const [blockNumber, factoryAddress] = await Promise.all([
+      const [blockNumber, minBaseTokenPrice] = await Promise.all([
         baseClient.getBlockNumber(),
-        baseClient.readContract({
-          address: tempTokenContract.address,
-          abi: tempTokenContract.abi,
-          functionName: "factoryAddress",
-        }),
+        baseClient
+          .readContract({
+            address: tempTokenContract.address,
+            abi: tempTokenContract.abi,
+            functionName: "MIN_BASE_TOKEN_PRICE",
+          })
+          .catch(() => BigInt(0)) as Promise<bigint>,
       ]);
       if (tokenCreationBlockNumber < blockNumber) {
         await getTempTokenEvents(
           tempTokenContract,
-          factoryAddress as string,
+          minBaseTokenPrice as bigint,
           tokenCreationBlockNumber,
           blockNumber
         );

@@ -84,6 +84,7 @@ export type CommandData = {
 export type AblyChannelPromise = Ably.Types.RealtimeChannelPromise;
 
 export const MAX_VIBES_PRICE = 399999999934464;
+export const CURRENT_MIN_BASE_TOKEN_PRICE = BigInt(2 * 10**13)
 
 export const IPFS_PROJECT_ID = "2L4KPgsXhXNwOtkELX7xt2Sbrl4";
 export const IPFS_PROJECT_SECRET = String(process.env.NEXT_PUBLIC_IPFS_PROJECT_SECRET);

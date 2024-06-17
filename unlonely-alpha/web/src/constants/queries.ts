@@ -307,6 +307,7 @@ export const GET_TEMP_TOKENS_QUERY = gql`
       hasHitTotalSupplyThreshold
       creationBlockNumber
       endUnixTimestamp
+      minBaseTokenPrice
       channelId
       chainId
       transferredLiquidityOnExpiration

@@ -17,6 +17,7 @@ export const typeDef = gql`
     endUnixTimestamp: BigInt!
     factoryAddress: String!
     creationBlockNumber: BigInt!
+    minBaseTokenPrice: BigInt!
     protocolFeePercentage: BigInt!
     streamerFeePercentage: BigInt!
     highestTotalSupply: BigInt!
@@ -81,6 +82,7 @@ export const typeDef = gql`
     channelId: Int!
     ownerAddress: String!
     name: String!
+    minBaseTokenPrice: BigInt!
     symbol: String!
     endUnixTimestamp: String!
     factoryAddress: String!

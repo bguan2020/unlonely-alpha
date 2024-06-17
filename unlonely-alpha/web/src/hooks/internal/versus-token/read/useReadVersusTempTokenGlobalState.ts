@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import { ContractData } from "../../../../constants/types";
-import { NULL_ADDRESS } from "../../../../constants";
-import { VersusTokenDataType } from "../../../../constants/types/token";
+import { VersusTokenDataType, versusTokenDataInitial } from "../../../../constants/types/token";
 
 export type UseReadVersusTempTokenGlobalStateType = {
   canPlayToken: boolean;
@@ -28,23 +27,6 @@ export type UseReadVersusTempTokenGlobalStateType = {
   setTokenA: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
   tokenB: VersusTokenDataType;
   setTokenB: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
-};
-
-const versusTokenDataInitial: VersusTokenDataType = {
-  transferredLiquidityOnExpiration: BigInt(0),
-  symbol: "",
-  address: "",
-  totalSupply: BigInt(0),
-  isAlwaysTradeable: false,
-  preSaleEndTimestamp: BigInt(0),
-  contractData: {
-    address: NULL_ADDRESS,
-    chainId: 0,
-    abi: undefined,
-  },
-  creationBlockNumber: BigInt(0),
-  factoryAddress: NULL_ADDRESS,
-  endTimestamp: undefined,
 };
 
 export const useReadVersusTempTokenGlobalStateInitial: UseReadVersusTempTokenGlobalStateType =

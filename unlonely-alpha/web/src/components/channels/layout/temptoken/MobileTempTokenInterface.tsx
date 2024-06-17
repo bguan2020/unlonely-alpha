@@ -10,7 +10,6 @@ import { useCacheContext } from "../../../../hooks/context/useCache";
 import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
 import { MobileTempTokenExchange } from "../../temp/MobileTempTokenExchange";
 import { bondingCurve } from "../../../../utils/contract";
-import { tempTokenMinBaseTokenPrices } from "../../../../constants/tempTokenMinBaseTokenPrices";
 
 export const MobileTempTokenInterface = ({
   ablyChannel,
@@ -32,7 +31,7 @@ export const MobileTempTokenInterface = ({
   const {
     currentActiveTokenSymbol,
     currentActiveTokenTotalSupplyThreshold,
-    currentActiveTokenFactoryAddress,
+    currentActiveTokenMinBaseTokenPrice,
     isSuccessGameModalOpen,
     isPermanentGameModalOpen,
     isFailedGameState,
@@ -53,18 +52,12 @@ export const MobileTempTokenInterface = ({
     const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
     const priceForCurrent = BigInt(Math.floor(bondingCurve(Number(n))));
     const priceForPrevious = BigInt(Math.floor(bondingCurve(Number(n_))));
-    const basePrice =
-      tempTokenMinBaseTokenPrices[
-        `${currentActiveTokenFactoryAddress.toLowerCase()}:${
-          currentTempTokenContract.chainId
-        }`
-      ] ?? BigInt(0);
-    const newPrice = priceForCurrent - priceForPrevious + basePrice;
+    const newPrice =
+      priceForCurrent - priceForPrevious + currentActiveTokenMinBaseTokenPrice;
     return Number(newPrice);
   }, [
     currentActiveTokenTotalSupplyThreshold,
-    currentActiveTokenFactoryAddress,
-    currentTempTokenContract,
+    currentActiveTokenMinBaseTokenPrice,
   ]);
 
   const priceOfThresholdInUsd = useMemo(

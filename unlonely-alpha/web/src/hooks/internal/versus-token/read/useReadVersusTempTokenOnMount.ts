@@ -137,6 +137,7 @@ export const useReadVersusTempTokenOnMount = ({
             creationBlockNumber: BigInt(_tokenA.creationBlockNumber),
             endTimestamp: BigInt(String(endTimestampA)),
             factoryAddress:_tokenA.factoryAddress as `0x${string}`,
+            minBaseTokenPrice: BigInt(_tokenA.minBaseTokenPrice),
           };
           const _newTokenB: VersusTokenDataType = {
             transferredLiquidityOnExpiration:
@@ -156,6 +157,7 @@ export const useReadVersusTempTokenOnMount = ({
             creationBlockNumber: BigInt(_tokenB.creationBlockNumber),
             endTimestamp: BigInt(String(endTimeStampB)),
             factoryAddress:_tokenB.factoryAddress as `0x${string}`,
+            minBaseTokenPrice: BigInt(_tokenB.minBaseTokenPrice),
           };
           globalState.handleFocusedTokenToTrade(undefined);
           globalState.setTokenA(_newTokenA);

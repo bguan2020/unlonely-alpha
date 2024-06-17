@@ -12,6 +12,7 @@ export type UseReadTempTokenGlobalStateType = {
   currentActiveTokenCreationBlockNumber: bigint;
   currentActiveTokenPreSaleEndTimestamp: bigint;
   currentActiveTokenFactoryAddress: string;
+  currentActiveTokenMinBaseTokenPrice: bigint;
   lastInactiveTokenAddress: string;
   lastInactiveTokenBalance: bigint;
   lastInactiveTokenSymbol: string;
@@ -44,6 +45,7 @@ export type UseReadTempTokenGlobalStateType = {
   handleLastInactiveTokenAddress: (value: string) => void;
   handleLastInactiveTokenBalance: (value: bigint) => void;
   handleLastInactiveTokenSymbol: (value: string) => void;
+  handleCurrentActiveTokenMinBaseTokenPrice: (value: bigint) => void;
 };
 
 export const useReadTempTokenGlobalStateInitial: UseReadTempTokenGlobalStateType =
@@ -58,6 +60,7 @@ export const useReadTempTokenGlobalStateInitial: UseReadTempTokenGlobalStateType
     currentActiveTokenCreationBlockNumber: BigInt(0),
     currentActiveTokenPreSaleEndTimestamp: BigInt(0),
     currentActiveTokenFactoryAddress: NULL_ADDRESS,
+    currentActiveTokenMinBaseTokenPrice: BigInt(0),
     lastInactiveTokenAddress: NULL_ADDRESS,
     lastInactiveTokenBalance: BigInt(0),
     lastInactiveTokenSymbol: "",
@@ -90,6 +93,7 @@ export const useReadTempTokenGlobalStateInitial: UseReadTempTokenGlobalStateType
     handleCurrentActiveTokenTotalSupply: () => undefined,
     handleCurrentActiveTokenIsAlwaysTradable: () => undefined,
     handleCurrentActiveTokenPreSaleEndTimestamp: () => undefined,
+    handleCurrentActiveTokenMinBaseTokenPrice: () => undefined,
   };
 
 export const useReadTempTokenGlobalState =
@@ -127,6 +131,10 @@ export const useReadTempTokenGlobalState =
       currentActiveTokenFactoryAddress,
       setCurrentActiveTokenFactoryAddress,
     ] = useState<string>(NULL_ADDRESS);
+    const [
+      currentActiveTokenMinBaseTokenPrice,
+      setCurrentActiveTokenMinBaseTokenPrice,
+    ] = useState<bigint>(BigInt(0));
 
     const [lastInactiveTokenAddress, setLastInactiveTokenAddress] =
       useState<string>(NULL_ADDRESS);
@@ -259,6 +267,13 @@ export const useReadTempTokenGlobalState =
       []
     );
 
+    const handleCurrentActiveTokenMinBaseTokenPrice = useCallback(
+      (value: bigint) => {
+        setCurrentActiveTokenMinBaseTokenPrice(value);
+      },
+      []
+    );
+
     const handleIsPreSaleOngoing = useCallback((value: boolean) => {
       setIsPreSaleOngoing(value);
     }, []);
@@ -274,6 +289,7 @@ export const useReadTempTokenGlobalState =
       currentActiveTokenCreationBlockNumber,
       currentActiveTokenPreSaleEndTimestamp,
       currentActiveTokenFactoryAddress,
+      currentActiveTokenMinBaseTokenPrice,
       lastInactiveTokenAddress,
       lastInactiveTokenBalance,
       lastInactiveTokenSymbol,
@@ -306,5 +322,6 @@ export const useReadTempTokenGlobalState =
       handleCurrentActiveTokenTotalSupply,
       handleCurrentActiveTokenIsAlwaysTradable,
       handleCurrentActiveTokenPreSaleEndTimestamp,
+      handleCurrentActiveTokenMinBaseTokenPrice,
     };
   };

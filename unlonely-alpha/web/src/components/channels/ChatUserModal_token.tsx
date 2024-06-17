@@ -37,8 +37,6 @@ import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useTempTokenContext } from "../../hooks/context/useTempToken";
 import { bondingCurve } from "../../utils/contract";
 
-import { tempTokenMinBaseTokenPrices } from "../../constants/tempTokenMinBaseTokenPrices";
-
 export const ChatUserModal_token = ({
   isOpen,
   channel,
@@ -61,7 +59,7 @@ export const ChatUserModal_token = ({
     gameState,
     currentTempTokenContract,
   } = tempToken;
-  const { currentActiveTokenSymbol, currentActiveTokenFactoryAddress } =
+  const { currentActiveTokenSymbol, currentActiveTokenMinBaseTokenPrice } =
     gameState;
   const { network } = useNetworkContext();
   const { matchingChain, explorerUrl } = network;
@@ -192,22 +190,13 @@ export const ChatUserModal_token = ({
             calculateBurnProceeds(
               Number(tempTokenTxs[tempTokenTxs.length - 1].supply),
               Number(amountToSend),
-              tempTokenMinBaseTokenPrices[
-                `${currentActiveTokenFactoryAddress.toLowerCase()}:${
-                  currentTempTokenContract.chainId
-                }`
-              ] ?? BigInt(0)
+              currentActiveTokenMinBaseTokenPrice
             ),
             18
           )
         )
       : 0;
-  }, [
-    tempTokenTxs,
-    amountToSend,
-    currentTempTokenContract,
-    currentActiveTokenFactoryAddress,
-  ]);
+  }, [tempTokenTxs, amountToSend, currentActiveTokenMinBaseTokenPrice]);
 
   const appoint = async () => {
     await postUserRoleForChannel({

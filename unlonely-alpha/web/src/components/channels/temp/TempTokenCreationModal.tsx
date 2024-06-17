@@ -16,9 +16,8 @@ import { formatUnits } from "viem";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { useCacheContext } from "../../../hooks/context/useCache";
 import { bondingCurve, getContractFromNetwork } from "../../../utils/contract";
-import { Contract } from "../../../constants";
+import { CURRENT_MIN_BASE_TOKEN_PRICE, Contract } from "../../../constants";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
-import { tempTokenMinBaseTokenPrices } from "../../../constants/tempTokenMinBaseTokenPrices";
 
 export const TempTokenCreationModal = ({
   title,
@@ -178,11 +177,7 @@ export const TempTokenCreationModal = ({
               Number(ethPriceInUsd),
               getEthPriceOfThreshold(
                 newTokenTotalSupplyThreshold,
-                tempTokenMinBaseTokenPrices[
-                  `${factoryContract.address?.toLowerCase()}:${
-                    factoryContract.chainId
-                  }`
-                ] ?? BigInt(0)
+                CURRENT_MIN_BASE_TOKEN_PRICE
               )
             )}`}
             , needs{" "}
@@ -190,11 +185,7 @@ export const TempTokenCreationModal = ({
               formatUnits(
                 getCostInWeiToBuyToThreshold(
                   newTokenTotalSupplyThreshold,
-                  tempTokenMinBaseTokenPrices[
-                    `${factoryContract.address?.toLowerCase()}:${
-                      factoryContract.chainId
-                    }`
-                  ] ?? BigInt(0)
+                  CURRENT_MIN_BASE_TOKEN_PRICE
                 ),
                 18
               ),

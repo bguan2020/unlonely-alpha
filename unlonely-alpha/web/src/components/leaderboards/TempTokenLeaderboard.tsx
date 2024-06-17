@@ -22,7 +22,6 @@ import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { formatUnits } from "viem";
 import { useCacheContext } from "../../hooks/context/useCache";
 import { bondingCurve } from "../../utils/contract";
-import { tempTokenMinBaseTokenPrices } from "../../constants/tempTokenMinBaseTokenPrices";
 
 const headers = ["rank", "token", "channel", "highest price", "time left"];
 
@@ -65,11 +64,8 @@ const TempTokenLeaderboard = () => {
         const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
         const priceForCurrent = BigInt(Math.floor(bondingCurve(Number(n))));
         const priceForPrevious = BigInt(Math.floor(bondingCurve(Number(n_))));
-        const basePrice =
-          tempTokenMinBaseTokenPrices[
-            `${token.factoryAddress.toLowerCase()}:${token.chainId}`
-          ] ?? BigInt(0);
-        const newPrice = priceForCurrent - priceForPrevious + basePrice;
+        const basePrice = token.minBaseTokenPrice;
+        const newPrice = priceForCurrent - priceForPrevious + BigInt(basePrice);
         return {
           ...token,
           highestPrice: Number(newPrice),

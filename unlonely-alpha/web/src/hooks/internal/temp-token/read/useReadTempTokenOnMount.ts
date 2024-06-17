@@ -141,6 +141,9 @@ export const useReadTempTokenOnMount = ({
           globalState.handleCurrentActiveTokenFactoryAddress(
             latestActiveToken.factoryAddress
           );
+          globalState.handleCurrentActiveTokenMinBaseTokenPrice(
+            BigInt(latestActiveToken.minBaseTokenPrice)
+          );
         }
       } catch (e) {
         console.error("getTempTokensQuery", e);

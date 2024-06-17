@@ -24,6 +24,8 @@ import {
 } from "../../../../generated/graphql";
 import { useLazyQuery } from "@apollo/client";
 import { SEND_ALL_NOTIFICATIONS_QUERY } from "../../../../constants/queries";
+import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
+import { usePublicClient } from "wagmi";
 
 export type UseCreateMultipleTempTokensState = {
   newTokenAName: string;
@@ -72,6 +74,7 @@ export const useCreateMultipleTempTokensState = ({
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
   const toast = useToast();
+  const publicClient = usePublicClient();
 
   const [newTokenAName, setNewTokenAName] = useState("");
   const [newTokenASymbol, setNewTokenASymbol] = useState("");
@@ -164,6 +167,12 @@ export const useCreateMultipleTempTokensState = ({
         const newTokenNames = args.names as string[];
         const newTokenCreationBlockNumber = args.creationBlockNumber as bigint;
         const preSaleEndTimestamp = args.preSaleEndTimestamp as bigint;
+        await new Promise((resolve) => setTimeout(resolve, 4000));
+        const returnedMinBaseTokenPrice = await publicClient.readContract({
+          functionName: "MIN_BASE_TOKEN_PRICE",
+          abi: TempTokenAbi,
+          address: newTokenAddresses[0],
+        });
         await postTempToken({
           tokenAddress: newTokenAddresses[0],
           symbol: newTokenSymbols[0],
@@ -177,6 +186,7 @@ export const useCreateMultipleTempTokensState = ({
           creationBlockNumber: String(newTokenCreationBlockNumber),
           factoryAddress: factoryContract.address as `0x${string}`,
           tokenType: TempTokenType.VersusMode,
+          minBaseTokenPrice: returnedMinBaseTokenPrice as bigint,
         })
           .then((res) => {
             console.log(
@@ -223,6 +233,7 @@ export const useCreateMultipleTempTokensState = ({
           creationBlockNumber: String(newTokenCreationBlockNumber),
           factoryAddress: factoryContract.address as `0x${string}`,
           tokenType: TempTokenType.VersusMode,
+          minBaseTokenPrice: returnedMinBaseTokenPrice as bigint,
         })
           .then((res) => {
             console.log(
@@ -261,18 +272,22 @@ export const useCreateMultipleTempTokensState = ({
         } created the $${newTokenSymbols[0]} and $${
           newTokenSymbols[1]
         } tokens!`;
+        const dataToSend = [
+          `${String(newEndTimestamp)}`,
+          `${JSON.stringify(newTokenAddresses)}`,
+          `${JSON.stringify(newTokenSymbols)}`,
+          `${String(localNetwork.config.chainId)}`,
+          `${String(newTokenCreationBlockNumber)}`,
+          `${String(preSaleEndTimestamp)}`,
+          `${String(factoryContract.address)}`,
+          `${String(returnedMinBaseTokenPrice)}`,
+        ];
         addToChatbotForTempToken({
           username: user?.username ?? "",
           address: userAddress ?? "",
           taskType: InteractionType.CREATE_MULTIPLE_TEMP_TOKENS,
           title,
-          description: `${String(newEndTimestamp)}:${JSON.stringify(
-            newTokenAddresses
-          )}:${JSON.stringify(newTokenSymbols)}:${String(
-            localNetwork.config.chainId
-          )}:${String(newTokenCreationBlockNumber)}:${String(
-            preSaleEndTimestamp
-          )}:${String(factoryContract.address)}`,
+          description: dataToSend.join(":"),
         });
         toast({
           render: () => (

@@ -57,7 +57,6 @@ import centerEllipses from "../../../utils/centerEllipses";
 import Header from "../../../components/navigation/Header";
 import { WavyText } from "../../../components/general/WavyText";
 import { bondingCurve } from "../../../utils/contract";
-import { tempTokenMinBaseTokenPrices } from "../../../constants/tempTokenMinBaseTokenPrices";
 
 const TokenTradePage = () => {
   const router = useRouter();
@@ -184,11 +183,8 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
     const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
     const priceForCurrent = BigInt(Math.floor(bondingCurve(Number(n))));
     const priceForPrevious = BigInt(Math.floor(bondingCurve(Number(n_))));
-    const basePrice =
-      tempTokenMinBaseTokenPrices[
-        `${tempToken.factoryAddress.toLowerCase()}:${tempToken.chainId}`
-      ] ?? BigInt(0);
-    const newPrice = priceForCurrent - priceForPrevious + basePrice;
+    const newPrice =
+      priceForCurrent - priceForPrevious + BigInt(tempToken.minBaseTokenPrice);
     return Number(newPrice);
   }, [totalSupplyThreshold, tempToken]);
 
@@ -570,7 +566,7 @@ const Exchange = ({
     if (readTempTokenTxs.tempTokenTxs.length > 0) {
       await readTempTokenTxs.getTempTokenEvents(
         tempTokenContract,
-        tempToken.factoryAddress,
+        tempToken.minBaseTokenPrice,
         BigInt(
           readTempTokenTxs.tempTokenTxs[
             readTempTokenTxs.tempTokenTxs.length - 1

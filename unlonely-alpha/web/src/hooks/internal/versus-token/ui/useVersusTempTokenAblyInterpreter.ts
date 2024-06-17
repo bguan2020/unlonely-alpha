@@ -84,7 +84,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
     await Promise.all([
       getTempTokenEventsA(
         tokenA.contractData,
-        tokenA.factoryAddress,
+        tokenA.minBaseTokenPrice,
         blockNumberOfLastInAppTrade.current === BigInt(0) && tempTokenTxsA.length > 0
           ? BigInt(tempTokenTxsA[tempTokenTxsA.length - 1].blockNumber)
           : blockNumberOfLastInAppTrade.current,
@@ -92,7 +92,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
       ),
       getTempTokenEventsB(
         tokenB.contractData,
-        tokenB.factoryAddress,
+        tokenB.minBaseTokenPrice,
         blockNumberOfLastInAppTrade.current === BigInt(0) && tempTokenTxsB.length > 0
           ? BigInt(tempTokenTxsB[tempTokenTxsB.length - 1].blockNumber)
           : blockNumberOfLastInAppTrade.current,
@@ -168,6 +168,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         const newTokenCreationBlockNumber = BigInt(body.split(":")[5]);
         const preSaleEndTimestamp = BigInt(body.split(":")[6]);
         const factoryAddress = body.split(":")[7];
+        const minBaseTokenPrice = BigInt(body.split(":")[8]);
         handleRealTimeChannelDetails({
           isLive: true,
         });
@@ -197,6 +198,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           creationBlockNumber: newTokenCreationBlockNumber,
           endTimestamp: newEndTimestamp,
           factoryAddress,
+          minBaseTokenPrice,
         });
         setTokenB({
           transferredLiquidityOnExpiration: BigInt(0),
@@ -212,7 +214,8 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           },
           creationBlockNumber: newTokenCreationBlockNumber,
           endTimestamp: newEndTimestamp,
-          factoryAddress
+          factoryAddress,
+          minBaseTokenPrice,
         });
         handleIsPreSaleOngoing(
           Number(preSaleEndTimestamp) > Math.floor(Date.now() / 1000)

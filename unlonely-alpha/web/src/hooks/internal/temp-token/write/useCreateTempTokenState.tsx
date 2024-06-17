@@ -24,6 +24,8 @@ import {
 } from "../../../../generated/graphql";
 import { useLazyQuery } from "@apollo/client";
 import { SEND_ALL_NOTIFICATIONS_QUERY } from "../../../../constants/queries";
+import { usePublicClient } from "wagmi";
+import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 
 export const EASY_THRESHOLD = BigInt(420_000);
 export const MEDIUM_THRESHOLD = BigInt(690_000);
@@ -74,6 +76,7 @@ export const useCreateTempTokenState = ({
   const { addToChatbot: addToChatbotForTempToken } = chat;
   const { localNetwork, explorerUrl } = network;
   const toast = useToast();
+  const publicClient = usePublicClient();
 
   const [newTokenName, setNewTokenName] = useState<string>("");
   const [newTokenSymbol, setNewTokenSymbol] = useState<string>("");
@@ -148,11 +151,6 @@ export const useCreateTempTokenState = ({
         canAddToChatbot_create.current = false;
       },
       onTxSuccess: async (data) => {
-        console.log(
-          "createTempToken success 1",
-          data,
-          canAddToChatbot_create.current
-        );
         if (!canAddToChatbot_create.current) return;
         const topics = returnDecodedTopics(
           data.logs,
@@ -164,7 +162,21 @@ export const useCreateTempTokenState = ({
           return;
         }
         const args: any = topics.args;
-        console.log("createTempToken success 2", args, data);
+        console.log("createTempToken success", args, data);
+        await new Promise((resolve) => setTimeout(resolve, 4000));
+        const returnedMinBaseTokenPrice = await publicClient
+          .readContract({
+            address: args.tokenAddress as `0x${string}`,
+            abi: TempTokenAbi,
+            functionName: "MIN_BASE_TOKEN_PRICE",
+          })
+          .catch((err) => {
+            console.log(
+              "createTempToken readContract minBaseTokenPrice error",
+              err
+            );
+            return BigInt(0);
+          });
         await postTempToken({
           tokenAddress: args.tokenAddress as `0x${string}`,
           symbol: args.symbol as string,
@@ -178,6 +190,7 @@ export const useCreateTempTokenState = ({
           creationBlockNumber: String(args.creationBlockNumber as bigint),
           factoryAddress: factoryContract.address as `0x${string}`,
           tokenType: TempTokenType.SingleMode,
+          minBaseTokenPrice: returnedMinBaseTokenPrice,
         })
           .then((res) => {
             console.log("createTempToken update database success", res);
@@ -216,6 +229,7 @@ export const useCreateTempTokenState = ({
           `${String(args.totalSupplyThreshold)}`,
           `${String(args.preSaleEndTimestamp)}`,
           `${String(factoryContract.address)}`,
+          `${String(returnedMinBaseTokenPrice)}`,
         ];
         addToChatbotForTempToken({
           username: user?.username ?? "",

@@ -22,7 +22,6 @@ import { VersusTokenExchange } from "../../versus/VersusTokenExchange";
 import useUserAgent from "../../../../hooks/internal/useUserAgent";
 import { VersusTempTokenTimerView } from "../../versus/VersusTokenTimerView";
 import { consolidateChartData } from "../../../../utils/chart";
-import { tempTokenMinBaseTokenPrices } from "../../../../constants/tempTokenMinBaseTokenPrices";
 
 export type ConsolidatedTradeData = {
   tokenATrader: string;
@@ -334,9 +333,7 @@ export const VersusTempTokenChart = ({
     return consolidateChartData(
       tokenAChartData.chartTxs,
       tokenBChartData.chartTxs,
-      tempTokenMinBaseTokenPrices[
-        `${tokenA.factoryAddress.toLowerCase()}:${tokenA.contractData.chainId}`
-      ] ?? BigInt(0),
+      tokenA.minBaseTokenPrice,
       ethPriceInUsd
     );
   }, [

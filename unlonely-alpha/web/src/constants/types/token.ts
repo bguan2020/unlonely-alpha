@@ -12,6 +12,7 @@ export type VersusTokenDataType = {
     transferredLiquidityOnExpiration: bigint;
     endTimestamp?: bigint;
     factoryAddress: string;
+    minBaseTokenPrice: bigint;
   };
 
 export const versusTokenDataInitial: VersusTokenDataType = {
@@ -29,5 +30,6 @@ export const versusTokenDataInitial: VersusTokenDataType = {
     creationBlockNumber: BigInt(0),
     factoryAddress: NULL_ADDRESS,
     endTimestamp: undefined,
+    minBaseTokenPrice: BigInt(0),
   };
   

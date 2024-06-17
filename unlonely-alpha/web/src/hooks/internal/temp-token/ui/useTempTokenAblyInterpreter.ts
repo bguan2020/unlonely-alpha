@@ -28,7 +28,7 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   } = tempToken;
   const {
     currentActiveTokenAddress,
-    currentActiveTokenFactoryAddress,
+    currentActiveTokenMinBaseTokenPrice,
     lastInactiveTokenAddress,
     handleIsGamePermanent,
     handleIsGameSuccess,
@@ -41,7 +41,8 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
     handleCurrentActiveTokenHasHitTotalSupplyThreshold,
     handleCurrentActiveTokenPreSaleEndTimestamp,
     handleIsPreSaleOngoing,
-    handleCurrentActiveTokenFactoryAddress
+    handleCurrentActiveTokenFactoryAddress,
+    handleCurrentActiveTokenMinBaseTokenPrice
   } = gameState;
 
   const mountingMessages = useRef(true);
@@ -79,7 +80,7 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
       ) {
         await getTempTokenEvents(
           currentTempTokenContract,
-          currentActiveTokenFactoryAddress,
+          currentActiveTokenMinBaseTokenPrice,
           blockNumberOfLastInAppTrade === BigInt(0) && tempTokenTxs.length > 0
             ? BigInt(tempTokenTxs[tempTokenTxs.length - 1].blockNumber)
             : blockNumberOfLastInAppTrade,
@@ -153,6 +154,9 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         )
         handleIsPreSaleOngoing(
           Number(BigInt(body.split(":")[6])) > Math.floor(Date.now() / 1000)
+        );
+        handleCurrentActiveTokenMinBaseTokenPrice(
+          BigInt(body.split(":")[8])
         );
       }
       if (
