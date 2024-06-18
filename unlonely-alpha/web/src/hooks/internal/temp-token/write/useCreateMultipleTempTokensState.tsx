@@ -167,7 +167,18 @@ export const useCreateMultipleTempTokensState = ({
         const newTokenNames = args.names as string[];
         const newTokenCreationBlockNumber = args.creationBlockNumber as bigint;
         const preSaleEndTimestamp = args.preSaleEndTimestamp as bigint;
+        toast({
+          render: () => (
+            <Box as="button" borderRadius="md" bg="#5058c8" px={4} h={8}>
+              starting, please wait
+            </Box>
+          ),
+          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
+          isClosable: true,
+          position: "bottom", // chakra ui toast position
+        });
         await new Promise((resolve) => setTimeout(resolve, 4000));
+
         const returnedMinBaseTokenPrice = await publicClient.readContract({
           functionName: "MIN_BASE_TOKEN_PRICE",
           abi: TempTokenAbi,
@@ -186,7 +197,7 @@ export const useCreateMultipleTempTokensState = ({
           creationBlockNumber: String(newTokenCreationBlockNumber),
           factoryAddress: factoryContract.address as `0x${string}`,
           tokenType: TempTokenType.VersusMode,
-          minBaseTokenPrice: returnedMinBaseTokenPrice as bigint,
+          minBaseTokenPrice: String(returnedMinBaseTokenPrice as bigint),
         })
           .then((res) => {
             console.log(
@@ -233,7 +244,7 @@ export const useCreateMultipleTempTokensState = ({
           creationBlockNumber: String(newTokenCreationBlockNumber),
           factoryAddress: factoryContract.address as `0x${string}`,
           tokenType: TempTokenType.VersusMode,
-          minBaseTokenPrice: returnedMinBaseTokenPrice as bigint,
+          minBaseTokenPrice: String(returnedMinBaseTokenPrice as bigint),
         })
           .then((res) => {
             console.log(

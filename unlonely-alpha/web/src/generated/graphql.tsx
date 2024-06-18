@@ -895,7 +895,7 @@ export type PostTempTokenInput = {
   creationBlockNumber: Scalars["String"];
   endUnixTimestamp: Scalars["String"];
   factoryAddress: Scalars["String"];
-  minBaseTokenPrice: Scalars["BigInt"];
+  minBaseTokenPrice: Scalars["String"];
   name: Scalars["String"];
   ownerAddress: Scalars["String"];
   protocolFeePercentage: Scalars["String"];

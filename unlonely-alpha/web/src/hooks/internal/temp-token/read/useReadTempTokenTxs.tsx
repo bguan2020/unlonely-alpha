@@ -10,7 +10,7 @@ import {
 import { useUser } from "../../../context/useUser";
 import { useGetUserBalance } from "../../../contracts/useToken";
 import React from "react";
-import { bondingCurve } from "../../../../utils/contract";
+import { bondingCurveBigInt } from "../../../../utils/contract";
 
 export type UseReadTempTokenTxsType = {
   tempTokenTxs: TradeableTokenTx[];
@@ -129,8 +129,8 @@ export const useReadTempTokenTxs = ({
         const event = logs[i];
         const n = event.args.totalSupply as bigint;
         const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
-        const priceForCurrent = BigInt(Math.floor(bondingCurve(Number(n))));
-        const priceForPrevious = BigInt(Math.floor(bondingCurve(Number(n_))));
+        const priceForCurrent = bondingCurveBigInt(n);
+        const priceForPrevious = bondingCurveBigInt(n_);
         const newPrice = priceForCurrent - priceForPrevious + minBaseTokenPrice;
 
         const previousTxPrice =
@@ -141,14 +141,15 @@ export const useReadTempTokenTxs = ({
             : 0;
         const priceChangePercentage =
           previousTxPrice > 0
-            ? ((Number(newPrice) - previousTxPrice) / previousTxPrice) * 100
+            ? ((Number(String(newPrice)) - previousTxPrice) / previousTxPrice) *
+              100
             : 0;
         const tx: TradeableTokenTx = {
           eventName: event.eventName,
           user: event.args.account as `0x${string}`,
           amount: event.args.amount as bigint,
-          price: Number(newPrice),
-          blockNumber: Number(event.blockNumber),
+          price: Number(String(newPrice)),
+          blockNumber: Number(String(event.blockNumber)),
           supply: event.args.totalSupply as bigint,
           priceChangePercentage,
         };

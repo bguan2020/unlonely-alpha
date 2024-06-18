@@ -82,7 +82,7 @@ export const typeDef = gql`
     channelId: Int!
     ownerAddress: String!
     name: String!
-    minBaseTokenPrice: BigInt!
+    minBaseTokenPrice: String!
     symbol: String!
     endUnixTimestamp: String!
     factoryAddress: String!

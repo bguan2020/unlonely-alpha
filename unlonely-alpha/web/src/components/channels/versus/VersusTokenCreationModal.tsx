@@ -87,7 +87,7 @@ export const VersusTokenCreationModal = ({
         </Flex>
       ) : returnedIsLive === true ? (
         <Flex direction="column" gap="5px">
-          <Text>Token Symbol</Text>
+          <Text>Token Symbols</Text>
           <Flex gap="5px">
             <Input
               placeholder="token a symbol"

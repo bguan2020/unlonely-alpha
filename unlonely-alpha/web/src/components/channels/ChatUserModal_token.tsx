@@ -35,7 +35,7 @@ import Link from "next/link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useTempTokenContext } from "../../hooks/context/useTempToken";
-import { bondingCurve } from "../../utils/contract";
+import { bondingCurveBigInt } from "../../utils/contract";
 
 export const ChatUserModal_token = ({
   isOpen,
@@ -188,8 +188,8 @@ export const ChatUserModal_token = ({
       ? Number(
           formatUnits(
             calculateBurnProceeds(
-              Number(tempTokenTxs[tempTokenTxs.length - 1].supply),
-              Number(amountToSend),
+              tempTokenTxs[tempTokenTxs.length - 1].supply,
+              BigInt(amountToSend),
               currentActiveTokenMinBaseTokenPrice
             ),
             18
@@ -660,13 +660,16 @@ export const ChatUserModal_token = ({
 };
 
 export const calculateBurnProceeds = (
-  currentSupply: number,
-  amountToBurn: number,
+  currentSupply: bigint,
+  amountToBurn: bigint,
   minBaseTokenPrice: bigint
 ): bigint => {
-  const newSupply = Math.max(currentSupply - amountToBurn, 0);
-  const priceForCurrent = BigInt(Math.floor(bondingCurve(currentSupply)));
-  const priceForPrevious = BigInt(Math.floor(bondingCurve(newSupply)));
+  const newSupply =
+    currentSupply - amountToBurn > BigInt(0)
+      ? currentSupply - amountToBurn
+      : BigInt(0);
+  const priceForCurrent = bondingCurveBigInt(currentSupply);
+  const priceForPrevious = bondingCurveBigInt(newSupply);
   const newPrice = priceForCurrent - priceForPrevious;
 
   // returns in wei

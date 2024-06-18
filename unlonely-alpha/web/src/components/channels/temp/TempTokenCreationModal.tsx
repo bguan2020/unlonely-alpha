@@ -15,8 +15,11 @@ import { alphanumericInput } from "../../../utils/validation/input";
 import { formatUnits } from "viem";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { useCacheContext } from "../../../hooks/context/useCache";
-import { bondingCurve, getContractFromNetwork } from "../../../utils/contract";
-import { CURRENT_MIN_BASE_TOKEN_PRICE, Contract } from "../../../constants";
+import {
+  bondingCurveBigInt,
+  getContractFromNetwork,
+} from "../../../utils/contract";
+import { MIN_BASE_TOKEN_PRICE, Contract } from "../../../constants";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
 
 export const TempTokenCreationModal = ({
@@ -177,7 +180,7 @@ export const TempTokenCreationModal = ({
               Number(ethPriceInUsd),
               getEthPriceOfThreshold(
                 newTokenTotalSupplyThreshold,
-                CURRENT_MIN_BASE_TOKEN_PRICE
+                MIN_BASE_TOKEN_PRICE
               )
             )}`}
             , needs{" "}
@@ -185,7 +188,7 @@ export const TempTokenCreationModal = ({
               formatUnits(
                 getCostInWeiToBuyToThreshold(
                   newTokenTotalSupplyThreshold,
-                  CURRENT_MIN_BASE_TOKEN_PRICE
+                  MIN_BASE_TOKEN_PRICE
                 ),
                 18
               ),
@@ -277,8 +280,8 @@ const getEthPriceOfThreshold = (
   if (threshold === BigInt(0)) return 0;
   const n = threshold;
   const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
-  const priceForCurrent = BigInt(Math.floor(bondingCurve(Number(n))));
-  const priceForPrevious = BigInt(Math.floor(bondingCurve(Number(n_))));
+  const priceForCurrent = bondingCurveBigInt(n);
+  const priceForPrevious = bondingCurveBigInt(n_);
 
   const newPrice = priceForCurrent - priceForPrevious + minBaseTokenPrice;
   return Number(newPrice);
@@ -299,7 +302,7 @@ const getCostInWeiToBuyToThreshold = (
   minBaseTokenPrice: bigint
 ): bigint => {
   const n = threshold;
-  const cost = BigInt(Math.floor(bondingCurve(Number(n))));
+  const cost = bondingCurveBigInt(n);
   const modifiedCost = cost + n * minBaseTokenPrice;
   return modifiedCost;
 };
