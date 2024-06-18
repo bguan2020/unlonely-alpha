@@ -12,12 +12,15 @@ import { useChannelContext } from "../../../context/useChannel";
 import { useUser } from "../../../context/useUser";
 import { useVersusTempTokenContext } from "../../../context/useVersusTempToken";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
+import { useScreenAnimationsContext } from "../../../context/useScreenAnimations";
+import { Text } from "@chakra-ui/react";
 
 export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   const { userAddress } = useUser();
   const { channel } = useChannelContext();
   const { handleRealTimeChannelDetails } = channel;
   const mountingMessages = useRef(true);
+  const { emojiBlast } = useScreenAnimationsContext();
 
   const { gameState, tokenATxs, tokenBTxs, callbacks } =
     useVersusTempTokenContext();
@@ -85,14 +88,16 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
     await Promise.all([
       getTempTokenEventsA(
         tokenA.contractData,
-        blockNumberOfLastInAppTrade.current === BigInt(0) && tempTokenTxsA.length > 0
+        blockNumberOfLastInAppTrade.current === BigInt(0) &&
+          tempTokenTxsA.length > 0
           ? BigInt(tempTokenTxsA[tempTokenTxsA.length - 1].blockNumber)
           : blockNumberOfLastInAppTrade.current,
         txBlockNumber
       ),
       getTempTokenEventsB(
         tokenB.contractData,
-        blockNumberOfLastInAppTrade.current === BigInt(0) && tempTokenTxsB.length > 0
+        blockNumberOfLastInAppTrade.current === BigInt(0) &&
+          tempTokenTxsB.length > 0
           ? BigInt(tempTokenTxsB[tempTokenTxsB.length - 1].blockNumber)
           : blockNumberOfLastInAppTrade.current,
         txBlockNumber
@@ -133,10 +138,14 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
       const totalSupply = BigInt(body.split(":")[5]);
       const highestTotalSupply = body.split(":")[6];
       blockNumberOfLastInAppTrade.current = txBlockNumber;
-      if (interactionType === InteractionType.BUY_TEMP_TOKENS)
+      if (interactionType === InteractionType.BUY_TEMP_TOKENS) {
         onMintEvent(BigInt(totalSupply), BigInt(highestTotalSupply), tokenType);
-      if (interactionType === InteractionType.SELL_TEMP_TOKENS)
+        emojiBlast(<Text fontSize={"30px"}>{"📈"}</Text>);
+      }
+      if (interactionType === InteractionType.SELL_TEMP_TOKENS) {
         onBurnEvent(BigInt(totalSupply), tokenType);
+        emojiBlast(<Text fontSize={"30px"}>{"📉"}</Text>);
+      }
       if (ownerMustPermamint && losingToken.transferredLiquidityOnExpiration) {
         const { maxNumTokens: newMaxWinnerTokens } =
           await calculateMaxWinnerTokensToMint(
@@ -146,7 +155,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         handleOwnerMustPermamint(newMaxWinnerTokens);
       }
     }
-  }
+  };
 
   useEffect(() => {
     if (chat.receivedMessages.length === 0) return;
