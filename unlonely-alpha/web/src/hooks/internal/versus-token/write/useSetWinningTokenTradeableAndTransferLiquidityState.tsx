@@ -184,7 +184,8 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
         const { error: lambdaError, maxNumTokens } =
           await calculateMaxWinnerTokensToMint(
             Number(transferredLiquidityInWei),
-            Number(winnerTotalSupply)
+            Number(winnerTotalSupply),
+            Number(tokenA.minBaseTokenPrice)
           );
         console.log(
           "calculateMaxWinnerTokensToMint",

@@ -35,6 +35,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
     tokenA,
     tokenB,
     ownerMustPermamint,
+    winningToken,
     losingToken,
   } = gameState;
   const {
@@ -142,7 +143,8 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         const { maxNumTokens: newMaxWinnerTokens } =
           await calculateMaxWinnerTokensToMint(
             Number(losingToken.transferredLiquidityOnExpiration),
-            Number(totalSupply)
+            Number(totalSupply),
+            Number(winningToken.minBaseTokenPrice)
           );
         handleOwnerMustPermamint(newMaxWinnerTokens);
       }
