@@ -895,6 +895,7 @@ export type PostTempTokenInput = {
   creationBlockNumber: Scalars["String"];
   endUnixTimestamp: Scalars["String"];
   factoryAddress: Scalars["String"];
+  minBaseTokenPrice: Scalars["String"];
   name: Scalars["String"];
   ownerAddress: Scalars["String"];
   protocolFeePercentage: Scalars["String"];
@@ -1267,6 +1268,7 @@ export type TempToken = {
   highestTotalSupply: Scalars["BigInt"];
   id: Scalars["ID"];
   isAlwaysTradeable: Scalars["Boolean"];
+  minBaseTokenPrice: Scalars["BigInt"];
   name: Scalars["String"];
   ownerAddress: Scalars["String"];
   protocolFeePercentage: Scalars["BigInt"];
@@ -1887,12 +1889,14 @@ export type GetTempTokensQuery = {
     protocolFeePercentage: any;
     ownerAddress: string;
     name: string;
+    factoryAddress: string;
     isAlwaysTradeable: boolean;
     highestTotalSupply: any;
     hasRemainingFundsForCreator: boolean;
     hasHitTotalSupplyThreshold: boolean;
     creationBlockNumber: any;
     endUnixTimestamp: any;
+    minBaseTokenPrice: any;
     channelId: number;
     chainId: number;
     transferredLiquidityOnExpiration?: any | null;
@@ -2399,6 +2403,7 @@ export type PostTempTokenMutation = {
     name: string;
     highestTotalSupply: any;
     endUnixTimestamp: any;
+    minBaseTokenPrice: any;
     channelId: number;
     chainId: number;
   } | null;
@@ -3895,12 +3900,14 @@ export const GetTempTokensDocument = gql`
       protocolFeePercentage
       ownerAddress
       name
+      factoryAddress
       isAlwaysTradeable
       highestTotalSupply
       hasRemainingFundsForCreator
       hasHitTotalSupplyThreshold
       creationBlockNumber
       endUnixTimestamp
+      minBaseTokenPrice
       channelId
       chainId
       transferredLiquidityOnExpiration
@@ -5765,6 +5772,7 @@ export const PostTempTokenDocument = gql`
       name
       highestTotalSupply
       endUnixTimestamp
+      minBaseTokenPrice
       channelId
       chainId
     }

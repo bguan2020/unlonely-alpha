@@ -28,6 +28,7 @@ const POST_TEMP_TOKEN_MUTATION = gql`
       name
       highestTotalSupply
       endUnixTimestamp
+      minBaseTokenPrice
       channelId
       chainId
     }
@@ -60,6 +61,7 @@ const usePostTempToken = ({ onError }: Props) => {
               channelId: data.channelId as number,
               chainId: data.chainId as number,
               tokenType: data.tokenType as TempTokenType,
+              minBaseTokenPrice: data.minBaseTokenPrice as string,
             },
           },
         });

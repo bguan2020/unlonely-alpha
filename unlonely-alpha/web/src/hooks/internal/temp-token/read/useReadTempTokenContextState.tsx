@@ -132,6 +132,8 @@ export const useReadTempTokenContextState = () => {
         globalState.handleCurrentActiveTokenTotalSupplyThreshold(BigInt(0));
         globalState.handleCurrentActiveTokenIsAlwaysTradable(false);
         globalState.handleCurrentActiveTokenCreationBlockNumber(BigInt(0));
+        globalState.handleCurrentActiveTokenFactoryAddress(NULL_ADDRESS);
+        globalState.handleCurrentActiveTokenMinBaseTokenPrice(BigInt(0));
       }
       if (
         !tokenIsCurrentlyActive &&

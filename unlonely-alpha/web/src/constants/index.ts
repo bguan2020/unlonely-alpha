@@ -1,7 +1,6 @@
 import Ably from "ably/promises";
 
 import { COLORS } from "../styles/Colors";
-import { ContractData } from "./types";
 
 export enum InteractionType {
   CONTROL = "control-text-interaction",
@@ -124,35 +123,9 @@ export const CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN = [
   "688",
 ];
 
-export type VersusTokenDataType = {
-  symbol: string;
-  address: string;
-  totalSupply: bigint;
-  isAlwaysTradeable: boolean;
-  preSaleEndTimestamp: bigint;
-  contractData: ContractData;
-  creationBlockNumber: bigint;
-  transferredLiquidityOnExpiration: bigint;
-  endTimestamp?: bigint;
-};
+export const DEFAULT_TOKEN_TRADE_AMOUNT = 1000;
+export const DEFAULT_TOKEN_CLAIM_AMOUNT = 10;
+export const PRE_SALE_MAX_SUPPLY = 1000;
+export const PRE_SALE_PRICE_PER_TOKEN = 23 * 10 ** 12;
+export const MIN_BASE_TOKEN_PRICE = BigInt(2 * 10**13)
 
-export const DEFAULT_TOKEN_TRADE_AMOUNT = 100000;
-export const DEFAULT_TOKEN_CLAIM_AMOUNT = 1000;
-export const PRE_SALE_MAX_SUPPLY = 100_000;
-export const PRE_SALE_PRICE_PER_TOKEN = 4 * 10 ** 10;
-
-export const versusTokenDataInitial: VersusTokenDataType = {
-  transferredLiquidityOnExpiration: BigInt(0),
-  symbol: "",
-  address: "",
-  totalSupply: BigInt(0),
-  isAlwaysTradeable: false,
-  preSaleEndTimestamp: BigInt(0),
-  contractData: {
-    address: NULL_ADDRESS,
-    chainId: 0,
-    abi: undefined,
-  },
-  creationBlockNumber: BigInt(0),
-  endTimestamp: undefined,
-};

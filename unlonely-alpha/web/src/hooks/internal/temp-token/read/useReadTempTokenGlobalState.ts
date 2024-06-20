@@ -11,6 +11,8 @@ export type UseReadTempTokenGlobalStateType = {
   currentActiveTokenIsAlwaysTradable: boolean;
   currentActiveTokenCreationBlockNumber: bigint;
   currentActiveTokenPreSaleEndTimestamp: bigint;
+  currentActiveTokenFactoryAddress: string;
+  currentActiveTokenMinBaseTokenPrice: bigint;
   lastInactiveTokenAddress: string;
   lastInactiveTokenBalance: bigint;
   lastInactiveTokenSymbol: string;
@@ -30,18 +32,20 @@ export type UseReadTempTokenGlobalStateType = {
   handleIsSuccessGameModalOpen: (value: boolean) => void;
   handleIsFailedGameModalOpen: (value: boolean) => void;
   handleCanPlayToken: (value: boolean) => void;
+  handleCurrentActiveTokenFactoryAddress: (value: string) => void;
   handleCurrentActiveTokenEndTimestamp: (value: bigint | undefined) => void;
   handleCurrentActiveTokenCreationBlockNumber: (value: bigint) => void;
   handleCurrentActiveTokenAddress: (value: string) => void;
   handleCurrentActiveTokenSymbol: (value: string) => void;
   handleCurrentActiveTokenTotalSupplyThreshold: (value: bigint) => void;
   handleCurrentActiveTokenHasHitTotalSupplyThreshold: (value: boolean) => void;
-  handleLastInactiveTokenAddress: (value: string) => void;
-  handleLastInactiveTokenBalance: (value: bigint) => void;
-  handleLastInactiveTokenSymbol: (value: string) => void;
   handleCurrentActiveTokenTotalSupply: (value: bigint) => void;
   handleCurrentActiveTokenIsAlwaysTradable: (value: boolean) => void;
   handleCurrentActiveTokenPreSaleEndTimestamp: (value: bigint) => void;
+  handleLastInactiveTokenAddress: (value: string) => void;
+  handleLastInactiveTokenBalance: (value: bigint) => void;
+  handleLastInactiveTokenSymbol: (value: string) => void;
+  handleCurrentActiveTokenMinBaseTokenPrice: (value: bigint) => void;
 };
 
 export const useReadTempTokenGlobalStateInitial: UseReadTempTokenGlobalStateType =
@@ -55,6 +59,8 @@ export const useReadTempTokenGlobalStateInitial: UseReadTempTokenGlobalStateType
     currentActiveTokenIsAlwaysTradable: false,
     currentActiveTokenCreationBlockNumber: BigInt(0),
     currentActiveTokenPreSaleEndTimestamp: BigInt(0),
+    currentActiveTokenFactoryAddress: NULL_ADDRESS,
+    currentActiveTokenMinBaseTokenPrice: BigInt(0),
     lastInactiveTokenAddress: NULL_ADDRESS,
     lastInactiveTokenBalance: BigInt(0),
     lastInactiveTokenSymbol: "",
@@ -76,6 +82,7 @@ export const useReadTempTokenGlobalStateInitial: UseReadTempTokenGlobalStateType
     handleCanPlayToken: () => undefined,
     handleCurrentActiveTokenEndTimestamp: () => undefined,
     handleCurrentActiveTokenCreationBlockNumber: () => undefined,
+    handleCurrentActiveTokenFactoryAddress: () => undefined,
     handleCurrentActiveTokenAddress: () => undefined,
     handleCurrentActiveTokenSymbol: () => undefined,
     handleCurrentActiveTokenTotalSupplyThreshold: () => undefined,
@@ -86,6 +93,7 @@ export const useReadTempTokenGlobalStateInitial: UseReadTempTokenGlobalStateType
     handleCurrentActiveTokenTotalSupply: () => undefined,
     handleCurrentActiveTokenIsAlwaysTradable: () => undefined,
     handleCurrentActiveTokenPreSaleEndTimestamp: () => undefined,
+    handleCurrentActiveTokenMinBaseTokenPrice: () => undefined,
   };
 
 export const useReadTempTokenGlobalState =
@@ -118,6 +126,14 @@ export const useReadTempTokenGlobalState =
     const [
       currentActiveTokenPreSaleEndTimestamp,
       setCurrentActiveTokenPreSaleEndTimestamp,
+    ] = useState<bigint>(BigInt(0));
+    const [
+      currentActiveTokenFactoryAddress,
+      setCurrentActiveTokenFactoryAddress,
+    ] = useState<string>(NULL_ADDRESS);
+    const [
+      currentActiveTokenMinBaseTokenPrice,
+      setCurrentActiveTokenMinBaseTokenPrice,
     ] = useState<bigint>(BigInt(0));
 
     const [lastInactiveTokenAddress, setLastInactiveTokenAddress] =
@@ -244,6 +260,20 @@ export const useReadTempTokenGlobalState =
       []
     );
 
+    const handleCurrentActiveTokenFactoryAddress = useCallback(
+      (value: string) => {
+        setCurrentActiveTokenFactoryAddress(value);
+      },
+      []
+    );
+
+    const handleCurrentActiveTokenMinBaseTokenPrice = useCallback(
+      (value: bigint) => {
+        setCurrentActiveTokenMinBaseTokenPrice(value);
+      },
+      []
+    );
+
     const handleIsPreSaleOngoing = useCallback((value: boolean) => {
       setIsPreSaleOngoing(value);
     }, []);
@@ -258,6 +288,8 @@ export const useReadTempTokenGlobalState =
       currentActiveTokenIsAlwaysTradable,
       currentActiveTokenCreationBlockNumber,
       currentActiveTokenPreSaleEndTimestamp,
+      currentActiveTokenFactoryAddress,
+      currentActiveTokenMinBaseTokenPrice,
       lastInactiveTokenAddress,
       lastInactiveTokenBalance,
       lastInactiveTokenSymbol,
@@ -279,6 +311,7 @@ export const useReadTempTokenGlobalState =
       handleCanPlayToken,
       handleCurrentActiveTokenEndTimestamp,
       handleCurrentActiveTokenCreationBlockNumber,
+      handleCurrentActiveTokenFactoryAddress,
       handleCurrentActiveTokenAddress,
       handleCurrentActiveTokenSymbol,
       handleCurrentActiveTokenTotalSupplyThreshold,
@@ -289,5 +322,6 @@ export const useReadTempTokenGlobalState =
       handleCurrentActiveTokenTotalSupply,
       handleCurrentActiveTokenIsAlwaysTradable,
       handleCurrentActiveTokenPreSaleEndTimestamp,
+      handleCurrentActiveTokenMinBaseTokenPrice,
     };
   };

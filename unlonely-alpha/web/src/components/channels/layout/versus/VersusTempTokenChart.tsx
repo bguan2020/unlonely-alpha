@@ -11,7 +11,6 @@ import { useInterfaceChartData } from "../../../../hooks/internal/temp-token/ui/
 import { useNetworkContext } from "../../../../hooks/context/useNetwork";
 import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
 import { useEffect, useMemo, useState } from "react";
-import { ChartTokenTx } from "../../../chat/VibesTokenInterface";
 import { useCacheContext } from "../../../../hooks/context/useCache";
 import { formatUnits, isAddress, isAddressEqual } from "viem";
 import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
@@ -22,6 +21,7 @@ import { useInterfaceChartMarkers } from "../../../../hooks/internal/temp-token/
 import { VersusTokenExchange } from "../../versus/VersusTokenExchange";
 import useUserAgent from "../../../../hooks/internal/useUserAgent";
 import { VersusTempTokenTimerView } from "../../versus/VersusTokenTimerView";
+import { consolidateChartData } from "../../../../utils/chart";
 
 export type ConsolidatedTradeData = {
   tokenATrader: string;
@@ -235,16 +235,22 @@ export const VersusTempTokenChart = ({
                   color="rgba(255, 36, 36, 1)"
                   fontSize="10px"
                   opacity="0.75"
-                >{`${truncateValue(
-                  formatUnits(payload[0].payload.tokenAPrice, 18),
-                  10
-                )} ETH`}</Text>
+                >{`${
+                  //   truncateValue(
+                  //   formatUnits(payload[0].payload.tokenAPrice, 18),
+                  //   10
+                  // )
+                  formatUnits(payload[0].payload.tokenAPrice, 18)
+                } ETH`}</Text>
               </>
             ) : (
-              <Text>{`${truncateValue(
-                formatUnits(payload[0].payload.tokenAPrice, 18),
-                10
-              )} ETH`}</Text>
+              <Text>{`${
+                //   truncateValue(
+                //   formatUnits(payload[0].payload.tokenAPrice, 18),
+                //   10
+                // )
+                formatUnits(payload[0].payload.tokenAPrice, 18)
+              } ETH`}</Text>
             )}
           </>
         </Flex>
@@ -300,16 +306,22 @@ export const VersusTempTokenChart = ({
                   color="rgba(42, 217, 255, 1)"
                   fontSize="10px"
                   opacity="0.75"
-                >{`${truncateValue(
-                  formatUnits(payload[0].payload.tokenBPrice, 18),
-                  10
-                )} ETH`}</Text>
+                >{`${
+                  //   truncateValue(
+                  //   formatUnits(payload[0].payload.tokenBPrice, 18),
+                  //   10
+                  // )
+                  formatUnits(payload[0].payload.tokenBPrice, 18)
+                } ETH`}</Text>
               </>
             ) : (
-              <Text>{`${truncateValue(
-                formatUnits(payload[0].payload.tokenBPrice, 18),
-                10
-              )} ETH`}</Text>
+              <Text>{`${
+                //   truncateValue(
+                //   formatUnits(payload[0].payload.tokenBPrice, 18),
+                //   10
+                // )
+                formatUnits(payload[0].payload.tokenBPrice, 18)
+              } ETH`}</Text>
             )}
           </>
         </Flex>
@@ -320,9 +332,16 @@ export const VersusTempTokenChart = ({
   const consolidatedChartData = useMemo(() => {
     return consolidateChartData(
       tokenAChartData.chartTxs,
-      tokenBChartData.chartTxs
+      tokenBChartData.chartTxs,
+      tokenA.minBaseTokenPrice,
+      ethPriceInUsd
     );
-  }, [tokenAChartData.chartTxs, tokenBChartData.chartTxs]);
+  }, [
+    tokenAChartData.chartTxs,
+    tokenBChartData.chartTxs,
+    tokenA,
+    ethPriceInUsd,
+  ]);
 
   const canBuyPostGame = useMemo(
     () =>
@@ -431,19 +450,15 @@ export const VersusTempTokenChart = ({
               hide={(!isFullChart && !canPlayToken) || (isStandalone ?? false)}
               domain={["dataMin", "dataMax"]}
             />
-            {((!canPlayToken && (tokenAWon || tokenBWon)) ||
-              (canPlayToken && !tokenAWon && !tokenBWon) ||
-              isStandalone) && (
-              <Tooltip
-                content={
-                  tokenAWon || tokenBWon ? (
-                    <SingleCustomTooltip />
-                  ) : (
-                    <VersusCustomTooltip />
-                  )
-                }
-              />
-            )}
+            <Tooltip
+              content={
+                tokenAWon || tokenBWon ? (
+                  <SingleCustomTooltip />
+                ) : (
+                  <VersusCustomTooltip />
+                )
+              }
+            />
             {!tokenBWon && (
               <Line
                 key="0"
@@ -498,111 +513,4 @@ export const VersusTempTokenChart = ({
       )}
     </Flex>
   );
-};
-
-const consolidateChartData = (
-  arr_a: ChartTokenTx[],
-  arr_b: ChartTokenTx[]
-): ConsolidatedTradeData[] => {
-  const consolidatedData: ConsolidatedTradeData[] = [];
-  const arr1Length = arr_a.length;
-  const arr2Length = arr_b.length;
-  let i = 0;
-  let j = 0;
-  while (i < arr1Length && j < arr2Length) {
-    if (arr_a[i].blockNumber < arr_b[j].blockNumber) {
-      consolidatedData.push({
-        tokenATrader: arr_a[i].user,
-        tokenAEvent: arr_a[i].event,
-        tokenAAmount: arr_a[i].amount,
-        tokenAPrice: arr_a[i].price,
-        tokenAPriceInUsd: arr_a[i].priceInUsd,
-        tokenAPriceChangePercentage: arr_a[i].priceChangePercentage,
-        tokenBTrader: "",
-        tokenBEvent: "",
-        tokenBAmount: 0,
-        tokenBPrice: j > 0 ? arr_b[j - 1].price : 0,
-        tokenBPriceInUsd: j > 0 ? arr_b[j - 1].priceInUsd : 0,
-        tokenBPriceChangePercentage:
-          j > 0 ? arr_b[j - 1].priceChangePercentage : 0,
-        blockNumber: arr_a[i].blockNumber,
-      });
-      i++;
-    } else if (arr_a[i].blockNumber > arr_b[j].blockNumber) {
-      consolidatedData.push({
-        tokenATrader: "",
-        tokenAEvent: "",
-        tokenAAmount: 0,
-        tokenAPrice: i > 0 ? arr_a[i - 1].price : 0,
-        tokenAPriceInUsd: i > 0 ? arr_a[i - 1].priceInUsd : 0,
-        tokenAPriceChangePercentage:
-          i > 0 ? arr_a[i - 1].priceChangePercentage : 0,
-        tokenBTrader: arr_b[j].user,
-        tokenBEvent: arr_b[j].event,
-        tokenBAmount: arr_b[j].amount,
-        tokenBPrice: arr_b[j].price,
-        tokenBPriceInUsd: arr_b[j].priceInUsd,
-        tokenBPriceChangePercentage: arr_b[j].priceChangePercentage,
-        blockNumber: arr_b[j].blockNumber,
-      });
-      j++;
-    } else {
-      consolidatedData.push({
-        tokenATrader: arr_a[i].user,
-        tokenAEvent: arr_a[i].event,
-        tokenAAmount: arr_a[i].amount,
-        tokenAPrice: arr_a[i].price,
-        tokenAPriceInUsd: arr_a[i].priceInUsd,
-        tokenAPriceChangePercentage: arr_a[i].priceChangePercentage,
-        tokenBTrader: arr_b[j].user,
-        tokenBEvent: arr_b[j].event,
-        tokenBAmount: arr_b[j].amount,
-        tokenBPrice: arr_b[j].price,
-        tokenBPriceInUsd: arr_b[j].priceInUsd,
-        tokenBPriceChangePercentage: arr_b[j].priceChangePercentage,
-        blockNumber: arr_a[i].blockNumber,
-      });
-      i++;
-      j++;
-    }
-  }
-  while (i < arr1Length) {
-    consolidatedData.push({
-      tokenATrader: arr_a[i].user,
-      tokenAEvent: arr_a[i].event,
-      tokenAAmount: arr_a[i].amount,
-      tokenAPrice: arr_a[i].price,
-      tokenAPriceInUsd: arr_a[i].priceInUsd,
-      tokenAPriceChangePercentage: arr_a[i].priceChangePercentage,
-      tokenBTrader: "",
-      tokenBEvent: "",
-      tokenBAmount: 0,
-      tokenBPrice: j > 0 ? arr_b[j - 1].price : 0,
-      tokenBPriceInUsd: j > 0 ? arr_b[j - 1].priceInUsd : 0,
-      tokenBPriceChangePercentage:
-        j > 0 ? arr_b[j - 1].priceChangePercentage : 0,
-      blockNumber: arr_a[i].blockNumber,
-    });
-    i++;
-  }
-  while (j < arr2Length) {
-    consolidatedData.push({
-      tokenATrader: "",
-      tokenAEvent: "",
-      tokenAAmount: 0,
-      tokenAPrice: i > 0 ? arr_a[i - 1].price : 0,
-      tokenAPriceInUsd: i > 0 ? arr_a[i - 1].priceInUsd : 0,
-      tokenAPriceChangePercentage:
-        i > 0 ? arr_a[i - 1].priceChangePercentage : 0,
-      tokenBTrader: arr_b[j].user,
-      tokenBEvent: arr_b[j].event,
-      tokenBAmount: arr_b[j].amount,
-      tokenBPrice: arr_b[j].price,
-      tokenBPriceInUsd: arr_b[j].priceInUsd,
-      tokenBPriceChangePercentage: arr_b[j].priceChangePercentage,
-      blockNumber: arr_b[j].blockNumber,
-    });
-    j++;
-  }
-  return consolidatedData;
 };

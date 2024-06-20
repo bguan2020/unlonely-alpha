@@ -164,10 +164,13 @@ export const useInterfaceChartMarkers = (
                   payload[0].payload.priceInUsd,
                   4
                 )}`}</Text>
-                <Text fontSize="10px" opacity="0.75">{`${truncateValue(
-                  formatUnits(payload[0].payload.price, 18),
-                  10
-                )} ETH`}</Text>
+                <Text fontSize="10px" opacity="0.75">{`${
+                  //   truncateValue(
+                  //   formatUnits(payload[0].payload.price, 18),
+                  //   10
+                  // )
+                  formatUnits(payload[0].payload.price, 18)
+                } ETH`}</Text>
               </>
             ) : (
               <Text>{`${truncateValue(

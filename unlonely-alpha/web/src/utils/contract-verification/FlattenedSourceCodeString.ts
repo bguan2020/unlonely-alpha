@@ -1,4 +1,4 @@
-export const flattened = `// Sources flattened with hardhat v2.18.2 https://hardhat.org
+export const flattened = `// Sources flattened with hardhat v2.22.5 https://hardhat.org
 
 // SPDX-License-Identifier: MIT
 
@@ -731,9 +731,10 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
     bool public hasHitTotalSupplyThreshold;
     bool public isAlwaysTradeable;
 
-    uint256 public constant PRE_SALE_PRICE_PER_TOKEN = 4 * 10**10; // wei per token
-    uint256 public constant PRE_SALE_MAX_MINT = 1000; // max tokens per transaction during PRE_SALE
-    uint256 public constant MAX_PRE_SALE_SUPPLY = 100_000; // max supply for PRE_SALE
+    uint256 public constant PRE_SALE_PRICE_PER_TOKEN = 23 * 10**12; // wei per token
+    uint256 public constant PRE_SALE_MAX_MINT = 10; // max tokens per transaction during PRE_SALE
+    uint256 public constant MAX_PRE_SALE_SUPPLY = 1000; // max supply for PRE_SALE
+    uint256 public constant MIN_BASE_TOKEN_PRICE = 2 * 10**13; // minimum price per token
     uint256 public preSaleEndTimestamp; // tracks when the token sale ends
 
     event Mint(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 endTimestamp, bool hasHitTotalSupplyThreshold, uint256 highestTotalSupply);
@@ -942,7 +943,10 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         // The sum of the prices of all the tokens already minted + the tokens to be newly minted
         uint256 sumPricesNewTotalSupply = sumOfPriceToNTokens(totalSupply() + _amount);
 
-        return sumPricesNewTotalSupply - sumPricesCurrentTotalSupply;
+        uint256 sumDiff = sumPricesNewTotalSupply - sumPricesCurrentTotalSupply;
+
+        // Add base price to the cost
+        return sumDiff + (_amount * MIN_BASE_TOKEN_PRICE);
     }
     
     function mintCostAfterFees(uint256 _amount) public view returns (uint256) {
@@ -952,9 +956,11 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         uint256 sumPricesNewTotalSupply = sumOfPriceToNTokens(totalSupply() + _amount);
         uint256 sumDiff = sumPricesNewTotalSupply - sumPricesCurrentTotalSupply;
 
-        uint256 protocolFee = sumDiff * protocolFeePercent / 1 ether;
-        uint256 subjectFee = sumDiff * streamerFeePercent / 1 ether;
-        uint256 totalCost = sumDiff + protocolFee + subjectFee;
+        uint256 modifiedSumDiff = sumDiff + (_amount * MIN_BASE_TOKEN_PRICE);
+
+        uint256 protocolFee = modifiedSumDiff * protocolFeePercent / 1 ether;
+        uint256 subjectFee = modifiedSumDiff * streamerFeePercent / 1 ether;
+        uint256 totalCost = modifiedSumDiff + protocolFee + subjectFee;
 
         return totalCost;
     }
@@ -965,7 +971,9 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         // The sum of the prices of all the tokens after burning _amount
         uint256 sumAfterBurn = sumOfPriceToNTokens(totalSupply() - _amount);
 
-        return sumBeforeBurn - sumAfterBurn;
+        uint256 sumDiff = sumBeforeBurn - sumAfterBurn;
+
+        return sumDiff + (_amount * MIN_BASE_TOKEN_PRICE);
     }
 
     function burnProceedsAfterFees(uint256 _amount) public view returns (uint256) {
@@ -978,17 +986,18 @@ contract TempTokenV1 is ERC20, Ownable, ReentrancyGuard {
         uint256 sumAfterBurn = sumOfPriceToNTokens(totalSupply() - _amount);
 
         uint256 sumDiff = sumBeforeBurn - sumAfterBurn;
+        uint256 modifiedSumDiff = sumDiff + (_amount * MIN_BASE_TOKEN_PRICE);
 
-        uint256 protocolFee = sumDiff * protocolFeePercent / 1 ether;
-        uint256 subjectFee = sumDiff * streamerFeePercent / 1 ether;
+        uint256 protocolFee = modifiedSumDiff * protocolFeePercent / 1 ether;
+        uint256 subjectFee = modifiedSumDiff * streamerFeePercent / 1 ether;
 
-        // Check if sumDiff is less than the total fees
-        if (sumDiff < protocolFee + subjectFee) {
+        // Check if modifiedSumDiff is less than the total fees
+        if (modifiedSumDiff < protocolFee + subjectFee) {
             // Handle the scenario, such as returning 0 or a specific error value
             return 0;
         }
 
-        uint256 proceeds = sumDiff - protocolFee - subjectFee;
+        uint256 proceeds = modifiedSumDiff - protocolFee - subjectFee;
         return proceeds;
     }
 

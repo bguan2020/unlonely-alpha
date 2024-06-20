@@ -10,10 +10,11 @@ import { useChannelContext } from "../../../context/useChannel";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { usePublicClient } from "wagmi";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
-import { Contract, VersusTokenDataType } from "../../../../constants";
+import { Contract } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useVersusGameStateTransitioner } from "../ui/useVersusGameStateTransitioner";
 import { UseReadVersusTempTokenGlobalStateType } from "./useReadVersusTempTokenGlobalState";
+import { VersusTokenDataType } from "../../../../constants/types/token";
 
 export const useReadVersusTempTokenOnMount = ({
   globalState,
@@ -75,7 +76,7 @@ export const useReadVersusTempTokenOnMount = ({
             endTimeStampB,
             totalSupplyB,
             preSaleEndTimestampB,
-            isAlwaysTradeableB,
+            isAlwaysTradeableB
           ] = await Promise.all([
             publicClient.readContract({
               address: _tokenA.tokenAddress as `0x${string}`,
@@ -135,6 +136,8 @@ export const useReadVersusTempTokenOnMount = ({
             },
             creationBlockNumber: BigInt(_tokenA.creationBlockNumber),
             endTimestamp: BigInt(String(endTimestampA)),
+            factoryAddress:_tokenA.factoryAddress as `0x${string}`,
+            minBaseTokenPrice: BigInt(_tokenA.minBaseTokenPrice),
           };
           const _newTokenB: VersusTokenDataType = {
             transferredLiquidityOnExpiration:
@@ -153,6 +156,8 @@ export const useReadVersusTempTokenOnMount = ({
             },
             creationBlockNumber: BigInt(_tokenB.creationBlockNumber),
             endTimestamp: BigInt(String(endTimeStampB)),
+            factoryAddress:_tokenB.factoryAddress as `0x${string}`,
+            minBaseTokenPrice: BigInt(_tokenB.minBaseTokenPrice),
           };
           globalState.handleFocusedTokenToTrade(undefined);
           globalState.setTokenA(_newTokenA);

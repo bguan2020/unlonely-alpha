@@ -1,11 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { isAddress, isAddressEqual } from "viem";
-import {
-  InteractionType,
-  CHAT_MESSAGE_EVENT,
-  versusTokenDataInitial,
-  VersusTokenDataType,
-} from "../../../../constants";
+import { InteractionType, CHAT_MESSAGE_EVENT } from "../../../../constants";
 import { calculateMaxWinnerTokensToMint } from "../../../../utils/calculateMaxWinnerTokensToMint";
 import { ChatReturnType } from "../../../chat/useChat";
 import { useChannelContext } from "../../../context/useChannel";
@@ -14,6 +9,10 @@ import { useVersusTempTokenContext } from "../../../context/useVersusTempToken";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 import { useScreenAnimationsContext } from "../../../context/useScreenAnimations";
 import { Text } from "@chakra-ui/react";
+import {
+  versusTokenDataInitial,
+  VersusTokenDataType,
+} from "../../../../constants/types/token";
 
 export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   const { userAddress } = useUser();
@@ -39,6 +38,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
     tokenA,
     tokenB,
     ownerMustPermamint,
+    winningToken,
     losingToken,
   } = gameState;
   const {
@@ -88,6 +88,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
     await Promise.all([
       getTempTokenEventsA(
         tokenA.contractData,
+        tokenA.minBaseTokenPrice,
         blockNumberOfLastInAppTrade.current === BigInt(0) &&
           tempTokenTxsA.length > 0
           ? BigInt(tempTokenTxsA[tempTokenTxsA.length - 1].blockNumber)
@@ -96,6 +97,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
       ),
       getTempTokenEventsB(
         tokenB.contractData,
+        tokenB.minBaseTokenPrice,
         blockNumberOfLastInAppTrade.current === BigInt(0) &&
           tempTokenTxsB.length > 0
           ? BigInt(tempTokenTxsB[tempTokenTxsB.length - 1].blockNumber)
@@ -150,7 +152,8 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         const { maxNumTokens: newMaxWinnerTokens } =
           await calculateMaxWinnerTokensToMint(
             Number(losingToken.transferredLiquidityOnExpiration),
-            Number(totalSupply)
+            Number(totalSupply),
+            Number(winningToken.minBaseTokenPrice)
           );
         handleOwnerMustPermamint(newMaxWinnerTokens);
       }
@@ -175,6 +178,8 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         const chainId = Number(body.split(":")[4]);
         const newTokenCreationBlockNumber = BigInt(body.split(":")[5]);
         const preSaleEndTimestamp = BigInt(body.split(":")[6]);
+        const factoryAddress = body.split(":")[7];
+        const minBaseTokenPrice = BigInt(body.split(":")[8]);
         handleRealTimeChannelDetails({
           isLive: true,
         });
@@ -203,6 +208,8 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           },
           creationBlockNumber: newTokenCreationBlockNumber,
           endTimestamp: newEndTimestamp,
+          factoryAddress,
+          minBaseTokenPrice,
         });
         setTokenB({
           transferredLiquidityOnExpiration: BigInt(0),
@@ -218,6 +225,8 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           },
           creationBlockNumber: newTokenCreationBlockNumber,
           endTimestamp: newEndTimestamp,
+          factoryAddress,
+          minBaseTokenPrice,
         });
         handleIsPreSaleOngoing(
           Number(preSaleEndTimestamp) > Math.floor(Date.now() / 1000)

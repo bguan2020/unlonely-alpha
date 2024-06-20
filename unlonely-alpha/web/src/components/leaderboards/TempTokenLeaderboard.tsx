@@ -21,7 +21,7 @@ import { getTimeFromMillis } from "../../utils/time";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { formatUnits } from "viem";
 import { useCacheContext } from "../../hooks/context/useCache";
-import { bondingCurve } from "../../utils/contract";
+import { bondingCurveBigInt } from "../../utils/contract";
 
 const headers = ["rank", "token", "channel", "highest price", "time left"];
 
@@ -29,7 +29,7 @@ const ITEMS_PER_PAGE = 10;
 
 const TempTokenLeaderboard = () => {
   const { network } = useNetworkContext();
-  const { localNetwork, explorerUrl } = network;
+  const { localNetwork } = network;
   const { ethPriceInUsd } = useCacheContext();
 
   const visibleColumns = useBreakpointValue({
@@ -60,15 +60,15 @@ const TempTokenLeaderboard = () => {
   const datasetSorted = useMemo(() => {
     return dataset
       .map((token) => {
-        const n = token.highestTotalSupply;
-        const n_ = Math.max(n - 1, 0);
-        const priceForCurrent = Math.floor(bondingCurve(n));
-        const priceForPrevious = Math.floor(bondingCurve(n_));
-        const newPrice = priceForCurrent - priceForPrevious;
-
+        const n = BigInt(token.highestTotalSupply);
+        const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
+        const priceForCurrent = bondingCurveBigInt(n);
+        const priceForPrevious = bondingCurveBigInt(n_);
+        const basePrice = token.minBaseTokenPrice;
+        const newPrice = priceForCurrent - priceForPrevious + BigInt(basePrice);
         return {
           ...token,
-          highestPrice: newPrice,
+          highestPrice: Number(newPrice),
         };
       })
       .sort((a, b) => {

@@ -25,6 +25,7 @@ export interface IPostTempTokenInput {
   channelId: number;
   chainId: number;
   tokenType: TempTokenType;
+  minBaseTokenPrice: string;
 }
 
 export const postTempToken = async (
@@ -45,6 +46,7 @@ export const postTempToken = async (
       streamerFeePercentage: BigInt(data.streamerFeePercentage),
       highestTotalSupply: BigInt(0),
       creationBlockNumber: BigInt(data.creationBlockNumber),
+      minBaseTokenPrice: BigInt(data.minBaseTokenPrice),
       tokenType: data.tokenType,
       channel: {
         connect: {

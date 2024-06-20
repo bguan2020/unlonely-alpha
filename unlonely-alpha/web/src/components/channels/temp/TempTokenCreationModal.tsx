@@ -15,7 +15,12 @@ import { alphanumericInput } from "../../../utils/validation/input";
 import { formatUnits } from "viem";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { useCacheContext } from "../../../hooks/context/useCache";
-import { bondingCurve } from "../../../utils/contract";
+import {
+  bondingCurveBigInt,
+  getContractFromNetwork,
+} from "../../../utils/contract";
+import { MIN_BASE_TOKEN_PRICE, Contract } from "../../../constants";
+import { useNetworkContext } from "../../../hooks/context/useNetwork";
 
 export const TempTokenCreationModal = ({
   title,
@@ -27,6 +32,13 @@ export const TempTokenCreationModal = ({
   handleClose: () => void;
 }) => {
   const { ethPriceInUsd } = useCacheContext();
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
+
+  const factoryContract = getContractFromNetwork(
+    Contract.TEMP_TOKEN_FACTORY_V1,
+    localNetwork
+  );
 
   const { channel } = useChannelContext();
   const { channelQueryData, realTimeChannelDetails } = channel;
@@ -166,13 +178,17 @@ export const TempTokenCreationModal = ({
             hit{" "}
             {`$${getUsdPriceFromEthPriceOfThreshold(
               Number(ethPriceInUsd),
-              getEthPriceOfThreshold(newTokenTotalSupplyThreshold)
+              getEthPriceOfThreshold(
+                newTokenTotalSupplyThreshold,
+                MIN_BASE_TOKEN_PRICE
+              )
             )}`}
             , needs{" "}
             {truncateValue(
               formatUnits(
-                BigInt(
-                  getCostInEthToBuyToThreshold(newTokenTotalSupplyThreshold)
+                getCostInWeiToBuyToThreshold(
+                  newTokenTotalSupplyThreshold,
+                  MIN_BASE_TOKEN_PRICE
                 ),
                 18
               ),
@@ -257,14 +273,18 @@ export const TempTokenCreationModal = ({
   );
 };
 
-const getEthPriceOfThreshold = (threshold: bigint) => {
+const getEthPriceOfThreshold = (
+  threshold: bigint,
+  minBaseTokenPrice: bigint
+) => {
   if (threshold === BigInt(0)) return 0;
-  const n = Number(threshold);
-  const n_ = Math.max(n - 1, 0);
-  const priceForCurrent = Math.floor(bondingCurve(n));
-  const priceForPrevious = Math.floor(bondingCurve(n_));
-  const newPrice = priceForCurrent - priceForPrevious;
-  return newPrice;
+  const n = threshold;
+  const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
+  const priceForCurrent = bondingCurveBigInt(n);
+  const priceForPrevious = bondingCurveBigInt(n_);
+
+  const newPrice = priceForCurrent - priceForPrevious + minBaseTokenPrice;
+  return Number(newPrice);
 };
 
 const getUsdPriceFromEthPriceOfThreshold = (
@@ -277,8 +297,12 @@ const getUsdPriceFromEthPriceOfThreshold = (
   );
 };
 
-const getCostInEthToBuyToThreshold = (threshold: bigint) => {
-  const n = Number(threshold);
-  const cost = Math.floor(bondingCurve(n));
-  return cost;
+const getCostInWeiToBuyToThreshold = (
+  threshold: bigint,
+  minBaseTokenPrice: bigint
+): bigint => {
+  const n = threshold;
+  const cost = bondingCurveBigInt(n);
+  const modifiedCost = cost + n * minBaseTokenPrice;
+  return modifiedCost;
 };

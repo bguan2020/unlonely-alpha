@@ -28,7 +28,7 @@ import { TempTokenCreationModal } from "../../temp/TempTokenCreationModal";
 import { SendRemainingFundsFromTokenModal } from "../../temp/SendRemainingFundsFromTokenModal";
 import { SingleTempTokenTimerView } from "../../temp/TempTokenTimerView";
 import useUserAgent from "../../../../hooks/internal/useUserAgent";
-import { bondingCurve } from "../../../../utils/contract";
+import { bondingCurveBigInt } from "../../../../utils/contract";
 
 export const TempTokenInterface = ({
   customHeight,
@@ -64,6 +64,7 @@ export const TempTokenInterface = ({
     currentActiveTokenAddress,
     currentActiveTokenSymbol,
     currentActiveTokenTotalSupplyThreshold,
+    currentActiveTokenMinBaseTokenPrice,
     canPlayToken,
     isFailedGameState,
     isSuccessGameModalOpen,
@@ -97,13 +98,18 @@ export const TempTokenInterface = ({
 
   const priceOfThreshold = useMemo(() => {
     if (currentActiveTokenTotalSupplyThreshold === BigInt(0)) return 0;
-    const n = Number(currentActiveTokenTotalSupplyThreshold);
-    const n_ = Math.max(n - 1, 0);
-    const priceForCurrent = Math.floor(bondingCurve(n));
-    const priceForPrevious = Math.floor(bondingCurve(n_));
-    const newPrice = priceForCurrent - priceForPrevious;
-    return newPrice;
-  }, [currentActiveTokenTotalSupplyThreshold]);
+
+    const n = currentActiveTokenTotalSupplyThreshold;
+    const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
+    const priceForCurrent = bondingCurveBigInt(n);
+    const priceForPrevious = bondingCurveBigInt(n_);
+    const newPrice =
+      priceForCurrent - priceForPrevious + currentActiveTokenMinBaseTokenPrice;
+    return Number(newPrice);
+  }, [
+    currentActiveTokenMinBaseTokenPrice,
+    currentActiveTokenTotalSupplyThreshold,
+  ]);
 
   const priceOfThresholdInUsd = useMemo(
     () =>

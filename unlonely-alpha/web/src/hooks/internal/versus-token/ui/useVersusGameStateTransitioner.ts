@@ -1,8 +1,9 @@
 import { usePublicClient } from "wagmi";
-import { Contract, VersusTokenDataType } from "../../../../constants";
+import { Contract } from "../../../../constants";
 import { useCallback } from "react";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
+import { VersusTokenDataType } from "../../../../constants/types/token";
 
 export const useVersusGameStateTransitioner = () => {
   const publicClient = usePublicClient();

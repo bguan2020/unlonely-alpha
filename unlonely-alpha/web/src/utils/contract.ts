@@ -75,6 +75,6 @@ export const returnDecodedTopics = (logs: any[], contractAbi: any[], eventName: 
   return topics;
 }
 
-export const bondingCurve = (n: number, variant?: string) => {
-  return (n * (n + 1) * (2 * n + 1)) / 6
+export const bondingCurveBigInt = (n: bigint) => {
+  return (n * (n + BigInt(1)) * (BigInt(2) * n + BigInt(1))) / BigInt(6)
 }

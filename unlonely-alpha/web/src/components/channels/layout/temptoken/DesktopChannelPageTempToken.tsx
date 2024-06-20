@@ -117,7 +117,8 @@ export const DesktopChannelPageTempToken = ({
         if (ownerMustPermamint === true) {
           const { maxNumTokens } = await calculateMaxWinnerTokensToMint(
             Number(losingVersusToken.transferredLiquidityOnExpiration),
-            Number(winningVersusToken.totalSupply)
+            Number(winningVersusToken.totalSupply),
+            Number(winningVersusToken.minBaseTokenPrice)
           );
           if (maxNumTokens === 0) {
             handleOwnerMustPermamint(false);

@@ -185,6 +185,7 @@ model TempToken {
   hasRemainingFundsForCreator       Boolean @default(true)
   hasHitTotalSupplyThreshold        Boolean @default(false)
   isAlwaysTradeable                 Boolean @default(false)
+  minBaseTokenPrice                 BigInt  @default(0)
   tokenType                     TempTokenType?
   transferredLiquidityOnExpiration  BigInt?
 }

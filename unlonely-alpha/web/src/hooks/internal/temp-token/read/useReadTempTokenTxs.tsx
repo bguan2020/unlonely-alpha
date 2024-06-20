@@ -10,7 +10,7 @@ import {
 import { useUser } from "../../../context/useUser";
 import { useGetUserBalance } from "../../../contracts/useToken";
 import React from "react";
-import { bondingCurve } from "../../../../utils/contract";
+import { bondingCurveBigInt } from "../../../../utils/contract";
 
 export type UseReadTempTokenTxsType = {
   tempTokenTxs: TradeableTokenTx[];
@@ -26,6 +26,7 @@ export type UseReadTempTokenTxsType = {
   setTempTokenTxs: React.Dispatch<React.SetStateAction<TradeableTokenTx[]>>;
   getTempTokenEvents: (
     tempTokenContract: ContractData,
+    minBaseTokenPrice: bigint,
     fromBlock: bigint,
     toBlock: bigint
   ) => Promise<void>;
@@ -79,14 +80,15 @@ export const useReadTempTokenTxs = ({
 
   const getTempTokenEvents = useCallback(
     async (
-      tempTokenContract: ContractData,
+      _tempTokenContract: ContractData,
+      minBaseTokenPrice: bigint,
       fromBlock: bigint,
       toBlock: bigint
     ) => {
-      console.log("getTempTokenEvents", tempTokenContract, fromBlock, toBlock);
+      console.log("getTempTokenEvents", _tempTokenContract, fromBlock, toBlock);
       const [mintLogs, burnLogs] = await Promise.all([
         baseClient.getLogs({
-          address: tempTokenContract.address,
+          address: _tempTokenContract.address,
           event: parseAbiItem(
             "event Mint(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent, uint256 endTimestamp, bool hasHitTotalSupplyThreshold, uint256 highestTotalSupply)"
           ),
@@ -94,7 +96,7 @@ export const useReadTempTokenTxs = ({
           toBlock: toBlock === BigInt(0) ? undefined : toBlock,
         }),
         baseClient.getLogs({
-          address: tempTokenContract.address,
+          address: _tempTokenContract.address,
           event: parseAbiItem(
             "event Burn(address indexed account, uint256 amount, address indexed streamerAddress, address indexed tokenAddress, uint256 totalSupply, uint256 protocolFeePercent, uint256 streamerFeePercent)"
           ),
@@ -103,11 +105,11 @@ export const useReadTempTokenTxs = ({
         }),
       ]);
       console.log(
-        `temp token mintLogs length from ${tempTokenContract.address}`,
+        `temp token mintLogs length from ${_tempTokenContract.address}`,
         mintLogs.length
       );
       console.log(
-        `temp token burnLogs length from ${tempTokenContract.address}`,
+        `temp token burnLogs length from ${_tempTokenContract.address}`,
         burnLogs.length
       );
       const logs = [...mintLogs, ...burnLogs];
@@ -125,11 +127,12 @@ export const useReadTempTokenTxs = ({
           : undefined;
       for (let i = 0; i < logs.length; i++) {
         const event = logs[i];
-        const n = Number(event.args.totalSupply as bigint);
-        const n_ = Math.max(n - 1, 0);
-        const priceForCurrent = Math.floor(bondingCurve(n));
-        const priceForPrevious = Math.floor(bondingCurve(n_));
-        const newPrice = priceForCurrent - priceForPrevious;
+        const n = event.args.totalSupply as bigint;
+        const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
+        const priceForCurrent = bondingCurveBigInt(n);
+        const priceForPrevious = bondingCurveBigInt(n_);
+        const newPrice = priceForCurrent - priceForPrevious + minBaseTokenPrice;
+
         const previousTxPrice =
           i === 0
             ? previousFetchedTx?.price ?? 0
@@ -138,14 +141,15 @@ export const useReadTempTokenTxs = ({
             : 0;
         const priceChangePercentage =
           previousTxPrice > 0
-            ? ((newPrice - previousTxPrice) / previousTxPrice) * 100
+            ? ((Number(String(newPrice)) - previousTxPrice) / previousTxPrice) *
+              100
             : 0;
         const tx: TradeableTokenTx = {
           eventName: event.eventName,
           user: event.args.account as `0x${string}`,
           amount: event.args.amount as bigint,
-          price: newPrice,
-          blockNumber: Number(event.blockNumber),
+          price: Number(String(newPrice)),
+          blockNumber: Number(String(event.blockNumber)),
           supply: event.args.totalSupply as bigint,
           priceChangePercentage,
         };
@@ -163,14 +167,25 @@ export const useReadTempTokenTxs = ({
         tempTokenTxs.length > 0 ||
         !baseClient ||
         !tempTokenContract.address ||
-        tempTokenContract.address === NULL_ADDRESS
+        tempTokenContract.address === NULL_ADDRESS ||
+        tempTokenContract.chainId === 0
       ) {
         return;
       }
-      const blockNumber = await baseClient.getBlockNumber();
+      const [blockNumber, minBaseTokenPrice] = await Promise.all([
+        baseClient.getBlockNumber(),
+        baseClient
+          .readContract({
+            address: tempTokenContract.address,
+            abi: tempTokenContract.abi,
+            functionName: "MIN_BASE_TOKEN_PRICE",
+          })
+          .catch(() => BigInt(0)) as Promise<bigint>,
+      ]);
       if (tokenCreationBlockNumber < blockNumber) {
         await getTempTokenEvents(
           tempTokenContract,
+          minBaseTokenPrice as bigint,
           tokenCreationBlockNumber,
           blockNumber
         );

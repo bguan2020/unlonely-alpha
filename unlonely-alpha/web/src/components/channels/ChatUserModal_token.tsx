@@ -35,7 +35,7 @@ import Link from "next/link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useTempTokenContext } from "../../hooks/context/useTempToken";
-import { bondingCurve } from "../../utils/contract";
+import { bondingCurveBigInt } from "../../utils/contract";
 
 export const ChatUserModal_token = ({
   isOpen,
@@ -59,7 +59,8 @@ export const ChatUserModal_token = ({
     gameState,
     currentTempTokenContract,
   } = tempToken;
-  const { currentActiveTokenSymbol } = gameState;
+  const { currentActiveTokenSymbol, currentActiveTokenMinBaseTokenPrice } =
+    gameState;
   const { network } = useNetworkContext();
   const { matchingChain, explorerUrl } = network;
   const { ethPriceInUsd } = useCacheContext();
@@ -186,17 +187,16 @@ export const ChatUserModal_token = ({
     return tempTokenTxs.length > 0
       ? Number(
           formatUnits(
-            BigInt(
-              calculateBurnProceeds(
-                Number(tempTokenTxs[tempTokenTxs.length - 1].supply),
-                Number(amountToSend)
-              )
+            calculateBurnProceeds(
+              tempTokenTxs[tempTokenTxs.length - 1].supply,
+              BigInt(amountToSend),
+              currentActiveTokenMinBaseTokenPrice
             ),
             18
           )
         )
       : 0;
-  }, [tempTokenTxs, amountToSend]);
+  }, [tempTokenTxs, amountToSend, currentActiveTokenMinBaseTokenPrice]);
 
   const appoint = async () => {
     await postUserRoleForChannel({
@@ -660,14 +660,18 @@ export const ChatUserModal_token = ({
 };
 
 export const calculateBurnProceeds = (
-  currentSupply: number,
-  amountToBurn: number
-) => {
-  const newSupply = Math.max(currentSupply - amountToBurn, 0);
-  const priceForCurrent = Math.floor(bondingCurve(currentSupply));
-  const priceForPrevious = Math.floor(bondingCurve(newSupply));
+  currentSupply: bigint,
+  amountToBurn: bigint,
+  minBaseTokenPrice: bigint
+): bigint => {
+  const newSupply =
+    currentSupply - amountToBurn > BigInt(0)
+      ? currentSupply - amountToBurn
+      : BigInt(0);
+  const priceForCurrent = bondingCurveBigInt(currentSupply);
+  const priceForPrevious = bondingCurveBigInt(newSupply);
   const newPrice = priceForCurrent - priceForPrevious;
 
   // returns in wei
-  return newPrice;
+  return newPrice + BigInt(amountToBurn) * minBaseTokenPrice;
 };

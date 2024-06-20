@@ -3,7 +3,10 @@ import { createPublicClient, parseAbiItem, http } from "viem";
 import { base } from "viem/chains";
 
 import { ContractData, TradeableTokenTx } from "../../constants/types";
-import { bondingCurve, getContractFromNetwork } from "../../utils/contract";
+import {
+  bondingCurveBigInt,
+  getContractFromNetwork,
+} from "../../utils/contract";
 import useUserAgent from "./useUserAgent";
 import { NETWORKS } from "../../constants/networks";
 import {
@@ -103,10 +106,10 @@ export const useVibesCheck = () => {
         tokenTxs.length > 0 ? tokenTxs[tokenTxs.length - 1] : undefined;
       for (let i = 0; i < logs.length; i++) {
         const event = logs[i];
-        const n = Number(event.args.totalSupply as bigint);
-        const n_ = Math.max(n - 1, 0);
-        const priceForCurrent = Math.floor(bondingCurve(n));
-        const priceForPrevious = Math.floor(bondingCurve(n_));
+        const n = event.args.totalSupply as bigint;
+        const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
+        const priceForCurrent = bondingCurveBigInt(n);
+        const priceForPrevious = bondingCurveBigInt(n_);
         const newPrice = priceForCurrent - priceForPrevious;
         const previousTxPrice =
           i === 0
@@ -116,13 +119,14 @@ export const useVibesCheck = () => {
             : 0;
         const priceChangePercentage =
           previousTxPrice > 0
-            ? ((newPrice - previousTxPrice) / previousTxPrice) * 100
+            ? ((Number(String(newPrice)) - previousTxPrice) / previousTxPrice) *
+              100
             : 0;
         const tx: TradeableTokenTx = {
           eventName: event.eventName,
           user: event.args.account as `0x${string}`,
           amount: event.args.amount as bigint,
-          price: newPrice,
+          price: Number(String(newPrice)),
           blockNumber: Number(event.blockNumber),
           supply: event.args.totalSupply as bigint,
           priceChangePercentage,

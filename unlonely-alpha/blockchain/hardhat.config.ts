@@ -97,8 +97,8 @@ module.exports = {
     base: {
       url: `https://base-mainnet.g.alchemy.com/v2/${vars.get("ALCHEMY_BASE_API_KEY")}`,
       accounts: [
-         vars.get("TEST_PRIVATE_KEY")
-        // vars.get("PROD_PRIVATE_KEY")
+        //  vars.get("TEST_PRIVATE_KEY")
+        vars.get("PROD_PRIVATE_KEY")
       ],
       verify: {
         etherscan: {
