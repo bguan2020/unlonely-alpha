@@ -6,12 +6,15 @@ import useDebounce from "../../useDebounce";
 import { useUser } from "../../../context/useUser";
 import { ChatReturnType } from "../../../chat/useChat";
 import { useChannelContext } from "../../../context/useChannel";
+import { useScreenAnimationsContext } from "../../../context/useScreenAnimations";
+import { Text } from "@chakra-ui/react";
 
 export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   const { userAddress } = useUser();
 
   const { channel } = useChannelContext();
   const { handleRealTimeChannelDetails } = channel;
+  const { emojiBlast } = useScreenAnimationsContext();
 
   const { tempToken } = useTempTokenContext();
   const {
@@ -106,9 +109,12 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
             onReachThresholdEvent(newEndTimestampForToken);
           }
           onMintEvent(BigInt(totalSupply));
+          emojiBlast(<Text fontSize={"30px"}>{"📈"}</Text>);
         }
-        if (interactionType === InteractionType.SELL_TEMP_TOKENS)
+        if (interactionType === InteractionType.SELL_TEMP_TOKENS) {
           onBurnEvent(BigInt(totalSupply));
+          emojiBlast(<Text fontSize={"30px"}>{"📉"}</Text>);
+        }
       }
       fetching.current = false;
     };
