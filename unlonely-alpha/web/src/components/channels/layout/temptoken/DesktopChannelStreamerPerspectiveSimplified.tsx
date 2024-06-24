@@ -16,6 +16,9 @@ import { useEffect, useMemo, useState } from "react";
 import { IoMdEye } from "react-icons/io";
 import { IoMdEyeOff } from "react-icons/io";
 import { FaRegCopy } from "react-icons/fa";
+import { FaCode } from "react-icons/fa";
+import { RiLiveFill } from "react-icons/ri";
+
 import copy from "copy-to-clipboard";
 import useUpdateChannelAllowNfcs from "../../../../hooks/server/channel/useUpdateChannelAllowNfcs";
 import {
@@ -40,6 +43,7 @@ import ChannelDesc from "../../ChannelDesc";
 import { MigrateToLivePeer } from "../MigrateToLivepeer";
 import { SingleTempTokenTimerView } from "../../temp/TempTokenTimerView";
 import { VersusTempTokenTimerView } from "../../versus/VersusTokenTimerView";
+import EmbedVideoModal from "../../EmbedVideoModal";
 
 export const DesktopChannelStreamerPerspectiveSimplified = ({
   ablyChannel,
@@ -72,6 +76,7 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
   const [showRTMPIngest, setShowRTMPIngest] = useState(false);
 
   const [streamerMigrateModal, setStreamerMigrateModal] = useState(false);
+  const [embedVideoModal, setEmbedVideoModal] = useState(false);
 
   const { updateLivepeerStreamData, loading: updateLivepeerStreamDataLoading } =
     useUpdateLivepeerStreamData({});
@@ -187,6 +192,11 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
           </Text>
         </Flex>
       </TransactionModalTemplate>
+      <EmbedVideoModal
+        title={"Embed Video"}
+        isOpen={embedVideoModal}
+        handleClose={() => setEmbedVideoModal(false)}
+      />
       {!(isStandalone && !playbackId) && (
         <Flex
           width={"100%"}
@@ -218,22 +228,9 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
                   {mode === "versus-mode" && (
                     <VersusTempTokenTimerView disableChatbot={false} />
                   )}
-                  {/* <Text fontSize="20px">viewer pov</Text> */}
                   <LivepeerPlayer
                     src={getSrc(playbackData.livepeerPlaybackInfo)}
-                    // isPreview={true}
-                    // customSizePercentages={{
-                    //   width: "100%",
-                    //   height: "30%",
-                    // }}
                   />
-                  {/* <Text fontSize="12px">
-                    It may take a few seconds for the livestream to appear. If
-                    you're streaming from a different software like OBS, you
-                    might need to refresh the page. If you're streaming directly
-                    in-browser here, DON'T refresh as it will stop the
-                    livestream.
-                  </Text> */}
                 </Flex>
               )}
             </>
@@ -381,8 +378,19 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
                   )
                 }
               >
-                inbrowser stream
+                <Flex alignItems={"center"} gap="5px">
+                  <RiLiveFill size={"25px"} />
+                  inbrowser stream
+                </Flex>
               </Button>
+              {channelQueryData?.slug && playbackId && (
+                <Button onClick={() => setEmbedVideoModal(true)}>
+                  <Flex alignItems={"center"} gap="5px">
+                    <FaCode size={"25px"} />
+                    embed video
+                  </Flex>
+                </Button>
+              )}
               <Flex
                 gap="0.5rem"
                 justifyContent={"space-evenly"}
