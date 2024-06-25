@@ -22,6 +22,8 @@ import { BiRefresh } from "react-icons/bi";
 import copy from "copy-to-clipboard";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 
+const unacceptedErrors = ["Failed to connect to peer."];
+
 const LivepeerPlayer = memo(
   ({
     src,
@@ -97,7 +99,12 @@ const LivepeerPlayer = memo(
           src={src}
           autoPlay
           onError={(e) => {
-            if (e?.message && e?.message?.length > 0 && e?.type === "unknown") {
+            if (
+              e?.message &&
+              e?.message?.length > 0 &&
+              e?.type === "unknown" &&
+              !unacceptedErrors.includes(e?.message)
+            ) {
               console.log("Error playing video", JSON.stringify(e));
               setError(JSON.stringify(e));
             }
