@@ -8,7 +8,6 @@ import {
   Tooltip,
   useToast,
   IconButton,
-  Box,
 } from "@chakra-ui/react";
 import AppLayout from "../components/layout/AppLayout";
 import { useUser } from "../hooks/context/useUser";
@@ -23,52 +22,12 @@ import { GetChannelSearchResultsQuery } from "../generated/graphql";
 import { alphanumericInput } from "../utils/validation/input";
 import { NEW_STREAMER_URL_QUERY_PARAM } from "../constants";
 import { useNetworkContext } from "../hooks/context/useNetwork";
-import { useConnectWallet } from "@privy-io/react-auth";
 
 const SLUG_MAX_CHARS = 25;
 
 const Onboard = () => {
-  const { login, privyUser, user, walletIsConnected } = useUser();
-  const toast = useToast();
-  const { connectWallet } = useConnectWallet({
-    onError: (err) => {
-      console.error("connect wallet error", err);
-      toast({
-        render: () => (
-          <Box as="button" borderRadius="md" bg="#b82929" p={4}>
-            <Flex direction="column">
-              <Text fontFamily={"LoRes15"} fontSize="20px">
-                connect wallet error
-              </Text>
-              <Text>please copy error log to help developer diagnose</Text>
-              <Button
-                color="#b82929"
-                width="100%"
-                bg="white"
-                onClick={() => {
-                  copy(err.toString());
-                  toast({
-                    title: "copied to clipboard",
-                    status: "success",
-                    duration: 2000,
-                    isClosable: true,
-                  });
-                }}
-                _focus={{}}
-                _active={{}}
-                _hover={{ background: "#f44343", color: "white" }}
-              >
-                copy error
-              </Button>
-            </Flex>
-          </Box>
-        ),
-        duration: 12000,
-        isClosable: true,
-        position: "top",
-      });
-    },
-  });
+  const { login, privyUser, user, walletIsConnected, connectWallet } =
+    useUser();
 
   return (
     <AppLayout isCustomHeader={false}>

@@ -14,6 +14,7 @@ import {
   useWallets,
   WalletWithMetadata,
   useLogin,
+  useConnectWallet,
 } from "@privy-io/react-auth";
 import { Box, Button, Flex, Text, useToast } from "@chakra-ui/react";
 import { isAddress, isAddressEqual } from "viem";
@@ -44,6 +45,7 @@ const UserContext = createContext<{
   authenticated: boolean;
   fetchUser: () => void;
   login: () => void;
+  connectWallet: () => void;
   logout: () => void;
   exportWallet: () => Promise<void>;
 }>({
@@ -59,6 +61,7 @@ const UserContext = createContext<{
   authenticated: false,
   fetchUser: () => undefined,
   login: () => undefined,
+  connectWallet: () => undefined,
   logout: () => undefined,
   exportWallet: () => Promise.resolve(),
 });
@@ -139,6 +142,47 @@ export const UserProvider = ({
       });
     },
   });
+
+  const { connectWallet } = useConnectWallet({
+    onError: (err) => {
+      console.error("connect wallet error", err);
+      toast({
+        render: () => (
+          <Box as="button" borderRadius="md" bg="#b82929" p={4}>
+            <Flex direction="column">
+              <Text fontFamily={"LoRes15"} fontSize="20px">
+                connect wallet error
+              </Text>
+              <Text>please copy error log to help developer diagnose</Text>
+              <Button
+                color="#b82929"
+                width="100%"
+                bg="white"
+                onClick={() => {
+                  copy(err.toString());
+                  toast({
+                    title: "copied to clipboard",
+                    status: "success",
+                    duration: 2000,
+                    isClosable: true,
+                  });
+                }}
+                _focus={{}}
+                _active={{}}
+                _hover={{ background: "#f44343", color: "white" }}
+              >
+                copy error
+              </Button>
+            </Flex>
+          </Box>
+        ),
+        duration: 12000,
+        isClosable: true,
+        position: "top",
+      });
+    },
+  });
+
   const [differentWallet, setDifferentWallet] = useState(false);
   const [initialNotificationsGranted, setInitialNotificationsGranted] =
     useState(false);
@@ -230,6 +274,7 @@ export const UserProvider = ({
       authenticated,
       fetchUser,
       login,
+      connectWallet,
       logout,
       exportWallet,
     }),
@@ -246,6 +291,7 @@ export const UserProvider = ({
       authenticated,
       fetchUser,
       login,
+      connectWallet,
       logout,
       exportWallet,
     ]

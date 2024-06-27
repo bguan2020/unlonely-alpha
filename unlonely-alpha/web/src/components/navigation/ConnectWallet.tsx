@@ -14,9 +14,7 @@ import {
   MenuList,
   Spinner,
   Text,
-  Box,
 } from "@chakra-ui/react";
-import { useConnectWallet } from "@privy-io/react-auth";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HiDotsVertical } from "react-icons/hi";
@@ -35,52 +33,12 @@ import { OwnedChannelsModal } from "../channels/OwnedChannelsModal";
 import { formatUnits } from "viem";
 import copy from "copy-to-clipboard";
 
-const ConnectWallet = () => {
+const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
   const router = useRouter();
-  const { user, userAddress, ready, privyUser, login, logout } = useUser();
+  const { user, userAddress, ready, privyUser, login, connectWallet, logout } =
+    useUser();
   const { isStandalone } = useUserAgent();
-  const toast = useToast();
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
-
-  const { connectWallet } = useConnectWallet({
-    onError: (err) => {
-      console.error("connect wallet error", err);
-      toast({
-        render: () => (
-          <Box as="button" borderRadius="md" bg="#b82929" p={4}>
-            <Flex direction="column">
-              <Text fontFamily={"LoRes15"} fontSize="20px">
-                connect wallet error
-              </Text>
-              <Text>please copy error log to help developer diagnose</Text>
-              <Button
-                color="#b82929"
-                width="100%"
-                bg="white"
-                onClick={() => {
-                  copy(err.toString());
-                  toast({
-                    title: "copied to clipboard",
-                    status: "success",
-                    duration: 2000,
-                    isClosable: true,
-                  });
-                }}
-                _focus={{}}
-                _active={{}}
-                _hover={{ background: "#f44343", color: "white" }}
-              >
-                copy error
-              </Button>
-            </Flex>
-          </Box>
-        ),
-        duration: 12000,
-        isClosable: true,
-        position: "top",
-      });
-    },
-  });
 
   const callLogout = useCallback(() => {
     logout();
@@ -157,16 +115,18 @@ const ConnectWallet = () => {
                 >
                   {privyUser ? "connect wallet" : "login"}
                 </MenuItem>
-                <MenuItem
-                  bg={"#131323"}
-                  _hover={{ bg: "#1f1f3c" }}
-                  _focus={{}}
-                  _active={{}}
-                  onClick={redirectToBridge}
-                >
-                  bridge ETH to base
-                  <ExternalLinkIcon />
-                </MenuItem>
+                {!hideBridge && (
+                  <MenuItem
+                    bg={"#131323"}
+                    _hover={{ bg: "#1f1f3c" }}
+                    _focus={{}}
+                    _active={{}}
+                    onClick={redirectToBridge}
+                  >
+                    bridge ETH to base
+                    <ExternalLinkIcon />
+                  </MenuItem>
+                )}
                 {privyUser && (
                   <MenuItem
                     bg={"#131323"}
