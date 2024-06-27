@@ -18,6 +18,7 @@ import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTe
 import { isAddressEqual } from "viem";
 import { VersusTempTokenChart } from "./VersusTempTokenChart";
 import { MobileVersusTokenExchange } from "../../versus/MobileVersusTokenExchange";
+import { useUser } from "../../../../hooks/context/useUser";
 
 const steps = [{ title: "streamer must select winner" }];
 
@@ -28,6 +29,8 @@ export const MobileVersusTempTokensInterface = ({
   ablyChannel?: AblyChannelPromise;
   customHeight?: string;
 }) => {
+  const { walletIsConnected, privyUser, login, connectWallet, user } =
+    useUser();
   const { gameState } = useVersusTempTokenContext();
 
   const {
@@ -131,7 +134,29 @@ export const MobileVersusTempTokensInterface = ({
               ))}
             </Stepper>
           ) : (
-            <MobileVersusTokenExchange />
+            <>
+              {walletIsConnected && user?.address ? (
+                <MobileVersusTokenExchange />
+              ) : (
+                <Flex direction="column">
+                  <Text>you must sign in to trade</Text>
+                  <Button
+                    color="white"
+                    bg="#2562db"
+                    _hover={{
+                      bg: "#1c4d9e",
+                    }}
+                    _focus={{}}
+                    _active={{}}
+                    onClick={() => {
+                      privyUser ? connectWallet() : login();
+                    }}
+                  >
+                    {privyUser ? "Connect" : "Sign in"}
+                  </Button>
+                </Flex>
+              )}
+            </>
           )}
         </Flex>
       </Flex>
