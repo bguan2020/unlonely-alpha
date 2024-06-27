@@ -367,7 +367,7 @@ export const VersusTempTokenChart = ({
         w="100%"
         position="relative"
         h={isFullChart ? "70%" : undefined}
-        flex={canBuyPostGame || isFullChart ? undefined : "1"}
+        flex={!canBuyPostGame && !isFullChart ? "1" : undefined}
       >
         {noChannelData && (
           <Text
@@ -533,7 +533,6 @@ export const VersusTempTokenChart = ({
               </Button>
             </Flex>
           )}
-          {/* <VersusTokenExchange /> */}
         </Flex>
       )}
     </Flex>
