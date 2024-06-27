@@ -28,6 +28,7 @@ import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { useOwnerUpdateTotalSupplyThresholdState } from "../../../../hooks/internal/temp-token/write/useOwnerUpdateTotalSupplyThresholdState";
 import useUserAgent from "../../../../hooks/internal/useUserAgent";
 import { SingleTempTokenTimerView } from "../../temp/TempTokenTimerView";
+import { useUser } from "../../../../hooks/context/useUser";
 
 export const ZONE_BREADTH = 0.05;
 export const NUMBER_OF_HOURS_IN_DAY = 24;
@@ -48,6 +49,8 @@ export const TempTokenChart = ({
   isFullChart?: boolean;
   customChartHeightInPx?: number;
 }) => {
+  const { walletIsConnected, privyUser, login, connectWallet, user } =
+    useUser();
   const { isStandalone } = useUserAgent();
 
   const { channel } = useChannelContext();
@@ -559,7 +562,27 @@ export const TempTokenChart = ({
             </Flex>
           </Flex>
           <Flex direction={"column"} height={isFullChart ? "150px" : undefined}>
-            <TempTokenExchange />
+            {walletIsConnected && user?.address ? (
+              <TempTokenExchange />
+            ) : (
+              <Flex direction="column">
+                <Text>you must sign in to trade</Text>
+                <Button
+                  color="white"
+                  bg="#2562db"
+                  _hover={{
+                    bg: "#1c4d9e",
+                  }}
+                  _focus={{}}
+                  _active={{}}
+                  onClick={() => {
+                    privyUser ? connectWallet() : login();
+                  }}
+                >
+                  {privyUser ? "Connect" : "Sign in"}
+                </Button>
+              </Flex>
+            )}
           </Flex>
         </Flex>
       )}

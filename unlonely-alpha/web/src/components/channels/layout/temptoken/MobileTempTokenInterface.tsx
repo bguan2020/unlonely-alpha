@@ -10,6 +10,7 @@ import { useCacheContext } from "../../../../hooks/context/useCache";
 import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
 import { MobileTempTokenExchange } from "../../temp/MobileTempTokenExchange";
 import { bondingCurveBigInt } from "../../../../utils/contract";
+import { useUser } from "../../../../hooks/context/useUser";
 
 export const MobileTempTokenInterface = ({
   ablyChannel,
@@ -18,6 +19,8 @@ export const MobileTempTokenInterface = ({
   ablyChannel: AblyChannelPromise;
   customHeight?: string;
 }) => {
+  const { walletIsConnected, privyUser, login, connectWallet, user } =
+    useUser();
   const { ethPriceInUsd } = useCacheContext();
 
   const { tempToken } = useTempTokenContext();
@@ -148,7 +151,27 @@ export const MobileTempTokenInterface = ({
             />
           </Flex>
           <Flex direction={"column"} height="150px">
-            <MobileTempTokenExchange />
+            {walletIsConnected && user?.address ? (
+              <MobileTempTokenExchange />
+            ) : (
+              <Flex direction="column">
+                <Text>you must sign in to trade</Text>
+                <Button
+                  color="white"
+                  bg="#2562db"
+                  _hover={{
+                    bg: "#1c4d9e",
+                  }}
+                  _focus={{}}
+                  _active={{}}
+                  onClick={() => {
+                    privyUser ? connectWallet() : login();
+                  }}
+                >
+                  {privyUser ? "Connect" : "Sign in"}
+                </Button>
+              </Flex>
+            )}
           </Flex>
         </Flex>
       }

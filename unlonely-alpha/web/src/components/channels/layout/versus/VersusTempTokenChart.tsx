@@ -1,4 +1,4 @@
-import { Flex, Text } from "@chakra-ui/react";
+import { Flex, Text, Button } from "@chakra-ui/react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -22,6 +22,7 @@ import { VersusTokenExchange } from "../../versus/VersusTokenExchange";
 import useUserAgent from "../../../../hooks/internal/useUserAgent";
 import { VersusTempTokenTimerView } from "../../versus/VersusTokenTimerView";
 import { consolidateChartData } from "../../../../utils/chart";
+import { useUser } from "../../../../hooks/context/useUser";
 
 export type ConsolidatedTradeData = {
   tokenATrader: string;
@@ -48,6 +49,8 @@ export const VersusTempTokenChart = ({
   isFullChart?: boolean;
   customChartHeightInPx?: number;
 }) => {
+  const { walletIsConnected, privyUser, login, connectWallet, user } =
+    useUser();
   const { isStandalone } = useUserAgent();
 
   const { ethPriceInUsd } = useCacheContext();
@@ -363,7 +366,8 @@ export const VersusTempTokenChart = ({
         direction="column"
         w="100%"
         position="relative"
-        h={canPlayToken && !isFullChart ? "100%" : "70%"}
+        h={isFullChart ? "70%" : undefined}
+        flex={!canBuyPostGame && !isFullChart ? "1" : undefined}
       >
         {noChannelData && (
           <Text
@@ -507,8 +511,28 @@ export const VersusTempTokenChart = ({
         </ResponsiveContainer>
       </Flex>
       {!isStandalone && (canPlayToken || canBuyPostGame) && (
-        <Flex direction={"column"} height={isFullChart ? "150px" : undefined}>
-          <VersusTokenExchange />
+        <Flex direction={"column"} h="150px" position={"relative"}>
+          {walletIsConnected && user?.address ? (
+            <VersusTokenExchange />
+          ) : (
+            <Flex direction="column">
+              <Text>you must sign in to trade</Text>
+              <Button
+                color="white"
+                bg="#2562db"
+                _hover={{
+                  bg: "#1c4d9e",
+                }}
+                _focus={{}}
+                _active={{}}
+                onClick={() => {
+                  privyUser ? connectWallet() : login();
+                }}
+              >
+                {privyUser ? "Connect" : "Sign in"}
+              </Button>
+            </Flex>
+          )}
         </Flex>
       )}
     </Flex>
