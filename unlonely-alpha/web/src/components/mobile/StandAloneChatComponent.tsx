@@ -23,12 +23,12 @@ import useAddChannelToSubscription from "../../hooks/server/useAddChannelToSubsc
 import useRemoveChannelFromSubscription from "../../hooks/server/channel/useRemoveChannelFromSubscription";
 import { useOnClickOutside } from "../../hooks/internal/useOnClickOutside";
 import { TabsComponent } from "./TabsComponent";
-import { useIsGameOngoingMobile } from "../../hooks/internal/temp-token/ui/useIsGameOngoingMobile";
-import { MobileTempTokenInterface } from "../channels/layout/temptoken/MobileTempTokenInterface";
-import { MobileVersusTempTokensInterface } from "../channels/layout/versus/MobileVersusTempTokensInterface";
+// import { useIsGameOngoingMobile } from "../../hooks/internal/temp-token/ui/useIsGameOngoingMobile";
+// import { MobileTempTokenInterface } from "../channels/layout/temptoken/MobileTempTokenInterface";
+// import { MobileVersusTempTokensInterface } from "../channels/layout/versus/MobileVersusTempTokensInterface";
 import { useTempTokenContext } from "../../hooks/context/useTempToken";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
-import Participants from "../presence/Participants";
+// import Participants from "../presence/Participants";
 
 export const EXCLUDED_SLUGS = ["loveonleverage"];
 
@@ -56,7 +56,7 @@ const StandaloneChatComponent = ({
   const vipRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { tokenStateView } = useIsGameOngoingMobile();
+  // const { tokenStateView } = useIsGameOngoingMobile();
 
   const { tempToken } = useTempTokenContext();
   const { gameState } = tempToken;
@@ -315,7 +315,7 @@ const StandaloneChatComponent = ({
           </Button>
         </Flex>
       </TransactionModalTemplate>
-      {tokenStateView === "chat" ? (
+      {/* {tokenStateView === "chat" ? (
         <TabsComponent chat={chat} />
       ) : tokenStateView === "single" ? (
         <>
@@ -331,7 +331,8 @@ const StandaloneChatComponent = ({
           )}
           <MobileVersusTempTokensInterface ablyChannel={chat.channel} />
         </>
-      )}
+      )} */}
+      <TabsComponent chat={chat} />
     </Flex>
   );
 };
