@@ -372,13 +372,14 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
                 </Flex>
               </Flex>
               <Button
-                bg={"#013eb9"}
+                bg={"transparent"}
                 onClick={() =>
                   window.open(
                     `https://lvpr.tv/broadcast/${streamKey}`,
                     "_blank"
                   )
                 }
+                _hover={{ bg: "#013eb9" }}
               >
                 <Flex alignItems={"center"} gap="5px" color="white">
                   <RiLiveFill size={"25px"} />
@@ -386,7 +387,11 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
                 </Flex>
               </Button>
               {channelQueryData?.slug && playbackId && (
-                <Button bg={"#013eb9"} onClick={() => setEmbedVideoModal(true)}>
+                <Button
+                  bg={"transparent"}
+                  onClick={() => setEmbedVideoModal(true)}
+                  _hover={{ bg: "#013eb9" }}
+                >
                   <Flex alignItems={"center"} gap="5px" color="white">
                     <FaCode size={"25px"} />
                     embed video

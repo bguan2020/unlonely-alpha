@@ -18,6 +18,8 @@ import {
   MenuList,
   MenuItem,
   useBreakpointValue,
+  Image,
+  Box,
 } from "@chakra-ui/react";
 import copy from "copy-to-clipboard";
 import { formatApolloError } from "../../../../utils/errorFormatting";
@@ -259,39 +261,73 @@ export const DesktopChannelPageTempToken = ({
                       <Spinner />
                     </Flex>
                   ) : (
-                    <Menu>
-                      <MenuButton
-                        as={Button}
-                        _hover={{}}
-                        _focus={{}}
-                        _active={{}}
-                        p="25px"
+                    <Flex
+                      height="30%"
+                      alignItems={"center"}
+                      justifyContent={"center"}
+                      position={"relative"}
+                    >
+                      <Flex
+                        position="absolute"
+                        width="100%"
+                        height="100%"
+                        padding="20px"
                       >
-                        <Text fontFamily="LoRes15" fontSize="25px">
-                          launch token
-                        </Text>
-                      </MenuButton>
-                      <MenuList zIndex={1801} bg={"#131323"} borderRadius="0">
-                        <MenuItem
-                          bg={"#131323"}
-                          _hover={{ bg: "#1f1f3c" }}
+                        <GraphIcon />
+                      </Flex>
+                      <Menu>
+                        <MenuButton
+                          as={Button}
+                          _hover={{
+                            transform: "scale(1.01)",
+                          }}
                           _focus={{}}
                           _active={{}}
-                          onClick={() => setTokenStateView("single")}
+                          position={"relative"}
+                          p="25px"
+                          backgroundImage={"/images/button-gradient.png"}
+                          backgroundSize="cover"
+                          backgroundPosition="center"
                         >
-                          30 minute token
-                        </MenuItem>
-                        <MenuItem
-                          bg={"#131323"}
-                          _hover={{ bg: "#1f1f3c" }}
-                          _focus={{}}
-                          _active={{}}
-                          onClick={() => setTokenStateView("versus")}
-                        >
-                          versus token
-                        </MenuItem>
-                      </MenuList>
-                    </Menu>
+                          <Image
+                            src="/images/sparkles.png"
+                            position="absolute"
+                            zIndex="4"
+                            minWidth={"125%"}
+                            top={"50%"}
+                            left={"50%"}
+                            transform={"translate(-50%, -50%)"}
+                          />
+                          <Text
+                            color="black"
+                            fontFamily="LoRes15"
+                            fontSize="25px"
+                          >
+                            launch your own token
+                          </Text>
+                        </MenuButton>
+                        <MenuList zIndex={1801} bg={"#131323"} borderRadius="0">
+                          <MenuItem
+                            bg={"#131323"}
+                            _hover={{ bg: "#1f1f3c" }}
+                            _focus={{}}
+                            _active={{}}
+                            onClick={() => setTokenStateView("single")}
+                          >
+                            30 minute token
+                          </MenuItem>
+                          <MenuItem
+                            bg={"#131323"}
+                            _hover={{ bg: "#1f1f3c" }}
+                            _focus={{}}
+                            _active={{}}
+                            onClick={() => setTokenStateView("versus")}
+                          >
+                            versus token
+                          </MenuItem>
+                        </MenuList>
+                      </Menu>
+                    </Flex>
                   )}
                   <ChatComponent
                     chat={chat}
@@ -448,5 +484,54 @@ export const DesktopChannelPageTempToken = ({
         )}
       </Flex>
     </>
+  );
+};
+
+const GraphIcon = () => {
+  return (
+    <Box position="relative" width="100%" height="100%">
+      {/* Vertical Line */}
+      <Box
+        position="absolute"
+        backgroundColor="white"
+        width="2px"
+        height="100%"
+        left="0"
+        bottom="0"
+      />
+      {/* Horizontal Line */}
+      <Box
+        position="absolute"
+        backgroundColor="white"
+        height="2px"
+        width="100%"
+        left="0"
+        bottom="0"
+      />
+      {/* Up Arrow */}
+      <Box
+        position="absolute"
+        width="10px"
+        height="10px"
+        backgroundColor="transparent"
+        borderLeft="2px solid white"
+        borderBottom="2px solid white"
+        left="-3px"
+        bottom="100%"
+        transform="rotate(135deg)"
+      />
+      {/* Right Arrow */}
+      <Box
+        position="absolute"
+        width="10px"
+        height="10px"
+        backgroundColor="transparent"
+        borderLeft="2px solid white"
+        borderBottom="2px solid white"
+        left="100%"
+        bottom="-3px"
+        transform="rotate(-135deg)"
+      />
+    </Box>
   );
 };

@@ -299,6 +299,8 @@ const Graphs = memo(
     const [playbackIdToChannelSlugMap, setPlaybackIdToChannelSlugMap] =
       useState<Record<string, string>>({});
 
+    const [successfulTimeStep, setSuccessfulTimeStep] = useState<string>("");
+
     const [getLivepeerViewershipMetricsQuery] =
       useLazyQuery<GetLivepeerViewershipMetricsQuery>(
         GET_LIVEPEER_VIEWERSHIP_METRICS_QUERY,
@@ -360,10 +362,12 @@ const Graphs = memo(
             if (nonNullData && nonNullData.length > 0) {
               metricData = nonNullData;
               setGraphsLoading("assembling");
+              setSuccessfulTimeStep(timeStepsToTry[t]);
               break;
             } else if (t === timeStepsToTry.length - 1) {
               setGraphsLoading(false);
               handleGraphError("Reached data limit for this time period");
+              setSuccessfulTimeStep("");
               return;
             }
           }
@@ -638,7 +642,14 @@ const Graphs = memo(
                     domain={["dataMin", "dataMax"]}
                     allowDataOverflow={false}
                   >
-                    <Label value="time" offset={0} position="insideBottom" />
+                    <Label
+                      value={`time${
+                        successfulTimeStep &&
+                        ` (aggregated by ${successfulTimeStep})`
+                      }`}
+                      offset={-10}
+                      position="insideBottom"
+                    />
                   </XAxis>
                   <YAxis
                     label={{
@@ -760,7 +771,14 @@ const Graphs = memo(
                     domain={["dataMin", "dataMax"]}
                     allowDataOverflow={false}
                   >
-                    <Label value="time" offset={0} position="insideBottom" />
+                    <Label
+                      value={`time${
+                        successfulTimeStep &&
+                        ` (aggregated by ${successfulTimeStep})`
+                      }`}
+                      offset={-10}
+                      position="insideBottom"
+                    />
                   </XAxis>
                   <YAxis
                     label={{
