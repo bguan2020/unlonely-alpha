@@ -265,8 +265,9 @@ export const DesktopChannelPageTempToken = ({
                         _hover={{}}
                         _focus={{}}
                         _active={{}}
+                        p="25px"
                       >
-                        <Text fontFamily="LoRes15" fontSize="15px">
+                        <Text fontFamily="LoRes15" fontSize="25px">
                           launch token
                         </Text>
                       </MenuButton>

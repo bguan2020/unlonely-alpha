@@ -592,7 +592,12 @@ const Exchange = ({
   }, [getEvents]);
 
   return (
-    <Flex direction="column" justifyContent={"center"} gap="10px" width="100%">
+    <Flex
+      direction="column"
+      justifyContent={"center"}
+      gap="10px"
+      margin={"auto"}
+    >
       <Flex position="relative" gap="5px" alignItems={"center"}>
         <ChakraTooltip
           label={errorMessage}

@@ -97,7 +97,7 @@ export const DAYS_IN_A_WEEK = 7;
 export const AVERAGE_BLOCK_TIME_SECS = 2;
 export const SECONDS_PER_HOUR = MINUTES_IN_AN_HOUR * SECONDS_IN_A_MINUTE;
 export const SECONDS_PER_DAY = HOURS_IN_A_DAY * SECONDS_PER_HOUR;
-export const DESKTOP_VIDEO_VH = 80;
+export const DESKTOP_VIDEO_VH = 100;
 export const MOBILE_VIDEO_VH = 25;
 export const CHAKRA_UI_TX_TOAST_DURATION = 5000;
 

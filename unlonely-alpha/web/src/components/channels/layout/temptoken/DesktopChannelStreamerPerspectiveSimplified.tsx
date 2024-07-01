@@ -44,6 +44,7 @@ import { MigrateToLivePeer } from "../MigrateToLivepeer";
 import { SingleTempTokenTimerView } from "../../temp/TempTokenTimerView";
 import { VersusTempTokenTimerView } from "../../versus/VersusTokenTimerView";
 import EmbedVideoModal from "../../EmbedVideoModal";
+import { OwnerPastTokens } from "../OwnerPastTokens";
 
 export const DesktopChannelStreamerPerspectiveSimplified = ({
   ablyChannel,
@@ -158,7 +159,7 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
       width={"100%"}
       direction={"column"}
       gap="10px"
-      h={!isStandalone ? `${DESKTOP_VIDEO_VH}vh` : `${MOBILE_VIDEO_VH}vh`}
+      h={!isStandalone ? `${DESKTOP_VIDEO_VH}%` : `${MOBILE_VIDEO_VH}vh`}
       position={!isStandalone ? "relative" : "fixed"}
     >
       <TransactionModalTemplate
@@ -371,6 +372,7 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
                 </Flex>
               </Flex>
               <Button
+                bg={"#013eb9"}
                 onClick={() =>
                   window.open(
                     `https://lvpr.tv/broadcast/${streamKey}`,
@@ -378,14 +380,14 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
                   )
                 }
               >
-                <Flex alignItems={"center"} gap="5px">
+                <Flex alignItems={"center"} gap="5px" color="white">
                   <RiLiveFill size={"25px"} />
                   inbrowser stream
                 </Flex>
               </Button>
               {channelQueryData?.slug && playbackId && (
-                <Button onClick={() => setEmbedVideoModal(true)}>
-                  <Flex alignItems={"center"} gap="5px">
+                <Button bg={"#013eb9"} onClick={() => setEmbedVideoModal(true)}>
+                  <Flex alignItems={"center"} gap="5px" color="white">
                     <FaCode size={"25px"} />
                     embed video
                   </Flex>
@@ -460,7 +462,10 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
           )}
         </Flex>
       )}
-      <ChannelDesc />
+      <Flex>
+        <ChannelDesc />
+        <OwnerPastTokens />
+      </Flex>
     </Flex>
   );
 };

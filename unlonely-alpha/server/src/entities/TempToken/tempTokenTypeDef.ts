@@ -27,6 +27,7 @@ export const typeDef = gql`
     channel: Channel!
     transferredLiquidityOnExpiration: BigInt
     tokenType: TempTokenType
+    createdAt: DateTime!
   }
 
   type TempTokenWithBalance {

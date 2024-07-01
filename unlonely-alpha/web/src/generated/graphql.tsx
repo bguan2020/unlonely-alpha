@@ -1260,6 +1260,7 @@ export type TempToken = {
   chainId: Scalars["Int"];
   channel: Channel;
   channelId: Scalars["Int"];
+  createdAt: Scalars["DateTime"];
   creationBlockNumber: Scalars["BigInt"];
   endUnixTimestamp: Scalars["BigInt"];
   factoryAddress: Scalars["String"];
@@ -1901,6 +1902,7 @@ export type GetTempTokensQuery = {
     chainId: number;
     transferredLiquidityOnExpiration?: any | null;
     id: string;
+    createdAt: any;
     channel: {
       __typename?: "Channel";
       slug: string;
@@ -3912,6 +3914,7 @@ export const GetTempTokensDocument = gql`
       chainId
       transferredLiquidityOnExpiration
       id
+      createdAt
       channel {
         slug
         owner {
