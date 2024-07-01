@@ -83,12 +83,9 @@ const Metrics = () => {
           _focus={{}}
           bg={selectedButton === "1d" ? "#15b8ce" : undefined}
           onClick={() => {
-            if (selectedButton === "custom") setToDate(Date.now());
-            setFromDate(
-              selectedButton === "custom"
-                ? Date.now()
-                : toDate - 1000 * 60 * 60 * 24
-            );
+            const newDateNow = Date.now();
+            setToDate(newDateNow);
+            setFromDate(toDate - 1000 * 60 * 60 * 24);
             setSelectedButton("1d");
             setTurnOnChannelLines(false);
           }}
@@ -101,12 +98,9 @@ const Metrics = () => {
           _focus={{}}
           bg={selectedButton === "1w" ? "#15b8ce" : undefined}
           onClick={() => {
-            if (selectedButton === "custom") setToDate(Date.now());
-            setFromDate(
-              selectedButton === "custom"
-                ? Date.now()
-                : toDate - 1000 * 60 * 60 * 24 * 7
-            );
+            const newDateNow = Date.now();
+            setToDate(newDateNow);
+            setFromDate(toDate - 1000 * 60 * 60 * 24 * 7);
             setSelectedButton("1w");
             setTurnOnChannelLines(false);
           }}
@@ -119,12 +113,9 @@ const Metrics = () => {
           _focus={{}}
           bg={selectedButton === "1m" ? "#15b8ce" : undefined}
           onClick={() => {
-            if (selectedButton === "custom") setToDate(Date.now());
-            setFromDate(
-              selectedButton === "custom"
-                ? Date.now()
-                : toDate - 1000 * 60 * 60 * 24 * 30
-            );
+            const newDateNow = Date.now();
+            setToDate(newDateNow);
+            setFromDate(toDate - 1000 * 60 * 60 * 24 * 30 * 1);
             setSelectedButton("1m");
             setTurnOnChannelLines(false);
           }}
@@ -137,12 +128,9 @@ const Metrics = () => {
           _focus={{}}
           bg={selectedButton === "3m" ? "#15b8ce" : undefined}
           onClick={() => {
-            if (selectedButton === "custom") setToDate(Date.now());
-            setFromDate(
-              selectedButton === "custom"
-                ? Date.now()
-                : toDate - 1000 * 60 * 60 * 24 * 30 * 3
-            );
+            const newDateNow = Date.now();
+            setToDate(newDateNow);
+            setFromDate(toDate - 1000 * 60 * 60 * 24 * 30 * 3);
             setSelectedButton("3m");
             setTurnOnChannelLines(false);
           }}
@@ -155,12 +143,9 @@ const Metrics = () => {
           _focus={{}}
           bg={selectedButton === "4m" ? "#15b8ce" : undefined}
           onClick={() => {
-            if (selectedButton === "custom") setToDate(Date.now());
-            setFromDate(
-              selectedButton === "custom"
-                ? Date.now()
-                : toDate - 1000 * 60 * 60 * 24 * 30 * 4
-            );
+            const newDateNow = Date.now();
+            setToDate(newDateNow);
+            setFromDate(toDate - 1000 * 60 * 60 * 24 * 30 * 4);
             setSelectedButton("4m");
             setTurnOnChannelLines(false);
           }}
@@ -173,12 +158,9 @@ const Metrics = () => {
           _focus={{}}
           bg={selectedButton === "5m" ? "#15b8ce" : undefined}
           onClick={() => {
-            if (selectedButton === "custom") setToDate(Date.now());
-            setFromDate(
-              selectedButton === "custom"
-                ? Date.now()
-                : toDate - 1000 * 60 * 60 * 24 * 30 * 5
-            );
+            const newDateNow = Date.now();
+            setToDate(newDateNow);
+            setFromDate(toDate - 1000 * 60 * 60 * 24 * 30 * 5);
             setSelectedButton("5m");
             setTurnOnChannelLines(false);
           }}
@@ -191,12 +173,9 @@ const Metrics = () => {
           _focus={{}}
           bg={selectedButton === "6m" ? "#15b8ce" : undefined}
           onClick={() => {
-            if (selectedButton === "custom") setToDate(Date.now());
-            setFromDate(
-              selectedButton === "custom"
-                ? Date.now()
-                : toDate - 1000 * 60 * 60 * 24 * 30 * 6
-            );
+            const newDateNow = Date.now();
+            setToDate(newDateNow);
+            setFromDate(toDate - 1000 * 60 * 60 * 24 * 30 * 6);
             setSelectedButton("6m");
             setTurnOnChannelLines(false);
           }}
@@ -257,6 +236,7 @@ const Metrics = () => {
       <Graphs
         fromDate={fromDate}
         toDate={toDate}
+        selectedButton={selectedButton}
         channels={channels}
         turnOnChannelLines={turnOnChannelLines}
       />
@@ -271,11 +251,22 @@ const Graphs = memo(
     fromDate,
     toDate,
     turnOnChannelLines,
+    selectedButton,
     channels,
   }: {
     fromDate: number;
     toDate: number;
     turnOnChannelLines: boolean;
+    selectedButton:
+      | "1d"
+      | "1w"
+      | "1m"
+      | "3m"
+      | "4m"
+      | "5m"
+      | "6m"
+      | "custom"
+      | "none";
     channels?: GetChannelsQuery;
   }) => {
     const toast = useToast();
@@ -298,6 +289,10 @@ const Graphs = memo(
 
     const [playbackIdToChannelSlugMap, setPlaybackIdToChannelSlugMap] =
       useState<Record<string, string>>({});
+
+    const [successfulTimeStepMap, setSuccessfulTimeStepMap] = useState<
+      Record<string, string>
+    >({});
 
     const [getLivepeerViewershipMetricsQuery] =
       useLazyQuery<GetLivepeerViewershipMetricsQuery>(
@@ -329,6 +324,7 @@ const Graphs = memo(
         ) {
           return;
         }
+        console.log(fromDate.toString(), toDate.toString());
         setGraphsLoading("fetching");
         try {
           let timeStepsToTry: string[] = [];
@@ -360,6 +356,13 @@ const Graphs = memo(
             if (nonNullData && nonNullData.length > 0) {
               metricData = nonNullData;
               setGraphsLoading("assembling");
+              setSuccessfulTimeStepMap((prev) => {
+                return {
+                  ...prev,
+                  [fromDate.toString().concat(toDate.toString())]:
+                    timeStepsToTry[t],
+                };
+              });
               break;
             } else if (t === timeStepsToTry.length - 1) {
               setGraphsLoading(false);
@@ -625,9 +628,16 @@ const Graphs = memo(
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={
-                    totalViewCountChartData[
+                    selectedButton !== "custom" &&
+                    successfulTimeStepMap[
                       fromDate.toString().concat(toDate.toString())
-                    ]
+                    ] !== "day"
+                      ? totalViewCountChartData[
+                          fromDate.toString().concat(toDate.toString())
+                        ]?.slice(0, -1)
+                      : totalViewCountChartData[
+                          fromDate.toString().concat(toDate.toString())
+                        ]
                   }
                   margin={{ top: 15, right: 30, left: 20, bottom: 20 }}
                 >
@@ -638,7 +648,20 @@ const Graphs = memo(
                     domain={["dataMin", "dataMax"]}
                     allowDataOverflow={false}
                   >
-                    <Label value="time" offset={0} position="insideBottom" />
+                    <Label
+                      value={`time${
+                        successfulTimeStepMap[
+                          fromDate.toString().concat(toDate.toString())
+                        ] &&
+                        ` (aggregated by ${
+                          successfulTimeStepMap[
+                            fromDate.toString().concat(toDate.toString())
+                          ]
+                        })`
+                      }`}
+                      offset={-10}
+                      position="insideBottom"
+                    />
                   </XAxis>
                   <YAxis
                     label={{
@@ -704,7 +727,7 @@ const Graphs = memo(
                 >
                   save graph as csv
                 </Button>
-                <Text textAlign={"center"}>Total Views per Channel</Text>
+                <Text textAlign={"center"}>Total Visits per Channel</Text>
                 <Flex direction="column" overflowY={"scroll"}>
                   {playbackIdToViewCountTotal[
                     fromDate.toString().concat(toDate.toString())
@@ -747,9 +770,16 @@ const Graphs = memo(
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={
-                    totalPlaytimeMinsChartData[
+                    selectedButton !== "custom" &&
+                    successfulTimeStepMap[
                       fromDate.toString().concat(toDate.toString())
-                    ]
+                    ] !== "day"
+                      ? totalPlaytimeMinsChartData[
+                          fromDate.toString().concat(toDate.toString())
+                        ]?.slice(0, -1)
+                      : totalPlaytimeMinsChartData[
+                          fromDate.toString().concat(toDate.toString())
+                        ]
                   }
                   margin={{ top: 15, right: 30, left: 20, bottom: 20 }}
                 >
@@ -760,7 +790,20 @@ const Graphs = memo(
                     domain={["dataMin", "dataMax"]}
                     allowDataOverflow={false}
                   >
-                    <Label value="time" offset={0} position="insideBottom" />
+                    <Label
+                      value={`time${
+                        successfulTimeStepMap[
+                          fromDate.toString().concat(toDate.toString())
+                        ] &&
+                        ` (aggregated by ${
+                          successfulTimeStepMap[
+                            fromDate.toString().concat(toDate.toString())
+                          ]
+                        })`
+                      }`}
+                      offset={-10}
+                      position="insideBottom"
+                    />
                   </XAxis>
                   <YAxis
                     label={{

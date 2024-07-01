@@ -148,7 +148,7 @@ const ChannelStreamerPerspective = ({
       width={"100%"}
       direction={"column"}
       gap="10px"
-      h={!isStandalone ? `${DESKTOP_VIDEO_VH}vh` : `${MOBILE_VIDEO_VH}vh`}
+      h={!isStandalone ? `${DESKTOP_VIDEO_VH}%` : `${MOBILE_VIDEO_VH}vh`}
       position={!isStandalone ? "relative" : "fixed"}
     >
       <TransactionModalTemplate

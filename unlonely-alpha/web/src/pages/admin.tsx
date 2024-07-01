@@ -7,7 +7,7 @@ import {
   useToast,
   VStack,
 } from "@chakra-ui/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import AppLayout from "../components/layout/AppLayout";
 import { useUser } from "../hooks/context/useUser";
@@ -16,6 +16,8 @@ import useSoftDeleteChannel from "../hooks/server/channel/useSoftDeleteChannel";
 import { TempTokenAdmin } from "../components/admin/TempTokenAdmin";
 import Metrics from "./metrics";
 import Header from "../components/navigation/Header";
+import { ADMIN_GRAPH_QUERY_PARAM } from "../constants";
+import { useRouter } from "next/router";
 const admins = process.env.NEXT_PUBLIC_ADMINS?.split(",");
 
 export default function AdminPage() {
@@ -41,6 +43,11 @@ export default function AdminPage() {
 const AdminContent = () => {
   const toast = useToast();
   const [isGraphs, setIsGraphs] = useState<boolean>(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (router.query[ADMIN_GRAPH_QUERY_PARAM]) setIsGraphs(true);
+  }, [router]);
 
   const [channelSlugToDelete, setChannelSlugToDelete] = useState<string>("");
   const { softDeleteChannel, loading: softDeleteChannelLoading } =

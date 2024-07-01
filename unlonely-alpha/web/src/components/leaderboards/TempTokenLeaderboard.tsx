@@ -155,7 +155,7 @@ const TempTokenLeaderboard = () => {
         textAlign={"center"}
         fontFamily={"LoRes15"}
       >
-        30 Minute Token Leaderboard
+        Token Leaderboard
       </Text>
       {error ? (
         <Flex justifyContent={"center"}>
@@ -240,6 +240,7 @@ const TempTokenLeaderboard = () => {
               <Flex justifyContent={"center"} gap="10px" alignItems={"center"}>
                 <Button
                   height="25px"
+                  width="100px"
                   onClick={() => {
                     setPage(page - 1);
                   }}
@@ -250,6 +251,7 @@ const TempTokenLeaderboard = () => {
                 <Text>{page + 1}</Text>
                 <Button
                   height="25px"
+                  width="100px"
                   onClick={() => {
                     setPage(page + 1);
                   }}

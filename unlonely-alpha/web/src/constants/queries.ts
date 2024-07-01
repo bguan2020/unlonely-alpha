@@ -312,6 +312,7 @@ export const GET_TEMP_TOKENS_QUERY = gql`
       chainId
       transferredLiquidityOnExpiration
       id
+      createdAt
       channel {
         slug
         owner {
