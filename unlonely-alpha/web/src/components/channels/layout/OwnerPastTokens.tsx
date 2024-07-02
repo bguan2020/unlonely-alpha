@@ -32,7 +32,7 @@ import Link from "next/link";
 const headers = ["$ticker", "price", "date"];
 const ITEMS_PER_PAGE = 5;
 
-type DetailedTempToken = TempToken & { totalSupply?: bigint };
+export type DetailedTempToken = TempToken & { totalSupply?: bigint };
 
 export const OwnerPastTokens = () => {
   const publicClient = usePublicClient();

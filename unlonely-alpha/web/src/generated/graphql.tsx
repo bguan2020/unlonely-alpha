@@ -1277,6 +1277,7 @@ export type TempToken = {
   symbol: Scalars["String"];
   tokenAddress: Scalars["String"];
   tokenType?: Maybe<TempTokenType>;
+  totalSupply: Scalars["BigInt"];
   transferredLiquidityOnExpiration?: Maybe<Scalars["BigInt"]>;
 };
 
@@ -1304,6 +1305,7 @@ export type TempTokenWithBalance = {
   symbol: Scalars["String"];
   tokenAddress: Scalars["String"];
   tokenType?: Maybe<TempTokenType>;
+  totalSupply: Scalars["BigInt"];
 };
 
 export type ToggleSubscriptionInput = {

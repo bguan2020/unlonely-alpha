@@ -21,6 +21,7 @@ export const typeDef = gql`
     protocolFeePercentage: BigInt!
     streamerFeePercentage: BigInt!
     highestTotalSupply: BigInt!
+    totalSupply: BigInt!
     hasRemainingFundsForCreator: Boolean!
     isAlwaysTradeable: Boolean!
     hasHitTotalSupplyThreshold: Boolean!
@@ -43,6 +44,7 @@ export const typeDef = gql`
     protocolFeePercentage: BigInt!
     streamerFeePercentage: BigInt!
     highestTotalSupply: BigInt!
+    totalSupply: BigInt!
     hasRemainingFundsForCreator: Boolean!
     isAlwaysTradeable: Boolean!
     hasHitTotalSupplyThreshold: Boolean!

@@ -182,6 +182,7 @@ model TempToken {
   protocolFeePercentage             BigInt
   streamerFeePercentage             BigInt
   highestTotalSupply                BigInt
+  totalSupply                       BigInt  @default(0)
   hasRemainingFundsForCreator       Boolean @default(true)
   hasHitTotalSupplyThreshold        Boolean @default(false)
   isAlwaysTradeable                 Boolean @default(false)
