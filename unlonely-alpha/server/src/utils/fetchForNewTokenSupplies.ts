@@ -45,16 +45,19 @@ export const fetchForNewTokenSupplies = async () => {
       })
     );
 
-    const updates = totalSupplies.map((totalSupply, index) => {
-      return prisma.tempToken.update({
+    const updates = []
+
+    for (let i = 0; i < totalSupplies.length; i++) {
+      if (BigInt(totalSupplies[i]) === BigInt(qualifiedTokens[i].totalSupply)) continue
+      updates.push(prisma.tempToken.update({
         where: {
-          id: qualifiedTokens[index].id,
+          id: qualifiedTokens[i].id,
         },
         data: {
-          totalSupply,
+          totalSupply: totalSupplies[i],
         },
-      });
-    });
+      }));
+    }
 
     const res = await prisma.$transaction(updates);
     console.log("fetchForNewTokenSupplies", res.length);
