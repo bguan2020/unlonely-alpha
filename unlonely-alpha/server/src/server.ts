@@ -46,6 +46,7 @@ app.get("/aws-scheduler-update", (req, res) => {
 });
 
 app.get("/aws-scheduler-update-2", (req, res) => {
+  // todo: change the server hostname on aws lambda from staging to master
   const secretKey = req.headers["x-secret-key"] || req.query.secretKey;
 
   if (secretKey !== process.env.AWS_ACCESS_KEY) {
