@@ -56,7 +56,7 @@ const TempTokenLeaderboard = () => {
   const datasetSorted = useMemo(() => {
     return dataset
       .map((token) => {
-        const n = BigInt(token.highestTotalSupply); // todo: change to totalSupply once everything is ready
+        const n = BigInt(token.totalSupply);
         const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
         const priceForCurrent = bondingCurveBigInt(n);
         const priceForPrevious = bondingCurveBigInt(n_);
