@@ -21,12 +21,14 @@ export const typeDef = gql`
     protocolFeePercentage: BigInt!
     streamerFeePercentage: BigInt!
     highestTotalSupply: BigInt!
+    totalSupply: BigInt!
     hasRemainingFundsForCreator: Boolean!
     isAlwaysTradeable: Boolean!
     hasHitTotalSupplyThreshold: Boolean!
     channel: Channel!
     transferredLiquidityOnExpiration: BigInt
     tokenType: TempTokenType
+    createdAt: DateTime!
   }
 
   type TempTokenWithBalance {
@@ -42,6 +44,7 @@ export const typeDef = gql`
     protocolFeePercentage: BigInt!
     streamerFeePercentage: BigInt!
     highestTotalSupply: BigInt!
+    totalSupply: BigInt!
     hasRemainingFundsForCreator: Boolean!
     isAlwaysTradeable: Boolean!
     hasHitTotalSupplyThreshold: Boolean!

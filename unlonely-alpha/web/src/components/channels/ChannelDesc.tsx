@@ -62,7 +62,12 @@ const ChannelDesc = () => {
             size="md"
           />
         </Flex>
-        <OuterBorder flex={"0"} type={BorderType.FIRE} margin={"auto"}>
+        <OuterBorder
+          flex={"0"}
+          type={BorderType.FIRE}
+          marginLeft={"auto"}
+          marginRight={"auto"}
+        >
           <Flex
             p="0.5rem"
             bg={

@@ -10,6 +10,7 @@ import { getContext } from "./context";
 import graphqlSchema from "./entities/graphqlSchema";
 import { fetchForNewTempTokenEndtimestamps } from "./utils/fetchForNewTempTokenEndtimestamps";
 import { setLivepeerStreamIsLive } from "./utils/setLivepeerStreamIsLive";
+import { fetchForNewTokenSupplies } from "./utils/fetchForNewTokenSupplies";
 
 const app = express();
 app.use(cors());
@@ -26,7 +27,6 @@ app.post("/webhook", (req, res) => {
   res.sendStatus(200);
 });
 
-// we currently only have one aws-scheduler for the master server, but not the staging server, some differences will occur
 app.get("/aws-scheduler-update", (req, res) => {
   const secretKey = req.headers["x-secret-key"] || req.query.secretKey;
 
@@ -43,6 +43,25 @@ app.get("/aws-scheduler-update", (req, res) => {
   );
   fetchForNewTempTokenEndtimestamps();
   res.send("/aws-scheduler-update success");
+});
+
+app.get("/aws-scheduler-update-2", (req, res) => {
+  // todo: change the server hostname on aws lambda from staging to master
+  const secretKey = req.headers["x-secret-key"] || req.query.secretKey;
+
+  if (secretKey !== process.env.AWS_ACCESS_KEY) {
+    console.log(
+      "Unauthorized access to /aws-scheduler-update-2, called at",
+      new Date().toISOString()
+    );
+    return res.status(401).send("Unauthorized");
+  }
+  console.log(
+    "Authorized access to /aws-scheduler-update-2, called at",
+    new Date().toISOString()
+  );
+  fetchForNewTokenSupplies();
+  res.send("/aws-scheduler-update-2 success");
 });
 
 const startServer = async () => {

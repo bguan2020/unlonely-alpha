@@ -44,6 +44,7 @@ import { MigrateToLivePeer } from "../MigrateToLivepeer";
 import { SingleTempTokenTimerView } from "../../temp/TempTokenTimerView";
 import { VersusTempTokenTimerView } from "../../versus/VersusTokenTimerView";
 import EmbedVideoModal from "../../EmbedVideoModal";
+import { OwnerPastTokens } from "../OwnerPastTokens";
 
 export const DesktopChannelStreamerPerspectiveSimplified = ({
   ablyChannel,
@@ -158,7 +159,7 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
       width={"100%"}
       direction={"column"}
       gap="10px"
-      h={!isStandalone ? `${DESKTOP_VIDEO_VH}vh` : `${MOBILE_VIDEO_VH}vh`}
+      h={!isStandalone ? `${DESKTOP_VIDEO_VH}%` : `${MOBILE_VIDEO_VH}vh`}
       position={!isStandalone ? "relative" : "fixed"}
     >
       <TransactionModalTemplate
@@ -370,26 +371,61 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
                   </Flex>
                 </Flex>
               </Flex>
-              <Button
-                onClick={() =>
-                  window.open(
-                    `https://lvpr.tv/broadcast/${streamKey}`,
-                    "_blank"
-                  )
-                }
-              >
-                <Flex alignItems={"center"} gap="5px">
-                  <RiLiveFill size={"25px"} />
-                  inbrowser stream
-                </Flex>
-              </Button>
+              <Popover trigger="hover" placement="bottom" openDelay={300}>
+                <PopoverTrigger>
+                  <Button
+                    bg={"transparent"}
+                    onClick={() =>
+                      window.open(
+                        `https://lvpr.tv/broadcast/${streamKey}`,
+                        "_blank"
+                      )
+                    }
+                    _hover={{ bg: "#013eb9" }}
+                  >
+                    <Flex alignItems={"center"} gap="5px" color="white">
+                      <RiLiveFill size={"25px"} />
+                      inbrowser stream
+                    </Flex>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent bg="#343dbb" border="none" width="100%" p="2px">
+                  <PopoverArrow bg="#343dbb" />
+                  <Text fontSize="12px" textAlign={"center"} width="200px">
+                    want to start streaming with zero setup? use our in-browser
+                    streaming feature, accept permissions and you're live! try
+                    screensharing in the bottom right corner there
+                  </Text>
+                </PopoverContent>
+              </Popover>
               {channelQueryData?.slug && playbackId && (
-                <Button onClick={() => setEmbedVideoModal(true)}>
-                  <Flex alignItems={"center"} gap="5px">
-                    <FaCode size={"25px"} />
-                    embed video
-                  </Flex>
-                </Button>
+                <Popover trigger="hover" placement="bottom" openDelay={300}>
+                  <PopoverTrigger>
+                    <Button
+                      bg={"transparent"}
+                      onClick={() => setEmbedVideoModal(true)}
+                      _hover={{ bg: "#013eb9" }}
+                    >
+                      <Flex alignItems={"center"} gap="5px" color="white">
+                        <FaCode size={"25px"} />
+                        embed video
+                      </Flex>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    bg="#343dbb"
+                    border="none"
+                    width="100%"
+                    p="2px"
+                  >
+                    <PopoverArrow bg="#343dbb" />
+                    <Text fontSize="12px" textAlign={"center"} width="200px">
+                      looking for a way to embed unlonely streams into your own
+                      site? click here for html code! reach out to @dnnyfung on
+                      telegram if experiencing issues
+                    </Text>
+                  </PopoverContent>
+                </Popover>
               )}
               <Flex
                 gap="0.5rem"
@@ -460,7 +496,10 @@ export const DesktopChannelStreamerPerspectiveSimplified = ({
           )}
         </Flex>
       )}
-      <ChannelDesc />
+      <Flex justifyContent={"space-between"}>
+        <ChannelDesc />
+        <OwnerPastTokens />
+      </Flex>
     </Flex>
   );
 };

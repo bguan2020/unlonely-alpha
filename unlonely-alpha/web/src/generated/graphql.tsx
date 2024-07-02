@@ -1260,6 +1260,7 @@ export type TempToken = {
   chainId: Scalars["Int"];
   channel: Channel;
   channelId: Scalars["Int"];
+  createdAt: Scalars["DateTime"];
   creationBlockNumber: Scalars["BigInt"];
   endUnixTimestamp: Scalars["BigInt"];
   factoryAddress: Scalars["String"];
@@ -1276,6 +1277,7 @@ export type TempToken = {
   symbol: Scalars["String"];
   tokenAddress: Scalars["String"];
   tokenType?: Maybe<TempTokenType>;
+  totalSupply: Scalars["BigInt"];
   transferredLiquidityOnExpiration?: Maybe<Scalars["BigInt"]>;
 };
 
@@ -1303,6 +1305,7 @@ export type TempTokenWithBalance = {
   symbol: Scalars["String"];
   tokenAddress: Scalars["String"];
   tokenType?: Maybe<TempTokenType>;
+  totalSupply: Scalars["BigInt"];
 };
 
 export type ToggleSubscriptionInput = {
@@ -1891,6 +1894,7 @@ export type GetTempTokensQuery = {
     name: string;
     factoryAddress: string;
     isAlwaysTradeable: boolean;
+    totalSupply: any;
     highestTotalSupply: any;
     hasRemainingFundsForCreator: boolean;
     hasHitTotalSupplyThreshold: boolean;
@@ -1901,6 +1905,7 @@ export type GetTempTokensQuery = {
     chainId: number;
     transferredLiquidityOnExpiration?: any | null;
     id: string;
+    createdAt: any;
     channel: {
       __typename?: "Channel";
       slug: string;
@@ -3902,6 +3907,7 @@ export const GetTempTokensDocument = gql`
       name
       factoryAddress
       isAlwaysTradeable
+      totalSupply
       highestTotalSupply
       hasRemainingFundsForCreator
       hasHitTotalSupplyThreshold
@@ -3912,6 +3918,7 @@ export const GetTempTokensDocument = gql`
       chainId
       transferredLiquidityOnExpiration
       id
+      createdAt
       channel {
         slug
         owner {

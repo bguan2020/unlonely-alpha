@@ -42,7 +42,7 @@ const StreamComponent = ({
       width="100%"
       height={
         !isStandalone
-          ? { base: isStreamer ? "unset" : `${DESKTOP_VIDEO_VH}vh` }
+          ? { base: isStreamer ? "unset" : `${DESKTOP_VIDEO_VH}%` }
           : isStreamer
           ? "unset"
           : `${MOBILE_VIDEO_VH}vh`
