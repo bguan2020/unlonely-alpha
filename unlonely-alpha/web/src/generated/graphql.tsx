@@ -1894,6 +1894,7 @@ export type GetTempTokensQuery = {
     name: string;
     factoryAddress: string;
     isAlwaysTradeable: boolean;
+    totalSupply: any;
     highestTotalSupply: any;
     hasRemainingFundsForCreator: boolean;
     hasHitTotalSupplyThreshold: boolean;
@@ -3906,6 +3907,7 @@ export const GetTempTokensDocument = gql`
       name
       factoryAddress
       isAlwaysTradeable
+      totalSupply
       highestTotalSupply
       hasRemainingFundsForCreator
       hasHitTotalSupplyThreshold

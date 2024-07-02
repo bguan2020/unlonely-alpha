@@ -17,13 +17,12 @@ import {
   Tr,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { getTimeFromMillis } from "../../utils/time";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { formatUnits } from "viem";
 import { useCacheContext } from "../../hooks/context/useCache";
 import { bondingCurveBigInt } from "../../utils/contract";
 
-const headers = ["rank", "token", "channel", "highest price", "time left"];
+const headers = ["rank", "token", "channel", "price"];
 
 const ITEMS_PER_PAGE = 10;
 
@@ -35,8 +34,8 @@ const TempTokenLeaderboard = () => {
   const visibleColumns = useBreakpointValue({
     base: [1, 3],
     sm: [0, 1, 3],
-    md: [0, 1, 2, 3, 4],
-    lg: [0, 1, 2, 3, 4],
+    md: [0, 1, 2, 3],
+    lg: [0, 1, 2, 3],
   });
 
   const [getTempTokensQuery, { loading, data, error }] =
@@ -45,9 +44,6 @@ const TempTokenLeaderboard = () => {
     });
 
   const [page, setPage] = useState(0);
-  const [nowInSeconds, setNowIsSeconds] = useState(
-    Math.floor(Date.now() / 1000)
-  );
 
   const dataset = useMemo(
     () =>
@@ -60,7 +56,7 @@ const TempTokenLeaderboard = () => {
   const datasetSorted = useMemo(() => {
     return dataset
       .map((token) => {
-        const n = BigInt(token.highestTotalSupply);
+        const n = BigInt(token.totalSupply);
         const n_ = n > BigInt(0) ? n - BigInt(1) : BigInt(0);
         const priceForCurrent = bondingCurveBigInt(n);
         const priceForPrevious = bondingCurveBigInt(n_);
@@ -68,12 +64,12 @@ const TempTokenLeaderboard = () => {
         const newPrice = priceForCurrent - priceForPrevious + BigInt(basePrice);
         return {
           ...token,
-          highestPrice: Number(newPrice),
+          price: newPrice,
         };
       })
       .sort((a, b) => {
-        const nA = a.highestPrice;
-        const nB = b.highestPrice;
+        const nA = Number(a.price);
+        const nB = Number(b.price);
         if (nA !== nB) return nB - nA;
         return b.endUnixTimestamp - a.endUnixTimestamp;
       });
@@ -87,18 +83,9 @@ const TempTokenLeaderboard = () => {
           token.symbol,
           token.channel.slug,
           `$${truncateValue(
-            Number(formatUnits(BigInt(token.highestPrice), 18)) *
-              Number(ethPriceInUsd),
+            Number(formatUnits(token.price, 18)) * Number(ethPriceInUsd),
             4
           )}`,
-          token.isAlwaysTradeable
-            ? "permanent"
-            : getTimeFromMillis(
-                Math.max(Number(token.endUnixTimestamp) - nowInSeconds, 0) *
-                  1000,
-                true,
-                true
-              ),
         ],
       };
     });
@@ -126,20 +113,6 @@ const TempTokenLeaderboard = () => {
   useEffect(() => {
     fetch();
   }, [localNetwork]);
-
-  useEffect(() => {
-    const updateCountdown = () => {
-      if (completedDataRows.length === 0) return;
-      const now = Math.floor(Date.now() / 1000);
-      setNowIsSeconds(now);
-    };
-
-    // Set the interval to update the countdown every X seconds
-    const interval = setInterval(updateCountdown, 1 * 1000);
-
-    // Clear the interval when the component unmounts
-    return () => clearInterval(interval);
-  }, [completedDataRows]);
 
   return (
     <Flex
