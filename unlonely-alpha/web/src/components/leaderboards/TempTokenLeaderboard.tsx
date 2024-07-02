@@ -246,7 +246,7 @@ const TempTokenLeaderboard = () => {
                   }}
                   isDisabled={page === 0}
                 >
-                  previous
+                  prev
                 </Button>
                 <Text>{page + 1}</Text>
                 <Button

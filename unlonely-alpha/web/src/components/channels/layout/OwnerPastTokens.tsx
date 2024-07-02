@@ -136,29 +136,31 @@ export const OwnerPastTokens = () => {
         <Text fontSize="20px" fontWeight="bold" textAlign={"center"}>
           your tokens
         </Text>
-        <Flex justifyContent={"center"} gap="10px" alignItems={"center"}>
-          <Button
-            height="25px"
-            width="100px"
-            onClick={() => {
-              setPage(page - 1);
-            }}
-            isDisabled={page === 0}
-          >
-            previous
-          </Button>
-          <Text>{page + 1}</Text>
-          <Button
-            height="25px"
-            width="100px"
-            onClick={() => {
-              setPage(page + 1);
-            }}
-            isDisabled={ITEMS_PER_PAGE * (page + 1) > tokens.length}
-          >
-            next
-          </Button>
-        </Flex>
+        {tokens.length > ITEMS_PER_PAGE && (
+          <Flex justifyContent={"center"} gap="10px" alignItems={"center"}>
+            <Button
+              height="25px"
+              width="100px"
+              onClick={() => {
+                setPage(page - 1);
+              }}
+              isDisabled={page === 0}
+            >
+              prev
+            </Button>
+            <Text>{page + 1}</Text>
+            <Button
+              height="25px"
+              width="100px"
+              onClick={() => {
+                setPage(page + 1);
+              }}
+              isDisabled={ITEMS_PER_PAGE * (page + 1) > tokens.length}
+            >
+              next
+            </Button>
+          </Flex>
+        )}
       </Flex>
       {tokensPaginated.length > 0 ? (
         <TableContainer
@@ -254,12 +256,12 @@ export const OwnerPastTokens = () => {
       ) : (
         <>
           <Text>No tokens found, start by creating a new token</Text>
-          <Button
+          {/* <Button
             onClick={handleGetTempTokens}
             isLoading={getTempTokensLoading}
           >
             refetch
-          </Button>
+          </Button> */}
         </>
       )}
     </Flex>

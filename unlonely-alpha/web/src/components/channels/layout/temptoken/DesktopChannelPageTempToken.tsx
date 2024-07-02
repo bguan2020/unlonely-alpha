@@ -20,6 +20,7 @@ import {
   useBreakpointValue,
   Image,
   Box,
+  Link,
 } from "@chakra-ui/react";
 import copy from "copy-to-clipboard";
 import { formatApolloError } from "../../../../utils/errorFormatting";
@@ -266,6 +267,8 @@ export const DesktopChannelPageTempToken = ({
                       alignItems={"center"}
                       justifyContent={"center"}
                       position={"relative"}
+                      direction={"column"}
+                      gap="15px"
                     >
                       <Flex
                         position="absolute"
@@ -327,6 +330,16 @@ export const DesktopChannelPageTempToken = ({
                           </MenuItem>
                         </MenuList>
                       </Menu>
+                      <Flex zIndex="5">
+                        <Link
+                          target="_blank"
+                          href="https://super-okra-6ad.notion.site/wtf-is-unlonely-welcome-FAQs-5d17505468a84d63955d53328b8dbb1d"
+                        >
+                          <Text style={{ textDecoration: "underline" }}>
+                            why/how?
+                          </Text>
+                        </Link>
+                      </Flex>
                     </Flex>
                   )}
                   <ChatComponent
