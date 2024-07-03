@@ -72,6 +72,8 @@ export const TempTokenInterface = ({
     lastInactiveTokenAddress,
     lastInactiveTokenBalance,
     lastInactiveTokenSymbol,
+    isCreateTokenModalOpen: isCreateTempTokenModalOpen,
+    handleCreateTokenModalOpen: handleCreateTempTokenModalOpen,
     handleIsGameFailed,
     handleIsSuccessGameModalOpen,
     handleIsPermanentGameModalOpen,
@@ -83,7 +85,6 @@ export const TempTokenInterface = ({
     txs: tempTokenTxs,
   });
 
-  const [createTokenModalOpen, setCreateTokenModalOpen] = useState(false);
   const [tempTokenDisclaimerModalOpen, setTempTokenDisclaimerModalOpen] =
     useState<boolean>(false);
   const [
@@ -204,8 +205,8 @@ export const TempTokenInterface = ({
           {currentActiveTokenAddress === NULL_ADDRESS && (
             <TempTokenCreationModal
               title="Create Temp Token"
-              isOpen={createTokenModalOpen}
-              handleClose={() => setCreateTokenModalOpen(false)}
+              isOpen={isCreateTempTokenModalOpen}
+              handleClose={() => handleCreateTempTokenModalOpen(false)}
             />
           )}
           <TempTokenDisclaimerModal
@@ -422,7 +423,9 @@ export const TempTokenInterface = ({
                       <>
                         {lastInactiveTokenAddress === NULL_ADDRESS &&
                         lastInactiveTokenBalance === BigInt(0) ? (
-                          <Button onClick={() => setCreateTokenModalOpen(true)}>
+                          <Button
+                            onClick={() => handleCreateTempTokenModalOpen(true)}
+                          >
                             create temp token
                           </Button>
                         ) : (

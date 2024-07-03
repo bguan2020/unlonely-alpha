@@ -69,6 +69,7 @@ export const DesktopChannelPageTempToken = ({
     canPlayToken: canPlayTempToken,
     isFailedGameModalOpen,
     handleIsFailedGameModalOpen,
+    handleCreateTokenModalOpen: handleCreateTempTokenModalOpen,
   } = gameState;
   const { gameState: versusGameState, loadingOnMount } =
     useVersusTempTokenContext();
@@ -82,6 +83,7 @@ export const DesktopChannelPageTempToken = ({
     tokenA,
     tokenB,
     handleOwnerMustPermamint,
+    handleCreateTokenModalOpen: handleCreateVersusTokenModalOpen,
   } = versusGameState;
 
   const toast = useToast();
@@ -315,7 +317,10 @@ export const DesktopChannelPageTempToken = ({
                             _hover={{ bg: "#1f1f3c" }}
                             _focus={{}}
                             _active={{}}
-                            onClick={() => setTokenStateView("single")}
+                            onClick={() => {
+                              setTokenStateView("single");
+                              handleCreateTempTokenModalOpen(true);
+                            }}
                           >
                             30 minute token
                           </MenuItem>
@@ -324,7 +329,10 @@ export const DesktopChannelPageTempToken = ({
                             _hover={{ bg: "#1f1f3c" }}
                             _focus={{}}
                             _active={{}}
-                            onClick={() => setTokenStateView("versus")}
+                            onClick={() => {
+                              setTokenStateView("versus");
+                              handleCreateVersusTokenModalOpen(true);
+                            }}
                           >
                             versus token
                           </MenuItem>

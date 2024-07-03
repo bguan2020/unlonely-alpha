@@ -27,6 +27,8 @@ export type UseReadVersusTempTokenGlobalStateType = {
   setTokenA: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
   tokenB: VersusTokenDataType;
   setTokenB: React.Dispatch<React.SetStateAction<VersusTokenDataType>>;
+  isCreateTokenModalOpen: boolean;
+  handleCreateTokenModalOpen: (value: boolean) => void;
 };
 
 export const useReadVersusTempTokenGlobalStateInitial: UseReadVersusTempTokenGlobalStateType =
@@ -55,6 +57,8 @@ export const useReadVersusTempTokenGlobalStateInitial: UseReadVersusTempTokenGlo
     setTokenA: () => undefined,
     tokenB: versusTokenDataInitial,
     setTokenB: () => undefined,
+    isCreateTokenModalOpen: false,
+    handleCreateTokenModalOpen: () => undefined,
   };
 
 export const useReadVersusTempTokenGlobalState =
@@ -87,6 +91,7 @@ export const useReadVersusTempTokenGlobalState =
     const [tokenB, setTokenB] = useState<VersusTokenDataType>(
       versusTokenDataInitial
     );
+    const [createTokensModalOpen, setCreateTokensModalOpen] = useState(false);
 
     const handleCanPlayToken = useCallback((value: boolean) => {
       setCanPlayToken(value);
@@ -134,6 +139,10 @@ export const useReadVersusTempTokenGlobalState =
       setIsPreSaleOngoing(value);
     }, []);
 
+    const handleCreateTokenModalOpen = useCallback((value: boolean) => {
+      setCreateTokensModalOpen(value);
+    }, []);
+
     return {
       isPreSaleOngoing,
       handleIsPreSaleOngoing,
@@ -159,5 +168,7 @@ export const useReadVersusTempTokenGlobalState =
       setTokenA,
       tokenB,
       setTokenB,
+      isCreateTokenModalOpen: createTokensModalOpen,
+      handleCreateTokenModalOpen,
     };
   };
