@@ -98,7 +98,7 @@ const TokenTradePage = () => {
 
   return (
     <AppLayout isCustomHeader={false} noHeader>
-      <Flex bg="#131323" direction="column">
+      <Flex bg="#131323" direction="column" height="100vh">
         <Header />
         {!getTempTokensLoading && tempToken ? (
           <TradeLayer tempToken={tempToken} />

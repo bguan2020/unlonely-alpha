@@ -24,6 +24,7 @@ export type UseReadTempTokenGlobalStateType = {
   isFailedGameState: boolean;
   canPlayToken: boolean;
   isPreSaleOngoing: boolean;
+  isCreateTokenModalOpen: boolean;
   handleIsPreSaleOngoing: (value: boolean) => void;
   handleIsGamePermanent: (value: boolean) => void;
   handleIsGameSuccess: (value: boolean) => void;
@@ -46,6 +47,7 @@ export type UseReadTempTokenGlobalStateType = {
   handleLastInactiveTokenBalance: (value: bigint) => void;
   handleLastInactiveTokenSymbol: (value: string) => void;
   handleCurrentActiveTokenMinBaseTokenPrice: (value: bigint) => void;
+  handleCreateTokenModalOpen: (value: boolean) => void;
 };
 
 export const useReadTempTokenGlobalStateInitial: UseReadTempTokenGlobalStateType =
@@ -72,6 +74,7 @@ export const useReadTempTokenGlobalStateInitial: UseReadTempTokenGlobalStateType
     isFailedGameState: false,
     canPlayToken: false,
     isPreSaleOngoing: false,
+    isCreateTokenModalOpen: false,
     handleIsPreSaleOngoing: () => undefined,
     handleIsGamePermanent: () => undefined,
     handleIsGameSuccess: () => undefined,
@@ -94,6 +97,7 @@ export const useReadTempTokenGlobalStateInitial: UseReadTempTokenGlobalStateType
     handleCurrentActiveTokenIsAlwaysTradable: () => undefined,
     handleCurrentActiveTokenPreSaleEndTimestamp: () => undefined,
     handleCurrentActiveTokenMinBaseTokenPrice: () => undefined,
+    handleCreateTokenModalOpen: () => undefined,
   };
 
 export const useReadTempTokenGlobalState =
@@ -157,6 +161,7 @@ export const useReadTempTokenGlobalState =
     const [isFailedGameState, setIsFailedGameState] = useState<boolean>(false); // when the token expires via countdown
     const [canPlayToken, setCanPlayToken] = useState(false);
     const [isPreSaleOngoing, setIsPreSaleOngoing] = useState(false);
+    const [isCreateTokenModalOpen, setIsCreateTokenModalOpen] = useState(false);
 
     const handleCanPlayToken = useCallback((value: boolean) => {
       setCanPlayToken(value);
@@ -278,6 +283,11 @@ export const useReadTempTokenGlobalState =
       setIsPreSaleOngoing(value);
     }, []);
 
+    const handleCreateTokenModalOpen = useCallback((value: boolean) => {
+      setIsCreateTokenModalOpen(value);
+    }
+    , []);
+
     return {
       currentActiveTokenSymbol,
       currentActiveTokenAddress,
@@ -301,6 +311,7 @@ export const useReadTempTokenGlobalState =
       isFailedGameState,
       canPlayToken,
       isPreSaleOngoing,
+      isCreateTokenModalOpen,
       handleIsPreSaleOngoing,
       handleIsGamePermanent,
       handleIsGameSuccess,
@@ -323,5 +334,6 @@ export const useReadTempTokenGlobalState =
       handleCurrentActiveTokenIsAlwaysTradable,
       handleCurrentActiveTokenPreSaleEndTimestamp,
       handleCurrentActiveTokenMinBaseTokenPrice,
+      handleCreateTokenModalOpen,
     };
   };

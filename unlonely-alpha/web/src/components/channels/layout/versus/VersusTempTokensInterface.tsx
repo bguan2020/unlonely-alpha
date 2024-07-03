@@ -67,6 +67,8 @@ export const VersusTempTokensInterface = ({
     isGameFinishedModalOpen,
     tokenA,
     tokenB,
+    isCreateTokenModalOpen,
+    handleCreateTokenModalOpen,
     handleCanPlayToken,
     handleFocusedTokenToTrade,
     handleIsGameFinishedModalOpen,
@@ -74,7 +76,6 @@ export const VersusTempTokensInterface = ({
 
   const windowSize = useWindowSize();
 
-  const [createTokensModalOpen, setCreateTokensModalOpen] = useState(false);
   const [
     versusTempTokenDisclaimerModalOpen,
     setVersusTempTokenDisclaimerModalOpen,
@@ -109,8 +110,8 @@ export const VersusTempTokensInterface = ({
       >
         <VersusTokenCreationModal
           title={"Create Tokens"}
-          isOpen={createTokensModalOpen}
-          handleClose={() => setCreateTokensModalOpen(false)}
+          isOpen={isCreateTokenModalOpen}
+          handleClose={() => handleCreateTokenModalOpen(false)}
         />
         <VersusTokenDisclaimerModal
           isOpen={versusTempTokenDisclaimerModalOpen}
@@ -210,7 +211,7 @@ export const VersusTempTokensInterface = ({
                 !ownerMustPermamint &&
                 !ownerMustMakeWinningTokenTradeable && (
                   <Button
-                    onClick={() => setCreateTokensModalOpen(true)}
+                    onClick={() => handleCreateTokenModalOpen(true)}
                     h="20px"
                   >
                     Create tokens
