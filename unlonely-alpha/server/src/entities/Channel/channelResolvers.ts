@@ -202,6 +202,13 @@ export const resolvers = {
 
       return channelService.bulkLivepeerStreamIdMigration(data, ctx);
     },
+    updateChannelFIDSubscription: (
+      _: any,
+      { data }: { data: channelService.IUpdateChannelFIDSubscriptionInput },
+      ctx: Context
+    ) => {
+      return channelService.updateChannelFIDSubscription(data, ctx);
+    },
   },
   Channel: {
     token: ({ id }: { id: number }, _: any, ctx: Context) => {
