@@ -214,7 +214,7 @@ export const typeDef = gql`
     canRecord: Boolean
   }
 
-  input UpdateChannelFIDSubscriptionInput {
+  input UpdateChannelFidSubscriptionInput {
     fid: Int!
     channelId: Int!
     isAddingSubscriber: Boolean!
@@ -256,6 +256,6 @@ export const typeDef = gql`
     ): Channel
     updatePinnedChatMessages(data: UpdatePinnedChatMessagesInput!): Channel
     bulkLivepeerStreamIdMigration: UpdateManyResponse
-    updateChannelFIDSubscription(data: UpdateChannelFIDSubscriptionInput!): String
+    updateChannelFidSubscription(data: UpdateChannelFidSubscriptionInput!): String
   }
 `;
