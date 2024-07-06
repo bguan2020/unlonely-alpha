@@ -28,7 +28,6 @@ const useUpdateChannelFidSubscription = ({ onError }: Props) => {
             data: {
               fid: data.fid,
               channelId: data.channelId,
-              sharesSubjectAddress: data.sharesSubjectAddress,
               isAddingSubscriber: data.isAddingSubscriber,
             },
           },
