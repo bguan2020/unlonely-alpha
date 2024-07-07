@@ -283,6 +283,55 @@ export const updateChannelAllowNfcs = async (
   });
 };
 
+export interface IUpdateChannelFIDSubscriptionInput {
+  channelId: number;
+  fid: number;
+  isAddingSubscriber: boolean;
+}
+
+// update function for channelFIDSubscription where if isAddingSubscriber is true, add the fid to the channel's subscribers, else remove the fid from the channel's subscribers
+export const updateChannelFIDSubscription = async (
+  data: IUpdateChannelFIDSubscriptionInput,
+  ctx: Context
+) => {
+  const existingChannel = await ctx.prisma.channel.findFirst({
+    where: { id: Number(data.channelId), softDelete: false },
+  });
+
+  if (!existingChannel) {
+    throw new Error("Channel not found");
+  }
+  // if isAddingSubscriber is true but the fid is already in the subscribers, return the existing channel
+  if (
+    data.isAddingSubscriber &&
+    existingChannel.subscribedFIDs.includes(data.fid)
+  ) {
+    return "FID already subscribed";
+  }
+
+  const response = await ctx.prisma.channel.update({
+    where: { id: Number(data.channelId) },
+    data: {
+      subscribedFIDs: data.isAddingSubscriber
+        ? {
+            set: [...existingChannel.subscribedFIDs, data.fid],
+          }
+        : {
+            set: existingChannel.subscribedFIDs.filter(
+              (fid) => fid !== data.fid
+            ),
+          },
+    },
+  });
+
+  // return "Added fid to channel" if isAddingSubscriber is true, else return "Removed fid from channel" but only if the response is not null or error
+  return data.isAddingSubscriber
+    ? "Added fid to channel"
+    : response
+    ? "Removed fid from channel"
+    : "Error updating channel";
+};
+
 export const updateChannelText = (
   data: IPostChannelTextInput,
   ctx: Context
