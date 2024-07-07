@@ -33,7 +33,7 @@ const useUpdateChannelFidSubscription = ({ onError }: Props) => {
           },
         });
 
-        const res = mutationResult?.data?.updateChannelFidSubscription;
+        const res = mutationResult?.data; //vercel error
 
         if (res) {
           console.log("updateChannelFidSubscription success");
