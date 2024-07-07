@@ -283,15 +283,15 @@ export const updateChannelAllowNfcs = async (
   });
 };
 
-export interface IUpdateChannelFIDSubscriptionInput {
+export interface IUpdateChannelFidSubscriptionInput {
   channelId: number;
   fid: number;
   isAddingSubscriber: boolean;
 }
 
 // update function for channelFIDSubscription where if isAddingSubscriber is true, add the fid to the channel's subscribers, else remove the fid from the channel's subscribers
-export const updateChannelFIDSubscription = async (
-  data: IUpdateChannelFIDSubscriptionInput,
+export const updateChannelFidSubscription = async (
+  data: IUpdateChannelFidSubscriptionInput,
   ctx: Context
 ) => {
   const existingChannel = await ctx.prisma.channel.findFirst({
