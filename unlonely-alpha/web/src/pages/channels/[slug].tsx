@@ -1,7 +1,5 @@
 import { GetServerSidePropsContext } from "next";
 import React, { useMemo } from "react";
-import { getFrameMetadata, isFrameRequest } from "frog/next"
-import type { Metadata } from "next"
 import { ApolloError } from "@apollo/client";
 
 import { initializeApollo } from "../../apiClient/client";
@@ -14,7 +12,6 @@ import { TempTokenProvider } from "../../hooks/context/useTempToken";
 import { DesktopChannelPageTempToken } from "../../components/channels/layout/temptoken/DesktopChannelPageTempToken";
 import { VersusTempTokenProvider } from "../../hooks/context/useVersusTempToken";
 
-import { headers } from "next/headers";
 
 const ChannelDetail = ({
   channelData,
@@ -31,7 +28,6 @@ const ChannelDetail = ({
     () => channelData?.getChannelBySlug,
     [channelData]
   );
-  if (isFrameRequest(headers())) return null
   return (
     
     <ChannelProvider>
@@ -61,24 +57,7 @@ const ChannelDetail = ({
 };
 
 export default ChannelDetail;
-export async function generateMetadata(context: GetServerSidePropsContext<{ slug: string }>): Promise<Metadata> {
-  const { slug } = context.params!;
-  
-  const url = `${process.env.NEXT_PUBLIC_HOST_URL || "http://localhost:3000"}/frame/channel/${slug}`;
-  console.log("XXXXXXXXXXXXFetching frame metadata from URL:XXXXXXXXxxxXXXX: ", url);
 
-  try {
-    const frameTags = await getFrameMetadata(url);
-    return {
-      other: frameTags,
-    };
-  } catch (error) {
-    console.error("Error fetching frame metadata:", error);
-    return {
-      other: {},
-    };
-  }
-}
 
 export async function getServerSideProps(
   context: GetServerSidePropsContext<{ slug: string }>
