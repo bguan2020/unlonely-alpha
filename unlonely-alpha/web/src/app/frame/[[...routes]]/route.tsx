@@ -26,7 +26,8 @@ app.frame("channels/:id", async (c) => {
   const path = c.initialPath;
   const segments = path.split("/");
   const id = segments[3];
-  console.log(id);
+  console.log("ChannelID",id);
+  console.log("FID ",fId);
 
   const farcasterId = fId;
   const channelId = id;
