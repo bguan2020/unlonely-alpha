@@ -54,6 +54,7 @@
     "node-fetch": "^3.3.2",
     "openai": "^3.0.0",
     "openai-api": "^1.3.1",
+    "pinata-fdk": "^3.10.2",
     "react": "^18.1.0",
     "react-confetti": "^6.1.0",
     "react-dom": "^18.1.0",

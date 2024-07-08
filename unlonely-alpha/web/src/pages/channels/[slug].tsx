@@ -11,58 +11,77 @@ import { MobilePage } from "../../components/channels/layout/MobilePage";
 import { TempTokenProvider } from "../../hooks/context/useTempToken";
 import { DesktopChannelPageTempToken } from "../../components/channels/layout/temptoken/DesktopChannelPageTempToken";
 import { VersusTempTokenProvider } from "../../hooks/context/useVersusTempToken";
-
+import Head from "next/head";
 
 const ChannelDetail = ({
   channelData,
   channelDataLoading,
   channelDataError,
+  hostUrl,
 }: {
   channelData: ChannelStaticQuery;
   channelDataLoading: boolean;
   channelDataError?: ApolloError;
+  hostUrl: string;
 }) => {
   const { isStandalone } = useUserAgent();
 
-  const channelSSR = useMemo(
-    () => channelData?.getChannelBySlug,
-    [channelData]
-  );
+  const channelSSR = useMemo(() => channelData?.getChannelBySlug, [channelData]);
+
+  // Constructing dynamic meta tags
+  const title = `Transaction Farcaster Frame on OP - ${channelSSR?.name}`;
+  const frameImgUrl = `${hostUrl}/images/unlonely-mobile-logo.png`;
+
+  // Constructing dynamic frame button content
+  const subscribeButtonText = `Subscribe to: ${channelSSR?.name}`;
+  const subscribeTargetUrl = `${hostUrl}/api/channels/subscribe?channelId=${channelSSR?.id}`;
+
   return (
-    
-    <ChannelProvider>
-      {!isStandalone ? (
-        <TempTokenProvider>
-          <VersusTempTokenProvider>
-            <DesktopChannelPageTempToken
-              channelSSR={channelSSR}
-              channelSSRDataLoading={channelDataLoading}
-              channelSSRDataError={channelDataError}
-            />
-          </VersusTempTokenProvider>
-        </TempTokenProvider>
-      ) : (
-        <TempTokenProvider>
-          <VersusTempTokenProvider>
-            <MobilePage
-              channelSSR={channelSSR}
-              channelSSRDataLoading={channelDataLoading}
-              channelSSRDataError={channelDataError}
-            />
-          </VersusTempTokenProvider>
-        </TempTokenProvider>
-      )}
-    </ChannelProvider>
+    <>
+      <Head>
+        <meta property="og:title" content={title} />
+        <meta property="fc:frame" content="vNext" />
+        <meta name="fc:frame:image" content={frameImgUrl} />
+        <meta name="fc:frame:image:aspect_ratio" content="1:1" />
+        <meta name="fc:frame:text" content="Subscribe to " />
+        <meta name="fc:frame:image:aspect_ratio" content="1:1" />
+        <meta property="fc:frame:button:1" content={subscribeButtonText} />
+        <meta property="fc:frame:button:1:target" content={subscribeTargetUrl} />
+      </Head>
+      <ChannelProvider>
+        {!isStandalone ? (
+          <TempTokenProvider>
+            <VersusTempTokenProvider>
+              <DesktopChannelPageTempToken
+                channelSSR={channelSSR}
+                channelSSRDataLoading={channelDataLoading}
+                channelSSRDataError={channelDataError}
+              />
+            </VersusTempTokenProvider>
+          </TempTokenProvider>
+        ) : (
+          <TempTokenProvider>
+            <VersusTempTokenProvider>
+              <MobilePage
+                channelSSR={channelSSR}
+                channelSSRDataLoading={channelDataLoading}
+                channelSSRDataError={channelDataError}
+              />
+            </VersusTempTokenProvider>
+          </TempTokenProvider>
+        )}
+      </ChannelProvider>
+    </>
   );
 };
 
 export default ChannelDetail;
 
-
 export async function getServerSideProps(
   context: GetServerSidePropsContext<{ slug: string }>
 ) {
   const { slug } = context.params!;
+  const hostUrl = `http://${context.req.headers.host}`;
 
   const apolloClient = initializeApollo(null, null);
 
@@ -76,6 +95,7 @@ export async function getServerSideProps(
       channelData: data ?? null,
       channelDataLoading: loading,
       channelDataError: error ?? null,
+      hostUrl,
     },
   };
 }
