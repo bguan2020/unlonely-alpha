@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { PinataFDK } from "pinata-fdk";
 import { gql} from "@apollo/client";
 import client from "../libs/apolloClient";
+import { isFollowing } from "../libs/verifyFollow";
 const fdk = new PinataFDK({
   pinata_jwt: process.env.NEXT_PUBLIC_PINATA_JWT as string,
   pinata_gateway: process.env.NEXT_PUBLIC_GATEWAY_URL as string,
@@ -12,6 +13,8 @@ const UPDATE_CHANNEL_FID_SUBSCRIPTION_MUTATION = gql`
     updateChannelFidSubscription(data: $data)
   }
 `;
+
+
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -24,9 +27,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log(body)
     const fid = body.untrustedData.fid;
     console.log(req.query)
-    const channelId = req.query.channelId as string;
-    console.log("Channel ID:", channelId);
+    // const channelId = req.query.channelId as string;
+    // const slug = req.query.slug;
+    const { channelId, slug } = req.query;
+    console.log("Channel ID:", channelId, "Slug:", slug);
     console.log("ID", fid);
+    const unlonelyFID =1225
+
+    const isFOllowingUnlonely = await isFollowing(Number(fid),unlonelyFID );
+
+    if (!isFOllowingUnlonely) {
+        const frameMetadata = await fdk.getFrameMetadata({
+          
+          buttons: [
+            { label: "Subscribe", action: "post", target: `${hostUrl}/api/channels/subscribe?channelId=${channelId}` },
+            {label: "Follow @unlonely to subscribe ", action: "link", target: "https://warpcast.com/unlonely"},
+            
+          ],
+          aspect_ratio: "1:1",
+          image: {
+            url: `${hostUrl}/images/follow-prompt.png`,
+          }
+        });
+  
+        res.status(200).send(frameMetadata);
+        return;
+      }
+  
 
     const { data } = await client.mutate({
         mutation: UPDATE_CHANNEL_FID_SUBSCRIPTION_MUTATION,
@@ -47,21 +74,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         ? "Successfully Subscribed!"
         : message;
 
+
+        if(subscriptionMessage === "Successfully Subscribed!"){
+            const frameMetadata = await fdk.getFrameMetadata({
+              post_url: `${hostUrl}/channels/`,
+              buttons: [
+                { label: `${subscriptionMessage}`, action: "link" },
+              ],
+              aspect_ratio: "1:1",
+              image: {
+                url: `${hostUrl}/images/subscribe-message.png`,
+              }
+             
+            });
+            res.status(200).send(frameMetadata);
+        }
        
 
 
 
     const frameMetadata = await fdk.getFrameMetadata({
-        post_url: `${hostUrl}/`,
+        post_url: `${hostUrl}/channels/`,
       buttons: [
-        { label: `${subscriptionMessage}`, action: "post_redirect" },
+        { label: `${subscriptionMessage}`, action: "link" },
       ],
       aspect_ratio: "1:1",
       image: {
-        url: `${hostUrl}/images/social_banner.png`,
+        url: `${hostUrl}/images/unlonely-mobile-logo.png`,
       }
      
     });
+
+    
 
    
 
