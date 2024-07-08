@@ -25,7 +25,7 @@ app.post("/webhook", (req, res) => {
   const streamId = payload.stream.id;
   const streamStatus = payload.stream.isActive;
   setLivepeerStreamIsLive(streamId, streamStatus);
-  if (streamStatus) directCastFc(streamId, (slug: string) => `/${slug} has started streaming!`);
+  if (streamStatus) directCastFc(streamId, (title: string, slug: string) => `/${slug} has started streaming!\n\n${title}\nhttps://unlonely.app/channels/${slug}`);
   res.sendStatus(200);
 });
 
