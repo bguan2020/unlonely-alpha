@@ -47,13 +47,6 @@ export const directCastFc = async (streamId: string, messageTemplate: (slug: str
 
   try {
     const results = await Promise.allSettled(promises);
-    results.forEach(result => {
-      if (result.status === "fulfilled") {
-        console.log("Direct cast sent successfully");
-      } else {
-        console.error("Failed to send direct cast");
-      }
-    });
     return results;
   } catch (error) {
     console.error("Error sending one or more direct casts:", error);
