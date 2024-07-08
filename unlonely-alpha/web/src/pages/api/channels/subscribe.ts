@@ -57,12 +57,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         { label: `${subscriptionMessage}`, action: "post_redirect" },
       ],
       aspect_ratio: "1:1",
-      cid: "QmPGVGuJBWfbFSggnGEx6pehsGqXwxGYxxGkTTSwDxncJc",
+      image: {
+        url: `${hostUrl}/images/social_banner.png`,
+      }
+     
     });
 
    
 
-    res.setHeader("Content-Type", "text/html");
+    
     res.status(200).send(frameMetadata);
   } catch (error: any) {
     console.error(error);

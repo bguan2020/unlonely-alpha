@@ -18,22 +18,22 @@ const ChannelDetail = ({
   channelDataLoading,
   channelDataError,
   hostUrl,
+  slug
 }: {
   channelData: ChannelStaticQuery;
   channelDataLoading: boolean;
   channelDataError?: ApolloError;
   hostUrl: string;
+  slug: string;
 }) => {
   const { isStandalone } = useUserAgent();
 
   const channelSSR = useMemo(() => channelData?.getChannelBySlug, [channelData]);
 
-  // Constructing dynamic meta tags
-  const title = `Transaction Farcaster Frame on OP - ${channelSSR?.name}`;
+  const title = `${channelSSR?.name}`;
   const frameImgUrl = `${hostUrl}/images/unlonely-mobile-logo.png`;
 
-  // Constructing dynamic frame button content
-  const subscribeButtonText = `Subscribe to: ${channelSSR?.name}`;
+  const subscribeButtonText = `Subscribe to ${slug}'s live stream`;
   const subscribeTargetUrl = `${hostUrl}/api/channels/subscribe?channelId=${channelSSR?.id}`;
 
   return (
@@ -96,6 +96,7 @@ export async function getServerSideProps(
       channelDataLoading: loading,
       channelDataError: error ?? null,
       hostUrl,
+      slug
     },
   };
 }
