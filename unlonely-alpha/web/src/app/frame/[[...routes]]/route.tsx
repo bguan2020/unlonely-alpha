@@ -26,11 +26,11 @@ app.frame("channels/:id", async (c) => {
   const path = c.initialPath;
   const segments = path.split("/");
   const id = segments[3];
-  console.log("ChannelID",id);
-  console.log("FID ",fId);
+  console.log("Channel : ",id);
+  console.log("FID : ",fId);
 
-  const farcasterId = fId;
-  const channelId = id;
+  const farcasterId = Number(fId);
+  const channelId = Number(id);
 
   if (buttonValue === "subscribe") {
     try {
