@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 
 const prisma = new PrismaClient();
 
-export const directCastFc = async (streamId: string, messageTemplate: (slug: string) => string) => {
+export const directCastFc = async (streamId: string, messageTemplate: (title: string, slug: string) => string) => {
   const apiKey = String(process.env.FC_API_KEY);
   if (!apiKey) {
     console.error("FC_API_KEY is not set");
@@ -27,7 +27,7 @@ export const directCastFc = async (streamId: string, messageTemplate: (slug: str
     const idempotencyKey = uuidv4();  // Generate a unique idempotency key for each request
     return axios.put(url, {
       recipientFid,
-      message: messageTemplate(existingChannel.slug),
+      message: messageTemplate(existingChannel.name, existingChannel.slug),
       idempotencyKey
     }, {
       headers: {
