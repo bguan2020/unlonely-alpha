@@ -84,7 +84,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           ],
           aspect_ratio: "1:1",
           image: {
-            url: `${hostUrl}/images/subscribe-message.png`,
+            url: `${hostUrl}/api/images/welcome/`,
           }
          
         });

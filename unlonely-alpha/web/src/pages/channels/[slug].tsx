@@ -34,8 +34,13 @@ const ChannelDetail = ({
   );
 
   const title = `${channelSSR?.name}`;
-  // const frameImgUrl = `${hostUrl}/api/images/startSubscribing?slug=${slug}&title=${title}`;
-  const frameImgUrl = `${hostUrl}/images/unlonely-frame-background.png`;
+
+  const imageParams = new URLSearchParams({
+    slug: String(slug),
+    title: String(title),
+  });
+
+  const frameImgUrl = `${hostUrl}/api/images/startSubscribing?${imageParams.toString()}`;
 
   const subscribeButtonText = `Subscribe to ${slug}'s live stream`;
   const subscribeTargetUrl = `${hostUrl}/api/channels/subscribe?channelId=${channelSSR?.id}&slug=${slug}`;
