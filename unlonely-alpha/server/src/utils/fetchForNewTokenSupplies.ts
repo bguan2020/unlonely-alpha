@@ -10,15 +10,15 @@ export const fetchForNewTokenSupplies = async () => {
     const qualifiedTokens = await prisma.tempToken.findMany({
       where: {
         OR: [
-            {
-              endUnixTimestamp: {
-                gt: Math.floor(Date.now() / 1000),
-              },
+          {
+            endUnixTimestamp: {
+              gt: Math.floor(Date.now() / 1000),
             },
-            {
-              isAlwaysTradeable: true,
-            },
-          ],
+          },
+          {
+            isAlwaysTradeable: true,
+          },
+        ],
       },
     });
 
@@ -45,18 +45,21 @@ export const fetchForNewTokenSupplies = async () => {
       })
     );
 
-    const updates = []
+    const updates = [];
 
     for (let i = 0; i < totalSupplies.length; i++) {
-      if (BigInt(totalSupplies[i]) === BigInt(qualifiedTokens[i].totalSupply)) continue
-      updates.push(prisma.tempToken.update({
-        where: {
-          id: qualifiedTokens[i].id,
-        },
-        data: {
-          totalSupply: totalSupplies[i],
-        },
-      }));
+      if (BigInt(totalSupplies[i]) === BigInt(qualifiedTokens[i].totalSupply))
+        continue;
+      updates.push(
+        prisma.tempToken.update({
+          where: {
+            id: qualifiedTokens[i].id,
+          },
+          data: {
+            totalSupply: totalSupplies[i],
+          },
+        })
+      );
     }
 
     const res = await prisma.$transaction(updates);

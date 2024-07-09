@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -19,10 +15,7 @@
     "jsx": "preserve",
     "downlevelIteration": true,
     "incremental": true,
-    "typeRoots": [
-      "./src/types",
-      "./node_modules/@types"
-    ],
+    "typeRoots": ["./src/types", "./node_modules/@types"],
     "plugins": [
       {
         "name": "next"
@@ -37,7 +30,5 @@
     "src/hooks/context/useUser.tsx",
     ".next/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

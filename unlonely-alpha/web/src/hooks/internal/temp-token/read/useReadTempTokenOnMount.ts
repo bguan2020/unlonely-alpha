@@ -112,7 +112,7 @@ export const useReadTempTokenOnMount = ({
               address: latestActiveToken.tokenAddress as `0x${string}`,
               abi: TempTokenAbi,
               functionName: "hasHitTotalSupplyThreshold",
-            })
+            }),
           ]);
           globalState.handleCurrentActiveTokenEndTimestamp(
             BigInt(String(endTimestamp))

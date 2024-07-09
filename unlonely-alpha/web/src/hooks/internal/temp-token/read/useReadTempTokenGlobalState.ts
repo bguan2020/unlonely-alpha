@@ -285,8 +285,7 @@ export const useReadTempTokenGlobalState =
 
     const handleCreateTokenModalOpen = useCallback((value: boolean) => {
       setIsCreateTokenModalOpen(value);
-    }
-    , []);
+    }, []);
 
     return {
       currentActiveTokenSymbol,

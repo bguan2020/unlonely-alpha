@@ -135,7 +135,8 @@ const Participants = ({ ablyPresenceChannel, show }: Props) => {
                       height={"8"}
                     >
                       {`+${truncateValue(
-                        participantOrder.slice(limit).length * 2 + (Math.random() < 0.5 ? 1 : 0),
+                        participantOrder.slice(limit).length * 2 +
+                          (Math.random() < 0.5 ? 1 : 0),
                         0,
                         true,
                         0

@@ -1,6 +1,9 @@
 import { useState, useCallback } from "react";
 import { ContractData } from "../../../../constants/types";
-import { VersusTokenDataType, versusTokenDataInitial } from "../../../../constants/types/token";
+import {
+  VersusTokenDataType,
+  versusTokenDataInitial,
+} from "../../../../constants/types/token";
 
 export type UseReadVersusTempTokenGlobalStateType = {
   canPlayToken: boolean;

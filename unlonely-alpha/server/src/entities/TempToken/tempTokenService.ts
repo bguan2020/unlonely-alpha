@@ -348,7 +348,6 @@ export const getTempTokens = async (
 ) => {
   let endTimestampClause: any = {};
   try {
-
     if (data.onlyTradeableTokens === true) {
       endTimestampClause = {
         OR: [
@@ -368,7 +367,7 @@ export const getTempTokens = async (
       endTimestampClause = {
         endUnixTimestamp: {
           gt: Math.floor(Date.now() / 1000),
-        }
+        },
       };
     }
 
