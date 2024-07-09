@@ -29,7 +29,7 @@ export default async function GET(req: NextRequest) {
         }}
       >
         <img
-          src={`http://${hostUrl}/images/unlonely-frame-background.png`}
+          src={`${hostUrl}/images/unlonely-frame-background.png`}
           style={{
             height: "100%",
             width: "100%",
