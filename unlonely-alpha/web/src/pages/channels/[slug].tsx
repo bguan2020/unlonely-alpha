@@ -37,6 +37,7 @@ const ChannelDetail = ({
 
   const imageParams = new URLSearchParams({
     slug: String(slug),
+    hostUrl: String(hostUrl),
     title: String(title),
   });
 

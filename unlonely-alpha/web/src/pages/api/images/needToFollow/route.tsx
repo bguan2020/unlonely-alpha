@@ -3,7 +3,14 @@ import { NextRequest } from "next/server";
 
 export const runtime = "edge";
 
-export async function GET(_req: NextRequest) {
+export async function GET(
+  _req: NextRequest,
+  {
+    params: { hostUrl },
+  }: {
+    params: { hostUrl: string };
+  }
+) {
   return new ImageResponse(
     (
       <div
@@ -34,7 +41,7 @@ export async function GET(_req: NextRequest) {
           }}
         >
           <img
-            src={"https://www.unlonely.app/images/unlonely-frame-background"}
+            src={`${hostUrl}/images/unlonely-frame-background.png`}
             style={{
               height: "100%",
               width: "100%",

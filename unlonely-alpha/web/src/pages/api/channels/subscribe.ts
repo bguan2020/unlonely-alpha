@@ -45,7 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           ],
           aspect_ratio: "1:1",
           image: {
-            url: `${hostUrl}/api/images/needToFollow/`,
+            url: `${hostUrl}/api/images/needToFollow?hostUrl=${hostUrl}`,
           }
         });
   
@@ -84,7 +84,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           ],
           aspect_ratio: "1:1",
           image: {
-            url: `${hostUrl}/api/images/welcome/`,
+            url: `${hostUrl}/api/images/welcome?hostUrl=${hostUrl}`,
           }
          
         });

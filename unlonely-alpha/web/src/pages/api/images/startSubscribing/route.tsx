@@ -6,9 +6,9 @@ export const runtime = "edge";
 export async function GET(
   _req: NextRequest,
   {
-    params: { slug, title },
+    params: { slug, title, hostUrl },
   }: {
-    params: { slug: string; title: string };
+    params: { slug: string; title: string; hostUrl: string };
   }
 ) {
   return new ImageResponse(
@@ -41,7 +41,7 @@ export async function GET(
           }}
         >
           <img
-            src={"https://www.unlonely.app/images/unlonely-frame-background"}
+            src={`${hostUrl}/images/unlonely-frame-background.png`}
             style={{
               height: "100%",
               width: "100%",
