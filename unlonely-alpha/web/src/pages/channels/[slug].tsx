@@ -65,6 +65,12 @@ const ChannelDetail = ({
           property="fc:frame:button:1:target"
           content={subscribeTargetUrl}
         />
+        <meta property="fc:frame:button:2" content={`go watch ${slug}`} />
+        <meta name="fc:frame:button:2:action" content="link" />
+        <meta
+          property="fc:frame:button:2:target"
+          content={`${hostUrl}/channels/${slug}`}
+        />
       </Head>
       <ChannelProvider>
         {!isStandalone ? (
