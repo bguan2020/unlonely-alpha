@@ -76,35 +76,45 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log(subscriptionMessage)
 
     if(subscriptionMessage === "Successfully Subscribed!" || subscriptionMessage === "Already subscribed."){
-     const frameMetadata = await fdk.getFrameMetadata({
-       post_url: `${hostUrl}/channels/`,
-       buttons: [
-         { label: `${subscriptionMessage}`, action: "link" },
-       ],
-       aspect_ratio: "1:1",
-       image: {
-         url: `${hostUrl}/images/subscribe-message.png`,
-       }
-      
-     });
-     res.status(200).send(frameMetadata);
+      try {
+        const frameMetadata = await fdk.getFrameMetadata({
+          post_url: `${hostUrl}/channels/`,
+          buttons: [
+            { label: `${subscriptionMessage}`, action: "link" },
+          ],
+          aspect_ratio: "1:1",
+          image: {
+            url: `${hostUrl}/images/subscribe-message.png`,
+          }
+         
+        });
+        res.status(200).send(frameMetadata);
+        return;
+      } catch (error: any) {
+        console.error(error);
+        res.status(500).json({ success: false, error: error.message });
+      }
     } else {
   
     console.log("Did not subscribe successfully, fallback to second frame metadata")
        
-    const frameMetadata = await fdk.getFrameMetadata({
-      post_url: `${hostUrl}/channels/`,
-      buttons: [
-        { label: `${subscriptionMessage}`, action: "link" },
-      ],
-      aspect_ratio: "1:1",
-      image: {
-        url: `${hostUrl}/images/unlonely-mobile-logo.png`,
-      }
-     
-    });
-
-    res.status(200).send(frameMetadata);
+    try {
+      const frameMetadata = await fdk.getFrameMetadata({
+        post_url: `${hostUrl}/channels/`,
+        buttons: [
+          { label: `${subscriptionMessage}`, action: "link" },
+        ],
+        aspect_ratio: "1:1",
+        image: {
+          url: `${hostUrl}/images/unlonely-mobile-logo.png`,
+        }
+      });
+  
+      res.status(200).send(frameMetadata);
+    } catch (error: any) {
+      console.error(error);
+      res.status(500).json({ success: false, error: error.message });
+    }
   }
   } catch (error: any) {
     console.error(error);
