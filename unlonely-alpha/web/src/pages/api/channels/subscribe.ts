@@ -3,18 +3,14 @@ import { PinataFDK } from "pinata-fdk";
 import { gql} from "@apollo/client";
 import client from "../libs/apolloClient";
 import { isFollowing } from "../libs/verifyFollow";
-const fdk = new PinataFDK({
-  pinata_jwt: process.env.NEXT_PUBLIC_PINATA_JWT as string,
-  pinata_gateway: process.env.NEXT_PUBLIC_GATEWAY_URL as string,
-});
+
+const fdk = new PinataFDK();
 
 const UPDATE_CHANNEL_FID_SUBSCRIPTION_MUTATION = gql`
   mutation UpdateChannelFidSubscription($data: UpdateChannelFidSubscriptionInput!) {
     updateChannelFidSubscription(data: $data)
   }
 `;
-
-
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -32,11 +28,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { channelId, slug } = req.query;
     console.log("Channel ID:", channelId, "Slug:", slug);
     console.log("ID", fid);
-    const unlonelyFID =1225
+    const unlonelyFID = 1225;
 
-    const isFOllowingUnlonely = await isFollowing(Number(fid),unlonelyFID );
+    const isFollowingUnlonely = await isFollowing(Number(fid), unlonelyFID);
 
-    if (!isFOllowingUnlonely) {
+    if (!isFollowingUnlonely) {
         const frameMetadata = await fdk.getFrameMetadata({
           
           buttons: [
@@ -65,6 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
         },
       });
+      
       const message = data.updateChannelFidSubscription;
 
       const subscriptionMessage =
