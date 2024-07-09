@@ -51,8 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   
         res.status(200).send(frameMetadata);
         return;
-      }
-  
+    }
 
     const { data } = await client.mutate({
         mutation: UPDATE_CHANNEL_FID_SUBSCRIPTION_MUTATION,
@@ -74,27 +73,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         ? "Successfully Subscribed!"
         : message;
 
+        console.log(subscriptionMessage)
 
-        if(subscriptionMessage === "Successfully Subscribed!"){
-            const frameMetadata = await fdk.getFrameMetadata({
-              post_url: `${hostUrl}/channels/`,
-              buttons: [
-                { label: `${subscriptionMessage}`, action: "link" },
-              ],
-              aspect_ratio: "1:1",
-              image: {
-                url: `${hostUrl}/images/subscribe-message.png`,
-              }
-             
-            });
-            res.status(200).send(frameMetadata);
-        }
+    if(subscriptionMessage === "Successfully Subscribed!"){
+     const frameMetadata = await fdk.getFrameMetadata({
+       post_url: `${hostUrl}/channels/`,
+       buttons: [
+         { label: `${subscriptionMessage}`, action: "link" },
+       ],
+       aspect_ratio: "1:1",
+       image: {
+         url: `${hostUrl}/images/subscribe-message.png`,
+       }
+      
+     });
+     res.status(200).send(frameMetadata);
+    }
+  
+    console.log("Did not subscribe successfully, fallback to second frame metadata")
        
-
-
-
     const frameMetadata = await fdk.getFrameMetadata({
-        post_url: `${hostUrl}/channels/`,
+      post_url: `${hostUrl}/channels/`,
       buttons: [
         { label: `${subscriptionMessage}`, action: "link" },
       ],
@@ -105,11 +104,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
      
     });
 
-    
-
-   
-
-    
     res.status(200).send(frameMetadata);
   } catch (error: any) {
     console.error(error);
