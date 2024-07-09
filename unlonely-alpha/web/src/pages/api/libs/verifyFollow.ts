@@ -6,7 +6,7 @@ export async function isFollowing(userFid: number, author: number): Promise<bool
     const url = `https://api.neynar.com/v2/farcaster/following?fid=${userFid}&viewer_fid=${author}&sort_type=desc_chron&limit=100`;
     const options = {
       method: "GET",
-      headers: {accept: "application/json", api_key: "NEYNAR_API_DOCS"}
+      headers: {accept: "application/json", api_key: String(process.env.NEXT_PUBLIC_NEYNAR_API_KEY)}
     };
 
     let isFollowing = false;

@@ -4,7 +4,10 @@ import { gql} from "@apollo/client";
 import client from "../libs/apolloClient";
 import { isFollowing } from "../libs/verifyFollow";
 
-const fdk = new PinataFDK();
+const fdk = new PinataFDK({
+  pinata_jwt: process.env.NEXT_PUBLIC_PINATA_JWT as string,
+  pinata_gateway: process.env.NEXT_PUBLIC_GATEWAY_URL as string,
+});
 
 const UPDATE_CHANNEL_FID_SUBSCRIPTION_MUTATION = gql`
   mutation UpdateChannelFidSubscription($data: UpdateChannelFidSubscriptionInput!) {
