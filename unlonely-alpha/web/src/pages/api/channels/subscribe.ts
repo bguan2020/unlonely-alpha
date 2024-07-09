@@ -75,7 +75,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         console.log(subscriptionMessage)
 
-    if(subscriptionMessage === "Successfully Subscribed!" || subscriptionMessage === "Already subscribed."){
+    if(isFollowingUnlonely && (subscriptionMessage === "Successfully Subscribed!" || subscriptionMessage === "Already subscribed.")){
       try {
         const frameMetadata = await fdk.getFrameMetadata({
           post_url: `${hostUrl}/channels/`,
