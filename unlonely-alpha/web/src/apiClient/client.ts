@@ -13,7 +13,6 @@ export interface Context {
 }
 
 let apolloClient: ApolloClient<NormalizedCacheObject>;
-const server = String(process.env.NEXT_PUBLIC_DIGITAL_OCEAN_SERVER_URL);
 
 const authLink = setContext(async (_, { headers }) => {
   const token = await getAccessToken();
