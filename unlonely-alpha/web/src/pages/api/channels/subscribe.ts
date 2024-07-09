@@ -39,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const frameMetadata = await fdk.getFrameMetadata({
           post_url: `${hostUrl}/channels/`,
           buttons: [
-            { label: "Subscribe", action: "post", target: `${hostUrl}/api/channels/subscribe?channelId=${channelId}` },
+            { label: "Subscribe", action: "post", target: `${hostUrl}/api/channels/subscribe?channelId=${channelId}&slug=${slug}` },
             {label: "Follow @unlonely to subscribe ", action: "link", target: "https://warpcast.com/unlonely"},
             
           ],
@@ -80,7 +80,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const frameMetadata = await fdk.getFrameMetadata({
           post_url: `${hostUrl}/channels/`,
           buttons: [
-            { label: `${subscriptionMessage}`, action: "link" },
+            { label: `go watch /${slug}`, action: "link", target: `${hostUrl}/channels/${slug}` },
           ],
           aspect_ratio: "1:1",
           image: {
@@ -102,7 +102,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const frameMetadata = await fdk.getFrameMetadata({
         post_url: `${hostUrl}/channels/`,
         buttons: [
-          { label: `${subscriptionMessage}`, action: "link" },
+          { label: `${subscriptionMessage}`, action: "link", target: "https://warpcast.com/unlonely" },
         ],
         aspect_ratio: "1:1",
         image: {
