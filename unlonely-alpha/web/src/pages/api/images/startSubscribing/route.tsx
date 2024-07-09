@@ -27,45 +27,36 @@ export async function GET(
           width: "100%",
         }}
       >
+        <img
+          src={`${hostUrl}/images/unlonely-frame-background.png`}
+          style={{
+            height: "100%",
+            width: "100%",
+            objectFit: "cover",
+            position: "relative",
+          }}
+        />
         <div
           style={{
+            display: "flex",
+            flexDirection: "column",
+            fontSize: 36,
+            padding: 20,
+            position: "absolute",
+            gap: 20,
             color: "white",
-            fontStyle: "normal",
             letterSpacing: "-0.025em",
             lineHeight: 1.4,
             whiteSpace: "pre-wrap",
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "stretch",
             width: "100%",
             height: "100vh",
+            alignItems: "stretch",
           }}
         >
-          <img
-            src={`${hostUrl}/images/unlonely-frame-background.png`}
-            style={{
-              height: "100%",
-              width: "100%",
-              objectFit: "cover",
-              position: "relative",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                fontSize: 36,
-                padding: 20,
-                position: "absolute",
-                gap: 20,
-              }}
-            >
-              <div style={{ display: "flex" }}>
-                subscribe to {slug}'s channel to get notified when they go live
-              </div>
-              <div style={{ display: "flex" }}>{title}</div>
-            </div>
-          </img>
+          <div style={{ display: "flex" }}>
+            subscribe to {slug}'s channel to get notified when they go live
+          </div>
+          <div style={{ display: "flex" }}>{title}</div>
         </div>
       </div>
     ),
