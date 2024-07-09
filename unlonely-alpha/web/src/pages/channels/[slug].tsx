@@ -33,8 +33,9 @@ const ChannelDetail = ({
   const title = `${channelSSR?.name}`;
   const frameImgUrl = `${hostUrl}/images/unlonely-mobile-logo.png`;
 
+
   const subscribeButtonText = `Subscribe to ${slug}'s live stream`;
-  const subscribeTargetUrl = `${hostUrl}/api/channels/subscribe?channelId=${channelSSR?.id}`;
+  const subscribeTargetUrl = `${hostUrl}/api/channels/subscribe?channelId=${channelSSR?.id}&slug=${slug}`;
 
   return (
     <>
