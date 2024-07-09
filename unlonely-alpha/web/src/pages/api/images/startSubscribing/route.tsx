@@ -1,18 +1,15 @@
-import { ImageResponse } from "next/og";
-import { NextApiRequest, NextApiResponse } from "next";
+import { ImageResponse } from "@vercel/og";
+import { NextRequest } from "next/server";
 
 export const runtime = "edge";
 
-export async function GET(
-  _req: NextApiRequest,
-  {
-    params: { slug, title, hostUrl },
-  }: {
-    params: { slug: string; title: string; hostUrl: string };
-  },
-  res: NextApiResponse
-) {
-  const imageRes = new ImageResponse(
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const slug = searchParams.get("slug");
+  const title = searchParams.get("title");
+  const hostUrl = searchParams.get("hostUrl");
+
+  return new ImageResponse(
     (
       <div
         style={{
@@ -65,7 +62,4 @@ export async function GET(
       height: 420,
     }
   );
-
-  res.setHeader("Content-Type", "image/png");
-  res.send(imageRes);
 }
