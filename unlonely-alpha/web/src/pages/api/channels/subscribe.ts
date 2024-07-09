@@ -45,8 +45,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           ],
           aspect_ratio: "1:1",
           image: {
-            // url: `${hostUrl}/api/images/needToFollow?hostUrl=${hostUrl}`,
-            url: `${hostUrl}/images/follow-prompt.png`,
+            url: `${hostUrl}/api/images/needToFollow?hostUrl=${hostUrl}`,
+            // url: `${hostUrl}/images/follow-prompt.png`,
           }
         });
   
@@ -85,8 +85,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           ],
           aspect_ratio: "1:1",
           image: {
-            // url: `${hostUrl}/api/images/welcome?hostUrl=${hostUrl}`,
-            url: `${hostUrl}/images/subscribe-message.png`,
+            url: `${hostUrl}/api/images/welcome?hostUrl=${hostUrl}`,
+            // url: `${hostUrl}/images/subscribe-message.png`,
           }
          
         });

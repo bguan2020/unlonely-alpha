@@ -3,11 +3,15 @@ import { NextRequest } from "next/server";
 
 export const runtime = "edge";
 
-export async function GET(req: NextRequest) {
+export default async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const slug = searchParams.get("slug");
   const title = searchParams.get("title");
   const hostUrl = searchParams.get("hostUrl");
+
+  if (!slug || !title || !hostUrl) {
+    return new Response("Missing required parameters", { status: 400 });
+  }
 
   return new ImageResponse(
     (
@@ -25,7 +29,7 @@ export async function GET(req: NextRequest) {
         }}
       >
         <img
-          src={`${hostUrl}/images/unlonely-frame-background.png`}
+          src={`http://${hostUrl}/images/unlonely-frame-background.png`}
           style={{
             height: "100%",
             width: "100%",
@@ -40,26 +44,22 @@ export async function GET(req: NextRequest) {
             fontSize: 36,
             padding: 20,
             position: "absolute",
-            gap: 20,
             color: "white",
-            letterSpacing: "-0.025em",
-            lineHeight: 1.4,
             whiteSpace: "pre-wrap",
             width: "100%",
             height: "100vh",
-            alignItems: "stretch",
           }}
         >
-          <div style={{ display: "flex" }}>
+          <h4 style={{ textAlign: "center" }}>
             subscribe to {slug}'s channel to get notified when they go live
-          </div>
-          <div style={{ display: "flex" }}>{title}</div>
+          </h4>
+          <h4 style={{ textAlign: "center" }}>{title}</h4>
         </div>
       </div>
     ),
     {
-      width: 800,
-      height: 420,
+      width: 520,
+      height: 516,
     }
   );
 }
