@@ -18,7 +18,7 @@ const ChannelDetail = ({
   channelDataLoading,
   channelDataError,
   hostUrl,
-  slug
+  slug,
 }: {
   channelData: ChannelStaticQuery;
   channelDataLoading: boolean;
@@ -28,11 +28,13 @@ const ChannelDetail = ({
 }) => {
   const { isStandalone } = useUserAgent();
 
-  const channelSSR = useMemo(() => channelData?.getChannelBySlug, [channelData]);
+  const channelSSR = useMemo(
+    () => channelData?.getChannelBySlug,
+    [channelData]
+  );
 
   const title = `${channelSSR?.name}`;
-  const frameImgUrl = `${hostUrl}/images/unlonely-mobile-logo.png`;
-
+  const frameImgUrl = `${hostUrl}/api/images/startSubscribing?slug=${slug}&title=${title}`;
 
   const subscribeButtonText = `Subscribe to ${slug}'s live stream`;
   const subscribeTargetUrl = `${hostUrl}/api/channels/subscribe?channelId=${channelSSR?.id}&slug=${slug}`;
@@ -47,7 +49,10 @@ const ChannelDetail = ({
         <meta name="fc:frame:text" content="Subscribe to " />
         <meta name="fc:frame:image:aspect_ratio" content="1:1" />
         <meta property="fc:frame:button:1" content={subscribeButtonText} />
-        <meta property="fc:frame:button:1:target" content={subscribeTargetUrl} />
+        <meta
+          property="fc:frame:button:1:target"
+          content={subscribeTargetUrl}
+        />
       </Head>
       <ChannelProvider>
         {!isStandalone ? (
@@ -97,7 +102,7 @@ export async function getServerSideProps(
       channelDataLoading: loading,
       channelDataError: error ?? null,
       hostUrl,
-      slug
+      slug,
     },
   };
 }
