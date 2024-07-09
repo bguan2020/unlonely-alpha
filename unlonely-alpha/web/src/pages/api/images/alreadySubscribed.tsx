@@ -5,11 +5,9 @@ export const runtime = "edge";
 
 export default async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const slug = searchParams.get("slug");
-  const title = searchParams.get("title");
   const hostUrl = searchParams.get("hostUrl");
 
-  if (!slug || !title || !hostUrl) {
+  if (!hostUrl) {
     return new Response("Missing required parameters", { status: 400 });
   }
 
@@ -50,10 +48,7 @@ export default async function GET(req: NextRequest) {
             height: "100vh",
           }}
         >
-          <h4 style={{ textAlign: "center" }}>
-            subscribe to {slug}'s channel to get notified when they go live
-          </h4>
-          <h4 style={{ textAlign: "center" }}>{title}</h4>
+          <h4 style={{ textAlign: "center" }}>already subscribed</h4>
         </div>
       </div>
     ),

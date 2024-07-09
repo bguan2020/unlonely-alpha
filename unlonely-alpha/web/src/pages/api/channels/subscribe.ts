@@ -76,7 +76,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         console.log(subscriptionMessage)
 
-    if(isFollowingUnlonely && (subscriptionMessage === "Successfully Subscribed!" || subscriptionMessage === "Already subscribed.")){
+    if(isFollowingUnlonely && subscriptionMessage === "Successfully Subscribed!"){
       try {
         const frameMetadata = await fdk.getFrameMetadata({
           post_url: `${hostUrl}/channels/`,
@@ -85,8 +85,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           ],
           aspect_ratio: "1:1",
           image: {
-            // url: `${hostUrl}/api/images/welcome?hostUrl=${hostUrl}`,
             url: `${hostUrl}/images/subscribe-message.png`,
+          }
+         
+        });
+        res.status(200).send(frameMetadata);
+        return;
+      } catch (error: any) {
+        console.error(error);
+        res.status(500).json({ success: false, error: error.message });
+      }
+    } else if (
+      isFollowingUnlonely && subscriptionMessage === "Already subscribed."
+    ) { 
+      try {
+        const frameMetadata = await fdk.getFrameMetadata({
+          post_url: `${hostUrl}/channels/`,
+          buttons: [
+            { label: `go watch /${slug}`, action: "link", target: `${hostUrl}/channels/${slug}` },
+          ],
+          aspect_ratio: "1:1",
+          image: {
+            url: `${hostUrl}/api/images/alreadySubscribed?hostUrl=${hostUrl}`,
           }
          
         });
