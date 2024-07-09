@@ -29,7 +29,9 @@ const authLink = setContext(async (_, { headers }) => {
 
 function createApolloClient() {
   const httpLink = new HttpLink({
-    uri: "https://sea-lion-app-j3rts.ondigitalocean.app/graphql",
+    uri: process.env.NODE_ENV === "production"
+        ? server
+        : "http://localhost:4000/graphql",
   });
 
   return new ApolloClient({
@@ -63,7 +65,9 @@ export function initializeApollo(
   _apolloClient.setLink(
     contextLink.concat(authLink).concat(
       new HttpLink({
-        uri: "https://sea-lion-app-j3rts.ondigitalocean.app/graphql",
+        uri: process.env.NODE_ENV === "production"
+        ? server
+        : "http://localhost:4000/graphql",
       })
     )
   );

@@ -42,7 +42,6 @@ const ChannelDetail = ({
   });
 
   const frameImgUrl = `${hostUrl}/api/images/startSubscribing?${imageParams.toString()}`;
-  // const frameImgUrl = `${hostUrl}/images/start-subscribing.png`;
 
   const subscribeButtonText = `Subscribe to ${slug}'s live stream`;
   const subscribeTargetUrl = `${hostUrl}/api/channels/subscribe?channelId=${channelSSR?.id}&slug=${slug}`;
