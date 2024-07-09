@@ -45,7 +45,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           ],
           aspect_ratio: "1:1",
           image: {
-            // url: `${hostUrl}/api/images/needToFollow?hostUrl=${hostUrl}`,
             url: `${hostUrl}/images/follow-prompt.png`,
           }
         });
