@@ -37,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!isFollowingUnlonely) {
         const frameMetadata = await fdk.getFrameMetadata({
-          
+          post_url: `${hostUrl}/channels/`,
           buttons: [
             { label: "Subscribe", action: "post", target: `${hostUrl}/api/channels/subscribe?channelId=${channelId}` },
             {label: "Follow @unlonely to subscribe ", action: "link", target: "https://warpcast.com/unlonely"},
