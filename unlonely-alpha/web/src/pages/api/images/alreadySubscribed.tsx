@@ -23,14 +23,12 @@ export default async function GET(req: NextRequest) {
           flexWrap: "nowrap",
           height: "100%",
           justifyContent: "center",
-          width: "100%",
         }}
       >
         <img
           src={`${hostUrl}/images/unlonely-frame-background.png`}
           style={{
             height: "100%",
-            width: "100%",
             objectFit: "cover",
             position: "relative",
           }}
@@ -53,8 +51,8 @@ export default async function GET(req: NextRequest) {
       </div>
     ),
     {
-      width: 800,
-      height: 420,
+      width: 520,
+      height: 516,
     }
   );
 
