@@ -1,17 +1,18 @@
 import { ImageResponse } from "next/og";
-import { NextRequest } from "next/server";
+import { NextApiRequest, NextApiResponse } from "next";
 
 export const runtime = "edge";
 
 export async function GET(
-  _req: NextRequest,
+  _req: NextApiRequest,
   {
     params: { slug, title, hostUrl },
   }: {
     params: { slug: string; title: string; hostUrl: string };
-  }
+  },
+  res: NextApiResponse
 ) {
-  return new ImageResponse(
+  const imageRes = new ImageResponse(
     (
       <div
         style={{
@@ -73,4 +74,7 @@ export async function GET(
       height: 420,
     }
   );
+
+  res.setHeader("Content-Type", "image/png");
+  res.send(imageRes);
 }
