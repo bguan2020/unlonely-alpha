@@ -88,7 +88,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       
      });
      res.status(200).send(frameMetadata);
-    }
+    } else {
   
     console.log("Did not subscribe successfully, fallback to second frame metadata")
        
@@ -105,6 +105,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     res.status(200).send(frameMetadata);
+  }
   } catch (error: any) {
     console.error(error);
     res.status(500).json({ success: false, error: error.message });
