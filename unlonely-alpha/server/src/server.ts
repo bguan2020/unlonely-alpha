@@ -11,6 +11,7 @@ import graphqlSchema from "./entities/graphqlSchema";
 import { fetchForNewTempTokenEndtimestamps } from "./utils/fetchForNewTempTokenEndtimestamps";
 import { setLivepeerStreamIsLive } from "./utils/setLivepeerStreamIsLive";
 import { fetchForNewTokenSupplies } from "./utils/fetchForNewTokenSupplies";
+import { directCastFc } from "./utils/directcastfc";
 
 const app = express();
 app.use(cors());
@@ -24,6 +25,12 @@ app.post("/webhook", (req, res) => {
   const streamId = payload.stream.id;
   const streamStatus = payload.stream.isActive;
   setLivepeerStreamIsLive(streamId, streamStatus);
+  if (streamStatus)
+    directCastFc(
+      streamId,
+      (title: string, slug: string) =>
+        `/${slug} has started streaming!\n\n${title}\nhttps://unlonely.app/channels/${slug}`
+    );
   res.sendStatus(200);
 });
 

@@ -3,7 +3,7 @@ import AWS from "aws-sdk";
 export const calculateMaxWinnerTokensToMint = async (
   weiAmount: number,
   tokenSupply: number,
-  minBaseTokenPrice: number,
+  minBaseTokenPrice: number
 ): Promise<{
   error: string | null;
   maxNumTokens: number;
@@ -22,7 +22,7 @@ export const calculateMaxWinnerTokensToMint = async (
         wei_amount: weiAmount,
         token_supply: tokenSupply,
         total_fee_percent,
-        min_base_token_price: minBaseTokenPrice
+        min_base_token_price: minBaseTokenPrice,
       },
     }),
   };

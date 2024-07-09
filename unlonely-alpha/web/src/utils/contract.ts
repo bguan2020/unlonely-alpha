@@ -54,8 +54,11 @@ export const createCallbackHandler = (
   },
 });
 
-
-export const returnDecodedTopics = (logs: any[], contractAbi: any[], eventName: string) => {
+export const returnDecodedTopics = (
+  logs: any[],
+  contractAbi: any[],
+  eventName: string
+) => {
   let topics = null;
   for (let i = logs.length - 1; i >= 0; i--) {
     try {
@@ -73,8 +76,8 @@ export const returnDecodedTopics = (logs: any[], contractAbi: any[], eventName: 
     }
   }
   return topics;
-}
+};
 
 export const bondingCurveBigInt = (n: bigint) => {
-  return (n * (n + BigInt(1)) * (BigInt(2) * n + BigInt(1))) / BigInt(6)
-}
+  return (n * (n + BigInt(1)) * (BigInt(2) * n + BigInt(1))) / BigInt(6);
+};

@@ -45,7 +45,7 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
     handleCurrentActiveTokenPreSaleEndTimestamp,
     handleIsPreSaleOngoing,
     handleCurrentActiveTokenFactoryAddress,
-    handleCurrentActiveTokenMinBaseTokenPrice
+    handleCurrentActiveTokenMinBaseTokenPrice,
   } = gameState;
 
   const mountingMessages = useRef(true);
@@ -87,7 +87,7 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           blockNumberOfLastInAppTrade === BigInt(0) && tempTokenTxs.length > 0
             ? BigInt(tempTokenTxs[tempTokenTxs.length - 1].blockNumber)
             : blockNumberOfLastInAppTrade,
-          txBlockNumber,
+          txBlockNumber
         );
         if (
           userAddress &&
@@ -152,18 +152,12 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         handleCurrentActiveTokenTotalSupplyThreshold(
           BigInt(body.split(":")[5])
         );
-        handleCurrentActiveTokenPreSaleEndTimestamp(
-          BigInt(body.split(":")[6])
-        );
-        handleCurrentActiveTokenFactoryAddress(
-          body.split(":")[7]
-        )
+        handleCurrentActiveTokenPreSaleEndTimestamp(BigInt(body.split(":")[6]));
+        handleCurrentActiveTokenFactoryAddress(body.split(":")[7]);
         handleIsPreSaleOngoing(
           Number(BigInt(body.split(":")[6])) > Math.floor(Date.now() / 1000)
         );
-        handleCurrentActiveTokenMinBaseTokenPrice(
-          BigInt(body.split(":")[8])
-        );
+        handleCurrentActiveTokenMinBaseTokenPrice(BigInt(body.split(":")[8]));
       }
       if (
         body.split(":")[0] === InteractionType.BUY_TEMP_TOKENS ||

@@ -214,6 +214,12 @@ export const typeDef = gql`
     canRecord: Boolean
   }
 
+  input UpdateChannelFidSubscriptionInput {
+    fid: Int!
+    channelId: Int!
+    isAddingSubscriber: Boolean!
+  }
+
   extend type Query {
     getChannelSearchResults(data: ChannelSearchInput!): [Channel]
     getChannelFeed(data: ChannelFeedInput): [Channel]
@@ -250,5 +256,8 @@ export const typeDef = gql`
     ): Channel
     updatePinnedChatMessages(data: UpdatePinnedChatMessagesInput!): Channel
     bulkLivepeerStreamIdMigration: UpdateManyResponse
+    updateChannelFidSubscription(
+      data: UpdateChannelFidSubscriptionInput!
+    ): String
   }
 `;

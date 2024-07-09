@@ -148,6 +148,8 @@ model Channel {
   gamblableEventLeaderboardEntries GamblableEventLeaderboard[]
   sideBets SideBet[]
   tempTokens TempToken[]
+
+  subscribedFIDs Int[]
 }
 
 model ChannelUserRole {

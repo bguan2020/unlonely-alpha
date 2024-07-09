@@ -491,6 +491,7 @@ export type Mutation = {
   toggleSubscription?: Maybe<Subscription>;
   updateChannelAllowNfcs?: Maybe<Channel>;
   updateChannelCustomButton?: Maybe<Channel>;
+  updateChannelFidSubscription?: Maybe<Scalars["String"]>;
   updateChannelText?: Maybe<Channel>;
   updateChannelVibesTokenPriceRange?: Maybe<Channel>;
   updateCreatorTokenPrice: CreatorToken;
@@ -657,6 +658,10 @@ export type MutationUpdateChannelAllowNfcsArgs = {
 
 export type MutationUpdateChannelCustomButtonArgs = {
   data: UpdateChannelCustomButtonInput;
+};
+
+export type MutationUpdateChannelFidSubscriptionArgs = {
+  data: UpdateChannelFidSubscriptionInput;
 };
 
 export type MutationUpdateChannelTextArgs = {
@@ -1321,6 +1326,12 @@ export type UpdateChannelCustomButtonInput = {
   customButtonAction: Scalars["String"];
   customButtonPrice: Scalars["Int"];
   id: Scalars["ID"];
+};
+
+export type UpdateChannelFidSubscriptionInput = {
+  channelId: Scalars["Int"];
+  fid: Scalars["Int"];
+  isAddingSubscriber: Scalars["Boolean"];
 };
 
 export type UpdateChannelTextInput = {
