@@ -75,7 +75,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         console.log(subscriptionMessage)
 
-    if(subscriptionMessage === "Successfully Subscribed!"){
+    if(subscriptionMessage === "Successfully Subscribed!" || subscriptionMessage === "Already subscribed."){
      const frameMetadata = await fdk.getFrameMetadata({
        post_url: `${hostUrl}/channels/`,
        buttons: [
