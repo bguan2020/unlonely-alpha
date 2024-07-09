@@ -9,6 +9,8 @@ export async function isFollowing(userFid: number, author: number): Promise<bool
       headers: {accept: "application/json", api_key: String(process.env.NEXT_PUBLIC_NEYNAR_API_KEY)}
     };
 
+    console.log("userFid: ", userFid, "viewer_fid", author)
+
     let isFollowing = false;
     let hasMoreData = true;
     let nextCursor = null;
@@ -28,6 +30,8 @@ export async function isFollowing(userFid: number, author: number): Promise<bool
     // Fetch the first page of data
     let data = await fetchData(null);
     let count = 0;
+
+    console.log("Data: ", data)
 
     while (hasMoreData) {
       // Check if userFid is in the list of followers
@@ -82,8 +86,4 @@ export async function isFollowing(userFid: number, author: number): Promise<bool
       console.log("User is not following");
       return false
     }
-
-
-
-
   }
