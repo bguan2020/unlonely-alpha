@@ -42,8 +42,6 @@ const ChannelDetail = ({
   });
 
   const frameImgUrl = `${hostUrl}/api/images/startSubscribing?${imageParams.toString()}`;
-
-  const subscribeButtonText = `Subscribe to ${slug}'s live stream`;
   const subscribeTargetUrl = `${hostUrl}/api/channels/subscribe?channelId=${channelSSR?.id}&slug=${slug}`;
 
   return (
@@ -59,12 +57,12 @@ const ChannelDetail = ({
         /> */}
         <meta name="fc:frame:text" content={`${channelSSR?.name}`} />
         <meta name="fc:frame:image:aspect_ratio" content="1:1" />
-        <meta property="fc:frame:button:1" content={subscribeButtonText} />
+        <meta property="fc:frame:button:1" content={"Subscribe"} />
         <meta
           property="fc:frame:button:1:target"
           content={subscribeTargetUrl}
         />
-        <meta property="fc:frame:button:2" content={`go watch ${slug}`} />
+        <meta property="fc:frame:button:2" content={"go watch"} />
         <meta name="fc:frame:button:2:action" content="link" />
         <meta
           property="fc:frame:button:2:target"

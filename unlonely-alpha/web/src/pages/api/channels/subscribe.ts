@@ -50,12 +50,12 @@ export default async function handler(
             target: `${hostUrl}/api/channels/subscribe?channelId=${channelId}&slug=${slug}`,
           },
           {
-            label: "Follow @unlonely to subscribe ",
+            label: "Follow @unlonely",
             action: "link",
             target: "https://warpcast.com/unlonely",
           },
           {
-            label: `go watch ${slug}`,
+            label: "go watch",
             action: "link",
             target: `${hostUrl}/channels/${slug}`,
           },
