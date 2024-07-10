@@ -38,11 +38,21 @@ export async function isFollowing(
 
   // Function to fetch a page of data
   const fetchData = async (cursor: string | null): Promise<NeynarReturnType> => {
-    const response = await axios.get(url, {
-      ...options,
-      params: cursor ? { cursor } : {},
-    });
-    return response.data;
+    try {
+      const response = await axios.get(url, {
+        ...options,
+        params: cursor ? { cursor } : {},
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching neynar data:", error);
+      return {
+        users: [],
+        next: {
+          cursor: null,
+        },
+      };
+    }
   };
 
   while (true) {
