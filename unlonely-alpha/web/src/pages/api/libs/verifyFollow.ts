@@ -46,6 +46,7 @@ export async function isFollowing(
   };
 
   while (true) {
+    await new Promise((r) => setTimeout(r, 3000));
     const data = await fetchData(nextCursor);
     if (data.users.some((follow: FollowType) => follow.user.fid === author)) {
       isFollowing = true;
