@@ -27,7 +27,7 @@ export async function isFollowing(
     },
   };
 
-  console.log("userFid: ", userFid, "viewer_fid", author);
+  console.log("userFid: ", userFid,"viewer_fid", author);
 
   let isFollowing = false;
   // let hasMoreData = true;
