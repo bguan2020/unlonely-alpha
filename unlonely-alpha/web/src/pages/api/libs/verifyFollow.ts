@@ -58,7 +58,7 @@ export async function isFollowing(
 
   while (true) {
     console.log("batching:", ++batchCount)
-    await new Promise((r) => setTimeout(r, 3000));
+    await new Promise((r) => setTimeout(r, 500));
     const data = await fetchData(nextCursor);
     if (data.users.some((follow: FollowType) => follow.user.fid === author)) {
       isFollowing = true;
