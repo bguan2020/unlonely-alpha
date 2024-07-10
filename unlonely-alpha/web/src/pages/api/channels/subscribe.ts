@@ -114,7 +114,7 @@ export default async function handler(
         res.status(200).send(frameMetadata);
         return;
       } catch (error: any) {
-        console.error(error.message);
+        console.error("section 1", error.message);
         res.status(500).json({ success: false, error: error.message });
       }
     } else if (
@@ -139,7 +139,7 @@ export default async function handler(
         res.status(200).send(frameMetadata);
         return;
       } catch (error: any) {
-        console.error(error);
+        console.error("section 2", error);
         res.status(500).json({ success: false, error: error.message });
       }
     } else {
@@ -170,12 +170,12 @@ export default async function handler(
 
         res.status(200).send(frameMetadata);
       } catch (error: any) {
-        console.error(error.message);
+        console.error("section 3", error.message);
         res.status(500).json({ success: false, error: error.message });
       }
     }
   } catch (error: any) {
-    console.error(error.message);
+    console.error("section 4", error.message);
     res.status(500).json({ success: false, error: error.message });
   }
 }
