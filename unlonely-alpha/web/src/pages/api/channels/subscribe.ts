@@ -28,9 +28,9 @@ export default async function handler(
   try {
     const body = req.body;
     const hostUrl = `http://${req.headers.host}`;
-    console.log(body);
+    console.log("BODY:", body);
     const fid = body.untrustedData.fid;
-    console.log(req.query);
+    console.log("QUERY:", req.query);
     // const channelId = req.query.channelId as string;
     // const slug = req.query.slug;
     const { channelId, slug } = req.query;

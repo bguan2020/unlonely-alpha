@@ -35,8 +35,6 @@ export async function isFollowing(
   let data = await fetchData(null);
   let count = 0;
 
-  console.log("Data: ", data);
-
   while (hasMoreData) {
     // Check if userFid is in the list of followers
     console.log(++count);
