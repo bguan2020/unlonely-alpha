@@ -1,5 +1,19 @@
 import axios from "axios";
 
+type FollowType = {
+  object: string;
+  user: {
+    fid: number
+  }
+}
+
+type NeynarReturnType = {
+  users: FollowType[],
+  next: {
+    cursor: string | null
+  }
+}
+
 export async function isFollowing(
   userFid: number,
   author: number
@@ -16,14 +30,14 @@ export async function isFollowing(
   console.log("userFid: ", userFid, "viewer_fid", author);
 
   let isFollowing = false;
-  let hasMoreData = true;
+  // let hasMoreData = true;
   let nextCursor = null;
 
   // Array to store promises for concurrent requests
-  const fetchPromises = [];
+  // const fetchPromises = [];
 
   // Function to fetch a page of data
-  const fetchData = async (cursor: any) => {
+  const fetchData = async (cursor: string | null): Promise<NeynarReturnType> => {
     const response = await axios.get(url, {
       ...options,
       params: cursor ? { cursor } : {},
@@ -31,61 +45,58 @@ export async function isFollowing(
     return response.data;
   };
 
-  // Fetch the first page of data
-  let data = await fetchData(null);
-  let count = 0;
-
-  while (hasMoreData) {
-    // Check if userFid is in the list of followers
-    console.log(++count);
-    if (data.users.some((follow: any) => follow.user.fid === author)) {
+  while (true) {
+    const data = await fetchData(nextCursor);
+    if (data.users.some((follow: FollowType) => follow.user.fid === author)) {
       isFollowing = true;
       break;
     }
 
-    // If there's more data, prepare to fetch the next page
-    if (data.next && data.next.cursor) {
-      nextCursor = data.next.cursor;
-      fetchPromises.push(fetchData(nextCursor));
+    if (!data.next || !data.next.cursor) break
+    nextCursor = data.next.cursor;
 
-      // Fetch next batch in parallel
-      if (fetchPromises.length >= 5) {
-        // You can adjust the batch size as needed
-        const results: any = await Promise.all(fetchPromises);
-        fetchPromises.length = 0; // Clear the promises array
-        for (const result of results) {
-          if (result.users.some((follow: any) => follow.user.fid === author)) {
-            isFollowing = true;
-            hasMoreData = false;
-            break;
-          }
-          if (result.next && result.next.cursor) {
-            nextCursor = result.next.cursor;
-            fetchPromises.push(fetchData(nextCursor));
-          } else {
-            hasMoreData = false;
-          }
-        }
-      }
-    } else {
-      hasMoreData = false;
-    }
+    // // Check if userFid is in the list of followers
+    // if (data.users.some((follow: FollowType) => follow.user.fid === author)) {
+    //   isFollowing = true;
+    //   break;
+    // }
 
-    if (isFollowing) {
-      break;
-    }
+    // // If there's more data, prepare to fetch the next page
+    // if (data.next && data.next.cursor) {
+    //   nextCursor = data.next.cursor;
+    //   fetchPromises.push(fetchData(nextCursor));
 
-    // Fetch the next page of data
-    if (fetchPromises.length === 0 && nextCursor) {
-      data = await fetchData(nextCursor);
-    }
+    //   // // Fetch next batch in parallel
+    //   if (fetchPromises.length >= 5) {
+    //     // You can adjust the batch size as needed
+    //     const results: any = await Promise.all(fetchPromises);
+    //     fetchPromises.length = 0; // Clear the promises array
+    //     for (const result of results) {
+    //       if (result.users.some((follow: FollowType) => follow.user.fid === author)) {
+    //         isFollowing = true;
+    //         hasMoreData = false;
+    //         break;
+    //       }
+    //       if (result.next && result.next.cursor) {
+    //         nextCursor = result.next.cursor;
+    //         fetchPromises.push(fetchData(nextCursor));
+    //       } else {
+    //         hasMoreData = false;
+    //       }
+    //     }
+    //   }
+    // } else {
+    //   hasMoreData = false;
+    // }
+
+    // if (isFollowing) break
+
+    // // Fetch the next page of data
+    // if (fetchPromises.length === 0 && nextCursor) {
+    //   data = await fetchData(nextCursor);
+    // }
   }
 
-  if (isFollowing) {
-    console.log("User is following");
-    return true;
-  } else {
-    console.log("User is not following");
-    return false;
-  }
+  console.log ("is user following? ", isFollowing)
+  return isFollowing;
 }
