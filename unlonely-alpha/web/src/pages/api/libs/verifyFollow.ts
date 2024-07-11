@@ -39,13 +39,10 @@ export async function isFollowing(
 
   // Function to fetch a page of data
   const fetchData = async (cursor: string | null): Promise<NeynarReturnType> => {
-    try {
-      const response = await axios.get(url, {
-        ...options,
-        params: cursor ? { cursor } : {},
-      });
-      return response.data;
-    } catch (error) {
+    const response = await axios.get(url, {
+      ...options,
+      params: cursor ? { cursor } : {},
+    }).then((res) => res.data).catch((error) => {
       console.error("Error fetching neynar data:", error);
       return {
         users: [],
@@ -53,7 +50,8 @@ export async function isFollowing(
           cursor: null,
         },
       };
-    }
+    });
+    return response;
   };
 
   while (true) {
