@@ -24,10 +24,17 @@ export const sendPWANotifications = async (streamId: string) => {
         console.error("Channel not found for livepeer stream id", streamId);
         return;
       }
+
+      const onlySelectedSubscriptions = process.env.DEVELOPMENT ? {
+        allowedChannels: {
+          has: existingChannel.id,
+        },
+      } : {}
     
       const subscriptions = await prisma.subscription.findMany({
         where: {
           softDelete: false,
+          ...onlySelectedSubscriptions
         },
       })
     
