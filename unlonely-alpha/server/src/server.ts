@@ -12,7 +12,7 @@ import { fetchForNewTempTokenEndtimestamps } from "./utils/fetchForNewTempTokenE
 import { setLivepeerStreamIsLive } from "./utils/setLivepeerStreamIsLive";
 import { fetchForNewTokenSupplies } from "./utils/fetchForNewTokenSupplies";
 import { directCastFc } from "./utils/directcastfc";
-// import { sendPWANotifications } from "./utils/sendPWANotifications";
+import { sendPWANotifications } from "./utils/sendPWANotifications";
 
 const app = express();
 app.use(cors());
@@ -32,7 +32,7 @@ app.post("/webhook", (req, res) => {
       (title: string, slug: string) =>
         `/${slug} has started streaming!\n\n${title}\nhttps://unlonely.app/channels/${slug}`
     );
-    // sendPWANotifications(streamId);
+    sendPWANotifications(streamId);
   }
   res.sendStatus(200);
 });
