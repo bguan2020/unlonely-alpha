@@ -324,7 +324,7 @@ export const sendAllNotifications = async (
   return results.every((result) => result === true);
 };
 
-function toPushSubscription(subscription: Subscription): any {
+export function toPushSubscription(subscription: Subscription): any {
   return {
     endpoint: subscription.endpoint,
     expirationTime: subscription.expirationTime,
