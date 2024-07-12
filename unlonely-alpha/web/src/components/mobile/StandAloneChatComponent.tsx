@@ -30,8 +30,6 @@ import { useTempTokenContext } from "../../hooks/context/useTempToken";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
 // import Participants from "../presence/Participants";
 
-export const EXCLUDED_SLUGS = ["loveonleverage"];
-
 const StandaloneChatComponent = ({
   chat,
   channelStaticError,

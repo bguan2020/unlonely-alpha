@@ -11,8 +11,10 @@ import Participants from "../presence/Participants";
 import { VipBadgeBuy } from "../channels/vibes/VipBadgeBuy";
 import VibesTokenInterface from "../chat/VibesTokenInterface";
 import { useChatBox } from "../../hooks/chat/useChatBox";
-
-export const EXCLUDED_SLUGS = ["loveonleverage"];
+import {
+  CHANNEL_IDS_NO_VIP,
+  CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS,
+} from "../../constants";
 
 export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
   const { chat: chatContext, channel } = useChannelContext();
@@ -63,28 +65,31 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
             </Text>
           </Flex>
         </OuterBorder>
-        <OuterBorder
-          type={BorderType.OCEAN}
-          zIndex={selectedTab === "vip" ? 4 : 2}
-          onClick={() => setSelectedTab("vip")}
-          noborder
-          pb={selectedTab === "vip" ? "0px" : undefined}
-        >
-          <Flex
-            bg={
-              selectedTab === "vip"
-                ? "#1b9d9d"
-                : "linear-gradient(163deg, rgba(255,255,255,1) 1%, rgba(255,227,143,1) 13%, rgba(255,213,86,1) 14%, rgba(246,190,45,1) 16%, rgba(249,163,32,1) 27%, rgba(231,143,0,1) 28%, #2e1405 30%, #603208 100%)"
-            }
-            py="0.3rem"
-            width="100%"
-            justifyContent={"center"}
-          >
-            <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
-              vip
-            </Text>
-          </Flex>
-        </OuterBorder>
+        {channelQueryData?.id &&
+          !CHANNEL_IDS_NO_VIP.includes(Number(channelQueryData?.id)) && (
+            <OuterBorder
+              type={BorderType.OCEAN}
+              zIndex={selectedTab === "vip" ? 4 : 2}
+              onClick={() => setSelectedTab("vip")}
+              noborder
+              pb={selectedTab === "vip" ? "0px" : undefined}
+            >
+              <Flex
+                bg={
+                  selectedTab === "vip"
+                    ? "#1b9d9d"
+                    : "linear-gradient(163deg, rgba(255,255,255,1) 1%, rgba(255,227,143,1) 13%, rgba(255,213,86,1) 14%, rgba(246,190,45,1) 16%, rgba(249,163,32,1) 27%, rgba(231,143,0,1) 28%, #2e1405 30%, #603208 100%)"
+                }
+                py="0.3rem"
+                width="100%"
+                justifyContent={"center"}
+              >
+                <Text fontFamily="LoRes15" fontSize="16px" fontWeight={"bold"}>
+                  vip
+                </Text>
+              </Flex>
+            </OuterBorder>
+          )}
       </Flex>
       {presenceChannel && (
         <Flex
@@ -93,7 +98,9 @@ export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
           gap="5px"
           alignItems={"center"}
         >
-          {EXCLUDED_SLUGS.includes(channelQueryData?.slug as string) &&
+          {CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS.includes(
+            channelQueryData?.slug as string
+          ) &&
             isOwner && (
               <Button
                 onClick={() => setShowParticipants((prev) => !prev)}

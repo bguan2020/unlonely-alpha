@@ -3,12 +3,12 @@ import { ChatReturnType } from "../../hooks/chat/useChat";
 import MessageList from "./MessageList";
 import ChatForm from "./ChatForm";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import { EXCLUDED_SLUGS } from "./ChatComponent";
 import { useState } from "react";
 import Participants from "../presence/Participants";
 import { useChatBox } from "../../hooks/chat/useChatBox";
 import { SingleTempTokenTimerView } from "../channels/temp/TempTokenTimerView";
 import { VersusTempTokenTimerView } from "../channels/versus/VersusTokenTimerView";
+import { CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS } from "../../constants";
 
 export const ChatWithTempTokenTimer = ({
   chat,
@@ -63,7 +63,9 @@ export const ChatWithTempTokenTimer = ({
           gap="5px"
           alignItems={"center"}
         >
-          {EXCLUDED_SLUGS.includes(channelQueryData?.slug as string) &&
+          {CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS.includes(
+            channelQueryData?.slug as string
+          ) &&
             isOwner && (
               <Button
                 onClick={() => setShowParticipants((prev) => !prev)}
