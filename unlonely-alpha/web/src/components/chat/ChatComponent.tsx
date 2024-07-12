@@ -22,9 +22,10 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import { OuterBorder, BorderType } from "../general/OuterBorder";
 import Participants from "../presence/Participants";
 import Chat from "./Chat";
-import { CHANNEL_IDS_NO_VIP } from "../../constants";
-
-export const SLUGS_THAT_CAN_HIDE_PRESENSE = ["loveonleverage"];
+import {
+  CHANNEL_IDS_NO_VIP,
+  CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS,
+} from "../../constants";
 
 const ChatComponent = ({
   chat,
@@ -220,7 +221,7 @@ const ChatComponent = ({
                     gap="5px"
                     alignItems={"center"}
                   >
-                    {SLUGS_THAT_CAN_HIDE_PRESENSE.includes(
+                    {CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS.includes(
                       channelQueryData?.slug as string
                     ) &&
                       isOwner && (
