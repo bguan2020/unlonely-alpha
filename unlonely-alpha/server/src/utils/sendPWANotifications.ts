@@ -2,6 +2,8 @@ import { PrismaClient } from "@prisma/client";
 import webpush from "web-push";
 import { toPushSubscription } from "../entities/Subscription/SubscriptionService";
 
+const CHANNEL_ID_BLACKLIST = [1352]
+
 const prisma = new PrismaClient();
 
 export const sendPWANotifications = async (streamId: string) => {
@@ -24,6 +26,8 @@ export const sendPWANotifications = async (streamId: string) => {
         console.error("Channel not found for livepeer stream id", streamId);
         return;
       }
+
+      if (CHANNEL_ID_BLACKLIST.includes(existingChannel.id)) return
     
       const subscriptions = await prisma.subscription.findMany({
         where: {
