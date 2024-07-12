@@ -31,7 +31,7 @@ export const sendPWANotifications = async (streamId: string) => {
     
       const subscriptions = await prisma.subscription.findMany({
         where: {
-          softDelete: false,
+          softDelete: false
         },
       })
     
