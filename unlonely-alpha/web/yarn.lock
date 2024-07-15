@@ -2713,39 +2713,39 @@
   dependencies:
     "@lit-labs/ssr-dom-shim" "^1.0.0"
 
-"@livepeer/core-react@3.1.18":
-  version "3.1.18"
-  resolved "https://registry.yarnpkg.com/@livepeer/core-react/-/core-react-3.1.18.tgz#1cf304c101805fbec052edfeee8a84c8437ca544"
-  integrity sha512-tb6YWa0QRMVgbUpobOmfEoxIR78vcjLmyJRCVewTObbDjxudxnlzUYXbn11nMJt7k2kXoLQq+CG2sR2giLuWrQ==
+"@livepeer/core-react@3.2.1":
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/@livepeer/core-react/-/core-react-3.2.1.tgz#a3d7990f402c2b626a5d79743992da4420eccc15"
+  integrity sha512-oDtVsAVRMQQRghvrSG6PCLAFsg3Fvhl7p72LpMhEvAuXfqFlvM+x0xvEGRSl8wntieagUOdqmVLsGmJ9Yc1XNw==
   dependencies:
-    "@livepeer/core" "3.1.18"
+    "@livepeer/core" "3.2.1"
     zustand "^4.5.2"
 
-"@livepeer/core-web@4.1.18":
-  version "4.1.18"
-  resolved "https://registry.yarnpkg.com/@livepeer/core-web/-/core-web-4.1.18.tgz#2730180bbbc07f28094e7b7c3d3610ef8bce2a56"
-  integrity sha512-QHt/VvgYxj9tsXXP6FZmgO5bP8Lo6aE8r+ZxuBDLFs5awn9A6DSlPMqpQLOBhp4ahNOXk6g+l32/DiCCLaCpRA==
+"@livepeer/core-web@4.2.1":
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/@livepeer/core-web/-/core-web-4.2.1.tgz#3ebbc3eae24e28a3a37abe05338e28eebcd77c74"
+  integrity sha512-LxSM+k5BpYwVMx0srBWp/lkwuwoPsmKo8pHssLzAcW65p+6AwgZwnhH1qMYxcB6xmIy2p+QCZV/p6XXuJhBCbw==
   dependencies:
-    "@livepeer/core" "3.1.18"
+    "@livepeer/core" "3.2.1"
     hls.js "^1.5.8"
     zustand "^4.5.2"
 
-"@livepeer/core@3.1.18":
-  version "3.1.18"
-  resolved "https://registry.yarnpkg.com/@livepeer/core/-/core-3.1.18.tgz#095565bf1bb02cc4562f390b2d0ca8e4c4b56a7d"
-  integrity sha512-OsQyedL54OlHYfmxgmXC80S0n6RQp7wyLeEDt4ujIuU/UFoZto1Kb3PHskZ7H47ePyyYi7EWThnwhyeBpACK8Q==
+"@livepeer/core@3.2.1":
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/@livepeer/core/-/core-3.2.1.tgz#aa5e2e6dbab8c7d2bf4e8d71ea694e13977e379c"
+  integrity sha512-zr7rlRccb0u2mx+eE7cFliO0QRYtnyQryqZzsHYVK4r1OTL/EH0LKHjaknuumYduMpAoIW3mJ1JVpoR6oJ6K7g==
   dependencies:
     multiformats "^13.1.0"
     zustand "^4.5.2"
 
-"@livepeer/react@4.1.18":
-  version "4.1.18"
-  resolved "https://registry.yarnpkg.com/@livepeer/react/-/react-4.1.18.tgz#5d32a43bc701486ad9b6a7f8a5cd83589fe71bfa"
-  integrity sha512-ePnhCHfhzdNjFhqrFy7bcerPe7pVtgMnRUahH0dmUByt1E3XGlOcNf0B4+Ub+Tl2+s0yXWV5oaBzsLgTPCX8SA==
+"@livepeer/react@4.2.1":
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/@livepeer/react/-/react-4.2.1.tgz#98dd1458c4be56c5f5874de09ca309a06f39d896"
+  integrity sha512-LKvenz1Ony9nRRc+gIkbc8k6VJr761rfCfdBOwh7PDW0JtdokCw1hLd/qFi2xRCsvVsesgmy37oVYkcHCbctpQ==
   dependencies:
-    "@livepeer/core" "3.1.18"
-    "@livepeer/core-react" "3.1.18"
-    "@livepeer/core-web" "4.1.18"
+    "@livepeer/core" "3.2.1"
+    "@livepeer/core-react" "3.2.1"
+    "@livepeer/core-web" "4.2.1"
     "@radix-ui/primitive" "^1.0.1"
     "@radix-ui/react-aspect-ratio" "^1.0.3"
     "@radix-ui/react-compose-refs" "^1.0.1"
