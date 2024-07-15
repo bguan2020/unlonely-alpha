@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import webpush from "web-push";
 import { toPushSubscription } from "../entities/Subscription/SubscriptionService";
 
-const CHANNEL_ID_BLACKLIST = [1352]
+const CHANNEL_ID_BLACKLIST: number[] = []
 
 const prisma = new PrismaClient();
 
