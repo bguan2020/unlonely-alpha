@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import webpush from "web-push";
 import { toPushSubscription } from "../entities/Subscription/SubscriptionService";
 
-const CHANNEL_ID_BLACKLIST = [1352, 29]
+const CHANNEL_ID_BLACKLIST = [1352]
 
 const prisma = new PrismaClient();
 
@@ -28,7 +28,14 @@ export const sendPWANotifications = async (streamId: string) => {
       }
 
       if (CHANNEL_ID_BLACKLIST.includes(existingChannel.id)) return
-    
+
+      const oneHourAgo = new Date(Date.now() - 3600 * 1000);
+
+      if (existingChannel.lastNotificationAt > oneHourAgo) {
+          console.log("Notification already sent within the last hour for channel:", existingChannel.slug);
+          return;
+      }
+
       const subscriptions = await prisma.subscription.findMany({
         where: {
           softDelete: false
@@ -69,6 +76,18 @@ export const sendPWANotifications = async (streamId: string) => {
         }
       });
     
-      const results = await Promise.all(promises);
-      return results.every((result) => result === true);
+      const results = await Promise.allSettled(promises);
+      const successfulNotifications = results.filter(
+        (result) => result.status === "fulfilled" && result.value === true
+      );
+      if (successfulNotifications.length > 0) {
+        await prisma.channel.update({
+          where: {
+            id: existingChannel.id,
+          },
+          data: {
+            lastNotificationAt: new Date(Date.now()),
+          },
+        });
+      }
 }

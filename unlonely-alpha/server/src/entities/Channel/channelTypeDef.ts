@@ -71,6 +71,7 @@ export const typeDef = gql`
     customButtonPrice: Int
     createdAt: DateTime!
     updatedAt: DateTime!
+    lastNotificationAt: DateTime!
     chatCommands: [ChatCommand]
     sharesEvent: [SharesEvent]
     roles: [ChannelUserRole]
@@ -256,6 +257,7 @@ export const typeDef = gql`
     ): Channel
     updatePinnedChatMessages(data: UpdatePinnedChatMessagesInput!): Channel
     bulkLivepeerStreamIdMigration: UpdateManyResponse
+    resetLastNotificationAtMigration: Boolean
     updateChannelFidSubscription(
       data: UpdateChannelFidSubscriptionInput!
     ): String

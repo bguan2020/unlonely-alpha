@@ -43,6 +43,7 @@ const ChannelDetail = ({
 
   const frameImgUrl = `${hostUrl}/api/images/startSubscribing?${imageParams.toString()}`;
   const subscribeTargetUrl = `${hostUrl}/api/channels/subscribe?channelId=${channelSSR?.id}&slug=${slug}`;
+  const unsubscribeTargetUrl = `${hostUrl}/api/channels/unsubscribe?channelId=${channelSSR?.id}&slug=${slug}`;
 
   return (
     <>
@@ -51,10 +52,6 @@ const ChannelDetail = ({
         <meta property="fc:frame" content="vNext" />
         <meta name="fc:frame:image" content={frameImgUrl} />
         <meta name="fc:frame:image:aspect_ratio" content="1:1" />
-        {/* <meta
-          name="fc:frame:text"
-          content={`Subscribe to ${channelSSR?.slug}'s channel to get notified when they go live!`}
-        /> */}
         <meta name="fc:frame:text" content={`${channelSSR?.name}`} />
         <meta name="fc:frame:image:aspect_ratio" content="1:1" />
         <meta property="fc:frame:button:1" content={"Subscribe"} />
@@ -62,10 +59,15 @@ const ChannelDetail = ({
           property="fc:frame:button:1:target"
           content={subscribeTargetUrl}
         />
-        <meta property="fc:frame:button:2" content={"go watch"} />
-        <meta name="fc:frame:button:2:action" content="link" />
+        <meta property="fc:frame:button:2" content={"Unsubscribe"} />
         <meta
           property="fc:frame:button:2:target"
+          content={unsubscribeTargetUrl}
+        />
+        <meta property="fc:frame:button:3" content={"watch"} />
+        <meta name="fc:frame:button:3:action" content="link" />
+        <meta
+          property="fc:frame:button:3:target"
           content={`${hostUrl}/channels/${slug}`}
         />
       </Head>

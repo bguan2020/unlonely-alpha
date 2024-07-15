@@ -202,6 +202,13 @@ export const resolvers = {
 
       return channelService.bulkLivepeerStreamIdMigration(data, ctx);
     },
+    resetLastNotificationAtMigration: (_: any, data: any, ctx: Context) => {
+      // if (!ctx.user || !ctx.userIsAuthed) {
+      //   throw new AuthenticationError("User is not authenticated");
+      // }
+
+      return channelService.resetLastNotificationAtMigration(data, ctx);
+    },
     updateChannelFidSubscription: (
       _: any,
       { data }: { data: channelService.IUpdateChannelFidSubscriptionInput },

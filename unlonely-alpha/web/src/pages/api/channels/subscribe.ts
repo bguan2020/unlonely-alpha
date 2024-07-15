@@ -9,7 +9,7 @@ const fdk = new PinataFDK({
   pinata_gateway: process.env.NEXT_PUBLIC_GATEWAY_URL as string,
 });
 
-const UPDATE_CHANNEL_FID_SUBSCRIPTION_MUTATION = gql`
+export const UPDATE_CHANNEL_FID_SUBSCRIPTION_MUTATION = gql`
   mutation UpdateChannelFidSubscription(
     $data: UpdateChannelFidSubscriptionInput!
   ) {
@@ -114,7 +114,7 @@ export default async function handler(
         res.status(200).send(frameMetadata);
         return;
       } catch (error: any) {
-        console.error("section 1", error.message);
+        console.error("subscribe error 1", error.message);
         res.status(500).json({ success: false, error: error.message });
       }
     } else if (
@@ -139,7 +139,7 @@ export default async function handler(
         res.status(200).send(frameMetadata);
         return;
       } catch (error: any) {
-        console.error("section 2", error);
+        console.error("subscribe error 2", error.message);
         res.status(500).json({ success: false, error: error.message });
       }
     } else {
@@ -170,12 +170,12 @@ export default async function handler(
 
         res.status(200).send(frameMetadata);
       } catch (error: any) {
-        console.error("section 3", error.message);
+        console.error("subscribe error 3", error.message);
         res.status(500).json({ success: false, error: error.message });
       }
     }
   } catch (error: any) {
-    console.error("section 4", error.message);
+    console.error("subscribe error 4", error.message);
     res.status(500).json({ success: false, error: error.message });
   }
 }
