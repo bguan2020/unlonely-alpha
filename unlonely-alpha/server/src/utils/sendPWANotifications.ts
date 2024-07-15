@@ -28,7 +28,15 @@ export const sendPWANotifications = async (streamId: string) => {
       }
 
       if (CHANNEL_ID_BLACKLIST.includes(existingChannel.id)) return
-    
+
+      const currentTime = BigInt(Date.now());
+      const oneHourAgo = currentTime - BigInt(3600) * BigInt(1000);
+
+      if (existingChannel.lastNotificationAt > oneHourAgo) {
+          console.log("Notification already sent within the last hour for channel:", existingChannel.slug);
+          return;
+      }
+
       const subscriptions = await prisma.subscription.findMany({
         where: {
           softDelete: false
@@ -69,6 +77,18 @@ export const sendPWANotifications = async (streamId: string) => {
         }
       });
     
-      const results = await Promise.all(promises);
-      return results.every((result) => result === true);
+      const results = await Promise.allSettled(promises);
+      const successfulNotifications = results.filter(
+        (result) => result.status === "fulfilled" && result.value === true
+      );
+      if (successfulNotifications.length > 0) {
+        await prisma.channel.update({
+          where: {
+            id: existingChannel.id,
+          },
+          data: {
+            lastNotificationAt: currentTime,
+          },
+        });
+      }
 }

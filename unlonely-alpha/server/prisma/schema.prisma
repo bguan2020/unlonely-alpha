@@ -130,6 +130,7 @@ model Channel {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  lastNotificationAt BigInt @default(0)
   softDelete Boolean @default(false)
 
   chats Chat[]
