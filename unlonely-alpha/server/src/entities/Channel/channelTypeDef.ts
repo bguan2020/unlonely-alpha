@@ -257,6 +257,7 @@ export const typeDef = gql`
     ): Channel
     updatePinnedChatMessages(data: UpdatePinnedChatMessagesInput!): Channel
     bulkLivepeerStreamIdMigration: UpdateManyResponse
+    resetLastNotificationAtMigration: Boolean
     updateChannelFidSubscription(
       data: UpdateChannelFidSubscriptionInput!
     ): String

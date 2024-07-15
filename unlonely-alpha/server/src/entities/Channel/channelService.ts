@@ -124,6 +124,22 @@ export const bulkLivepeerStreamIdMigration = async (
   }
 };
 
+export const resetLastNotificationAtMigration = async (data: any, ctx: Context) => {
+  const epochStart = new Date(0); // January 1, 1970
+
+  try{
+    await ctx.prisma.channel.updateMany({
+        data: {
+            lastNotificationAt: epochStart,
+        },
+    });
+    return true
+  } catch (error: any) {
+    console.log("resetLastNotificationAtMigration error", error);
+    return false;
+  }
+}
+
 export interface IPostChannelInput {
   slug: string;
   name?: string;

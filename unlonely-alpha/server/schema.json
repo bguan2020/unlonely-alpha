@@ -2347,6 +2347,18 @@
             "deprecationReason": null
           },
           {
+            "name": "resetLastNotificationAtMigration",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "updateChannelFidSubscription",
             "description": null,
             "args": [
