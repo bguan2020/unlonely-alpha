@@ -139,7 +139,7 @@ export default async function handler(
         res.status(200).send(frameMetadata);
         return;
       } catch (error: any) {
-        console.error("subscribe error 2", error);
+        console.error("subscribe error 2", error.message);
         res.status(500).json({ success: false, error: error.message });
       }
     } else {

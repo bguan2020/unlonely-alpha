@@ -56,7 +56,7 @@ export default async function handler(
             });
             res.status(200).send(frameMetadata);
             } catch (error: any) {
-                console.error("unsubscribe error 1", error);
+                console.error("unsubscribe error 1", error.message);
                 res.status(500).json({ success: false, error: error.message });
               }
     } else {
