@@ -71,7 +71,7 @@ export const typeDef = gql`
     customButtonPrice: Int
     createdAt: DateTime!
     updatedAt: DateTime!
-    lastNotificationAt: BigInt!
+    lastNotificationAt: DateTime!
     chatCommands: [ChatCommand]
     sharesEvent: [SharesEvent]
     roles: [ChannelUserRole]

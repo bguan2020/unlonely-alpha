@@ -172,6 +172,7 @@ export const postChannel = async (
         livepeerPlaybackId: playbackId,
         livepeerStreamId: id,
         streamKey,
+        lastNotificationAt: new Date(0),
       },
     });
   } catch (error: any) {

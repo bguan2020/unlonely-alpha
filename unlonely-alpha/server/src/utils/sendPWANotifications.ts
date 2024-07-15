@@ -29,8 +29,7 @@ export const sendPWANotifications = async (streamId: string) => {
 
       if (CHANNEL_ID_BLACKLIST.includes(existingChannel.id)) return
 
-      const currentTime = BigInt(Date.now());
-      const oneHourAgo = currentTime - BigInt(3600) * BigInt(1000);
+      const oneHourAgo = new Date(Date.now() - 3600 * 1000);
 
       if (existingChannel.lastNotificationAt > oneHourAgo) {
           console.log("Notification already sent within the last hour for channel:", existingChannel.slug);
@@ -87,7 +86,7 @@ export const sendPWANotifications = async (streamId: string) => {
             id: existingChannel.id,
           },
           data: {
-            lastNotificationAt: currentTime,
+            lastNotificationAt: new Date(Date.now()),
           },
         });
       }

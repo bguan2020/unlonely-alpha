@@ -6104,7 +6104,7 @@
               "name": null,
               "ofType": {
                 "kind": "SCALAR",
-                "name": "BigInt",
+                "name": "DateTime",
                 "ofType": null
               }
             },
