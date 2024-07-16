@@ -3,9 +3,6 @@
   "version": "0.0.1",
   "main": "index.js",
   "license": "UNLICENSED",
-  "engines": {
-    "node": "16.x"
-  },
   "scripts": {
     "compile": "hardhat compile --show-stack-traces",
     "clean": "hardhat clean",
