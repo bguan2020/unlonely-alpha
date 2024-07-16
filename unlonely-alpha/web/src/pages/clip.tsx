@@ -1,15 +1,19 @@
 import {
   Button,
   Flex,
+  Input,
   RangeSlider,
   RangeSliderFilledTrack,
   RangeSliderThumb,
   RangeSliderTrack,
-  Text,
+  // Text,
 } from "@chakra-ui/react";
 import { useRef, useState, useEffect } from "react";
+import * as tus from "tus-js-client";
+import { MdDragIndicator } from "react-icons/md";
 
 import { convertToHHMMSS } from "../utils/time";
+import useRequestUpload from "../hooks/server/channel/useRequestUpload";
 
 let ffmpeg: any; //Store the ffmpeg instance
 
@@ -19,8 +23,13 @@ const Clip = () => {
   const [clipRange, setClipRange] = useState<[number, number]>([0, 0]);
   const [trimmedVideoURL, setTrimmedVideoURL] = useState<string | null>(null);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+  const [title, setTitle] = useState("");
 
-  console.log("trimmedVideoURL", trimmedVideoURL);
+  const { requestUpload } = useRequestUpload({
+    onError: () => {
+      console.log("Error");
+    },
+  });
 
   const clipUrl =
     "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/0f303hhuyems5o1m/720p0.mp4";
@@ -95,10 +104,10 @@ const Clip = () => {
   }, []);
 
   const handleTrim = async () => {
-    if (isScriptLoaded) {
+    if (isScriptLoaded && title) {
       videoRef.current?.pause();
       const videoBlob = await fetch(clipUrl).then((res) => res.blob());
-      const videoFile = new File([videoBlob], "input.mp4", {
+      const videoFile = new File([videoBlob], "in.mp4", {
         type: "video/mp4",
       });
 
@@ -116,9 +125,9 @@ const Clip = () => {
         `${convertToHHMMSS(clipRange[0].toString())}`,
         "-to",
         `${convertToHHMMSS(clipRange[1].toString())}`,
-        "-acodec",
+        "-c:v",
         "copy",
-        "-vcodec",
+        "-c:a",
         "copy",
         "out.mp4"
       );
@@ -130,7 +139,42 @@ const Clip = () => {
 
       const response = await fetch(url);
       const blob = await response.blob();
-      const file = new File([blob], "trimmed_video.mp4", { type: "video/mp4" });
+      const file = new File([blob], `${title}.mp4`, { type: "video/mp4" });
+
+      const { res } = await requestUpload({
+        name: title,
+      });
+
+      const tusEndpoint = res?.tusEndpoint;
+
+      const upload = new tus.Upload(file, {
+        endpoint: tusEndpoint,
+        retryDelays: [0, 1000, 3000, 5000],
+        metadata: {
+          filename: `${title}.mp4`,
+          filetype: "video/mp4",
+        },
+        onError: function (error: any) {
+          console.log("Failed because: ", error);
+        },
+        onProgress: function (bytesUploaded: number, bytesTotal: number) {
+          const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+          console.log(bytesUploaded, bytesTotal, percentage);
+        },
+        onSuccess: function () {
+          console.log("Download %s from %s", upload.file, upload.url);
+        },
+      });
+
+      upload.findPreviousUploads().then(function (previousUploads) {
+        // Found previous uploads so we select the first one.
+        if (previousUploads.length) {
+          upload.resumeFromPreviousUpload(previousUploads[0]);
+        }
+
+        // Start the upload
+        upload.start();
+      });
 
       setTrimmedVideoURL(url);
     }
@@ -138,13 +182,12 @@ const Clip = () => {
 
   return (
     <Flex h="100vh" p="20" bg="rgba(5, 0, 31, 1)">
-      <Flex flexDirection={"column"} mx="auto">
+      <Flex flexDirection={"column"} mx="auto" gap="10px">
         <video
           ref={videoRef}
           src={clipUrl.concat("#t=0.1")}
           style={{
             height: "60%",
-            marginBottom: "10px",
           }}
           onTimeUpdate={handleTimeUpdate}
           onSeeking={handleSeeking}
@@ -162,23 +205,24 @@ const Clip = () => {
             max={videoRef.current?.duration || 100}
             value={clipRange}
             onChange={handleRangeChange}
-            marginBottom="10px"
           >
             <RangeSliderTrack height="40px" backgroundColor="#414141">
-              <RangeSliderFilledTrack />
+              <RangeSliderFilledTrack color={"#343dbb"} />
             </RangeSliderTrack>
-            <RangeSliderThumb boxSize={"40px"} index={0}>
-              <Text color="black">{`0:${
-                Math.floor(clipRange[0]) > 9 ? "" : "0"
-              }${Math.floor(clipRange[0])}`}</Text>
+            <RangeSliderThumb boxSize={"40px"} borderRadius={0} index={0}>
+              <MdDragIndicator color={"#343dbb"} size={"30"} />
             </RangeSliderThumb>
-            <RangeSliderThumb boxSize={"40px"} index={1}>
-              <Text color="black">{`0:${
-                Math.floor(clipRange[1]) > 9 ? "" : "0"
-              }${Math.floor(clipRange[1])}`}</Text>
+            <RangeSliderThumb boxSize={"40px"} borderRadius={0} index={1}>
+              <MdDragIndicator color={"#343dbb"} size={"30"} />
             </RangeSliderThumb>
           </RangeSlider>
         )}
+        <Input
+          variant="glow"
+          placeholder={"title"}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
         <Button onClick={handleTrim}>Publish</Button>
         {trimmedVideoURL && (
           <video
@@ -186,7 +230,6 @@ const Clip = () => {
             loop
             style={{
               height: "60%",
-              marginBottom: "10px",
             }}
           >
             <source src={trimmedVideoURL} type={"video/mp4"} />

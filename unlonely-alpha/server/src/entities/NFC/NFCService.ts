@@ -258,7 +258,7 @@ export const createLivepeerClip = async (
     const responseData: ClipResponse = response.data;
     let asset = null;
     while (true) {
-      await new Promise((resolve) => setTimeout(resolve, 10000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
       const poll = await fetch(
         `https://livepeer.studio/api/asset/${responseData.asset.id}`,
         {
