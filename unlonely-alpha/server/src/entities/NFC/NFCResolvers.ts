@@ -48,6 +48,12 @@ export const resolvers = {
       }
       return NFCService.createLivepeerClip(data, ctx, ctx.user);
     },
+    requestUploadFromLivepeer(
+      _: any,
+      { data }: { data: NFCService.IRequestUploadFromLivepeerInput }
+    ) {
+      return NFCService.requestUploadFromLivepeer(data);
+    },
     openseaNFCScript: async (_: any, __: any, ctx: Context) => {
       return NFCService.openseaNFCScript(ctx);
     },

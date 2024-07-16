@@ -35,6 +35,27 @@ interface ClipResponse {
   };
 }
 
+interface RequestUploadResponse {
+  url: string;
+  tusEndpoint: string;
+  task: {
+    id: string;
+  };
+  asset: {
+    name: string;
+    id: string;
+    playbackId: string;
+    userId: string
+    createdAt: number;
+    status: {
+      phase: string;
+      updatedAt: number;
+      progress?: number;
+      errorMessage?: string;
+    }
+  }
+}
+
 export interface IPostNFCInput {
   channelId: string;
   title: string;
@@ -288,6 +309,41 @@ export const createLivepeerClip = async (
     return { errorMessage: "Error invoking livepeer" };
   }
 };
+
+export interface IRequestUploadFromLivepeerInput {
+  name: string;
+}
+
+export const requestUploadFromLivepeer = async (data: IRequestUploadFromLivepeerInput): Promise<RequestUploadResponse> => {
+  const headers = {
+    Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
+    "Content-Type": "application/json",
+  };
+  const bodyData = {
+    name: data.name,
+  };
+  const response = await axios.post(
+    "https://livepeer.studio/api/asset/request-upload",
+    bodyData,
+    {
+      headers,
+    }
+  );
+  const returnData: RequestUploadResponse = {
+    url: response.data.url,
+    tusEndpoint: response.data.tusEndpoint,
+    task: response.data.task,
+    asset: {
+      ...response.data.asset,
+      createdAt: String(response.data.asset.createdAt),
+      status: {
+        ...response.data.asset.status,
+        updatedAt: String(response.data.asset.status.updatedAt),
+      }
+    }
+  };
+  return returnData;
+}
 
 export interface IGetNFCFeedInput {
   offset: number;

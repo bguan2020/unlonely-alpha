@@ -9,7 +9,7 @@
     "lint": "eslint ."
   },
   "engines": {
-    "node": ">=16.9.1"
+    "node": "16.x"
   },
   "dependencies": {
     "@airstack/node": "^0.0.5",
