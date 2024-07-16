@@ -78,6 +78,29 @@ export type AddSuggestedChannelsToSubscriptionsInput = {
   channelIds: Array<Scalars["ID"]>;
 };
 
+export type Asset = {
+  __typename?: "Asset";
+  createdAt: Scalars["String"];
+  id: Scalars["String"];
+  name: Scalars["String"];
+  playbackId: Scalars["String"];
+  status: AssetStatus;
+  userId: Scalars["String"];
+};
+
+export type AssetStatus = {
+  __typename?: "AssetStatus";
+  errorMessage?: Maybe<Scalars["String"]>;
+  phase: Scalars["String"];
+  progress?: Maybe<Scalars["Float"]>;
+  updatedAt: Scalars["String"];
+};
+
+export type AssetTask = {
+  __typename?: "AssetTask";
+  id: Scalars["ID"];
+};
+
 export type BaseLeaderboard = {
   __typename?: "BaseLeaderboard";
   amount: Scalars["Float"];
@@ -99,6 +122,7 @@ export type Channel = {
   description?: Maybe<Scalars["String"]>;
   id: Scalars["ID"];
   isLive?: Maybe<Scalars["Boolean"]>;
+  lastNotificationAt: Scalars["DateTime"];
   livepeerPlaybackId?: Maybe<Scalars["String"]>;
   livepeerStreamId?: Maybe<Scalars["String"]>;
   name?: Maybe<Scalars["String"]>;
@@ -484,6 +508,8 @@ export type Mutation = {
   postVibesTrades?: Maybe<Array<Maybe<VibesTransaction>>>;
   postVideo?: Maybe<Video>;
   removeChannelFromSubscription?: Maybe<Subscription>;
+  requestUploadFromLivepeer?: Maybe<RequestUploadResponse>;
+  resetLastNotificationAtMigration?: Maybe<Scalars["Boolean"]>;
   softDeleteChannel?: Maybe<Channel>;
   softDeleteSubscription?: Maybe<Subscription>;
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
@@ -630,6 +656,10 @@ export type MutationPostVideoArgs = {
 
 export type MutationRemoveChannelFromSubscriptionArgs = {
   data: MoveChannelAlongSubscriptionInput;
+};
+
+export type MutationRequestUploadFromLivepeerArgs = {
+  data: RequestUploadFromLivepeerInput;
 };
 
 export type MutationSoftDeleteChannelArgs = {
@@ -1138,6 +1168,18 @@ export type QueryGetVideoFeedArgs = {
 
 export type QuerySendAllNotificationsArgs = {
   data: SendAllNotificationsInput;
+};
+
+export type RequestUploadFromLivepeerInput = {
+  name: Scalars["String"];
+};
+
+export type RequestUploadResponse = {
+  __typename?: "RequestUploadResponse";
+  asset: Asset;
+  task: AssetTask;
+  tusEndpoint: Scalars["String"];
+  url: Scalars["String"];
 };
 
 export type SendAllNotificationsInput = {
@@ -2749,6 +2791,40 @@ export type FetchCurrentUserQuery = {
     signature?: string | null;
     sigTimestamp?: any | null;
   } | null;
+};
+
+export type RequestUploadFromLivepeerMutationVariables = Exact<{
+  data: RequestUploadFromLivepeerInput;
+}>;
+
+export type RequestUploadFromLivepeerMutation = {
+  __typename?: "Mutation";
+  requestUploadFromLivepeer?: {
+    __typename?: "RequestUploadResponse";
+    url: string;
+    tusEndpoint: string;
+    task: { __typename?: "AssetTask"; id: string };
+    asset: {
+      __typename?: "Asset";
+      userId: string;
+      status: {
+        __typename?: "AssetStatus";
+        updatedAt: string;
+        progress?: number | null;
+        phase: string;
+        errorMessage?: string | null;
+      };
+    };
+  } | null;
+};
+
+export type UpdateChannelFidSubscriptionMutationVariables = Exact<{
+  data: UpdateChannelFidSubscriptionInput;
+}>;
+
+export type UpdateChannelFidSubscriptionMutation = {
+  __typename?: "Mutation";
+  updateChannelFidSubscription?: string | null;
 };
 
 export const GetUserDocument = gql`
@@ -7133,3 +7209,118 @@ export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
 >;
+export const RequestUploadFromLivepeerDocument = gql`
+  mutation RequestUploadFromLivepeer($data: RequestUploadFromLivepeerInput!) {
+    requestUploadFromLivepeer(data: $data) {
+      url
+      tusEndpoint
+      task {
+        id
+      }
+      asset {
+        userId
+        status {
+          updatedAt
+          progress
+          phase
+          errorMessage
+        }
+      }
+    }
+  }
+`;
+export type RequestUploadFromLivepeerMutationFn = Apollo.MutationFunction<
+  RequestUploadFromLivepeerMutation,
+  RequestUploadFromLivepeerMutationVariables
+>;
+
+/**
+ * __useRequestUploadFromLivepeerMutation__
+ *
+ * To run a mutation, you first call `useRequestUploadFromLivepeerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRequestUploadFromLivepeerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [requestUploadFromLivepeerMutation, { data, loading, error }] = useRequestUploadFromLivepeerMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useRequestUploadFromLivepeerMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    RequestUploadFromLivepeerMutation,
+    RequestUploadFromLivepeerMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    RequestUploadFromLivepeerMutation,
+    RequestUploadFromLivepeerMutationVariables
+  >(RequestUploadFromLivepeerDocument, options);
+}
+export type RequestUploadFromLivepeerMutationHookResult = ReturnType<
+  typeof useRequestUploadFromLivepeerMutation
+>;
+export type RequestUploadFromLivepeerMutationResult =
+  Apollo.MutationResult<RequestUploadFromLivepeerMutation>;
+export type RequestUploadFromLivepeerMutationOptions =
+  Apollo.BaseMutationOptions<
+    RequestUploadFromLivepeerMutation,
+    RequestUploadFromLivepeerMutationVariables
+  >;
+export const UpdateChannelFidSubscriptionDocument = gql`
+  mutation UpdateChannelFidSubscription(
+    $data: UpdateChannelFidSubscriptionInput!
+  ) {
+    updateChannelFidSubscription(data: $data)
+  }
+`;
+export type UpdateChannelFidSubscriptionMutationFn = Apollo.MutationFunction<
+  UpdateChannelFidSubscriptionMutation,
+  UpdateChannelFidSubscriptionMutationVariables
+>;
+
+/**
+ * __useUpdateChannelFidSubscriptionMutation__
+ *
+ * To run a mutation, you first call `useUpdateChannelFidSubscriptionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateChannelFidSubscriptionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateChannelFidSubscriptionMutation, { data, loading, error }] = useUpdateChannelFidSubscriptionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateChannelFidSubscriptionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateChannelFidSubscriptionMutation,
+    UpdateChannelFidSubscriptionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateChannelFidSubscriptionMutation,
+    UpdateChannelFidSubscriptionMutationVariables
+  >(UpdateChannelFidSubscriptionDocument, options);
+}
+export type UpdateChannelFidSubscriptionMutationHookResult = ReturnType<
+  typeof useUpdateChannelFidSubscriptionMutation
+>;
+export type UpdateChannelFidSubscriptionMutationResult =
+  Apollo.MutationResult<UpdateChannelFidSubscriptionMutation>;
+export type UpdateChannelFidSubscriptionMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateChannelFidSubscriptionMutation,
+    UpdateChannelFidSubscriptionMutationVariables
+  >;

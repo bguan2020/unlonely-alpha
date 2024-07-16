@@ -48,6 +48,16 @@ export const resolvers = {
       }
       return NFCService.createLivepeerClip(data, ctx, ctx.user);
     },
+    requestUploadFromLivepeer(
+      _: any,
+      { data }: { data: NFCService.IRequestUploadFromLivepeerInput },
+      ctx: Context
+    ) {
+      // if (!ctx.user || !ctx.userIsAuthed) {
+      //   throw new AuthenticationError("User is not authenticated");
+      // }
+      return NFCService.requestUploadFromLivepeer(data);
+    },
     openseaNFCScript: async (_: any, __: any, ctx: Context) => {
       return NFCService.openseaNFCScript(ctx);
     },

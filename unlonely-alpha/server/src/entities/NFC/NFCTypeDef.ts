@@ -16,6 +16,33 @@ export const typeDef = gql`
     channel: Channel!
   }
 
+  type AssetTask {
+    id: ID!
+  }
+
+  type Asset {
+    name: String!
+    id: String!
+    playbackId: String!
+    status: AssetStatus!
+    createdAt: String!
+    userId: String!
+  }
+
+  type AssetStatus {
+    phase: String!
+    updatedAt: String!
+    progress: Float
+    errorMessage: String
+  }
+  
+  type RequestUploadResponse {
+    url: String!
+    tusEndpoint: String!
+    task: AssetTask!
+    asset: Asset!
+  }
+
   type Channel {
     id: ID!
     name: String
@@ -46,6 +73,7 @@ export const typeDef = gql`
     thumbnail: String
     errorMessage: String
   }
+
 
   input NFCFeedInput {
     limit: Int
@@ -81,6 +109,10 @@ export const typeDef = gql`
     livepeerPlaybackId: String!
   }
 
+  input RequestUploadFromLivepeerInput {
+    name: String!
+  }
+
   extend type Query {
     getNFCFeed(data: NFCFeedInput): [NFC]
     getNFC(id: ID!): NFC
@@ -93,5 +125,6 @@ export const typeDef = gql`
     updateNFC(data: UpdateNFCInput!): NFC
     openseaNFCScript: String
     updateOpenseaLink: NFC
+    requestUploadFromLivepeer(data: RequestUploadFromLivepeerInput!): RequestUploadResponse
   }
 `;
