@@ -224,7 +224,7 @@ export const createLivepeerClip = async (
   user: User
 ) => {
   const endTime = Date.now();
-  const startTime = endTime - 30000; // 30 seconds before the endTime in milliseconds
+  const startTime = endTime - 60000; // 60 seconds before the endTime in milliseconds
   const clipData: ClipData = {
     startTime,
     endTime,

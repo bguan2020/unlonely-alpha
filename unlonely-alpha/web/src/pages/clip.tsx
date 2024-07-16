@@ -14,6 +14,12 @@ import { MdDragIndicator } from "react-icons/md";
 
 import { convertToHHMMSS } from "../utils/time";
 import useRequestUpload from "../hooks/server/channel/useRequestUpload";
+import {
+  CLIP_CHANNEL_ID_QUERY_PARAM,
+  CLIP_PLAYBACK_ID_QUERY_PARAM,
+} from "../constants";
+import { useRouter } from "next/router";
+import useCreateClip from "../hooks/server/channel/useCreateClip";
 
 let ffmpeg: any; //Store the ffmpeg instance
 
@@ -24,6 +30,9 @@ const Clip = () => {
   const [trimmedVideoURL, setTrimmedVideoURL] = useState<string | null>(null);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [title, setTitle] = useState("");
+  const [clipUrl, setClipUrl] = useState(
+    "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/0f303hhuyems5o1m/720p0.mp4"
+  );
 
   const { requestUpload } = useRequestUpload({
     onError: () => {
@@ -31,8 +40,53 @@ const Clip = () => {
     },
   });
 
-  const clipUrl =
-    "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/0f303hhuyems5o1m/720p0.mp4";
+  const { createClip } = useCreateClip({
+    onError: (e) => {
+      console.log(e);
+    },
+  });
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const init = async () => {
+      if (
+        router.query[CLIP_PLAYBACK_ID_QUERY_PARAM] &&
+        router.query[CLIP_CHANNEL_ID_QUERY_PARAM]
+      ) {
+        console.log(
+          router.query,
+          router.query[CLIP_PLAYBACK_ID_QUERY_PARAM],
+          router.query[CLIP_CHANNEL_ID_QUERY_PARAM]
+        );
+        const newPath = router.pathname;
+        const newQuery = { ...router.query };
+        delete newQuery[CLIP_PLAYBACK_ID_QUERY_PARAM];
+
+        router.replace(
+          {
+            pathname: newPath,
+            query: newQuery,
+          },
+          undefined,
+          { shallow: true }
+        );
+
+        const { res } = await createClip({
+          title,
+          channelId: router.query[CLIP_CHANNEL_ID_QUERY_PARAM],
+          livepeerPlaybackId: router.query[CLIP_PLAYBACK_ID_QUERY_PARAM],
+        });
+        const url = res?.url;
+        if (url) {
+          setClipUrl(url);
+        } else {
+          console.log("Error, url is missing");
+        }
+      }
+    };
+    init();
+  }, [router]);
 
   useEffect(() => {
     if (clipUrl && videoRef.current) {
@@ -133,13 +187,11 @@ const Clip = () => {
       );
       //Convert data to url and store in videoTrimmedUrl state
       const data = ffmpeg.FS("readFile", "out.mp4");
-      const url = URL.createObjectURL(
-        new Blob([data.buffer], { type: "video/mp4" })
-      );
-
-      const response = await fetch(url);
-      const blob = await response.blob();
-      const file = new File([blob], `${title}.mp4`, { type: "video/mp4" });
+      const trimmedBlob = new Blob([data.buffer], { type: "video/mp4" });
+      const trimmedUrl = URL.createObjectURL(trimmedBlob);
+      const trimmedFile = new File([trimmedBlob], `${title}.mp4`, {
+        type: "video/mp4",
+      });
 
       const { res } = await requestUpload({
         name: title,
@@ -147,7 +199,7 @@ const Clip = () => {
 
       const tusEndpoint = res?.tusEndpoint;
 
-      const upload = new tus.Upload(file, {
+      const upload = new tus.Upload(trimmedFile, {
         endpoint: tusEndpoint,
         retryDelays: [0, 1000, 3000, 5000],
         metadata: {
@@ -176,18 +228,18 @@ const Clip = () => {
         upload.start();
       });
 
-      setTrimmedVideoURL(url);
+      setTrimmedVideoURL(trimmedUrl);
     }
   };
 
   return (
-    <Flex h="100vh" p="20" bg="rgba(5, 0, 31, 1)">
+    <Flex p="20" bg="rgba(5, 0, 31, 1)">
       <Flex flexDirection={"column"} mx="auto" gap="10px">
         <video
           ref={videoRef}
           src={clipUrl.concat("#t=0.1")}
           style={{
-            height: "60%",
+            height: "30%",
           }}
           onTimeUpdate={handleTimeUpdate}
           onSeeking={handleSeeking}
@@ -209,11 +261,11 @@ const Clip = () => {
             <RangeSliderTrack height="40px" backgroundColor="#414141">
               <RangeSliderFilledTrack color={"#343dbb"} />
             </RangeSliderTrack>
-            <RangeSliderThumb boxSize={"40px"} borderRadius={0} index={0}>
-              <MdDragIndicator color={"#343dbb"} size={"30"} />
+            <RangeSliderThumb height={"40px"} borderRadius={0} index={0}>
+              <MdDragIndicator color={"#343dbb"} size={"40"} />
             </RangeSliderThumb>
-            <RangeSliderThumb boxSize={"40px"} borderRadius={0} index={1}>
-              <MdDragIndicator color={"#343dbb"} size={"30"} />
+            <RangeSliderThumb height={"40px"} borderRadius={0} index={1}>
+              <MdDragIndicator color={"#343dbb"} size={"40"} />
             </RangeSliderThumb>
           </RangeSlider>
         )}
@@ -223,13 +275,15 @@ const Clip = () => {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
-        <Button onClick={handleTrim}>Publish</Button>
+        <Button onClick={handleTrim} isDisabled={!title}>
+          Publish
+        </Button>
         {trimmedVideoURL && (
           <video
             controls
             loop
             style={{
-              height: "60%",
+              height: "30%",
             }}
           >
             <source src={trimmedVideoURL} type={"video/mp4"} />
