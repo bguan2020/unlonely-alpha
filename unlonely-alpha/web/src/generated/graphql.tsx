@@ -98,7 +98,7 @@ export type AssetStatus = {
 
 export type AssetTask = {
   __typename?: "AssetTask";
-  id: Scalars["ID"];
+  id: Scalars["String"];
 };
 
 export type BaseLeaderboard = {

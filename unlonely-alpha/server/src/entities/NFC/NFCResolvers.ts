@@ -50,12 +50,8 @@ export const resolvers = {
     },
     requestUploadFromLivepeer(
       _: any,
-      { data }: { data: NFCService.IRequestUploadFromLivepeerInput },
-      ctx: Context
+      { data }: { data: NFCService.IRequestUploadFromLivepeerInput }
     ) {
-      // if (!ctx.user || !ctx.userIsAuthed) {
-      //   throw new AuthenticationError("User is not authenticated");
-      // }
       return NFCService.requestUploadFromLivepeer(data);
     },
     openseaNFCScript: async (_: any, __: any, ctx: Context) => {

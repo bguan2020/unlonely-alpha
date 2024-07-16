@@ -17,7 +17,7 @@ export const typeDef = gql`
   }
 
   type AssetTask {
-    id: ID!
+    id: String!
   }
 
   type Asset {
