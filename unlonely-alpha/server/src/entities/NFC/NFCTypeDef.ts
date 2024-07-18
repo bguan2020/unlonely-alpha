@@ -113,6 +113,14 @@ export const typeDef = gql`
     name: String!
   }
 
+  input TrimVideoInput {
+    startTime: Float!
+    endTime: Float!
+    videoLink: String!
+    name: String!
+    channelId: ID!
+  }
+
   extend type Query {
     getNFCFeed(data: NFCFeedInput): [NFC]
     getNFC(id: ID!): NFC
@@ -126,5 +134,6 @@ export const typeDef = gql`
     openseaNFCScript: String
     updateOpenseaLink: NFC
     requestUploadFromLivepeer(data: RequestUploadFromLivepeerInput!): RequestUploadResponse
+    trimVideo(data: TrimVideoInput!): Boolean
   }
 `;

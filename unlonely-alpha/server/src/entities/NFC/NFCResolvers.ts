@@ -54,6 +54,13 @@ export const resolvers = {
     ) {
       return NFCService.requestUploadFromLivepeer(data);
     },
+    trimVideo(
+      _: any,
+      { data }: { data: NFCService.ITrimVideoInput },
+      ctx: Context
+    ) {
+        return NFCService.trimVideo(data, ctx);
+    },
     openseaNFCScript: async (_: any, __: any, ctx: Context) => {
       return NFCService.openseaNFCScript(ctx);
     },
