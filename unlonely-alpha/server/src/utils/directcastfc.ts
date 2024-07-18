@@ -26,6 +26,13 @@ export const directCastFc = async (
     return;
   }
 
+  const oneHourAgo = new Date(Date.now() - 3600 * 1000);
+
+  if (existingChannel.lastNotificationAt > oneHourAgo) {
+      console.log("Direct casts already sent within the last hour for channel:", existingChannel.slug);
+      return;
+  }
+
   const promises = existingChannel.subscribedFIDs.map((recipientFid) => {
     const idempotencyKey = uuidv4(); // Generate a unique idempotency key for each request
     return axios
