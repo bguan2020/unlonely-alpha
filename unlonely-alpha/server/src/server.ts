@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import http from "http";
+// import multer from "multer";
 
 import { ApolloServer } from "apollo-server-express";
 import bodyParser from "body-parser";
@@ -13,6 +14,7 @@ import { setLivepeerStreamIsLive } from "./utils/setLivepeerStreamIsLive";
 import { fetchForNewTokenSupplies } from "./utils/fetchForNewTokenSupplies";
 import { directCastFc } from "./utils/directcastfc";
 import { sendPWANotifications } from "./utils/sendPWANotifications";
+// import { postVideoOnTwitter } from "./utils/uploadVideoToTwitter";
 
 const app = express();
 app.use(cors());
@@ -73,6 +75,24 @@ app.get("/aws-scheduler-update-2", (req, res) => {
   res.send("/aws-scheduler-update-2 success");
 });
 
+// const upload = multer({ dest: "uploads/" });
+
+// app.post("/upload-video-to-twitter", upload.single("video"), async (req, res) => {
+//   const videoFile = req.file;
+//   const status = req.body.status;
+
+//   if (!videoFile) {
+//     return res.status(400).send("No video file uploaded.");
+//   }
+
+//   try {
+//     await postVideoOnTwitter({ videoFile, status });
+//     res.send("Tweet posted successfully!");
+//   } catch (error) {
+//     res.status(500).send("Failed to post tweet");
+//   }
+// })
+
 const startServer = async () => {
   const apolloServer = new ApolloServer({
     schema: graphqlSchema,
@@ -84,7 +104,7 @@ const startServer = async () => {
   await apolloServer.start();
 
   // Apply Apollo middleware to the Express app
-  apolloServer.applyMiddleware({ app, path: "/graphql" });
+  apolloServer.applyMiddleware({ app: app as any, path: "/graphql" });
 
   // Create an HTTP server using the Express app
   const httpServer = http.createServer(app);
