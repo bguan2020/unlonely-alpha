@@ -1,10 +1,23 @@
 import { User } from "@prisma/client";
 import * as AWS from "aws-sdk";
 import axios from "axios";
+import * as tus from "tus-js-client"
 
 import { Context } from "../../context";
 import { getLivepeerThumbnail } from "../Channel/channelService";
 import opensea from "./opensea.json";
+import {v4 as uuidv4} from "uuid";
+import path from "path";
+import fs from "fs";
+import ffmpeg from "fluent-ffmpeg";
+import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
+
+ffmpeg.setFfmpegPath(ffmpegInstaller.path);
+
+const livepeerHeaders = {
+  Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
+  "Content-Type": "application/json",
+};
 
 interface ClipData {
   startTime: number;
@@ -231,10 +244,6 @@ export const createLivepeerClip = async (
     playbackId: data.livepeerPlaybackId,
     name: data.title,
   };
-  const headers = {
-    Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
-    "Content-Type": "application/json",
-  };
   console.log(
     "createLivepeerClip calling livepeer at time",
     new Date(Date.now()).toISOString(),
@@ -245,7 +254,7 @@ export const createLivepeerClip = async (
       "https://livepeer.studio/api/clip",
       clipData,
       {
-        headers,
+        headers: livepeerHeaders,
       }
     );
     console.log(
@@ -258,12 +267,12 @@ export const createLivepeerClip = async (
     const responseData: ClipResponse = response.data;
     let asset = null;
     while (true) {
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await new Promise((resolve) => setTimeout(resolve, 5000));
       const poll = await fetch(
         `https://livepeer.studio/api/asset/${responseData.asset.id}`,
         {
           method: "GET",
-          headers,
+          headers: livepeerHeaders,
         }
       );
       const res = await poll.json();
@@ -285,7 +294,7 @@ export const createLivepeerClip = async (
     );
     const playbackData: any = await fetch(
       `https://livepeer.studio/api/playback/${asset.playbackId}`,
-      { headers }
+      { headers: livepeerHeaders }
     ).then((res) => res.json());
 
     const playBackUrl = playbackData.meta.source[0].url;
@@ -309,6 +318,146 @@ export const createLivepeerClip = async (
     return { errorMessage: "Error invoking livepeer" };
   }
 };
+
+export interface ITrimVideoInput {
+  startTime: number;
+  endTime: number;
+  videoLink: string;
+  name: string;
+  channelId: string;
+}
+
+export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
+  const videoId = uuidv4();
+  const inputPath = path.join(__dirname, `${videoId}-input.mp4`);
+  const outputPath = path.join(__dirname, `${videoId}-output.mp4`);
+
+  try {
+    // Request an upload URL from Livepeer AND download the video
+    const [requestRes, downloadResponse] = await Promise.all([
+      requestUploadFromLivepeer({ name: data.name }),
+      axios({
+        url: data.videoLink,
+        method: "GET",
+        responseType: "stream",
+      }),
+    ]);
+
+    await new Promise((resolve, reject) => {
+      const writer = fs.createWriteStream(inputPath); // A write stream is created to write the video to be downloaded to a file at the path specified by inputPath
+      downloadResponse.data.pipe(writer); // data being downloaded is directly written to the file as it is received
+      writer.on("finish", resolve);
+      writer.on("error", reject);
+    });
+
+    // Trim the video using FFmpeg
+    await new Promise<void>((resolve, reject) => {
+      ffmpeg(inputPath)
+        .setStartTime(data.startTime)
+        .setDuration(data.endTime - data.startTime)
+        .output(outputPath)
+        .on("end", resolve)
+        .on("error", (err) => {
+          console.error("Error processing video:", err);
+          reject(err);
+          // Clean up temporary files
+          fs.unlinkSync(inputPath);
+          if (fs.existsSync(outputPath)) {
+            fs.unlinkSync(outputPath);
+          }
+        })
+        .run();
+    });
+
+    // Upload the trimmed video using tus-js-client
+    const fileSize = fs.statSync(outputPath).size;
+    const fileStream = fs.createReadStream(outputPath);
+
+    new Promise<string>((resolve, reject) => {
+      const upload = new tus.Upload(fileStream, {
+        endpoint: requestRes.tusEndpoint,
+        retryDelays: [0, 1000, 3000, 5000],
+        metadata: {
+          filename: `${data.name}.mp4`,
+          filetype: "video/mp4",
+        },
+        uploadSize: fileSize,
+        onError: (error: any) => {
+          console.error("Failed because: ", error);
+          reject(error);
+        },
+        onSuccess: () => {
+          resolve(upload.url!);
+          // Clean up temporary files
+          fs.unlinkSync(inputPath);
+          fs.unlinkSync(outputPath);
+        },
+      });
+    
+      upload.findPreviousUploads().then((previousUploads) => {
+        // Found previous uploads so we select the first one.
+        if (previousUploads.length) {
+          upload.resumeFromPreviousUpload(previousUploads[0]);
+        }
+        // Start the upload
+        upload.start();
+      });
+    });
+    let asset = null;
+    while (true) {
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      const poll = await fetch(
+        `https://livepeer.studio/api/asset/${requestRes.asset.id}`,
+        {
+          method: "GET",
+          headers: livepeerHeaders,
+        }
+      );
+      const res = await poll.json();
+      if (res.status.phase === "ready") {
+        asset = res;
+        break;
+      }
+      if (res.status.phase === "failed") {
+        return {
+          errorMessage:
+            "createLivepeerClip Error livepeer could not create clip",
+        };
+      }
+    }
+    const playbackData: any = await fetch(
+      `https://livepeer.studio/api/playback/${asset.playbackId}`,
+      { headers: livepeerHeaders }
+    ).then((res) => res.json());
+
+    const playBackUrl = playbackData.meta.source[0].url;
+
+    const thumbNailUrl = await getLivepeerThumbnail(asset.playbackId);
+
+    // const res = await postNFC(
+    //   {
+    //     title: data.name,
+    //     videoLink: playBackUrl,
+    //     videoThumbnail: thumbNailUrl,
+    //     openseaLink: "",
+    //     channelId: data.channelId,
+    //   },
+    //   ctx,
+    //   ctx.user!
+    // );
+    return true
+  } catch (e) {
+    console.error("Error:", e);
+    // Clean up temporary files
+    if (fs.existsSync(inputPath)) {
+      fs.unlinkSync(inputPath);
+    }
+    if (fs.existsSync(outputPath)) {
+      fs.unlinkSync(outputPath);
+    }
+    throw e;
+  }
+}
 
 export interface IRequestUploadFromLivepeerInput {
   name: string;

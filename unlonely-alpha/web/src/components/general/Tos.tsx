@@ -2,12 +2,15 @@ import { Flex, Text, IconButton, Image } from "@chakra-ui/react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useRouter } from "next/router";
 
 export const Tos = () => {
   const { isStandalone } = useUserAgent();
 
   const [tosPopupCookie, setTosPopupCookie] = useState(null);
   const [tosPopup, setTosPopup] = useState(false);
+  const [isAtChannels, setIsAtChannels] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -22,14 +25,23 @@ export const Tos = () => {
     }, 2000);
   }, []);
 
+  useEffect(() => {
+    if (router.pathname.startsWith("/channels")) {
+      setIsAtChannels(true);
+    } else {
+      setIsAtChannels(false);
+    }
+  }, [router.pathname]);
+
   return (
     <>
       {tosPopup && !isStandalone && !tosPopupCookie && (
         <Flex
           position="fixed"
-          bottom="0"
-          bg="black"
-          zIndex="20"
+          bottom={!isAtChannels ? "0" : "unset"}
+          top={isAtChannels ? "0" : "unset"}
+          bg={isAtChannels ? "rgba(70, 168, 0, 0.5)" : "black"}
+          zIndex={isAtChannels ? "1001" : "20"}
           width="100%"
           justifyContent={"center"}
         >
