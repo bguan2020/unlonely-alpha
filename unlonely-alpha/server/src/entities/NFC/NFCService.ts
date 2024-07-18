@@ -386,12 +386,7 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
           console.error("Failed because: ", error);
           reject(error);
         },
-        onProgress: (bytesUploaded: number, bytesTotal: number) => {
-          const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-          console.log(`Upload progress: ${percentage}%`);
-        },
         onSuccess: () => {
-          console.log(`Upload finished: ${upload.url}`);
           resolve(upload.url!);
           // Clean up temporary files
           fs.unlinkSync(inputPath);
