@@ -329,8 +329,6 @@ export interface ITrimVideoInput {
 
 export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
 
-  console.log(data.startTime, data.endTime, data.videoLink);
-
   const videoId = uuidv4();
   const inputPath = path.join(__dirname, `${videoId}-input.mp4`);
   const outputPath = path.join(__dirname, `${videoId}-output.mp4`);
@@ -422,13 +420,6 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
         }
       );
       const res = await poll.json();
-      console.log("polling", res)
-      // const playbackData: any = await fetch(
-      //   `https://livepeer.studio/api/playback/${res.playbackId}`,
-      //   { headers: livepeerHeaders }
-      // ).then((res) => res.json());
-
-      // console.log("playbackData", playbackData?.meta?.source[0]?.url)
       if (res.status.phase === "ready") {
         asset = res;
         break;
@@ -449,17 +440,17 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
 
     const thumbNailUrl = await getLivepeerThumbnail(asset.playbackId);
 
-    // const res = await postNFC(
-    //   {
-    //     title: data.name,
-    //     videoLink: playBackUrl,
-    //     videoThumbnail: thumbNailUrl,
-    //     openseaLink: "",
-    //     channelId: data.channelId,
-    //   },
-    //   ctx,
-    //   ctx.user!
-    // );
+    await postNFC(
+      {
+        title: data.name,
+        videoLink: playBackUrl,
+        videoThumbnail: thumbNailUrl,
+        openseaLink: "",
+        channelId: data.channelId,
+      },
+      ctx,
+      ctx.user!
+    );
     console.log("finished trimming video");
     return true
   } catch (e) {

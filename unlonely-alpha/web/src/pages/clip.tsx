@@ -361,20 +361,27 @@ const Clip = () => {
   return (
     <Flex p="20" h="100vh" bg="rgba(5, 0, 31, 1)">
       <Flex flexDirection={"column"} mx="auto" gap="10px">
-        <video
-          ref={videoRef}
-          src={clipUrl.concat("#t=0.1")}
-          style={{
-            height: "500px",
-          }}
-          onTimeUpdate={handleTimeUpdate}
-          onSeeking={handleSeeking}
-          controls
-          onEnded={() => {
-            videoRef.current!.currentTime = clipRange[0];
-            videoRef.current!.play();
-          }}
-        />
+        {clipUrl ? (
+          <video
+            ref={videoRef}
+            src={clipUrl.concat("#t=0.1")}
+            style={{
+              height: "500px",
+            }}
+            onTimeUpdate={handleTimeUpdate}
+            onSeeking={handleSeeking}
+            controls
+            onEnded={() => {
+              videoRef.current!.currentTime = clipRange[0];
+              videoRef.current!.play();
+            }}
+          />
+        ) : (
+          <>
+            <Spinner />
+            <Text>Creating rough clip...</Text>
+          </>
+        )}
         {clipUrl && (
           <RangeSlider
             aria-label={["min", "max"]}
