@@ -9,11 +9,11 @@ import {
   Text,
   Box,
   Spinner,
+  Skeleton,
 } from "@chakra-ui/react";
 import { useRef, useState, useEffect } from "react";
 import { MdDragIndicator } from "react-icons/md";
 
-import useRequestUpload from "../hooks/server/channel/useRequestUpload";
 import {
   CLIP_CHANNEL_ID_QUERY_PARAM,
   CLIP_PLAYBACK_ID_QUERY_PARAM,
@@ -21,6 +21,7 @@ import {
 import { useRouter } from "next/router";
 import useCreateClip from "../hooks/server/channel/useCreateClip";
 import useTrimVideo from "../hooks/server/channel/useTrimVideo";
+import { WavyText } from "../components/general/WavyText";
 
 const Clip = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -34,14 +35,8 @@ const Clip = () => {
     // "https://openseauserdata.com/files/b29ce5e85b7dc97eeb6a571b48644231.mp4"
   );
   const [publishingPercentage, setPublishingPercentage] = useState<number>(0);
-  const [isPublished, setIsPublished] = useState<boolean>(false);
+  const [isPublishSent, setIsPublishSent] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const { requestUpload } = useRequestUpload({
-    onError: () => {
-      console.log("Error");
-    },
-  });
 
   const { createClip } = useCreateClip({
     onError: (e) => {
@@ -129,8 +124,8 @@ const Clip = () => {
   };
 
   return (
-    <Flex p="20" h="100vh" bg="rgba(5, 0, 31, 1)">
-      <Flex flexDirection={"column"} mx="auto" gap="10px">
+    <Flex p="20" h="100vh" bg="rgba(5, 0, 31, 1)" justifyContent={"center"}>
+      <Flex flexDirection={"column"} gap="10px">
         {clipUrl ? (
           <video
             ref={videoRef}
@@ -148,68 +143,105 @@ const Clip = () => {
           />
         ) : (
           <>
-            <Spinner />
-            <Text>Creating rough clip...</Text>
+            <Flex fontSize="20px" justifyContent={"center"}>
+              <WavyText
+                text="creating rough clip, please wait..."
+                modifier={0.008}
+              />
+            </Flex>
+            <Skeleton
+              startColor="#575757"
+              endColor="#b2b2b2ff"
+              height={"500px"}
+              width={"80vh"}
+            ></Skeleton>
+            <Skeleton
+              startColor="#575757"
+              endColor="#b2b2b2ff"
+              height={"100px"}
+              width={"80vh"}
+            ></Skeleton>
+            <Skeleton
+              startColor="#575757"
+              endColor="#b2b2b2ff"
+              height={"50px"}
+              width={"80vh"}
+            ></Skeleton>
+            <Skeleton
+              startColor="#575757"
+              endColor="#b2b2b2ff"
+              height={"50px"}
+              width={"80vh"}
+            ></Skeleton>
           </>
         )}
-        {clipUrl && (
-          <RangeSlider
-            aria-label={["min", "max"]}
-            defaultValue={[0, 100]}
-            min={0}
-            max={videoRef.current?.duration || 100}
-            value={clipRange}
-            onChange={handleRangeChange}
-          >
-            <RangeSliderTrack height="40px" backgroundColor="#414141">
-              <RangeSliderFilledTrack color={"#343dbb"} />
-            </RangeSliderTrack>
-            <RangeSliderThumb height={"40px"} borderRadius={0} index={0}>
-              <MdDragIndicator color={"#343dbb"} size={"40"} />
-            </RangeSliderThumb>
-            <RangeSliderThumb height={"40px"} borderRadius={0} index={1}>
-              <MdDragIndicator color={"#343dbb"} size={"40"} />
-            </RangeSliderThumb>
-          </RangeSlider>
-        )}
-        <Input
-          variant="glow"
-          placeholder={"title"}
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        {!isPublished ? (
-          <Button
-            position="relative"
-            onClick={() => {
-              if (title) {
-                trimVideo({
-                  startTime: clipRange[0],
-                  endTime: clipRange[1],
-                  videoLink: clipUrl,
-                  name: title,
-                  channelId: channelId ?? "",
-                });
-                console.log("request sent");
-              }
-            }}
-            isDisabled={!title}
-          >
-            <Box
-              position="absolute"
-              top="0"
-              left="0"
-              height="100%"
-              width={`${publishingPercentage}%`}
-              bg="green.400"
-              zIndex="1"
+        {clipUrl && !isPublishSent && (
+          <>
+            <RangeSlider
+              aria-label={["min", "max"]}
+              defaultValue={[0, 100]}
+              min={0}
+              max={videoRef.current?.duration || 100}
+              value={clipRange}
+              onChange={handleRangeChange}
+            >
+              <RangeSliderTrack height="40px" backgroundColor="#414141">
+                <RangeSliderFilledTrack color={"#343dbb"} />
+              </RangeSliderTrack>
+              <RangeSliderThumb height={"40px"} borderRadius={0} index={0}>
+                <MdDragIndicator color={"#343dbb"} size={"40"} />
+              </RangeSliderThumb>
+              <RangeSliderThumb height={"40px"} borderRadius={0} index={1}>
+                <MdDragIndicator color={"#343dbb"} size={"40"} />
+              </RangeSliderThumb>
+            </RangeSlider>
+            <Input
+              variant="glow"
+              placeholder={"title"}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
             />
-            <Text position="relative" zIndex="2" width="100%">
-              {isLoading ? <Spinner /> : "Publish"}
+            <Button
+              position="relative"
+              onClick={() => {
+                if (title) {
+                  trimVideo({
+                    startTime: clipRange[0],
+                    endTime: clipRange[1],
+                    videoLink: clipUrl,
+                    name: title,
+                    channelId: channelId ?? "",
+                  });
+                  console.log("request sent");
+                  setIsPublishSent(true);
+                }
+              }}
+              isDisabled={!title}
+            >
+              <Box
+                position="absolute"
+                top="0"
+                left="0"
+                height="100%"
+                width={`${publishingPercentage}%`}
+                bg="green.400"
+                zIndex="1"
+              />
+              <Text position="relative" zIndex="2" width="100%">
+                {isLoading ? <Spinner /> : "Send to publish"}
+              </Text>
+            </Button>
+          </>
+        )}
+        {isPublishSent && (
+          <>
+            <Text>Publish request sent</Text>
+            <Text>Great! We'll take care of everything from here for you.</Text>
+            <Text>
+              Once the clip is ready, it will be available on the homepage.
             </Text>
-          </Button>
-        ) : (
-          <Text>Published</Text>
+            <Text>You may now close this window and return to the stream.</Text>
+          </>
         )}
         {trimmedVideoURL && (
           <video

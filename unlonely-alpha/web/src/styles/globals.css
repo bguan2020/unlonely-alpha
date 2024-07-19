@@ -258,6 +258,7 @@ body {
 }
 
 .bouncing-text {
+  white-space: pre;
   letter-spacing: normal;
   animation: waveAnim 1s 1.2s cubic-bezier(0.645, 0.045, 0.355, 1) infinite;
 }
