@@ -391,97 +391,24 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
 
     console.log("trimmed video");
 
-    // const TRIMMED_CLIP_NAME = `trimmed-clip-${data.name}-${Date.now()}`;
-
-    // // Upload the trimmed video using tus-js-client
-    // const fileSize = fs.statSync(outputPath).size;
-    // const fileStream = fs.createReadStream(outputPath);
-
-    // const requestResForTrimmed = await requestUploadFromLivepeer({ name: TRIMMED_CLIP_NAME });
-    const requestResForFinal = await requestUploadFromLivepeer({ name: data.name });
-
-    // new Promise<string>((resolve, reject) => {
-    //   const upload = new tus.Upload(fileStream, {
-    //     endpoint: requestResForTrimmed.tusEndpoint,
-    //     retryDelays: [0, 1000, 3000, 5000],
-    //     metadata: {
-    //       filename: `${TRIMMED_CLIP_NAME}.mp4`,
-    //       filetype: "video/mp4",
-    //     },
-    //     uploadSize: fileSize,
-    //     onError: (error: any) => {
-    //       console.error("Failed because: ", error);
-    //       reject(error);
-    //     },
-    //     onSuccess: () => {
-    //       resolve(upload.url!);
-    //     },
-    //   });
-    
-    //   upload.findPreviousUploads().then((previousUploads) => {
-    //     // Found previous uploads so we select the first one.
-    //     if (previousUploads.length) {
-    //       upload.resumeFromPreviousUpload(previousUploads[0]);
-    //     }
-    //     // Start the upload
-    //     upload.start();
-    //   });
-    // });
-    // console.log("uploaded video");
-    // let asset = null;
-    // while (true) {
-    //   await new Promise((resolve) => setTimeout(resolve, 5000));
-    //   const poll = await fetch(
-    //     `https://livepeer.studio/api/asset/${requestResForTrimmed.asset.id}`,
-    //     {
-    //       method: "GET",
-    //       headers: livepeerHeaders,
-    //     }
-    //   );
-    //   const res = await poll.json();
-    //   if (res.status.phase === "ready") {
-    //     asset = res;
-    //     break;
-    //   }
-    //   if (res.status.phase === "failed") {
-    //     return {
-    //       errorMessage:
-    //         "createLivepeerClip Error livepeer could not create clip",
-    //     };
-    //   }
-    // }
-    // const playbackData: any = await fetch(
-    //   `https://livepeer.studio/api/playback/${asset.playbackId}`,
-    //   { headers: livepeerHeaders }
-    // ).then((res) => res.json());
-
-    // const playBackUrl = playbackData.meta.source[0].url;
-
-    // const thumbNailUrl = await getLivepeerThumbnail(asset.playbackId);
-
-    // const initialNfc = await postNFC(
-    //   {
-    //     title: data.name,
-    //     videoLink: playBackUrl,
-    //     videoThumbnail: thumbNailUrl,
-    //     openseaLink: "",
-    //     channelId: data.channelId,
-    //   },
-    //   ctx,
-    //   ctx.user!
-    // );
-    // console.log("finished with trimmed video");
+const requestResForFinal = await requestUploadFromLivepeer({ name: data.name });
 
     // Create an outro video with the watermark image
     const watermarkImage = path.join(__dirname, "../../../assets", "unlonely-watermark.png");
     await new Promise<void>((resolve, reject) => {
       ffmpeg()
         .input(watermarkImage)
-        .loop(4)
-        .videoCodec("libx264")
-        .size("640x360") // Set watermark size
+        .inputOptions([
+          "-t", "4"
+        ])
+        .complexFilter([
+          "color=black:1280x720:d=3[bg]", // Create a 3-second black background
+          "[0:v]scale=320:-1[wm]; [bg][wm]overlay=(W-w)/2:(H-h)/2" // Overlay watermark with padding
+        ])
         .outputOptions([
-          "-vf", "scale=1280:720,format=yuv420p", // Scale to 1280x720 and format to yuv420p
+          "-c:v libx264",
+          "-pix_fmt yuv420p",
+          "-c:a aac"
         ])
         .output(outroPath)
         .on("end", resolve)
@@ -604,13 +531,19 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
 
     const finalPlayBackUrl = finalPlaybackData.meta.source[0].url;
 
-    // await updateNFC({
-    //   id: initialNfc.id,
-    //   title: initialNfc.title ?? "",
-    //   videoLink: finalPlayBackUrl,
-    //   videoThumbnail: initialNfc.videoThumbnail ?? "",
-    //   openseaLink: "",
-    // }, ctx);
+    const thumbNailUrl = await getLivepeerThumbnail(finalAsset.playbackId);
+
+      await postNFC(
+      {
+        title: data.name,
+        videoLink: finalPlayBackUrl,
+        videoThumbnail: thumbNailUrl,
+        openseaLink: "",
+        channelId: data.channelId,
+      },
+      ctx,
+      ctx.user!
+    );
     console.log("finished with final video");
     return true
   } catch (e) {
@@ -622,12 +555,12 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
     if (fs.existsSync(outputPath)) {
       fs.unlinkSync(outputPath);
     }
-    // if (fs.existsSync(outroPath)) {
-    //   fs.unlinkSync(outroPath);
-    // }
-    // if (fs.existsSync(finalPath)) {
-    //   fs.unlinkSync(finalPath);
-    // }
+    if (fs.existsSync(outroPath)) {
+      fs.unlinkSync(outroPath);
+    }
+    if (fs.existsSync(finalPath)) {
+      fs.unlinkSync(finalPath);
+    }
     throw e;
   }
 }
