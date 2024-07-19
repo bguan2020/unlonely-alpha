@@ -95,6 +95,7 @@ export interface ICreateLivepeerClipInput {
   title: string;
   channelId: string;
   livepeerPlaybackId: string;
+  noDatabasePush?: boolean;
 }
 
 export const postNFC = async (
@@ -237,7 +238,7 @@ export const createLivepeerClip = async (
   user: User
 ) => {
   const endTime = Date.now();
-  const startTime = endTime - 60000; // 60 seconds before the endTime in milliseconds
+  const startTime = endTime - 80000; // 80 seconds before the endTime in milliseconds
   const clipData: ClipData = {
     startTime,
     endTime,
@@ -301,6 +302,24 @@ export const createLivepeerClip = async (
 
     const thumbNailUrl = await getLivepeerThumbnail(asset.playbackId);
 
+    if (data.noDatabasePush) {
+      return { 
+        id: "0" ,
+        title: data.title,
+        videoLink: playBackUrl,
+        videoThumbnail: thumbNailUrl,
+        openseaLink: "",
+        score: 0,
+        liked: false,
+        disliked: false,
+        owner: user,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        url: playBackUrl, 
+        thumbnail: thumbNailUrl,
+        errorMessage: "",
+      };
+    }
     const res = await postNFC(
       {
         title: data.title,

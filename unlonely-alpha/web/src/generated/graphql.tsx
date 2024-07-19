@@ -235,6 +235,7 @@ export type CreateCreatorTokenInput = {
 export type CreateLivepeerClipInput = {
   channelId: Scalars["ID"];
   livepeerPlaybackId: Scalars["String"];
+  noDatabasePush?: InputMaybe<Scalars["Boolean"]>;
   title: Scalars["String"];
 };
 

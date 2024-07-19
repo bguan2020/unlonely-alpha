@@ -57,6 +57,7 @@ const useCreateClip = ({ onError }: Props) => {
               title: data.title,
               livepeerPlaybackId: data.livepeerPlaybackId,
               channelId: data.channelId,
+              noDatabasePush: data.noDatabasePush,
             },
           },
         });

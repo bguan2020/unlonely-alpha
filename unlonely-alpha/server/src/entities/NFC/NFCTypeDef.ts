@@ -107,6 +107,7 @@ export const typeDef = gql`
     title: String!
     channelId: ID!
     livepeerPlaybackId: String!
+    noDatabasePush: Boolean
   }
 
   input RequestUploadFromLivepeerInput {
