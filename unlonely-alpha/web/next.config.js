@@ -13,4 +13,21 @@ module.exports = {
       },
     ];
   },
+  async headers() {
+    return [
+      {
+        source: "/clip",
+        headers: [
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin",
+          },
+          {
+            key: "Cross-Origin-Embedder-Policy",
+            value: "credentialless",
+          },
+        ],
+      },
+    ];
+  },
 };

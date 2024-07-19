@@ -95,6 +95,7 @@ export interface ICreateLivepeerClipInput {
   title: string;
   channelId: string;
   livepeerPlaybackId: string;
+  noDatabasePush?: boolean;
 }
 
 export const postNFC = async (
@@ -237,7 +238,7 @@ export const createLivepeerClip = async (
   user: User
 ) => {
   const endTime = Date.now();
-  const startTime = endTime - 30000; // 30 seconds before the endTime in milliseconds
+  const startTime = endTime - 80000; // 80 seconds before the endTime in milliseconds
   const clipData: ClipData = {
     startTime,
     endTime,
@@ -301,6 +302,24 @@ export const createLivepeerClip = async (
 
     const thumbNailUrl = await getLivepeerThumbnail(asset.playbackId);
 
+    if (data.noDatabasePush) {
+      return { 
+        id: "0" ,
+        title: data.title,
+        videoLink: playBackUrl,
+        videoThumbnail: thumbNailUrl,
+        openseaLink: "",
+        score: 0,
+        liked: false,
+        disliked: false,
+        owner: user,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        url: playBackUrl, 
+        thumbnail: thumbNailUrl,
+        errorMessage: "",
+      };
+    }
     const res = await postNFC(
       {
         title: data.title,
@@ -328,6 +347,7 @@ export interface ITrimVideoInput {
 }
 
 export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
+
   const videoId = uuidv4();
   const inputPath = path.join(__dirname, `${videoId}-input.mp4`);
   const outputPath = path.join(__dirname, `${videoId}-output.mp4`);
@@ -350,6 +370,8 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
       writer.on("error", reject);
     });
 
+    console.log("downloaded video");
+
     // Trim the video using FFmpeg
     await new Promise<void>((resolve, reject) => {
       ffmpeg(inputPath)
@@ -368,6 +390,8 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
         })
         .run();
     });
+
+    console.log("trimmed video");
 
     // Upload the trimmed video using tus-js-client
     const fileSize = fs.statSync(outputPath).size;
@@ -403,6 +427,7 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
         upload.start();
       });
     });
+    console.log("uploaded video");
     let asset = null;
     while (true) {
       await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -434,17 +459,18 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
 
     const thumbNailUrl = await getLivepeerThumbnail(asset.playbackId);
 
-    // const res = await postNFC(
-    //   {
-    //     title: data.name,
-    //     videoLink: playBackUrl,
-    //     videoThumbnail: thumbNailUrl,
-    //     openseaLink: "",
-    //     channelId: data.channelId,
-    //   },
-    //   ctx,
-    //   ctx.user!
-    // );
+    await postNFC(
+      {
+        title: data.name,
+        videoLink: playBackUrl,
+        videoThumbnail: thumbNailUrl,
+        openseaLink: "",
+        channelId: data.channelId,
+      },
+      ctx,
+      ctx.user!
+    );
+    console.log("finished trimming video");
     return true
   } catch (e) {
     console.error("Error:", e);

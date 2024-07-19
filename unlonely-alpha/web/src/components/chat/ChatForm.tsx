@@ -296,6 +296,14 @@ const ChatForm = ({
                                 isClosable: true,
                                 position: "bottom",
                               });
+                            } else if (
+                              user &&
+                              channelQueryData?.livepeerPlaybackId
+                            ) {
+                              window.open(
+                                `${window.location.origin}/clip?channelId=${channelQueryData.id}&playbackId=${channelQueryData?.livepeerPlaybackId}`,
+                                "_blank"
+                              );
                             } else if (user) {
                               handleIsClipUiOpen(true);
                             } else {
@@ -412,7 +420,7 @@ const ChatForm = ({
                       <PopoverTrigger>
                         <IconButton
                           icon={<Image src="/svg/blast.svg" height={"20px"} />}
-                          aria-label="clip stream"
+                          aria-label="blast"
                           bg={blastMode ? "red" : "transparent"}
                           _focus={{}}
                           _hover={{ transform: "scale(1.15)" }}
