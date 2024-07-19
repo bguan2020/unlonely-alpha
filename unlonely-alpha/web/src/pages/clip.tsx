@@ -28,10 +28,10 @@ const Clip = () => {
   const [clipRange, setClipRange] = useState<[number, number]>([0, 0]);
   const [trimmedVideoURL, setTrimmedVideoURL] = useState<string | null>(null);
   const [title, setTitle] = useState("");
-  const [channelId, setChannelId] = useState<string | null>(null);
+  const [channelId, setChannelId] = useState<string | null>("29");
   const [clipUrl, setClipUrl] = useState(
-    ""
-    // "https://openseauserdata.com/files/b29ce5e85b7dc97eeb6a571b48644231.mp4"
+    // ""
+    "https://openseauserdata.com/files/b29ce5e85b7dc97eeb6a571b48644231.mp4"
   );
   const [publishingPercentage, setPublishingPercentage] = useState<number>(0);
   const [isPublished, setIsPublished] = useState<boolean>(false);
