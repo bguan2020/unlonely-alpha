@@ -5155,8 +5155,8 @@
               }
             ],
             "type": {
-              "kind": "SCALAR",
-              "name": "Boolean",
+              "kind": "OBJECT",
+              "name": "NFC",
               "ofType": null
             },
             "isDeprecated": false,

@@ -10,9 +10,26 @@ type Props = {
 };
 
 const MUTATION = gql`
-    mutation TrimVideo($data: TrimVideoInput!) {
-      trimVideo(data: $data)
+  mutation TrimVideo($data: TrimVideoInput!) {
+    trimVideo(data: $data) {
+      id
+      title
+      videoLink
+      videoThumbnail
+      openseaLink
+      owner {
+        id
+        username
+        address
+      }
+      channel {
+        id
+        name
+        description
+        slug
+      }
     }
+  }
 `;
 
 const useTrimVideo = ({ onError }: Props) => {
@@ -33,7 +50,7 @@ const useTrimVideo = ({ onError }: Props) => {
         },
       });
       res = mutationResult?.data?.trimVideo;
-      if (res === true) {
+      if (res) {
         console.log("useTrimVideo TrimVideoFromLivepeer success", res);
       } else {
         onError && onError();

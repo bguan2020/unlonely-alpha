@@ -516,7 +516,7 @@ export type Mutation = {
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
   toggleSubscription?: Maybe<Subscription>;
-  trimVideo?: Maybe<Scalars["Boolean"]>;
+  trimVideo?: Maybe<Nfc>;
   updateChannelAllowNfcs?: Maybe<Channel>;
   updateChannelCustomButton?: Maybe<Channel>;
   updateChannelFidSubscription?: Maybe<Scalars["String"]>;
@@ -2305,6 +2305,31 @@ export type RemoveChannelFromSubscriptionMutation = {
   } | null;
 };
 
+export type RequestUploadFromLivepeerMutationVariables = Exact<{
+  data: RequestUploadFromLivepeerInput;
+}>;
+
+export type RequestUploadFromLivepeerMutation = {
+  __typename?: "Mutation";
+  requestUploadFromLivepeer?: {
+    __typename?: "RequestUploadResponse";
+    url: string;
+    tusEndpoint: string;
+    task: { __typename?: "AssetTask"; id: string };
+    asset: {
+      __typename?: "Asset";
+      userId: string;
+      status: {
+        __typename?: "AssetStatus";
+        updatedAt: string;
+        progress?: number | null;
+        phase: string;
+        errorMessage?: string | null;
+      };
+    };
+  } | null;
+};
+
 export type SoftDeleteChannelMutationVariables = Exact<{
   data: SoftDeleteChannelInput;
 }>;
@@ -2337,6 +2362,35 @@ export type ToggleSubscriptionMutationVariables = Exact<{
 export type ToggleSubscriptionMutation = {
   __typename?: "Mutation";
   toggleSubscription?: { __typename?: "Subscription"; id: string } | null;
+};
+
+export type TrimVideoMutationVariables = Exact<{
+  data: TrimVideoInput;
+}>;
+
+export type TrimVideoMutation = {
+  __typename?: "Mutation";
+  trimVideo?: {
+    __typename?: "NFC";
+    id: string;
+    title?: string | null;
+    videoLink?: string | null;
+    videoThumbnail?: string | null;
+    openseaLink?: string | null;
+    owner: {
+      __typename?: "User";
+      id: string;
+      username?: string | null;
+      address: string;
+    };
+    channel: {
+      __typename?: "Channel";
+      id: string;
+      name?: string | null;
+      description?: string | null;
+      slug: string;
+    };
+  } | null;
 };
 
 export type UpdateChannelAllowNfcsMutationVariables = Exact<{
@@ -2737,6 +2791,15 @@ export type UpdateUserNotificationsMutation = {
   } | null;
 };
 
+export type UpdateChannelFidSubscriptionMutationVariables = Exact<{
+  data: UpdateChannelFidSubscriptionInput;
+}>;
+
+export type UpdateChannelFidSubscriptionMutation = {
+  __typename?: "Mutation";
+  updateChannelFidSubscription?: string | null;
+};
+
 export type NfcDetailQueryVariables = Exact<{
   id: Scalars["ID"];
 }>;
@@ -2805,58 +2868,6 @@ export type FetchCurrentUserQuery = {
     signature?: string | null;
     sigTimestamp?: any | null;
   } | null;
-};
-
-export type RequestUploadFromLivepeerMutationVariables = Exact<{
-  data: RequestUploadFromLivepeerInput;
-}>;
-
-export type RequestUploadFromLivepeerMutation = {
-  __typename?: "Mutation";
-  requestUploadFromLivepeer?: {
-    __typename?: "RequestUploadResponse";
-    url: string;
-    tusEndpoint: string;
-    task: { __typename?: "AssetTask"; id: string };
-    asset: {
-      __typename?: "Asset";
-      userId: string;
-      status: {
-        __typename?: "AssetStatus";
-        updatedAt: string;
-        progress?: number | null;
-        phase: string;
-        errorMessage?: string | null;
-      };
-    };
-  } | null;
-};
-
-export type UpdateChannelFidSubscriptionMutationVariables = Exact<{
-  data: UpdateChannelFidSubscriptionInput;
-}>;
-
-export type UpdateChannelFidSubscriptionMutation = {
-  __typename?: "Mutation";
-  updateChannelFidSubscription?: string | null;
-};
-
-export type MutationMutationVariables = Exact<{
-  data: TrimVideoInput;
-}>;
-
-export type MutationMutation = {
-  __typename?: "Mutation";
-  trimVideo?: boolean | null;
-};
-
-export type TrimVideoMutationVariables = Exact<{
-  data: TrimVideoInput;
-}>;
-
-export type TrimVideoMutation = {
-  __typename?: "Mutation";
-  trimVideo?: boolean | null;
 };
 
 export const GetUserDocument = gql`
@@ -5259,6 +5270,70 @@ export type RemoveChannelFromSubscriptionMutationOptions =
     RemoveChannelFromSubscriptionMutation,
     RemoveChannelFromSubscriptionMutationVariables
   >;
+export const RequestUploadFromLivepeerDocument = gql`
+  mutation RequestUploadFromLivepeer($data: RequestUploadFromLivepeerInput!) {
+    requestUploadFromLivepeer(data: $data) {
+      url
+      tusEndpoint
+      task {
+        id
+      }
+      asset {
+        userId
+        status {
+          updatedAt
+          progress
+          phase
+          errorMessage
+        }
+      }
+    }
+  }
+`;
+export type RequestUploadFromLivepeerMutationFn = Apollo.MutationFunction<
+  RequestUploadFromLivepeerMutation,
+  RequestUploadFromLivepeerMutationVariables
+>;
+
+/**
+ * __useRequestUploadFromLivepeerMutation__
+ *
+ * To run a mutation, you first call `useRequestUploadFromLivepeerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRequestUploadFromLivepeerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [requestUploadFromLivepeerMutation, { data, loading, error }] = useRequestUploadFromLivepeerMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useRequestUploadFromLivepeerMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    RequestUploadFromLivepeerMutation,
+    RequestUploadFromLivepeerMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    RequestUploadFromLivepeerMutation,
+    RequestUploadFromLivepeerMutationVariables
+  >(RequestUploadFromLivepeerDocument, options);
+}
+export type RequestUploadFromLivepeerMutationHookResult = ReturnType<
+  typeof useRequestUploadFromLivepeerMutation
+>;
+export type RequestUploadFromLivepeerMutationResult =
+  Apollo.MutationResult<RequestUploadFromLivepeerMutation>;
+export type RequestUploadFromLivepeerMutationOptions =
+  Apollo.BaseMutationOptions<
+    RequestUploadFromLivepeerMutation,
+    RequestUploadFromLivepeerMutationVariables
+  >;
 export const SoftDeleteChannelDocument = gql`
   mutation SoftDeleteChannel($data: SoftDeleteChannelInput!) {
     softDeleteChannel(data: $data) {
@@ -5370,6 +5445,70 @@ export type ToggleSubscriptionMutationResult =
 export type ToggleSubscriptionMutationOptions = Apollo.BaseMutationOptions<
   ToggleSubscriptionMutation,
   ToggleSubscriptionMutationVariables
+>;
+export const TrimVideoDocument = gql`
+  mutation TrimVideo($data: TrimVideoInput!) {
+    trimVideo(data: $data) {
+      id
+      title
+      videoLink
+      videoThumbnail
+      openseaLink
+      owner {
+        id
+        username
+        address
+      }
+      channel {
+        id
+        name
+        description
+        slug
+      }
+    }
+  }
+`;
+export type TrimVideoMutationFn = Apollo.MutationFunction<
+  TrimVideoMutation,
+  TrimVideoMutationVariables
+>;
+
+/**
+ * __useTrimVideoMutation__
+ *
+ * To run a mutation, you first call `useTrimVideoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTrimVideoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [trimVideoMutation, { data, loading, error }] = useTrimVideoMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useTrimVideoMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    TrimVideoMutation,
+    TrimVideoMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<TrimVideoMutation, TrimVideoMutationVariables>(
+    TrimVideoDocument,
+    options
+  );
+}
+export type TrimVideoMutationHookResult = ReturnType<
+  typeof useTrimVideoMutation
+>;
+export type TrimVideoMutationResult = Apollo.MutationResult<TrimVideoMutation>;
+export type TrimVideoMutationOptions = Apollo.BaseMutationOptions<
+  TrimVideoMutation,
+  TrimVideoMutationVariables
 >;
 export const UpdateChannelAllowNfcsDocument = gql`
   mutation UpdateChannelAllowNfcs($data: UpdateChannelAllowNfcsInput!) {
@@ -6991,6 +7130,57 @@ export type UpdateUserNotificationsMutationOptions = Apollo.BaseMutationOptions<
   UpdateUserNotificationsMutation,
   UpdateUserNotificationsMutationVariables
 >;
+export const UpdateChannelFidSubscriptionDocument = gql`
+  mutation UpdateChannelFidSubscription(
+    $data: UpdateChannelFidSubscriptionInput!
+  ) {
+    updateChannelFidSubscription(data: $data)
+  }
+`;
+export type UpdateChannelFidSubscriptionMutationFn = Apollo.MutationFunction<
+  UpdateChannelFidSubscriptionMutation,
+  UpdateChannelFidSubscriptionMutationVariables
+>;
+
+/**
+ * __useUpdateChannelFidSubscriptionMutation__
+ *
+ * To run a mutation, you first call `useUpdateChannelFidSubscriptionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateChannelFidSubscriptionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateChannelFidSubscriptionMutation, { data, loading, error }] = useUpdateChannelFidSubscriptionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateChannelFidSubscriptionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateChannelFidSubscriptionMutation,
+    UpdateChannelFidSubscriptionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateChannelFidSubscriptionMutation,
+    UpdateChannelFidSubscriptionMutationVariables
+  >(UpdateChannelFidSubscriptionDocument, options);
+}
+export type UpdateChannelFidSubscriptionMutationHookResult = ReturnType<
+  typeof useUpdateChannelFidSubscriptionMutation
+>;
+export type UpdateChannelFidSubscriptionMutationResult =
+  Apollo.MutationResult<UpdateChannelFidSubscriptionMutation>;
+export type UpdateChannelFidSubscriptionMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateChannelFidSubscriptionMutation,
+    UpdateChannelFidSubscriptionMutationVariables
+  >;
 export const NfcDetailDocument = gql`
   query NFCDetail($id: ID!) {
     getNFC(id: $id) {
@@ -7240,211 +7430,4 @@ export type FetchCurrentUserLazyQueryHookResult = ReturnType<
 export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
->;
-export const RequestUploadFromLivepeerDocument = gql`
-  mutation RequestUploadFromLivepeer($data: RequestUploadFromLivepeerInput!) {
-    requestUploadFromLivepeer(data: $data) {
-      url
-      tusEndpoint
-      task {
-        id
-      }
-      asset {
-        userId
-        status {
-          updatedAt
-          progress
-          phase
-          errorMessage
-        }
-      }
-    }
-  }
-`;
-export type RequestUploadFromLivepeerMutationFn = Apollo.MutationFunction<
-  RequestUploadFromLivepeerMutation,
-  RequestUploadFromLivepeerMutationVariables
->;
-
-/**
- * __useRequestUploadFromLivepeerMutation__
- *
- * To run a mutation, you first call `useRequestUploadFromLivepeerMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useRequestUploadFromLivepeerMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [requestUploadFromLivepeerMutation, { data, loading, error }] = useRequestUploadFromLivepeerMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useRequestUploadFromLivepeerMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    RequestUploadFromLivepeerMutation,
-    RequestUploadFromLivepeerMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    RequestUploadFromLivepeerMutation,
-    RequestUploadFromLivepeerMutationVariables
-  >(RequestUploadFromLivepeerDocument, options);
-}
-export type RequestUploadFromLivepeerMutationHookResult = ReturnType<
-  typeof useRequestUploadFromLivepeerMutation
->;
-export type RequestUploadFromLivepeerMutationResult =
-  Apollo.MutationResult<RequestUploadFromLivepeerMutation>;
-export type RequestUploadFromLivepeerMutationOptions =
-  Apollo.BaseMutationOptions<
-    RequestUploadFromLivepeerMutation,
-    RequestUploadFromLivepeerMutationVariables
-  >;
-export const UpdateChannelFidSubscriptionDocument = gql`
-  mutation UpdateChannelFidSubscription(
-    $data: UpdateChannelFidSubscriptionInput!
-  ) {
-    updateChannelFidSubscription(data: $data)
-  }
-`;
-export type UpdateChannelFidSubscriptionMutationFn = Apollo.MutationFunction<
-  UpdateChannelFidSubscriptionMutation,
-  UpdateChannelFidSubscriptionMutationVariables
->;
-
-/**
- * __useUpdateChannelFidSubscriptionMutation__
- *
- * To run a mutation, you first call `useUpdateChannelFidSubscriptionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateChannelFidSubscriptionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateChannelFidSubscriptionMutation, { data, loading, error }] = useUpdateChannelFidSubscriptionMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useUpdateChannelFidSubscriptionMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateChannelFidSubscriptionMutation,
-    UpdateChannelFidSubscriptionMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    UpdateChannelFidSubscriptionMutation,
-    UpdateChannelFidSubscriptionMutationVariables
-  >(UpdateChannelFidSubscriptionDocument, options);
-}
-export type UpdateChannelFidSubscriptionMutationHookResult = ReturnType<
-  typeof useUpdateChannelFidSubscriptionMutation
->;
-export type UpdateChannelFidSubscriptionMutationResult =
-  Apollo.MutationResult<UpdateChannelFidSubscriptionMutation>;
-export type UpdateChannelFidSubscriptionMutationOptions =
-  Apollo.BaseMutationOptions<
-    UpdateChannelFidSubscriptionMutation,
-    UpdateChannelFidSubscriptionMutationVariables
-  >;
-export const MutationDocument = gql`
-  mutation Mutation($data: TrimVideoInput!) {
-    trimVideo(data: $data)
-  }
-`;
-export type MutationMutationFn = Apollo.MutationFunction<
-  MutationMutation,
-  MutationMutationVariables
->;
-
-/**
- * __useMutationMutation__
- *
- * To run a mutation, you first call `useMutationMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useMutationMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [mutationMutation, { data, loading, error }] = useMutationMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useMutationMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    MutationMutation,
-    MutationMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<MutationMutation, MutationMutationVariables>(
-    MutationDocument,
-    options
-  );
-}
-export type MutationMutationHookResult = ReturnType<typeof useMutationMutation>;
-export type MutationMutationResult = Apollo.MutationResult<MutationMutation>;
-export type MutationMutationOptions = Apollo.BaseMutationOptions<
-  MutationMutation,
-  MutationMutationVariables
->;
-export const TrimVideoDocument = gql`
-  mutation TrimVideo($data: TrimVideoInput!) {
-    trimVideo(data: $data)
-  }
-`;
-export type TrimVideoMutationFn = Apollo.MutationFunction<
-  TrimVideoMutation,
-  TrimVideoMutationVariables
->;
-
-/**
- * __useTrimVideoMutation__
- *
- * To run a mutation, you first call `useTrimVideoMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useTrimVideoMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [trimVideoMutation, { data, loading, error }] = useTrimVideoMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useTrimVideoMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    TrimVideoMutation,
-    TrimVideoMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<TrimVideoMutation, TrimVideoMutationVariables>(
-    TrimVideoDocument,
-    options
-  );
-}
-export type TrimVideoMutationHookResult = ReturnType<
-  typeof useTrimVideoMutation
->;
-export type TrimVideoMutationResult = Apollo.MutationResult<TrimVideoMutation>;
-export type TrimVideoMutationOptions = Apollo.BaseMutationOptions<
-  TrimVideoMutation,
-  TrimVideoMutationVariables
 >;
