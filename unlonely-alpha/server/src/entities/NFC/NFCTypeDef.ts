@@ -7,6 +7,8 @@ export const typeDef = gql`
     videoLink: String
     videoThumbnail: String
     openseaLink: String
+    contract1155chainId: Int
+    contract1155address: String
     score: Int!
     liked: Boolean
     disliked: Boolean
