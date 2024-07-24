@@ -135,6 +135,6 @@ export const typeDef = gql`
     openseaNFCScript: String
     updateOpenseaLink: NFC
     requestUploadFromLivepeer(data: RequestUploadFromLivepeerInput!): RequestUploadResponse
-    trimVideo(data: TrimVideoInput!): Boolean
+    trimVideo(data: TrimVideoInput!): NFC
   }
 `;

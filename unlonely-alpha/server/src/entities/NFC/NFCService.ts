@@ -391,7 +391,7 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
 
     console.log("trimmed video");
 
-const requestResForFinal = await requestUploadFromLivepeer({ name: data.name });
+    const requestResForFinal = await requestUploadFromLivepeer({ name: data.name });
 
     // Create an outro video with the watermark image
     const watermarkImage = path.join(__dirname, "../../../assets", "unlonely-watermark.png");
@@ -518,10 +518,7 @@ const requestResForFinal = await requestUploadFromLivepeer({ name: data.name });
         break;
       }
       if (res.status.phase === "failed") {
-        return {
-          errorMessage:
-            "createLivepeerClip Error livepeer could not create clip",
-        };
+        throw new Error("createLivepeerClip Error livepeer could not create clip");
       }
     }
     const finalPlaybackData: any = await fetch(
@@ -533,7 +530,8 @@ const requestResForFinal = await requestUploadFromLivepeer({ name: data.name });
 
     const thumbNailUrl = await getLivepeerThumbnail(finalAsset.playbackId);
 
-      await postNFC(
+    console.log("posting NFC")
+    return await postNFC(
       {
         title: data.name,
         videoLink: finalPlayBackUrl,
@@ -544,8 +542,6 @@ const requestResForFinal = await requestUploadFromLivepeer({ name: data.name });
       ctx,
       ctx.user!
     );
-    console.log("finished with final video");
-    return true
   } catch (e) {
     console.error("Error:", e);
     // Clean up temporary files
