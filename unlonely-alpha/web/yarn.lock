@@ -5212,6 +5212,20 @@
   dependencies:
     "@zag-js/dom-query" "0.16.0"
 
+"@zoralabs/protocol-deployments@*":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@zoralabs/protocol-deployments/-/protocol-deployments-0.2.0.tgz#900c372181750be8570cb2ed54ed237c44f98294"
+  integrity sha512-1fuEcbtdbJgsnPrn8Z9AcBsrR4LY9/Pb5pUDthwLo+wW9gjn5u7Zn9bxR/EPfWD1DNEYL9uSTLb+dgDgil5UJA==
+
+"@zoralabs/protocol-sdk@^0.7.3":
+  version "0.7.3"
+  resolved "https://registry.yarnpkg.com/@zoralabs/protocol-sdk/-/protocol-sdk-0.7.3.tgz#a6f015cc0cede1b708954955a1499c68b412f819"
+  integrity sha512-e8OYEOIj/qNEK9GIju0XIqw3F4oJsWPRzWIkF0auGJMk+UBy9QdqzQ0YtQnXm7GbYX9aVnPh5ms0xPyj5K5AJg==
+  dependencies:
+    "@zoralabs/protocol-deployments" "*"
+    abitype "^1.0.2"
+    semver "^7.6.2"
+
 JSONStream@^1.3.5:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/JSONStream/-/JSONStream-1.3.5.tgz#3208c1f08d3a4d99261ab64f92302bc15e111ca0"
@@ -5230,7 +5244,7 @@ abitype@0.9.8:
   resolved "https://registry.yarnpkg.com/abitype/-/abitype-0.9.8.tgz#1f120b6b717459deafd213dfbf3a3dd1bf10ae8c"
   integrity sha512-puLifILdm+8sjyss4S+fsUN09obiT1g2YW6CtcQF+QDzxR0euzgEB29MZujC6zMk2a6SVmtttq1fc6+YFA7WYQ==
 
-abitype@1.0.5:
+abitype@1.0.5, abitype@^1.0.2:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/abitype/-/abitype-1.0.5.tgz#29d0daa3eea867ca90f7e4123144c1d1270774b6"
   integrity sha512-YzDhti7cjlfaBhHutMaboYB21Ha3rXR9QTkNJFzYC4kC8YclaiwPBBBJY8ejFdu2wnJeZCVZSMlQJ7fi8S6hsw==
@@ -11472,6 +11486,11 @@ semver@^7.3.8:
   integrity sha512-Wvss5ivl8TMRZXXESstBA4uR5iXgEN/VC5/sOcuXdVLzcdkz4HWetIoRfG5gb5X+ij/G9rw9YoGn3QoQ8OCSpw==
   dependencies:
     lru-cache "^6.0.0"
+
+semver@^7.6.2:
+  version "7.6.3"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.6.3.tgz#980f7b5550bc175fb4dc09403085627f9eb33143"
+  integrity sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==
 
 sentence-case@^3.0.4:
   version "3.0.4"
