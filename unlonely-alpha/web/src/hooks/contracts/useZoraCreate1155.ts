@@ -1,4 +1,4 @@
-import { createCreatorClient } from "@zoralabs/protocol-sdk";
+import { ContractType, createCreatorClient } from "@zoralabs/protocol-sdk";
 import { useState, useEffect } from "react";
 import { Hex, SimulateContractParameters, TransactionReceipt } from "viem";
 import { usePublicClient, usePrepareContractWrite, useContractWrite, useWaitForTransaction } from "wagmi";
@@ -7,16 +7,18 @@ import { useUser } from "../context/useUser";
 import { WriteCallbacks } from "../../constants/types";
 
 export const useZoraCreate1155 = (
+  contractObject?: ContractType,
   callbacks?: WriteCallbacks,
 ) => {
-    const { userAddress } = useUser();
-    const { network } = useNetworkContext();
-    const { localNetwork } = network;
-    const publicClient = usePublicClient();
+  const { userAddress } = useUser();
+  const { network } = useNetworkContext();
+  const { localNetwork } = network;
+  const publicClient = usePublicClient();
 
  const [parameters, setParameters] = useState<
     SimulateContractParameters | undefined
   >(undefined);
+  const [parametersReady, setParametersReady] = useState<boolean>(false);
 
   const creatorClient = createCreatorClient({
     chainId: localNetwork.config.chainId,
@@ -24,17 +26,13 @@ export const useZoraCreate1155 = (
   });
 
   useEffect(() => {
-    if (!userAddress) return;
+    if (!userAddress || !contractObject) return;
     const init = async () => {
+      setParametersReady(false);
       const { parameters } = await creatorClient.create1155({
         // by providing a contract creation config, the contract will be created
         // if it does not exist at a deterministic address
-        contract: {
-          // contract name
-          name: "testContract",
-          // contract metadata uri
-          uri: "ipfs://DUMMY/contract.json",
-        },
+        contract: contractObject,
         token: {
           tokenMetadataURI: "ipfs://DUMMY/token.json",
         },
@@ -42,9 +40,10 @@ export const useZoraCreate1155 = (
         account: userAddress,
       });
       setParameters(parameters);
+      setParametersReady(true);
     };
     init();
-  }, [userAddress]);
+  }, [userAddress, contractObject]);
 
   const prepObj = usePrepareContractWrite({
     ...parameters,
@@ -97,5 +96,6 @@ export const useZoraCreate1155 = (
     refetch: prepObj.refetch,
     isRefetching: prepObj.isRefetching,
     prepareError: prepObj.error,
+    parametersReady,
   };
 }

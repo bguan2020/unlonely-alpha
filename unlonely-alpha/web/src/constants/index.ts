@@ -106,7 +106,6 @@ export const CHAKRA_UI_TX_TOAST_DURATION = 5000;
 export const NEW_STREAMER_URL_QUERY_PARAM = "new";
 export const STREAMER_MIGRATION_URL_QUERY_PARAM = "migrate";
 export const ADMIN_GRAPH_QUERY_PARAM = "graph";
-export const CLIP_PLAYBACK_ID_QUERY_PARAM = "playbackId";
 export const CLIP_CHANNEL_ID_QUERY_PARAM = "channelId";
 
 export const CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN = [

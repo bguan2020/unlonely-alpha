@@ -2091,6 +2091,54 @@ export type GetChannelsByOwnerAddressQuery = {
   } | null> | null;
 };
 
+export type GetChannelByIdQueryVariables = Exact<{
+  id: Scalars["ID"];
+}>;
+
+export type GetChannelByIdQuery = {
+  __typename?: "Query";
+  getChannelById?: {
+    __typename?: "Channel";
+    awsId: string;
+    channelArn?: string | null;
+    description?: string | null;
+    customButtonPrice?: number | null;
+    customButtonAction?: string | null;
+    isLive?: boolean | null;
+    id: string;
+    name?: string | null;
+    slug: string;
+    allowNFCs?: boolean | null;
+    livepeerPlaybackId?: string | null;
+    sharesEvent?: Array<{
+      __typename?: "SharesEvent";
+      sharesSubjectQuestion?: string | null;
+      sharesSubjectAddress?: string | null;
+      chainId?: number | null;
+      channelId?: string | null;
+      options?: Array<string | null> | null;
+      eventState?: SharesEventState | null;
+      createdAt: any;
+      id: string;
+      resultIndex?: number | null;
+    } | null> | null;
+    owner: {
+      __typename?: "User";
+      FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
+      username?: string | null;
+      address: string;
+    };
+    token?: {
+      __typename?: "CreatorToken";
+      id: string;
+      name: string;
+      symbol: string;
+      address: string;
+    } | null;
+  } | null;
+};
+
 export type GetChannelsByNumberOfBadgeHoldersQueryVariables = Exact<{
   [key: string]: never;
 }>;
@@ -4545,6 +4593,97 @@ export type GetChannelsByOwnerAddressLazyQueryHookResult = ReturnType<
 export type GetChannelsByOwnerAddressQueryResult = Apollo.QueryResult<
   GetChannelsByOwnerAddressQuery,
   GetChannelsByOwnerAddressQueryVariables
+>;
+export const GetChannelByIdDocument = gql`
+  query GetChannelById($id: ID!) {
+    getChannelById(id: $id) {
+      awsId
+      channelArn
+      description
+      customButtonPrice
+      customButtonAction
+      isLive
+      id
+      name
+      slug
+      allowNFCs
+      livepeerPlaybackId
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        chainId
+        channelId
+        options
+        eventState
+        createdAt
+        id
+        resultIndex
+      }
+      owner {
+        FCImageUrl
+        lensImageUrl
+        username
+        address
+      }
+      token {
+        id
+        name
+        symbol
+        address
+      }
+    }
+  }
+`;
+
+/**
+ * __useGetChannelByIdQuery__
+ *
+ * To run a query within a React component, call `useGetChannelByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetChannelByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetChannelByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetChannelByIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetChannelByIdQuery,
+    GetChannelByIdQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetChannelByIdQuery, GetChannelByIdQueryVariables>(
+    GetChannelByIdDocument,
+    options
+  );
+}
+export function useGetChannelByIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetChannelByIdQuery,
+    GetChannelByIdQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetChannelByIdQuery, GetChannelByIdQueryVariables>(
+    GetChannelByIdDocument,
+    options
+  );
+}
+export type GetChannelByIdQueryHookResult = ReturnType<
+  typeof useGetChannelByIdQuery
+>;
+export type GetChannelByIdLazyQueryHookResult = ReturnType<
+  typeof useGetChannelByIdLazyQuery
+>;
+export type GetChannelByIdQueryResult = Apollo.QueryResult<
+  GetChannelByIdQuery,
+  GetChannelByIdQueryVariables
 >;
 export const GetChannelsByNumberOfBadgeHoldersDocument = gql`
   query GetChannelsByNumberOfBadgeHolders {
