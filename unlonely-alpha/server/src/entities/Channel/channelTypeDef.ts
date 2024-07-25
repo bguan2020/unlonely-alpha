@@ -78,8 +78,8 @@ export const typeDef = gql`
     nfcs: [NFC]
     vibesTokenPriceRange: [String]
     pinnedChatMessages: [String]
-    contract1155chainId: Int
-    contract1155address: String
+    contract1155ChainId: Int
+    contract1155Address: String
   }
 
   type LivepeerStreamData {
@@ -223,6 +223,12 @@ export const typeDef = gql`
     isAddingSubscriber: Boolean!
   }
 
+  input UpdateChannelContract1155Input {
+    channelId: ID!
+    contract1155ChainId: Int!
+    contract1155Address: String!
+  }
+
   extend type Query {
     getChannelSearchResults(data: ChannelSearchInput!): [Channel]
     getChannelFeed(data: ChannelFeedInput): [Channel]
@@ -263,5 +269,6 @@ export const typeDef = gql`
     updateChannelFidSubscription(
       data: UpdateChannelFidSubscriptionInput!
     ): String
+    updateChannelContract1155(data: UpdateChannelContract1155Input!): Channel
   }
 `;

@@ -116,6 +116,8 @@ export type Channel = {
   channelArn?: Maybe<Scalars["String"]>;
   chatCommands?: Maybe<Array<Maybe<ChatCommand>>>;
   command: Scalars["String"];
+  contract1155Address?: Maybe<Scalars["String"]>;
+  contract1155ChainId?: Maybe<Scalars["Int"]>;
   createdAt: Scalars["DateTime"];
   customButtonAction?: Maybe<Scalars["String"]>;
   customButtonPrice?: Maybe<Scalars["Int"]>;
@@ -518,6 +520,7 @@ export type Mutation = {
   toggleSubscription?: Maybe<Subscription>;
   trimVideo?: Maybe<Nfc>;
   updateChannelAllowNfcs?: Maybe<Channel>;
+  updateChannelContract1155?: Maybe<Channel>;
   updateChannelCustomButton?: Maybe<Channel>;
   updateChannelFidSubscription?: Maybe<Scalars["String"]>;
   updateChannelText?: Maybe<Channel>;
@@ -692,6 +695,10 @@ export type MutationUpdateChannelAllowNfcsArgs = {
   data: UpdateChannelAllowNfcsInput;
 };
 
+export type MutationUpdateChannelContract1155Args = {
+  data: UpdateChannelContract1155Input;
+};
+
 export type MutationUpdateChannelCustomButtonArgs = {
   data: UpdateChannelCustomButtonInput;
 };
@@ -779,6 +786,8 @@ export type MutationUpdateUserNotificationsArgs = {
 export type Nfc = Likable & {
   __typename?: "NFC";
   channel: Channel;
+  contract1155Address?: Maybe<Scalars["String"]>;
+  contract1155ChainId?: Maybe<Scalars["Int"]>;
   createdAt: Scalars["DateTime"];
   disliked?: Maybe<Scalars["Boolean"]>;
   id: Scalars["ID"];
@@ -1376,6 +1385,12 @@ export type TrimVideoInput = {
 export type UpdateChannelAllowNfcsInput = {
   allowNfcs?: InputMaybe<Scalars["Boolean"]>;
   id: Scalars["ID"];
+};
+
+export type UpdateChannelContract1155Input = {
+  channelId: Scalars["ID"];
+  contract1155Address: Scalars["String"];
+  contract1155ChainId: Scalars["Int"];
 };
 
 export type UpdateChannelCustomButtonInput = {
@@ -2451,6 +2466,20 @@ export type UpdateChannelAllowNfcsMutation = {
     __typename?: "Channel";
     allowNFCs?: boolean | null;
     id: string;
+  } | null;
+};
+
+export type UpdateChannelContract1155MutationVariables = Exact<{
+  data: UpdateChannelContract1155Input;
+}>;
+
+export type UpdateChannelContract1155Mutation = {
+  __typename?: "Mutation";
+  updateChannelContract1155?: {
+    __typename?: "Channel";
+    id: string;
+    contract1155Address?: string | null;
+    contract1155ChainId?: number | null;
   } | null;
 };
 
@@ -5700,6 +5729,59 @@ export type UpdateChannelAllowNfcsMutationOptions = Apollo.BaseMutationOptions<
   UpdateChannelAllowNfcsMutation,
   UpdateChannelAllowNfcsMutationVariables
 >;
+export const UpdateChannelContract1155Document = gql`
+  mutation UpdateChannelContract1155($data: UpdateChannelContract1155Input!) {
+    updateChannelContract1155(data: $data) {
+      id
+      contract1155Address
+      contract1155ChainId
+    }
+  }
+`;
+export type UpdateChannelContract1155MutationFn = Apollo.MutationFunction<
+  UpdateChannelContract1155Mutation,
+  UpdateChannelContract1155MutationVariables
+>;
+
+/**
+ * __useUpdateChannelContract1155Mutation__
+ *
+ * To run a mutation, you first call `useUpdateChannelContract1155Mutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateChannelContract1155Mutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateChannelContract1155Mutation, { data, loading, error }] = useUpdateChannelContract1155Mutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateChannelContract1155Mutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateChannelContract1155Mutation,
+    UpdateChannelContract1155MutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateChannelContract1155Mutation,
+    UpdateChannelContract1155MutationVariables
+  >(UpdateChannelContract1155Document, options);
+}
+export type UpdateChannelContract1155MutationHookResult = ReturnType<
+  typeof useUpdateChannelContract1155Mutation
+>;
+export type UpdateChannelContract1155MutationResult =
+  Apollo.MutationResult<UpdateChannelContract1155Mutation>;
+export type UpdateChannelContract1155MutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateChannelContract1155Mutation,
+    UpdateChannelContract1155MutationVariables
+  >;
 export const UpdateChannelCustomButtonDocument = gql`
   mutation UpdateChannelCustomButton($data: UpdateChannelCustomButtonInput!) {
     updateChannelCustomButton(data: $data) {

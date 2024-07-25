@@ -381,6 +381,25 @@ export const updateChannelCustomButton = (
   });
 };
 
+export interface IUpdateChannelContract1155Input {
+  channelId: number;
+  contract1155ChainId: number;
+  contract1155Address: string;
+}
+
+export const updateChannelContract1155 = async (
+  data: IUpdateChannelContract1155Input,
+  ctx: Context
+) => {
+  return ctx.prisma.channel.update({
+    where: { id: Number(data.channelId) },
+    data: {
+      contract1155ChainId: data.contract1155ChainId,
+      contract1155Address: data.contract1155Address,
+    },
+  });
+};
+
 export interface IPostSharesEventInput {
   channelId: number;
   chainId: number;
