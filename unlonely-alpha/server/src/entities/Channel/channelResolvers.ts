@@ -165,6 +165,10 @@ export const resolvers = {
       { data }: { data: channelService.IUpdateChannelContract1155Input },
       ctx: Context
     ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
+      
       return channelService.updateChannelContract1155(data, ctx);
     },
     postUserRoleForChannel: (

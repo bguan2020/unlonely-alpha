@@ -3,6 +3,7 @@ import { gql } from "@apollo/client";
 import { GraphQLErrors } from "@apollo/client/errors";
 
 import {
+  UpdateChannelContract1155Input,
   UpdateChannelContract1155Mutation,
   UpdateChannelContract1155MutationVariables,
 } from "../../../generated/graphql";
@@ -30,7 +31,7 @@ const useUpdateChannelContract1155 = ({
   >(UPDATE_CHANNEL_CONTRACT1155_MUTATION);
 
   const updateChannelContract1155 = useCallback(
-    async (data) => {
+    async (data: UpdateChannelContract1155Input) => {
       setLoading(true);
 
       const mutationResult = await mutate({ variables: { data } });
