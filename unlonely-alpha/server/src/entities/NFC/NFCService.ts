@@ -529,19 +529,10 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
     const finalPlayBackUrl = finalPlaybackData.meta.source[0].url;
 
     const thumbNailUrl = await getLivepeerThumbnail(finalAsset.playbackId);
-
-    console.log("posting NFC")
-    return await postNFC(
-      {
-        title: data.name,
-        videoLink: finalPlayBackUrl,
-        videoThumbnail: thumbNailUrl,
-        openseaLink: "",
-        channelId: data.channelId,
-      },
-      ctx,
-      ctx.user!
-    );
+    return {
+      videoLink: finalPlayBackUrl,
+      videoThumbnail: thumbNailUrl,
+    }
   } catch (e) {
     console.error("Error:", e);
     // Clean up temporary files
