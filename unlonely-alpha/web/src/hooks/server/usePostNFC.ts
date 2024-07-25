@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../apiClient/hooks";
 import {
+  PostNfcInput,
   PostNfcMutation,
   PostNfcMutationVariables,
 } from "../../generated/graphql";
@@ -27,7 +28,7 @@ const usePostNFC = ({ onError }: Props) => {
   );
 
   const postNFC = useCallback(
-    async (data) => {
+    async (data: PostNfcInput) => {
       try {
         setLoading(true);
         const mutationResult = await mutate({

@@ -32,6 +32,7 @@ import {
   HttpTransport,
   PublicClient,
   encodeFunctionData,
+  isAddressEqual,
 } from "viem";
 import { usePublicClient, useWalletClient } from "wagmi";
 import { ExtractAbiFunction, AbiParametersToPrimitiveTypes } from "abitype";
@@ -41,6 +42,7 @@ import {
 } from "@zoralabs/protocol-sdk";
 import useUpdateChannelContract1155 from "../hooks/server/channel/useUpdateChannelContract1155";
 import { findMostFrequentString } from "../utils/findMostFrequencyString";
+import usePostNFC from "../hooks/server/usePostNFC";
 
 const multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
 const PROTOCOL_ADDRESS = "0x53D6D64945A67658C66730Ff4a038eb298eC8902";
@@ -158,6 +160,12 @@ const Clip = () => {
     },
   });
 
+  const { postNFC } = usePostNFC({
+    onError: () => {
+      console.log("Error");
+    },
+  });
+
   useEffect(() => {
     const init = async () => {
       if (router.query[CLIP_CHANNEL_ID_QUERY_PARAM]) {
@@ -246,7 +254,9 @@ const Clip = () => {
       !channelId ||
       clipRange[0] >= clipRange[1] ||
       !getChannelByIdData ||
-      !chainId
+      !chainId ||
+      !walletClient?.account.address ||
+      !getChannelByIdData?.getChannelById?.owner?.address
     )
       return;
     const res = await trimVideo({
@@ -304,21 +314,35 @@ const Clip = () => {
       },
     });
 
+    const userSplitRecipients = isAddressEqual(
+      walletClient?.account.address,
+      getChannelByIdData?.getChannelById?.owner?.address as `0x${string}`
+    )
+      ? [
+          {
+            address: walletClient?.account.address as Address,
+            percentAllocation: 90,
+          },
+        ]
+      : [
+          {
+            address: walletClient?.account.address as Address,
+            percentAllocation: 45,
+          },
+          {
+            address: getChannelByIdData?.getChannelById?.owner
+              ?.address as Address,
+            percentAllocation: 45,
+          },
+        ];
+
     // configure the split
     const splitsConfig: {
       recipients: SplitRecipient[];
       distributorFeePercent: number;
     } = {
       recipients: [
-        {
-          address: walletClient?.account.address as Address,
-          percentAllocation: 45,
-        },
-        {
-          address: getChannelByIdData?.getChannelById?.owner
-            ?.address as Address,
-          percentAllocation: 45,
-        },
+        ...userSplitRecipients,
         {
           address: PROTOCOL_ADDRESS,
           percentAllocation: 10,
@@ -392,6 +416,25 @@ const Clip = () => {
           : null;
     }
 
+    console.log(
+      "contractType",
+      getChannelByIdData?.getChannelById?.contract1155Address,
+      _existingContractAddress,
+      `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
+      contractMetadataJsonUriLocal,
+      (getChannelByIdData?.getChannelById?.contract1155Address as
+        | `0x${string}`
+        | undefined
+        | null) ??
+        _existingContractAddress ?? {
+          name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
+          uri: contractMetadataJsonUriLocal,
+        },
+      jsonMetadataUri,
+      splitRecipient,
+      walletClient?.account.address
+    );
+
     const { parameters } = await creatorClient.create1155({
       contract: (getChannelByIdData?.getChannelById?.contract1155Address as
         | `0x${string}`
@@ -457,6 +500,16 @@ const Clip = () => {
           contract1155ChainId: chainId,
         });
       }
+
+      const postNfcObject = {
+        title: title,
+        videoLink: res.res.videoLink,
+        videoThumbnail: res?.res?.videoThumbnail,
+        openseaLink: "",
+        channelId: channelId,
+      };
+      console.log("postNfcObject", postNfcObject);
+      await postNFC(postNfcObject);
     }
   }, [
     roughClipUrl,
