@@ -17,6 +17,7 @@
     "cypress": "TS_NODE_PROJECT=0 cypress open-ct"
   },
   "dependencies": {
+    "@0xsplits/splits-sdk": "^4.0.5",
     "@ably-labs/react-hooks": "^2.0.6",
     "@airstack/airstack-react": "^0.6.3",
     "@apollo/client": "^3.6.9",

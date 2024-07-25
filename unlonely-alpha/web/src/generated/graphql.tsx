@@ -2119,6 +2119,8 @@ export type GetChannelByIdQuery = {
     description?: string | null;
     customButtonPrice?: number | null;
     customButtonAction?: string | null;
+    contract1155Address?: string | null;
+    contract1155ChainId?: number | null;
     isLive?: boolean | null;
     id: string;
     name?: string | null;
@@ -4631,6 +4633,8 @@ export const GetChannelByIdDocument = gql`
       description
       customButtonPrice
       customButtonAction
+      contract1155Address
+      contract1155ChainId
       isLive
       id
       name

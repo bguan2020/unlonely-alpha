@@ -19,30 +19,111 @@ import { useRouter } from "next/router";
 import useCreateClip from "../hooks/server/channel/useCreateClip";
 import useTrimVideo from "../hooks/server/channel/useTrimVideo";
 import { WavyText } from "../components/general/WavyText";
-import { useZoraCreate1155 } from "../hooks/contracts/useZoraCreate1155";
+import { SplitV1Client, SplitRecipient } from "@0xsplits/splits-sdk";
 import { pinFileWithPinata, pinJsonWithPinata } from "../utils/pinata";
 import { ContractMetadataJson } from "@zoralabs/protocol-sdk";
 import { GET_CHANNEL_BY_ID_QUERY } from "../constants/queries";
 import { useLazyQuery } from "@apollo/client";
 import { GetChannelByIdQuery } from "../generated/graphql";
 import Header from "../components/navigation/Header";
+import {
+  Address,
+  Chain,
+  HttpTransport,
+  PublicClient,
+  encodeFunctionData,
+} from "viem";
+import { usePublicClient, useWalletClient } from "wagmi";
+import { ExtractAbiFunction, AbiParametersToPrimitiveTypes } from "abitype";
+import {
+  createCreatorClient,
+  makeMediaTokenMetadata,
+} from "@zoralabs/protocol-sdk";
+import useUpdateChannelContract1155 from "../hooks/server/channel/useUpdateChannelContract1155";
+import { findMostFrequentString } from "../utils/findMostFrequencyString";
+
+const multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
+const PROTOCOL_ADDRESS = "0x53D6D64945A67658C66730Ff4a038eb298eC8902";
+
+const multicall3Abi = [
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "target",
+            type: "address",
+          },
+          {
+            internalType: "bool",
+            name: "allowFailure",
+            type: "bool",
+          },
+          {
+            internalType: "uint256",
+            name: "value",
+            type: "uint256",
+          },
+          {
+            internalType: "bytes",
+            name: "callData",
+            type: "bytes",
+          },
+        ],
+        internalType: "struct Multicall3.Call3Value[]",
+        name: "calls",
+        type: "tuple[]",
+      },
+    ],
+    name: "aggregate3Value",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "bool",
+            name: "success",
+            type: "bool",
+          },
+          {
+            internalType: "bytes",
+            name: "returnData",
+            type: "bytes",
+          },
+        ],
+        internalType: "struct Multicall3.Result[]",
+        name: "returnData",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+] as const;
+
+type Aggregate3ValueFunction = ExtractAbiFunction<
+  typeof multicall3Abi,
+  "aggregate3Value"
+>["inputs"];
+type Aggregate3ValueCall =
+  AbiParametersToPrimitiveTypes<Aggregate3ValueFunction>[0][0];
 
 const Clip = () => {
   const router = useRouter();
+  const publicClient = usePublicClient();
+  const { data: walletClient } = useWalletClient({
+    onSuccess(data) {
+      console.log("Success", data);
+    },
+  });
+
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const [clipRange, setClipRange] = useState<[number, number]>([0, 0]);
   const [title, setTitle] = useState("");
   const [channelId, setChannelId] = useState<string | null>(null);
-  const [roughClipUrl, setRoughClipUrl] = useState(
-    // ""
-    "https://openseauserdata.com/files/b29ce5e85b7dc97eeb6a571b48644231.mp4"
-  );
-  const [isCallingCreate1155, setIsCallingCreate1155] =
-    useState<boolean>(false);
-  const [existingContractAddress, setExistingContractAddress] = useState<
-    `0x${string}` | null
-  >(null);
+  const [chainId, setChainId] = useState<number>(8453);
+  const [roughClipUrl, setRoughClipUrl] = useState("");
   const [contractMetadataJsonUri, setContractMetadataJsonUri] =
     useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -59,29 +140,6 @@ const Clip = () => {
     fetchPolicy: "network-only",
   });
 
-  const { writeAsync: create1155Token } = useZoraCreate1155(
-    contractMetadataJsonUri
-      ? {
-          name: "testContract",
-          uri: contractMetadataJsonUri,
-        }
-      : existingContractAddress ?? undefined,
-    {
-      onWriteSuccess: (data) => {
-        console.log("create1155Token write success", data);
-      },
-      onWriteError: (error) => {
-        console.log("create1155Token write error", error);
-      },
-      onTxSuccess: (data) => {
-        console.log("create1155Token tx success", data);
-      },
-      onTxError: (error) => {
-        console.log("create1155Token tx error", error);
-      },
-    }
-  );
-
   const { createClip } = useCreateClip({
     onError: (e) => {
       console.log(e);
@@ -89,6 +147,12 @@ const Clip = () => {
   });
 
   const { trimVideo } = useTrimVideo({
+    onError: () => {
+      console.log("Error");
+    },
+  });
+
+  const { updateChannelContract1155 } = useUpdateChannelContract1155({
     onError: () => {
       console.log("Error");
     },
@@ -177,64 +241,233 @@ const Clip = () => {
   };
 
   const handleTrimVideo = useCallback(async () => {
-    // if (
-    //   !roughClipUrl ||
-    //   !channelId ||
-    //   clipRange[0] >= clipRange[1] ||
-    //   !getChannelByIdData
-    // )
-    //   return;
-    // const res = await trimVideo({
-    //   startTime: clipRange[0],
-    //   endTime: clipRange[1],
-    //   videoLink: roughClipUrl,
-    //   name: title,
-    //   channelId: channelId ?? "",
-    // });
-    // const playbackUrl = res?.res?.videoLink;
-    // if (!playbackUrl) {
-    //   console.log("playback url not found");
-    //   return;
-    // }
-    if (!existingContractAddress) {
+    if (
+      !roughClipUrl ||
+      !channelId ||
+      clipRange[0] >= clipRange[1] ||
+      !getChannelByIdData ||
+      !chainId
+    )
+      return;
+    const res = await trimVideo({
+      startTime: clipRange[0],
+      endTime: clipRange[1],
+      videoLink: roughClipUrl,
+      name: title,
+      channelId: channelId ?? "",
+    });
+    const playbackUrl = res?.res?.videoLink;
+    if (!playbackUrl) {
+      console.log("playback url not found");
+      return;
+    }
+    let contractMetadataJsonUriLocal = "";
+    let _videoFileIpfsUrl = "";
+    if (!getChannelByIdData?.getChannelById?.contract1155Address) {
       try {
         // const response = await fetch(playbackUrl);
         console.log("creating file blob");
-        const response = await fetch(roughClipUrl);
-        const blob = await response.blob();
-        const file = new File([blob], "video.mp4", { type: "video/mp4" });
-        const fileIpfsUrl = await pinFileWithPinata(file);
-        console.log("fileIpfsUrl", fileIpfsUrl);
+        const videoResponse = await fetch(roughClipUrl);
+        const videoBlob = await videoResponse.blob();
+        const videoFile = new File([videoBlob], "video.mp4", {
+          type: "video/mp4",
+        });
+        const videoFileIpfsUrl = await pinFileWithPinata(videoFile);
+        console.log("videoResponse", videoResponse);
+        console.log("videoBlob", videoBlob);
+        console.log("videoFile", videoFile);
+        console.log("videoFileIpfsUrl", videoFileIpfsUrl);
+        _videoFileIpfsUrl = videoFileIpfsUrl;
+
         const metadataJson: ContractMetadataJson = {
-          description:
-            getChannelByIdData?.getChannelById?.description ??
-            "test description",
-          image: fileIpfsUrl,
-          name: getChannelByIdData?.getChannelById?.name ?? "test name",
+          description: `this was clipped from ${getChannelByIdData?.getChannelById?.slug}'s Unlonely livestream`,
+          image: videoFileIpfsUrl,
+          name: title,
         };
-        const contractMetadataJsonUri = await pinJsonWithPinata(metadataJson);
-        console.log("contractMetadataJsonUri", contractMetadataJsonUri);
+        const _contractMetadataJsonUri = await pinJsonWithPinata(metadataJson);
+        console.log("metadataJson", metadataJson);
+        contractMetadataJsonUriLocal = _contractMetadataJsonUri;
         setContractMetadataJsonUri(contractMetadataJsonUri);
         await new Promise((resolve) => setTimeout(resolve, 2000));
-        setIsCallingCreate1155(true);
       } catch (e) {
         console.log("pinning contract metadata to ipfs Error", e);
+        return;
       }
-    } else {
-      setIsCallingCreate1155(true);
+    }
+
+    const splitsClient = new SplitV1Client({
+      chainId,
+      publicClient: publicClient as PublicClient<HttpTransport, Chain>,
+      apiConfig: {
+        // This is a dummy 0xSplits api key, replace with your own
+        apiKey: String(process.env.NEXT_PUBLIC_SPLITS_API_KEY),
+      },
+    });
+
+    // configure the split
+    const splitsConfig: {
+      recipients: SplitRecipient[];
+      distributorFeePercent: number;
+    } = {
+      recipients: [
+        {
+          address: walletClient?.account.address as Address,
+          percentAllocation: 45,
+        },
+        {
+          address: getChannelByIdData?.getChannelById?.owner
+            ?.address as Address,
+          percentAllocation: 45,
+        },
+        {
+          address: PROTOCOL_ADDRESS,
+          percentAllocation: 10,
+        },
+      ],
+      distributorFeePercent: 0,
+    };
+
+    const predicted = await splitsClient.predictImmutableSplitAddress(
+      splitsConfig
+    );
+
+    console.log("predicted", predicted);
+
+    const agregate3Calls: Aggregate3ValueCall[] = [];
+
+    if (!predicted.splitExists) {
+      // if the split has not been created, add a call to create it
+      // to the multicall3 aggregate call
+
+      const { data, address } = await splitsClient.callData.createSplit(
+        splitsConfig
+      );
+
+      agregate3Calls.push({
+        allowFailure: false,
+        callData: data,
+        target: address as Address,
+        value: BigInt(0),
+      });
+    }
+
+    const splitRecipient = predicted.splitAddress;
+
+    /* ==== 2. Create the 1155 with the splits recipient as the payoutRecipient ===== */
+
+    const creatorClient = createCreatorClient({ chainId, publicClient });
+
+    if (!res?.res?.videoThumbnail) {
+      console.log("thumbnail url not found");
+      return;
+    }
+
+    const thumbnailResponse = await fetch(res?.res?.videoThumbnail);
+    const thumbnailBlob = await thumbnailResponse.blob();
+    const thumbnailFile = new File([thumbnailBlob], title, {
+      type: "image/png",
+    });
+    const thumbnailFileIpfsUrl = await pinFileWithPinata(thumbnailFile);
+
+    const tokenMetadataJson = await makeMediaTokenMetadata({
+      mediaUrl: _videoFileIpfsUrl,
+      thumbnailUrl: thumbnailFileIpfsUrl,
+      name: thumbnailFile.name,
+    });
+    console.log("makeMediaTokenMetadata tokenMetadataJson", tokenMetadataJson);
+    const jsonMetadataUri = await pinJsonWithPinata(tokenMetadataJson);
+
+    console.log("jsonMetadataUri", jsonMetadataUri);
+
+    let _existingContractAddress: `0x${string}` | null = null;
+    if (!getChannelByIdData?.getChannelById?.contract1155Address) {
+      const newChannelData = await getChannelById();
+      const newContractAddress =
+        newChannelData?.data?.getChannelById?.contract1155Address;
+      _existingContractAddress =
+        newContractAddress === undefined
+          ? null
+          : newContractAddress !== null
+          ? (newContractAddress as `0x${string}`)
+          : null;
+    }
+
+    const { parameters } = await creatorClient.create1155({
+      contract: (getChannelByIdData?.getChannelById?.contract1155Address as
+        | `0x${string}`
+        | undefined
+        | null) ??
+        _existingContractAddress ?? {
+          name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
+          uri: contractMetadataJsonUriLocal,
+        },
+      token: {
+        tokenMetadataURI: jsonMetadataUri,
+        payoutRecipient: splitRecipient,
+        // 1 token will be minted to the creator
+        mintToCreatorCount: 1,
+      },
+      account: walletClient?.account.address as Address,
+    });
+
+    // push 1155 contract and token creation calls to the multicall3 aggregate call
+    agregate3Calls.push({
+      allowFailure: false,
+      value: parameters.value || BigInt(0),
+      target: parameters.address,
+      callData: encodeFunctionData({
+        abi: parameters.abi,
+        functionName: parameters.functionName,
+        args: parameters.args,
+      }),
+    });
+
+    // simulate the transaction multicall 3 transaction
+    const { request } = await publicClient.simulateContract({
+      abi: multicall3Abi,
+      functionName: "aggregate3Value",
+      address: multicall3Address,
+      args: [agregate3Calls],
+      account: walletClient?.account.address as Address,
+    });
+
+    console.log("simulated multicall3 request", request);
+
+    // execute the transaction
+    const hash = await walletClient?.writeContract(request).then((response) => {
+      console.log("multicall3 response", response);
+      return response;
+    });
+
+    if (hash) {
+      const transaction = await publicClient.waitForTransactionReceipt({
+        hash,
+      });
+      const logs = transaction.logs;
+
+      // freqAddress is the address of the 1155 contract
+      const freqAddress = findMostFrequentString(
+        logs.map((log) => log.address)
+      );
+
+      if (freqAddress && channelId) {
+        await updateChannelContract1155({
+          channelId: channelId,
+          contract1155Address: freqAddress,
+          contract1155ChainId: chainId,
+        });
+      }
     }
   }, [
     roughClipUrl,
     clipRange,
     title,
     channelId,
-    existingContractAddress,
     getChannelByIdData,
+    chainId,
+    publicClient,
+    walletClient,
   ]);
-
-  useEffect(() => {
-    if (isCallingCreate1155 && create1155Token) create1155Token?.();
-  }, [isCallingCreate1155, create1155Token]);
 
   return (
     <Flex h="100vh" bg="rgba(5, 0, 31, 1)" direction={"column"}>

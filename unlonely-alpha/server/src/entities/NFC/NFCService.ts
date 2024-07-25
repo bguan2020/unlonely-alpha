@@ -118,7 +118,7 @@ export const postNFC = async (
         connect: {
           id: Number(data.channelId),
         },
-      },
+      }
     },
   });
 };
