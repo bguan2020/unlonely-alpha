@@ -96,6 +96,11 @@ model NFC {
   videoLink String? @default("")
   videoThumbnail String? @default("")
   openseaLink String? @default("")
+
+  contract1155chainId Int @default(8453)
+  contract1155Address String? @default("")
+  tokenId Int @default(-1) // -1 means not minted yet
+  zoraLink String? @default("")
   score Int @default(0)
 
   likes Like[]
@@ -151,6 +156,9 @@ model Channel {
   tempTokens TempToken[]
 
   subscribedFIDs Int[]
+
+  contract1155chainId Int @default(8453)
+  contract1155Address String? @default("")
 }
 
 model ChannelUserRole {
