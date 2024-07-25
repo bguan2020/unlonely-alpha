@@ -97,7 +97,7 @@ model NFC {
   videoThumbnail String? @default("")
   openseaLink String? @default("")
 
-  contract1155chainId Int @default(8453)
+  contract1155ChainId Int @default(8453)
   contract1155Address String? @default("")
   tokenId Int @default(-1) // -1 means not minted yet
   zoraLink String? @default("")
@@ -157,7 +157,7 @@ model Channel {
 
   subscribedFIDs Int[]
 
-  contract1155chainId Int @default(8453)
+  contract1155ChainId Int @default(8453)
   contract1155Address String? @default("")
 }
 

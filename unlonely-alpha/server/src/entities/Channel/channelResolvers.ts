@@ -160,6 +160,13 @@ export const resolvers = {
 
       return channelService.updateChannelCustomButton(data, ctx);
     },
+    updateChannelContract1155: (
+      _: any,
+      { data }: { data: channelService.IUpdateChannelContract1155Input },
+      ctx: Context
+    ) => {
+      return channelService.updateChannelContract1155(data, ctx);
+    },
     postUserRoleForChannel: (
       _: any,
       { data }: { data: channelService.IPostUserRoleForChannelInput },
