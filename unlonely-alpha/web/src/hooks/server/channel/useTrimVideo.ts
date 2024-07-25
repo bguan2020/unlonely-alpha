@@ -12,22 +12,8 @@ type Props = {
 const MUTATION = gql`
   mutation TrimVideo($data: TrimVideoInput!) {
     trimVideo(data: $data) {
-      id
-      title
       videoLink
       videoThumbnail
-      openseaLink
-      owner {
-        id
-        username
-        address
-      }
-      channel {
-        id
-        name
-        description
-        slug
-      }
     }
   }
 `;

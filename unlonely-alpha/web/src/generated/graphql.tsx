@@ -518,7 +518,7 @@ export type Mutation = {
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
   toggleSubscription?: Maybe<Subscription>;
-  trimVideo?: Maybe<Nfc>;
+  trimVideo?: Maybe<TrimVideoResponse>;
   updateChannelAllowNfcs?: Maybe<Channel>;
   updateChannelContract1155?: Maybe<Channel>;
   updateChannelCustomButton?: Maybe<Channel>;
@@ -1380,6 +1380,12 @@ export type TrimVideoInput = {
   name: Scalars["String"];
   startTime: Scalars["Float"];
   videoLink: Scalars["String"];
+};
+
+export type TrimVideoResponse = {
+  __typename?: "TrimVideoResponse";
+  videoLink: Scalars["String"];
+  videoThumbnail: Scalars["String"];
 };
 
 export type UpdateChannelAllowNfcsInput = {
@@ -2436,25 +2442,9 @@ export type TrimVideoMutationVariables = Exact<{
 export type TrimVideoMutation = {
   __typename?: "Mutation";
   trimVideo?: {
-    __typename?: "NFC";
-    id: string;
-    title?: string | null;
-    videoLink?: string | null;
-    videoThumbnail?: string | null;
-    openseaLink?: string | null;
-    owner: {
-      __typename?: "User";
-      id: string;
-      username?: string | null;
-      address: string;
-    };
-    channel: {
-      __typename?: "Channel";
-      id: string;
-      name?: string | null;
-      description?: string | null;
-      slug: string;
-    };
+    __typename?: "TrimVideoResponse";
+    videoLink: string;
+    videoThumbnail: string;
   } | null;
 };
 
@@ -5621,22 +5611,8 @@ export type ToggleSubscriptionMutationOptions = Apollo.BaseMutationOptions<
 export const TrimVideoDocument = gql`
   mutation TrimVideo($data: TrimVideoInput!) {
     trimVideo(data: $data) {
-      id
-      title
       videoLink
       videoThumbnail
-      openseaLink
-      owner {
-        id
-        username
-        address
-      }
-      channel {
-        id
-        name
-        description
-        slug
-      }
     }
   }
 `;

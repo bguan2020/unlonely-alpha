@@ -45,6 +45,11 @@ export const typeDef = gql`
     asset: Asset!
   }
 
+  type TrimVideoResponse {
+    videoLink: String!
+    videoThumbnail: String!
+  }
+
   type Channel {
     id: ID!
     name: String
@@ -137,6 +142,6 @@ export const typeDef = gql`
     openseaNFCScript: String
     updateOpenseaLink: NFC
     requestUploadFromLivepeer(data: RequestUploadFromLivepeerInput!): RequestUploadResponse
-    trimVideo(data: TrimVideoInput!): NFC
+    trimVideo(data: TrimVideoInput!): TrimVideoResponse
   }
 `;
