@@ -75,6 +75,9 @@ export interface IPostNFCInput {
   videoLink: string;
   videoThumbnail: string;
   openseaLink: string;
+  contract1155Address?: string
+  tokenId?: number
+  zoraLink?: string
 }
 
 export interface IUpdateNFCInput {
@@ -109,6 +112,9 @@ export const postNFC = async (
       videoLink: data.videoLink,
       videoThumbnail: data.videoThumbnail,
       openseaLink: data.openseaLink,
+      contract1155Address: data.contract1155Address,
+      tokenId: data.tokenId,
+      zoraLink: data.zoraLink,
       owner: {
         connect: {
           address: user.address,
@@ -504,7 +510,7 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
 
     let finalAsset = null;
     while (true) {
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       const poll = await fetch(
         `https://livepeer.studio/api/asset/${requestResForFinal.asset.id}`,
         {
