@@ -14,14 +14,16 @@ import {
 import { useRef, useState, useEffect, useCallback } from "react";
 import { MdDragIndicator } from "react-icons/md";
 
-import { CLIP_CHANNEL_ID_QUERY_PARAM } from "../constants";
+import { CLIP_CHANNEL_ID_QUERY_PARAM, NULL_ADDRESS } from "../constants";
 import { useRouter } from "next/router";
 import useCreateClip from "../hooks/server/channel/useCreateClip";
 import useTrimVideo from "../hooks/server/channel/useTrimVideo";
 import { WavyText } from "../components/general/WavyText";
 import { SplitV1Client, SplitRecipient } from "@0xsplits/splits-sdk";
-import { pinFileWithPinata, pinJsonWithPinata } from "../utils/pinata";
-import { ContractMetadataJson } from "@zoralabs/protocol-sdk";
+import {
+  createFileBlobAndPinWithPinata,
+  pinJsonWithPinata,
+} from "../utils/pinata";
 import { GET_CHANNEL_BY_ID_QUERY } from "../constants/queries";
 import { useLazyQuery } from "@apollo/client";
 import { GetChannelByIdQuery } from "../generated/graphql";
@@ -37,6 +39,7 @@ import {
 import { usePublicClient, useWalletClient } from "wagmi";
 import { ExtractAbiFunction, AbiParametersToPrimitiveTypes } from "abitype";
 import {
+  ContractType,
   createCreatorClient,
   makeMediaTokenMetadata,
 } from "@zoralabs/protocol-sdk";
@@ -247,6 +250,8 @@ const Clip = () => {
       !getChannelByIdData?.getChannelById?.owner?.address
     )
       return;
+    const initiallyCheckedContract1155Address = getChannelByIdData
+      ?.getChannelById?.contract1155Address as `0x${string}` | undefined | null;
     const res = await trimVideo({
       startTime: clipRange[0],
       endTime: clipRange[1],
@@ -254,47 +259,224 @@ const Clip = () => {
       name: title,
       channelId: channelId ?? "",
     });
-    const playbackUrl = res?.res?.videoLink;
-    if (!playbackUrl) {
-      console.log("playback url not found");
+
+    // CREATE TOKEN METADATA
+
+    const { pinRes: videoFileIpfsUrl } = await createFileBlobAndPinWithPinata(
+      String(res?.res?.videoLink),
+      "video.mp4",
+      "video/mp4"
+    );
+    console.log("videoFileIpfsUrl", videoFileIpfsUrl);
+    if (!videoFileIpfsUrl || !res?.res?.videoLink) return;
+
+    const { file: thumbnailFile, pinRes: thumbnailFileIpfsUrl } =
+      await createFileBlobAndPinWithPinata(
+        String(res?.res?.videoThumbnail),
+        title,
+        "image/png"
+      );
+    if (!thumbnailFileIpfsUrl || !thumbnailFile || !res?.res?.videoThumbnail)
       return;
+
+    console.log("thumbnailFileIpfsUrl", thumbnailFileIpfsUrl);
+    console.log("videoFileIpfsUrl", videoFileIpfsUrl);
+
+    const tokenMetadataJson = await makeMediaTokenMetadata({
+      mediaUrl: videoFileIpfsUrl,
+      thumbnailUrl: thumbnailFileIpfsUrl,
+      name: thumbnailFile.name,
+    });
+    console.log("makeMediaTokenMetadata tokenMetadataJson", tokenMetadataJson);
+
+    const jsonMetadataUri = await pinJsonWithPinata(tokenMetadataJson);
+    console.log("jsonMetadataUri", jsonMetadataUri);
+
+    // CREATE SPLIT CONFIG
+
+    const { agregate3Calls, predicted, error, splitCallData, splitAddress } =
+      await handleSplitConfig();
+    if (error) return;
+
+    // CHECK IF CONTRACT EXISTS AT THIS POINT IN TIME, IF SO USE IT
+
+    let subsequentCheckedContract1155Address: string | null | undefined = null;
+
+    if (!initiallyCheckedContract1155Address) {
+      const newChannelData = await getChannelById();
+      subsequentCheckedContract1155Address =
+        newChannelData?.data?.getChannelById?.contract1155Address;
+      console.log("existing contract", subsequentCheckedContract1155Address);
     }
-    let contractMetadataJsonUriLocal = "";
-    let _videoFileIpfsUrl = "";
-    try {
-      const videoResponse = await fetch(playbackUrl);
-      console.log("creating file blob");
-      const videoBlob = await videoResponse.blob();
-      const videoFile = new File([videoBlob], "video.mp4", {
-        type: "video/mp4",
+
+    let contractObject: ContractType = {
+      name: "",
+      uri: "",
+    };
+    let tokenObject = null;
+
+    if (
+      !initiallyCheckedContract1155Address &&
+      !subsequentCheckedContract1155Address
+    ) {
+      tokenObject = {
+        tokenMetadataURI: jsonMetadataUri,
+        payoutRecipient: predicted.splitAddress,
+        mintToCreatorCount: 1,
+      };
+      const _contractMetadataJsonUri = await pinJsonWithPinata({
+        description: `this was clipped from ${getChannelByIdData?.getChannelById?.slug}'s Unlonely livestream`,
+        image: videoFileIpfsUrl,
+        name: title,
       });
-      const videoFileIpfsUrl = await pinFileWithPinata(videoFile);
-      console.log("videoResponse", videoResponse);
-      console.log("videoBlob", videoBlob);
-      console.log("videoFile", videoFile);
-      console.log("videoFileIpfsUrl", videoFileIpfsUrl);
-      _videoFileIpfsUrl = videoFileIpfsUrl;
-      if (!getChannelByIdData?.getChannelById?.contract1155Address) {
-        const metadataJson: ContractMetadataJson = {
-          description: `this was clipped from ${getChannelByIdData?.getChannelById?.slug}'s Unlonely livestream`,
-          image: videoFileIpfsUrl,
-          name: title,
-        };
-        const _contractMetadataJsonUri = await pinJsonWithPinata(metadataJson);
-        console.log("metadataJson", metadataJson);
-        contractMetadataJsonUriLocal = _contractMetadataJsonUri;
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-      }
-    } catch (e) {
-      console.log("pinning contract metadata to ipfs Error", e);
+      contractObject = {
+        name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
+        uri: _contractMetadataJsonUri,
+      };
+    } else if (initiallyCheckedContract1155Address) {
+      contractObject = initiallyCheckedContract1155Address;
+    } else if (subsequentCheckedContract1155Address) {
+      contractObject = subsequentCheckedContract1155Address as `0x${string}`;
+    } else {
+      console.log("no satisfactory outcome found");
       return;
     }
 
+    if (!tokenObject) {
+      tokenObject = {
+        tokenMetadataURI: jsonMetadataUri,
+        payoutRecipient: predicted.splitAddress,
+      };
+    }
+
+    console.log("contractObject", contractObject);
+    console.log("tokenObject", tokenObject);
+
+    // CREATE 1155 CONTRACT AND TOKEN
+
+    const creatorClient = createCreatorClient({ chainId, publicClient });
+    const { parameters } = await creatorClient.create1155({
+      contract: contractObject,
+      token: tokenObject,
+      account: walletClient?.account.address as Address,
+    });
+
+    console.log("parameters from create1155", parameters);
+
+    if (predicted.splitExists) {
+      const transaction = await handleWriteCreate1155(parameters);
+    } else {
+      if (typeof contractObject === "string") {
+        if (splitCallData && splitAddress && walletClient?.account.address) {
+          const splitCreationHash = await walletClient.sendTransaction({
+            to: splitAddress as Address,
+            account: walletClient?.account.address as Address,
+            data: splitCallData,
+          });
+          if (!splitCreationHash) return;
+          const splitTransaction = await publicClient.waitForTransactionReceipt(
+            {
+              hash: splitCreationHash,
+            }
+          );
+
+          const transaction = await handleWriteCreate1155(parameters);
+        }
+      } else {
+        // push 1155 contract and token creation calls to the multicall3 aggregate call
+        agregate3Calls.push({
+          allowFailure: false,
+          value: parameters.value || BigInt(0),
+          target: parameters.address,
+          callData: encodeFunctionData({
+            abi: parameters.abi,
+            functionName: parameters.functionName,
+            args: parameters.args,
+          }),
+        });
+
+        console.log("agregate3Calls", agregate3Calls);
+
+        // simulate the transaction multicall 3 transaction
+        const { request } = await publicClient.simulateContract({
+          abi: multicall3Abi,
+          functionName: "aggregate3Value",
+          address: multicall3Address,
+          args: [agregate3Calls],
+          account: walletClient?.account.address as Address,
+        });
+
+        console.log("simulated multicall3 request", request);
+
+        // execute the transaction
+        const hash = await walletClient
+          ?.writeContract(request)
+          .then((response) => {
+            console.log("multicall3 response", response);
+            return response;
+          });
+
+        if (hash) {
+          const transaction = await publicClient.waitForTransactionReceipt({
+            hash,
+          });
+          const logs = transaction.logs;
+          console.log("transaction logs", logs);
+          // freqAddress is the address of the 1155 contract
+          const freqAddress = findMostFrequentString(
+            logs.map((log) => log.address)
+          );
+
+          console.log("freqAddress", freqAddress);
+
+          if (freqAddress && channelId) {
+            await updateChannelContract1155({
+              channelId: channelId,
+              contract1155Address: freqAddress,
+              contract1155ChainId: chainId,
+            });
+          }
+          // TO DO: add the 1155 contract address to the channel, tokenId, zoraLink
+          const postNfcObject = {
+            title: title,
+            videoLink: res?.res?.videoLink,
+            videoThumbnail: res?.res?.videoThumbnail,
+            openseaLink: "",
+            channelId: channelId,
+          };
+          console.log("postNfcObject", postNfcObject);
+          await postNFC(postNfcObject);
+        }
+      }
+    }
+  }, [
+    roughClipUrl,
+    clipRange,
+    title,
+    channelId,
+    getChannelByIdData,
+    chainId,
+    publicClient,
+    walletClient,
+  ]);
+
+  const handleSplitConfig = async () => {
+    const agregate3Calls: Aggregate3ValueCall[] = [];
+    if (!publicClient || !walletClient?.account.address)
+      return {
+        agregate3Calls,
+        predicted: {
+          splitAddress: NULL_ADDRESS as Address,
+          splitExists: false,
+        },
+        splitCallData: null,
+        splitAddress: null,
+        error: true,
+      };
     const splitsClient = new SplitV1Client({
       chainId,
       publicClient: publicClient as PublicClient<HttpTransport, Chain>,
       apiConfig: {
-        // This is a dummy 0xSplits api key, replace with your own
         apiKey: String(process.env.NEXT_PUBLIC_SPLITS_API_KEY),
       },
     });
@@ -342,8 +524,8 @@ const Clip = () => {
 
     console.log("predicted", predicted);
 
-    const agregate3Calls: Aggregate3ValueCall[] = [];
-
+    let splitCallData = null;
+    let splitAddress = null;
     if (!predicted.splitExists) {
       // if the split has not been created, add a call to create it
       // to the multicall3 aggregate call
@@ -351,7 +533,8 @@ const Clip = () => {
       const { data, address } = await splitsClient.callData.createSplit(
         splitsConfig
       );
-
+      splitCallData = data;
+      splitAddress = address;
       agregate3Calls.push({
         allowFailure: false,
         callData: data,
@@ -359,172 +542,27 @@ const Clip = () => {
         value: BigInt(0),
       });
     }
-
-    const splitRecipient = predicted.splitAddress;
-
-    /* ==== 2. Create the 1155 with the splits recipient as the payoutRecipient ===== */
-
-    const creatorClient = createCreatorClient({ chainId, publicClient });
-
-    if (!res?.res?.videoThumbnail) {
-      console.log("thumbnail url not found");
-      return;
-    }
-
-    const thumbnailResponse = await fetch(res?.res?.videoThumbnail);
-    const thumbnailBlob = await thumbnailResponse.blob();
-    const thumbnailFile = new File([thumbnailBlob], title, {
-      type: "image/png",
-    });
-    const thumbnailFileIpfsUrl = await pinFileWithPinata(thumbnailFile);
-    console.log("thumbnailFileIpfsUrl", thumbnailFileIpfsUrl);
-    console.log("videoFileIpfsUrl", _videoFileIpfsUrl);
-    console.log("name", thumbnailFile.name);
-    const tokenMetadataJson = await makeMediaTokenMetadata({
-      mediaUrl: _videoFileIpfsUrl,
-      thumbnailUrl: thumbnailFileIpfsUrl,
-      name: thumbnailFile.name,
-    });
-    console.log("makeMediaTokenMetadata tokenMetadataJson", tokenMetadataJson);
-    const jsonMetadataUri = await pinJsonWithPinata(tokenMetadataJson);
-
-    console.log("jsonMetadataUri", jsonMetadataUri);
-
-    let _existingContractAddress: `0x${string}` | null = null;
-    if (!getChannelByIdData?.getChannelById?.contract1155Address) {
-      const newChannelData = await getChannelById();
-      const newContractAddress =
-        newChannelData?.data?.getChannelById?.contract1155Address;
-      _existingContractAddress =
-        newContractAddress === undefined
-          ? null
-          : newContractAddress !== null
-          ? (newContractAddress as `0x${string}`)
-          : null;
-      console.log("existing contract", _existingContractAddress);
-    }
-
-    let contractObject = null;
-    let tokenObject = null;
-    const initiallyCheckedContract1155Address = getChannelByIdData
-      ?.getChannelById?.contract1155Address as `0x${string}` | undefined | null;
-
-    const subsequentCheckedContract1155Address = _existingContractAddress;
-    const contractMetadata = {
-      name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
-      uri: contractMetadataJsonUriLocal,
+    return {
+      agregate3Calls,
+      predicted,
+      splitCallData,
+      splitAddress,
+      error: false,
     };
+  };
 
-    if (
-      !initiallyCheckedContract1155Address &&
-      !subsequentCheckedContract1155Address
-    ) {
-      contractObject = contractMetadata;
-      tokenObject = {
-        tokenMetadataURI: jsonMetadataUri,
-        payoutRecipient: splitRecipient,
-        mintToCreatorCount: 1,
-      };
-    } else if (initiallyCheckedContract1155Address) {
-      contractObject = initiallyCheckedContract1155Address;
-    } else if (subsequentCheckedContract1155Address) {
-      contractObject = subsequentCheckedContract1155Address;
-    } else {
-      console.log("no satisfactory outcome found");
-      return;
-    }
-
-    if (!tokenObject) {
-      tokenObject = {
-        tokenMetadataURI: jsonMetadataUri,
-        payoutRecipient: splitRecipient,
-      };
-    }
-
-    console.log("contractObject", contractObject);
-    console.log("tokenObject", tokenObject);
-
-    const { parameters, collectionAddress } = await creatorClient.create1155({
-      contract: contractObject,
-      token: tokenObject,
-      account: walletClient?.account.address as Address,
-    });
-
-    console.log("parameters from create1155", parameters);
-    console.log("collectionAddress from create1155", collectionAddress);
-
-    // push 1155 contract and token creation calls to the multicall3 aggregate call
-    agregate3Calls.push({
-      allowFailure: false,
-      value: parameters.value || BigInt(0),
-      target: parameters.address,
-      callData: encodeFunctionData({
-        abi: parameters.abi,
-        functionName: parameters.functionName,
-        args: parameters.args,
-      }),
-    });
-
-    console.log("agregate3Calls", agregate3Calls);
-
-    // simulate the transaction multicall 3 transaction
-    const { request } = await publicClient.simulateContract({
-      abi: multicall3Abi,
-      functionName: "aggregate3Value",
-      address: multicall3Address,
-      args: [agregate3Calls],
-      account: walletClient?.account.address as Address,
-    });
-
-    console.log("simulated multicall3 request", request);
+  const handleWriteCreate1155 = async (parameters: any) => {
+    if (!publicClient || !walletClient?.account.address) return;
+    const { request } = await publicClient.simulateContract(parameters);
 
     // execute the transaction
-    const hash = await walletClient?.writeContract(request).then((response) => {
-      console.log("multicall3 response", response);
-      return response;
+    const hash = await walletClient.writeContract(request);
+    if (!hash) return;
+    const transaction = await publicClient.waitForTransactionReceipt({
+      hash,
     });
-
-    if (hash) {
-      const transaction = await publicClient.waitForTransactionReceipt({
-        hash,
-      });
-      const logs = transaction.logs;
-      console.log("transaction logs", logs);
-      // freqAddress is the address of the 1155 contract
-      const freqAddress = findMostFrequentString(
-        logs.map((log) => log.address)
-      );
-
-      console.log("freqAddress", freqAddress);
-
-      if (freqAddress && channelId) {
-        await updateChannelContract1155({
-          channelId: channelId,
-          contract1155Address: freqAddress,
-          contract1155ChainId: chainId,
-        });
-      }
-      // TO DO: add the 1155 contract address to the channel, tokenId, zoraLink
-      const postNfcObject = {
-        title: title,
-        videoLink: res.res.videoLink,
-        videoThumbnail: res?.res?.videoThumbnail,
-        openseaLink: "",
-        channelId: channelId,
-      };
-      console.log("postNfcObject", postNfcObject);
-      await postNFC(postNfcObject);
-    }
-  }, [
-    roughClipUrl,
-    clipRange,
-    title,
-    channelId,
-    getChannelByIdData,
-    chainId,
-    publicClient,
-    walletClient,
-  ]);
+    return transaction;
+  };
 
   return (
     <Flex h="100vh" bg="rgba(5, 0, 31, 1)" direction={"column"}>

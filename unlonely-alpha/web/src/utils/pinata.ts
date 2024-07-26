@@ -38,3 +38,12 @@ export async function pinJsonWithPinata(json: object) {
  
   return `ipfs://${result.IpfsHash}`;
 }
+
+export async function createFileBlobAndPinWithPinata(link: string, fileName: string, fileType: string) {
+  if (!link) return {file: null, pinRes: null};
+  const res = await fetch(link);
+  const blob = await res.blob();
+  const file = new File([blob], fileName, { type: fileType });
+  const pinRes = await pinFileWithPinata(file);
+  return { file, pinRes };
+}
