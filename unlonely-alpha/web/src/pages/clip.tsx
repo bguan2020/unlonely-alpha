@@ -450,6 +450,8 @@ const Clip = () => {
       account: walletClient?.account.address as Address,
     });
 
+    console.log("parameters from create1155", parameters);
+
     // push 1155 contract and token creation calls to the multicall3 aggregate call
     agregate3Calls.push({
       allowFailure: false,
@@ -461,6 +463,8 @@ const Clip = () => {
         args: parameters.args,
       }),
     });
+
+    console.log("agregate3Calls", agregate3Calls);
 
     // simulate the transaction multicall 3 transaction
     const { request } = await publicClient.simulateContract({
