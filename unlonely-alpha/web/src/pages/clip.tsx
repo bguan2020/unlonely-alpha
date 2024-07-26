@@ -125,7 +125,9 @@ const Clip = () => {
   const [title, setTitle] = useState("");
   const [channelId, setChannelId] = useState<string | null>(null);
   const [chainId, setChainId] = useState<number>(8453);
-  const [roughClipUrl, setRoughClipUrl] = useState("https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a5e1mb4vfge22uvr/1200p0.mp4");
+  const [roughClipUrl, setRoughClipUrl] = useState(
+    "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a5e1mb4vfge22uvr/1200p0.mp4"
+  );
   const [contractMetadataJsonUri, setContractMetadataJsonUri] =
     useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -415,14 +417,31 @@ const Clip = () => {
           : null;
     }
 
-    const contractObject = (getChannelByIdData?.getChannelById?.contract1155Address as
-      | `0x${string}`
-      | undefined
-      | null) ??
-      _existingContractAddress ?? {
-        name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
-        uri: contractMetadataJsonUriLocal,
+    let contractObject = null;
+    const initiallyCheckedContract1155Address = getChannelByIdData
+      ?.getChannelById?.contract1155Address as `0x${string}` | undefined | null;
+
+    const subsequentCheckedContract1155Address = _existingContractAddress;
+    const contractMetadata = {
+      name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
+      uri: contractMetadataJsonUriLocal,
     };
+
+    if (
+      !initiallyCheckedContract1155Address &&
+      !subsequentCheckedContract1155Address
+    ) {
+      contractObject = contractMetadata;
+    } else if (initiallyCheckedContract1155Address) {
+      contractObject = initiallyCheckedContract1155Address;
+    } else if (subsequentCheckedContract1155Address) {
+      contractObject = subsequentCheckedContract1155Address;
+    } else {
+      console.log("no satisfactory outcome found");
+      return;
+    }
+
+    console.log("contractObject", contractObject);
 
     const { parameters } = await creatorClient.create1155({
       contract: contractObject,
