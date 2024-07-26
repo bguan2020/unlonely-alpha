@@ -444,13 +444,14 @@ const Clip = () => {
     console.log("contractObject", contractObject);
     console.log("tokenObject", tokenObject);
 
-    const { parameters } = await creatorClient.create1155({
+    const { parameters, collectionAddress } = await creatorClient.create1155({
       contract: contractObject,
       token: tokenObject,
       account: walletClient?.account.address as Address,
     });
 
     console.log("parameters from create1155", parameters);
+    console.log("collectionAddress from create1155", collectionAddress);
 
     // push 1155 contract and token creation calls to the multicall3 aggregate call
     agregate3Calls.push({
@@ -488,11 +489,13 @@ const Clip = () => {
         hash,
       });
       const logs = transaction.logs;
-
+      console.log("transaction logs", logs);
       // freqAddress is the address of the 1155 contract
       const freqAddress = findMostFrequentString(
         logs.map((log) => log.address)
       );
+
+      console.log("freqAddress", freqAddress);
 
       if (freqAddress && channelId) {
         await updateChannelContract1155({
