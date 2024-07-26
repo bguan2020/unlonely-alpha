@@ -1750,6 +1750,7 @@ const Clip = () => {
     let freqAddress: `0x${string}` = NULL_ADDRESS;
     let tokenId = -1;
     if (predicted.splitExists) {
+      console.log("split exists");
       const transaction = await handleWriteCreate1155(parameters);
       const logs = transaction?.logs ?? [];
       console.log("transaction logs", logs);
@@ -1758,8 +1759,8 @@ const Clip = () => {
         logs.map((log) => log.address)
       );
 
-      console.log("freqAddress", freqAddress);
       freqAddress = _freqAddress as `0x${string}`;
+      console.log("freqAddress", freqAddress);
 
       const topics = returnDecodedTopics(
         logs,
@@ -1777,6 +1778,7 @@ const Clip = () => {
       }
     } else {
       if (typeof contractObject === "string") {
+        console.log("split does not exist and contractObject is string");
         if (splitCallData && splitAddress && walletClient?.account.address) {
           const splitCreationHash = await walletClient.sendTransaction({
             to: splitAddress as Address,
@@ -1800,8 +1802,8 @@ const Clip = () => {
             logs.map((log) => log.address)
           );
 
-          console.log("freqAddress", freqAddress);
           freqAddress = _freqAddress as `0x${string}`;
+          console.log("freqAddress", freqAddress);
 
           const topics = returnDecodedTopics(
             logs,
@@ -1820,6 +1822,7 @@ const Clip = () => {
           console.log("create1155 topics", topics);
         }
       } else {
+        console.log("split does not exist and contractObject is not string");
         // push 1155 contract and token creation calls to the multicall3 aggregate call
         agregate3Calls.push({
           allowFailure: false,
@@ -2008,7 +2011,10 @@ const Clip = () => {
   };
 
   const handleWriteCreate1155 = async (parameters: any) => {
-    if (!publicClient || !walletClient?.account.address) return;
+    if (!publicClient || !walletClient?.account.address) {
+      console.log("publicClient or walletClient is missing");
+      return;
+    }
     const { request } = await publicClient.simulateContract(parameters);
 
     // execute the transaction
