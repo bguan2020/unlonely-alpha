@@ -107,7 +107,7 @@ const multicall3Abi = [
   },
 ] as const;
 
-const zoraCreator1155Abi: any[] = [
+const zoraCreator1155Abi = [
   {
     inputs: [
       { internalType: "address", name: "_mintFeeRecipient", type: "address" },
@@ -1493,7 +1493,7 @@ const zoraCreator1155Abi: any[] = [
     type: "function",
   },
   { stateMutability: "payable", type: "receive" },
-] as const;
+];
 
 type Aggregate3ValueFunction = ExtractAbiFunction<
   typeof multicall3Abi,
@@ -1763,7 +1763,7 @@ const Clip = () => {
 
       const topics = returnDecodedTopics(
         logs,
-        zoraCreator1155Abi,
+        zoraCreator1155Abi as any[],
         "UpdatedToken",
         false
       );
