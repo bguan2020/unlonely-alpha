@@ -895,10 +895,13 @@ export type PostDeviceTokenInput = {
 
 export type PostNfcInput = {
   channelId: Scalars["ID"];
+  contract1155Address?: InputMaybe<Scalars["String"]>;
   openseaLink: Scalars["String"];
   title: Scalars["String"];
+  tokenId?: InputMaybe<Scalars["Int"]>;
   videoLink: Scalars["String"];
   videoThumbnail: Scalars["String"];
+  zoraLink?: InputMaybe<Scalars["String"]>;
 };
 
 export type PostSharesEventInput = {

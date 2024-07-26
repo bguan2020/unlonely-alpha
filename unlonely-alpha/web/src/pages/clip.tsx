@@ -26,7 +26,7 @@ import {
 } from "../utils/pinata";
 import { GET_CHANNEL_BY_ID_QUERY } from "../constants/queries";
 import { useLazyQuery } from "@apollo/client";
-import { GetChannelByIdQuery } from "../generated/graphql";
+import { GetChannelByIdQuery, PostNfcInput } from "../generated/graphql";
 import Header from "../components/navigation/Header";
 import {
   Address,
@@ -365,6 +365,8 @@ const Clip = () => {
 
     if (predicted.splitExists) {
       const transaction = await handleWriteCreate1155(parameters);
+      const logs = transaction?.logs;
+      console.log("transaction logs", logs);
     } else {
       if (typeof contractObject === "string") {
         if (splitCallData && splitAddress && walletClient?.account.address) {
@@ -379,8 +381,12 @@ const Clip = () => {
               hash: splitCreationHash,
             }
           );
+          const splitLogs = splitTransaction?.logs;
+          console.log("splitTransaction logs", splitLogs);
 
           const transaction = await handleWriteCreate1155(parameters);
+          const logs = transaction?.logs;
+          console.log("transaction logs", logs);
         }
       } else {
         // push 1155 contract and token creation calls to the multicall3 aggregate call
@@ -437,12 +443,13 @@ const Clip = () => {
             });
           }
           // TO DO: add the 1155 contract address to the channel, tokenId, zoraLink
-          const postNfcObject = {
+          const postNfcObject: PostNfcInput = {
             title: title,
             videoLink: res?.res?.videoLink,
             videoThumbnail: res?.res?.videoThumbnail,
             openseaLink: "",
             channelId: channelId,
+            contract1155Address: freqAddress,
           };
           console.log("postNfcObject", postNfcObject);
           await postNFC(postNfcObject);

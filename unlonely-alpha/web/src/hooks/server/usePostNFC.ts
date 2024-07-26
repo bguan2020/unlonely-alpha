@@ -39,6 +39,9 @@ const usePostNFC = ({ onError }: Props) => {
               videoThumbnail: data.videoThumbnail,
               openseaLink: data.openseaLink,
               channelId: data.channelId,
+              tokenId: data.tokenId,
+              zoraLink: data.zoraLink,
+              contract1155Address: data.contract1155Address,
             },
           },
         });
