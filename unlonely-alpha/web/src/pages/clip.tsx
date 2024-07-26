@@ -128,8 +128,6 @@ const Clip = () => {
   const [roughClipUrl, setRoughClipUrl] = useState(
     "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a5e1mb4vfge22uvr/1200p0.mp4"
   );
-  const [contractMetadataJsonUri, setContractMetadataJsonUri] =
-    useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [
@@ -172,18 +170,6 @@ const Clip = () => {
     const init = async () => {
       if (router.query[CLIP_CHANNEL_ID_QUERY_PARAM]) {
         setChannelId(router.query[CLIP_CHANNEL_ID_QUERY_PARAM] as string);
-        const newPath = router.pathname;
-        const newQuery = { ...router.query };
-        delete newQuery[CLIP_CHANNEL_ID_QUERY_PARAM];
-
-        router.replace(
-          {
-            pathname: newPath,
-            query: newQuery,
-          },
-          undefined,
-          { shallow: true }
-        );
       }
     };
     init();
@@ -275,21 +261,20 @@ const Clip = () => {
     }
     let contractMetadataJsonUriLocal = "";
     let _videoFileIpfsUrl = "";
-    if (!getChannelByIdData?.getChannelById?.contract1155Address) {
-      try {
-        const videoResponse = await fetch(playbackUrl);
-        console.log("creating file blob");
-        const videoBlob = await videoResponse.blob();
-        const videoFile = new File([videoBlob], "video.mp4", {
-          type: "video/mp4",
-        });
-        const videoFileIpfsUrl = await pinFileWithPinata(videoFile);
-        console.log("videoResponse", videoResponse);
-        console.log("videoBlob", videoBlob);
-        console.log("videoFile", videoFile);
-        console.log("videoFileIpfsUrl", videoFileIpfsUrl);
-        _videoFileIpfsUrl = videoFileIpfsUrl;
-
+    try {
+      const videoResponse = await fetch(playbackUrl);
+      console.log("creating file blob");
+      const videoBlob = await videoResponse.blob();
+      const videoFile = new File([videoBlob], "video.mp4", {
+        type: "video/mp4",
+      });
+      const videoFileIpfsUrl = await pinFileWithPinata(videoFile);
+      console.log("videoResponse", videoResponse);
+      console.log("videoBlob", videoBlob);
+      console.log("videoFile", videoFile);
+      console.log("videoFileIpfsUrl", videoFileIpfsUrl);
+      _videoFileIpfsUrl = videoFileIpfsUrl;
+      if (!getChannelByIdData?.getChannelById?.contract1155Address) {
         const metadataJson: ContractMetadataJson = {
           description: `this was clipped from ${getChannelByIdData?.getChannelById?.slug}'s Unlonely livestream`,
           image: videoFileIpfsUrl,
@@ -298,12 +283,11 @@ const Clip = () => {
         const _contractMetadataJsonUri = await pinJsonWithPinata(metadataJson);
         console.log("metadataJson", metadataJson);
         contractMetadataJsonUriLocal = _contractMetadataJsonUri;
-        setContractMetadataJsonUri(contractMetadataJsonUri);
         await new Promise((resolve) => setTimeout(resolve, 2000));
-      } catch (e) {
-        console.log("pinning contract metadata to ipfs Error", e);
-        return;
       }
+    } catch (e) {
+      console.log("pinning contract metadata to ipfs Error", e);
+      return;
     }
 
     const splitsClient = new SplitV1Client({
@@ -421,6 +405,7 @@ const Clip = () => {
     }
 
     let contractObject = null;
+    let mintToCreatorObject = null;
     const initiallyCheckedContract1155Address = getChannelByIdData
       ?.getChannelById?.contract1155Address as `0x${string}` | undefined | null;
 
@@ -435,6 +420,10 @@ const Clip = () => {
       !subsequentCheckedContract1155Address
     ) {
       contractObject = contractMetadata;
+      mintToCreatorObject = {
+        // 1 token will be minted to the creator
+        mintToCreatorCount: 1,
+      };
     } else if (initiallyCheckedContract1155Address) {
       contractObject = initiallyCheckedContract1155Address;
     } else if (subsequentCheckedContract1155Address) {
@@ -451,8 +440,7 @@ const Clip = () => {
       token: {
         tokenMetadataURI: jsonMetadataUri,
         payoutRecipient: splitRecipient,
-        // 1 token will be minted to the creator
-        mintToCreatorCount: 1,
+        ...mintToCreatorObject,
       },
       account: walletClient?.account.address as Address,
     });
