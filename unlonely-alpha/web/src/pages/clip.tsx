@@ -393,7 +393,9 @@ const Clip = () => {
       type: "image/png",
     });
     const thumbnailFileIpfsUrl = await pinFileWithPinata(thumbnailFile);
-
+    console.log("thumbnailFileIpfsUrl", thumbnailFileIpfsUrl);
+    console.log("videoFileIpfsUrl", _videoFileIpfsUrl);
+    console.log("name", thumbnailFile.name);
     const tokenMetadataJson = await makeMediaTokenMetadata({
       mediaUrl: _videoFileIpfsUrl,
       thumbnailUrl: thumbnailFileIpfsUrl,
@@ -415,6 +417,7 @@ const Clip = () => {
           : newContractAddress !== null
           ? (newContractAddress as `0x${string}`)
           : null;
+      console.log("existing contract", _existingContractAddress);
     }
 
     let contractObject = null;
@@ -501,7 +504,7 @@ const Clip = () => {
           contract1155ChainId: chainId,
         });
       }
-
+      // TO DO: add the 1155 contract address to the channel, tokenId, zoraLink
       const postNfcObject = {
         title: title,
         videoLink: res.res.videoLink,
