@@ -275,9 +275,8 @@ const Clip = () => {
     let _videoFileIpfsUrl = "";
     if (!getChannelByIdData?.getChannelById?.contract1155Address) {
       try {
-        // const response = await fetch(playbackUrl);
+        const videoResponse = await fetch(playbackUrl);
         console.log("creating file blob");
-        const videoResponse = await fetch(roughClipUrl);
         const videoBlob = await videoResponse.blob();
         const videoFile = new File([videoBlob], "video.mp4", {
           type: "video/mp4",
