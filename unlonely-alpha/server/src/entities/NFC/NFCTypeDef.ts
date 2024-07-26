@@ -94,6 +94,9 @@ export const typeDef = gql`
     videoLink: String!
     videoThumbnail: String!
     openseaLink: String!
+    contract1155Address: String
+    tokenId: Int
+    zoraLink: String
   }
 
   input UpdateNFCInput {
