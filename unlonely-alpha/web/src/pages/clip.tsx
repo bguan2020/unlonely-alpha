@@ -1701,20 +1701,11 @@ const Clip = () => {
       name: "",
       uri: "",
     };
-    let tokenObject: any = {
-      tokenMetadataURI: jsonMetadataUri,
-      payoutRecipient: predicted.splitAddress,
-    };
 
     if (
       !initiallyCheckedContract1155Address &&
       !subsequentCheckedContract1155Address
     ) {
-      tokenObject = {
-        tokenMetadataURI: jsonMetadataUri,
-        payoutRecipient: predicted.splitAddress,
-        mintToCreatorCount: 1,
-      };
       const _contractMetadataJsonUri = await pinJsonWithPinata({
         description: `this was clipped from ${getChannelByIdData?.getChannelById?.slug}'s Unlonely livestream`,
         image: videoFileIpfsUrl,
@@ -1734,14 +1725,17 @@ const Clip = () => {
     }
 
     console.log("contractObject", contractObject);
-    console.log("tokenObject", tokenObject);
 
     // CREATE 1155 CONTRACT AND TOKEN
 
     const creatorClient = createCreatorClient({ chainId, publicClient });
     const { parameters } = await creatorClient.create1155({
       contract: contractObject,
-      token: tokenObject,
+      token: {
+        tokenMetadataURI: jsonMetadataUri,
+        payoutRecipient: predicted.splitAddress,
+        mintToCreatorCount: 1,
+      },
       account: walletClient?.account.address as Address,
     });
 
