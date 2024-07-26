@@ -1629,15 +1629,6 @@ const Clip = () => {
   };
 
   const handleTrimVideo = useCallback(async () => {
-    console.log(
-      roughClipUrl,
-      channelId,
-      clipRange[0] >= clipRange[1],
-      getChannelByIdData,
-      chainId,
-      walletClient?.account.address,
-      getChannelByIdData?.getChannelById?.owner?.address
-    );
     if (
       !roughClipUrl ||
       !channelId ||
@@ -1650,7 +1641,6 @@ const Clip = () => {
       return;
     const initiallyCheckedContract1155Address = getChannelByIdData
       ?.getChannelById?.contract1155Address as `0x${string}` | undefined | null;
-    console.log("starting trimming");
     const res = await trimVideo({
       startTime: clipRange[0],
       endTime: clipRange[1],
