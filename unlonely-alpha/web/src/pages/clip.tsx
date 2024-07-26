@@ -415,34 +415,17 @@ const Clip = () => {
           : null;
     }
 
-    console.log(
-      "contractType",
-      getChannelByIdData?.getChannelById?.contract1155Address,
-      _existingContractAddress,
-      `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
-      contractMetadataJsonUriLocal,
-      (getChannelByIdData?.getChannelById?.contract1155Address as
-        | `0x${string}`
-        | undefined
-        | null) ??
-        _existingContractAddress ?? {
-          name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
-          uri: contractMetadataJsonUriLocal,
-        },
-      jsonMetadataUri,
-      splitRecipient,
-      walletClient?.account.address
-    );
+    const contractObject = (getChannelByIdData?.getChannelById?.contract1155Address as
+      | `0x${string}`
+      | undefined
+      | null) ??
+      _existingContractAddress ?? {
+        name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
+        uri: contractMetadataJsonUriLocal,
+    };
 
     const { parameters } = await creatorClient.create1155({
-      contract: (getChannelByIdData?.getChannelById?.contract1155Address as
-        | `0x${string}`
-        | undefined
-        | null) ??
-        _existingContractAddress ?? {
-          name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
-          uri: contractMetadataJsonUriLocal,
-        },
+      contract: contractObject,
       token: {
         tokenMetadataURI: jsonMetadataUri,
         payoutRecipient: splitRecipient,
