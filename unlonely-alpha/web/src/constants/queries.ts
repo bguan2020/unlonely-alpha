@@ -412,6 +412,49 @@ export const GET_CHANNELS_BY_OWNER_ADDRESS_QUERY = gql`
   }
 `;
 
+export const GET_CHANNEL_BY_ID_QUERY = gql`
+  query GetChannelById($id: ID!) {
+    getChannelById(id: $id) {
+      awsId
+      channelArn
+      description
+      customButtonPrice
+      customButtonAction
+      contract1155Address
+      contract1155ChainId
+      isLive
+      id
+      name
+      slug
+      allowNFCs
+      livepeerPlaybackId
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        chainId
+        channelId
+        options
+        eventState
+        createdAt
+        id
+        resultIndex
+      }
+      owner {
+        FCImageUrl
+        lensImageUrl
+        username
+        address
+      }
+      token {
+        id
+        name
+        symbol
+        address
+      }
+    }
+  }
+`;
+
 export const GET_CHANNELS_BY_NUMBER_OF_BADGE_HOLDERS_QUERY = gql`
   query GetChannelsByNumberOfBadgeHolders {
     getChannelsByNumberOfBadgeHolders {

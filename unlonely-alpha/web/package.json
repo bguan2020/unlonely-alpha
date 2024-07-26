@@ -17,6 +17,7 @@
     "cypress": "TS_NODE_PROJECT=0 cypress open-ct"
   },
   "dependencies": {
+    "@0xsplits/splits-sdk": "^4.0.5",
     "@ably-labs/react-hooks": "^2.0.6",
     "@airstack/airstack-react": "^0.6.3",
     "@apollo/client": "^3.6.9",
@@ -34,6 +35,7 @@
     "@reduxjs/toolkit": "^1.8.5",
     "@types/lodash.debounce": "^4.0.9",
     "@vercel/og": "^0.6.2",
+    "@zoralabs/protocol-sdk": "^0.7.3",
     "ably": "^1.2.39",
     "ajax": "^0.0.4",
     "amazon-ivs-player": "^1.12.0",
