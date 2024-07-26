@@ -405,7 +405,7 @@ const Clip = () => {
     }
 
     let contractObject = null;
-    let mintToCreatorObject = null;
+    let tokenObject = null;
     const initiallyCheckedContract1155Address = getChannelByIdData
       ?.getChannelById?.contract1155Address as `0x${string}` | undefined | null;
 
@@ -420,8 +420,9 @@ const Clip = () => {
       !subsequentCheckedContract1155Address
     ) {
       contractObject = contractMetadata;
-      mintToCreatorObject = {
-        // 1 token will be minted to the creator
+      tokenObject = {
+        tokenMetadataURI: jsonMetadataUri,
+        payoutRecipient: splitRecipient,
         mintToCreatorCount: 1,
       };
     } else if (initiallyCheckedContract1155Address) {
@@ -433,15 +434,19 @@ const Clip = () => {
       return;
     }
 
+    if (!tokenObject) {
+      tokenObject = {
+        tokenMetadataURI: jsonMetadataUri,
+        payoutRecipient: splitRecipient,
+      };
+    }
+
     console.log("contractObject", contractObject);
+    console.log("tokenObject", tokenObject);
 
     const { parameters } = await creatorClient.create1155({
       contract: contractObject,
-      token: {
-        tokenMetadataURI: jsonMetadataUri,
-        payoutRecipient: splitRecipient,
-        ...mintToCreatorObject,
-      },
+      token: tokenObject,
       account: walletClient?.account.address as Address,
     });
 
