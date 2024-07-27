@@ -24,9 +24,16 @@ import {
   createFileBlobAndPinWithPinata,
   pinJsonWithPinata,
 } from "../utils/pinata";
-import { GET_CHANNEL_BY_ID_QUERY } from "../constants/queries";
+import {
+  GET_CHANNEL_BY_ID_QUERY,
+  GET_USER_CHANNEL_CONTRACT_1155_MAPPING_QUERY,
+} from "../constants/queries";
 import { useLazyQuery } from "@apollo/client";
-import { GetChannelByIdQuery, PostNfcInput } from "../generated/graphql";
+import {
+  GetChannelByIdQuery,
+  GetUserChannelContract1155MappingQuery,
+  PostNfcInput,
+} from "../generated/graphql";
 import Header from "../components/navigation/Header";
 import {
   Address,
@@ -63,7 +70,7 @@ type Aggregate3ValueCall =
 
 const Clip = () => {
   const router = useRouter();
-  const { user, fetchUser } = useUser();
+  const { user } = useUser();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient({
     onSuccess(data) {
@@ -94,6 +101,11 @@ const Clip = () => {
     variables: { id: channelId },
     fetchPolicy: "network-only",
   });
+
+  const [fetchUserChannelContract1155Mapping] =
+    useLazyQuery<GetUserChannelContract1155MappingQuery>(
+      GET_USER_CHANNEL_CONTRACT_1155_MAPPING_QUERY
+    );
 
   const { createClip } = useCreateClip({
     onError: (e) => {
@@ -196,12 +208,15 @@ const Clip = () => {
       clipRange[0] >= clipRange[1] ||
       !getChannelByIdData ||
       !chainId ||
-      !walletClient?.account.address
+      !walletClient?.account.address ||
+      !user
     )
       return;
-    const { data: userData } = await fetchUser();
+    const { data: mapping } = await fetchUserChannelContract1155Mapping({
+      variables: { data: { address: user?.address as string } },
+    });
     const existingContract1155Address =
-      userData.getUser?.channelContract1155Mapping?.[channelId]
+      mapping?.getUserChannelContract1155Mapping?.[channelId]
         ?.contract1155Address;
     console.log("existingContract1155Address", existingContract1155Address);
     const res = await trimVideo({

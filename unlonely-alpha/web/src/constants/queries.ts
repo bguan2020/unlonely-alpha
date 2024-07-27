@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 export const GET_USER_QUERY = gql`
-  query getUser($data: GetUserInput!) {
+  query GetUser($data: GetUserInput!) {
     getUser(data: $data) {
       address
       username
@@ -14,7 +14,6 @@ export const GET_USER_QUERY = gql`
       isLensUser
       lensHandle
       lensImageUrl
-      channelContract1155Mapping
       channel {
         slug
       }
@@ -22,8 +21,14 @@ export const GET_USER_QUERY = gql`
   }
 `;
 
+export const GET_USER_CHANNEL_CONTRACT_1155_MAPPING_QUERY = gql`
+  query GetUserChannelContract1155Mapping($data: GetUserInput!) {
+    getUserChannelContract1155Mapping(data: $data)
+  }
+`;
+
 export const GET_USER_TOKEN_HOLDING_QUERY = gql`
-  query Query($data: GetUserTokenHoldingInput!) {
+  query GetUserTokenHolding($data: GetUserTokenHoldingInput!) {
     getUserTokenHolding(data: $data)
   }
 `;

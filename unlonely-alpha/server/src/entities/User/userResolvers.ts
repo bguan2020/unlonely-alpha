@@ -3,10 +3,10 @@ import { AuthenticationError } from "apollo-server-express";
 import { Context } from "../../context";
 import { authMessage } from "../../utils/auth";
 import * as userService from "./userService";
-import { JSONResolver } from "graphql-scalars";
+// import { JSONResolver } from "graphql-scalars";
 
 export const resolvers = {
-  JSON: JSONResolver,
+  // JSON: JSONResolver,
   User: {
     authedAsMe: (
       { address }: { address: string },
@@ -39,6 +39,13 @@ export const resolvers = {
       ctx: Context
     ) => {
       return userService.getUser(data, ctx);
+    },
+    getUserChannelContract1155Mapping : (
+      _: any,
+      { data }: { data: userService.IGetUserInput },
+      ctx: Context
+    ) => {
+      return userService.getUserChannelContract1155Mapping(data, ctx);
     },
     getAllUsers: (_: any, _args: any, ctx: Context) => {
       return userService.getAllUsers(ctx);

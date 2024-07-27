@@ -1048,6 +1048,7 @@ export type Query = {
   getTokenLeaderboard: Array<CreatorToken>;
   getUnclaimedEvents: Array<Maybe<SharesEvent>>;
   getUser?: Maybe<User>;
+  getUserChannelContract1155Mapping?: Maybe<Scalars["JSON"]>;
   getUserTokenHolding?: Maybe<Scalars["Int"]>;
   getVibesTransactions?: Maybe<Array<Maybe<VibesTransaction>>>;
   getVideo?: Maybe<Video>;
@@ -1185,6 +1186,10 @@ export type QueryGetUnclaimedEventsArgs = {
 };
 
 export type QueryGetUserArgs = {
+  data: GetUserInput;
+};
+
+export type QueryGetUserChannelContract1155MappingArgs = {
   data: GetUserInput;
 };
 
@@ -1657,16 +1662,24 @@ export type GetUserQuery = {
     isLensUser: boolean;
     lensHandle?: string | null;
     lensImageUrl?: string | null;
-    channelContract1155Mapping?: any | null;
     channel?: Array<{ __typename?: "Channel"; slug: string } | null> | null;
   } | null;
 };
 
-export type QueryQueryVariables = Exact<{
+export type GetUserChannelContract1155MappingQueryVariables = Exact<{
+  data: GetUserInput;
+}>;
+
+export type GetUserChannelContract1155MappingQuery = {
+  __typename?: "Query";
+  getUserChannelContract1155Mapping?: any | null;
+};
+
+export type GetUserTokenHoldingQueryVariables = Exact<{
   data: GetUserTokenHoldingInput;
 }>;
 
-export type QueryQuery = {
+export type GetUserTokenHoldingQuery = {
   __typename?: "Query";
   getUserTokenHolding?: number | null;
 };
@@ -2485,20 +2498,6 @@ export type UpdateChannelAllowNfcsMutation = {
   } | null;
 };
 
-export type UpdateUserChannelContract1155MappingMutationVariables = Exact<{
-  data: UpdateUserChannelContract1155MappingInput;
-}>;
-
-export type UpdateUserChannelContract1155MappingMutation = {
-  __typename?: "Mutation";
-  updateUserChannelContract1155Mapping?: {
-    __typename?: "User";
-    address: string;
-    username?: string | null;
-    channelContract1155Mapping?: any | null;
-  } | null;
-};
-
 export type UpdateChannelCustomButtonMutationVariables = Exact<{
   data: UpdateChannelCustomButtonInput;
 }>;
@@ -2574,6 +2573,20 @@ export type UpdateSharesEventMutationVariables = Exact<{
 export type UpdateSharesEventMutation = {
   __typename?: "Mutation";
   updateSharesEvent?: { __typename?: "Channel"; id: string } | null;
+};
+
+export type UpdateUserChannelContract1155MappingMutationVariables = Exact<{
+  data: UpdateUserChannelContract1155MappingInput;
+}>;
+
+export type UpdateUserChannelContract1155MappingMutation = {
+  __typename?: "Mutation";
+  updateUserChannelContract1155Mapping?: {
+    __typename?: "User";
+    address: string;
+    username?: string | null;
+    channelContract1155Mapping?: any | null;
+  } | null;
 };
 
 export type PostBadgeTradeMutationVariables = Exact<{
@@ -2964,7 +2977,7 @@ export type FetchCurrentUserQuery = {
 };
 
 export const GetUserDocument = gql`
-  query getUser($data: GetUserInput!) {
+  query GetUser($data: GetUserInput!) {
     getUser(data: $data) {
       address
       username
@@ -2977,7 +2990,6 @@ export const GetUserDocument = gql`
       isLensUser
       lensHandle
       lensImageUrl
-      channelContract1155Mapping
       channel {
         slug
       }
@@ -3025,51 +3037,117 @@ export type GetUserQueryResult = Apollo.QueryResult<
   GetUserQuery,
   GetUserQueryVariables
 >;
-export const QueryDocument = gql`
-  query Query($data: GetUserTokenHoldingInput!) {
-    getUserTokenHolding(data: $data)
+export const GetUserChannelContract1155MappingDocument = gql`
+  query GetUserChannelContract1155Mapping($data: GetUserInput!) {
+    getUserChannelContract1155Mapping(data: $data)
   }
 `;
 
 /**
- * __useQueryQuery__
+ * __useGetUserChannelContract1155MappingQuery__
  *
- * To run a query within a React component, call `useQueryQuery` and pass it any options that fit your needs.
- * When your component renders, `useQueryQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetUserChannelContract1155MappingQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserChannelContract1155MappingQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useQueryQuery({
+ * const { data, loading, error } = useGetUserChannelContract1155MappingQuery({
  *   variables: {
  *      data: // value for 'data'
  *   },
  * });
  */
-export function useQueryQuery(
-  baseOptions: Apollo.QueryHookOptions<QueryQuery, QueryQueryVariables>
+export function useGetUserChannelContract1155MappingQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetUserChannelContract1155MappingQuery,
+    GetUserChannelContract1155MappingQueryVariables
+  >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<QueryQuery, QueryQueryVariables>(
-    QueryDocument,
-    options
-  );
+  return Apollo.useQuery<
+    GetUserChannelContract1155MappingQuery,
+    GetUserChannelContract1155MappingQueryVariables
+  >(GetUserChannelContract1155MappingDocument, options);
 }
-export function useQueryLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<QueryQuery, QueryQueryVariables>
+export function useGetUserChannelContract1155MappingLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetUserChannelContract1155MappingQuery,
+    GetUserChannelContract1155MappingQueryVariables
+  >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<QueryQuery, QueryQueryVariables>(
-    QueryDocument,
-    options
-  );
+  return Apollo.useLazyQuery<
+    GetUserChannelContract1155MappingQuery,
+    GetUserChannelContract1155MappingQueryVariables
+  >(GetUserChannelContract1155MappingDocument, options);
 }
-export type QueryQueryHookResult = ReturnType<typeof useQueryQuery>;
-export type QueryLazyQueryHookResult = ReturnType<typeof useQueryLazyQuery>;
-export type QueryQueryResult = Apollo.QueryResult<
-  QueryQuery,
-  QueryQueryVariables
+export type GetUserChannelContract1155MappingQueryHookResult = ReturnType<
+  typeof useGetUserChannelContract1155MappingQuery
+>;
+export type GetUserChannelContract1155MappingLazyQueryHookResult = ReturnType<
+  typeof useGetUserChannelContract1155MappingLazyQuery
+>;
+export type GetUserChannelContract1155MappingQueryResult = Apollo.QueryResult<
+  GetUserChannelContract1155MappingQuery,
+  GetUserChannelContract1155MappingQueryVariables
+>;
+export const GetUserTokenHoldingDocument = gql`
+  query GetUserTokenHolding($data: GetUserTokenHoldingInput!) {
+    getUserTokenHolding(data: $data)
+  }
+`;
+
+/**
+ * __useGetUserTokenHoldingQuery__
+ *
+ * To run a query within a React component, call `useGetUserTokenHoldingQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserTokenHoldingQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserTokenHoldingQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetUserTokenHoldingQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetUserTokenHoldingQuery,
+    GetUserTokenHoldingQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetUserTokenHoldingQuery,
+    GetUserTokenHoldingQueryVariables
+  >(GetUserTokenHoldingDocument, options);
+}
+export function useGetUserTokenHoldingLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetUserTokenHoldingQuery,
+    GetUserTokenHoldingQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetUserTokenHoldingQuery,
+    GetUserTokenHoldingQueryVariables
+  >(GetUserTokenHoldingDocument, options);
+}
+export type GetUserTokenHoldingQueryHookResult = ReturnType<
+  typeof useGetUserTokenHoldingQuery
+>;
+export type GetUserTokenHoldingLazyQueryHookResult = ReturnType<
+  typeof useGetUserTokenHoldingLazyQuery
+>;
+export type GetUserTokenHoldingQueryResult = Apollo.QueryResult<
+  GetUserTokenHoldingQuery,
+  GetUserTokenHoldingQueryVariables
 >;
 export const SendAllNotificationsDocument = gql`
   query SendAllNotifications($data: SendAllNotificationsInput!) {
@@ -5732,62 +5810,6 @@ export type UpdateChannelAllowNfcsMutationOptions = Apollo.BaseMutationOptions<
   UpdateChannelAllowNfcsMutation,
   UpdateChannelAllowNfcsMutationVariables
 >;
-export const UpdateUserChannelContract1155MappingDocument = gql`
-  mutation UpdateUserChannelContract1155Mapping(
-    $data: UpdateUserChannelContract1155MappingInput!
-  ) {
-    updateUserChannelContract1155Mapping(data: $data) {
-      address
-      username
-      channelContract1155Mapping
-    }
-  }
-`;
-export type UpdateUserChannelContract1155MappingMutationFn =
-  Apollo.MutationFunction<
-    UpdateUserChannelContract1155MappingMutation,
-    UpdateUserChannelContract1155MappingMutationVariables
-  >;
-
-/**
- * __useUpdateUserChannelContract1155MappingMutation__
- *
- * To run a mutation, you first call `useUpdateUserChannelContract1155MappingMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateUserChannelContract1155MappingMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateUserChannelContract1155MappingMutation, { data, loading, error }] = useUpdateUserChannelContract1155MappingMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useUpdateUserChannelContract1155MappingMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateUserChannelContract1155MappingMutation,
-    UpdateUserChannelContract1155MappingMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    UpdateUserChannelContract1155MappingMutation,
-    UpdateUserChannelContract1155MappingMutationVariables
-  >(UpdateUserChannelContract1155MappingDocument, options);
-}
-export type UpdateUserChannelContract1155MappingMutationHookResult = ReturnType<
-  typeof useUpdateUserChannelContract1155MappingMutation
->;
-export type UpdateUserChannelContract1155MappingMutationResult =
-  Apollo.MutationResult<UpdateUserChannelContract1155MappingMutation>;
-export type UpdateUserChannelContract1155MappingMutationOptions =
-  Apollo.BaseMutationOptions<
-    UpdateUserChannelContract1155MappingMutation,
-    UpdateUserChannelContract1155MappingMutationVariables
-  >;
 export const UpdateChannelCustomButtonDocument = gql`
   mutation UpdateChannelCustomButton($data: UpdateChannelCustomButtonInput!) {
     updateChannelCustomButton(data: $data) {
@@ -6103,6 +6125,62 @@ export type UpdateSharesEventMutationOptions = Apollo.BaseMutationOptions<
   UpdateSharesEventMutation,
   UpdateSharesEventMutationVariables
 >;
+export const UpdateUserChannelContract1155MappingDocument = gql`
+  mutation UpdateUserChannelContract1155Mapping(
+    $data: UpdateUserChannelContract1155MappingInput!
+  ) {
+    updateUserChannelContract1155Mapping(data: $data) {
+      address
+      username
+      channelContract1155Mapping
+    }
+  }
+`;
+export type UpdateUserChannelContract1155MappingMutationFn =
+  Apollo.MutationFunction<
+    UpdateUserChannelContract1155MappingMutation,
+    UpdateUserChannelContract1155MappingMutationVariables
+  >;
+
+/**
+ * __useUpdateUserChannelContract1155MappingMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserChannelContract1155MappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserChannelContract1155MappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserChannelContract1155MappingMutation, { data, loading, error }] = useUpdateUserChannelContract1155MappingMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateUserChannelContract1155MappingMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateUserChannelContract1155MappingMutation,
+    UpdateUserChannelContract1155MappingMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateUserChannelContract1155MappingMutation,
+    UpdateUserChannelContract1155MappingMutationVariables
+  >(UpdateUserChannelContract1155MappingDocument, options);
+}
+export type UpdateUserChannelContract1155MappingMutationHookResult = ReturnType<
+  typeof useUpdateUserChannelContract1155MappingMutation
+>;
+export type UpdateUserChannelContract1155MappingMutationResult =
+  Apollo.MutationResult<UpdateUserChannelContract1155MappingMutation>;
+export type UpdateUserChannelContract1155MappingMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateUserChannelContract1155MappingMutation,
+    UpdateUserChannelContract1155MappingMutationVariables
+  >;
 export const PostBadgeTradeDocument = gql`
   mutation PostBadgeTrade($data: PostBadgeTradeInput!) {
     postBadgeTrade(data: $data) {

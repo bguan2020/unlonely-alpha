@@ -1,12 +1,10 @@
 import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
-scalar JSON
-
-type ChannelContract1155Mapping {
-  contract1155Address: String!
-  contract1155ChainId: Int!
-}
+  type ChannelContract1155Mapping {
+    contract1155Address: String!
+    contract1155ChainId: Int!
+  }
 
   type User {
     id: ID!
@@ -31,7 +29,7 @@ type ChannelContract1155Mapping {
     notificationsLive: Boolean
     notificationsNFCs: Boolean
     channel: [Channel]
-    channelContract1155Mapping: JSON  
+    channelContract1155Mapping: JSON
   }
 
   input GetUserInput {
@@ -69,6 +67,7 @@ type ChannelContract1155Mapping {
     updateAllUsers: [User]
     getAllUsersWithChannel: [User]
     getAllUsersWithNotificationsToken: [User]
+    getUserChannelContract1155Mapping(data: GetUserInput!): JSON
     getUserTokenHolding(data: GetUserTokenHoldingInput!): Int
   }
 

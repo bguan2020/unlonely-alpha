@@ -53,19 +53,59 @@ export interface IGetUserInput {
 export const getUser = async (data: IGetUserInput, ctx: Context) => {
   const user = await ctx.prisma.user.findUnique({
     where: { address: data.address },
-    include: { channel: { take: 1 },
+    select: {
+      address: true,
+      username: true,
+      bio: true,
+      powerUserLvl: true,
+      videoSavantLvl: true,
+      nfcRank: true,
+      reputation: true,
+      isFCUser: true,
+      FCImageUrl: true,
+      isLensUser: true,
+      lensHandle: true,
+      lensImageUrl: true,
+      createdAt: true,
+      updatedAt: true,
+      signature: true,
+      sigTimestamp: true,
+      notificationsTokens: true,
+      notificationsLive: true,
+      notificationsNFCs: true,
+      channel: {
+        select: {
+          slug: true,
+        },
+        take: 1,
+      },
     },
   });
-  console.log(user)
-  if (user) {
-    return {
-      ...user,
-      channelContract1155Mapping: user.channelContract1155Mapping || {}
-    };
+
+  if (!user) {
+    throw new Error("User not found");
   }
 
-  return null;
+  return user;
 };
+
+export const getUserChannelContract1155Mapping = async (
+  data: IGetUserInput,
+  ctx: Context
+) => {
+  const user = await ctx.prisma.user.findUnique({
+    where: { address: data.address },
+    select: {
+      channelContract1155Mapping: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user.channelContract1155Mapping;
+}
 
 export interface IUpdateUserChannelContract1155MappingInput {
   channelId: number;
