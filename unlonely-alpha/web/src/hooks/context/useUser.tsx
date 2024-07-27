@@ -43,7 +43,7 @@ const UserContext = createContext<{
   activeWallet?: ConnectedWallet;
   ready: boolean;
   authenticated: boolean;
-  fetchUser: () => void;
+  fetchUser: () => any;
   login: () => void;
   connectWallet: () => void;
   logout: () => void;
