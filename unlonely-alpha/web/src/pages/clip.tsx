@@ -339,6 +339,13 @@ const Clip = () => {
           const logs = transaction?.logs ?? [];
           console.log("transaction logs", logs);
 
+          const _freqAddress = findMostFrequentString(
+            logs.map((log) => log.address)
+          );
+
+          console.log("freqAddress", _freqAddress);
+          freqAddress = _freqAddress as `0x${string}`;
+
           const topics = returnDecodedTopics(
             logs,
             zoraCreator1155Abi,
