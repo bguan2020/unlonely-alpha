@@ -3,8 +3,10 @@ import { AuthenticationError } from "apollo-server-express";
 import { Context } from "../../context";
 import { authMessage } from "../../utils/auth";
 import * as userService from "./userService";
+import { JSONResolver } from "graphql-scalars";
 
 export const resolvers = {
+  JSON: JSONResolver,
   User: {
     authedAsMe: (
       { address }: { address: string },
@@ -81,5 +83,16 @@ export const resolvers = {
 
       return userService.updateUser(data, ctx);
     },
+    updateUserChannelContract1155Mapping: (
+      _: any,
+      { data }: { data: userService.IUpdateUserChannelContract1155MappingInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user) {
+        throw new AuthenticationError("Not authenticated");
+      }
+
+      return userService.updateUserChannelContract1155Mapping(data);
+    },  
   },
 };

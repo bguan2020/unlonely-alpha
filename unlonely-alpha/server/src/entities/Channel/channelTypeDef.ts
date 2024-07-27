@@ -223,12 +223,6 @@ export const typeDef = gql`
     isAddingSubscriber: Boolean!
   }
 
-  input UpdateChannelContract1155Input {
-    channelId: ID!
-    contract1155ChainId: Int!
-    contract1155Address: String!
-  }
-
   extend type Query {
     getChannelSearchResults(data: ChannelSearchInput!): [Channel]
     getChannelFeed(data: ChannelFeedInput): [Channel]
@@ -269,6 +263,5 @@ export const typeDef = gql`
     updateChannelFidSubscription(
       data: UpdateChannelFidSubscriptionInput!
     ): String
-    updateChannelContract1155(data: UpdateChannelContract1155Input!): Channel
   }
 `;

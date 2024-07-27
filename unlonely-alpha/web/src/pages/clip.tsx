@@ -43,10 +43,11 @@ import {
   createCreatorClient,
   makeMediaTokenMetadata,
 } from "@zoralabs/protocol-sdk";
-import useUpdateChannelContract1155 from "../hooks/server/channel/useUpdateChannelContract1155";
+import useUpdateUserChannelContract1155Mapping from "../hooks/server/channel/useUpdateUserChannelContract1155Mapping";
 import { findMostFrequentString } from "../utils/findMostFrequencyString";
 import usePostNFC from "../hooks/server/usePostNFC";
 import { returnDecodedTopics } from "../utils/contract";
+import { useUser } from "../hooks/context/useUser";
 
 const multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
 const PROTOCOL_ADDRESS = "0x53D6D64945A67658C66730Ff4a038eb298eC8902";
@@ -1504,6 +1505,7 @@ type Aggregate3ValueCall =
 
 const Clip = () => {
   const router = useRouter();
+  const { user } = useUser();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient({
     onSuccess(data) {
@@ -1547,11 +1549,12 @@ const Clip = () => {
     },
   });
 
-  const { updateChannelContract1155 } = useUpdateChannelContract1155({
-    onError: () => {
-      console.log("Error");
-    },
-  });
+  const { updateUserChannelContract1155Mapping } =
+    useUpdateUserChannelContract1155Mapping({
+      onError: () => {
+        console.log("Error");
+      },
+    });
 
   const { postNFC } = usePostNFC({
     onError: () => {
@@ -1636,11 +1639,11 @@ const Clip = () => {
       !getChannelByIdData ||
       !chainId ||
       !walletClient?.account.address ||
-      !getChannelByIdData?.getChannelById?.owner?.address
+      !user
     )
       return;
-    const initiallyCheckedContract1155Address = getChannelByIdData
-      ?.getChannelById?.contract1155Address as `0x${string}` | undefined | null;
+    const initiallyCheckedContract1155Address =
+      user?.channelContract1155Mapping[channelId].contract1155Address;
     const res = await trimVideo({
       startTime: clipRange[0],
       endTime: clipRange[1],
@@ -1686,26 +1689,12 @@ const Clip = () => {
       await handleSplitConfig();
     if (error) return;
 
-    // CHECK IF CONTRACT EXISTS AT THIS POINT IN TIME, IF SO USE IT
-
-    let subsequentCheckedContract1155Address: string | null | undefined = null;
-
-    if (!initiallyCheckedContract1155Address) {
-      const newChannelData = await getChannelById();
-      subsequentCheckedContract1155Address =
-        newChannelData?.data?.getChannelById?.contract1155Address;
-      console.log("existing contract", subsequentCheckedContract1155Address);
-    }
-
     let contractObject: ContractType = {
       name: "",
       uri: "",
     };
 
-    if (
-      !initiallyCheckedContract1155Address &&
-      !subsequentCheckedContract1155Address
-    ) {
+    if (!initiallyCheckedContract1155Address) {
       const _contractMetadataJsonUri = await pinJsonWithPinata({
         description: `this was clipped from ${getChannelByIdData?.getChannelById?.slug}'s Unlonely livestream`,
         image: videoFileIpfsUrl,
@@ -1717,8 +1706,6 @@ const Clip = () => {
       };
     } else if (initiallyCheckedContract1155Address) {
       contractObject = initiallyCheckedContract1155Address;
-    } else if (subsequentCheckedContract1155Address) {
-      contractObject = subsequentCheckedContract1155Address as `0x${string}`;
     } else {
       console.log("no satisfactory outcome found");
       return;
@@ -1883,10 +1870,11 @@ const Clip = () => {
       }
     }
     if (freqAddress && channelId) {
-      await updateChannelContract1155({
+      await updateUserChannelContract1155Mapping({
         channelId: channelId,
         contract1155Address: freqAddress,
         contract1155ChainId: chainId,
+        userAddress: user?.address as Address,
       });
     }
 

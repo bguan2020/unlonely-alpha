@@ -1,6 +1,13 @@
 import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
+scalar JSON
+
+type ChannelContract1155Mapping {
+  contract1155Address: String!
+  contract1155ChainId: Int!
+}
+
   type User {
     id: ID!
     address: String!
@@ -24,6 +31,7 @@ export const typeDef = gql`
     notificationsLive: Boolean
     notificationsNFCs: Boolean
     channel: [Channel]
+    channelContract1155Mapping: JSON  
   }
 
   input GetUserInput {
@@ -45,6 +53,13 @@ export const typeDef = gql`
     notificationsNFCs: Boolean
   }
 
+  input UpdateUserChannelContract1155MappingInput {
+    channelId: ID!
+    contract1155ChainId: Int!
+    contract1155Address: String!
+    userAddress: String!
+  }
+
   extend type Query {
     currentUser: User
     currentUserAuthMessage: String
@@ -59,6 +74,7 @@ export const typeDef = gql`
 
   extend type Mutation {
     updateUserNotifications(data: UpdateUserNotificationsInput!): User
+    updateUserChannelContract1155Mapping(data: UpdateUserChannelContract1155MappingInput!): User
     updateUser(data: UpdateUserInput!): User
   }
 `;

@@ -1,9 +1,11 @@
 import axios from "axios";
-import { User } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 
 import { Context } from "../../context";
 import { lensClient, LENS_GET_DEFAULT_PROFILE } from "../../utils/lens/client";
 import { fetchSocial } from "../../utils/identityResolver";
+
+const prisma = new PrismaClient();
 
 export const getLeaderboard = (ctx: Context) => {
   return ctx.prisma.user.findMany({
@@ -51,15 +53,55 @@ export interface IGetUserInput {
 export const getUser = async (data: IGetUserInput, ctx: Context) => {
   const user = await ctx.prisma.user.findUnique({
     where: { address: data.address },
-    include: { channel: { take: 1 } },
+    include: { channel: { take: 1 },
+    },
+  });
+  console.log(user)
+  if (user) {
+    return {
+      ...user,
+      channelContract1155Mapping: user.channelContract1155Mapping || {}
+    };
+  }
+
+  return null;
+};
+
+export interface IUpdateUserChannelContract1155MappingInput {
+  channelId: number;
+  contract1155ChainId: number;
+  contract1155Address: string;
+  userAddress: string;
+}
+
+export const updateUserChannelContract1155Mapping = async (
+  data: IUpdateUserChannelContract1155MappingInput
+) => {
+  // Fetch the current user data to get the existing mapping
+  const user = await prisma.user.findUnique({
+    where: { address: data.userAddress },
   });
 
-  // if (!user) {
-  //   console.log("getUser: user not found");
-  //   return;
-  // }
-  // console.log("getUser: ", user.address);
-  return user;
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  // Parse the current mapping
+  const currentMapping: any = user.channelContract1155Mapping || {};
+
+  // Update the mapping
+  currentMapping[String(data.channelId)] = {
+    contract1155Address: data.contract1155Address,
+    contract1155ChainId: data.contract1155ChainId,
+  };
+
+  // Update the user with the new mapping
+  return prisma.user.update({
+    where: { address: data.userAddress },
+    data: {
+      channelContract1155Mapping: currentMapping,
+    },
+  });
 };
 
 export const getAllUsers = (ctx: Context) => {

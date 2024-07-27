@@ -47,6 +47,7 @@ model User {
   leaderboardEntries BaseLeaderboard[]
   gamblableInteractions GamblableInteraction[]
   gamblableEventLeaderboardEntries GamblableEventLeaderboard[]
+  channelContract1155Mapping Json @default("{}")
 }
 
 model Subscription {
@@ -156,9 +157,6 @@ model Channel {
   tempTokens TempToken[]
 
   subscribedFIDs Int[]
-
-  contract1155ChainId Int @default(8453)
-  contract1155Address String? @default("")
 }
 
 model ChannelUserRole {

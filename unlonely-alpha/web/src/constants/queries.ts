@@ -14,6 +14,7 @@ export const GET_USER_QUERY = gql`
       isLensUser
       lensHandle
       lensImageUrl
+      channelContract1155Mapping
       channel {
         slug
       }
@@ -420,8 +421,6 @@ export const GET_CHANNEL_BY_ID_QUERY = gql`
       description
       customButtonPrice
       customButtonAction
-      contract1155Address
-      contract1155ChainId
       isLive
       id
       name

@@ -301,7 +301,7 @@ const ChatForm = ({
                               channelQueryData?.livepeerPlaybackId
                             ) {
                               window.open(
-                                `${window.location.origin}/clip?channelId=${channelQueryData.id}&playbackId=${channelQueryData?.livepeerPlaybackId}`,
+                                `${window.location.origin}/clip?channelId=${channelQueryData.id}`,
                                 "_blank"
                               );
                             } else if (user) {
