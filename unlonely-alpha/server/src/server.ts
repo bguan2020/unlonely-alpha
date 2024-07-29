@@ -37,12 +37,6 @@ app.post("/webhook", (req, res) => {
   res.sendStatus(200);
 });
 
-app.post("/livepeer-asset-update", (req, res) => {
-  const payload = req.body;
-  console.log("livepeer-asset-update", payload);
-  console.log("res", res);
-});
-
 app.get("/aws-scheduler-update", (req, res) => {
   const secretKey = req.headers["x-secret-key"] || req.query.secretKey;
 
