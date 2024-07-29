@@ -45,9 +45,10 @@ export const typeDef = gql`
     asset: Asset!
   }
 
-  type TrimVideoResponse {
+  type LivepeerClipDataResponse {
     videoLink: String!
     videoThumbnail: String!
+    error: Boolean!
   }
 
   type Channel {
@@ -135,6 +136,7 @@ export const typeDef = gql`
   extend type Query {
     getNFCFeed(data: NFCFeedInput): [NFC]
     getNFC(id: ID!): NFC
+    getLivepeerClipData(assetId: String!): LivepeerClipDataResponse
   }
 
   extend type Mutation {
@@ -145,6 +147,6 @@ export const typeDef = gql`
     openseaNFCScript: String
     updateOpenseaLink: NFC
     requestUploadFromLivepeer(data: RequestUploadFromLivepeerInput!): RequestUploadResponse
-    trimVideo(data: TrimVideoInput!): TrimVideoResponse
+    trimVideo(data: TrimVideoInput!): String
   }
 `;

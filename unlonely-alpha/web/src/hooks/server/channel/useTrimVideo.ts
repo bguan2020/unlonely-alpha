@@ -10,12 +10,9 @@ type Props = {
 };
 
 const MUTATION = gql`
-  mutation TrimVideo($data: TrimVideoInput!) {
-    trimVideo(data: $data) {
-      videoLink
-      videoThumbnail
-    }
-  }
+mutation TrimVideo($data: TrimVideoInput!) {
+  trimVideo(data: $data)
+}
 `;
 
 const useTrimVideo = ({ onError }: Props) => {

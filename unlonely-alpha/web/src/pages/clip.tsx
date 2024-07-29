@@ -26,11 +26,13 @@ import {
 } from "../utils/pinata";
 import {
   GET_CHANNEL_BY_ID_QUERY,
+  GET_LIVEPEER_CLIP_DATA_QUERY,
   GET_USER_CHANNEL_CONTRACT_1155_MAPPING_QUERY,
 } from "../constants/queries";
 import { useLazyQuery } from "@apollo/client";
 import {
   GetChannelByIdQuery,
+  GetLivepeerClipDataQuery,
   GetUserChannelContract1155MappingQuery,
   PostNfcInput,
 } from "../generated/graphql";
@@ -106,6 +108,10 @@ const Clip = () => {
     useLazyQuery<GetUserChannelContract1155MappingQuery>(
       GET_USER_CHANNEL_CONTRACT_1155_MAPPING_QUERY
     );
+
+  const [fetchLivepeerClipData] = useLazyQuery<GetLivepeerClipDataQuery>(
+    GET_LIVEPEER_CLIP_DATA_QUERY
+  );
 
   const { createClip } = useCreateClip({
     onError: (e) => {
@@ -212,7 +218,8 @@ const Clip = () => {
       !user
     )
       return;
-    console.log("trimVideo f start", Date.now());
+    const trimFunctionStart = Date.now();
+    console.log("trimVideo function start", trimFunctionStart);
     try {
       const { data: mapping } = await fetchUserChannelContract1155Mapping({
         variables: { data: { address: user?.address as string } },
@@ -228,25 +235,48 @@ const Clip = () => {
         name: title,
         channelId: channelId ?? "",
       });
+      const assetId = res?.res;
+      let videoThumbnail = "";
+      let videoLink = "";
+      while (true) {
+        console.log("waiting for videoThumbnail and videoLink");
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        const { data } = await fetchLivepeerClipData({
+          variables: { assetId: assetId },
+        });
+        if (
+          data?.getLivepeerClipData?.videoThumbnail &&
+          data?.getLivepeerClipData?.videoLink &&
+          !data?.getLivepeerClipData?.error
+        ) {
+          videoThumbnail = data.getLivepeerClipData.videoThumbnail;
+          videoLink = data.getLivepeerClipData.videoLink;
+          break;
+        }
+        if (data?.getLivepeerClipData?.error) {
+          console.log("Error", data.getLivepeerClipData.error);
+          break;
+        }
+      }
+      if (!videoThumbnail || !videoLink) return;
 
       // CREATE TOKEN METADATA
 
       const { pinRes: videoFileIpfsUrl } = await createFileBlobAndPinWithPinata(
-        String(res?.res?.videoLink),
+        String(videoLink),
         "video.mp4",
         "video/mp4"
       );
       console.log("videoFileIpfsUrl", videoFileIpfsUrl);
-      if (!videoFileIpfsUrl || !res?.res?.videoLink) return;
+      if (!videoFileIpfsUrl || !videoLink) return;
 
       const { file: thumbnailFile, pinRes: thumbnailFileIpfsUrl } =
         await createFileBlobAndPinWithPinata(
-          String(res?.res?.videoThumbnail),
+          String(videoThumbnail),
           title,
           "image/png"
         );
-      if (!thumbnailFileIpfsUrl || !thumbnailFile || !res?.res?.videoThumbnail)
-        return;
+      if (!thumbnailFileIpfsUrl || !thumbnailFile || !videoThumbnail) return;
 
       console.log("thumbnailFileIpfsUrl", thumbnailFileIpfsUrl);
 
@@ -459,8 +489,8 @@ const Clip = () => {
 
       const postNfcObject: PostNfcInput = {
         title: title,
-        videoLink: res?.res?.videoLink,
-        videoThumbnail: res?.res?.videoThumbnail,
+        videoLink: videoLink,
+        videoThumbnail: videoThumbnail,
         openseaLink: "",
         channelId: channelId,
         contract1155Address: freqAddress,
@@ -472,7 +502,10 @@ const Clip = () => {
     } catch (e) {
       console.log("trimVideo error", e);
     }
-    console.log("trimVideo f end", Date.now());
+    console.log(
+      "trimVideo function end",
+      `${(Date.now() - trimFunctionStart) / 1000}s`
+    );
   }, [
     roughClipUrl,
     clipRange,

@@ -16,6 +16,12 @@ export const resolvers = {
     getNFC(_: any, { id }: { id: number }, ctx: Context) {
       return NFCService.getNFC({ id }, ctx);
     },
+    getLivepeerClipData(
+      _: any,
+      { assetId }: { assetId: string },
+    ) {
+      return NFCService.getLivepeerClipData(assetId);
+    }
   },
   Mutation: {
     postNFC(

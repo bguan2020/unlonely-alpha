@@ -361,6 +361,8 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
   const finalPath = path.join(__dirname, `${videoId}-final.mp4`);
 
   try {
+    const start = Date.now();
+
     const downloadResponse = await axios({
       url: data.videoLink,
       method: "GET",
@@ -374,7 +376,8 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
       writer.on("error", reject);
     });
 
-    console.log("downloaded video");
+    console.log("downloaded video", `${(Date.now() - start) / 1000}s`);
+    const trimStart = Date.now();
 
     // Trim the video using FFmpeg
     await new Promise<void>((resolve, reject) => {
@@ -395,9 +398,13 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
         .run();
     });
 
-    console.log("trimmed video");
+    console.log("trimmed video", `${(Date.now() - trimStart) / 1000}s`);
+    const requestForFinalStart = Date.now();
 
     const requestResForFinal = await requestUploadFromLivepeer({ name: data.name });
+
+    console.log("requested upload from livepeer", `${(Date.now() - requestForFinalStart) / 1000}s`);
+    const watermarkStart = Date.now();
 
     // Create an outro video with the watermark image
     const watermarkImage = path.join(__dirname, "../../../assets", "unlonely-watermark.png");
@@ -429,7 +436,8 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
         .run();
     });
 
-    console.log("created outro video");
+    console.log("created outro video", `${(Date.now() - watermarkStart) / 1000}s`);
+    const concatStart = Date.now();
 
     // Concatenate the trimmed video with the outro
     await new Promise<void>((resolve, reject) => {
@@ -464,7 +472,8 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
         .run();
     });
 
-    console.log("concatenated videos");
+    console.log("concatenated videos", `${(Date.now() - concatStart) / 1000}s`);
+    const uploadStart = Date.now();
 
     // Upload the final video using tus-js-client
     const finalFileSize = fs.statSync(finalPath).size;
@@ -506,42 +515,12 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
       });
     });
 
-    console.log("uploaded final video");
+    console.log("uploaded final video", `${(Date.now() - uploadStart) / 1000}s`);
+    const end = Date.now();
 
-    let finalAsset = null;
-    while (true) {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      const poll = await fetch(
-        `https://livepeer.studio/api/asset/${requestResForFinal.asset.id}`,
-        {
-          method: "GET",
-          headers: livepeerHeaders,
-        }
-      );
-      const res = await poll.json();
-      console.log("polling every 2 secs", res);
-      if (res.status.phase === "ready") {
-        finalAsset = res;
-        break;
-      }
-      if (res.status.phase === "failed") {
-        console.log("createLivepeerClip failed");
-        throw new Error("createLivepeerClip Error livepeer could not create clip");
-      }
-    }
-    const finalPlaybackData: any = await fetch(
-      `https://livepeer.studio/api/playback/${finalAsset.playbackId}`,
-      { headers: livepeerHeaders }
-    ).then((res) => res.json());
-
-    const finalPlayBackUrl = finalPlaybackData.meta.source[0].url;
-
-    const thumbNailUrl = await getLivepeerThumbnail(finalAsset.playbackId);
-    console.log("nfc ready")
-    return {
-      videoLink: finalPlayBackUrl,
-      videoThumbnail: thumbNailUrl,
-    }
+    const timeTaken = (end - start) / 1000;
+    console.log(`Trim video of ${data.endTime - data.startTime}s took ${timeTaken}s`);
+    return requestResForFinal.asset.id
   } catch (e) {
     console.error("Error:", e);
     // Clean up temporary files
@@ -559,6 +538,46 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
     }
     throw e;
   }
+}
+
+export const getLivepeerClipData = async (assetId: string) => {
+  const poll = await fetch(
+    `https://livepeer.studio/api/asset/${assetId}`,
+    {
+      method: "GET",
+      headers: livepeerHeaders,
+    }
+  );
+  const res = await poll.json();
+  if (res.status.phase === "ready") {
+    const finalPlaybackData: any = await fetch(
+      `https://livepeer.studio/api/playback/${res.playbackId}`,
+      { headers: livepeerHeaders }
+    ).then((res) => res.json());
+        
+    const finalPlayBackUrl = finalPlaybackData.meta.source[0].url;
+
+    const thumbNailUrl = await getLivepeerThumbnail(res.playbackId);
+    console.log("nfc ready")
+    return {
+      videoLink: finalPlayBackUrl,
+      videoThumbnail: thumbNailUrl,
+      error: false,
+    }
+  }
+  if (res.status.phase === "failed") {
+    console.log("createLivepeerClip failed");
+    return {
+      videoLink: "",
+      videoThumbnail: "",
+      error: true
+    }
+  }
+  return {
+    videoLink: "",
+    videoThumbnail: "",
+    error: false
+  } 
 }
 
 export interface IRequestUploadFromLivepeerInput {

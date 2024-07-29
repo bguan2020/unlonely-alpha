@@ -27,6 +27,16 @@ export const GET_USER_CHANNEL_CONTRACT_1155_MAPPING_QUERY = gql`
   }
 `;
 
+export const GET_LIVEPEER_CLIP_DATA_QUERY = gql`
+  query GetLivepeerClipData($assetId: String!) {
+    getLivepeerClipData(assetId: $assetId) {
+      videoThumbnail
+      videoLink
+      error
+    }
+  }
+`
+
 export const GET_USER_TOKEN_HOLDING_QUERY = gql`
   query GetUserTokenHolding($data: GetUserTokenHoldingInput!) {
     getUserTokenHolding(data: $data)

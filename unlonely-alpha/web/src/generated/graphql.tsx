@@ -463,6 +463,13 @@ export enum LikeObj {
   Nfc = "NFC",
 }
 
+export type LivepeerClipDataResponse = {
+  __typename?: "LivepeerClipDataResponse";
+  error: Scalars["Boolean"];
+  videoLink: Scalars["String"];
+  videoThumbnail: Scalars["String"];
+};
+
 export type LivepeerStreamData = {
   __typename?: "LivepeerStreamData";
   isActive?: Maybe<Scalars["Boolean"]>;
@@ -538,7 +545,7 @@ export type Mutation = {
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
   toggleSubscription?: Maybe<Subscription>;
-  trimVideo?: Maybe<TrimVideoResponse>;
+  trimVideo?: Maybe<Scalars["String"]>;
   updateChannelAllowNfcs?: Maybe<Channel>;
   updateChannelCustomButton?: Maybe<Channel>;
   updateChannelFidSubscription?: Maybe<Scalars["String"]>;
@@ -1026,6 +1033,7 @@ export type Query = {
   getGamblableEventLeaderboardByChannelId: Array<GamblableEventLeaderboard>;
   getGamblableEventUserRank: Scalars["Int"];
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
+  getLivepeerClipData?: Maybe<LivepeerClipDataResponse>;
   getLivepeerStreamData?: Maybe<LivepeerStreamData>;
   getLivepeerStreamSessionsData?: Maybe<
     Array<Maybe<LivepeerStreamSessionsData>>
@@ -1111,6 +1119,10 @@ export type QueryGetGamblableEventLeaderboardByChannelIdArgs = {
 
 export type QueryGetGamblableEventUserRankArgs = {
   data?: InputMaybe<GetGamblableEventUserRankInput>;
+};
+
+export type QueryGetLivepeerClipDataArgs = {
+  assetId: Scalars["String"];
 };
 
 export type QueryGetLivepeerStreamDataArgs = {
@@ -1410,12 +1422,6 @@ export type TrimVideoInput = {
   videoLink: Scalars["String"];
 };
 
-export type TrimVideoResponse = {
-  __typename?: "TrimVideoResponse";
-  videoLink: Scalars["String"];
-  videoThumbnail: Scalars["String"];
-};
-
 export type UpdateChannelAllowNfcsInput = {
   allowNfcs?: InputMaybe<Scalars["Boolean"]>;
   id: Scalars["ID"];
@@ -1673,6 +1679,20 @@ export type GetUserChannelContract1155MappingQueryVariables = Exact<{
 export type GetUserChannelContract1155MappingQuery = {
   __typename?: "Query";
   getUserChannelContract1155Mapping?: any | null;
+};
+
+export type GetLivepeerClipDataQueryVariables = Exact<{
+  assetId: Scalars["String"];
+}>;
+
+export type GetLivepeerClipDataQuery = {
+  __typename?: "Query";
+  getLivepeerClipData?: {
+    __typename?: "LivepeerClipDataResponse";
+    videoThumbnail: string;
+    videoLink: string;
+    error: boolean;
+  } | null;
 };
 
 export type GetUserTokenHoldingQueryVariables = Exact<{
@@ -2478,11 +2498,7 @@ export type TrimVideoMutationVariables = Exact<{
 
 export type TrimVideoMutation = {
   __typename?: "Mutation";
-  trimVideo?: {
-    __typename?: "TrimVideoResponse";
-    videoLink: string;
-    videoThumbnail: string;
-  } | null;
+  trimVideo?: string | null;
 };
 
 export type UpdateChannelAllowNfcsMutationVariables = Exact<{
@@ -3092,6 +3108,66 @@ export type GetUserChannelContract1155MappingLazyQueryHookResult = ReturnType<
 export type GetUserChannelContract1155MappingQueryResult = Apollo.QueryResult<
   GetUserChannelContract1155MappingQuery,
   GetUserChannelContract1155MappingQueryVariables
+>;
+export const GetLivepeerClipDataDocument = gql`
+  query GetLivepeerClipData($assetId: String!) {
+    getLivepeerClipData(assetId: $assetId) {
+      videoThumbnail
+      videoLink
+      error
+    }
+  }
+`;
+
+/**
+ * __useGetLivepeerClipDataQuery__
+ *
+ * To run a query within a React component, call `useGetLivepeerClipDataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLivepeerClipDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLivepeerClipDataQuery({
+ *   variables: {
+ *      assetId: // value for 'assetId'
+ *   },
+ * });
+ */
+export function useGetLivepeerClipDataQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetLivepeerClipDataQuery,
+    GetLivepeerClipDataQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetLivepeerClipDataQuery,
+    GetLivepeerClipDataQueryVariables
+  >(GetLivepeerClipDataDocument, options);
+}
+export function useGetLivepeerClipDataLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetLivepeerClipDataQuery,
+    GetLivepeerClipDataQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetLivepeerClipDataQuery,
+    GetLivepeerClipDataQueryVariables
+  >(GetLivepeerClipDataDocument, options);
+}
+export type GetLivepeerClipDataQueryHookResult = ReturnType<
+  typeof useGetLivepeerClipDataQuery
+>;
+export type GetLivepeerClipDataLazyQueryHookResult = ReturnType<
+  typeof useGetLivepeerClipDataLazyQuery
+>;
+export type GetLivepeerClipDataQueryResult = Apollo.QueryResult<
+  GetLivepeerClipDataQuery,
+  GetLivepeerClipDataQueryVariables
 >;
 export const GetUserTokenHoldingDocument = gql`
   query GetUserTokenHolding($data: GetUserTokenHoldingInput!) {
@@ -5711,10 +5787,7 @@ export type ToggleSubscriptionMutationOptions = Apollo.BaseMutationOptions<
 >;
 export const TrimVideoDocument = gql`
   mutation TrimVideo($data: TrimVideoInput!) {
-    trimVideo(data: $data) {
-      videoLink
-      videoThumbnail
-    }
+    trimVideo(data: $data)
   }
 `;
 export type TrimVideoMutationFn = Apollo.MutationFunction<
