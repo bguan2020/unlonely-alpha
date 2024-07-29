@@ -89,11 +89,12 @@ const startServer = async () => {
   // Create an HTTP server using the Express app
   const httpServer = http.createServer(app);
 
-  // force redeploy
+  httpServer.setTimeout(5 * 60 * 1000); // 5 minutes
 
   httpServer.listen(process.env.PORT || 4000, () => {
     console.info(`Server started on port ${process.env.PORT || 4000}`);
   });
+
 };
 
 startServer();
