@@ -519,11 +519,13 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
         }
       );
       const res = await poll.json();
+      console.log("polling every 2 secs", res);
       if (res.status.phase === "ready") {
         finalAsset = res;
         break;
       }
       if (res.status.phase === "failed") {
+        console.log("createLivepeerClip failed");
         throw new Error("createLivepeerClip Error livepeer could not create clip");
       }
     }
@@ -535,6 +537,7 @@ export const trimVideo = async (data: ITrimVideoInput, ctx: Context) => {
     const finalPlayBackUrl = finalPlaybackData.meta.source[0].url;
 
     const thumbNailUrl = await getLivepeerThumbnail(finalAsset.playbackId);
+    console.log("nfc ready")
     return {
       videoLink: finalPlayBackUrl,
       videoThumbnail: thumbNailUrl,
