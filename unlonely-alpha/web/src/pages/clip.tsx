@@ -239,11 +239,14 @@ const Clip = () => {
       let videoThumbnail = "";
       let videoLink = "";
       while (true) {
-        console.log("waiting for videoThumbnail and videoLink");
         await new Promise((resolve) => setTimeout(resolve, 2000));
         const { data } = await fetchLivepeerClipData({
           variables: { assetId: assetId },
         });
+        console.log(
+          "waiting for videoThumbnail and videoLink",
+          data?.getLivepeerClipData
+        );
         if (
           data?.getLivepeerClipData?.videoThumbnail &&
           data?.getLivepeerClipData?.videoLink &&
