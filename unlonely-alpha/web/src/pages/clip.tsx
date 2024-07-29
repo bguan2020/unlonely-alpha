@@ -212,259 +212,265 @@ const Clip = () => {
       !user
     )
       return;
-    const { data: mapping } = await fetchUserChannelContract1155Mapping({
-      variables: { data: { address: user?.address as string } },
-    });
-    const existingContract1155Address =
-      mapping?.getUserChannelContract1155Mapping?.[channelId]
-        ?.contract1155Address;
-    console.log("existingContract1155Address", existingContract1155Address);
-    const res = await trimVideo({
-      startTime: clipRange[0],
-      endTime: clipRange[1],
-      videoLink: roughClipUrl,
-      name: title,
-      channelId: channelId ?? "",
-    });
-
-    // CREATE TOKEN METADATA
-
-    const { pinRes: videoFileIpfsUrl } = await createFileBlobAndPinWithPinata(
-      String(res?.res?.videoLink),
-      "video.mp4",
-      "video/mp4"
-    );
-    console.log("videoFileIpfsUrl", videoFileIpfsUrl);
-    if (!videoFileIpfsUrl || !res?.res?.videoLink) return;
-
-    const { file: thumbnailFile, pinRes: thumbnailFileIpfsUrl } =
-      await createFileBlobAndPinWithPinata(
-        String(res?.res?.videoThumbnail),
-        title,
-        "image/png"
-      );
-    if (!thumbnailFileIpfsUrl || !thumbnailFile || !res?.res?.videoThumbnail)
-      return;
-
-    console.log("thumbnailFileIpfsUrl", thumbnailFileIpfsUrl);
-
-    const tokenMetadataJson = await makeMediaTokenMetadata({
-      mediaUrl: videoFileIpfsUrl,
-      thumbnailUrl: thumbnailFileIpfsUrl,
-      name: thumbnailFile.name,
-    });
-    console.log("makeMediaTokenMetadata tokenMetadataJson", tokenMetadataJson);
-
-    const jsonMetadataUri = await pinJsonWithPinata(tokenMetadataJson);
-    console.log("jsonMetadataUri", jsonMetadataUri);
-
-    // CREATE SPLIT CONFIG
-
-    const { agregate3Calls, predicted, error, splitCallData, splitAddress } =
-      await handleSplitConfig();
-    if (error) return;
-
-    let contractObject: ContractType = {
-      name: "",
-      uri: "",
-    };
-
-    if (!existingContract1155Address) {
-      const _contractMetadataJsonUri = await pinJsonWithPinata({
-        description: `this was clipped from ${getChannelByIdData?.getChannelById?.slug}'s Unlonely livestream`,
-        image: videoFileIpfsUrl,
-        name: title,
+    try {
+      const { data: mapping } = await fetchUserChannelContract1155Mapping({
+        variables: { data: { address: user?.address as string } },
       });
-      contractObject = {
-        name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
-        uri: _contractMetadataJsonUri,
+      const existingContract1155Address =
+        mapping?.getUserChannelContract1155Mapping?.[channelId]
+          ?.contract1155Address;
+      console.log("existingContract1155Address", existingContract1155Address);
+      const res = await trimVideo({
+        startTime: clipRange[0],
+        endTime: clipRange[1],
+        videoLink: roughClipUrl,
+        name: title,
+        channelId: channelId ?? "",
+      });
+
+      // CREATE TOKEN METADATA
+
+      const { pinRes: videoFileIpfsUrl } = await createFileBlobAndPinWithPinata(
+        String(res?.res?.videoLink),
+        "video.mp4",
+        "video/mp4"
+      );
+      console.log("videoFileIpfsUrl", videoFileIpfsUrl);
+      if (!videoFileIpfsUrl || !res?.res?.videoLink) return;
+
+      const { file: thumbnailFile, pinRes: thumbnailFileIpfsUrl } =
+        await createFileBlobAndPinWithPinata(
+          String(res?.res?.videoThumbnail),
+          title,
+          "image/png"
+        );
+      if (!thumbnailFileIpfsUrl || !thumbnailFile || !res?.res?.videoThumbnail)
+        return;
+
+      console.log("thumbnailFileIpfsUrl", thumbnailFileIpfsUrl);
+
+      const tokenMetadataJson = await makeMediaTokenMetadata({
+        mediaUrl: videoFileIpfsUrl,
+        thumbnailUrl: thumbnailFileIpfsUrl,
+        name: thumbnailFile.name,
+      });
+      console.log(
+        "makeMediaTokenMetadata tokenMetadataJson",
+        tokenMetadataJson
+      );
+
+      const jsonMetadataUri = await pinJsonWithPinata(tokenMetadataJson);
+      console.log("jsonMetadataUri", jsonMetadataUri);
+
+      // CREATE SPLIT CONFIG
+
+      const { agregate3Calls, predicted, error, splitCallData, splitAddress } =
+        await handleSplitConfig();
+      if (error) return;
+
+      let contractObject: ContractType = {
+        name: "",
+        uri: "",
       };
-    } else if (existingContract1155Address) {
-      contractObject = existingContract1155Address;
-    } else {
-      console.log("no satisfactory outcome found");
-      return;
-    }
 
-    console.log("contractObject", contractObject);
-
-    // CREATE 1155 CONTRACT AND TOKEN
-
-    const creatorClient = createCreatorClient({ chainId, publicClient });
-    const { parameters } = await creatorClient.create1155({
-      contract: contractObject,
-      token: {
-        tokenMetadataURI: jsonMetadataUri,
-        payoutRecipient: predicted.splitAddress,
-        mintToCreatorCount: 1,
-      },
-      account: walletClient?.account.address as Address,
-    });
-
-    console.log("parameters from create1155", parameters);
-
-    let freqAddress: `0x${string}` = NULL_ADDRESS;
-    let tokenId = -1;
-    if (predicted.splitExists) {
-      console.log("split exists");
-      const transaction = await handleWriteCreate1155(parameters);
-      const logs = transaction?.logs ?? [];
-      console.log("transaction logs", logs);
-      // freqAddress is the address of the 1155 contract
-      const _freqAddress = findMostFrequentString(
-        logs.map((log) => log.address)
-      );
-
-      freqAddress = _freqAddress as `0x${string}`;
-      console.log("freqAddress", freqAddress);
-
-      const topics = returnDecodedTopics(
-        logs,
-        zoraCreator1155Abi as any[],
-        "UpdatedToken",
-        false
-      );
-
-      console.log("create1155 topics and split exists", topics);
-      if (topics) {
-        const args: any = topics.args;
-        const _tokenId: bigint = args.tokenId;
-        console.log("tokenId", _tokenId);
-        tokenId = Number(_tokenId);
+      if (!existingContract1155Address) {
+        const _contractMetadataJsonUri = await pinJsonWithPinata({
+          description: `this was clipped from ${getChannelByIdData?.getChannelById?.slug}'s Unlonely livestream`,
+          image: videoFileIpfsUrl,
+          name: title,
+        });
+        contractObject = {
+          name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
+          uri: _contractMetadataJsonUri,
+        };
+      } else if (existingContract1155Address) {
+        contractObject = existingContract1155Address;
+      } else {
+        console.log("no satisfactory outcome found");
+        return;
       }
-    } else {
-      if (typeof contractObject === "string") {
-        console.log("split does not exist and contractObject is string");
-        if (splitCallData && splitAddress && walletClient?.account.address) {
-          const splitCreationHash = await walletClient.sendTransaction({
-            to: splitAddress as Address,
-            account: walletClient?.account.address as Address,
-            data: splitCallData,
-          });
-          if (!splitCreationHash) return;
-          const splitTransaction = await publicClient.waitForTransactionReceipt(
-            {
-              hash: splitCreationHash,
-            }
-          );
-          const splitLogs = splitTransaction?.logs;
-          console.log("splitTransaction logs", splitLogs);
 
-          const transaction = await handleWriteCreate1155(parameters);
-          const logs = transaction?.logs ?? [];
-          console.log("transaction logs", logs);
+      console.log("contractObject", contractObject);
 
-          const _freqAddress = findMostFrequentString(
-            logs.map((log) => log.address)
-          );
+      // CREATE 1155 CONTRACT AND TOKEN
 
-          console.log("freqAddress", _freqAddress);
-          freqAddress = _freqAddress as `0x${string}`;
+      const creatorClient = createCreatorClient({ chainId, publicClient });
+      const { parameters } = await creatorClient.create1155({
+        contract: contractObject,
+        token: {
+          tokenMetadataURI: jsonMetadataUri,
+          payoutRecipient: predicted.splitAddress,
+          mintToCreatorCount: 1,
+        },
+        account: walletClient?.account.address as Address,
+      });
 
-          const topics = returnDecodedTopics(
-            logs,
-            zoraCreator1155Abi,
-            "UpdatedToken",
-            false
-          );
+      console.log("parameters from create1155", parameters);
 
-          if (topics) {
-            const args: any = topics.args;
-            const _tokenId: bigint = args.tokenId;
-            console.log("tokenId", _tokenId);
-            tokenId = Number(_tokenId);
-          }
+      let freqAddress: `0x${string}` = NULL_ADDRESS;
+      let tokenId = -1;
+      if (predicted.splitExists) {
+        console.log("split exists");
+        const transaction = await handleWriteCreate1155(parameters);
+        const logs = transaction?.logs ?? [];
+        console.log("transaction logs", logs);
+        // freqAddress is the address of the 1155 contract
+        const _freqAddress = findMostFrequentString(
+          logs.map((log) => log.address)
+        );
 
-          console.log("create1155 topics", topics);
+        freqAddress = _freqAddress as `0x${string}`;
+        console.log("freqAddress", freqAddress);
+
+        const topics = returnDecodedTopics(
+          logs,
+          zoraCreator1155Abi as any[],
+          "UpdatedToken",
+          false
+        );
+
+        console.log("create1155 topics and split exists", topics);
+        if (topics) {
+          const args: any = topics.args;
+          const _tokenId: bigint = args.tokenId;
+          console.log("tokenId", _tokenId);
+          tokenId = Number(_tokenId);
         }
       } else {
-        console.log("split does not exist and contractObject is not string");
-        // push 1155 contract and token creation calls to the multicall3 aggregate call
-        agregate3Calls.push({
-          allowFailure: false,
-          value: parameters.value || BigInt(0),
-          target: parameters.address,
-          callData: encodeFunctionData({
-            abi: parameters.abi,
-            functionName: parameters.functionName,
-            args: parameters.args,
-          }),
-        });
+        if (typeof contractObject === "string") {
+          console.log("split does not exist and contractObject is string");
+          if (splitCallData && splitAddress && walletClient?.account.address) {
+            const splitCreationHash = await walletClient.sendTransaction({
+              to: splitAddress as Address,
+              account: walletClient?.account.address as Address,
+              data: splitCallData,
+            });
+            if (!splitCreationHash) return;
+            const splitTransaction =
+              await publicClient.waitForTransactionReceipt({
+                hash: splitCreationHash,
+              });
+            const splitLogs = splitTransaction?.logs;
+            console.log("splitTransaction logs", splitLogs);
 
-        console.log("agregate3Calls", agregate3Calls);
+            const transaction = await handleWriteCreate1155(parameters);
+            const logs = transaction?.logs ?? [];
+            console.log("transaction logs", logs);
 
-        // simulate the transaction multicall 3 transaction
-        const { request } = await publicClient.simulateContract({
-          abi: multicall3Abi,
-          functionName: "aggregate3Value",
-          address: multicall3Address,
-          args: [agregate3Calls],
-          account: walletClient?.account.address as Address,
-        });
+            const _freqAddress = findMostFrequentString(
+              logs.map((log) => log.address)
+            );
 
-        console.log("simulated multicall3 request", request);
+            console.log("freqAddress", _freqAddress);
+            freqAddress = _freqAddress as `0x${string}`;
 
-        // execute the transaction
-        const hash = await walletClient
-          ?.writeContract(request)
-          .then((response) => {
-            console.log("multicall3 response", response);
-            return response;
+            const topics = returnDecodedTopics(
+              logs,
+              zoraCreator1155Abi,
+              "UpdatedToken",
+              false
+            );
+
+            if (topics) {
+              const args: any = topics.args;
+              const _tokenId: bigint = args.tokenId;
+              console.log("tokenId", _tokenId);
+              tokenId = Number(_tokenId);
+            }
+
+            console.log("create1155 topics", topics);
+          }
+        } else {
+          console.log("split does not exist and contractObject is not string");
+          // push 1155 contract and token creation calls to the multicall3 aggregate call
+          agregate3Calls.push({
+            allowFailure: false,
+            value: parameters.value || BigInt(0),
+            target: parameters.address,
+            callData: encodeFunctionData({
+              abi: parameters.abi,
+              functionName: parameters.functionName,
+              args: parameters.args,
+            }),
           });
 
-        if (hash) {
-          const transaction = await publicClient.waitForTransactionReceipt({
-            hash,
+          console.log("agregate3Calls", agregate3Calls);
+
+          // simulate the transaction multicall 3 transaction
+          const { request } = await publicClient.simulateContract({
+            abi: multicall3Abi,
+            functionName: "aggregate3Value",
+            address: multicall3Address,
+            args: [agregate3Calls],
+            account: walletClient?.account.address as Address,
           });
-          const logs = transaction.logs;
-          console.log("multicall tx logs", logs);
-          // freqAddress is the address of the 1155 contract
-          const _freqAddress = findMostFrequentString(
-            logs.map((log) => log.address)
-          );
 
-          const topics = returnDecodedTopics(
-            logs,
-            zoraCreator1155Abi,
-            "UpdatedToken",
-            false
-          );
+          console.log("simulated multicall3 request", request);
 
-          console.log("multicall topics", topics);
+          // execute the transaction
+          const hash = await walletClient
+            ?.writeContract(request)
+            .then((response) => {
+              console.log("multicall3 response", response);
+              return response;
+            });
 
-          console.log("freqAddress", _freqAddress);
-          freqAddress = _freqAddress as `0x${string}`;
+          if (hash) {
+            const transaction = await publicClient.waitForTransactionReceipt({
+              hash,
+            });
+            const logs = transaction.logs;
+            console.log("multicall tx logs", logs);
+            // freqAddress is the address of the 1155 contract
+            const _freqAddress = findMostFrequentString(
+              logs.map((log) => log.address)
+            );
 
-          if (topics) {
-            const args: any = topics.args;
-            const _tokenId: bigint = args.tokenId;
-            console.log("tokenId", _tokenId);
-            tokenId = Number(_tokenId);
+            const topics = returnDecodedTopics(
+              logs,
+              zoraCreator1155Abi,
+              "UpdatedToken",
+              false
+            );
+
+            console.log("multicall topics", topics);
+
+            console.log("freqAddress", _freqAddress);
+            freqAddress = _freqAddress as `0x${string}`;
+
+            if (topics) {
+              const args: any = topics.args;
+              const _tokenId: bigint = args.tokenId;
+              console.log("tokenId", _tokenId);
+              tokenId = Number(_tokenId);
+            }
           }
         }
       }
-    }
-    if (freqAddress && channelId && !existingContract1155Address) {
-      await updateUserChannelContract1155Mapping({
+      if (freqAddress && channelId && !existingContract1155Address) {
+        await updateUserChannelContract1155Mapping({
+          channelId: channelId,
+          contract1155Address: freqAddress,
+          contract1155ChainId: chainId,
+          userAddress: user?.address as Address,
+        });
+      }
+
+      const postNfcObject: PostNfcInput = {
+        title: title,
+        videoLink: res?.res?.videoLink,
+        videoThumbnail: res?.res?.videoThumbnail,
+        openseaLink: "",
         channelId: channelId,
         contract1155Address: freqAddress,
-        contract1155ChainId: chainId,
-        userAddress: user?.address as Address,
-      });
+        zoraLink: `https://zora.co/collect/base:${freqAddress}/${tokenId}`,
+        tokenId: Number(tokenId),
+      };
+      console.log("postNfcObject", postNfcObject);
+      await postNFC(postNfcObject);
+    } catch (e) {
+      console.log("trimVideo error", e);
     }
-
-    const postNfcObject: PostNfcInput = {
-      title: title,
-      videoLink: res?.res?.videoLink,
-      videoThumbnail: res?.res?.videoThumbnail,
-      openseaLink: "",
-      channelId: channelId,
-      contract1155Address: freqAddress,
-      zoraLink: `https://zora.co/collect/base:${freqAddress}/${tokenId}`,
-      tokenId: Number(tokenId),
-    };
-    console.log("postNfcObject", postNfcObject);
-    await postNFC(postNfcObject);
   }, [
     roughClipUrl,
     clipRange,
