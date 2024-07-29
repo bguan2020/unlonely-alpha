@@ -212,6 +212,7 @@ const Clip = () => {
       !user
     )
       return;
+    console.log("trimVideo f start", Date.now());
     try {
       const { data: mapping } = await fetchUserChannelContract1155Mapping({
         variables: { data: { address: user?.address as string } },
@@ -471,6 +472,7 @@ const Clip = () => {
     } catch (e) {
       console.log("trimVideo error", e);
     }
+    console.log("trimVideo f end", Date.now());
   }, [
     roughClipUrl,
     clipRange,
