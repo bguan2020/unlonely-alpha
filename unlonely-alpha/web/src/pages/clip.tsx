@@ -334,7 +334,7 @@ const Clip = () => {
         const _contractMetadataJsonUri = await pinJsonWithPinata({
           description: `this was clipped from ${getChannelByIdData?.getChannelById?.slug}'s Unlonely livestream`,
           image: UNLONELY_LOGO_IPFS_URL,
-          name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
+          name: `${getChannelByIdData?.getChannelById?.slug}'s Unlonely Clips`,
         });
         contractObject = {
           name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
