@@ -437,6 +437,7 @@ export const trimVideo = async (data: ITrimVideoInput) => {
     const foundOutputPath = await searchFileInTempDirectory(`${videoId}-output`, "temp");
     if (!foundOutputPath) {
       console.log("Trimmed video file not found");
+      return
     } else {
       console.log("Trimmed video file found", foundOutputPath);
     }
@@ -444,6 +445,54 @@ export const trimVideo = async (data: ITrimVideoInput) => {
     // fs.unlinkSync(inputPath);
 
     console.log("trimmed video", `${(Date.now() - trimStart) / 1000}s`);
+
+    // Upload the final video using tus-js-client
+    const finalFileSize = fs.statSync(foundOutputPath).size;
+    const finalFileStream = fs.createReadStream(foundOutputPath);
+    
+    const requestResForFinal = await requestUploadFromLivepeer({ name: 
+      // data.name
+      "test-please"
+     });
+
+    new Promise<string>((resolve, reject) => {
+      const upload = new tus.Upload(finalFileStream, {
+        endpoint: requestResForFinal.tusEndpoint,
+        retryDelays: [0, 1000, 3000, 5000],
+        metadata: {
+          // filename: `${data.name}.mp4`,
+          filename: "test-please.mp4",
+          filetype: "video/mp4",
+        },
+        uploadSize: finalFileSize,
+        onError: (error: any) => {
+          console.error("Failed because: ", error);
+          reject(error);
+        },
+        // onProgress: (bytesUploaded: number, bytesTotal: number) => {
+          // const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+          // console.log(`Upload progress: ${percentage}%`);
+        // },
+        onSuccess: () => {
+          // console.log(`Upload finished: ${upload.url}`);
+          resolve(upload.url!);
+          // Clean up temporary files
+          // fs.unlinkSync(trimmedFilePath);
+          // fs.unlinkSync(outroPath);
+          // fs.unlinkSync(finalPath);
+        },
+      });
+
+      upload.findPreviousUploads().then((previousUploads) => {
+        if (previousUploads.length) {
+          upload.resumeFromPreviousUpload(previousUploads[0]);
+        }
+        upload.start();
+      });
+    });
+
+  // console.log("uploaded final video", `${(Date.now() - uploadStart) / 1000}s`);
+  return requestResForFinal.asset.id
     return `${videoId}`;
   } catch (e) {
     console.log("Error:", e);
@@ -478,7 +527,6 @@ export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTr
 
   try {
   // const requestForFinalStart = Date.now();
-  const requestResForFinal = await requestUploadFromLivepeer({ name: data.name });
 
   // console.log("requested upload from livepeer", `${(Date.now() - requestForFinalStart) / 1000}s`);
   // const watermarkStart = Date.now();
@@ -556,6 +604,8 @@ export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTr
   const finalFileSize = fs.statSync(finalPath).size;
   const finalFileStream = fs.createReadStream(finalPath);
 
+  const requestResForFinal = await requestUploadFromLivepeer({ name: data.name });
+
   new Promise<string>((resolve, reject) => {
     const upload = new tus.Upload(finalFileStream, {
       endpoint: requestResForFinal.tusEndpoint,
@@ -569,10 +619,10 @@ export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTr
         console.error("Failed because: ", error);
         reject(error);
       },
-      onProgress: (bytesUploaded: number, bytesTotal: number) => {
-        const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+      // onProgress: (bytesUploaded: number, bytesTotal: number) => {
+        // const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
         // console.log(`Upload progress: ${percentage}%`);
-      },
+      // },
       onSuccess: () => {
         // console.log(`Upload finished: ${upload.url}`);
         resolve(upload.url!);

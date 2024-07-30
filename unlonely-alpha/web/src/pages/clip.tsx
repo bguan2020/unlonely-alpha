@@ -244,19 +244,19 @@ const Clip = () => {
         "time took to trim",
         `${(Date.now() - trimFunctionStart) / 1000}s`
       );
-      const concatStart = Date.now();
-      const outputIdentifier = trimRes?.res;
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-      console.log("outputIdentifier", outputIdentifier);
-      const concatRes = await concatenateOutroTrimmedVideo({
-        trimmedVideoFileName: String(outputIdentifier),
-        name: title,
-      });
-      console.log(
-        "time took to concatenate",
-        `${(Date.now() - concatStart) / 1000}s`
-      );
-      const assetId = concatRes?.res;
+      // const concatStart = Date.now();
+      // const outputIdentifier = trimRes?.res;
+      // await new Promise((resolve) => setTimeout(resolve, 5000));
+      // console.log("outputIdentifier", outputIdentifier);
+      // const concatRes = await concatenateOutroTrimmedVideo({
+      //   trimmedVideoFileName: String(outputIdentifier),
+      //   name: title,
+      // });
+      // console.log(
+      //   "time took to concatenate",
+      //   `${(Date.now() - concatStart) / 1000}s`
+      // );
+      const assetId = trimRes?.res;
       console.log("assetId", assetId);
       let videoThumbnail = "";
       let videoLink = "";
