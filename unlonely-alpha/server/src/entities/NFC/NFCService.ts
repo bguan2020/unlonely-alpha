@@ -226,20 +226,20 @@ export const createClip = async (
   );
   try {
     lambdaResponse = await lambda.invoke(params).promise();
-    console.log(
-      "createClip lambda response at time,",
-      new Date(Date.now()).toISOString(),
-      `id:${id}`,
-      `${(Date.now() - id) / 1000}s`,
-      lambdaResponse.Payload
-    );
+    // console.log(
+    //   "createClip lambda response at time,",
+    //   new Date(Date.now()).toISOString(),
+    //   `id:${id}`,
+    //   `${(Date.now() - id) / 1000}s`,
+    //   lambdaResponse.Payload
+    // );
     const response = JSON.parse(lambdaResponse.Payload);
     // if response contains "errorMessage" field, then there was an error and return message
     if (response.errorMessage) {
-      console.log(
-        `createClip lambda function error encountered:, id:${id}`,
-        response.errorMessage
-      );
+      // console.log(
+      //   `createClip lambda function error encountered:, id:${id}`,
+      //   response.errorMessage
+      // );
       return { errorMessage: response.errorMessage };
     }
     const url = response.body.url;
@@ -288,13 +288,13 @@ export const createLivepeerClip = async (
         headers: livepeerHeaders,
       }
     );
-    console.log(
-      "createLivepeerClip livepeer response at time,",
-      new Date(Date.now()).toISOString(),
-      `id:${endTime}`,
-      `${(Date.now() - endTime) / 1000}s`,
-      response
-    );
+    // console.log(
+    //   "createLivepeerClip livepeer response at time,",
+    //   new Date(Date.now()).toISOString(),
+    //   `id:${endTime}`,
+    //   `${(Date.now() - endTime) / 1000}s`,
+    //   response
+    // );
     const responseData: ClipResponse = response.data;
     let asset = null;
     while (true) {
@@ -318,11 +318,11 @@ export const createLivepeerClip = async (
         };
       }
     }
-    console.log(
-      "createLivepeerClip fetching playback,",
-      new Date(Date.now()).toISOString(),
-      `id:${endTime}`
-    );
+    // console.log(
+    //   "createLivepeerClip fetching playback,",
+    //   new Date(Date.now()).toISOString(),
+    //   `id:${endTime}`
+    // );
     const playbackData: any = await fetch(
       `https://livepeer.studio/api/playback/${asset.playbackId}`,
       { headers: livepeerHeaders }
@@ -409,11 +409,26 @@ export const trimVideo = async (data: ITrimVideoInput) => {
         .setStartTime(data.startTime)
         .setDuration(data.endTime - data.startTime)
         .output(outputPath)
-        .on("end", resolve)
+        .on("start", (commandLine) => {
+          console.log("FFmpeg process started with command: ", commandLine);
+        })
+        .on("progress", (progress) => {
+          console.log(`Processing: ${progress.percent}% done`);
+        })
+        .on("end", () => {
+          console.log("FFmpeg process completed successfully.");
+          console.log("Checking if output file exists...");
+          if (fs.existsSync(outputPath)) {
+            console.log("Output file created successfully at:", outputPath);
+            resolve();
+          } else {
+            console.error("Output file was not created.");
+            reject(new Error("Output file was not created."));
+          }
+        })
         .on("error", (err) => {
           console.error("Error processing video:", err);
           reject(err);
-          // Clean up temporary files
           fs.unlinkSync(inputPath);
           if (fs.existsSync(outputPath)) {
             fs.unlinkSync(outputPath);
@@ -421,6 +436,13 @@ export const trimVideo = async (data: ITrimVideoInput) => {
         })
         .run();
     });
+
+    const foundOutputPath = await searchFileInTempDirectory(`${videoId}`, "temp");
+    if (!foundOutputPath) {
+      console.log("Trimmed video file not found");
+    } else {
+      console.log("Trimmed video file found", foundOutputPath);
+    }
 
     fs.unlinkSync(inputPath);
 
