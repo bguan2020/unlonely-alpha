@@ -10,7 +10,11 @@ import {
 import React, { useMemo, useState } from "react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 
-import { InteractionType } from "../../constants";
+import {
+  CHAT_MESSAGE_EVENT,
+  InteractionType,
+  NULL_ADDRESS,
+} from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
 import { SenderStatus } from "../../constants/types/chat";
@@ -30,6 +34,8 @@ const eventTypes = [
   InteractionType.EVENT_LOCK,
   InteractionType.EVENT_UNLOCK,
   InteractionType.EVENT_PAYOUT,
+  InteractionType.PUBLISH_NFC,
+  InteractionType.MINT_NFC_IN_CHAT,
 ];
 
 const adminTempTokenInteractionTypes = [
@@ -42,7 +48,6 @@ const adminTempTokenInteractionTypes = [
   InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION,
   InteractionType.VERSUS_WINNER_TOKENS_MINTED,
   InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
-  InteractionType.PUBLISH_NFC,
 ];
 
 const greenTempTokenInteractionTypes = [InteractionType.BUY_TEMP_TOKENS];
@@ -58,6 +63,7 @@ const redTempTokenInteractionTypes = [
 // messages with SenderStatus.MODERATOR are always displayed when isVipChat is false or true.
 
 const MessageBody = ({
+  channel,
   message,
   index,
   messageText,
@@ -73,6 +79,7 @@ const MessageBody = ({
   const { channelQueryData, channelRoles } = c;
 
   const [mouseHover, setMouseHover] = useState(false);
+  const [selectedTokensToMint, setSelectedTokensToMint] = useState(0);
 
   const userIsChannelOwner = useMemo(
     () => user?.address === channelQueryData?.owner.address,
@@ -241,9 +248,11 @@ const MessageBody = ({
           position={"relative"}
         >
           {message.data.body &&
-          JSON.parse(message.data.body).interactionType ===
-            InteractionType.PUBLISH_NFC ? (
-            <Box key={index} p="0.3rem" position="relative">
+          (JSON.parse(message.data.body).interactionType ===
+            InteractionType.PUBLISH_NFC ||
+            JSON.parse(message.data.body).interactionType ===
+              InteractionType.MINT_NFC_IN_CHAT) ? (
+            <Box key={index} p="0.3rem" position="relative" width="100%">
               <Flex direction="column" justifyContent={"center"}>
                 <Text
                   as="span"
@@ -264,18 +273,80 @@ const MessageBody = ({
                     </span>
                   ))}
                 </Text>
-                <Button
-                  onClick={() =>
-                    handleCollectorMint?.(
-                      JSON.parse(message.data.body as string)
-                        .contract1155Address,
-                      JSON.parse(message.data.body as string).tokenId,
-                      1
-                    )
-                  }
-                >
-                  Mint now
-                </Button>
+                <Flex gap="10px">
+                  <Button
+                    _hover={{}}
+                    bg={
+                      selectedTokensToMint === 1
+                        ? "rgba(63, 59, 253, 1)"
+                        : "white"
+                    }
+                    onClick={() => setSelectedTokensToMint(1)}
+                  >
+                    1
+                  </Button>
+                  <Button
+                    _hover={{}}
+                    bg={
+                      selectedTokensToMint === 3
+                        ? "rgba(63, 59, 253, 1)"
+                        : "white"
+                    }
+                    onClick={() => setSelectedTokensToMint(3)}
+                  >
+                    3
+                  </Button>
+                  <Button
+                    _hover={{}}
+                    bg={
+                      selectedTokensToMint === 10
+                        ? "rgba(63, 59, 253, 1)"
+                        : "white"
+                    }
+                    onClick={() => setSelectedTokensToMint(10)}
+                  >
+                    10
+                  </Button>
+                  <Button
+                    onClick={async () => {
+                      const n = selectedTokensToMint;
+                      if (n === 0) return;
+                      const txr = await handleCollectorMint?.(
+                        JSON.parse(message.data.body as string)
+                          .contract1155Address,
+                        JSON.parse(message.data.body as string).tokenId,
+                        n
+                      );
+                      if (!txr) return;
+                      channel?.publish({
+                        name: CHAT_MESSAGE_EVENT,
+                        data: {
+                          messageText: `${
+                            user?.username ?? centerEllipses(user?.address, 13)
+                          } minted ${n}x "${
+                            JSON.parse(message.data.body as string).title
+                          }"`,
+                          username: "🤖",
+                          address: NULL_ADDRESS,
+                          isFC: false,
+                          isLens: false,
+                          isGif: false,
+                          senderStatus: SenderStatus.CHATBOT,
+                          body: JSON.stringify({
+                            interactionType: InteractionType.MINT_NFC_IN_CHAT,
+                            contract1155Address: JSON.parse(
+                              message.data.body as string
+                            ).contract1155Address,
+                            tokenId: JSON.parse(message.data.body as string)
+                              .tokenId,
+                          }),
+                        },
+                      });
+                    }}
+                  >
+                    Mint now
+                  </Button>
+                </Flex>
               </Flex>
             </Box>
           ) : (

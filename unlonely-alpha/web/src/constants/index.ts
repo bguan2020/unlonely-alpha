@@ -40,6 +40,7 @@ export enum InteractionType {
   EVENT_PAYOUT = "event-payout-interaction",
 
   PUBLISH_NFC = "publish-nfc-interaction",
+  MINT_NFC_IN_CHAT = "mint-nfc-in-chat-interaction",
 }
 
 export enum BaseChatCommand {

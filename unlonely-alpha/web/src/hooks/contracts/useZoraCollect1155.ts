@@ -4,6 +4,7 @@ import {
     useWalletClient, 
      } from "wagmi";
 import { createCollectorClient } from "@zoralabs/protocol-sdk";
+import { TransactionReceipt } from "viem";
 
 export const useZoraCollect1155 = () => {
     const chainId = useChainId();
@@ -14,10 +15,10 @@ export const useZoraCollect1155 = () => {
         },
       });
 
-    const collectorMint = async (tokenContract: `0x${string}`, tokenId: number, quantityToMint: number) => {
+    const collectorMint = async (tokenContract: `0x${string}`, tokenId: number, quantityToMint: number): Promise<TransactionReceipt | undefined> => {
         if (!publicClient || !walletClient?.account.address) {
             console.log("publicClient or walletClient is missing");
-            return;
+            return undefined;
         }
         // set to the chain you want to interact with
         const collectorClient = createCollectorClient({ chainId, publicClient });
@@ -33,7 +34,7 @@ export const useZoraCollect1155 = () => {
         const { request } = await publicClient.simulateContract(parameters);
 
         const hash = await walletClient.writeContract(request);
-        if (!hash) return;
+        if (!hash) return undefined;
         const transaction = await publicClient.waitForTransactionReceipt({
           hash,
         });

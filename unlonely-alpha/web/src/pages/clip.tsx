@@ -8,8 +8,7 @@ import {
   RangeSliderTrack,
   Text,
   Box,
-  Spinner,
-  Skeleton,
+  Progress,
 } from "@chakra-ui/react";
 import { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { MdDragIndicator } from "react-icons/md";
@@ -24,7 +23,6 @@ import {
 import { useRouter } from "next/router";
 import useCreateClip from "../hooks/server/channel/useCreateClip";
 import useTrimVideo from "../hooks/server/channel/useTrimVideo";
-import { WavyText } from "../components/general/WavyText";
 import { SplitV1Client, SplitRecipient } from "@0xsplits/splits-sdk";
 import {
   createFileBlobAndPinWithPinata,
@@ -65,13 +63,21 @@ import { returnDecodedTopics } from "../utils/contract";
 import { useUser } from "../hooks/context/useUser";
 import { zoraCreator1155Abi } from "../constants/abi/ZoraCreator1155";
 import { multicall3Abi } from "../constants/abi/multicall3";
-import useConcatenateOutroTrimmedVideo from "../hooks/server/channel/useConcatenateOutroToTrimmedVideo";
 import { useAblyChannel } from "../hooks/chat/useChatChannel";
 import { SenderStatus } from "../constants/types/chat";
 import centerEllipses from "../utils/centerEllipses";
+import { useNetworkContext } from "../hooks/context/useNetwork";
 
 const multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
 const PROTOCOL_ADDRESS = "0x53D6D64945A67658C66730Ff4a038eb298eC8902";
+
+const images = [
+  { src: "/images/nyan-cat-every-nyan.gif", top: "10vh", delay: "4s" },
+  { src: "/images/nyan-cat-every-nyan.gif", top: "30vh", delay: "2s" },
+  { src: "/images/nyan-cat-every-nyan.gif", top: "50vh", delay: "1s" },
+  { src: "/images/nyan-cat-every-nyan.gif", top: "70vh", delay: "6s" },
+  { src: "/images/nyan-cat-every-nyan.gif", top: "90vh", delay: "9s" },
+];
 
 type Aggregate3ValueFunction = ExtractAbiFunction<
   typeof multicall3Abi,
@@ -83,6 +89,7 @@ type Aggregate3ValueCall =
 const Clip = () => {
   const router = useRouter();
   const { user } = useUser();
+  const { network } = useNetworkContext();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient({
     onSuccess(data) {
@@ -94,13 +101,52 @@ const Clip = () => {
 
   const [clipRange, setClipRange] = useState<[number, number]>([0, 0]);
   const [title, setTitle] = useState("");
-  const [channelId, setChannelId] = useState<string | null>(null);
-  const [chainId, setChainId] = useState<number>(8453);
+  const [channelId, setChannelId] = useState<string | null>("29");
+  const [progressMessage, setProgressMessage] = useState("...loading...");
+  const [pageState, setPageState] = useState<
+    "offline" | "clipping" | "selecting" | "trimming" | "sharing" | "error"
+  >("selecting");
+  const [progressPercentage, setProgressPercentage] = useState(0);
   const [roughClipUrl, setRoughClipUrl] = useState(
-    ""
-    // "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a5e1mb4vfge22uvr/1200p0.mp4"
+    // ""
+    "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a5e1mb4vfge22uvr/1200p0.mp4"
   );
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [finalClipObject, setFinalClipObject] = useState<
+    PostNfcInput | undefined
+  >(undefined);
+  const [nyanCatFaceForward, setNyanCatFaceForward] = useState(
+    new Array(images.length).fill(true)
+  );
+
+  useEffect(() => {
+    if (pageState === "trimming") {
+      const interval = setInterval(() => {
+        setProgressPercentage((prevPercentage) => prevPercentage + 1);
+      }, 1400);
+
+      // Cleanup interval on component unmount or when trimming changes
+      return () => clearInterval(interval);
+    }
+  }, [pageState]);
+
+  const handleClickNyanCat = (index: number) => {
+    setNyanCatFaceForward((prev) => {
+      const newNyanCatFaceForward = [...prev];
+      newNyanCatFaceForward[index] = !prev[index];
+
+      const imageElement = document.getElementById(`scrolling-image-${index}`);
+      if (imageElement) {
+        imageElement.style.animation = "none";
+        imageElement.style.animation = `${
+          newNyanCatFaceForward[index]
+            ? "scrollImageForward"
+            : "scrollImageBackward"
+        } 20s linear infinite`;
+      }
+
+      return newNyanCatFaceForward;
+    });
+  };
 
   const [
     getChannelById,
@@ -145,12 +191,6 @@ const Clip = () => {
     },
   });
 
-  const { concatenateOutroTrimmedVideo } = useConcatenateOutroTrimmedVideo({
-    onError: (e) => {
-      console.log("concatenateOutroTrimmedVideo Error", e);
-    },
-  });
-
   const { updateUserChannelContract1155Mapping } =
     useUpdateUserChannelContract1155Mapping({
       onError: () => {
@@ -176,29 +216,35 @@ const Clip = () => {
     if (channelId) getChannelById();
   }, [channelId]);
 
-  useEffect(() => {
-    const init = async () => {
-      if (!getChannelByIdData) return;
-      setIsLoading(true);
-      try {
-        const { res } = await createClip({
-          title: `rough-clip-${Date.now()}`,
-          channelId: getChannelByIdData.getChannelById?.id,
-          livepeerPlaybackId:
-            getChannelByIdData.getChannelById?.livepeerPlaybackId,
-          noDatabasePush: true,
-        });
-        const url = res?.url;
-        if (url) {
-          setRoughClipUrl(url);
-        } else {
-          console.log("Error, url is missing");
-        }
-      } catch (e) {}
-      setIsLoading(false);
-    };
-    init();
-  }, [getChannelByIdData]);
+  // useEffect(() => {
+  //   const init = async () => {
+  //     if (!getChannelByIdData || !user) return;
+  //     if (!getChannelByIdData.getChannelById?.isLive) {
+  //       setPageState("offline");
+  //       return;
+  //     }
+  //     setPageState("clipping");
+  //     try {
+  //       const { res } = await createClip({
+  //         title: `rough-clip-${Date.now()}`,
+  //         channelId: getChannelByIdData.getChannelById?.id,
+  //         livepeerPlaybackId:
+  //           getChannelByIdData.getChannelById?.livepeerPlaybackId,
+  //         noDatabasePush: true,
+  //       });
+  //       const url = res?.url;
+  //       if (url) {
+  //         setRoughClipUrl(url);
+  //       } else {
+  //         console.log("Error, url is missing");
+  //       }
+  //       setPageState("selecting");
+  //     } catch (e) {
+  //       setPageState("error");
+  //     }
+  //   };
+  //   init();
+  // }, [getChannelByIdData, user]);
 
   useEffect(() => {
     if (roughClipUrl && videoRef.current) {
@@ -239,12 +285,13 @@ const Clip = () => {
       !channelId ||
       clipRange[0] >= clipRange[1] ||
       !getChannelByIdData ||
-      !chainId ||
+      !network.chainId ||
       !walletClient?.account.address ||
       !user
     )
       return;
     try {
+      setPageState("trimming");
       const { data: mapping } = await fetchUserChannelContract1155Mapping({
         variables: { data: { address: user?.address as string } },
       });
@@ -254,6 +301,7 @@ const Clip = () => {
       console.log("existingContract1155Address", existingContract1155Address);
       const trimFunctionStart = Date.now();
       console.log("trimVideo function start", trimFunctionStart);
+      setProgressMessage("...trimming video...");
       const trimRes = await trimVideo({
         startTime: clipRange[0],
         endTime: clipRange[1],
@@ -264,6 +312,7 @@ const Clip = () => {
         "time took to trim",
         `${(Date.now() - trimFunctionStart) / 1000}s`
       );
+      setProgressMessage("...uploading video...");
       // const concatStart = Date.now();
       // const outputIdentifier = trimRes?.res;
       // await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -302,7 +351,7 @@ const Clip = () => {
       if (!videoThumbnail || !videoLink) return;
 
       // CREATE TOKEN METADATA
-
+      setProgressMessage("...uploading blob to ipfs...");
       const { pinRes: videoFileIpfsUrl } = await createFileBlobAndPinWithPinata(
         String(videoLink),
         "video.mp4",
@@ -365,8 +414,11 @@ const Clip = () => {
       console.log("contractObject", contractObject);
 
       // CREATE 1155 CONTRACT AND TOKEN
-
-      const creatorClient = createCreatorClient({ chainId, publicClient });
+      setProgressMessage("...handling 1155 contract and token...");
+      const creatorClient = createCreatorClient({
+        chainId: network.chainId,
+        publicClient,
+      });
       const { parameters } = await creatorClient.create1155({
         contract: contractObject,
         token: {
@@ -383,6 +435,8 @@ const Clip = () => {
       let tokenId = -1;
       if (predicted.splitExists) {
         console.log("split exists");
+        setProgressMessage("...minting...");
+
         const transaction = await handleWriteCreate1155(parameters);
         const logs = transaction?.logs ?? [];
         console.log("transaction logs", logs);
@@ -412,6 +466,7 @@ const Clip = () => {
         if (typeof contractObject === "string") {
           console.log("split does not exist and contractObject is string");
           if (splitCallData && splitAddress && walletClient?.account.address) {
+            setProgressMessage("...creating split...");
             const splitCreationHash = await walletClient.sendTransaction({
               to: splitAddress as Address,
               account: walletClient?.account.address as Address,
@@ -424,6 +479,7 @@ const Clip = () => {
               });
             const splitLogs = splitTransaction?.logs;
             console.log("splitTransaction logs", splitLogs);
+            setProgressMessage("...minting...");
 
             const transaction = await handleWriteCreate1155(parameters);
             const logs = transaction?.logs ?? [];
@@ -478,6 +534,7 @@ const Clip = () => {
           });
 
           console.log("simulated multicall3 request", request);
+          setProgressMessage("...minting...");
 
           // execute the transaction
           const hash = await walletClient
@@ -519,33 +576,34 @@ const Clip = () => {
           }
         }
       }
+      setProgressMessage("...wrapping up...");
       if (freqAddress && channelId && !existingContract1155Address) {
         await updateUserChannelContract1155Mapping({
           channelId: channelId,
           contract1155Address: freqAddress,
-          contract1155ChainId: chainId,
+          contract1155ChainId: network.chainId,
           userAddress: user?.address as Address,
         });
       }
 
       const postNfcObject: PostNfcInput = {
         title: title,
-        videoLink: videoLink,
-        videoThumbnail: videoThumbnail,
+        videoLink,
+        videoThumbnail,
         openseaLink: "",
-        channelId: channelId,
+        channelId,
         contract1155Address: freqAddress,
         zoraLink: `https://zora.co/collect/base:${freqAddress}/${tokenId}`,
-        tokenId: Number(tokenId),
+        tokenId,
       };
       console.log("postNfcObject", postNfcObject);
-      await postNFC(postNfcObject);
+      const postNFCRes = await postNFC(postNfcObject);
       await channel.publish({
         name: CHAT_MESSAGE_EVENT,
         data: {
           messageText: `${
             user?.username ?? centerEllipses(user.address, 13)
-          } clipped a highlight: ${title}`,
+          } clipped a highlight: "${title}"`,
           username: "🤖",
           address: NULL_ADDRESS,
           isFC: false,
@@ -554,12 +612,16 @@ const Clip = () => {
           senderStatus: SenderStatus.CHATBOT,
           body: JSON.stringify({
             interactionType: InteractionType.PUBLISH_NFC,
+            id: postNFCRes?.res?.id,
             ...postNfcObject,
           }),
         },
       });
+      setFinalClipObject(postNfcObject);
+      setPageState("sharing");
     } catch (e) {
       console.log("trimVideo frontend error", e);
+      setPageState("error");
     }
   }, [
     roughClipUrl,
@@ -567,7 +629,7 @@ const Clip = () => {
     title,
     channelId,
     getChannelByIdData,
-    chainId,
+    network.chainId,
     publicClient,
     walletClient,
   ]);
@@ -586,7 +648,7 @@ const Clip = () => {
         error: true,
       };
     const splitsClient = new SplitV1Client({
-      chainId,
+      chainId: network.chainId,
       publicClient: publicClient as PublicClient<HttpTransport, Chain>,
       apiConfig: {
         apiKey: String(process.env.NEXT_PUBLIC_SPLITS_API_KEY),
@@ -682,104 +744,172 @@ const Clip = () => {
   return (
     <Flex h="100vh" bg="rgba(5, 0, 31, 1)" direction={"column"}>
       <Header />
+      {pageState === "clipping" && (
+        <div
+          className="image-container"
+          style={{
+            position: "fixed",
+          }}
+        >
+          {images.map((image, index) => (
+            <img
+              key={index}
+              id={`scrolling-image-${index}`}
+              src={image.src}
+              className={
+                nyanCatFaceForward[index]
+                  ? "scroll-image-forward"
+                  : "scroll-image-backward"
+              }
+              onClick={() => handleClickNyanCat(index)}
+              style={{
+                top: image.top,
+                animationDelay: image.delay,
+                cursor: "pointer",
+              }}
+              alt={`scrolling-image-${index}`}
+            />
+          ))}
+        </div>
+      )}
       <Flex p="20" justifyContent={"center"}>
         <Flex flexDirection={"column"} gap="10px">
-          {roughClipUrl ? (
-            <video
-              ref={videoRef}
-              src={roughClipUrl.concat("#t=0.1")}
-              style={{
-                height: "500px",
-              }}
-              onTimeUpdate={handleTimeUpdate}
-              onSeeking={handleSeeking}
-              controls
-              onEnded={() => {
-                videoRef.current!.currentTime = clipRange[0];
-                videoRef.current!.play();
-              }}
-            />
-          ) : (
-            <>
-              <Flex fontSize="20px" justifyContent={"center"}>
-                <WavyText
-                  text="creating rough clip, please wait..."
-                  modifier={0.008}
-                />
-              </Flex>
-              <Skeleton
-                startColor="#575757"
-                endColor="#b2b2b2ff"
-                height={"500px"}
-                width={"80vh"}
-              ></Skeleton>
-              <Skeleton
-                startColor="#575757"
-                endColor="#b2b2b2ff"
-                height={"100px"}
-                width={"80vh"}
-              ></Skeleton>
-              <Skeleton
-                startColor="#575757"
-                endColor="#b2b2b2ff"
-                height={"50px"}
-                width={"80vh"}
-              ></Skeleton>
-              <Skeleton
-                startColor="#575757"
-                endColor="#b2b2b2ff"
-                height={"50px"}
-                width={"80vh"}
-              ></Skeleton>
-            </>
-          )}
-          {roughClipUrl && (
-            <>
-              <RangeSlider
-                aria-label={["min", "max"]}
-                defaultValue={[0, 100]}
-                min={0}
-                max={videoRef.current?.duration || 100}
-                value={clipRange}
-                onChange={handleRangeChange}
+          {pageState === "offline" ? (
+            <Text
+              fontSize="30px"
+              mb="30px"
+              textAlign="center"
+              fontWeight={"bold"}
+            >
+              Cannot clip, livestream is offline
+            </Text>
+          ) : pageState === "trimming" ? (
+            <Flex direction={"column"}>
+              <Text
+                fontSize="30px"
+                mb="30px"
+                textAlign="center"
+                fontWeight={"bold"}
               >
-                <RangeSliderTrack height="40px" backgroundColor="#414141">
-                  <RangeSliderFilledTrack color={"#343dbb"} />
-                </RangeSliderTrack>
-                <RangeSliderThumb height={"40px"} borderRadius={0} index={0}>
-                  <MdDragIndicator color={"#343dbb"} size={"40"} />
-                </RangeSliderThumb>
-                <RangeSliderThumb height={"40px"} borderRadius={0} index={1}>
-                  <MdDragIndicator color={"#343dbb"} size={"40"} />
-                </RangeSliderThumb>
-              </RangeSlider>
-              <Input
-                variant="glow"
-                placeholder={"title"}
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                DO NOT CLOSE TAB, you'll get a wallet txn prompt in 1-2 mins
+              </Text>
+              <Progress
+                colorScheme="green"
+                height="32px"
+                value={progressPercentage}
               />
-              <Button
-                position="relative"
-                onClick={() => {
-                  if (title) handleTrimVideo();
-                }}
-                isDisabled={!title}
+              <Text mt="30px" textAlign="center">
+                {progressMessage}
+              </Text>
+            </Flex>
+          ) : pageState === "clipping" ? (
+            <Flex direction={"column"}>
+              <Text fontSize="30px" mb="10px" textAlign="center">
+                CLIP IS LOADING
+              </Text>
+              <Text
+                fontSize="30px"
+                mb="30px"
+                textAlign="center"
+                fontWeight={"bold"}
               >
-                <Box
-                  position="absolute"
-                  top="0"
-                  left="0"
-                  height="100%"
-                  bg="green.400"
-                  zIndex="1"
-                />
-                <Text position="relative" zIndex="2" width="100%">
-                  {isLoading ? <Spinner /> : "Send to publish"}
+                DO NOT CLOSE TAB
+              </Text>
+
+              <Text fontSize="30px" textAlign="center" mb="100px">
+                (OR NYAN CAT WILL COME FOR YOU)
+              </Text>
+              <Text fontSize="20px" textAlign="center">
+                this may take up to 30s depending on your connection
+              </Text>
+            </Flex>
+          ) : roughClipUrl && pageState === "selecting" ? (
+            <>
+              <video
+                ref={videoRef}
+                src={roughClipUrl.concat("#t=0.1")}
+                style={{
+                  height: "500px",
+                }}
+                onTimeUpdate={handleTimeUpdate}
+                onSeeking={handleSeeking}
+                controls
+                onEnded={() => {
+                  videoRef.current!.currentTime = clipRange[0];
+                  videoRef.current!.play();
+                }}
+              />
+              <>
+                <RangeSlider
+                  aria-label={["min", "max"]}
+                  defaultValue={[0, 100]}
+                  min={0}
+                  max={videoRef.current?.duration || 100}
+                  value={clipRange}
+                  onChange={handleRangeChange}
+                >
+                  <RangeSliderTrack height="40px" backgroundColor="#414141">
+                    <RangeSliderFilledTrack color={"#343dbb"} />
+                  </RangeSliderTrack>
+                  <RangeSliderThumb height={"40px"} borderRadius={0} index={0}>
+                    <MdDragIndicator color={"#343dbb"} size={"40"} />
+                  </RangeSliderThumb>
+                  <RangeSliderThumb height={"40px"} borderRadius={0} index={1}>
+                    <MdDragIndicator color={"#343dbb"} size={"40"} />
+                  </RangeSliderThumb>
+                </RangeSlider>
+                <Text h="20px">
+                  {!title
+                    ? "Enter a title for this clip"
+                    : clipRange[1] - clipRange[0] > 30
+                    ? "clip must be 30s long or under"
+                    : clipRange[1] - clipRange[0] < 2
+                    ? "clip must be at least 2s long"
+                    : ""}
                 </Text>
-              </Button>
+                <Input
+                  variant="glow"
+                  placeholder={"title"}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+                <Button
+                  position="relative"
+                  onClick={() => {
+                    if (title) handleTrimVideo();
+                  }}
+                  isDisabled={
+                    !title ||
+                    clipRange[1] - clipRange[0] > 30 ||
+                    clipRange[1] - clipRange[0] < 1
+                  }
+                >
+                  <Box
+                    position="absolute"
+                    top="0"
+                    left="0"
+                    height="100%"
+                    bg="green.400"
+                    zIndex="1"
+                  />
+                  <Text position="relative" zIndex="2" width="100%">
+                    Publish
+                  </Text>
+                </Button>
+              </>
             </>
-          )}
+          ) : pageState === "sharing" ? (
+            <>
+              <video
+                ref={videoRef}
+                src={finalClipObject?.videoLink.concat("#t=0.1")}
+                style={{
+                  height: "500px",
+                }}
+                controls
+              />
+            </>
+          ) : null}
         </Flex>
       </Flex>
     </Flex>

@@ -20,6 +20,7 @@ import { ChatUserModal_token } from "../channels/ChatUserModal_token";
 import useUpdatePinnedChatMessages from "../../hooks/server/channel/useUpdatePinnedChatMessages";
 import PinnedMessageBody from "./PinnedMessageBody";
 import { useZoraCollect1155 } from "../../hooks/contracts/useZoraCollect1155";
+import { TransactionReceipt } from "viem";
 
 type MessageListProps = {
   messages: Message[];
@@ -40,11 +41,13 @@ export type MessageItemProps = {
     tokenContract: `0x${string}`,
     tokenId: number,
     quantityToMint: number
-  ) => Promise<any>;
+  ) => Promise<TransactionReceipt | undefined>;
+  channel: AblyChannelPromise;
 };
 
 const MessageItem = memo(
   ({
+    channel,
     message,
     handleOpen,
     index,
@@ -64,6 +67,7 @@ const MessageItem = memo(
         }}
       >
         <MessageBody
+          channel={channel}
           index={index}
           message={message}
           messageText={messageText}
@@ -211,6 +215,7 @@ const MessageList = memo(
             initialTopMostItemIndex={chatMessages.length - 1}
             itemContent={(index, data) => (
               <MessageItem
+                channel={channel}
                 key={data.id || index}
                 message={data}
                 handleOpen={handleSelectedUserInChat}
