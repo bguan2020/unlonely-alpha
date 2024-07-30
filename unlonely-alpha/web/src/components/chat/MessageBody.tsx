@@ -23,41 +23,12 @@ import Badges from "./Badges";
 import { formatTimestampToTime } from "../../utils/time";
 import { TiPin } from "react-icons/ti";
 import { MessageItemProps } from "./MessageList";
+import { messageStyle } from "../../utils/messageStyle";
 
 type Props = MessageItemProps & {
   messageText: string;
   linkArray: RegExpMatchArray | null;
 };
-
-const eventTypes = [
-  InteractionType.EVENT_LIVE,
-  InteractionType.EVENT_LOCK,
-  InteractionType.EVENT_UNLOCK,
-  InteractionType.EVENT_PAYOUT,
-  InteractionType.PUBLISH_NFC,
-  InteractionType.MINT_NFC_IN_CHAT,
-];
-
-const adminTempTokenInteractionTypes = [
-  InteractionType.CREATE_TEMP_TOKEN,
-  InteractionType.CREATE_MULTIPLE_TEMP_TOKENS,
-  InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
-  InteractionType.TEMP_TOKEN_DURATION_INCREASED,
-  InteractionType.TEMP_TOKEN_BECOMES_ALWAYS_TRADEABLE,
-  InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED,
-  InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION,
-  InteractionType.VERSUS_WINNER_TOKENS_MINTED,
-  InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
-];
-
-const greenTempTokenInteractionTypes = [InteractionType.BUY_TEMP_TOKENS];
-
-const redTempTokenInteractionTypes = [
-  InteractionType.SELL_TEMP_TOKENS,
-  InteractionType.TEMP_TOKEN_EXPIRATION_WARNING,
-  InteractionType.TEMP_TOKEN_EXPIRED,
-  InteractionType.PRESALE_OVER,
-];
 
 // if isVipChat is true, messages with SenderStatus.VIP will be displayed, else they are blurred,
 // messages with SenderStatus.MODERATOR are always displayed when isVipChat is false or true.
@@ -91,6 +62,16 @@ const MessageBody = ({
       channelRoles?.some((m) => m?.address === user?.address && m?.role === 2),
     [user, channelRoles]
   );
+
+  const isNfcRelated = useMemo(() => {
+    return (
+      message.data.body &&
+      (JSON.parse(message.data.body).interactionType ===
+        InteractionType.PUBLISH_NFC ||
+        JSON.parse(message.data.body).interactionType ===
+          InteractionType.MINT_NFC_IN_CHAT)
+    );
+  }, [message.data.body]);
 
   const normalUserReceivesVipMessages = useMemo(
     () =>
@@ -127,101 +108,6 @@ const MessageBody = ({
     return fragments;
   }, [messageText, linkArray]);
 
-  const messageStyle = () => {
-    if (
-      message.data.body &&
-      (eventTypes as string[]).includes(
-        JSON.parse(message.data.body).interactionType ??
-          message.data.body.split(":")[0]
-      )
-    ) {
-      return {
-        bg: "rgba(63, 59, 253, 1)",
-      };
-    } else if (
-      message.data.body &&
-      (adminTempTokenInteractionTypes as string[]).includes(
-        JSON.parse(message.data.body).interactionType ??
-          message.data.body.split(":")[0]
-      )
-    ) {
-      return {
-        bg: "rgba(34, 167, 255, 0.26)",
-        textColor: "#7ef0ff",
-        fontStyle: "italic",
-        fontWeight: "bold",
-        showTimestamp: true,
-      };
-    } else if (
-      message.data.body &&
-      (greenTempTokenInteractionTypes as string[]).includes(
-        JSON.parse(message.data.body).interactionType ??
-          message.data.body.split(":")[0]
-      )
-    ) {
-      return {
-        bg: "rgba(55, 255, 139, 0.26)",
-        textColor: "rgba(55, 255, 139, 1)",
-        fontStyle: "italic",
-        fontWeight: "bold",
-        showTimestamp: true,
-      };
-    } else if (
-      message.data.body &&
-      (redTempTokenInteractionTypes as string[]).includes(
-        JSON.parse(message.data.body).interactionType ??
-          message.data.body.split(":")[0]
-      )
-    ) {
-      return {
-        bg: "rgba(255, 0, 0, 0.26)",
-        textColor: "#ffadad",
-        fontStyle: "italic",
-        fontWeight: "bold",
-        showTimestamp: true,
-      };
-    } else if (
-      message.data.body &&
-      message.data.body.split(":")[0] === InteractionType.CLIP
-    ) {
-      return {
-        bgGradient:
-          "linear-gradient(138deg, rgba(0,0,0,1) 10%, rgba(125,125,125,1) 11%, rgba(125,125,125,1) 20%, rgba(0,0,0,1) 21%, rgba(0,0,0,1) 30%, rgba(125,125,125,1) 31%, rgba(125,125,125,1) 40%, rgba(0,0,0,1) 41%, rgba(0,0,0,1) 50%, rgba(125,125,125,1) 51%, rgba(125,125,125,1) 60%, rgba(0,0,0,1) 61%, rgba(0,0,0,1) 70%, rgba(125,125,125,1) 71%, rgba(125,125,125,1) 80%, rgba(0,0,0,1) 81%, rgba(0,0,0,1) 90%, rgba(125,125,125,1) 91%)",
-      };
-    } else if (
-      message.data.body &&
-      message.data.body.split(":")[0] === InteractionType.BUY_VOTES
-    ) {
-      if (message.data.body?.split(":")[3] === "yay") {
-        return {
-          bg: "#1B9C9C",
-        };
-      } else {
-        return {
-          bg: "#D343F7",
-        };
-      }
-    } else if (
-      message.data.body &&
-      message.data.body.split(":")[0] === InteractionType.BUY_VIBES
-    ) {
-      return {
-        bg: "rgba(10, 179, 18, 1)",
-      };
-    } else if (
-      message.data.body &&
-      message.data.body.split(":")[0] === InteractionType.SELL_VIBES
-    ) {
-      return {
-        bg: "rgba(218, 58, 19, 1)",
-      };
-    } else {
-      return {
-        // bg: "rgba(19, 18, 37, 1)",
-      };
-    }
-  };
-
   return (
     <>
       <Flex
@@ -242,23 +128,19 @@ const MessageBody = ({
           justifyContent={
             user?.address === message.data.address ? "end" : "start"
           }
-          bg={messageStyle().bg}
-          bgGradient={messageStyle().bgGradient}
+          bg={messageStyle(message.data.body).bg}
+          bgGradient={messageStyle(message.data.body).bgGradient}
           borderRadius="10px"
           position={"relative"}
         >
-          {message.data.body &&
-          (JSON.parse(message.data.body).interactionType ===
-            InteractionType.PUBLISH_NFC ||
-            JSON.parse(message.data.body).interactionType ===
-              InteractionType.MINT_NFC_IN_CHAT) ? (
+          {isNfcRelated ? (
             <Box key={index} p="0.3rem" position="relative" width="100%">
               <Flex direction="column" justifyContent={"center"}>
                 <Text
                   as="span"
-                  color={messageStyle().textColor ?? "white"}
-                  fontStyle={messageStyle().fontStyle}
-                  fontWeight={messageStyle().fontWeight}
+                  color={messageStyle(message.data.body).textColor ?? "white"}
+                  fontStyle={messageStyle(message.data.body).fontStyle}
+                  fontWeight={messageStyle(message.data.body).fontWeight}
                   fontSize={"12px"}
                   wordBreak="break-word"
                   textAlign="left"
@@ -437,9 +319,11 @@ const MessageBody = ({
                   {!message.data.isGif && !linkArray && (
                     <Text
                       as="span"
-                      color={messageStyle().textColor ?? "white"}
-                      fontStyle={messageStyle().fontStyle}
-                      fontWeight={messageStyle().fontWeight}
+                      color={
+                        messageStyle(message.data.body).textColor ?? "white"
+                      }
+                      fontStyle={messageStyle(message.data.body).fontStyle}
+                      fontWeight={messageStyle(message.data.body).fontWeight}
                       fontSize={"12px"}
                       wordBreak="break-word"
                       textAlign="left"
@@ -461,14 +345,15 @@ const MessageBody = ({
               </Box>
             </Flex>
           )}
-          {messageStyle().showTimestamp && message.data.username === "🤖" && (
-            <Flex bg="rgba(0, 0, 0, 0.1)" px="0.4rem">
-              <Text fontSize="10px" whiteSpace={"nowrap"} fontStyle="italic">
-                {formatTimestampToTime(message.timestamp)}
-              </Text>
-            </Flex>
-          )}
-          {mouseHover && (
+          {messageStyle(message.data.body).showTimestamp &&
+            message.data.username === "🤖" && (
+              <Flex bg="rgba(0, 0, 0, 0.1)" px="0.4rem">
+                <Text fontSize="10px" whiteSpace={"nowrap"} fontStyle="italic">
+                  {formatTimestampToTime(message.timestamp)}
+                </Text>
+              </Flex>
+            )}
+          {mouseHover && !isNfcRelated && (
             <IconButton
               right="2"
               bottom="0"
