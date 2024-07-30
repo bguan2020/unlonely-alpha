@@ -861,6 +861,8 @@ const Clip = () => {
                 <Text h="20px">
                   {!title
                     ? "Enter a title for this clip"
+                    : title.length > 100
+                    ? "title must be 100 characters or under"
                     : clipRange[1] - clipRange[0] > 30
                     ? "clip must be 30s long or under"
                     : clipRange[1] - clipRange[0] < 2
@@ -881,7 +883,8 @@ const Clip = () => {
                   isDisabled={
                     !title ||
                     clipRange[1] - clipRange[0] > 30 ||
-                    clipRange[1] - clipRange[0] < 1
+                    clipRange[1] - clipRange[0] < 2 ||
+                    title.length > 100
                   }
                 >
                   <Box
