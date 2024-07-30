@@ -101,15 +101,15 @@ const Clip = () => {
 
   const [clipRange, setClipRange] = useState<[number, number]>([0, 0]);
   const [title, setTitle] = useState("");
-  const [channelId, setChannelId] = useState<string | null>("29");
+  const [channelId, setChannelId] = useState<string | null>(null);
   const [progressMessage, setProgressMessage] = useState("...loading...");
   const [pageState, setPageState] = useState<
     "offline" | "clipping" | "selecting" | "trimming" | "sharing" | "error"
   >("selecting");
   const [progressPercentage, setProgressPercentage] = useState(0);
   const [roughClipUrl, setRoughClipUrl] = useState(
-    // ""
-    "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a5e1mb4vfge22uvr/1200p0.mp4"
+    ""
+    // "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a5e1mb4vfge22uvr/1200p0.mp4"
   );
   const [finalClipObject, setFinalClipObject] = useState<
     PostNfcInput | undefined
@@ -216,35 +216,35 @@ const Clip = () => {
     if (channelId) getChannelById();
   }, [channelId]);
 
-  // useEffect(() => {
-  //   const init = async () => {
-  //     if (!getChannelByIdData || !user) return;
-  //     if (!getChannelByIdData.getChannelById?.isLive) {
-  //       setPageState("offline");
-  //       return;
-  //     }
-  //     setPageState("clipping");
-  //     try {
-  //       const { res } = await createClip({
-  //         title: `rough-clip-${Date.now()}`,
-  //         channelId: getChannelByIdData.getChannelById?.id,
-  //         livepeerPlaybackId:
-  //           getChannelByIdData.getChannelById?.livepeerPlaybackId,
-  //         noDatabasePush: true,
-  //       });
-  //       const url = res?.url;
-  //       if (url) {
-  //         setRoughClipUrl(url);
-  //       } else {
-  //         console.log("Error, url is missing");
-  //       }
-  //       setPageState("selecting");
-  //     } catch (e) {
-  //       setPageState("error");
-  //     }
-  //   };
-  //   init();
-  // }, [getChannelByIdData, user]);
+  useEffect(() => {
+    const init = async () => {
+      if (!getChannelByIdData || !user) return;
+      if (!getChannelByIdData.getChannelById?.isLive) {
+        setPageState("offline");
+        return;
+      }
+      setPageState("clipping");
+      try {
+        const { res } = await createClip({
+          title: `rough-clip-${Date.now()}`,
+          channelId: getChannelByIdData.getChannelById?.id,
+          livepeerPlaybackId:
+            getChannelByIdData.getChannelById?.livepeerPlaybackId,
+          noDatabasePush: true,
+        });
+        const url = res?.url;
+        if (url) {
+          setRoughClipUrl(url);
+        } else {
+          console.log("Error, url is missing");
+        }
+        setPageState("selecting");
+      } catch (e) {
+        setPageState("error");
+      }
+    };
+    init();
+  }, [getChannelByIdData, user]);
 
   useEffect(() => {
     if (roughClipUrl && videoRef.current) {

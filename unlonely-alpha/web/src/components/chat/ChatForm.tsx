@@ -320,7 +320,7 @@ const ChatForm = ({
                       >
                         <PopoverArrow bg="#1557c0" />
                         <Text fontSize="12px" textAlign={"center"}>
-                          clip the last 30 secs as an NFC!
+                          clip moments in the stream as NFTs!
                         </Text>
                       </PopoverContent>
                     </Popover>
