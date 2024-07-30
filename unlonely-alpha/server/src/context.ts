@@ -29,12 +29,12 @@ export const getContext: ContextFunction = async ({
   try {
     const { userId } = await privyClient.verifyAuthToken(authToken);
     const user = await privyClient.getUser(userId);
-    console.log(
-      "Authentication underway:",
-      new Date(Date.now()).toLocaleString(),
-      latestVerifiedAddress,
-      userId
-    );
+    // console.log(
+    //   "Authentication underway:",
+    //   new Date(Date.now()).toLocaleString(),
+    //   latestVerifiedAddress,
+    //   userId
+    // );
     address = latestVerifiedAddress || user.wallet?.address;
     validated = true;
   } catch (e) {
@@ -43,12 +43,12 @@ export const getContext: ContextFunction = async ({
 
   const user = address ? await findOrCreateUser({ address: address }) : null;
 
-  if (user)
-    console.log(
-      "Authentication success :",
-      new Date(Date.now()).toLocaleString(),
-      user.address
-    );
+  // if (user)
+    // console.log(
+    //   "Authentication success :",
+    //   new Date(Date.now()).toLocaleString(),
+    //   user.address
+    // );
 
   return {
     prisma: prisma,

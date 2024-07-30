@@ -246,6 +246,7 @@ const Clip = () => {
       );
       const concatStart = Date.now();
       const outputIdentifier = trimRes?.res;
+      await new Promise((resolve) => setTimeout(resolve, 5000));
       console.log("outputIdentifier", outputIdentifier);
       const concatRes = await concatenateOutroTrimmedVideo({
         trimmedVideoFileName: String(outputIdentifier),

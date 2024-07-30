@@ -370,8 +370,12 @@ export const trimVideo = async (data: ITrimVideoInput) => {
   const inputPath = path.join(__dirname, "temp", `${videoId}-input.mp4`);
   const outputPath = path.join(__dirname, "temp", `${videoId}-output.mp4`);
 
+  console.log("videoId", videoId);
+  console.log("inputPath", inputPath);
+  console.log("outputPath", outputPath);
+
   try {
-    const start = Date.now();
+    // const start = Date.now();
 
     const downloadResponse = await axios({
       url: data.videoLink,
@@ -386,7 +390,7 @@ export const trimVideo = async (data: ITrimVideoInput) => {
       writer.on("error", reject);
     });
 
-    console.log("downloaded video", `${(Date.now() - start) / 1000}s`);
+    // console.log("downloaded video", `${(Date.now() - start) / 1000}s`);
     const trimStart = Date.now();
 
     // Trim the video using FFmpeg
@@ -431,9 +435,11 @@ export type IConcatenateOutroToTrimmedVideoInput = {
 };
 
 export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTrimmedVideoInput) => {
+
   const videoId = uuidv4();
   const trimmedFilePath = searchFileInTempDirectory(data.trimmedVideoFileName, "temp");
   if (!trimmedFilePath) {
+    console.log("Trimmed video file not found");
     throw new Error("Trimmed video file not found");
   }
   const outroPath = path.join(__dirname, "temp", `${videoId}-outro.mp4`);
@@ -442,11 +448,11 @@ export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTr
   console.log(outroPath, finalPath, trimmedFilePath);
 
   try {
-  const requestForFinalStart = Date.now();
+  // const requestForFinalStart = Date.now();
   const requestResForFinal = await requestUploadFromLivepeer({ name: data.name });
 
-  console.log("requested upload from livepeer", `${(Date.now() - requestForFinalStart) / 1000}s`);
-  const watermarkStart = Date.now();
+  // console.log("requested upload from livepeer", `${(Date.now() - requestForFinalStart) / 1000}s`);
+  // const watermarkStart = Date.now();
 
   // Create an outro video with the watermark image
   const watermarkImage = path.join(__dirname, "../../../assets", "unlonely-watermark.png");
@@ -478,7 +484,7 @@ export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTr
       .run();
   });
 
-  console.log("created outro video", `${(Date.now() - watermarkStart) / 1000}s`);
+  // console.log("created outro video", `${(Date.now() - watermarkStart) / 1000}s`);
   const concatStart = Date.now();
 
   // Concatenate the trimmed video with the outro
@@ -536,10 +542,10 @@ export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTr
       },
       onProgress: (bytesUploaded: number, bytesTotal: number) => {
         const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-        console.log(`Upload progress: ${percentage}%`);
+        // console.log(`Upload progress: ${percentage}%`);
       },
       onSuccess: () => {
-        console.log(`Upload finished: ${upload.url}`);
+        // console.log(`Upload finished: ${upload.url}`);
         resolve(upload.url!);
         // Clean up temporary files
         fs.unlinkSync(trimmedFilePath);
@@ -556,7 +562,7 @@ export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTr
     });
   });
 
-  console.log("uploaded final video", `${(Date.now() - uploadStart) / 1000}s`);
+  // console.log("uploaded final video", `${(Date.now() - uploadStart) / 1000}s`);
   return requestResForFinal.asset.id
 } catch (e) {
   console.log("Error:", e);
