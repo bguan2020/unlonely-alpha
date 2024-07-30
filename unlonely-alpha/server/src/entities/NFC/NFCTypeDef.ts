@@ -133,6 +133,7 @@ export const typeDef = gql`
     startTime: Float!
     endTime: Float!
     videoLink: String!
+    name: String!
   }
 
   input ConcatenateOutroToTrimmedVideoInput {

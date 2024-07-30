@@ -372,6 +372,7 @@ export interface ITrimVideoInput {
   startTime: number;
   endTime: number;
   videoLink: string;
+  name: string;
 }
 
 export const trimVideo = async (data: ITrimVideoInput) => {
@@ -426,10 +427,10 @@ export const trimVideo = async (data: ITrimVideoInput) => {
         .on("error", (err) => {
           console.error("Error processing video:", err);
           reject(err);
-          // fs.unlinkSync(inputPath);
-          // if (fs.existsSync(outputPath)) {
-          //   fs.unlinkSync(outputPath);
-          // }
+          fs.unlinkSync(inputPath);
+          if (fs.existsSync(outputPath)) {
+            fs.unlinkSync(outputPath);
+          }
         })
         .run();
     });
@@ -442,7 +443,7 @@ export const trimVideo = async (data: ITrimVideoInput) => {
       console.log("Trimmed video file found", foundOutputPath);
     }
 
-    // fs.unlinkSync(inputPath);
+    fs.unlinkSync(inputPath);
 
     console.log("trimmed video", `${(Date.now() - trimStart) / 1000}s`);
 
@@ -451,8 +452,7 @@ export const trimVideo = async (data: ITrimVideoInput) => {
     const finalFileStream = fs.createReadStream(foundOutputPath);
     
     const requestResForFinal = await requestUploadFromLivepeer({ name: 
-      // data.name
-      "test-please"
+      data.name
      });
 
     new Promise<string>((resolve, reject) => {
@@ -460,8 +460,7 @@ export const trimVideo = async (data: ITrimVideoInput) => {
         endpoint: requestResForFinal.tusEndpoint,
         retryDelays: [0, 1000, 3000, 5000],
         metadata: {
-          // filename: `${data.name}.mp4`,
-          filename: "test-please.mp4",
+          filename: `${data.name}.mp4`,
           filetype: "video/mp4",
         },
         uploadSize: finalFileSize,
@@ -478,7 +477,7 @@ export const trimVideo = async (data: ITrimVideoInput) => {
           resolve(upload.url!);
           // Clean up temporary files
           // fs.unlinkSync(trimmedFilePath);
-          // fs.unlinkSync(outroPath);
+          fs.unlinkSync(foundOutputPath);
           // fs.unlinkSync(finalPath);
         },
       });
@@ -491,18 +490,16 @@ export const trimVideo = async (data: ITrimVideoInput) => {
       });
     });
 
-  // console.log("uploaded final video", `${(Date.now() - uploadStart) / 1000}s`);
   return requestResForFinal.asset.id
-    // return `${videoId}`;
   } catch (e) {
     console.log("Error:", e);
     // Clean up temporary files
-    // if (fs.existsSync(inputPath)) {
-      // fs.unlinkSync(inputPath);
-    // }
-    // if (fs.existsSync(outputPath)) {
-      // fs.unlinkSync(outputPath);
-    // }
+    if (fs.existsSync(inputPath)) {
+      fs.unlinkSync(inputPath);
+    }
+    if (fs.existsSync(outputPath)) {
+      fs.unlinkSync(outputPath);
+    }
     throw e;
   }
 }

@@ -239,6 +239,7 @@ const Clip = () => {
         startTime: clipRange[0],
         endTime: clipRange[1],
         videoLink: roughClipUrl,
+        name: title,
       });
       console.log(
         "time took to trim",

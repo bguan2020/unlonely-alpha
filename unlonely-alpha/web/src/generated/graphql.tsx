@@ -1430,6 +1430,7 @@ export type ToggleSubscriptionInput = {
 
 export type TrimVideoInput = {
   endTime: Scalars["Float"];
+  name: Scalars["String"];
   startTime: Scalars["Float"];
   videoLink: Scalars["String"];
 };
