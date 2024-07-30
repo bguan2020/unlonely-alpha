@@ -19,18 +19,28 @@ const livepeerHeaders = {
   "Content-Type": "application/json",
 };
 
-export const searchFileInTempDirectory = (substring: string, dir: string): string | null => {
+const searchFileInTempDirectory = (substring: string, dir: string, retries = 5, delay = 1000): Promise<string | null> => {
   const tempDir = path.join(__dirname, dir);
-  const files = fs.readdirSync(tempDir);
+  let attempts = 0;
 
-  for (const file of files) {
-    console.log(`searching for ${substring}, got`, file);
-    if (file.includes(substring)) {
-      return path.join(tempDir, file);
-    }
-  }
-
-  return null;
+  return new Promise((resolve, reject) => {
+    const search = () => {
+      attempts++;
+      const files = fs.readdirSync(tempDir);
+      for (const file of files) {
+        console.log(`searching for ${substring}, got`, file);
+        if (file.includes(substring)) {
+          return resolve(path.join(tempDir, file));
+        }
+      }
+      if (attempts < retries) {
+        setTimeout(search, delay);
+      } else {
+        resolve(null);
+      }
+    };
+    search();
+  });
 };
 
 interface ClipData {
@@ -437,7 +447,7 @@ export type IConcatenateOutroToTrimmedVideoInput = {
 export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTrimmedVideoInput) => {
 
   const videoId = uuidv4();
-  const trimmedFilePath = searchFileInTempDirectory(data.trimmedVideoFileName, "temp");
+  const trimmedFilePath = await searchFileInTempDirectory(data.trimmedVideoFileName, "temp");
   if (!trimmedFilePath) {
     console.log("Trimmed video file not found");
     throw new Error("Trimmed video file not found");
