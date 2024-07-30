@@ -136,7 +136,7 @@ export const typeDef = gql`
   }
 
   input ConcatenateOutroToTrimmedVideoInput {
-    trimmedVideoPath: String!
+    trimmedVideoFileName: String!
     name: String!
   }
 

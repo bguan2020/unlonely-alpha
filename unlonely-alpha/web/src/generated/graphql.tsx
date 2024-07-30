@@ -242,7 +242,7 @@ export type CloseSideBetInput = {
 
 export type ConcatenateOutroToTrimmedVideoInput = {
   name: Scalars["String"];
-  trimmedVideoPath: Scalars["String"];
+  trimmedVideoFileName: Scalars["String"];
 };
 
 export type CreateClipInput = {

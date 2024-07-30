@@ -24,7 +24,7 @@ const useConcatenateOutroTrimmedVideo = ({ onError }: Props) => {
       const mutationResult = await mutate({
         variables: {
           data: {
-            trimmedVideoPath: data.trimmedVideoPath,
+            trimmedVideoFileName: data.trimmedVideoFileName,
             name: data.name,
           },
         },

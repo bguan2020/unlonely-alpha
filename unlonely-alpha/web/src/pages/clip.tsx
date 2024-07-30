@@ -245,10 +245,10 @@ const Clip = () => {
         `${(Date.now() - trimFunctionStart) / 1000}s`
       );
       const concatStart = Date.now();
-      const outputPath = trimRes?.res;
-      console.log("outputPath", outputPath);
+      const outputIdentifier = trimRes?.res;
+      console.log("outputIdentifier", outputIdentifier);
       const concatRes = await concatenateOutroTrimmedVideo({
-        trimmedVideoPath: String(outputPath),
+        trimmedVideoFileName: String(outputIdentifier),
         name: title,
       });
       console.log(
@@ -520,7 +520,7 @@ const Clip = () => {
       console.log("postNfcObject", postNfcObject);
       await postNFC(postNfcObject);
     } catch (e) {
-      console.log("trimVideo error", e);
+      console.log("trimVideo frontend error", e);
     }
   }, [
     roughClipUrl,

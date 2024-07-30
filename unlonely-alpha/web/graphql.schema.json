@@ -1587,7 +1587,7 @@
             "deprecationReason": null
           },
           {
-            "name": "trimmedVideoPath",
+            "name": "trimmedVideoFileName",
             "description": null,
             "type": {
               "kind": "NON_NULL",

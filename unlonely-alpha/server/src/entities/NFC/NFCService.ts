@@ -7,16 +7,30 @@ import { Context } from "../../context";
 import { getLivepeerThumbnail } from "../Channel/channelService";
 import opensea from "./opensea.json";
 import {v4 as uuidv4} from "uuid";
-import path from "path";
 import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
 import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
+import path from "path";
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
 const livepeerHeaders = {
   Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
   "Content-Type": "application/json",
+};
+
+export const searchFileInTempDirectory = (substring: string, dir: string): string | null => {
+  const tempDir = path.join(__dirname, dir);
+  const files = fs.readdirSync(tempDir);
+
+  for (const file of files) {
+    console.log(`searching for ${substring}, got`, file);
+    if (file.includes(substring)) {
+      return path.join(tempDir, file);
+    }
+  }
+
+  return null;
 };
 
 interface ClipData {
@@ -397,7 +411,7 @@ export const trimVideo = async (data: ITrimVideoInput) => {
     fs.unlinkSync(inputPath);
 
     console.log("trimmed video", `${(Date.now() - trimStart) / 1000}s`);
-    return `${videoId}-output.mp4`;
+    return `${videoId}`;
   } catch (e) {
     console.error("Error:", e);
     // Clean up temporary files
@@ -412,17 +426,20 @@ export const trimVideo = async (data: ITrimVideoInput) => {
 }
 
 export type IConcatenateOutroToTrimmedVideoInput = {
-  trimmedVideoPath: string;
+  trimmedVideoFileName: string;
   name: string;
 };
 
 export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTrimmedVideoInput) => {
   const videoId = uuidv4();
-  const outputPath = path.join(__dirname, "temp", data.trimmedVideoPath);
+  const trimmedFilePath = searchFileInTempDirectory(data.trimmedVideoFileName, "temp");
+  if (!trimmedFilePath) {
+    throw new Error("Trimmed video file not found");
+  }
   const outroPath = path.join(__dirname, "temp", `${videoId}-outro.mp4`);
   const finalPath = path.join(__dirname, "temp", `${videoId}-final.mp4`);
 
-  console.log(outroPath, finalPath, data.trimmedVideoPath);
+  console.log(outroPath, finalPath, trimmedFilePath);
 
   try {
   const requestForFinalStart = Date.now();
@@ -467,7 +484,7 @@ export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTr
   // Concatenate the trimmed video with the outro
   await new Promise<void>((resolve, reject) => {
     ffmpeg()
-      .input(outputPath)
+      .input(trimmedFilePath)
       .input(outroPath)
       .complexFilter([
         "[0:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v1]",
@@ -488,7 +505,7 @@ export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTr
         console.error("Error concatenating videos:", err);
         reject(err);
         // Clean up temporary files
-        fs.unlinkSync(outputPath);
+        fs.unlinkSync(trimmedFilePath);
         fs.unlinkSync(outroPath);
         if (fs.existsSync(finalPath)) {
           fs.unlinkSync(finalPath);
@@ -525,7 +542,7 @@ export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTr
         console.log(`Upload finished: ${upload.url}`);
         resolve(upload.url!);
         // Clean up temporary files
-        fs.unlinkSync(outputPath);
+        fs.unlinkSync(trimmedFilePath);
         fs.unlinkSync(outroPath);
         fs.unlinkSync(finalPath);
       },
