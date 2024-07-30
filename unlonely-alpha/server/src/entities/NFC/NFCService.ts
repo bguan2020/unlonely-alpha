@@ -412,9 +412,6 @@ export const trimVideo = async (data: ITrimVideoInput) => {
         .on("start", (commandLine) => {
           console.log("FFmpeg process started with command: ", commandLine);
         })
-        .on("progress", (progress) => {
-          console.log(`Processing: ${progress.percent}% done`);
-        })
         .on("end", () => {
           console.log("FFmpeg process completed successfully.");
           console.log("Checking if output file exists...");
@@ -429,34 +426,34 @@ export const trimVideo = async (data: ITrimVideoInput) => {
         .on("error", (err) => {
           console.error("Error processing video:", err);
           reject(err);
-          fs.unlinkSync(inputPath);
-          if (fs.existsSync(outputPath)) {
-            fs.unlinkSync(outputPath);
-          }
+          // fs.unlinkSync(inputPath);
+          // if (fs.existsSync(outputPath)) {
+          //   fs.unlinkSync(outputPath);
+          // }
         })
         .run();
     });
 
-    const foundOutputPath = await searchFileInTempDirectory(`${videoId}`, "temp");
+    const foundOutputPath = await searchFileInTempDirectory(`${videoId}-output`, "temp");
     if (!foundOutputPath) {
       console.log("Trimmed video file not found");
     } else {
       console.log("Trimmed video file found", foundOutputPath);
     }
 
-    fs.unlinkSync(inputPath);
+    // fs.unlinkSync(inputPath);
 
     console.log("trimmed video", `${(Date.now() - trimStart) / 1000}s`);
     return `${videoId}`;
   } catch (e) {
-    console.error("Error:", e);
+    console.log("Error:", e);
     // Clean up temporary files
-    if (fs.existsSync(inputPath)) {
-      fs.unlinkSync(inputPath);
-    }
-    if (fs.existsSync(outputPath)) {
-      fs.unlinkSync(outputPath);
-    }
+    // if (fs.existsSync(inputPath)) {
+      // fs.unlinkSync(inputPath);
+    // }
+    // if (fs.existsSync(outputPath)) {
+      // fs.unlinkSync(outputPath);
+    // }
     throw e;
   }
 }
@@ -509,9 +506,9 @@ export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTr
         console.error("Error creating outro video:", err);
         reject(err);
         // Clean up temporary files
-        if (fs.existsSync(outroPath)) {
-          fs.unlinkSync(outroPath);
-        }
+        // if (fs.existsSync(outroPath)) {
+        //   fs.unlinkSync(outroPath);
+        // }
       })
       .run();
   });
@@ -543,11 +540,11 @@ export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTr
         console.error("Error concatenating videos:", err);
         reject(err);
         // Clean up temporary files
-        fs.unlinkSync(trimmedFilePath);
-        fs.unlinkSync(outroPath);
-        if (fs.existsSync(finalPath)) {
-          fs.unlinkSync(finalPath);
-        }
+        // fs.unlinkSync(trimmedFilePath);
+        // fs.unlinkSync(outroPath);
+        // if (fs.existsSync(finalPath)) {
+        //   fs.unlinkSync(finalPath);
+        // }
       })
       .run();
   });
@@ -580,9 +577,9 @@ export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTr
         // console.log(`Upload finished: ${upload.url}`);
         resolve(upload.url!);
         // Clean up temporary files
-        fs.unlinkSync(trimmedFilePath);
-        fs.unlinkSync(outroPath);
-        fs.unlinkSync(finalPath);
+        // fs.unlinkSync(trimmedFilePath);
+        // fs.unlinkSync(outroPath);
+        // fs.unlinkSync(finalPath);
       },
     });
 
@@ -598,12 +595,12 @@ export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTr
   return requestResForFinal.asset.id
 } catch (e) {
   console.log("Error:", e);
-  if (fs.existsSync(outroPath)) {
-    fs.unlinkSync(outroPath);
-  }
-  if (fs.existsSync(finalPath)) {
-    fs.unlinkSync(finalPath);
-  }
+  // if (fs.existsSync(outroPath)) {
+  //   fs.unlinkSync(outroPath);
+  // }
+  // if (fs.existsSync(finalPath)) {
+  //   fs.unlinkSync(finalPath);
+  // }
 }
 }
 
