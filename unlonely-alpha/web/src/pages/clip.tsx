@@ -59,6 +59,7 @@ import { returnDecodedTopics } from "../utils/contract";
 import { useUser } from "../hooks/context/useUser";
 import { zoraCreator1155Abi } from "../constants/abi/ZoraCreator1155";
 import { multicall3Abi } from "../constants/abi/multicall3";
+import useConcatenateOutroTrimmedVideo from "../hooks/server/channel/useConcatenateOutroToTrimmedVideo";
 
 const multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
 const PROTOCOL_ADDRESS = "0x53D6D64945A67658C66730Ff4a038eb298eC8902";
@@ -120,8 +121,14 @@ const Clip = () => {
   });
 
   const { trimVideo } = useTrimVideo({
-    onError: () => {
-      console.log("Error");
+    onError: (e) => {
+      console.log("trimVideo Error", e);
+    },
+  });
+
+  const { concatenateOutroTrimmedVideo } = useConcatenateOutroTrimmedVideo({
+    onError: (e) => {
+      console.log("concatenateOutroTrimmedVideo Error", e);
     },
   });
 
@@ -218,8 +225,6 @@ const Clip = () => {
       !user
     )
       return;
-    const trimFunctionStart = Date.now();
-    console.log("trimVideo function start", trimFunctionStart);
     try {
       const { data: mapping } = await fetchUserChannelContract1155Mapping({
         variables: { data: { address: user?.address as string } },
@@ -228,38 +233,50 @@ const Clip = () => {
         mapping?.getUserChannelContract1155Mapping?.[channelId]
           ?.contract1155Address;
       console.log("existingContract1155Address", existingContract1155Address);
-      const res = await trimVideo({
+      const trimFunctionStart = Date.now();
+      console.log("trimVideo function start", trimFunctionStart);
+      const trimRes = await trimVideo({
         startTime: clipRange[0],
         endTime: clipRange[1],
         videoLink: roughClipUrl,
-        name: title,
-        channelId: channelId ?? "",
       });
-      const assetId = res?.res;
+      console.log(
+        "time took to trim",
+        `${(Date.now() - trimFunctionStart) / 1000}s`
+      );
+      const concatStart = Date.now();
+      const outputPath = trimRes?.res;
+      console.log("outputPath", outputPath);
+      const concatRes = await concatenateOutroTrimmedVideo({
+        trimmedVideoPath: String(outputPath),
+        name: title,
+      });
+      console.log(
+        "time took to concatenate",
+        `${(Date.now() - concatStart) / 1000}s`
+      );
+      const assetId = concatRes?.res;
+      console.log("assetId", assetId);
       let videoThumbnail = "";
       let videoLink = "";
-      while (true) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        const { data } = await fetchLivepeerClipData({
-          variables: { assetId: assetId },
-        });
-        console.log(
-          "waiting for videoThumbnail and videoLink",
-          data?.getLivepeerClipData
-        );
-        if (
-          data?.getLivepeerClipData?.videoThumbnail &&
-          data?.getLivepeerClipData?.videoLink &&
-          !data?.getLivepeerClipData?.error
-        ) {
-          videoThumbnail = data.getLivepeerClipData.videoThumbnail;
-          videoLink = data.getLivepeerClipData.videoLink;
-          break;
-        }
-        if (data?.getLivepeerClipData?.error) {
-          console.log("Error", data.getLivepeerClipData.error);
-          break;
-        }
+      const { data } = await fetchLivepeerClipData({
+        variables: { data: { assetId } },
+      });
+      console.log(
+        "waiting for videoThumbnail and videoLink",
+        data?.getLivepeerClipData
+      );
+      if (
+        data?.getLivepeerClipData?.videoThumbnail &&
+        data?.getLivepeerClipData?.videoLink &&
+        !data?.getLivepeerClipData?.error
+      ) {
+        videoThumbnail = data.getLivepeerClipData.videoThumbnail;
+        videoLink = data.getLivepeerClipData.videoLink;
+      }
+      if (data?.getLivepeerClipData?.error) {
+        console.log("Error", data.getLivepeerClipData.error);
+        return;
       }
       if (!videoThumbnail || !videoLink) return;
 
@@ -505,10 +522,6 @@ const Clip = () => {
     } catch (e) {
       console.log("trimVideo error", e);
     }
-    console.log(
-      "trimVideo function end",
-      `${(Date.now() - trimFunctionStart) / 1000}s`
-    );
   }, [
     roughClipUrl,
     clipRange,

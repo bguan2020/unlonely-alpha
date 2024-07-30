@@ -27,8 +27,6 @@ const useTrimVideo = ({ onError }: Props) => {
             startTime: data.startTime,
             endTime: data.endTime,
             videoLink: data.videoLink,
-            name: data.name,
-            channelId: data.channelId,
           },
         },
       });

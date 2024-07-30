@@ -18,9 +18,9 @@ export const resolvers = {
     },
     getLivepeerClipData(
       _: any,
-      { assetId }: { assetId: string },
+      { data }: { data: NFCService.IGetLivepeerClipDataInput },
     ) {
-      return NFCService.getLivepeerClipData(assetId);
+      return NFCService.getLivepeerClipData(data);
     }
   },
   Mutation: {
@@ -63,9 +63,14 @@ export const resolvers = {
     trimVideo(
       _: any,
       { data }: { data: NFCService.ITrimVideoInput },
-      ctx: Context
     ) {
-        return NFCService.trimVideo(data, ctx);
+        return NFCService.trimVideo(data);
+    },
+    concatenateOutroToTrimmedVideo(
+      _: any,
+      { data }: { data: NFCService.IConcatenateOutroToTrimmedVideoInput },
+    ) {
+        return NFCService.concatenateOutroToTrimmedVideo(data);
     },
     openseaNFCScript: async (_: any, __: any, ctx: Context) => {
       return NFCService.openseaNFCScript(ctx);

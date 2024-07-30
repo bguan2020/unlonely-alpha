@@ -28,11 +28,11 @@ export const GET_USER_CHANNEL_CONTRACT_1155_MAPPING_QUERY = gql`
 `;
 
 export const GET_LIVEPEER_CLIP_DATA_QUERY = gql`
-  query GetLivepeerClipData($assetId: String!) {
-    getLivepeerClipData(assetId: $assetId) {
+  query GetLivepeerClipData($data: GetLivepeerClipDataInput) {
+    getLivepeerClipData(data: $data) {
+      error
       videoThumbnail
       videoLink
-      error
     }
   }
 `

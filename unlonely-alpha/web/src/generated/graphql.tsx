@@ -240,6 +240,11 @@ export type CloseSideBetInput = {
   id: Scalars["ID"];
 };
 
+export type ConcatenateOutroToTrimmedVideoInput = {
+  name: Scalars["String"];
+  trimmedVideoPath: Scalars["String"];
+};
+
 export type CreateClipInput = {
   channelArn: Scalars["String"];
   channelId: Scalars["ID"];
@@ -358,6 +363,10 @@ export type GetGamblableEventUserRankInput = {
   chainId: Scalars["Int"];
   channelId: Scalars["ID"];
   userAddress: Scalars["String"];
+};
+
+export type GetLivepeerClipDataInput = {
+  assetId: Scalars["String"];
 };
 
 export type GetLivepeerStreamDataInput = {
@@ -512,6 +521,7 @@ export type Mutation = {
   bulkLivepeerStreamIdMigration?: Maybe<UpdateManyResponse>;
   closeSharesEvents?: Maybe<UpdateManyResponse>;
   closeSideBet?: Maybe<SideBet>;
+  concatenateOutroToTrimmedVideo?: Maybe<Scalars["String"]>;
   createClip?: Maybe<ClipNfcOutput>;
   createCreatorToken: CreatorToken;
   createLivepeerClip?: Maybe<ClipNfcOutput>;
@@ -588,6 +598,10 @@ export type MutationCloseSharesEventsArgs = {
 
 export type MutationCloseSideBetArgs = {
   data: CloseSideBetInput;
+};
+
+export type MutationConcatenateOutroToTrimmedVideoArgs = {
+  data: ConcatenateOutroToTrimmedVideoInput;
 };
 
 export type MutationCreateClipArgs = {
@@ -1122,7 +1136,7 @@ export type QueryGetGamblableEventUserRankArgs = {
 };
 
 export type QueryGetLivepeerClipDataArgs = {
-  assetId: Scalars["String"];
+  data?: InputMaybe<GetLivepeerClipDataInput>;
 };
 
 export type QueryGetLivepeerStreamDataArgs = {
@@ -1415,9 +1429,7 @@ export type ToggleSubscriptionInput = {
 };
 
 export type TrimVideoInput = {
-  channelId: Scalars["ID"];
   endTime: Scalars["Float"];
-  name: Scalars["String"];
   startTime: Scalars["Float"];
   videoLink: Scalars["String"];
 };
@@ -1682,16 +1694,16 @@ export type GetUserChannelContract1155MappingQuery = {
 };
 
 export type GetLivepeerClipDataQueryVariables = Exact<{
-  assetId: Scalars["String"];
+  data?: InputMaybe<GetLivepeerClipDataInput>;
 }>;
 
 export type GetLivepeerClipDataQuery = {
   __typename?: "Query";
   getLivepeerClipData?: {
     __typename?: "LivepeerClipDataResponse";
+    error: boolean;
     videoThumbnail: string;
     videoLink: string;
-    error: boolean;
   } | null;
 };
 
@@ -2331,6 +2343,15 @@ export type CloseSharesEventsMutation = {
     __typename?: "UpdateManyResponse";
     count: number;
   } | null;
+};
+
+export type ConcatenateOutroToTrimmedVideoMutationVariables = Exact<{
+  data: ConcatenateOutroToTrimmedVideoInput;
+}>;
+
+export type ConcatenateOutroToTrimmedVideoMutation = {
+  __typename?: "Mutation";
+  concatenateOutroToTrimmedVideo?: string | null;
 };
 
 export type CreateClipMutationVariables = Exact<{
@@ -3110,11 +3131,11 @@ export type GetUserChannelContract1155MappingQueryResult = Apollo.QueryResult<
   GetUserChannelContract1155MappingQueryVariables
 >;
 export const GetLivepeerClipDataDocument = gql`
-  query GetLivepeerClipData($assetId: String!) {
-    getLivepeerClipData(assetId: $assetId) {
+  query GetLivepeerClipData($data: GetLivepeerClipDataInput) {
+    getLivepeerClipData(data: $data) {
+      error
       videoThumbnail
       videoLink
-      error
     }
   }
 `;
@@ -3131,12 +3152,12 @@ export const GetLivepeerClipDataDocument = gql`
  * @example
  * const { data, loading, error } = useGetLivepeerClipDataQuery({
  *   variables: {
- *      assetId: // value for 'assetId'
+ *      data: // value for 'data'
  *   },
  * });
  */
 export function useGetLivepeerClipDataQuery(
-  baseOptions: Apollo.QueryHookOptions<
+  baseOptions?: Apollo.QueryHookOptions<
     GetLivepeerClipDataQuery,
     GetLivepeerClipDataQueryVariables
   >
@@ -5236,6 +5257,57 @@ export type CloseSharesEventsMutationOptions = Apollo.BaseMutationOptions<
   CloseSharesEventsMutation,
   CloseSharesEventsMutationVariables
 >;
+export const ConcatenateOutroToTrimmedVideoDocument = gql`
+  mutation ConcatenateOutroToTrimmedVideo(
+    $data: ConcatenateOutroToTrimmedVideoInput!
+  ) {
+    concatenateOutroToTrimmedVideo(data: $data)
+  }
+`;
+export type ConcatenateOutroToTrimmedVideoMutationFn = Apollo.MutationFunction<
+  ConcatenateOutroToTrimmedVideoMutation,
+  ConcatenateOutroToTrimmedVideoMutationVariables
+>;
+
+/**
+ * __useConcatenateOutroToTrimmedVideoMutation__
+ *
+ * To run a mutation, you first call `useConcatenateOutroToTrimmedVideoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useConcatenateOutroToTrimmedVideoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [concatenateOutroToTrimmedVideoMutation, { data, loading, error }] = useConcatenateOutroToTrimmedVideoMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useConcatenateOutroToTrimmedVideoMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    ConcatenateOutroToTrimmedVideoMutation,
+    ConcatenateOutroToTrimmedVideoMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    ConcatenateOutroToTrimmedVideoMutation,
+    ConcatenateOutroToTrimmedVideoMutationVariables
+  >(ConcatenateOutroToTrimmedVideoDocument, options);
+}
+export type ConcatenateOutroToTrimmedVideoMutationHookResult = ReturnType<
+  typeof useConcatenateOutroToTrimmedVideoMutation
+>;
+export type ConcatenateOutroToTrimmedVideoMutationResult =
+  Apollo.MutationResult<ConcatenateOutroToTrimmedVideoMutation>;
+export type ConcatenateOutroToTrimmedVideoMutationOptions =
+  Apollo.BaseMutationOptions<
+    ConcatenateOutroToTrimmedVideoMutation,
+    ConcatenateOutroToTrimmedVideoMutationVariables
+  >;
 export const CreateClipDocument = gql`
   mutation CreateClip($data: CreateClipInput!) {
     createClip(data: $data) {
