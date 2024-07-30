@@ -38,6 +38,8 @@ export enum InteractionType {
   EVENT_LOCK = "event-lock-interaction",
   EVENT_UNLOCK = "event-unlock-interaction",
   EVENT_PAYOUT = "event-payout-interaction",
+
+  PUBLISH_NFC = "publish-nfc-interaction",
 }
 
 export enum BaseChatCommand {

@@ -1,28 +1,58 @@
-import { Box, Image, Flex, Link, Text, IconButton } from "@chakra-ui/react";
+import {
+  Box,
+  Image,
+  Flex,
+  Link,
+  Text,
+  IconButton,
+  Button,
+} from "@chakra-ui/react";
 import React, { useMemo, useState } from "react";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 import { InteractionType } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
-import {
-  Message,
-  SelectedUser,
-  SenderStatus,
-} from "../../constants/types/chat";
+import { SenderStatus } from "../../constants/types/chat";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import Badges from "./Badges";
 import { formatTimestampToTime } from "../../utils/time";
 import { TiPin } from "react-icons/ti";
+import { MessageItemProps } from "./MessageList";
 
-type Props = {
-  index: number;
-  message: Message;
+type Props = MessageItemProps & {
   messageText: string;
   linkArray: RegExpMatchArray | null;
-  handleOpen: (value?: SelectedUser) => void;
-  handlePinCallback: (value: string) => void;
 };
+
+const eventTypes = [
+  InteractionType.EVENT_LIVE,
+  InteractionType.EVENT_LOCK,
+  InteractionType.EVENT_UNLOCK,
+  InteractionType.EVENT_PAYOUT,
+];
+
+const adminTempTokenInteractionTypes = [
+  InteractionType.CREATE_TEMP_TOKEN,
+  InteractionType.CREATE_MULTIPLE_TEMP_TOKENS,
+  InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
+  InteractionType.TEMP_TOKEN_DURATION_INCREASED,
+  InteractionType.TEMP_TOKEN_BECOMES_ALWAYS_TRADEABLE,
+  InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED,
+  InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION,
+  InteractionType.VERSUS_WINNER_TOKENS_MINTED,
+  InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
+  InteractionType.PUBLISH_NFC,
+];
+
+const greenTempTokenInteractionTypes = [InteractionType.BUY_TEMP_TOKENS];
+
+const redTempTokenInteractionTypes = [
+  InteractionType.SELL_TEMP_TOKENS,
+  InteractionType.TEMP_TOKEN_EXPIRATION_WARNING,
+  InteractionType.TEMP_TOKEN_EXPIRED,
+  InteractionType.PRESALE_OVER,
+];
 
 // if isVipChat is true, messages with SenderStatus.VIP will be displayed, else they are blurred,
 // messages with SenderStatus.MODERATOR are always displayed when isVipChat is false or true.
@@ -34,6 +64,7 @@ const MessageBody = ({
   linkArray,
   handleOpen,
   handlePinCallback,
+  handleCollectorMint,
 }: Props) => {
   const { user } = useUser();
 
@@ -90,37 +121,12 @@ const MessageBody = ({
   }, [messageText, linkArray]);
 
   const messageStyle = () => {
-    const eventTypes = [
-      InteractionType.EVENT_LIVE,
-      InteractionType.EVENT_LOCK,
-      InteractionType.EVENT_UNLOCK,
-      InteractionType.EVENT_PAYOUT,
-    ];
-
-    const adminTempTokenInteractionTypes = [
-      InteractionType.CREATE_TEMP_TOKEN,
-      InteractionType.CREATE_MULTIPLE_TEMP_TOKENS,
-      InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
-      InteractionType.TEMP_TOKEN_DURATION_INCREASED,
-      InteractionType.TEMP_TOKEN_BECOMES_ALWAYS_TRADEABLE,
-      InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED,
-      InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION,
-      InteractionType.VERSUS_WINNER_TOKENS_MINTED,
-      InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
-    ];
-
-    const greenTempTokenInteractionTypes = [InteractionType.BUY_TEMP_TOKENS];
-
-    const redTempTokenInteractionTypes = [
-      InteractionType.SELL_TEMP_TOKENS,
-      InteractionType.TEMP_TOKEN_EXPIRATION_WARNING,
-      InteractionType.TEMP_TOKEN_EXPIRED,
-      InteractionType.PRESALE_OVER,
-    ];
-
     if (
       message.data.body &&
-      (eventTypes as string[]).includes(message.data.body.split(":")[0])
+      (eventTypes as string[]).includes(
+        JSON.parse(message.data.body).interactionType ??
+          message.data.body.split(":")[0]
+      )
     ) {
       return {
         bg: "rgba(63, 59, 253, 1)",
@@ -128,7 +134,8 @@ const MessageBody = ({
     } else if (
       message.data.body &&
       (adminTempTokenInteractionTypes as string[]).includes(
-        message.data.body.split(":")[0]
+        JSON.parse(message.data.body).interactionType ??
+          message.data.body.split(":")[0]
       )
     ) {
       return {
@@ -141,7 +148,8 @@ const MessageBody = ({
     } else if (
       message.data.body &&
       (greenTempTokenInteractionTypes as string[]).includes(
-        message.data.body.split(":")[0]
+        JSON.parse(message.data.body).interactionType ??
+          message.data.body.split(":")[0]
       )
     ) {
       return {
@@ -154,7 +162,8 @@ const MessageBody = ({
     } else if (
       message.data.body &&
       (redTempTokenInteractionTypes as string[]).includes(
-        message.data.body.split(":")[0]
+        JSON.parse(message.data.body).interactionType ??
+          message.data.body.split(":")[0]
       )
     ) {
       return {
@@ -231,112 +240,156 @@ const MessageBody = ({
           borderRadius="10px"
           position={"relative"}
         >
-          <Flex direction={"column"} width="100%">
-            <Box key={index} px="0.3rem" position="relative">
-              <Text as="span">
-                <Badges message={message} />
+          {message.data.body &&
+          JSON.parse(message.data.body).interactionType ===
+            InteractionType.PUBLISH_NFC ? (
+            <Box key={index} p="0.3rem" position="relative">
+              <Flex direction="column" justifyContent={"center"}>
                 <Text
                   as="span"
-                  onClick={() => {
-                    if (message.data.username !== "🤖")
-                      handleOpen({
-                        address: message.data.address,
-                        username: message.data.username,
-                      });
-                  }}
-                  _hover={{ cursor: "pointer" }}
-                  fontSize="12px"
-                  color={message.data.chatColor}
-                  fontWeight="bold"
+                  color={messageStyle().textColor ?? "white"}
+                  fontStyle={messageStyle().fontStyle}
+                  fontWeight={messageStyle().fontWeight}
+                  fontSize={"12px"}
+                  wordBreak="break-word"
+                  textAlign="left"
+                  filter={
+                    normalUserReceivesVipMessages ? "blur(5px)" : "blur(0px)"
+                  }
                 >
-                  {message.data.username
-                    ? message.data.username
-                    : centerEllipses(message.data.address, 10)}
+                  {messageText.split("\n").map((line, index) => (
+                    <span key={index}>
+                      {line}
+                      <br />
+                    </span>
+                  ))}
                 </Text>
-                {message.data.username !== "🤖" ? ":" : ""}{" "}
-                {message.data.isGif && (
-                  <>
-                    <Image
-                      src={messageText}
-                      display="inline"
-                      verticalAlign={"middle"}
-                      h="40px"
-                      p="5px"
-                    />
-                    <Image
-                      src={messageText}
-                      display="inline"
-                      verticalAlign={"middle"}
-                      h="40px"
-                      p="5px"
-                    />
-                    <Image
-                      src={messageText}
-                      display="inline"
-                      verticalAlign={"middle"}
-                      h="40px"
-                      p="5px"
-                    />
-                  </>
-                )}
-                {!message.data.isGif && linkArray && (
-                  <Text
-                    as="span"
-                    color="#15dae4"
-                    filter={
-                      normalUserReceivesVipMessages ? "blur(5px)" : "blur(0px)"
-                    }
-                    fontSize={"12px"}
-                    wordBreak="break-word"
-                    textAlign="left"
-                  >
-                    {fragments.map((fragment, i) => {
-                      if (fragment.isLink) {
-                        return (
-                          <Link
-                            href={
-                              fragment.message.startsWith("https://") ||
-                              fragment.message.startsWith("http://")
-                                ? fragment.message
-                                : "https://".concat(fragment.message)
-                            }
-                            isExternal
-                            key={i}
-                          >
-                            {fragment.message}
-                            <ExternalLinkIcon mx="2px" />
-                          </Link>
-                        );
-                      } else {
-                        return <span key={i}>{fragment.message}</span>;
-                      }
-                    })}
-                  </Text>
-                )}
-                {!message.data.isGif && !linkArray && (
-                  <Text
-                    as="span"
-                    color={messageStyle().textColor ?? "white"}
-                    fontStyle={messageStyle().fontStyle}
-                    fontWeight={messageStyle().fontWeight}
-                    fontSize={"12px"}
-                    wordBreak="break-word"
-                    textAlign="left"
-                    filter={
-                      normalUserReceivesVipMessages ? "blur(5px)" : "blur(0px)"
-                    }
-                  >
-                    {messageText.split("\n").map((line, index) => (
-                      <span key={index}>
-                        {line}
-                        <br />
-                      </span>
-                    ))}
-                  </Text>
-                )}
-              </Text>
+                <Button
+                  onClick={() =>
+                    handleCollectorMint?.(
+                      JSON.parse(message.data.body as string)
+                        .contract1155Address,
+                      JSON.parse(message.data.body as string).tokenId,
+                      1
+                    )
+                  }
+                >
+                  Mint now
+                </Button>
+              </Flex>
             </Box>
-          </Flex>
+          ) : (
+            <Flex direction={"column"} width="100%">
+              <Box key={index} px="0.3rem" position="relative">
+                <Text as="span">
+                  <Badges message={message} />
+                  <Text
+                    as="span"
+                    onClick={() => {
+                      if (message.data.username !== "🤖")
+                        handleOpen({
+                          address: message.data.address,
+                          username: message.data.username,
+                        });
+                    }}
+                    _hover={{ cursor: "pointer" }}
+                    fontSize="12px"
+                    color={message.data.chatColor}
+                    fontWeight="bold"
+                  >
+                    {message.data.username
+                      ? message.data.username
+                      : centerEllipses(message.data.address, 10)}
+                  </Text>
+                  {message.data.username !== "🤖" ? ":" : ""}{" "}
+                  {message.data.isGif && (
+                    <>
+                      <Image
+                        src={messageText}
+                        display="inline"
+                        verticalAlign={"middle"}
+                        h="40px"
+                        p="5px"
+                      />
+                      <Image
+                        src={messageText}
+                        display="inline"
+                        verticalAlign={"middle"}
+                        h="40px"
+                        p="5px"
+                      />
+                      <Image
+                        src={messageText}
+                        display="inline"
+                        verticalAlign={"middle"}
+                        h="40px"
+                        p="5px"
+                      />
+                    </>
+                  )}
+                  {!message.data.isGif && linkArray && (
+                    <Text
+                      as="span"
+                      color="#15dae4"
+                      filter={
+                        normalUserReceivesVipMessages
+                          ? "blur(5px)"
+                          : "blur(0px)"
+                      }
+                      fontSize={"12px"}
+                      wordBreak="break-word"
+                      textAlign="left"
+                    >
+                      {fragments.map((fragment, i) => {
+                        if (fragment.isLink) {
+                          return (
+                            <Link
+                              href={
+                                fragment.message.startsWith("https://") ||
+                                fragment.message.startsWith("http://")
+                                  ? fragment.message
+                                  : "https://".concat(fragment.message)
+                              }
+                              isExternal
+                              key={i}
+                            >
+                              {fragment.message}
+                              <ExternalLinkIcon mx="2px" />
+                            </Link>
+                          );
+                        } else {
+                          return <span key={i}>{fragment.message}</span>;
+                        }
+                      })}
+                    </Text>
+                  )}
+                  {!message.data.isGif && !linkArray && (
+                    <Text
+                      as="span"
+                      color={messageStyle().textColor ?? "white"}
+                      fontStyle={messageStyle().fontStyle}
+                      fontWeight={messageStyle().fontWeight}
+                      fontSize={"12px"}
+                      wordBreak="break-word"
+                      textAlign="left"
+                      filter={
+                        normalUserReceivesVipMessages
+                          ? "blur(5px)"
+                          : "blur(0px)"
+                      }
+                    >
+                      {messageText.split("\n").map((line, index) => (
+                        <span key={index}>
+                          {line}
+                          <br />
+                        </span>
+                      ))}
+                    </Text>
+                  )}
+                </Text>
+              </Box>
+            </Flex>
+          )}
           {messageStyle().showTimestamp && message.data.username === "🤖" && (
             <Flex bg="rgba(0, 0, 0, 0.1)" px="0.4rem">
               <Text fontSize="10px" whiteSpace={"nowrap"} fontStyle="italic">

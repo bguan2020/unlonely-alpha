@@ -11,11 +11,13 @@ import {
   Spinner,
   Skeleton,
 } from "@chakra-ui/react";
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { MdDragIndicator } from "react-icons/md";
 
 import {
+  CHAT_MESSAGE_EVENT,
   CLIP_CHANNEL_ID_QUERY_PARAM,
+  InteractionType,
   NULL_ADDRESS,
   UNLONELY_LOGO_IPFS_URL,
 } from "../constants";
@@ -64,6 +66,9 @@ import { useUser } from "../hooks/context/useUser";
 import { zoraCreator1155Abi } from "../constants/abi/ZoraCreator1155";
 import { multicall3Abi } from "../constants/abi/multicall3";
 import useConcatenateOutroTrimmedVideo from "../hooks/server/channel/useConcatenateOutroToTrimmedVideo";
+import { useAblyChannel } from "../hooks/chat/useChatChannel";
+import { SenderStatus } from "../constants/types/chat";
+import centerEllipses from "../utils/centerEllipses";
 
 const multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
 const PROTOCOL_ADDRESS = "0x53D6D64945A67658C66730Ff4a038eb298eC8902";
@@ -107,6 +112,16 @@ const Clip = () => {
   ] = useLazyQuery<GetChannelByIdQuery>(GET_CHANNEL_BY_ID_QUERY, {
     variables: { id: channelId },
     fetchPolicy: "network-only",
+  });
+
+  const chatChannel = useMemo(
+    () =>
+      `persistMessages:${getChannelByIdData?.getChannelById?.slug}-chat-channel`,
+    [getChannelByIdData]
+  );
+
+  const [channel] = useAblyChannel(chatChannel, async (message) => {
+    console.log("message", message);
   });
 
   const [fetchUserChannelContract1155Mapping] =
@@ -525,6 +540,24 @@ const Clip = () => {
       };
       console.log("postNfcObject", postNfcObject);
       await postNFC(postNfcObject);
+      await channel.publish({
+        name: CHAT_MESSAGE_EVENT,
+        data: {
+          messageText: `${
+            user?.username ?? centerEllipses(user.address, 13)
+          } clipped a highlight: ${title}`,
+          username: "🤖",
+          address: NULL_ADDRESS,
+          isFC: false,
+          isLens: false,
+          isGif: false,
+          senderStatus: SenderStatus.CHATBOT,
+          body: JSON.stringify({
+            interactionType: InteractionType.PUBLISH_NFC,
+            ...postNfcObject,
+          }),
+        },
+      });
     } catch (e) {
       console.log("trimVideo frontend error", e);
     }
