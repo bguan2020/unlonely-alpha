@@ -493,7 +493,7 @@ export const trimVideo = async (data: ITrimVideoInput) => {
 
   // console.log("uploaded final video", `${(Date.now() - uploadStart) / 1000}s`);
   return requestResForFinal.asset.id
-    return `${videoId}`;
+    // return `${videoId}`;
   } catch (e) {
     console.log("Error:", e);
     // Clean up temporary files
