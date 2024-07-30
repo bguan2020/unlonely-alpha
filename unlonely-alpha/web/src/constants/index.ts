@@ -135,3 +135,4 @@ export const MIN_BASE_TOKEN_PRICE = BigInt(2 * 10 ** 13);
 
 export const CHANNEL_IDS_NO_VIP = [4]
 export const CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS = ["loveonleverage"]
+export const UNLONELY_LOGO_IPFS_URL="ipfs://QmWsm34cghYfsrrkzzRzgPEktqFXuVtYde3bv9Yup2bYhF"

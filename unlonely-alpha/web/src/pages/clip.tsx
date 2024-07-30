@@ -14,7 +14,11 @@ import {
 import { useRef, useState, useEffect, useCallback } from "react";
 import { MdDragIndicator } from "react-icons/md";
 
-import { CLIP_CHANNEL_ID_QUERY_PARAM, NULL_ADDRESS } from "../constants";
+import {
+  CLIP_CHANNEL_ID_QUERY_PARAM,
+  NULL_ADDRESS,
+  UNLONELY_LOGO_IPFS_URL,
+} from "../constants";
 import { useRouter } from "next/router";
 import useCreateClip from "../hooks/server/channel/useCreateClip";
 import useTrimVideo from "../hooks/server/channel/useTrimVideo";
@@ -329,8 +333,8 @@ const Clip = () => {
       if (!existingContract1155Address) {
         const _contractMetadataJsonUri = await pinJsonWithPinata({
           description: `this was clipped from ${getChannelByIdData?.getChannelById?.slug}'s Unlonely livestream`,
-          image: videoFileIpfsUrl,
-          name: title,
+          image: UNLONELY_LOGO_IPFS_URL,
+          name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
         });
         contractObject = {
           name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
