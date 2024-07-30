@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import webpush from "web-push";
 import { toPushSubscription } from "../entities/Subscription/SubscriptionService";
 
-const CHANNEL_ID_BLACKLIST: number[] = []
+export const CHANNEL_ID_NOTIFICATIONS_BLACKLIST: number[] = [29]
 
 const prisma = new PrismaClient();
 
@@ -27,7 +27,7 @@ export const sendPWANotifications = async (streamId: string) => {
         return;
       }
 
-      if (CHANNEL_ID_BLACKLIST.includes(existingChannel.id)) return
+      if (CHANNEL_ID_NOTIFICATIONS_BLACKLIST.includes(existingChannel.id)) return
 
       const oneHourAgo = new Date(Date.now() - 3600 * 1000);
 

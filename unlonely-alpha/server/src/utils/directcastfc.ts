@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
+import { CHANNEL_ID_NOTIFICATIONS_BLACKLIST } from "./sendPWANotifications";
 
 const prisma = new PrismaClient();
 
@@ -25,6 +26,8 @@ export const directCastFc = async (
     console.error("Channel not found for livepeer stream id", streamId);
     return;
   }
+
+  if (CHANNEL_ID_NOTIFICATIONS_BLACKLIST.includes(existingChannel.id)) return
 
   const oneHourAgo = new Date(Date.now() - 3600 * 1000);
 
