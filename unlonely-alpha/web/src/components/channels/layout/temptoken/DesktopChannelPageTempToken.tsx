@@ -21,10 +21,6 @@ import {
   Image,
   Box,
   Link,
-  Drawer,
-  DrawerBody,
-  DrawerContent,
-  DrawerHeader,
 } from "@chakra-ui/react";
 import copy from "copy-to-clipboard";
 import { formatApolloError } from "../../../../utils/errorFormatting";
@@ -57,14 +53,13 @@ export const DesktopChannelPageTempToken = ({
   channelSSRDataError?: ApolloError;
 }) => {
   const { walletIsConnected } = useUser();
-  const { channel, ui } = useChannelContext();
+  const { channel } = useChannelContext();
   const {
     loading: channelDataLoading,
     error: channelDataError,
     handleChannelStaticData,
     isOwner,
   } = channel;
-  const { showClipDrawer, handleClipDrawer } = ui;
   const chat = useChat();
 
   const { tempToken } = useTempTokenContext();
@@ -469,19 +464,7 @@ export const DesktopChannelPageTempToken = ({
                 </>
               )}
             </Stack>
-            <Drawer
-              size={"xl"}
-              placement={"bottom"}
-              onClose={() => handleClipDrawer(false)}
-              isOpen={showClipDrawer}
-            >
-              <DrawerContent bgColor={"rgba(0, 0, 0, 0.7)"}>
-                <DrawerHeader borderBottomWidth="1px">Clips</DrawerHeader>
-                <DrawerBody>
-                  <ChannelPageNfcsList />
-                </DrawerBody>
-              </DrawerContent>
-            </Drawer>
+            <ChannelPageNfcsList />
           </Flex>
         ) : (
           <Flex
