@@ -79,6 +79,13 @@ const images = [
   { src: "/images/nyan-cat-every-nyan.gif", top: "90vh", delay: "9s" },
 ];
 
+const carouselProgressStatusMessages = [
+  "...trimming video...",
+  "...uploading video...",
+  "...uploading blob to ipfs...",
+  "...handling 1155 contract and token...",
+];
+
 type Aggregate3ValueFunction = ExtractAbiFunction<
   typeof multicall3Abi,
   "aggregate3Value"
@@ -102,7 +109,10 @@ const Clip = () => {
   const [clipRange, setClipRange] = useState<[number, number]>([0, 0]);
   const [title, setTitle] = useState("");
   const [channelId, setChannelId] = useState<string | null>(null);
-  const [progressMessage, setProgressMessage] = useState("...loading...");
+  const [transactionMessage, setTransactionMessage] = useState<string | null>(
+    null
+  );
+  const [carouselProgressIndex, setCarouselProgressIndex] = useState(0);
   const [pageState, setPageState] = useState<
     "offline" | "clipping" | "selecting" | "trimming" | "sharing" | "error"
   >("clipping");
@@ -121,8 +131,14 @@ const Clip = () => {
   useEffect(() => {
     if (pageState === "trimming") {
       const interval = setInterval(() => {
-        setProgressPercentage((prevPercentage) => prevPercentage + 1);
-      }, 1400);
+        setProgressPercentage((prevPercentage) => prevPercentage + 2);
+        setCarouselProgressIndex((prevIndex) => {
+          if (prevIndex === carouselProgressStatusMessages.length - 1) {
+            return 0;
+          }
+          return prevIndex + 1;
+        });
+      }, 3000);
 
       // Cleanup interval on component unmount or when trimming changes
       return () => clearInterval(interval);
@@ -301,7 +317,6 @@ const Clip = () => {
       console.log("existingContract1155Address", existingContract1155Address);
       const trimFunctionStart = Date.now();
       console.log("trimVideo function start", trimFunctionStart);
-      setProgressMessage("...trimming video...");
       const trimRes = await trimVideo({
         startTime: clipRange[0],
         endTime: clipRange[1],
@@ -312,7 +327,6 @@ const Clip = () => {
         "time took to trim",
         `${(Date.now() - trimFunctionStart) / 1000}s`
       );
-      setProgressMessage("...uploading video...");
       // const concatStart = Date.now();
       // const outputIdentifier = trimRes?.res;
       // await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -351,7 +365,6 @@ const Clip = () => {
       if (!videoThumbnail || !videoLink) return;
 
       // CREATE TOKEN METADATA
-      setProgressMessage("...uploading blob to ipfs...");
       const { pinRes: videoFileIpfsUrl } = await createFileBlobAndPinWithPinata(
         String(videoLink),
         "video.mp4",
@@ -414,7 +427,7 @@ const Clip = () => {
       console.log("contractObject", contractObject);
 
       // CREATE 1155 CONTRACT AND TOKEN
-      setProgressMessage("...handling 1155 contract and token...");
+      setTransactionMessage("...handling 1155 contract and token...");
       const creatorClient = createCreatorClient({
         chainId: network.chainId,
         publicClient,
@@ -435,7 +448,7 @@ const Clip = () => {
       let tokenId = -1;
       if (predicted.splitExists) {
         console.log("split exists");
-        setProgressMessage("...minting...");
+        setTransactionMessage("...minting...");
 
         const transaction = await handleWriteCreate1155(parameters);
         const logs = transaction?.logs ?? [];
@@ -466,7 +479,7 @@ const Clip = () => {
         if (typeof contractObject === "string") {
           console.log("split does not exist and contractObject is string");
           if (splitCallData && splitAddress && walletClient?.account.address) {
-            setProgressMessage("...creating split...");
+            setTransactionMessage("...creating split...");
             const splitCreationHash = await walletClient.sendTransaction({
               to: splitAddress as Address,
               account: walletClient?.account.address as Address,
@@ -479,7 +492,7 @@ const Clip = () => {
               });
             const splitLogs = splitTransaction?.logs;
             console.log("splitTransaction logs", splitLogs);
-            setProgressMessage("...minting...");
+            setTransactionMessage("...minting...");
 
             const transaction = await handleWriteCreate1155(parameters);
             const logs = transaction?.logs ?? [];
@@ -534,7 +547,7 @@ const Clip = () => {
           });
 
           console.log("simulated multicall3 request", request);
-          setProgressMessage("...minting...");
+          setTransactionMessage("...minting...");
 
           // execute the transaction
           const hash = await walletClient
@@ -576,7 +589,7 @@ const Clip = () => {
           }
         }
       }
-      setProgressMessage("...wrapping up...");
+      setTransactionMessage("...wrapping up...");
       if (freqAddress && channelId && !existingContract1155Address) {
         await updateUserChannelContract1155Mapping({
           channelId: channelId,
@@ -619,6 +632,7 @@ const Clip = () => {
       });
       setFinalClipObject(postNfcObject);
       setPageState("sharing");
+      setTransactionMessage(null);
     } catch (e) {
       console.log("trimVideo frontend error", e);
       setPageState("error");
@@ -800,7 +814,8 @@ const Clip = () => {
               value={progressPercentage}
             />
             <Text mt="30px" textAlign="center">
-              {progressMessage}
+              {transactionMessage ??
+                carouselProgressStatusMessages[carouselProgressIndex]}
             </Text>
           </Flex>
         ) : pageState === "clipping" ? (
