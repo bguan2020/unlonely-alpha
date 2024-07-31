@@ -8,6 +8,7 @@ import {
   RangeSliderTrack,
   Text,
   Box,
+  Image,
   Progress,
   IconButton,
   useToast,
@@ -70,7 +71,6 @@ import { SenderStatus } from "../constants/types/chat";
 import centerEllipses from "../utils/centerEllipses";
 import { useNetworkContext } from "../hooks/context/useNetwork";
 import AppLayout from "../components/layout/AppLayout";
-import { FaRegCopy } from "react-icons/fa6";
 import copy from "copy-to-clipboard";
 
 const multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
@@ -970,20 +970,29 @@ const Clip = () => {
                 controls
               />
               <Flex>
-                <Text fontSize="30px" textAlign="center">
+                <Text fontSize="35px" textAlign="center">
                   {finalClipObject?.title ?? "title"}
                 </Text>
               </Flex>
               <Flex>
-                <Text fontSize="30px" textAlign="center">
+                <Text fontSize="15px" textAlign="center">
                   owned by{" "}
                   {finalClipObject?.owner?.username ??
                     centerEllipses(finalClipObject?.owner?.address, 13)}
                 </Text>
               </Flex>
               {finalClipObject?.videoLink && (
-                <Flex justifyContent={"center"} mt="20px">
-                  <Button
+                <Flex justifyContent={"center"} mt="20px" gap="10px">
+                  <IconButton
+                    aria-label="tweet-clip-link"
+                    color="white"
+                    icon={
+                      <Image src="/images/twitter-350x350.png" height="50px" />
+                    }
+                    bg="transparent"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{}}
                     onClick={() => {
                       window.open(
                         `https://x.com/intent/tweet?text=${encodeURIComponent(
@@ -992,23 +1001,30 @@ const Clip = () => {
                         "_blank"
                       );
                     }}
-                  >
-                    Post on X
-                  </Button>
-                  <Button
+                  />
+                  <IconButton
+                    aria-label="warpcast-clip-link"
+                    color="white"
+                    icon={
+                      <Image src="/images/warpcast-350x350.png" height="50px" />
+                    }
+                    bg="transparent"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{}}
                     onClick={() => {
                       window.open(
                         `https://warpcast.com/~/compose?text=Hello%20world!&embeds[]=${finalClipObject?.videoLink}`,
                         "_blank"
                       );
                     }}
-                  >
-                    Post on Warpcast
-                  </Button>
+                  />
                   <IconButton
                     aria-label="copy-clip-link"
                     color="white"
-                    icon={<FaRegCopy />}
+                    icon={
+                      <Image src="/images/copy-350x350.png" height="50px" />
+                    }
                     bg="transparent"
                     _focus={{}}
                     _active={{}}
