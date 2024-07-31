@@ -40,7 +40,7 @@ export type MessageItemProps = {
   handleCollectorMint?: (
     tokenContract: `0x${string}`,
     tokenId: number,
-    quantityToMint: number
+    quantityToMint: bigint
   ) => Promise<TransactionReceipt | undefined>;
   channel: AblyChannelPromise;
 };

@@ -15,7 +15,7 @@ export const useZoraCollect1155 = () => {
         },
       });
 
-    const collectorMint = async (tokenContract: `0x${string}`, tokenId: number, quantityToMint: number): Promise<TransactionReceipt | undefined> => {
+    const collectorMint = async (tokenContract: `0x${string}`, tokenId: number, quantityToMint: bigint): Promise<TransactionReceipt | undefined> => {
         if (!publicClient || !walletClient?.account.address) {
             console.log("publicClient or walletClient is missing");
             return undefined;

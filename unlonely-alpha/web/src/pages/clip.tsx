@@ -9,6 +9,8 @@ import {
   Text,
   Box,
   Progress,
+  IconButton,
+  useToast,
 } from "@chakra-ui/react";
 import { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { MdDragIndicator } from "react-icons/md";
@@ -67,6 +69,9 @@ import { useAblyChannel } from "../hooks/chat/useChatChannel";
 import { SenderStatus } from "../constants/types/chat";
 import centerEllipses from "../utils/centerEllipses";
 import { useNetworkContext } from "../hooks/context/useNetwork";
+import AppLayout from "../components/layout/AppLayout";
+import { FaRegCopy } from "react-icons/fa6";
+import copy from "copy-to-clipboard";
 
 const multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
 const PROTOCOL_ADDRESS = "0x53D6D64945A67658C66730Ff4a038eb298eC8902";
@@ -105,6 +110,7 @@ const Clip = () => {
   });
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const toast = useToast();
 
   const [clipRange, setClipRange] = useState<[number, number]>([0, 0]);
   const [title, setTitle] = useState("");
@@ -755,194 +761,246 @@ const Clip = () => {
     return transaction;
   };
 
-  return (
-    <Flex h="100vh" bg="rgba(5, 0, 31, 1)" direction={"column"}>
-      <Header />
-      {(pageState === "clipping" || pageState === "trimming") && (
-        <div
-          className="image-container"
-          style={{
-            position: "fixed",
-          }}
-        >
-          {images.map((image, index) => (
-            <img
-              key={index}
-              id={`scrolling-image-${index}`}
-              src={image.src}
-              className={
-                nyanCatFaceForward[index]
-                  ? "scroll-image-forward"
-                  : "scroll-image-backward"
-              }
-              onClick={() => handleClickNyanCat(index)}
-              style={{
-                top: image.top,
-                animationDelay: image.delay,
-                cursor: "pointer",
-              }}
-              alt={`scrolling-image-${index}`}
-            />
-          ))}
-        </div>
-      )}
-      <Flex p="20" justifyContent={"center"} h="100%">
-        {pageState === "offline" ? (
-          <Flex direction={"column"} justifyContent={"center"}>
-            <Text
-              fontSize="30px"
-              mb="30px"
-              textAlign="center"
-              fontWeight={"bold"}
-            >
-              Cannot clip, livestream is offline
-            </Text>
-          </Flex>
-        ) : pageState === "trimming" ? (
-          <Flex direction={"column"} justifyContent={"center"}>
-            <Text
-              fontSize="30px"
-              mb="30px"
-              textAlign="center"
-              fontWeight={"bold"}
-            >
-              DO NOT CLOSE TAB, you'll get a wallet txn prompt in 1-2 mins
-            </Text>
-            <Progress
-              colorScheme="green"
-              height="32px"
-              value={progressPercentage}
-            />
-            <Text mt="30px" textAlign="center">
-              {transactionMessage ??
-                carouselProgressStatusMessages[carouselProgressIndex]}
-            </Text>
-          </Flex>
-        ) : pageState === "clipping" ? (
-          <Flex direction={"column"}>
-            <Text fontSize="30px" mb="10px" textAlign="center">
-              CLIP IS LOADING
-            </Text>
-            <Text
-              fontSize="30px"
-              mb="30px"
-              textAlign="center"
-              fontWeight={"bold"}
-            >
-              DO NOT CLOSE TAB
-            </Text>
+  const handleCopy = () => {
+    toast({
+      title: "copied to clipboard",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
 
-            <Text fontSize="30px" textAlign="center" mb="100px">
-              (OR NYAN CAT WILL COME FOR YOU)
-            </Text>
-            <Text fontSize="20px" textAlign="center">
-              this may take up to 30s depending on your connection
-            </Text>
-          </Flex>
-        ) : pageState === "selecting" ? (
-          <Flex direction="column" gap="10px">
-            <video
-              ref={videoRef}
-              src={roughClipUrl.concat("#t=0.1")}
-              style={{
-                height: "500px",
-              }}
-              onTimeUpdate={handleTimeUpdate}
-              onSeeking={handleSeeking}
-              controls
-              onEnded={() => {
-                videoRef.current!.currentTime = clipRange[0];
-                videoRef.current!.play();
-              }}
-            />
-            <Text
-              h="20px"
-              color={
-                clipRange[1] - clipRange[0] > 30 ||
-                clipRange[1] - clipRange[0] < 2
-                  ? "red"
-                  : "white"
-              }
-            >
-              {clipRange[1] - clipRange[0] > 30
-                ? "clip must be 30s long or shorter"
-                : clipRange[1] - clipRange[0] < 2
-                ? "clip must be at least 2s long"
-                : !title
-                ? "Enter a title for this clip"
-                : title.length > 100
-                ? "title must be 100 characters or under"
-                : ""}
-            </Text>
-            <>
-              <RangeSlider
-                aria-label={["min", "max"]}
-                defaultValue={[0, 100]}
-                min={0}
-                max={videoRef.current?.duration || 100}
-                value={clipRange}
-                onChange={handleRangeChange}
-              >
-                <RangeSliderTrack height="40px" backgroundColor="#414141">
-                  <RangeSliderFilledTrack
-                    bg={
-                      clipRange[1] - clipRange[0] > 30 ? "#ba0000" : "#343dbb"
-                    }
-                  />
-                </RangeSliderTrack>
-                <RangeSliderThumb height={"40px"} borderRadius={0} index={0}>
-                  <MdDragIndicator color={"#343dbb"} size={"40"} />
-                </RangeSliderThumb>
-                <RangeSliderThumb height={"40px"} borderRadius={0} index={1}>
-                  <MdDragIndicator color={"#343dbb"} size={"40"} />
-                </RangeSliderThumb>
-              </RangeSlider>
-              <Input
-                variant="glow"
-                placeholder={"title"}
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-              <Button
-                position="relative"
-                onClick={() => {
-                  if (title) handleTrimVideo();
+  return (
+    <AppLayout isCustomHeader={false} noHeader>
+      <Flex bg="rgba(5, 0, 31, 1)" direction={"column"}>
+        <Header />
+        {(pageState === "clipping" || pageState === "trimming") && (
+          <div
+            className="image-container"
+            style={{
+              position: "fixed",
+            }}
+          >
+            {images.map((image, index) => (
+              <img
+                key={index}
+                id={`scrolling-image-${index}`}
+                src={image.src}
+                className={
+                  nyanCatFaceForward[index]
+                    ? "scroll-image-forward"
+                    : "scroll-image-backward"
+                }
+                onClick={() => handleClickNyanCat(index)}
+                style={{
+                  top: image.top,
+                  animationDelay: image.delay,
+                  cursor: "pointer",
                 }}
-                isDisabled={
-                  !title ||
+                alt={`scrolling-image-${index}`}
+              />
+            ))}
+          </div>
+        )}
+        <Flex p="20" justifyContent={"center"} h="100%">
+          {pageState === "offline" ? (
+            <Flex direction={"column"} justifyContent={"center"}>
+              <Text
+                fontSize="30px"
+                mb="30px"
+                textAlign="center"
+                fontWeight={"bold"}
+              >
+                Cannot clip, livestream is offline
+              </Text>
+            </Flex>
+          ) : pageState === "trimming" ? (
+            <Flex direction={"column"} justifyContent={"center"}>
+              <Text
+                fontSize="30px"
+                mb="30px"
+                textAlign="center"
+                fontWeight={"bold"}
+              >
+                DO NOT CLOSE TAB, you'll get a wallet txn prompt in 1-2 mins
+              </Text>
+              <Progress
+                colorScheme="green"
+                height="32px"
+                value={progressPercentage}
+              />
+              <Text mt="30px" textAlign="center">
+                {transactionMessage ??
+                  carouselProgressStatusMessages[carouselProgressIndex]}
+              </Text>
+            </Flex>
+          ) : pageState === "clipping" ? (
+            <Flex direction={"column"}>
+              <Text fontSize="30px" mb="10px" textAlign="center">
+                CLIP IS LOADING
+              </Text>
+              <Text
+                fontSize="30px"
+                mb="30px"
+                textAlign="center"
+                fontWeight={"bold"}
+              >
+                DO NOT CLOSE TAB
+              </Text>
+
+              <Text fontSize="30px" textAlign="center" mb="100px">
+                (OR NYAN CAT WILL COME FOR YOU)
+              </Text>
+              <Text fontSize="20px" textAlign="center">
+                this may take up to 30s depending on your connection
+              </Text>
+            </Flex>
+          ) : pageState === "selecting" ? (
+            <Flex direction="column" gap="10px">
+              <video
+                ref={videoRef}
+                src={roughClipUrl.concat("#t=0.1")}
+                style={{
+                  height: "500px",
+                }}
+                onTimeUpdate={handleTimeUpdate}
+                onSeeking={handleSeeking}
+                controls
+                onEnded={() => {
+                  videoRef.current!.currentTime = clipRange[0];
+                  videoRef.current!.play();
+                }}
+              />
+              <Text
+                h="20px"
+                color={
                   clipRange[1] - clipRange[0] > 30 ||
-                  clipRange[1] - clipRange[0] < 2 ||
-                  title.length > 100
+                  clipRange[1] - clipRange[0] < 2
+                    ? "red"
+                    : "white"
                 }
               >
-                <Box
-                  position="absolute"
-                  top="0"
-                  left="0"
-                  height="100%"
-                  bg="green.400"
-                  zIndex="1"
+                {clipRange[1] - clipRange[0] > 30
+                  ? "clip must be 30s long or shorter"
+                  : clipRange[1] - clipRange[0] < 2
+                  ? "clip must be at least 2s long"
+                  : !title
+                  ? "Enter a title for this clip"
+                  : title.length > 100
+                  ? "title must be 100 characters or under"
+                  : ""}
+              </Text>
+              <>
+                <RangeSlider
+                  aria-label={["min", "max"]}
+                  defaultValue={[0, 100]}
+                  min={0}
+                  max={videoRef.current?.duration || 100}
+                  value={clipRange}
+                  onChange={handleRangeChange}
+                >
+                  <RangeSliderTrack height="40px" backgroundColor="#414141">
+                    <RangeSliderFilledTrack
+                      bg={
+                        clipRange[1] - clipRange[0] > 30 ? "#ba0000" : "#343dbb"
+                      }
+                    />
+                  </RangeSliderTrack>
+                  <RangeSliderThumb height={"40px"} borderRadius={0} index={0}>
+                    <MdDragIndicator color={"#343dbb"} size={"40"} />
+                  </RangeSliderThumb>
+                  <RangeSliderThumb height={"40px"} borderRadius={0} index={1}>
+                    <MdDragIndicator color={"#343dbb"} size={"40"} />
+                  </RangeSliderThumb>
+                </RangeSlider>
+                <Input
+                  variant="glow"
+                  placeholder={"title"}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                 />
-                <Text position="relative" zIndex="2" width="100%">
-                  Create
-                </Text>
-              </Button>
-            </>
-          </Flex>
-        ) : pageState === "sharing" ? (
-          <>
-            <video
-              ref={videoRef}
-              src={finalClipObject?.videoLink.concat("#t=0.1")}
-              style={{
-                height: "500px",
-              }}
-              controls
-            />
-          </>
-        ) : null}
+                <Button
+                  position="relative"
+                  onClick={() => {
+                    if (title) handleTrimVideo();
+                  }}
+                  isDisabled={
+                    !title ||
+                    clipRange[1] - clipRange[0] > 30 ||
+                    clipRange[1] - clipRange[0] < 2 ||
+                    title.length > 100
+                  }
+                >
+                  <Box
+                    position="absolute"
+                    top="0"
+                    left="0"
+                    height="100%"
+                    bg="green.400"
+                    zIndex="1"
+                  />
+                  <Text position="relative" zIndex="2" width="100%">
+                    Create
+                  </Text>
+                </Button>
+              </>
+            </Flex>
+          ) : pageState === "sharing" ? (
+            <Flex direction={"column"} justifyContent={"center"}>
+              <video
+                ref={videoRef}
+                src={finalClipObject?.videoLink.concat("#t=0.1")}
+                style={{
+                  height: "500px",
+                }}
+                controls
+              />
+              {finalClipObject?.videoLink && (
+                <Flex>
+                  <Button
+                    onClick={() => {
+                      window.open(
+                        `https://x.com/intent/tweet?text=${encodeURIComponent(
+                          `Check this out: ${finalClipObject?.videoLink}`
+                        )}`,
+                        "_blank"
+                      );
+                    }}
+                  >
+                    Post on X
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      window.open(
+                        `https://warpcast.com/~/compose?text=Hello%20world!&embeds[]=${finalClipObject?.videoLink}`,
+                        "_blank"
+                      );
+                    }}
+                  >
+                    Post on Warpcast
+                  </Button>
+                  <IconButton
+                    aria-label="copy-clip-link"
+                    color="white"
+                    icon={<FaRegCopy />}
+                    height="20px"
+                    minWidth={"20px"}
+                    bg="transparent"
+                    _focus={{}}
+                    _active={{}}
+                    _hover={{}}
+                    onClick={() => {
+                      copy(finalClipObject?.videoLink);
+                      handleCopy();
+                    }}
+                  />
+                </Flex>
+              )}
+            </Flex>
+          ) : null}
+        </Flex>
       </Flex>
-    </Flex>
+    </AppLayout>
   );
 };
 export default Clip;

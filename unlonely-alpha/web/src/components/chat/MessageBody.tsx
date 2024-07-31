@@ -30,6 +30,10 @@ import { formatTimestampToTime } from "../../utils/time";
 import { TiPin } from "react-icons/ti";
 import { MessageItemProps } from "./MessageList";
 import { messageStyle } from "../../utils/messageStyle";
+import {
+  filteredInput,
+  formatIncompleteNumber,
+} from "../../utils/validation/input";
 
 type Props = MessageItemProps & {
   messageText: string;
@@ -56,9 +60,9 @@ const MessageBody = ({
   const { channelQueryData, channelRoles } = c;
 
   const [mouseHover, setMouseHover] = useState(false);
-  const [selectedTokensToMint, setSelectedTokensToMint] = useState(1);
+  const [selectedTokensToMint, setSelectedTokensToMint] = useState<string>("1");
   const [customAmountSelected, setCustomAmountSelected] = useState(false);
-  const [customTokensToMint, setCustomTokensToMint] = useState(69);
+  const [customTokensToMint, setCustomTokensToMint] = useState<string>("");
   const [nfcExpanded, setNfcExpanded] = useState(false);
 
   const userIsChannelOwner = useMemo(
@@ -202,7 +206,46 @@ const MessageBody = ({
                       : false)
                   }
                 >
-                  <>
+                  <Flex
+                    direction="column"
+                    bg="rgba(0,0,0,0.5)"
+                    p="5px"
+                    borderRadius={"15px"}
+                  >
+                    <Flex gap="20px">
+                      <Link
+                        href={`${window.origin}/nfc/${
+                          JSON.parse(message.data.body as string).id
+                        }`}
+                        isExternal
+                      >
+                        <Text
+                          as="span"
+                          color="#15dae4"
+                          fontSize={"12px"}
+                          wordBreak="break-word"
+                          textAlign="left"
+                        >
+                          see clip
+                          <ExternalLinkIcon mx="2px" />
+                        </Text>
+                      </Link>
+                      <Link
+                        href={JSON.parse(message.data.body as string).zoraLink}
+                        isExternal
+                      >
+                        <Text
+                          as="span"
+                          color="#15dae4"
+                          fontSize={"12px"}
+                          wordBreak="break-word"
+                          textAlign="left"
+                        >
+                          see nft
+                          <ExternalLinkIcon mx="2px" />
+                        </Text>
+                      </Link>
+                    </Flex>
                     <Flex gap="10px" alignItems={"center"}>
                       <Button
                         color="rgba(63, 59, 253, 1)"
@@ -210,13 +253,13 @@ const MessageBody = ({
                         width="20px"
                         _hover={{}}
                         bg={
-                          selectedTokensToMint === 1
+                          selectedTokensToMint === "1"
                             ? "rgba(55, 255, 139, 1)"
                             : "white"
                         }
                         onClick={() => {
                           setCustomAmountSelected(false);
-                          setSelectedTokensToMint(1);
+                          setSelectedTokensToMint("1");
                         }}
                       >
                         1
@@ -227,13 +270,13 @@ const MessageBody = ({
                         width="20px"
                         _hover={{}}
                         bg={
-                          selectedTokensToMint === 3
+                          selectedTokensToMint === "3"
                             ? "rgba(55, 255, 139, 1)"
                             : "white"
                         }
                         onClick={() => {
                           setCustomAmountSelected(false);
-                          setSelectedTokensToMint(3);
+                          setSelectedTokensToMint("3");
                         }}
                       >
                         3
@@ -244,13 +287,13 @@ const MessageBody = ({
                         width="20px"
                         _hover={{}}
                         bg={
-                          selectedTokensToMint === 10
+                          selectedTokensToMint === "10"
                             ? "rgba(55, 255, 139, 1)"
                             : "white"
                         }
                         onClick={() => {
                           setCustomAmountSelected(false);
-                          setSelectedTokensToMint(10);
+                          setSelectedTokensToMint("10");
                         }}
                       >
                         10
@@ -285,7 +328,7 @@ const MessageBody = ({
                           p="4px"
                           value={customTokensToMint}
                           onChange={(e) =>
-                            setCustomTokensToMint(+e.target.value)
+                            setCustomTokensToMint(filteredInput(e.target.value))
                           }
                         />
                       </Button>
@@ -297,20 +340,24 @@ const MessageBody = ({
                         height="70px"
                         p="0"
                         isDisabled={
-                          (customAmountSelected
-                            ? customTokensToMint
-                            : selectedTokensToMint) === 0
+                          Number(
+                            formatIncompleteNumber(
+                              customAmountSelected
+                                ? customTokensToMint
+                                : selectedTokensToMint
+                            )
+                          ) === 0 || !user
                         }
                         onClick={async () => {
                           const n = customAmountSelected
                             ? customTokensToMint
                             : selectedTokensToMint;
-                          if (n === 0) return;
+                          if (n === "0") return;
                           const txr = await handleCollectorMint?.(
                             JSON.parse(message.data.body as string)
                               .contract1155Address,
                             JSON.parse(message.data.body as string).tokenId,
-                            n
+                            BigInt(n)
                           );
                           if (!txr) return;
                           channel?.publish({
@@ -350,13 +397,13 @@ const MessageBody = ({
                       <Text fontSize="10px" color="rgba(187, 201, 213, 1)">
                         total cost:{" "}
                         {(customAmountSelected
-                          ? customTokensToMint
-                          : selectedTokensToMint) *
+                          ? Number(customTokensToMint)
+                          : Number(selectedTokensToMint)) *
                           ETH_COST_FOR_ONE_NFT_MINT}{" "}
                         ETH
                       </Text>
                     </Flex>
-                  </>
+                  </Flex>
                 </MintWrapper>
               </Flex>
             </Box>
