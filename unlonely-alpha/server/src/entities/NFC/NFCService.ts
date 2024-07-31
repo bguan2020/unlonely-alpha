@@ -736,19 +736,30 @@ export interface IGetNFCFeedInput {
   offset: number;
   limit: number;
   orderBy: "createdAt" | "score";
+  channelId?: number;
+  ownerAddress?: string;
 }
 
 export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
+  const whereClause: any = {
+    videoLink: {
+      not: "",
+    },
+  };
+
+  if (data.channelId !== undefined) {
+    whereClause.channelId = data.channelId;
+  }
+
+  if (data.ownerAddress !== undefined) {
+    whereClause.ownerAddress = data.ownerAddress;
+  }
+
   if (data.orderBy === "createdAt") {
     return ctx.prisma.nFC.findMany({
       take: data.limit,
       skip: data.offset,
-      // where videoLink is not empty
-      where: {
-        videoLink: {
-          not: "",
-        },
-      },
+      where: whereClause,
       orderBy: {
         createdAt: "desc",
       },
@@ -757,11 +768,7 @@ export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
     return ctx.prisma.nFC.findMany({
       take: data.limit,
       skip: data.offset,
-      where: {
-        videoLink: {
-          not: "",
-        },
-      },
+      where: whereClause,
       orderBy: {
         score: "desc",
       },
