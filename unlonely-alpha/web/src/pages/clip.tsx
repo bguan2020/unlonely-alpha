@@ -772,7 +772,7 @@ const Clip = () => {
 
   return (
     <AppLayout isCustomHeader={false} noHeader>
-      <Flex bg="rgba(5, 0, 31, 1)" direction={"column"}>
+      <Flex bg="rgba(5, 0, 31, 1)" direction={"column"} h="100vh">
         <Header />
         {(pageState === "clipping" || pageState === "trimming") && (
           <div
@@ -955,8 +955,13 @@ const Clip = () => {
                 }}
                 controls
               />
+              <Flex>
+                <Text fontSize="30px" textAlign="center">
+                  {finalClipObject?.title ?? "title"}
+                </Text>
+              </Flex>
               {finalClipObject?.videoLink && (
-                <Flex>
+                <Flex justifyContent={"center"} mt="20px">
                   <Button
                     onClick={() => {
                       window.open(
@@ -983,8 +988,6 @@ const Clip = () => {
                     aria-label="copy-clip-link"
                     color="white"
                     icon={<FaRegCopy />}
-                    height="20px"
-                    minWidth={"20px"}
                     bg="transparent"
                     _focus={{}}
                     _active={{}}
