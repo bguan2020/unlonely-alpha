@@ -87,6 +87,8 @@ export const typeDef = gql`
     limit: Int
     offset: Int
     orderBy: SortBy
+    channelId: Int
+    ownerAddress: String
   }
 
   input PostNFCInput {

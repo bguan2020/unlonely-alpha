@@ -843,9 +843,11 @@ export type Nfc = Likable & {
 };
 
 export type NfcFeedInput = {
+  channelId?: InputMaybe<Scalars["Int"]>;
   limit?: InputMaybe<Scalars["Int"]>;
   offset?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<SortBy>;
+  ownerAddress?: InputMaybe<Scalars["String"]>;
 };
 
 export type NumberOfHolders = {
