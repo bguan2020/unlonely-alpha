@@ -98,6 +98,11 @@ type Aggregate3ValueFunction = ExtractAbiFunction<
 type Aggregate3ValueCall =
   AbiParametersToPrimitiveTypes<Aggregate3ValueFunction>[0][0];
 
+type FinalClipObject = PostNfcInput & {
+  id?: string;
+  owner?: { username?: string; address: string };
+};
+
 const Clip = () => {
   const router = useRouter();
   const { user } = useUser();
@@ -128,7 +133,7 @@ const Clip = () => {
     // "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a5e1mb4vfge22uvr/1200p0.mp4"
   );
   const [finalClipObject, setFinalClipObject] = useState<
-    PostNfcInput | undefined
+    FinalClipObject | undefined
   >(undefined);
   const [nyanCatFaceForward, setNyanCatFaceForward] = useState(
     new Array(images.length).fill(true)
@@ -617,6 +622,16 @@ const Clip = () => {
       };
       console.log("postNfcObject", postNfcObject);
       const postNFCRes = await postNFC(postNfcObject);
+      const _finalClipObject = {
+        ...postNfcObject,
+        id: postNFCRes?.res?.id,
+        owner: postNFCRes?.res?.owner
+          ? {
+              username: postNFCRes.res.owner.username ?? undefined, // Convert null to undefined
+              address: postNFCRes.res.owner.address,
+            }
+          : undefined,
+      };
       await channel.publish({
         name: CHAT_MESSAGE_EVENT,
         data: {
@@ -631,12 +646,11 @@ const Clip = () => {
           senderStatus: SenderStatus.CHATBOT,
           body: JSON.stringify({
             interactionType: InteractionType.PUBLISH_NFC,
-            id: postNFCRes?.res?.id,
-            ...postNfcObject,
+            ..._finalClipObject,
           }),
         },
       });
-      setFinalClipObject(postNfcObject);
+      setFinalClipObject(_finalClipObject);
       setPageState("sharing");
       setTransactionMessage(null);
     } catch (e) {
@@ -958,6 +972,13 @@ const Clip = () => {
               <Flex>
                 <Text fontSize="30px" textAlign="center">
                   {finalClipObject?.title ?? "title"}
+                </Text>
+              </Flex>
+              <Flex>
+                <Text fontSize="30px" textAlign="center">
+                  owned by{" "}
+                  {finalClipObject?.owner?.username ??
+                    centerEllipses(finalClipObject?.owner?.address, 13)}
                 </Text>
               </Flex>
               {finalClipObject?.videoLink && (
