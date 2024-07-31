@@ -6,12 +6,18 @@ import {
   Text,
   IconButton,
   Button,
+  Input,
 } from "@chakra-ui/react";
 import React, { useMemo, useState } from "react";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ExternalLinkIcon,
+} from "@chakra-ui/icons";
 
 import {
   CHAT_MESSAGE_EVENT,
+  ETH_COST_FOR_ONE_NFT_MINT,
   InteractionType,
   NULL_ADDRESS,
 } from "../../constants";
@@ -50,7 +56,10 @@ const MessageBody = ({
   const { channelQueryData, channelRoles } = c;
 
   const [mouseHover, setMouseHover] = useState(false);
-  const [selectedTokensToMint, setSelectedTokensToMint] = useState(0);
+  const [selectedTokensToMint, setSelectedTokensToMint] = useState(1);
+  const [customAmountSelected, setCustomAmountSelected] = useState(false);
+  const [customTokensToMint, setCustomTokensToMint] = useState(69);
+  const [nfcExpanded, setNfcExpanded] = useState(false);
 
   const userIsChannelOwner = useMemo(
     () => user?.address === channelQueryData?.owner.address,
@@ -136,99 +145,219 @@ const MessageBody = ({
           {isNfcRelated ? (
             <Box key={index} p="0.3rem" position="relative" width="100%">
               <Flex direction="column" justifyContent={"center"}>
-                <Text
-                  as="span"
-                  color={messageStyle(message.data.body).textColor ?? "white"}
-                  fontStyle={messageStyle(message.data.body).fontStyle}
-                  fontWeight={messageStyle(message.data.body).fontWeight}
-                  fontSize={"12px"}
-                  wordBreak="break-word"
-                  textAlign="left"
-                  filter={
-                    normalUserReceivesVipMessages ? "blur(5px)" : "blur(0px)"
+                <Flex justifyContent={"space-between"}>
+                  <Text
+                    as="span"
+                    color={messageStyle(message.data.body).textColor ?? "white"}
+                    fontStyle={messageStyle(message.data.body).fontStyle}
+                    fontWeight={messageStyle(message.data.body).fontWeight}
+                    fontSize={"12px"}
+                    wordBreak="break-word"
+                    textAlign="left"
+                    filter={
+                      normalUserReceivesVipMessages ? "blur(5px)" : "blur(0px)"
+                    }
+                  >
+                    {messageText.split("\n").map((line, index) => (
+                      <span key={index}>
+                        {line}
+                        <br />
+                      </span>
+                    ))}
+                  </Text>
+                  {(message.data.body &&
+                  JSON.parse(message.data.body).interactionType ===
+                    InteractionType.MINT_NFC_IN_CHAT
+                    ? true
+                    : false) && (
+                    <IconButton
+                      _hover={{
+                        color: "rgba(55, 255, 139, 1)",
+                        bg: "rgba(0, 0, 0, 0.1)",
+                      }}
+                      _focus={{}}
+                      _active={{}}
+                      icon={
+                        nfcExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />
+                      }
+                      aria-label="expand"
+                      right="0"
+                      height="20px"
+                      top="0"
+                      bg="transparent"
+                      color="white"
+                      onClick={() => {
+                        setNfcExpanded(!nfcExpanded);
+                      }}
+                    />
+                  )}
+                </Flex>
+                <MintWrapper
+                  hide={
+                    !nfcExpanded &&
+                    (message.data.body &&
+                    JSON.parse(message.data.body).interactionType ===
+                      InteractionType.MINT_NFC_IN_CHAT
+                      ? true
+                      : false)
                   }
                 >
-                  {messageText.split("\n").map((line, index) => (
-                    <span key={index}>
-                      {line}
-                      <br />
-                    </span>
-                  ))}
-                </Text>
-                <Flex gap="10px">
-                  <Button
-                    _hover={{}}
-                    bg={
-                      selectedTokensToMint === 1
-                        ? "rgba(63, 59, 253, 1)"
-                        : "white"
-                    }
-                    onClick={() => setSelectedTokensToMint(1)}
-                  >
-                    1
-                  </Button>
-                  <Button
-                    _hover={{}}
-                    bg={
-                      selectedTokensToMint === 3
-                        ? "rgba(63, 59, 253, 1)"
-                        : "white"
-                    }
-                    onClick={() => setSelectedTokensToMint(3)}
-                  >
-                    3
-                  </Button>
-                  <Button
-                    _hover={{}}
-                    bg={
-                      selectedTokensToMint === 10
-                        ? "rgba(63, 59, 253, 1)"
-                        : "white"
-                    }
-                    onClick={() => setSelectedTokensToMint(10)}
-                  >
-                    10
-                  </Button>
-                  <Button
-                    onClick={async () => {
-                      const n = selectedTokensToMint;
-                      if (n === 0) return;
-                      const txr = await handleCollectorMint?.(
-                        JSON.parse(message.data.body as string)
-                          .contract1155Address,
-                        JSON.parse(message.data.body as string).tokenId,
-                        n
-                      );
-                      if (!txr) return;
-                      channel?.publish({
-                        name: CHAT_MESSAGE_EVENT,
-                        data: {
-                          messageText: `${
-                            user?.username ?? centerEllipses(user?.address, 13)
-                          } minted ${n}x "${
-                            JSON.parse(message.data.body as string).title
-                          }"`,
-                          username: "🤖",
-                          address: NULL_ADDRESS,
-                          isFC: false,
-                          isLens: false,
-                          isGif: false,
-                          senderStatus: SenderStatus.CHATBOT,
-                          body: JSON.stringify({
-                            interactionType: InteractionType.MINT_NFC_IN_CHAT,
-                            contract1155Address: JSON.parse(
-                              message.data.body as string
-                            ).contract1155Address,
-                            tokenId: JSON.parse(message.data.body as string)
-                              .tokenId,
-                          }),
-                        },
-                      });
-                    }}
-                  >
-                    Mint now
-                  </Button>
-                </Flex>
+                  <>
+                    <Flex gap="10px" alignItems={"center"}>
+                      <Button
+                        color="rgba(63, 59, 253, 1)"
+                        height="20px"
+                        width="20px"
+                        _hover={{}}
+                        bg={
+                          selectedTokensToMint === 1
+                            ? "rgba(55, 255, 139, 1)"
+                            : "white"
+                        }
+                        onClick={() => {
+                          setCustomAmountSelected(false);
+                          setSelectedTokensToMint(1);
+                        }}
+                      >
+                        1
+                      </Button>
+                      <Button
+                        color="rgba(63, 59, 253, 1)"
+                        height="20px"
+                        width="20px"
+                        _hover={{}}
+                        bg={
+                          selectedTokensToMint === 3
+                            ? "rgba(55, 255, 139, 1)"
+                            : "white"
+                        }
+                        onClick={() => {
+                          setCustomAmountSelected(false);
+                          setSelectedTokensToMint(3);
+                        }}
+                      >
+                        3
+                      </Button>
+                      <Button
+                        color="rgba(63, 59, 253, 1)"
+                        height="20px"
+                        width="20px"
+                        _hover={{}}
+                        bg={
+                          selectedTokensToMint === 10
+                            ? "rgba(55, 255, 139, 1)"
+                            : "white"
+                        }
+                        onClick={() => {
+                          setCustomAmountSelected(false);
+                          setSelectedTokensToMint(10);
+                        }}
+                      >
+                        10
+                      </Button>
+                      <Button
+                        color="rgba(63, 59, 253, 1)"
+                        height="20px"
+                        width="70px"
+                        p="0"
+                        _hover={{}}
+                        bg={
+                          customAmountSelected
+                            ? "rgba(55, 255, 139, 1)"
+                            : "white"
+                        }
+                        onClick={() => {
+                          setCustomAmountSelected(true);
+                          setSelectedTokensToMint(customTokensToMint);
+                        }}
+                        position={"relative"}
+                      >
+                        custom
+                        <Input
+                          cursor="pointer"
+                          position="absolute"
+                          bottom={customAmountSelected ? "-25px" : "0px"}
+                          opacity={customAmountSelected ? 1 : 0}
+                          transition={"all 0.3s"}
+                          bg={"white"}
+                          height="20px"
+                          width="70px"
+                          p="4px"
+                          value={customTokensToMint}
+                          onChange={(e) =>
+                            setCustomTokensToMint(+e.target.value)
+                          }
+                        />
+                      </Button>
+                      <Button
+                        bg={"rgba(55, 255, 139, 1)"}
+                        borderRadius={"50%"}
+                        width="70px"
+                        minWidth="70px"
+                        height="70px"
+                        p="0"
+                        isDisabled={
+                          (customAmountSelected
+                            ? customTokensToMint
+                            : selectedTokensToMint) === 0
+                        }
+                        onClick={async () => {
+                          const n = customAmountSelected
+                            ? customTokensToMint
+                            : selectedTokensToMint;
+                          if (n === 0) return;
+                          const txr = await handleCollectorMint?.(
+                            JSON.parse(message.data.body as string)
+                              .contract1155Address,
+                            JSON.parse(message.data.body as string).tokenId,
+                            n
+                          );
+                          if (!txr) return;
+                          channel?.publish({
+                            name: CHAT_MESSAGE_EVENT,
+                            data: {
+                              messageText: `${
+                                user?.username ??
+                                centerEllipses(user?.address, 13)
+                              } minted ${n}x "${
+                                JSON.parse(message.data.body as string).title
+                              }"`,
+                              username: "🤖",
+                              address: NULL_ADDRESS,
+                              isFC: false,
+                              isLens: false,
+                              isGif: false,
+                              senderStatus: SenderStatus.CHATBOT,
+                              body: JSON.stringify({
+                                interactionType:
+                                  InteractionType.MINT_NFC_IN_CHAT,
+                                contract1155Address: JSON.parse(
+                                  message.data.body as string
+                                ).contract1155Address,
+                                tokenId: JSON.parse(message.data.body as string)
+                                  .tokenId,
+                              }),
+                            },
+                          });
+                        }}
+                      >
+                        <Text whiteSpace={"normal"} overflowWrap={"break-word"}>
+                          MINT NOW
+                        </Text>
+                      </Button>
+                    </Flex>
+                    <Flex>
+                      <Text fontSize="10px" color="rgba(187, 201, 213, 1)">
+                        total cost:{" "}
+                        {(customAmountSelected
+                          ? customTokensToMint
+                          : selectedTokensToMint) *
+                          ETH_COST_FOR_ONE_NFT_MINT}{" "}
+                        ETH
+                      </Text>
+                    </Flex>
+                  </>
+                </MintWrapper>
               </Flex>
             </Box>
           ) : (
@@ -368,6 +497,16 @@ const MessageBody = ({
       </Flex>
     </>
   );
+};
+
+const MintWrapper = ({
+  hide,
+  children,
+}: {
+  hide: boolean;
+  children: React.ReactNode;
+}) => {
+  return <>{!hide && children}</>;
 };
 
 export default MessageBody;
