@@ -9,6 +9,8 @@ export type ChannelWideModalsStateType = {
   handleNotificationsModal: (value: boolean) => void;
   showModeratorModal: boolean;
   handleModeratorModal: (value: boolean) => void;
+  showClipDrawer: boolean;
+  handleClipDrawer: (value: boolean) => void;
 };
 
 export const useChannelWideModalsInitialState: ChannelWideModalsStateType = {
@@ -20,6 +22,8 @@ export const useChannelWideModalsInitialState: ChannelWideModalsStateType = {
   handleNotificationsModal: () => undefined,
   showModeratorModal: false,
   handleModeratorModal: () => undefined,
+  showClipDrawer: false,
+  handleClipDrawer: () => undefined,
 };
 
 export const useChannelWideModalsState = () => {
@@ -28,6 +32,7 @@ export const useChannelWideModalsState = () => {
   const [showNotificationsModal, setNotificationsModal] =
     useState<boolean>(false);
   const [showModeratorModal, setModeratorModal] = useState<boolean>(false);
+  const [showClipDrawer, setClipDrawer] = useState<boolean>(false);
 
   const handleEditModal = useCallback((value: boolean) => {
     setEditModal(value);
@@ -45,6 +50,10 @@ export const useChannelWideModalsState = () => {
     setModeratorModal(value);
   }, []);
 
+  const handleClipDrawer = useCallback((value: boolean) => {
+    setClipDrawer(value);
+  }, []);
+
   return {
     showChatCommandModal,
     handleChatCommandModal,
@@ -54,5 +63,7 @@ export const useChannelWideModalsState = () => {
     handleNotificationsModal,
     showModeratorModal,
     handleModeratorModal,
+    showClipDrawer,
+    handleClipDrawer,
   };
 };

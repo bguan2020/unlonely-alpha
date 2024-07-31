@@ -75,7 +75,12 @@ const ChatForm = ({
   } = useChannelContext();
   const { isVip } = leaderboard;
   const { handleIsClipUiOpen, loading: clipLoading } = chat;
-  const { handleStartedWelcomeTour, handleIsTourOpen, handleSetTourSteps } = ui;
+  const {
+    handleStartedWelcomeTour,
+    handleIsTourOpen,
+    handleSetTourSteps,
+    handleClipDrawer,
+  } = ui;
 
   const { channelQueryData, realTimeChannelDetails, channelRoles, isOwner } =
     channelContext;
@@ -491,6 +496,7 @@ const ChatForm = ({
                     onSelectEmoji={(emoji) => addEmoji(emoji)}
                     onSelectGif={(gif) => sendGif(gif)}
                   />
+                  <Button onClick={() => handleClipDrawer(true)}>clips</Button>
                 </Flex>
               </Flex>
               <Flex

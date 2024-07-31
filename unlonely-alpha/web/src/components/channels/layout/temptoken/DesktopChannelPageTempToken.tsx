@@ -21,6 +21,10 @@ import {
   Image,
   Box,
   Link,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerHeader,
 } from "@chakra-ui/react";
 import copy from "copy-to-clipboard";
 import { formatApolloError } from "../../../../utils/errorFormatting";
@@ -52,13 +56,14 @@ export const DesktopChannelPageTempToken = ({
   channelSSRDataError?: ApolloError;
 }) => {
   const { walletIsConnected } = useUser();
-  const { channel } = useChannelContext();
+  const { channel, ui } = useChannelContext();
   const {
     loading: channelDataLoading,
     error: channelDataError,
     handleChannelStaticData,
     isOwner,
   } = channel;
+  const { showClipDrawer, handleClipDrawer } = ui;
   const chat = useChat();
 
   const { tempToken } = useTempTokenContext();
@@ -256,6 +261,7 @@ export const DesktopChannelPageTempToken = ({
                   minW={["100%", "100%", "380px", "380px"]}
                   maxW={["100%", "100%", "380px", "380px"]}
                   gap="1rem"
+                  height="100%"
                 >
                   {loadingOnMount ||
                   loadingCurrentOnMount ||
@@ -364,6 +370,7 @@ export const DesktopChannelPageTempToken = ({
                       minW={["100%", "100%", "500px", "500px"]}
                       maxW={["100%", "100%", "500px", "500px"]}
                       gap="1rem"
+                      height="100%"
                     >
                       <TempTokenInterface
                         ablyChannel={chat.channel}
@@ -376,6 +383,7 @@ export const DesktopChannelPageTempToken = ({
                       minW={["100%", "100%", "380px", "380px"]}
                       maxW={["100%", "100%", "380px", "380px"]}
                       gap="1rem"
+                      height="100%"
                     >
                       <Flex direction="column" h="40%">
                         {isOwner && !isGameOngoing && (
@@ -410,6 +418,7 @@ export const DesktopChannelPageTempToken = ({
                       minW={["100%", "100%", "500px", "500px"]}
                       maxW={["100%", "100%", "500px", "500px"]}
                       gap="1rem"
+                      height="100%"
                     >
                       <VersusTempTokensInterface
                         ablyChannel={chat.channel}
@@ -422,6 +431,7 @@ export const DesktopChannelPageTempToken = ({
                       minW={["100%", "100%", "380px", "380px"]}
                       maxW={["100%", "100%", "380px", "380px"]}
                       gap="1rem"
+                      height="100%"
                     >
                       {(isOwner || (tokenA.symbol && tokenB.symbol)) && (
                         <Flex
@@ -458,6 +468,21 @@ export const DesktopChannelPageTempToken = ({
                 </>
               )}
             </Stack>
+            <Drawer
+              size={"xl"}
+              placement={"bottom"}
+              onClose={() => handleClipDrawer(false)}
+              isOpen={showClipDrawer}
+            >
+              <DrawerContent bgColor={"rgba(0, 0, 0, 0.7)"}>
+                <DrawerHeader borderBottomWidth="1px">Clips</DrawerHeader>
+                <DrawerBody>
+                  <p>Some contents...</p>
+                  <p>Some contents...</p>
+                  <p>Some contents...</p>
+                </DrawerBody>
+              </DrawerContent>
+            </Drawer>
           </Flex>
         ) : (
           <Flex
