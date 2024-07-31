@@ -45,6 +45,7 @@ import { VersusTempTokensInterface } from "../versus/VersusTempTokensInterface";
 import { calculateMaxWinnerTokensToMint } from "../../../../utils/calculateMaxWinnerTokensToMint";
 import { useIsGameOngoing } from "../../../../hooks/internal/temp-token/ui/useIsGameOngoing";
 import { TransactionModalTemplate } from "../../../transactions/TransactionModalTemplate";
+import { ChannelPageNfcsList } from "../../../NFCs/ChannelPageNfcsList";
 
 export const DesktopChannelPageTempToken = ({
   channelSSR,
@@ -477,9 +478,7 @@ export const DesktopChannelPageTempToken = ({
               <DrawerContent bgColor={"rgba(0, 0, 0, 0.7)"}>
                 <DrawerHeader borderBottomWidth="1px">Clips</DrawerHeader>
                 <DrawerBody>
-                  <p>Some contents...</p>
-                  <p>Some contents...</p>
-                  <p>Some contents...</p>
+                  <ChannelPageNfcsList />
                 </DrawerBody>
               </DrawerContent>
             </Drawer>
