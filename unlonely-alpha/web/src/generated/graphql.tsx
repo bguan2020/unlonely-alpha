@@ -2855,7 +2855,11 @@ export type PostNfcMutationVariables = Exact<{
 
 export type PostNfcMutation = {
   __typename?: "Mutation";
-  postNFC?: { __typename?: "NFC"; id: string } | null;
+  postNFC?: {
+    __typename?: "NFC";
+    id: string;
+    owner: { __typename?: "User"; username?: string | null; address: string };
+  } | null;
 };
 
 export type PostStreamInteractionMutationVariables = Exact<{
@@ -7188,6 +7192,10 @@ export const PostNfcDocument = gql`
   mutation PostNFC($data: PostNFCInput!) {
     postNFC(data: $data) {
       id
+      owner {
+        username
+        address
+      }
     }
   }
 `;

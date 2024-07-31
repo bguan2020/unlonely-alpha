@@ -17,6 +17,10 @@ const POST_NFC_MUTATION = gql`
   mutation PostNFC($data: PostNFCInput!) {
     postNFC(data: $data) {
       id
+      owner {
+        username
+        address
+      }
     }
   }
 `;
