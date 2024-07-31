@@ -752,7 +752,7 @@ export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
   }
 
   if (data.ownerAddress !== undefined) {
-    whereClause.ownerAddress = data.ownerAddress;
+    whereClause.ownerAddr = data.ownerAddress;
   }
 
   if (data.orderBy === "createdAt") {
