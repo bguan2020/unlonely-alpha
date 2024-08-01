@@ -135,7 +135,7 @@ export const ChannelPageNfcsList = () => {
             })}
             makeLinksExternal
             nextButton={
-              !fetchedUnderLimit && !filterNfcsByUserOnly
+              !fetchedUnderLimit
                 ? {
                     label: "load more",
                     onClick: fetchNfcs,
