@@ -2023,7 +2023,7 @@ export type NfcFeedQuery = {
   getNFCFeed?: Array<{
     __typename?: "NFC";
     createdAt: any;
-    channelId: string;
+    channelId?: string | null;
     id: string;
     videoLink?: string | null;
     videoThumbnail?: string | null;

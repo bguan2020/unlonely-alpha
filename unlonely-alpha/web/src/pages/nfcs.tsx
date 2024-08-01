@@ -205,7 +205,7 @@ const Nfcs = () => {
               </WrapItem>
             ))}
         </Wrap>
-        {!fetchedUnderLimit && (
+        {!fetchedUnderLimit && !hasAppliedFilters && (
           <Button
             opacity={showNextButton ? 1 : 0}
             transition={"all 0.3s"}
