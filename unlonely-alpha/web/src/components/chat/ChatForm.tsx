@@ -496,7 +496,6 @@ const ChatForm = ({
                     onSelectEmoji={(emoji) => addEmoji(emoji)}
                     onSelectGif={(gif) => sendGif(gif)}
                   />
-                  <Button onClick={() => handleClipDrawer(true)}>clips</Button>
                 </Flex>
               </Flex>
               <Flex

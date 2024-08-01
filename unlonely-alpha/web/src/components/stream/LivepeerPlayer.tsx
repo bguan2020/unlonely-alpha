@@ -18,9 +18,10 @@ import {
   PlayIcon,
   UnmuteIcon,
 } from "@livepeer/react/assets";
-import { BiRefresh } from "react-icons/bi";
+import { SlArrowDown } from "react-icons/sl";
 import copy from "copy-to-clipboard";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { useChannelContext } from "../../hooks/context/useChannel";
 
 const unacceptedErrors = ["Failed to connect to peer."];
 
@@ -34,6 +35,8 @@ const LivepeerPlayer = memo(
     isPreview?: boolean;
     customSizePercentages?: { width: `${number}%`; height: `${number}%` };
   }) => {
+    const { ui } = useChannelContext();
+    const { handleClipDrawer } = ui;
     const { isStandalone } = useUserAgent();
     const [opacity, setOpacity] = useState(0);
     const toast = useToast();
@@ -233,14 +236,26 @@ const LivepeerPlayer = memo(
                         }
                         fontFamily={"LoRes15"}
                       >
-                        Stream is offline
+                        stream offline
                       </Text>
                       {!isPreview && (
-                        <Text textAlign="center">
-                          Refresh for the latest streaming updates
-                        </Text>
+                        <>
+                          <Text textAlign="center">
+                            open here to catch up on clips from recent streams
+                          </Text>
+                          <IconButton
+                            _focus={{}}
+                            _active={{}}
+                            icon={<SlArrowDown size="25px" />}
+                            aria-label="open-clip-drawer"
+                            borderRadius={"100%"}
+                            bg="rgba(63, 59, 253, 1)"
+                            color="rgba(55, 255, 139, 1)"
+                            onClick={() => handleClipDrawer(true)}
+                          />
+                        </>
                       )}
-                      <IconButton
+                      {/* <IconButton
                         color="white"
                         aria-label="refresh"
                         icon={<BiRefresh size="30px" />}
@@ -253,7 +268,7 @@ const LivepeerPlayer = memo(
                         _active={{}}
                         borderWidth="1px"
                         zIndex="1"
-                      />
+                      /> */}
                     </>
                   )}
                 </Flex>
