@@ -16,7 +16,7 @@ export const typeDef = gql`
     createdAt: DateTime!
     updatedAt: DateTime!
     channel: Channel!
-    channelId: ID!
+    channelId: ID
   }
 
   type AssetTask {
