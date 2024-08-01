@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { Channel } from "../../generated/graphql";
 import centerEllipses from "../../utils/centerEllipses";
+import trailString from "../../utils/trailString";
 
 const unlonelyAvatar = "/icons/icon-192x192.png";
 
@@ -126,7 +127,7 @@ const ChannelCard = ({
                 textAlign="center"
                 fontFamily="LoRes15"
               >
-                {channel.owner.username ??
+                {trailString(channel.owner.username, 16) ??
                   centerEllipses(channel.owner.address, 15)}
               </Text>
             </Flex>
