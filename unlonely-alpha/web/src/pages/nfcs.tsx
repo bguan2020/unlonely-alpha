@@ -13,6 +13,7 @@ import {
   Text,
   Spinner,
   Input,
+  useToast,
 } from "@chakra-ui/react";
 import NfcCard from "../components/NFCs/NfcCard";
 import { useLazyQuery } from "@apollo/client";
@@ -45,6 +46,7 @@ const Nfcs = () => {
   const [hasAppliedFilters, setHasAppliedFilters] = useState(false);
 
   const channelNfcsToUse = hasAppliedFilters ? filteredNfcs : channelNfcs;
+  const toast = useToast();
 
   const [getChannelSearchResults] = useLazyQuery<GetChannelSearchResultsQuery>(
     GET_CHANNEL_SEARCH_RESULTS_QUERY
@@ -108,6 +110,9 @@ const Nfcs = () => {
     const filteredNfcs = (nfcs ?? []).filter(
       (nfc): nfc is NonNullable<typeof nfc> => nfc !== null && nfc !== undefined
     );
+    if (pagesFetched > 1 && filteredNfcs.length < NFC_FETCH_LIMIT) {
+      handleMaxNfcs();
+    }
     setFetchedUnderLimit(filteredNfcs.length < NFC_FETCH_LIMIT);
     setPagesFetched((prev) => prev + 1);
     setChannelNfcs((prev) => [...(prev || []), ...filteredNfcs]);
@@ -149,6 +154,15 @@ const Nfcs = () => {
       el.removeEventListener("scroll", handleScroll);
     };
   }, [ref.current]);
+
+  const handleMaxNfcs = () => {
+    toast({
+      title: "no more clips to fetch",
+      status: "error",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
 
   return (
     <AppLayout isCustomHeader={false} noHeader>
