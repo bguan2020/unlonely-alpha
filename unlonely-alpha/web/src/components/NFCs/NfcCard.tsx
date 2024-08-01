@@ -116,7 +116,7 @@ const LinkWrapper = ({ href, children, isExternal }: any) => {
 
   return (
     <Link href={href} passHref>
-      <a>{children}</a>
+      {children}
     </Link>
   );
 };

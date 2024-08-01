@@ -21,7 +21,7 @@ import {
 } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 
-const LIMIT = 30;
+export const NFC_FETCH_LIMIT = 30;
 
 export const ChannelPageNfcsList = () => {
   const { user } = useUser();
@@ -43,10 +43,10 @@ export const ChannelPageNfcsList = () => {
     const nfcsData = await call({
       variables: {
         data: {
-          limit: LIMIT,
+          limit: NFC_FETCH_LIMIT,
           orderBy: "createdAt",
           channelId: Number(channelQueryData.id),
-          offset: pagesFetched * LIMIT,
+          offset: pagesFetched * NFC_FETCH_LIMIT,
         },
       },
     });
@@ -55,7 +55,7 @@ export const ChannelPageNfcsList = () => {
       (nfc): nfc is NonNullable<typeof nfc> => nfc !== null && nfc !== undefined
     );
     setPagesFetched((prev) => prev + 1);
-    setFetchedUnderLimit(filteredNfcs.length < LIMIT);
+    setFetchedUnderLimit(filteredNfcs.length < NFC_FETCH_LIMIT);
     setChannelNfcs((prev) => [...(prev || []), ...filteredNfcs]);
   }, [channelQueryData?.id, user?.address, pagesFetched]);
 

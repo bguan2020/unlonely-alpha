@@ -1,4 +1,4 @@
-import { Button, Flex, Text } from "@chakra-ui/react";
+import { Button, Flex, Spinner, Text } from "@chakra-ui/react";
 import { useRef, useEffect, useState } from "react";
 
 import NfcCard from "./NfcCard";
@@ -9,7 +9,7 @@ type Props = {
   makeLinksExternal?: boolean;
   nextButton?: {
     label: string;
-    onClick: () => void;
+    onClick: () => Promise<void>;
   };
   loading?: boolean;
 };
@@ -85,13 +85,14 @@ const NfcList: React.FunctionComponent<Props> = ({
           transition={"all 0.3s"}
           right={showNextButton ? "50px" : 0}
           position="fixed"
-          onClick={() => {
-            nextButton?.onClick();
-            setShowNextButton(false);
+          onClick={async () => {
+            await nextButton?.onClick().then(() => {
+              setShowNextButton(false);
+            });
           }}
-          bg={"black"}
+          bg={"rgba(55, 255, 139, 1)"}
         >
-          <Text>{nextButton?.label}</Text>
+          <Text>{loading ? <Spinner /> : nextButton?.label}</Text>
         </Button>
       )}
     </Flex>
