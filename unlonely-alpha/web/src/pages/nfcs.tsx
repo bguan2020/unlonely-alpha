@@ -39,8 +39,12 @@ const Nfcs = () => {
   const [filterStreamer, setFilterStreamer] = useState("");
   const [filterClipper, setFilterClipper] = useState("");
 
-  const channelNfcsToUse =
-    (filteredNfcs?.length ?? 0) > 0 ? filteredNfcs : channelNfcs;
+  const [appliedFilterStreamer, setAppliedFilterStreamer] = useState("");
+  const [appliedFilterClipper, setAppliedFilterClipper] = useState("");
+
+  const [hasAppliedFilters, setHasAppliedFilters] = useState(false);
+
+  const channelNfcsToUse = hasAppliedFilters ? filteredNfcs : channelNfcs;
 
   const [getChannelSearchResults] = useLazyQuery<GetChannelSearchResultsQuery>(
     GET_CHANNEL_SEARCH_RESULTS_QUERY
@@ -53,7 +57,7 @@ const Nfcs = () => {
         variables: {
           data: {
             query: filterStreamer,
-            slugOnly: true,
+            containsSlug: true,
             includeSoftDeletedChannels: true,
           },
         },
@@ -62,7 +66,9 @@ const Nfcs = () => {
         (c: any) => c?.id
       );
       console.log(matchingIds);
-      newNfcResults = newNfcResults?.filter((nfc) => matchingIds.includes(nfc));
+      newNfcResults = newNfcResults?.filter((nfc) =>
+        matchingIds.includes(nfc?.channelId)
+      );
     }
     if (filterClipper.length > 0) {
       newNfcResults = newNfcResults?.filter(
@@ -76,9 +82,15 @@ const Nfcs = () => {
       );
     }
     if (filterStreamer.length === 0 && filterClipper.length === 0) {
+      setAppliedFilterStreamer("");
+      setAppliedFilterClipper("");
+      setHasAppliedFilters(false);
       setFilteredNfcs([]);
       return;
     }
+    setAppliedFilterStreamer(filterStreamer);
+    setAppliedFilterClipper(filterClipper);
+    setHasAppliedFilters(true);
     setFilteredNfcs(newNfcResults);
   }, [filterStreamer, filterClipper, channelNfcs]);
 
@@ -143,19 +155,25 @@ const Nfcs = () => {
       <Flex direction="column" height="100vh">
         <Header />
         <Flex px="20px" gap="10px">
-          <Input
-            variant="glow"
-            placeholder="filter for a streamer"
-            value={filterStreamer}
-            onChange={(e) => setFilterStreamer(e.target.value)}
-          />
-          <Input
-            variant="glow"
-            placeholder="filter for a clipper"
-            value={filterClipper}
-            onChange={(e) => setFilterClipper(e.target.value)}
-          />
-          <Button onClick={applyFilters}>go</Button>
+          <Flex direction="column">
+            <Input
+              variant="glow"
+              placeholder="filter for a streamer"
+              value={filterStreamer}
+              onChange={(e) => setFilterStreamer(e.target.value)}
+            />
+            {appliedFilterStreamer && <Text>{appliedFilterStreamer}</Text>}
+          </Flex>
+          <Flex direction="column">
+            <Input
+              variant="glow"
+              placeholder="filter for a clipper"
+              value={filterClipper}
+              onChange={(e) => setFilterClipper(e.target.value)}
+            />
+            {appliedFilterClipper && <Text>{appliedFilterClipper}</Text>}
+          </Flex>
+          <Button onClick={applyFilters}>apply</Button>
         </Flex>
         <Wrap
           ref={ref}

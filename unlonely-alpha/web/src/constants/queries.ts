@@ -289,6 +289,7 @@ export const NFC_FEED_QUERY = gql`
   query NFCFeed($data: NFCFeedInput!) {
     getNFCFeed(data: $data) {
       createdAt
+      channelId
       id
       videoLink
       videoThumbnail

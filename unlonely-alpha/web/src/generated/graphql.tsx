@@ -2023,6 +2023,7 @@ export type NfcFeedQuery = {
   getNFCFeed?: Array<{
     __typename?: "NFC";
     createdAt: any;
+    channelId: string;
     id: string;
     videoLink?: string | null;
     videoThumbnail?: string | null;
@@ -4245,6 +4246,7 @@ export const NfcFeedDocument = gql`
   query NFCFeed($data: NFCFeedInput!) {
     getNFCFeed(data: $data) {
       createdAt
+      channelId
       id
       videoLink
       videoThumbnail
