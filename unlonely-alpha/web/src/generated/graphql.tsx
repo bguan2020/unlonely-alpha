@@ -827,7 +827,7 @@ export type MutationUpdateUserNotificationsArgs = {
 export type Nfc = Likable & {
   __typename?: "NFC";
   channel: Channel;
-  channelId: Scalars["ID"];
+  channelId?: Maybe<Scalars["ID"]>;
   contract1155Address?: Maybe<Scalars["String"]>;
   contract1155ChainId?: Maybe<Scalars["Int"]>;
   createdAt: Scalars["DateTime"];
