@@ -12,6 +12,7 @@ import { TempTokenProvider } from "../../hooks/context/useTempToken";
 import { DesktopChannelPageTempToken } from "../../components/channels/layout/temptoken/DesktopChannelPageTempToken";
 import { VersusTempTokenProvider } from "../../hooks/context/useVersusTempToken";
 import Head from "next/head";
+import { VibesProvider } from "../../hooks/context/useVibes";
 
 const ChannelDetail = ({
   channelData,
@@ -85,11 +86,13 @@ const ChannelDetail = ({
         ) : (
           <TempTokenProvider>
             <VersusTempTokenProvider>
-              <MobilePage
-                channelSSR={channelSSR}
-                channelSSRDataLoading={channelDataLoading}
-                channelSSRDataError={channelDataError}
-              />
+              <VibesProvider>
+                <MobilePage
+                  channelSSR={channelSSR}
+                  channelSSRDataLoading={channelDataLoading}
+                  channelSSRDataError={channelDataError}
+                />
+              </VibesProvider>
             </VersusTempTokenProvider>
           </TempTokenProvider>
         )}
