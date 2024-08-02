@@ -27,6 +27,8 @@ import {
 } from "../utils/dataMetricsFormatting";
 import useDebounce from "../hooks/internal/useDebounce";
 
+const EXCLUDED_PLAYBACK_IDS = ["a3c1xtfzwcwqzv51"];
+
 export type MergedMetrics = {
   timestamp: number;
   [playbackId: string]: number; // Allow playbackId-specific viewCounts
@@ -350,9 +352,13 @@ const Graphs = memo(
               },
             });
             const data = res?.data?.getLivepeerViewershipMetrics;
-            const nonNullData = data?.filter(
-              (item): item is LivepeerViewershipMetrics => item !== null
-            );
+            const nonNullData = data
+              ?.filter(
+                (item): item is LivepeerViewershipMetrics => item !== null
+              )
+              .filter(
+                (item) => !EXCLUDED_PLAYBACK_IDS.includes(item.playbackId)
+              );
             if (nonNullData && nonNullData.length > 0) {
               metricData = nonNullData;
               setGraphsLoading("assembling");
