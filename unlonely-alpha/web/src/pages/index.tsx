@@ -1,4 +1,5 @@
 import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
+import { GraphQLClient, gql } from "graphql-request";
 import {
   Box,
   Button,
@@ -44,7 +45,7 @@ import { sortChannels } from "../utils/channelSort";
 import { useCacheContext } from "../hooks/context/useCache";
 import ChannelList from "../components/channels/ChannelList";
 import VibesTokenInterface from "../components/chat/VibesTokenInterface";
-import HeroBanner from "../components/layout/HeroBanner";
+// import HeroBanner from "../components/layout/HeroBanner";
 import TempTokenLeaderboard from "../components/leaderboards/TempTokenLeaderboard";
 import { VibesProvider } from "../hooks/context/useVibes";
 
@@ -334,6 +335,51 @@ function DesktopHomePage({
     xl: true,
   });
 
+  // Define the endpoint URL
+  const endpoint = "https://api.zora.co/graphql";
+
+  // Create a GraphQL client
+  const client = new GraphQLClient(endpoint);
+
+  // Define the GraphQL query
+  const query = gql`
+    query MyQuery($tokenAddress: String!, $tokenId: String!) {
+      mints(
+        networks: { network: BASE, chain: BASE_MAINNET }
+        sort: { sortKey: TIME, sortDirection: DESC }
+        where: { tokens: { address: $tokenAddress, tokenId: $tokenId } }
+      ) {
+        nodes {
+          mint {
+            quantity
+          }
+        }
+      }
+    }
+  `;
+
+  // useEffect(() => {
+  //   const variables = {
+  //     tokenAddress: "0xf64ca5200134c40834b2e79e68fba4cf0d8ccdbb",
+  //     tokenId: "2",
+  //   };
+  //   const fetchData = async () => {
+  //     try {
+  //       const data = await client.request(query, variables);
+  //       const totalQuantity = data.mints.nodes.reduce(
+  //         (accumulator: number, node: { mint: { quantity: number } }) => {
+  //           return accumulator + node.mint.quantity;
+  //         },
+  //         0
+  //       );
+  //       console.log("Total quantity:", totalQuantity);
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
+  //   fetchData();
+  // }, []);
+
   return (
     <AppLayout isCustomHeader={false}>
       {!directingToChannel ? (
@@ -359,7 +405,7 @@ function DesktopHomePage({
             </DrawerContent>
           </Drawer>
           <Flex direction="column" gap={5}>
-            <HeroBanner />
+            {/* <HeroBanner /> */}
             {!sideBarBreakpoints && !loading && (
               <Flex justifyContent={"center"}>
                 <Button

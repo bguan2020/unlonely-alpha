@@ -14,16 +14,17 @@ import EmojiPicker from "./EmojiPicker";
 import { EmojiType } from "../../../constants/types/chat";
 
 type Props = {
+  img?: JSX.Element;
   onSelectEmoji: (emoji: EmojiType) => void;
   onSelectGif: (gif: string) => void;
 };
 
-const EmojiButton = ({ onSelectEmoji, onSelectGif }: Props) => {
+const EmojiButton = ({ img, onSelectEmoji, onSelectGif }: Props) => {
   return (
     <Popover>
       <PopoverTrigger>
         <IconButton
-          icon={<Image src="/svg/emoji.svg" height={"20px"} />}
+          icon={img ?? <Image src={"/svg/emoji.svg"} height={"20px"} />}
           aria-label="clip stream"
           bg="transparent"
           _focus={{}}
