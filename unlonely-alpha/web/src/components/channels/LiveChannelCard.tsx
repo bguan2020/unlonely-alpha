@@ -70,7 +70,13 @@ const LiveChannelCard = ({ channel, callback }: Props) => {
           }}
         >
           <Box position="relative">
-            <Box position="absolute" bg="red" p="5px" borderRadius={"10px"}>
+            <Box
+              position="absolute"
+              bg="red"
+              px="5px"
+              borderRadius={"5px"}
+              m="10px"
+            >
               <Text fontFamily={"LoRes15"}>LIVE</Text>
             </Box>
             <Image
