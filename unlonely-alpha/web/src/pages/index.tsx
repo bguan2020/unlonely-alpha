@@ -1,5 +1,5 @@
 import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
-import { GraphQLClient, gql } from "graphql-request";
+import { GraphQLClient } from "graphql-request";
 import {
   Box,
   Button,
@@ -336,49 +336,55 @@ function DesktopHomePage({
   });
 
   // Define the endpoint URL
-  const endpoint = "https://api.zora.co/graphql";
+  const endpoint =
+    "https://api.goldsky.com/api/public/project_clhk16b61ay9t49vm6ntn4mkz/subgraphs/zora-create-base-mainnet/stable/gn";
 
   // Create a GraphQL client
   const client = new GraphQLClient(endpoint);
 
   // Define the GraphQL query
-  const query = gql`
-    query MyQuery($tokenAddress: String!, $tokenId: String!) {
-      mints(
-        networks: { network: BASE, chain: BASE_MAINNET }
-        sort: { sortKey: TIME, sortDirection: DESC }
-        where: { tokens: { address: $tokenAddress, tokenId: $tokenId } }
-      ) {
-        nodes {
-          mint {
-            quantity
-          }
-        }
+  const query = `
+    query GetTokens($ids: [String!]!) {
+      zoraCreateTokens(where: { id_in: $ids }) {
+        id
+        address
+        tokenId
+        totalMinted
       }
     }
   `;
 
-  // useEffect(() => {
-  //   const variables = {
-  //     tokenAddress: "0xf64ca5200134c40834b2e79e68fba4cf0d8ccdbb",
-  //     tokenId: "2",
-  //   };
-  //   const fetchData = async () => {
-  //     try {
-  //       const data = await client.request(query, variables);
-  //       const totalQuantity = data.mints.nodes.reduce(
-  //         (accumulator: number, node: { mint: { quantity: number } }) => {
-  //           return accumulator + node.mint.quantity;
-  //         },
-  //         0
-  //       );
-  //       console.log("Total quantity:", totalQuantity);
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
-  //   fetchData();
-  // }, []);
+  async function fetchTokens(ids: string[]) {
+    const variables = {
+      ids, // This is the dynamic input for the IDs
+    };
+
+    try {
+      const data = await client.request(query, variables);
+      console.log(JSON.stringify(data, null, 2));
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    fetchTokens([
+      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-15",
+      "0xf64ca5200134c40834b2e79e68fba4cf0d8ccdbb-2",
+      "0x7a33ca39073ed764409895641bb1f2605bbca086-1",
+      "0x552a7ae92a3956f48251031af1414f39b160e021-1",
+      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-17",
+      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-1",
+      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-2",
+      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-3",
+      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-4",
+      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-5",
+      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-6",
+      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-7",
+      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-8",
+      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-9",
+    ]);
+  }, []);
 
   return (
     <AppLayout isCustomHeader={false}>
