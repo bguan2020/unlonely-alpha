@@ -17,6 +17,7 @@ export const typeDef = gql`
     updatedAt: DateTime!
     channel: Channel!
     channelId: ID
+    zoraLink: String
   }
 
   type AssetTask {

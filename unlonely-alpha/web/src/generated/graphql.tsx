@@ -841,6 +841,7 @@ export type Nfc = Likable & {
   updatedAt: Scalars["DateTime"];
   videoLink?: Maybe<Scalars["String"]>;
   videoThumbnail?: Maybe<Scalars["String"]>;
+  zoraLink?: Maybe<Scalars["String"]>;
 };
 
 export type NfcFeedInput = {
@@ -2968,6 +2969,7 @@ export type NfcDetailQuery = {
     score: number;
     liked?: boolean | null;
     updatedAt: any;
+    zoraLink?: string | null;
     owner: {
       __typename?: "User";
       address: string;
@@ -7656,6 +7658,7 @@ export const NfcDetailDocument = gql`
       score
       liked
       updatedAt
+      zoraLink
       owner {
         address
         FCImageUrl

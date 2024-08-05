@@ -25,6 +25,7 @@ const NFC_DETAIL_QUERY = gql`
       score
       liked
       updatedAt
+      zoraLink
       owner {
         address
         FCImageUrl

@@ -109,7 +109,7 @@ export const ChannelPageNfcsList = () => {
                   _active={{}}
                   onClick={() => setFilterNfcsByUserOnly(true)}
                 >
-                  <Text fontSize="15px">show mine</Text>
+                  <Text fontSize="15px">my clips</Text>
                 </MenuItem>
                 <MenuItem
                   bg={"#131323"}
@@ -129,7 +129,10 @@ export const ChannelPageNfcsList = () => {
           <NfcList
             nfcs={(channelNfcs ?? []).filter((nfc) => {
               if (filterNfcsByUserOnly) {
-                return nfc?.owner?.address === user?.address;
+                return (
+                  nfc?.owner?.address.toLowerCase() ===
+                  user?.address.toLowerCase()
+                );
               }
               return true;
             })}

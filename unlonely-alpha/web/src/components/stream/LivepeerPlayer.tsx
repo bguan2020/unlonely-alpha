@@ -18,7 +18,7 @@ import {
   PlayIcon,
   UnmuteIcon,
 } from "@livepeer/react/assets";
-import { SlArrowDown } from "react-icons/sl";
+import { SlArrowDown, SlArrowUp } from "react-icons/sl";
 import copy from "copy-to-clipboard";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useChannelContext } from "../../hooks/context/useChannel";
@@ -36,7 +36,7 @@ const LivepeerPlayer = memo(
     customSizePercentages?: { width: `${number}%`; height: `${number}%` };
   }) => {
     const { ui } = useChannelContext();
-    const { handleClipDrawer } = ui;
+    const { showClipDrawer, handleClipDrawer } = ui;
     const { isStandalone } = useUserAgent();
     const [opacity, setOpacity] = useState(0);
     const toast = useToast();
@@ -246,7 +246,13 @@ const LivepeerPlayer = memo(
                           <IconButton
                             _focus={{}}
                             _active={{}}
-                            icon={<SlArrowDown size="25px" />}
+                            icon={
+                              showClipDrawer ? (
+                                <SlArrowUp size="25px" />
+                              ) : (
+                                <SlArrowDown size="25px" />
+                              )
+                            }
                             aria-label="open-clip-drawer"
                             borderRadius={"100%"}
                             bg="rgba(63, 59, 253, 1)"

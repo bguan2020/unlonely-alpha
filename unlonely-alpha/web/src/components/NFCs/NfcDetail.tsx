@@ -9,7 +9,7 @@ import {
   AlertIcon,
   Box,
   Spinner,
-  Tooltip,
+  // Tooltip,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { create } from "ipfs-http-client";
@@ -310,7 +310,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                   <Spinner />
                 ) : (
                   <>
-                    {!nfc?.openseaLink && !minted && (
+                    {/* {!nfc?.openseaLink && !minted && (
                       <Tooltip
                         label="If this is still disabled after logging in, try to refresh"
                         isDisabled={writeAsync ? true : false}
@@ -345,6 +345,25 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
                           Mint
                         </Button>
                       </Tooltip>
+                    )} */}
+                    {nfc?.zoraLink && (
+                      <Button
+                        onClick={() =>
+                          window.open(String(nfc?.zoraLink), "_blank")
+                        }
+                        px="10px"
+                        gap="5px"
+                        _hover={{
+                          transform: "scale(1.1)",
+                        }}
+                      >
+                        <Image
+                          src="/images/zora-logo-100x100.png"
+                          width="1.5rem"
+                          height="1.5rem"
+                        />
+                        Mint on Zora
+                      </Button>
                     )}
                   </>
                 )}
