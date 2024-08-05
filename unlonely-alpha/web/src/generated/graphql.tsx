@@ -19,12 +19,17 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  AccountNumber: any;
   BigInt: any;
   Byte: any;
+  CountryCode: any;
+  Cuid: any;
   Currency: any;
   DID: any;
   Date: string;
   DateTime: any;
+  DateTimeISO: any;
+  DeweyDecimal: any;
   Duration: any;
   EmailAddress: any;
   GUID: any;
@@ -33,6 +38,8 @@ export type Scalars = {
   HexColorCode: any;
   Hexadecimal: any;
   IBAN: any;
+  IP: any;
+  IPCPatent: any;
   IPv4: any;
   IPv6: any;
   ISBN: any;
@@ -40,10 +47,13 @@ export type Scalars = {
   JSON: any;
   JSONObject: any;
   JWT: any;
+  LCCSubclass: any;
   Latitude: any;
   LocalDate: any;
+  LocalDateTime: any;
   LocalEndTime: any;
   LocalTime: any;
+  Locale: any;
   Long: any;
   Longitude: any;
   MAC: any;
@@ -62,8 +72,12 @@ export type Scalars = {
   PostalCode: any;
   RGB: any;
   RGBA: any;
+  RoutingNumber: any;
+  SESSN: any;
   SafeInt: any;
+  SemVer: any;
   Time: any;
+  TimeZone: any;
   Timestamp: any;
   URL: any;
   USCurrency: any;
@@ -76,6 +90,29 @@ export type Scalars = {
 
 export type AddSuggestedChannelsToSubscriptionsInput = {
   channelIds: Array<Scalars["ID"]>;
+};
+
+export type Asset = {
+  __typename?: "Asset";
+  createdAt: Scalars["String"];
+  id: Scalars["String"];
+  name: Scalars["String"];
+  playbackId: Scalars["String"];
+  status: AssetStatus;
+  userId: Scalars["String"];
+};
+
+export type AssetStatus = {
+  __typename?: "AssetStatus";
+  errorMessage?: Maybe<Scalars["String"]>;
+  phase: Scalars["String"];
+  progress?: Maybe<Scalars["Float"]>;
+  updatedAt: Scalars["String"];
+};
+
+export type AssetTask = {
+  __typename?: "AssetTask";
+  id: Scalars["String"];
 };
 
 export type BaseLeaderboard = {
@@ -93,12 +130,15 @@ export type Channel = {
   channelArn?: Maybe<Scalars["String"]>;
   chatCommands?: Maybe<Array<Maybe<ChatCommand>>>;
   command: Scalars["String"];
+  contract1155Address?: Maybe<Scalars["String"]>;
+  contract1155ChainId?: Maybe<Scalars["Int"]>;
   createdAt: Scalars["DateTime"];
   customButtonAction?: Maybe<Scalars["String"]>;
   customButtonPrice?: Maybe<Scalars["Int"]>;
   description?: Maybe<Scalars["String"]>;
   id: Scalars["ID"];
   isLive?: Maybe<Scalars["Boolean"]>;
+  lastNotificationAt: Scalars["DateTime"];
   livepeerPlaybackId?: Maybe<Scalars["String"]>;
   livepeerStreamId?: Maybe<Scalars["String"]>;
   name?: Maybe<Scalars["String"]>;
@@ -116,6 +156,12 @@ export type Channel = {
   token?: Maybe<CreatorToken>;
   updatedAt: Scalars["DateTime"];
   vibesTokenPriceRange?: Maybe<Array<Maybe<Scalars["String"]>>>;
+};
+
+export type ChannelContract1155Mapping = {
+  __typename?: "ChannelContract1155Mapping";
+  contract1155Address: Scalars["String"];
+  contract1155ChainId: Scalars["Int"];
 };
 
 export type ChannelFeedInput = {
@@ -194,6 +240,11 @@ export type CloseSideBetInput = {
   id: Scalars["ID"];
 };
 
+export type ConcatenateOutroToTrimmedVideoInput = {
+  name: Scalars["String"];
+  trimmedVideoFileName: Scalars["String"];
+};
+
 export type CreateClipInput = {
   channelArn: Scalars["String"];
   channelId: Scalars["ID"];
@@ -211,6 +262,7 @@ export type CreateCreatorTokenInput = {
 export type CreateLivepeerClipInput = {
   channelId: Scalars["ID"];
   livepeerPlaybackId: Scalars["String"];
+  noDatabasePush?: InputMaybe<Scalars["Boolean"]>;
   title: Scalars["String"];
 };
 
@@ -311,6 +363,10 @@ export type GetGamblableEventUserRankInput = {
   chainId: Scalars["Int"];
   channelId: Scalars["ID"];
   userAddress: Scalars["String"];
+};
+
+export type GetLivepeerClipDataInput = {
+  assetId: Scalars["String"];
 };
 
 export type GetLivepeerStreamDataInput = {
@@ -416,6 +472,13 @@ export enum LikeObj {
   Nfc = "NFC",
 }
 
+export type LivepeerClipDataResponse = {
+  __typename?: "LivepeerClipDataResponse";
+  error: Scalars["Boolean"];
+  videoLink: Scalars["String"];
+  videoThumbnail: Scalars["String"];
+};
+
 export type LivepeerStreamData = {
   __typename?: "LivepeerStreamData";
   isActive?: Maybe<Scalars["Boolean"]>;
@@ -458,6 +521,7 @@ export type Mutation = {
   bulkLivepeerStreamIdMigration?: Maybe<UpdateManyResponse>;
   closeSharesEvents?: Maybe<UpdateManyResponse>;
   closeSideBet?: Maybe<SideBet>;
+  concatenateOutroToTrimmedVideo?: Maybe<Scalars["String"]>;
   createClip?: Maybe<ClipNfcOutput>;
   createCreatorToken: CreatorToken;
   createLivepeerClip?: Maybe<ClipNfcOutput>;
@@ -484,11 +548,14 @@ export type Mutation = {
   postVibesTrades?: Maybe<Array<Maybe<VibesTransaction>>>;
   postVideo?: Maybe<Video>;
   removeChannelFromSubscription?: Maybe<Subscription>;
+  requestUploadFromLivepeer?: Maybe<RequestUploadResponse>;
+  resetLastNotificationAtMigration?: Maybe<Scalars["Boolean"]>;
   softDeleteChannel?: Maybe<Channel>;
   softDeleteSubscription?: Maybe<Subscription>;
   softDeleteTask?: Maybe<Scalars["Boolean"]>;
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
   toggleSubscription?: Maybe<Subscription>;
+  trimVideo?: Maybe<Scalars["String"]>;
   updateChannelAllowNfcs?: Maybe<Channel>;
   updateChannelCustomButton?: Maybe<Channel>;
   updateChannelFidSubscription?: Maybe<Scalars["String"]>;
@@ -512,6 +579,7 @@ export type Mutation = {
   updateTempTokenIsAlwaysTradeable: Scalars["Boolean"];
   updateTempTokenTransferredLiquidityOnExpiration?: Maybe<TempToken>;
   updateUser?: Maybe<User>;
+  updateUserChannelContract1155Mapping?: Maybe<User>;
   updateUserCreatorTokenQuantity: UserCreatorToken;
   updateUserNotifications?: Maybe<User>;
 };
@@ -530,6 +598,10 @@ export type MutationCloseSharesEventsArgs = {
 
 export type MutationCloseSideBetArgs = {
   data: CloseSideBetInput;
+};
+
+export type MutationConcatenateOutroToTrimmedVideoArgs = {
+  data: ConcatenateOutroToTrimmedVideoInput;
 };
 
 export type MutationCreateClipArgs = {
@@ -632,6 +704,10 @@ export type MutationRemoveChannelFromSubscriptionArgs = {
   data: MoveChannelAlongSubscriptionInput;
 };
 
+export type MutationRequestUploadFromLivepeerArgs = {
+  data: RequestUploadFromLivepeerInput;
+};
+
 export type MutationSoftDeleteChannelArgs = {
   data: SoftDeleteChannelInput;
 };
@@ -650,6 +726,10 @@ export type MutationSoftDeleteVideoArgs = {
 
 export type MutationToggleSubscriptionArgs = {
   data: ToggleSubscriptionInput;
+};
+
+export type MutationTrimVideoArgs = {
+  data: TrimVideoInput;
 };
 
 export type MutationUpdateChannelAllowNfcsArgs = {
@@ -732,6 +812,10 @@ export type MutationUpdateUserArgs = {
   data: UpdateUserInput;
 };
 
+export type MutationUpdateUserChannelContract1155MappingArgs = {
+  data: UpdateUserChannelContract1155MappingInput;
+};
+
 export type MutationUpdateUserCreatorTokenQuantityArgs = {
   data: UpdateUserCreatorTokenQuantityInput;
 };
@@ -743,6 +827,9 @@ export type MutationUpdateUserNotificationsArgs = {
 export type Nfc = Likable & {
   __typename?: "NFC";
   channel: Channel;
+  channelId?: Maybe<Scalars["ID"]>;
+  contract1155Address?: Maybe<Scalars["String"]>;
+  contract1155ChainId?: Maybe<Scalars["Int"]>;
   createdAt: Scalars["DateTime"];
   disliked?: Maybe<Scalars["Boolean"]>;
   id: Scalars["ID"];
@@ -754,12 +841,15 @@ export type Nfc = Likable & {
   updatedAt: Scalars["DateTime"];
   videoLink?: Maybe<Scalars["String"]>;
   videoThumbnail?: Maybe<Scalars["String"]>;
+  zoraLink?: Maybe<Scalars["String"]>;
 };
 
 export type NfcFeedInput = {
+  channelId?: InputMaybe<Scalars["Int"]>;
   limit?: InputMaybe<Scalars["Int"]>;
   offset?: InputMaybe<Scalars["Int"]>;
   orderBy?: InputMaybe<SortBy>;
+  ownerAddress?: InputMaybe<Scalars["String"]>;
 };
 
 export type NumberOfHolders = {
@@ -850,10 +940,13 @@ export type PostDeviceTokenInput = {
 
 export type PostNfcInput = {
   channelId: Scalars["ID"];
+  contract1155Address?: InputMaybe<Scalars["String"]>;
   openseaLink: Scalars["String"];
   title: Scalars["String"];
+  tokenId?: InputMaybe<Scalars["Int"]>;
   videoLink: Scalars["String"];
   videoThumbnail: Scalars["String"];
+  zoraLink?: InputMaybe<Scalars["String"]>;
 };
 
 export type PostSharesEventInput = {
@@ -958,6 +1051,7 @@ export type Query = {
   getGamblableEventLeaderboardByChannelId: Array<GamblableEventLeaderboard>;
   getGamblableEventUserRank: Scalars["Int"];
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
+  getLivepeerClipData?: Maybe<LivepeerClipDataResponse>;
   getLivepeerStreamData?: Maybe<LivepeerStreamData>;
   getLivepeerStreamSessionsData?: Maybe<
     Array<Maybe<LivepeerStreamSessionsData>>
@@ -980,6 +1074,7 @@ export type Query = {
   getTokenLeaderboard: Array<CreatorToken>;
   getUnclaimedEvents: Array<Maybe<SharesEvent>>;
   getUser?: Maybe<User>;
+  getUserChannelContract1155Mapping?: Maybe<Scalars["JSON"]>;
   getUserTokenHolding?: Maybe<Scalars["Int"]>;
   getVibesTransactions?: Maybe<Array<Maybe<VibesTransaction>>>;
   getVideo?: Maybe<Video>;
@@ -1042,6 +1137,10 @@ export type QueryGetGamblableEventLeaderboardByChannelIdArgs = {
 
 export type QueryGetGamblableEventUserRankArgs = {
   data?: InputMaybe<GetGamblableEventUserRankInput>;
+};
+
+export type QueryGetLivepeerClipDataArgs = {
+  data?: InputMaybe<GetLivepeerClipDataInput>;
 };
 
 export type QueryGetLivepeerStreamDataArgs = {
@@ -1120,6 +1219,10 @@ export type QueryGetUserArgs = {
   data: GetUserInput;
 };
 
+export type QueryGetUserChannelContract1155MappingArgs = {
+  data: GetUserInput;
+};
+
 export type QueryGetUserTokenHoldingArgs = {
   data: GetUserTokenHoldingInput;
 };
@@ -1138,6 +1241,18 @@ export type QueryGetVideoFeedArgs = {
 
 export type QuerySendAllNotificationsArgs = {
   data: SendAllNotificationsInput;
+};
+
+export type RequestUploadFromLivepeerInput = {
+  name: Scalars["String"];
+};
+
+export type RequestUploadResponse = {
+  __typename?: "RequestUploadResponse";
+  asset: Asset;
+  task: AssetTask;
+  tusEndpoint: Scalars["String"];
+  url: Scalars["String"];
 };
 
 export type SendAllNotificationsInput = {
@@ -1317,6 +1432,13 @@ export type ToggleSubscriptionInput = {
   endpoint: Scalars["String"];
 };
 
+export type TrimVideoInput = {
+  endTime: Scalars["Float"];
+  name: Scalars["String"];
+  startTime: Scalars["Float"];
+  videoLink: Scalars["String"];
+};
+
 export type UpdateChannelAllowNfcsInput = {
   allowNfcs?: InputMaybe<Scalars["Boolean"]>;
   id: Scalars["ID"];
@@ -1436,6 +1558,13 @@ export type UpdateTempTokenTransferredLiquidityOnExpirationInput = {
   losingTokenAddress: Scalars["String"];
 };
 
+export type UpdateUserChannelContract1155MappingInput = {
+  channelId: Scalars["ID"];
+  contract1155Address: Scalars["String"];
+  contract1155ChainId: Scalars["Int"];
+  userAddress: Scalars["String"];
+};
+
 export type UpdateUserCreatorTokenQuantityInput = {
   purchasedAmount: Scalars["Int"];
   tokenAddress: Scalars["String"];
@@ -1458,6 +1587,7 @@ export type User = {
   authedAsMe: Scalars["Boolean"];
   bio?: Maybe<Scalars["String"]>;
   channel?: Maybe<Array<Maybe<Channel>>>;
+  channelContract1155Mapping?: Maybe<Scalars["JSON"]>;
   createdAt: Scalars["DateTime"];
   id: Scalars["ID"];
   isFCUser: Scalars["Boolean"];
@@ -1559,11 +1689,34 @@ export type GetUserQuery = {
   } | null;
 };
 
-export type QueryQueryVariables = Exact<{
+export type GetUserChannelContract1155MappingQueryVariables = Exact<{
+  data: GetUserInput;
+}>;
+
+export type GetUserChannelContract1155MappingQuery = {
+  __typename?: "Query";
+  getUserChannelContract1155Mapping?: any | null;
+};
+
+export type GetLivepeerClipDataQueryVariables = Exact<{
+  data?: InputMaybe<GetLivepeerClipDataInput>;
+}>;
+
+export type GetLivepeerClipDataQuery = {
+  __typename?: "Query";
+  getLivepeerClipData?: {
+    __typename?: "LivepeerClipDataResponse";
+    error: boolean;
+    videoThumbnail: string;
+    videoLink: string;
+  } | null;
+};
+
+export type GetUserTokenHoldingQueryVariables = Exact<{
   data: GetUserTokenHoldingInput;
 }>;
 
-export type QueryQuery = {
+export type GetUserTokenHoldingQuery = {
   __typename?: "Query";
   getUserTokenHolding?: number | null;
 };
@@ -1871,6 +2024,7 @@ export type NfcFeedQuery = {
   getNFCFeed?: Array<{
     __typename?: "NFC";
     createdAt: any;
+    channelId?: string | null;
     id: string;
     videoLink?: string | null;
     videoThumbnail?: string | null;
@@ -2035,6 +2189,54 @@ export type GetChannelsByOwnerAddressQuery = {
   } | null> | null;
 };
 
+export type GetChannelByIdQueryVariables = Exact<{
+  id: Scalars["ID"];
+}>;
+
+export type GetChannelByIdQuery = {
+  __typename?: "Query";
+  getChannelById?: {
+    __typename?: "Channel";
+    awsId: string;
+    channelArn?: string | null;
+    description?: string | null;
+    customButtonPrice?: number | null;
+    customButtonAction?: string | null;
+    isLive?: boolean | null;
+    id: string;
+    name?: string | null;
+    slug: string;
+    allowNFCs?: boolean | null;
+    livepeerPlaybackId?: string | null;
+    sharesEvent?: Array<{
+      __typename?: "SharesEvent";
+      sharesSubjectQuestion?: string | null;
+      sharesSubjectAddress?: string | null;
+      chainId?: number | null;
+      channelId?: string | null;
+      options?: Array<string | null> | null;
+      eventState?: SharesEventState | null;
+      createdAt: any;
+      id: string;
+      resultIndex?: number | null;
+    } | null> | null;
+    owner: {
+      __typename?: "User";
+      FCImageUrl?: string | null;
+      lensImageUrl?: string | null;
+      username?: string | null;
+      address: string;
+    };
+    token?: {
+      __typename?: "CreatorToken";
+      id: string;
+      name: string;
+      symbol: string;
+      address: string;
+    } | null;
+  } | null;
+};
+
 export type GetChannelsByNumberOfBadgeHoldersQueryVariables = Exact<{
   [key: string]: never;
 }>;
@@ -2149,6 +2351,15 @@ export type CloseSharesEventsMutation = {
   } | null;
 };
 
+export type ConcatenateOutroToTrimmedVideoMutationVariables = Exact<{
+  data: ConcatenateOutroToTrimmedVideoInput;
+}>;
+
+export type ConcatenateOutroToTrimmedVideoMutation = {
+  __typename?: "Mutation";
+  concatenateOutroToTrimmedVideo?: string | null;
+};
+
 export type CreateClipMutationVariables = Exact<{
   data: CreateClipInput;
 }>;
@@ -2249,6 +2460,31 @@ export type RemoveChannelFromSubscriptionMutation = {
   } | null;
 };
 
+export type RequestUploadFromLivepeerMutationVariables = Exact<{
+  data: RequestUploadFromLivepeerInput;
+}>;
+
+export type RequestUploadFromLivepeerMutation = {
+  __typename?: "Mutation";
+  requestUploadFromLivepeer?: {
+    __typename?: "RequestUploadResponse";
+    url: string;
+    tusEndpoint: string;
+    task: { __typename?: "AssetTask"; id: string };
+    asset: {
+      __typename?: "Asset";
+      userId: string;
+      status: {
+        __typename?: "AssetStatus";
+        updatedAt: string;
+        progress?: number | null;
+        phase: string;
+        errorMessage?: string | null;
+      };
+    };
+  } | null;
+};
+
 export type SoftDeleteChannelMutationVariables = Exact<{
   data: SoftDeleteChannelInput;
 }>;
@@ -2281,6 +2517,15 @@ export type ToggleSubscriptionMutationVariables = Exact<{
 export type ToggleSubscriptionMutation = {
   __typename?: "Mutation";
   toggleSubscription?: { __typename?: "Subscription"; id: string } | null;
+};
+
+export type TrimVideoMutationVariables = Exact<{
+  data: TrimVideoInput;
+}>;
+
+export type TrimVideoMutation = {
+  __typename?: "Mutation";
+  trimVideo?: string | null;
 };
 
 export type UpdateChannelAllowNfcsMutationVariables = Exact<{
@@ -2371,6 +2616,20 @@ export type UpdateSharesEventMutationVariables = Exact<{
 export type UpdateSharesEventMutation = {
   __typename?: "Mutation";
   updateSharesEvent?: { __typename?: "Channel"; id: string } | null;
+};
+
+export type UpdateUserChannelContract1155MappingMutationVariables = Exact<{
+  data: UpdateUserChannelContract1155MappingInput;
+}>;
+
+export type UpdateUserChannelContract1155MappingMutation = {
+  __typename?: "Mutation";
+  updateUserChannelContract1155Mapping?: {
+    __typename?: "User";
+    address: string;
+    username?: string | null;
+    channelContract1155Mapping?: any | null;
+  } | null;
 };
 
 export type PostBadgeTradeMutationVariables = Exact<{
@@ -2601,7 +2860,11 @@ export type PostNfcMutationVariables = Exact<{
 
 export type PostNfcMutation = {
   __typename?: "Mutation";
-  postNFC?: { __typename?: "NFC"; id: string } | null;
+  postNFC?: {
+    __typename?: "NFC";
+    id: string;
+    owner: { __typename?: "User"; username?: string | null; address: string };
+  } | null;
 };
 
 export type PostStreamInteractionMutationVariables = Exact<{
@@ -2681,6 +2944,15 @@ export type UpdateUserNotificationsMutation = {
   } | null;
 };
 
+export type UpdateChannelFidSubscriptionMutationVariables = Exact<{
+  data: UpdateChannelFidSubscriptionInput;
+}>;
+
+export type UpdateChannelFidSubscriptionMutation = {
+  __typename?: "Mutation";
+  updateChannelFidSubscription?: string | null;
+};
+
 export type NfcDetailQueryVariables = Exact<{
   id: Scalars["ID"];
 }>;
@@ -2697,6 +2969,7 @@ export type NfcDetailQuery = {
     score: number;
     liked?: boolean | null;
     updatedAt: any;
+    zoraLink?: string | null;
     owner: {
       __typename?: "User";
       address: string;
@@ -2752,7 +3025,7 @@ export type FetchCurrentUserQuery = {
 };
 
 export const GetUserDocument = gql`
-  query getUser($data: GetUserInput!) {
+  query GetUser($data: GetUserInput!) {
     getUser(data: $data) {
       address
       username
@@ -2812,51 +3085,177 @@ export type GetUserQueryResult = Apollo.QueryResult<
   GetUserQuery,
   GetUserQueryVariables
 >;
-export const QueryDocument = gql`
-  query Query($data: GetUserTokenHoldingInput!) {
-    getUserTokenHolding(data: $data)
+export const GetUserChannelContract1155MappingDocument = gql`
+  query GetUserChannelContract1155Mapping($data: GetUserInput!) {
+    getUserChannelContract1155Mapping(data: $data)
   }
 `;
 
 /**
- * __useQueryQuery__
+ * __useGetUserChannelContract1155MappingQuery__
  *
- * To run a query within a React component, call `useQueryQuery` and pass it any options that fit your needs.
- * When your component renders, `useQueryQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetUserChannelContract1155MappingQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserChannelContract1155MappingQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useQueryQuery({
+ * const { data, loading, error } = useGetUserChannelContract1155MappingQuery({
  *   variables: {
  *      data: // value for 'data'
  *   },
  * });
  */
-export function useQueryQuery(
-  baseOptions: Apollo.QueryHookOptions<QueryQuery, QueryQueryVariables>
+export function useGetUserChannelContract1155MappingQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetUserChannelContract1155MappingQuery,
+    GetUserChannelContract1155MappingQueryVariables
+  >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<QueryQuery, QueryQueryVariables>(
-    QueryDocument,
-    options
-  );
+  return Apollo.useQuery<
+    GetUserChannelContract1155MappingQuery,
+    GetUserChannelContract1155MappingQueryVariables
+  >(GetUserChannelContract1155MappingDocument, options);
 }
-export function useQueryLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<QueryQuery, QueryQueryVariables>
+export function useGetUserChannelContract1155MappingLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetUserChannelContract1155MappingQuery,
+    GetUserChannelContract1155MappingQueryVariables
+  >
 ) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<QueryQuery, QueryQueryVariables>(
-    QueryDocument,
-    options
-  );
+  return Apollo.useLazyQuery<
+    GetUserChannelContract1155MappingQuery,
+    GetUserChannelContract1155MappingQueryVariables
+  >(GetUserChannelContract1155MappingDocument, options);
 }
-export type QueryQueryHookResult = ReturnType<typeof useQueryQuery>;
-export type QueryLazyQueryHookResult = ReturnType<typeof useQueryLazyQuery>;
-export type QueryQueryResult = Apollo.QueryResult<
-  QueryQuery,
-  QueryQueryVariables
+export type GetUserChannelContract1155MappingQueryHookResult = ReturnType<
+  typeof useGetUserChannelContract1155MappingQuery
+>;
+export type GetUserChannelContract1155MappingLazyQueryHookResult = ReturnType<
+  typeof useGetUserChannelContract1155MappingLazyQuery
+>;
+export type GetUserChannelContract1155MappingQueryResult = Apollo.QueryResult<
+  GetUserChannelContract1155MappingQuery,
+  GetUserChannelContract1155MappingQueryVariables
+>;
+export const GetLivepeerClipDataDocument = gql`
+  query GetLivepeerClipData($data: GetLivepeerClipDataInput) {
+    getLivepeerClipData(data: $data) {
+      error
+      videoThumbnail
+      videoLink
+    }
+  }
+`;
+
+/**
+ * __useGetLivepeerClipDataQuery__
+ *
+ * To run a query within a React component, call `useGetLivepeerClipDataQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLivepeerClipDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLivepeerClipDataQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetLivepeerClipDataQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetLivepeerClipDataQuery,
+    GetLivepeerClipDataQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetLivepeerClipDataQuery,
+    GetLivepeerClipDataQueryVariables
+  >(GetLivepeerClipDataDocument, options);
+}
+export function useGetLivepeerClipDataLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetLivepeerClipDataQuery,
+    GetLivepeerClipDataQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetLivepeerClipDataQuery,
+    GetLivepeerClipDataQueryVariables
+  >(GetLivepeerClipDataDocument, options);
+}
+export type GetLivepeerClipDataQueryHookResult = ReturnType<
+  typeof useGetLivepeerClipDataQuery
+>;
+export type GetLivepeerClipDataLazyQueryHookResult = ReturnType<
+  typeof useGetLivepeerClipDataLazyQuery
+>;
+export type GetLivepeerClipDataQueryResult = Apollo.QueryResult<
+  GetLivepeerClipDataQuery,
+  GetLivepeerClipDataQueryVariables
+>;
+export const GetUserTokenHoldingDocument = gql`
+  query GetUserTokenHolding($data: GetUserTokenHoldingInput!) {
+    getUserTokenHolding(data: $data)
+  }
+`;
+
+/**
+ * __useGetUserTokenHoldingQuery__
+ *
+ * To run a query within a React component, call `useGetUserTokenHoldingQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserTokenHoldingQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserTokenHoldingQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetUserTokenHoldingQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetUserTokenHoldingQuery,
+    GetUserTokenHoldingQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetUserTokenHoldingQuery,
+    GetUserTokenHoldingQueryVariables
+  >(GetUserTokenHoldingDocument, options);
+}
+export function useGetUserTokenHoldingLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetUserTokenHoldingQuery,
+    GetUserTokenHoldingQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetUserTokenHoldingQuery,
+    GetUserTokenHoldingQueryVariables
+  >(GetUserTokenHoldingDocument, options);
+}
+export type GetUserTokenHoldingQueryHookResult = ReturnType<
+  typeof useGetUserTokenHoldingQuery
+>;
+export type GetUserTokenHoldingLazyQueryHookResult = ReturnType<
+  typeof useGetUserTokenHoldingLazyQuery
+>;
+export type GetUserTokenHoldingQueryResult = Apollo.QueryResult<
+  GetUserTokenHoldingQuery,
+  GetUserTokenHoldingQueryVariables
 >;
 export const SendAllNotificationsDocument = gql`
   query SendAllNotifications($data: SendAllNotificationsInput!) {
@@ -3849,6 +4248,7 @@ export const NfcFeedDocument = gql`
   query NFCFeed($data: NFCFeedInput!) {
     getNFCFeed(data: $data) {
       createdAt
+      channelId
       id
       videoLink
       videoThumbnail
@@ -4427,6 +4827,97 @@ export type GetChannelsByOwnerAddressQueryResult = Apollo.QueryResult<
   GetChannelsByOwnerAddressQuery,
   GetChannelsByOwnerAddressQueryVariables
 >;
+export const GetChannelByIdDocument = gql`
+  query GetChannelById($id: ID!) {
+    getChannelById(id: $id) {
+      awsId
+      channelArn
+      description
+      customButtonPrice
+      customButtonAction
+      isLive
+      id
+      name
+      slug
+      allowNFCs
+      livepeerPlaybackId
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        chainId
+        channelId
+        options
+        eventState
+        createdAt
+        id
+        resultIndex
+      }
+      owner {
+        FCImageUrl
+        lensImageUrl
+        username
+        address
+      }
+      token {
+        id
+        name
+        symbol
+        address
+      }
+    }
+  }
+`;
+
+/**
+ * __useGetChannelByIdQuery__
+ *
+ * To run a query within a React component, call `useGetChannelByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetChannelByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetChannelByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetChannelByIdQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetChannelByIdQuery,
+    GetChannelByIdQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetChannelByIdQuery, GetChannelByIdQueryVariables>(
+    GetChannelByIdDocument,
+    options
+  );
+}
+export function useGetChannelByIdLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetChannelByIdQuery,
+    GetChannelByIdQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetChannelByIdQuery, GetChannelByIdQueryVariables>(
+    GetChannelByIdDocument,
+    options
+  );
+}
+export type GetChannelByIdQueryHookResult = ReturnType<
+  typeof useGetChannelByIdQuery
+>;
+export type GetChannelByIdLazyQueryHookResult = ReturnType<
+  typeof useGetChannelByIdLazyQuery
+>;
+export type GetChannelByIdQueryResult = Apollo.QueryResult<
+  GetChannelByIdQuery,
+  GetChannelByIdQueryVariables
+>;
 export const GetChannelsByNumberOfBadgeHoldersDocument = gql`
   query GetChannelsByNumberOfBadgeHolders {
     getChannelsByNumberOfBadgeHolders {
@@ -4778,6 +5269,57 @@ export type CloseSharesEventsMutationOptions = Apollo.BaseMutationOptions<
   CloseSharesEventsMutation,
   CloseSharesEventsMutationVariables
 >;
+export const ConcatenateOutroToTrimmedVideoDocument = gql`
+  mutation ConcatenateOutroToTrimmedVideo(
+    $data: ConcatenateOutroToTrimmedVideoInput!
+  ) {
+    concatenateOutroToTrimmedVideo(data: $data)
+  }
+`;
+export type ConcatenateOutroToTrimmedVideoMutationFn = Apollo.MutationFunction<
+  ConcatenateOutroToTrimmedVideoMutation,
+  ConcatenateOutroToTrimmedVideoMutationVariables
+>;
+
+/**
+ * __useConcatenateOutroToTrimmedVideoMutation__
+ *
+ * To run a mutation, you first call `useConcatenateOutroToTrimmedVideoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useConcatenateOutroToTrimmedVideoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [concatenateOutroToTrimmedVideoMutation, { data, loading, error }] = useConcatenateOutroToTrimmedVideoMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useConcatenateOutroToTrimmedVideoMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    ConcatenateOutroToTrimmedVideoMutation,
+    ConcatenateOutroToTrimmedVideoMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    ConcatenateOutroToTrimmedVideoMutation,
+    ConcatenateOutroToTrimmedVideoMutationVariables
+  >(ConcatenateOutroToTrimmedVideoDocument, options);
+}
+export type ConcatenateOutroToTrimmedVideoMutationHookResult = ReturnType<
+  typeof useConcatenateOutroToTrimmedVideoMutation
+>;
+export type ConcatenateOutroToTrimmedVideoMutationResult =
+  Apollo.MutationResult<ConcatenateOutroToTrimmedVideoMutation>;
+export type ConcatenateOutroToTrimmedVideoMutationOptions =
+  Apollo.BaseMutationOptions<
+    ConcatenateOutroToTrimmedVideoMutation,
+    ConcatenateOutroToTrimmedVideoMutationVariables
+  >;
 export const CreateClipDocument = gql`
   mutation CreateClip($data: CreateClipInput!) {
     createClip(data: $data) {
@@ -5151,6 +5693,70 @@ export type RemoveChannelFromSubscriptionMutationOptions =
     RemoveChannelFromSubscriptionMutation,
     RemoveChannelFromSubscriptionMutationVariables
   >;
+export const RequestUploadFromLivepeerDocument = gql`
+  mutation RequestUploadFromLivepeer($data: RequestUploadFromLivepeerInput!) {
+    requestUploadFromLivepeer(data: $data) {
+      url
+      tusEndpoint
+      task {
+        id
+      }
+      asset {
+        userId
+        status {
+          updatedAt
+          progress
+          phase
+          errorMessage
+        }
+      }
+    }
+  }
+`;
+export type RequestUploadFromLivepeerMutationFn = Apollo.MutationFunction<
+  RequestUploadFromLivepeerMutation,
+  RequestUploadFromLivepeerMutationVariables
+>;
+
+/**
+ * __useRequestUploadFromLivepeerMutation__
+ *
+ * To run a mutation, you first call `useRequestUploadFromLivepeerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRequestUploadFromLivepeerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [requestUploadFromLivepeerMutation, { data, loading, error }] = useRequestUploadFromLivepeerMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useRequestUploadFromLivepeerMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    RequestUploadFromLivepeerMutation,
+    RequestUploadFromLivepeerMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    RequestUploadFromLivepeerMutation,
+    RequestUploadFromLivepeerMutationVariables
+  >(RequestUploadFromLivepeerDocument, options);
+}
+export type RequestUploadFromLivepeerMutationHookResult = ReturnType<
+  typeof useRequestUploadFromLivepeerMutation
+>;
+export type RequestUploadFromLivepeerMutationResult =
+  Apollo.MutationResult<RequestUploadFromLivepeerMutation>;
+export type RequestUploadFromLivepeerMutationOptions =
+  Apollo.BaseMutationOptions<
+    RequestUploadFromLivepeerMutation,
+    RequestUploadFromLivepeerMutationVariables
+  >;
 export const SoftDeleteChannelDocument = gql`
   mutation SoftDeleteChannel($data: SoftDeleteChannelInput!) {
     softDeleteChannel(data: $data) {
@@ -5262,6 +5868,53 @@ export type ToggleSubscriptionMutationResult =
 export type ToggleSubscriptionMutationOptions = Apollo.BaseMutationOptions<
   ToggleSubscriptionMutation,
   ToggleSubscriptionMutationVariables
+>;
+export const TrimVideoDocument = gql`
+  mutation TrimVideo($data: TrimVideoInput!) {
+    trimVideo(data: $data)
+  }
+`;
+export type TrimVideoMutationFn = Apollo.MutationFunction<
+  TrimVideoMutation,
+  TrimVideoMutationVariables
+>;
+
+/**
+ * __useTrimVideoMutation__
+ *
+ * To run a mutation, you first call `useTrimVideoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTrimVideoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [trimVideoMutation, { data, loading, error }] = useTrimVideoMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useTrimVideoMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    TrimVideoMutation,
+    TrimVideoMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<TrimVideoMutation, TrimVideoMutationVariables>(
+    TrimVideoDocument,
+    options
+  );
+}
+export type TrimVideoMutationHookResult = ReturnType<
+  typeof useTrimVideoMutation
+>;
+export type TrimVideoMutationResult = Apollo.MutationResult<TrimVideoMutation>;
+export type TrimVideoMutationOptions = Apollo.BaseMutationOptions<
+  TrimVideoMutation,
+  TrimVideoMutationVariables
 >;
 export const UpdateChannelAllowNfcsDocument = gql`
   mutation UpdateChannelAllowNfcs($data: UpdateChannelAllowNfcsInput!) {
@@ -5629,6 +6282,62 @@ export type UpdateSharesEventMutationOptions = Apollo.BaseMutationOptions<
   UpdateSharesEventMutation,
   UpdateSharesEventMutationVariables
 >;
+export const UpdateUserChannelContract1155MappingDocument = gql`
+  mutation UpdateUserChannelContract1155Mapping(
+    $data: UpdateUserChannelContract1155MappingInput!
+  ) {
+    updateUserChannelContract1155Mapping(data: $data) {
+      address
+      username
+      channelContract1155Mapping
+    }
+  }
+`;
+export type UpdateUserChannelContract1155MappingMutationFn =
+  Apollo.MutationFunction<
+    UpdateUserChannelContract1155MappingMutation,
+    UpdateUserChannelContract1155MappingMutationVariables
+  >;
+
+/**
+ * __useUpdateUserChannelContract1155MappingMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserChannelContract1155MappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserChannelContract1155MappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserChannelContract1155MappingMutation, { data, loading, error }] = useUpdateUserChannelContract1155MappingMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateUserChannelContract1155MappingMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateUserChannelContract1155MappingMutation,
+    UpdateUserChannelContract1155MappingMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateUserChannelContract1155MappingMutation,
+    UpdateUserChannelContract1155MappingMutationVariables
+  >(UpdateUserChannelContract1155MappingDocument, options);
+}
+export type UpdateUserChannelContract1155MappingMutationHookResult = ReturnType<
+  typeof useUpdateUserChannelContract1155MappingMutation
+>;
+export type UpdateUserChannelContract1155MappingMutationResult =
+  Apollo.MutationResult<UpdateUserChannelContract1155MappingMutation>;
+export type UpdateUserChannelContract1155MappingMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateUserChannelContract1155MappingMutation,
+    UpdateUserChannelContract1155MappingMutationVariables
+  >;
 export const PostBadgeTradeDocument = gql`
   mutation PostBadgeTrade($data: PostBadgeTradeInput!) {
     postBadgeTrade(data: $data) {
@@ -6490,6 +7199,10 @@ export const PostNfcDocument = gql`
   mutation PostNFC($data: PostNFCInput!) {
     postNFC(data: $data) {
       id
+      owner {
+        username
+        address
+      }
     }
   }
 `;
@@ -6883,6 +7596,57 @@ export type UpdateUserNotificationsMutationOptions = Apollo.BaseMutationOptions<
   UpdateUserNotificationsMutation,
   UpdateUserNotificationsMutationVariables
 >;
+export const UpdateChannelFidSubscriptionDocument = gql`
+  mutation UpdateChannelFidSubscription(
+    $data: UpdateChannelFidSubscriptionInput!
+  ) {
+    updateChannelFidSubscription(data: $data)
+  }
+`;
+export type UpdateChannelFidSubscriptionMutationFn = Apollo.MutationFunction<
+  UpdateChannelFidSubscriptionMutation,
+  UpdateChannelFidSubscriptionMutationVariables
+>;
+
+/**
+ * __useUpdateChannelFidSubscriptionMutation__
+ *
+ * To run a mutation, you first call `useUpdateChannelFidSubscriptionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateChannelFidSubscriptionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateChannelFidSubscriptionMutation, { data, loading, error }] = useUpdateChannelFidSubscriptionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateChannelFidSubscriptionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateChannelFidSubscriptionMutation,
+    UpdateChannelFidSubscriptionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateChannelFidSubscriptionMutation,
+    UpdateChannelFidSubscriptionMutationVariables
+  >(UpdateChannelFidSubscriptionDocument, options);
+}
+export type UpdateChannelFidSubscriptionMutationHookResult = ReturnType<
+  typeof useUpdateChannelFidSubscriptionMutation
+>;
+export type UpdateChannelFidSubscriptionMutationResult =
+  Apollo.MutationResult<UpdateChannelFidSubscriptionMutation>;
+export type UpdateChannelFidSubscriptionMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateChannelFidSubscriptionMutation,
+    UpdateChannelFidSubscriptionMutationVariables
+  >;
 export const NfcDetailDocument = gql`
   query NFCDetail($id: ID!) {
     getNFC(id: $id) {
@@ -6894,6 +7658,7 @@ export const NfcDetailDocument = gql`
       score
       liked
       updatedAt
+      zoraLink
       owner {
         address
         FCImageUrl

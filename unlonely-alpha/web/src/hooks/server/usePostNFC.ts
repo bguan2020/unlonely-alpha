@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 
 import { useAuthedMutation } from "../../apiClient/hooks";
 import {
+  PostNfcInput,
   PostNfcMutation,
   PostNfcMutationVariables,
 } from "../../generated/graphql";
@@ -16,6 +17,10 @@ const POST_NFC_MUTATION = gql`
   mutation PostNFC($data: PostNFCInput!) {
     postNFC(data: $data) {
       id
+      owner {
+        username
+        address
+      }
     }
   }
 `;
@@ -27,7 +32,7 @@ const usePostNFC = ({ onError }: Props) => {
   );
 
   const postNFC = useCallback(
-    async (data) => {
+    async (data: PostNfcInput) => {
       try {
         setLoading(true);
         const mutationResult = await mutate({
@@ -38,6 +43,9 @@ const usePostNFC = ({ onError }: Props) => {
               videoThumbnail: data.videoThumbnail,
               openseaLink: data.openseaLink,
               channelId: data.channelId,
+              tokenId: data.tokenId,
+              zoraLink: data.zoraLink,
+              contract1155Address: data.contract1155Address,
             },
           },
         });

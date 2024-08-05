@@ -7,6 +7,8 @@ export const typeDef = gql`
     videoLink: String
     videoThumbnail: String
     openseaLink: String
+    contract1155ChainId: Int
+    contract1155Address: String
     score: Int!
     liked: Boolean
     disliked: Boolean
@@ -14,6 +16,41 @@ export const typeDef = gql`
     createdAt: DateTime!
     updatedAt: DateTime!
     channel: Channel!
+    channelId: ID
+    zoraLink: String
+  }
+
+  type AssetTask {
+    id: String!
+  }
+
+  type Asset {
+    name: String!
+    id: String!
+    playbackId: String!
+    status: AssetStatus!
+    createdAt: String!
+    userId: String!
+  }
+
+  type AssetStatus {
+    phase: String!
+    updatedAt: String!
+    progress: Float
+    errorMessage: String
+  }
+  
+  type RequestUploadResponse {
+    url: String!
+    tusEndpoint: String!
+    task: AssetTask!
+    asset: Asset!
+  }
+
+  type LivepeerClipDataResponse {
+    videoLink: String!
+    videoThumbnail: String!
+    error: Boolean!
   }
 
   type Channel {
@@ -47,10 +84,13 @@ export const typeDef = gql`
     errorMessage: String
   }
 
+
   input NFCFeedInput {
     limit: Int
     offset: Int
     orderBy: SortBy
+    channelId: Int
+    ownerAddress: String
   }
 
   input PostNFCInput {
@@ -59,6 +99,9 @@ export const typeDef = gql`
     videoLink: String!
     videoThumbnail: String!
     openseaLink: String!
+    contract1155Address: String
+    tokenId: Int
+    zoraLink: String
   }
 
   input UpdateNFCInput {
@@ -79,11 +122,33 @@ export const typeDef = gql`
     title: String!
     channelId: ID!
     livepeerPlaybackId: String!
+    noDatabasePush: Boolean
+  }
+
+  input RequestUploadFromLivepeerInput {
+    name: String!
+  }
+  
+  input GetLivepeerClipDataInput {
+    assetId: String!
+  }
+
+  input TrimVideoInput {
+    startTime: Float!
+    endTime: Float!
+    videoLink: String!
+    name: String!
+  }
+
+  input ConcatenateOutroToTrimmedVideoInput {
+    trimmedVideoFileName: String!
+    name: String!
   }
 
   extend type Query {
     getNFCFeed(data: NFCFeedInput): [NFC]
     getNFC(id: ID!): NFC
+    getLivepeerClipData(data: GetLivepeerClipDataInput): LivepeerClipDataResponse
   }
 
   extend type Mutation {
@@ -93,5 +158,8 @@ export const typeDef = gql`
     updateNFC(data: UpdateNFCInput!): NFC
     openseaNFCScript: String
     updateOpenseaLink: NFC
+    requestUploadFromLivepeer(data: RequestUploadFromLivepeerInput!): RequestUploadResponse
+    trimVideo(data: TrimVideoInput!): String
+    concatenateOutroToTrimmedVideo(data: ConcatenateOutroToTrimmedVideoInput!): String
   }
 `;

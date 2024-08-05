@@ -19,6 +19,8 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import { ChatUserModal_token } from "../channels/ChatUserModal_token";
 import useUpdatePinnedChatMessages from "../../hooks/server/channel/useUpdatePinnedChatMessages";
 import PinnedMessageBody from "./PinnedMessageBody";
+import { useZoraCollect1155 } from "../../hooks/contracts/useZoraCollect1155";
+import { TransactionReceipt } from "viem";
 
 type MessageListProps = {
   messages: Message[];
@@ -30,15 +32,28 @@ type MessageListProps = {
   hidePinnedMessages: boolean;
 };
 
-type MessageItemProps = {
+export type MessageItemProps = {
   message: Message;
   index: number;
   handleOpen: (value?: SelectedUser) => void;
   handlePinCallback: (value: string) => void;
+  handleCollectorMint?: (
+    tokenContract: `0x${string}`,
+    tokenId: number,
+    quantityToMint: bigint
+  ) => Promise<TransactionReceipt | undefined>;
+  channel: AblyChannelPromise;
 };
 
 const MessageItem = memo(
-  ({ message, handleOpen, index, handlePinCallback }: MessageItemProps) => {
+  ({
+    channel,
+    message,
+    handleOpen,
+    index,
+    handlePinCallback,
+    handleCollectorMint,
+  }: MessageItemProps) => {
     const messageText = message.data.messageText;
     const linkArray: RegExpMatchArray | null = messageText.match(
       /((https?:\/\/)|(www\.))[^\s/$.?#].[^\s]*/g
@@ -52,12 +67,14 @@ const MessageItem = memo(
         }}
       >
         <MessageBody
+          channel={channel}
           index={index}
           message={message}
           messageText={messageText}
           linkArray={linkArray}
           handleOpen={handleOpen}
           handlePinCallback={handlePinCallback}
+          handleCollectorMint={handleCollectorMint}
         />
       </div>
     );
@@ -103,6 +120,7 @@ const MessageList = memo(
     hidePinnedMessages,
   }: MessageListProps) => {
     const { ui, channel: c } = useChannelContext();
+    const { collectorMint } = useZoraCollect1155();
     const { pinnedChatMessages, channelQueryData } = c;
     const { selectedUserInChat, handleSelectedUserInChat } = ui;
     const chatMessages = useMemo(() => {
@@ -197,10 +215,18 @@ const MessageList = memo(
             initialTopMostItemIndex={chatMessages.length - 1}
             itemContent={(index, data) => (
               <MessageItem
+                channel={channel}
                 key={data.id || index}
                 message={data}
                 handleOpen={handleSelectedUserInChat}
                 handlePinCallback={handleUpdatePinnedChatMessages}
+                handleCollectorMint={
+                  data.data.body &&
+                  JSON.parse(data.data.body).interactionType ===
+                    InteractionType.PUBLISH_NFC
+                    ? collectorMint
+                    : undefined
+                }
                 index={index}
               />
             )}

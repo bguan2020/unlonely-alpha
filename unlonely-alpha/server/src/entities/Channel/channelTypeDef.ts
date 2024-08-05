@@ -78,6 +78,8 @@ export const typeDef = gql`
     nfcs: [NFC]
     vibesTokenPriceRange: [String]
     pinnedChatMessages: [String]
+    contract1155ChainId: Int
+    contract1155Address: String
   }
 
   type LivepeerStreamData {

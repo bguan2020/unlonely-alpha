@@ -1,39 +1,57 @@
-import { Box, Image, Flex, Link, Text, IconButton } from "@chakra-ui/react";
+import {
+  Box,
+  Image,
+  Flex,
+  Link,
+  Text,
+  IconButton,
+  Button,
+  Input,
+} from "@chakra-ui/react";
 import React, { useMemo, useState } from "react";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ExternalLinkIcon,
+} from "@chakra-ui/icons";
 
-import { InteractionType } from "../../constants";
+import {
+  CHAT_MESSAGE_EVENT,
+  ETH_COST_FOR_ONE_NFT_MINT,
+  InteractionType,
+  NULL_ADDRESS,
+} from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
-import {
-  Message,
-  SelectedUser,
-  SenderStatus,
-} from "../../constants/types/chat";
+import { SenderStatus } from "../../constants/types/chat";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import Badges from "./Badges";
 import { formatTimestampToTime } from "../../utils/time";
 import { TiPin } from "react-icons/ti";
+import { MessageItemProps } from "./MessageList";
+import { messageStyle } from "../../utils/messageStyle";
+import {
+  filteredInput,
+  formatIncompleteNumber,
+} from "../../utils/validation/input";
 
-type Props = {
-  index: number;
-  message: Message;
+type Props = MessageItemProps & {
   messageText: string;
   linkArray: RegExpMatchArray | null;
-  handleOpen: (value?: SelectedUser) => void;
-  handlePinCallback: (value: string) => void;
 };
 
 // if isVipChat is true, messages with SenderStatus.VIP will be displayed, else they are blurred,
 // messages with SenderStatus.MODERATOR are always displayed when isVipChat is false or true.
 
 const MessageBody = ({
+  channel,
   message,
   index,
   messageText,
   linkArray,
   handleOpen,
   handlePinCallback,
+  handleCollectorMint,
 }: Props) => {
   const { user } = useUser();
 
@@ -42,6 +60,10 @@ const MessageBody = ({
   const { channelQueryData, channelRoles } = c;
 
   const [mouseHover, setMouseHover] = useState(false);
+  const [selectedTokensToMint, setSelectedTokensToMint] = useState<string>("1");
+  const [customAmountSelected, setCustomAmountSelected] = useState(false);
+  const [customTokensToMint, setCustomTokensToMint] = useState<string>("");
+  const [nfcExpanded, setNfcExpanded] = useState(false);
 
   const userIsChannelOwner = useMemo(
     () => user?.address === channelQueryData?.owner.address,
@@ -53,6 +75,16 @@ const MessageBody = ({
       channelRoles?.some((m) => m?.address === user?.address && m?.role === 2),
     [user, channelRoles]
   );
+
+  const isNfcRelated = useMemo(() => {
+    return (
+      message.data.body &&
+      (JSON.parse(message.data.body).interactionType ===
+        InteractionType.PUBLISH_NFC ||
+        JSON.parse(message.data.body).interactionType ===
+          InteractionType.MINT_NFC_IN_CHAT)
+    );
+  }, [message.data.body]);
 
   const normalUserReceivesVipMessages = useMemo(
     () =>
@@ -89,123 +121,6 @@ const MessageBody = ({
     return fragments;
   }, [messageText, linkArray]);
 
-  const messageStyle = () => {
-    const eventTypes = [
-      InteractionType.EVENT_LIVE,
-      InteractionType.EVENT_LOCK,
-      InteractionType.EVENT_UNLOCK,
-      InteractionType.EVENT_PAYOUT,
-    ];
-
-    const adminTempTokenInteractionTypes = [
-      InteractionType.CREATE_TEMP_TOKEN,
-      InteractionType.CREATE_MULTIPLE_TEMP_TOKENS,
-      InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
-      InteractionType.TEMP_TOKEN_DURATION_INCREASED,
-      InteractionType.TEMP_TOKEN_BECOMES_ALWAYS_TRADEABLE,
-      InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED,
-      InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION,
-      InteractionType.VERSUS_WINNER_TOKENS_MINTED,
-      InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
-    ];
-
-    const greenTempTokenInteractionTypes = [InteractionType.BUY_TEMP_TOKENS];
-
-    const redTempTokenInteractionTypes = [
-      InteractionType.SELL_TEMP_TOKENS,
-      InteractionType.TEMP_TOKEN_EXPIRATION_WARNING,
-      InteractionType.TEMP_TOKEN_EXPIRED,
-      InteractionType.PRESALE_OVER,
-    ];
-
-    if (
-      message.data.body &&
-      (eventTypes as string[]).includes(message.data.body.split(":")[0])
-    ) {
-      return {
-        bg: "rgba(63, 59, 253, 1)",
-      };
-    } else if (
-      message.data.body &&
-      (adminTempTokenInteractionTypes as string[]).includes(
-        message.data.body.split(":")[0]
-      )
-    ) {
-      return {
-        bg: "rgba(34, 167, 255, 0.26)",
-        textColor: "#7ef0ff",
-        fontStyle: "italic",
-        fontWeight: "bold",
-        showTimestamp: true,
-      };
-    } else if (
-      message.data.body &&
-      (greenTempTokenInteractionTypes as string[]).includes(
-        message.data.body.split(":")[0]
-      )
-    ) {
-      return {
-        bg: "rgba(55, 255, 139, 0.26)",
-        textColor: "rgba(55, 255, 139, 1)",
-        fontStyle: "italic",
-        fontWeight: "bold",
-        showTimestamp: true,
-      };
-    } else if (
-      message.data.body &&
-      (redTempTokenInteractionTypes as string[]).includes(
-        message.data.body.split(":")[0]
-      )
-    ) {
-      return {
-        bg: "rgba(255, 0, 0, 0.26)",
-        textColor: "#ffadad",
-        fontStyle: "italic",
-        fontWeight: "bold",
-        showTimestamp: true,
-      };
-    } else if (
-      message.data.body &&
-      message.data.body.split(":")[0] === InteractionType.CLIP
-    ) {
-      return {
-        bgGradient:
-          "linear-gradient(138deg, rgba(0,0,0,1) 10%, rgba(125,125,125,1) 11%, rgba(125,125,125,1) 20%, rgba(0,0,0,1) 21%, rgba(0,0,0,1) 30%, rgba(125,125,125,1) 31%, rgba(125,125,125,1) 40%, rgba(0,0,0,1) 41%, rgba(0,0,0,1) 50%, rgba(125,125,125,1) 51%, rgba(125,125,125,1) 60%, rgba(0,0,0,1) 61%, rgba(0,0,0,1) 70%, rgba(125,125,125,1) 71%, rgba(125,125,125,1) 80%, rgba(0,0,0,1) 81%, rgba(0,0,0,1) 90%, rgba(125,125,125,1) 91%)",
-      };
-    } else if (
-      message.data.body &&
-      message.data.body.split(":")[0] === InteractionType.BUY_VOTES
-    ) {
-      if (message.data.body?.split(":")[3] === "yay") {
-        return {
-          bg: "#1B9C9C",
-        };
-      } else {
-        return {
-          bg: "#D343F7",
-        };
-      }
-    } else if (
-      message.data.body &&
-      message.data.body.split(":")[0] === InteractionType.BUY_VIBES
-    ) {
-      return {
-        bg: "rgba(10, 179, 18, 1)",
-      };
-    } else if (
-      message.data.body &&
-      message.data.body.split(":")[0] === InteractionType.SELL_VIBES
-    ) {
-      return {
-        bg: "rgba(218, 58, 19, 1)",
-      };
-    } else {
-      return {
-        // bg: "rgba(19, 18, 37, 1)",
-      };
-    }
-  };
-
   return (
     <>
       <Flex
@@ -226,99 +141,20 @@ const MessageBody = ({
           justifyContent={
             user?.address === message.data.address ? "end" : "start"
           }
-          bg={messageStyle().bg}
-          bgGradient={messageStyle().bgGradient}
+          bg={messageStyle(message.data.body).bg}
+          bgGradient={messageStyle(message.data.body).bgGradient}
           borderRadius="10px"
           position={"relative"}
         >
-          <Flex direction={"column"} width="100%">
-            <Box key={index} px="0.3rem" position="relative">
-              <Text as="span">
-                <Badges message={message} />
-                <Text
-                  as="span"
-                  onClick={() => {
-                    if (message.data.username !== "🤖")
-                      handleOpen({
-                        address: message.data.address,
-                        username: message.data.username,
-                      });
-                  }}
-                  _hover={{ cursor: "pointer" }}
-                  fontSize="12px"
-                  color={message.data.chatColor}
-                  fontWeight="bold"
-                >
-                  {message.data.username
-                    ? message.data.username
-                    : centerEllipses(message.data.address, 10)}
-                </Text>
-                {message.data.username !== "🤖" ? ":" : ""}{" "}
-                {message.data.isGif && (
-                  <>
-                    <Image
-                      src={messageText}
-                      display="inline"
-                      verticalAlign={"middle"}
-                      h="40px"
-                      p="5px"
-                    />
-                    <Image
-                      src={messageText}
-                      display="inline"
-                      verticalAlign={"middle"}
-                      h="40px"
-                      p="5px"
-                    />
-                    <Image
-                      src={messageText}
-                      display="inline"
-                      verticalAlign={"middle"}
-                      h="40px"
-                      p="5px"
-                    />
-                  </>
-                )}
-                {!message.data.isGif && linkArray && (
+          {isNfcRelated ? (
+            <Box key={index} p="0.3rem" position="relative" width="100%">
+              <Flex direction="column" justifyContent={"center"}>
+                <Flex justifyContent={"space-between"}>
                   <Text
                     as="span"
-                    color="#15dae4"
-                    filter={
-                      normalUserReceivesVipMessages ? "blur(5px)" : "blur(0px)"
-                    }
-                    fontSize={"12px"}
-                    wordBreak="break-word"
-                    textAlign="left"
-                  >
-                    {fragments.map((fragment, i) => {
-                      if (fragment.isLink) {
-                        return (
-                          <Link
-                            href={
-                              fragment.message.startsWith("https://") ||
-                              fragment.message.startsWith("http://")
-                                ? fragment.message
-                                : "https://".concat(fragment.message)
-                            }
-                            isExternal
-                            key={i}
-                          >
-                            {fragment.message}
-                            <ExternalLinkIcon mx="2px" />
-                          </Link>
-                        );
-                      } else {
-                        return <span key={i}>{fragment.message}</span>;
-                      }
-                    })}
-                  </Text>
-                )}
-                {!message.data.isGif && !linkArray && (
-                  <Text
-                    as="span"
-                    color={messageStyle().textColor ?? "white"}
-                    fontStyle={messageStyle().fontStyle}
-                    fontWeight={messageStyle().fontWeight}
+                    color={messageStyle(message.data.body).textColor ?? "white"}
+                    fontStyle={messageStyle(message.data.body).fontStyle}
+                    fontWeight={messageStyle(message.data.body).fontWeight}
                     fontSize={"12px"}
                     wordBreak="break-word"
                     textAlign="left"
@@ -333,18 +169,367 @@ const MessageBody = ({
                       </span>
                     ))}
                   </Text>
-                )}
-              </Text>
+                  {(message.data.body &&
+                  JSON.parse(message.data.body).interactionType ===
+                    InteractionType.MINT_NFC_IN_CHAT
+                    ? true
+                    : false) && (
+                    <IconButton
+                      _hover={{
+                        color: "rgba(55, 255, 139, 1)",
+                        bg: "rgba(0, 0, 0, 0.1)",
+                      }}
+                      _focus={{}}
+                      _active={{}}
+                      icon={
+                        nfcExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />
+                      }
+                      aria-label="expand"
+                      right="0"
+                      height="20px"
+                      top="0"
+                      bg="transparent"
+                      color="white"
+                      onClick={() => {
+                        setNfcExpanded(!nfcExpanded);
+                      }}
+                    />
+                  )}
+                </Flex>
+                <MintWrapper
+                  hide={
+                    !nfcExpanded &&
+                    (message.data.body &&
+                    JSON.parse(message.data.body).interactionType ===
+                      InteractionType.MINT_NFC_IN_CHAT
+                      ? true
+                      : false)
+                  }
+                >
+                  <Flex
+                    direction="column"
+                    bg="rgba(0,0,0,0.5)"
+                    p="5px"
+                    borderRadius={"15px"}
+                  >
+                    <Flex gap="20px">
+                      <Link
+                        href={`${window.origin}/nfc/${
+                          JSON.parse(message.data.body as string).id
+                        }`}
+                        isExternal
+                      >
+                        <Text
+                          as="span"
+                          color="#15dae4"
+                          fontSize={"12px"}
+                          wordBreak="break-word"
+                          textAlign="left"
+                        >
+                          see clip
+                          <ExternalLinkIcon mx="2px" />
+                        </Text>
+                      </Link>
+                      <Link
+                        href={JSON.parse(message.data.body as string).zoraLink}
+                        isExternal
+                      >
+                        <Text
+                          as="span"
+                          color="#15dae4"
+                          fontSize={"12px"}
+                          wordBreak="break-word"
+                          textAlign="left"
+                        >
+                          see nft
+                          <ExternalLinkIcon mx="2px" />
+                        </Text>
+                      </Link>
+                    </Flex>
+                    <Flex gap="10px" alignItems={"center"}>
+                      <Button
+                        color="rgba(63, 59, 253, 1)"
+                        height="20px"
+                        width="20px"
+                        _hover={{}}
+                        bg={
+                          selectedTokensToMint === "1"
+                            ? "rgba(55, 255, 139, 1)"
+                            : "white"
+                        }
+                        onClick={() => {
+                          setCustomAmountSelected(false);
+                          setSelectedTokensToMint("1");
+                        }}
+                      >
+                        1
+                      </Button>
+                      <Button
+                        color="rgba(63, 59, 253, 1)"
+                        height="20px"
+                        width="20px"
+                        _hover={{}}
+                        bg={
+                          selectedTokensToMint === "3"
+                            ? "rgba(55, 255, 139, 1)"
+                            : "white"
+                        }
+                        onClick={() => {
+                          setCustomAmountSelected(false);
+                          setSelectedTokensToMint("3");
+                        }}
+                      >
+                        3
+                      </Button>
+                      <Button
+                        color="rgba(63, 59, 253, 1)"
+                        height="20px"
+                        width="20px"
+                        _hover={{}}
+                        bg={
+                          selectedTokensToMint === "10"
+                            ? "rgba(55, 255, 139, 1)"
+                            : "white"
+                        }
+                        onClick={() => {
+                          setCustomAmountSelected(false);
+                          setSelectedTokensToMint("10");
+                        }}
+                      >
+                        10
+                      </Button>
+                      <Button
+                        color="rgba(63, 59, 253, 1)"
+                        height="20px"
+                        width="70px"
+                        p="0"
+                        _hover={{}}
+                        bg={
+                          customAmountSelected
+                            ? "rgba(55, 255, 139, 1)"
+                            : "white"
+                        }
+                        onClick={() => {
+                          setCustomAmountSelected(true);
+                          setSelectedTokensToMint(customTokensToMint);
+                        }}
+                        position={"relative"}
+                      >
+                        custom
+                        <Input
+                          cursor="pointer"
+                          position="absolute"
+                          bottom={customAmountSelected ? "-25px" : "0px"}
+                          opacity={customAmountSelected ? 1 : 0}
+                          transition={"all 0.3s"}
+                          bg={"white"}
+                          height="20px"
+                          width="70px"
+                          p="4px"
+                          value={customTokensToMint}
+                          onChange={(e) =>
+                            setCustomTokensToMint(filteredInput(e.target.value))
+                          }
+                        />
+                      </Button>
+                      <Button
+                        bg={"rgba(55, 255, 139, 1)"}
+                        borderRadius={"50%"}
+                        width="70px"
+                        minWidth="70px"
+                        height="70px"
+                        p="0"
+                        isDisabled={
+                          Number(
+                            formatIncompleteNumber(
+                              customAmountSelected
+                                ? customTokensToMint
+                                : selectedTokensToMint
+                            )
+                          ) === 0 || !user
+                        }
+                        onClick={async () => {
+                          const n = customAmountSelected
+                            ? customTokensToMint
+                            : selectedTokensToMint;
+                          if (n === "0") return;
+                          const txr = await handleCollectorMint?.(
+                            JSON.parse(message.data.body as string)
+                              .contract1155Address,
+                            JSON.parse(message.data.body as string).tokenId,
+                            BigInt(n)
+                          );
+                          if (!txr) return;
+                          channel?.publish({
+                            name: CHAT_MESSAGE_EVENT,
+                            data: {
+                              messageText: `${
+                                user?.username ??
+                                centerEllipses(user?.address, 13)
+                              } minted ${n}x "${
+                                JSON.parse(message.data.body as string).title
+                              }"`,
+                              username: "🤖",
+                              address: NULL_ADDRESS,
+                              isFC: false,
+                              isLens: false,
+                              isGif: false,
+                              senderStatus: SenderStatus.CHATBOT,
+                              body: JSON.stringify({
+                                interactionType:
+                                  InteractionType.MINT_NFC_IN_CHAT,
+                                contract1155Address: JSON.parse(
+                                  message.data.body as string
+                                ).contract1155Address,
+                                tokenId: JSON.parse(message.data.body as string)
+                                  .tokenId,
+                              }),
+                            },
+                          });
+                        }}
+                      >
+                        <Text whiteSpace={"normal"} overflowWrap={"break-word"}>
+                          MINT NOW
+                        </Text>
+                      </Button>
+                    </Flex>
+                    <Flex>
+                      <Text fontSize="10px" color="rgba(187, 201, 213, 1)">
+                        total cost:{" "}
+                        {(customAmountSelected
+                          ? Number(customTokensToMint)
+                          : Number(selectedTokensToMint)) *
+                          ETH_COST_FOR_ONE_NFT_MINT}{" "}
+                        ETH
+                      </Text>
+                    </Flex>
+                  </Flex>
+                </MintWrapper>
+              </Flex>
             </Box>
-          </Flex>
-          {messageStyle().showTimestamp && message.data.username === "🤖" && (
-            <Flex bg="rgba(0, 0, 0, 0.1)" px="0.4rem">
-              <Text fontSize="10px" whiteSpace={"nowrap"} fontStyle="italic">
-                {formatTimestampToTime(message.timestamp)}
-              </Text>
+          ) : (
+            <Flex direction={"column"} width="100%">
+              <Box key={index} px="0.3rem" position="relative">
+                <Text as="span">
+                  <Badges message={message} />
+                  <Text
+                    as="span"
+                    onClick={() => {
+                      if (message.data.username !== "🤖")
+                        handleOpen({
+                          address: message.data.address,
+                          username: message.data.username,
+                        });
+                    }}
+                    _hover={{ cursor: "pointer" }}
+                    fontSize="12px"
+                    color={message.data.chatColor}
+                    fontWeight="bold"
+                  >
+                    {message.data.username
+                      ? message.data.username
+                      : centerEllipses(message.data.address, 10)}
+                  </Text>
+                  {message.data.username !== "🤖" ? ":" : ""}{" "}
+                  {message.data.isGif && (
+                    <>
+                      <Image
+                        src={messageText}
+                        display="inline"
+                        verticalAlign={"middle"}
+                        h="40px"
+                        p="5px"
+                      />
+                      <Image
+                        src={messageText}
+                        display="inline"
+                        verticalAlign={"middle"}
+                        h="40px"
+                        p="5px"
+                      />
+                      <Image
+                        src={messageText}
+                        display="inline"
+                        verticalAlign={"middle"}
+                        h="40px"
+                        p="5px"
+                      />
+                    </>
+                  )}
+                  {!message.data.isGif && linkArray && (
+                    <Text
+                      as="span"
+                      color="#15dae4"
+                      filter={
+                        normalUserReceivesVipMessages
+                          ? "blur(5px)"
+                          : "blur(0px)"
+                      }
+                      fontSize={"12px"}
+                      wordBreak="break-word"
+                      textAlign="left"
+                    >
+                      {fragments.map((fragment, i) => {
+                        if (fragment.isLink) {
+                          return (
+                            <Link
+                              href={
+                                fragment.message.startsWith("https://") ||
+                                fragment.message.startsWith("http://")
+                                  ? fragment.message
+                                  : "https://".concat(fragment.message)
+                              }
+                              isExternal
+                              key={i}
+                            >
+                              {fragment.message}
+                              <ExternalLinkIcon mx="2px" />
+                            </Link>
+                          );
+                        } else {
+                          return <span key={i}>{fragment.message}</span>;
+                        }
+                      })}
+                    </Text>
+                  )}
+                  {!message.data.isGif && !linkArray && (
+                    <Text
+                      as="span"
+                      color={
+                        messageStyle(message.data.body).textColor ?? "white"
+                      }
+                      fontStyle={messageStyle(message.data.body).fontStyle}
+                      fontWeight={messageStyle(message.data.body).fontWeight}
+                      fontSize={"12px"}
+                      wordBreak="break-word"
+                      textAlign="left"
+                      filter={
+                        normalUserReceivesVipMessages
+                          ? "blur(5px)"
+                          : "blur(0px)"
+                      }
+                    >
+                      {messageText.split("\n").map((line, index) => (
+                        <span key={index}>
+                          {line}
+                          <br />
+                        </span>
+                      ))}
+                    </Text>
+                  )}
+                </Text>
+              </Box>
             </Flex>
           )}
-          {mouseHover && (
+          {messageStyle(message.data.body).showTimestamp &&
+            message.data.username === "🤖" && (
+              <Flex bg="rgba(0, 0, 0, 0.1)" px="0.4rem">
+                <Text fontSize="10px" whiteSpace={"nowrap"} fontStyle="italic">
+                  {formatTimestampToTime(message.timestamp)}
+                </Text>
+              </Flex>
+            )}
+          {mouseHover && !isNfcRelated && (
             <IconButton
               right="2"
               bottom="0"
@@ -359,6 +544,16 @@ const MessageBody = ({
       </Flex>
     </>
   );
+};
+
+const MintWrapper = ({
+  hide,
+  children,
+}: {
+  hide: boolean;
+  children: React.ReactNode;
+}) => {
+  return <>{!hide && children}</>;
 };
 
 export default MessageBody;

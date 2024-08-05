@@ -41,6 +41,7 @@ import { VersusTempTokensInterface } from "../versus/VersusTempTokensInterface";
 import { calculateMaxWinnerTokensToMint } from "../../../../utils/calculateMaxWinnerTokensToMint";
 import { useIsGameOngoing } from "../../../../hooks/internal/temp-token/ui/useIsGameOngoing";
 import { TransactionModalTemplate } from "../../../transactions/TransactionModalTemplate";
+import { ChannelPageNfcsList } from "../../../NFCs/ChannelPageNfcsList";
 
 export const DesktopChannelPageTempToken = ({
   channelSSR,
@@ -256,6 +257,7 @@ export const DesktopChannelPageTempToken = ({
                   minW={["100%", "100%", "380px", "380px"]}
                   maxW={["100%", "100%", "380px", "380px"]}
                   gap="1rem"
+                  height="100%"
                 >
                   {loadingOnMount ||
                   loadingCurrentOnMount ||
@@ -364,6 +366,7 @@ export const DesktopChannelPageTempToken = ({
                       minW={["100%", "100%", "500px", "500px"]}
                       maxW={["100%", "100%", "500px", "500px"]}
                       gap="1rem"
+                      height="100%"
                     >
                       <TempTokenInterface
                         ablyChannel={chat.channel}
@@ -376,6 +379,7 @@ export const DesktopChannelPageTempToken = ({
                       minW={["100%", "100%", "380px", "380px"]}
                       maxW={["100%", "100%", "380px", "380px"]}
                       gap="1rem"
+                      height="100%"
                     >
                       <Flex direction="column" h="40%">
                         {isOwner && !isGameOngoing && (
@@ -410,6 +414,7 @@ export const DesktopChannelPageTempToken = ({
                       minW={["100%", "100%", "500px", "500px"]}
                       maxW={["100%", "100%", "500px", "500px"]}
                       gap="1rem"
+                      height="100%"
                     >
                       <VersusTempTokensInterface
                         ablyChannel={chat.channel}
@@ -422,6 +427,7 @@ export const DesktopChannelPageTempToken = ({
                       minW={["100%", "100%", "380px", "380px"]}
                       maxW={["100%", "100%", "380px", "380px"]}
                       gap="1rem"
+                      height="100%"
                     >
                       {(isOwner || (tokenA.symbol && tokenB.symbol)) && (
                         <Flex
@@ -458,6 +464,7 @@ export const DesktopChannelPageTempToken = ({
                 </>
               )}
             </Stack>
+            <ChannelPageNfcsList />
           </Flex>
         ) : (
           <Flex

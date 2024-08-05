@@ -271,53 +271,8 @@ const ChatForm = ({
           ) : (
             <Flex direction="column" width="100%">
               <Flex justifyContent={"space-between"}>
-                <Flex gap="1rem">
-                  {clipLoading ? (
-                    <Flex alignSelf="center" mr="8px">
-                      <Spinner />
-                    </Flex>
-                  ) : (
-                    <Popover trigger="hover" placement="top" openDelay={500}>
-                      <PopoverTrigger>
-                        <IconButton
-                          icon={<Image src="/svg/cut.svg" height={"20px"} />}
-                          aria-label="clip stream"
-                          bg="transparent"
-                          _focus={{}}
-                          _hover={{ transform: "scale(1.15)" }}
-                          _active={{ transform: "scale(1.3)" }}
-                          minWidth="auto"
-                          onClick={() => {
-                            if (!realTimeChannelDetails?.allowNfcs) {
-                              toast({
-                                title: "Clipping is disabled for this stream.",
-                                status: "warning",
-                                duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
-                                isClosable: true,
-                                position: "bottom",
-                              });
-                            } else if (user) {
-                              handleIsClipUiOpen(true);
-                            } else {
-                              toastSignIn();
-                            }
-                          }}
-                        />
-                      </PopoverTrigger>
-                      <PopoverContent
-                        bg="#1557c0"
-                        border="none"
-                        width="100%"
-                        p="2px"
-                      >
-                        <PopoverArrow bg="#1557c0" />
-                        <Text fontSize="12px" textAlign={"center"}>
-                          clip the last 30 secs as an NFC!
-                        </Text>
-                      </PopoverContent>
-                    </Popover>
-                  )}
-                  {allowPopout && (
+                <Flex gap="0.75rem">
+                  {isOwner && allowPopout && (
                     <Popover trigger="hover" placement="top" openDelay={500}>
                       <PopoverTrigger>
                         <IconButton
@@ -346,73 +301,77 @@ const ChatForm = ({
                       </PopoverContent>
                     </Popover>
                   )}
-                  <Popover trigger="hover" placement="top" openDelay={500}>
-                    <PopoverTrigger>
-                      <IconButton
-                        color="white"
-                        icon={<GiTalk size={20} />}
-                        bg="transparent"
-                        aria-label="react"
-                        _focus={{}}
-                        _hover={{ transform: "scale(1.15)" }}
-                        _active={{ transform: "scale(1.3)" }}
-                        onClick={() => {
-                          setCommandsOpen((prev) => {
-                            if (!prev) setInstantCommandSend(true);
-                            return !prev;
-                          });
-                        }}
-                        minWidth="auto"
-                      />
-                    </PopoverTrigger>
-                    <PopoverContent
-                      bg="#925800"
-                      border="none"
-                      width="100%"
-                      p="2px"
-                    >
-                      <PopoverArrow bg="#925800" />
-                      <Text fontSize="12px" textAlign={"center"}>
-                        use chat commands for this stream!
-                      </Text>
-                    </PopoverContent>
-                  </Popover>
-                  <Popover trigger="hover" placement="top" openDelay={500}>
-                    <PopoverTrigger>
-                      <IconButton
-                        _focus={{}}
-                        _hover={{ transform: "scale(1.15)" }}
-                        _active={{ transform: "scale(1.3)" }}
-                        icon={<FaFileDownload size={20} color="white" />}
-                        bg="transparent"
-                        minWidth="auto"
-                        aria-label="chat-history"
-                        onClick={() =>
-                          downloadChatHistory(
-                            messages,
-                            channelQueryData?.slug ?? ""
-                          )
-                        }
-                      />
-                    </PopoverTrigger>
-                    <PopoverContent
-                      bg="#0a9216"
-                      border="none"
-                      width="100%"
-                      p="2px"
-                    >
-                      <PopoverArrow bg="#0a9216" />
-                      <Text fontSize="12px" textAlign={"center"}>
-                        save chat transcript!
-                      </Text>
-                    </PopoverContent>
-                  </Popover>
+                  {isOwner && (
+                    <Popover trigger="hover" placement="top" openDelay={500}>
+                      <PopoverTrigger>
+                        <IconButton
+                          color="white"
+                          icon={<GiTalk size={20} />}
+                          bg="transparent"
+                          aria-label="command"
+                          _focus={{}}
+                          _hover={{ transform: "scale(1.15)" }}
+                          _active={{ transform: "scale(1.3)" }}
+                          onClick={() => {
+                            setCommandsOpen((prev) => {
+                              if (!prev) setInstantCommandSend(true);
+                              return !prev;
+                            });
+                          }}
+                          minWidth="auto"
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        bg="#925800"
+                        border="none"
+                        width="100%"
+                        p="2px"
+                      >
+                        <PopoverArrow bg="#925800" />
+                        <Text fontSize="12px" textAlign={"center"}>
+                          use chat commands for this stream!
+                        </Text>
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                  {isOwner && (
+                    <Popover trigger="hover" placement="top" openDelay={500}>
+                      <PopoverTrigger>
+                        <IconButton
+                          _focus={{}}
+                          _hover={{ transform: "scale(1.15)" }}
+                          _active={{ transform: "scale(1.3)" }}
+                          icon={<FaFileDownload size={20} color="white" />}
+                          bg="transparent"
+                          minWidth="auto"
+                          aria-label="chat-history"
+                          onClick={() =>
+                            downloadChatHistory(
+                              messages,
+                              channelQueryData?.slug ?? ""
+                            )
+                          }
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        bg="#0a9216"
+                        border="none"
+                        width="100%"
+                        p="2px"
+                      >
+                        <PopoverArrow bg="#0a9216" />
+                        <Text fontSize="12px" textAlign={"center"}>
+                          save chat transcript!
+                        </Text>
+                      </PopoverContent>
+                    </Popover>
+                  )}
                   {(isOwner || isVip) && (
                     <Popover trigger="hover" placement="top" openDelay={500}>
                       <PopoverTrigger>
                         <IconButton
                           icon={<Image src="/svg/blast.svg" height={"20px"} />}
-                          aria-label="clip stream"
+                          aria-label="blast"
                           bg={blastMode ? "red" : "transparent"}
                           _focus={{}}
                           _hover={{ transform: "scale(1.15)" }}
@@ -479,7 +438,73 @@ const ChatForm = ({
                       </PopoverContent>
                     </Popover>
                   )}
+                </Flex>
+                <Flex gap="0.75rem">
+                  {clipLoading ? (
+                    <Flex alignSelf="center" mr="8px">
+                      <Spinner />
+                    </Flex>
+                  ) : (
+                    <Popover trigger="hover" placement="top" openDelay={500}>
+                      <PopoverTrigger>
+                        <IconButton
+                          icon={
+                            <Image
+                              src="/images/clip-icon-150x150.png"
+                              height={"35px"}
+                            />
+                          }
+                          aria-label="clip stream"
+                          bg="transparent"
+                          _focus={{}}
+                          _hover={{ transform: "scale(1.15)" }}
+                          _active={{ transform: "scale(1.3)" }}
+                          minWidth="auto"
+                          onClick={() => {
+                            if (!realTimeChannelDetails?.allowNfcs) {
+                              toast({
+                                title: "Clipping is disabled for this stream.",
+                                status: "warning",
+                                duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
+                                isClosable: true,
+                                position: "bottom",
+                              });
+                            } else if (
+                              user &&
+                              channelQueryData?.livepeerPlaybackId
+                            ) {
+                              window.open(
+                                `${window.location.origin}/clip?channelId=${channelQueryData.id}`,
+                                "_blank"
+                              );
+                            } else if (user) {
+                              handleIsClipUiOpen(true);
+                            } else {
+                              toastSignIn();
+                            }
+                          }}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent
+                        bg="#1557c0"
+                        border="none"
+                        width="100%"
+                        p="2px"
+                      >
+                        <PopoverArrow bg="#1557c0" />
+                        <Text fontSize="12px" textAlign={"center"}>
+                          clip moments in the stream as NFTs!
+                        </Text>
+                      </PopoverContent>
+                    </Popover>
+                  )}
                   <EmojiButton
+                    img={
+                      <Image
+                        src={"/images/emoji-icon-128x128.png"}
+                        height={"35px"}
+                      />
+                    }
                     onSelectEmoji={(emoji) => addEmoji(emoji)}
                     onSelectGif={(gif) => sendGif(gif)}
                   />

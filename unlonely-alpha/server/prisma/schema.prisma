@@ -47,6 +47,7 @@ model User {
   leaderboardEntries BaseLeaderboard[]
   gamblableInteractions GamblableInteraction[]
   gamblableEventLeaderboardEntries GamblableEventLeaderboard[]
+  channelContract1155Mapping Json @default("{}")
 }
 
 model Subscription {
@@ -96,6 +97,11 @@ model NFC {
   videoLink String? @default("")
   videoThumbnail String? @default("")
   openseaLink String? @default("")
+
+  contract1155ChainId Int @default(8453)
+  contract1155Address String? @default("")
+  tokenId Int @default(-1) // -1 means not minted yet
+  zoraLink String? @default("")
   score Int @default(0)
 
   likes Like[]

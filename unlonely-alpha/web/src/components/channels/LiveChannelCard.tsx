@@ -38,6 +38,31 @@ const LiveChannelCard = ({ channel, callback }: Props) => {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
+        <Flex mb="1rem">
+          <Image
+            height="1.5rem"
+            width="1.5rem"
+            objectFit="cover"
+            src={
+              channel.owner.FCImageUrl
+                ? channel.owner.FCImageUrl
+                : unlonelyAvatar
+            }
+            borderRadius="full"
+            mr="0.5rem"
+          />
+          <Text
+            fontSize="16px"
+            noOfLines={1}
+            fontWeight="light"
+            textAlign="center"
+            textShadow="rgba(208, 234, 53, 0.4) 1px 0 5px"
+            color={"#D094FF"}
+          >
+            {channel.owner.username ??
+              centerEllipses(channel.owner.address, 15)}
+          </Text>
+        </Flex>
         <Flex
           _hover={{
             filter: "brightness(80%)",
@@ -45,6 +70,15 @@ const LiveChannelCard = ({ channel, callback }: Props) => {
           }}
         >
           <Box position="relative">
+            <Box
+              position="absolute"
+              bg="red"
+              px="5px"
+              borderRadius={"5px"}
+              m="10px"
+            >
+              <Text fontFamily={"LoRes15"}>LIVE</Text>
+            </Box>
             <Image
               src={channel.thumbnailUrl ?? "/svg/defaultThumbnail.svg"}
               width={["236px", "380px"]}
@@ -73,23 +107,6 @@ const LiveChannelCard = ({ channel, callback }: Props) => {
         <Flex justifyContent="space-between" flexDirection="column">
           <Stack direction="column">
             <Stack direction="row" alignItems={"center"}>
-              <Flex
-                p="1px"
-                bg={
-                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-                }
-                borderRadius="10px"
-                boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
-              >
-                <Flex
-                  bg={"#131323"}
-                  borderRadius="10px"
-                  px="10px"
-                  whiteSpace="nowrap"
-                >
-                  🔴 Live
-                </Flex>
-              </Flex>
               <Text
                 fontSize={20}
                 fontWeight="bold"
@@ -102,36 +119,12 @@ const LiveChannelCard = ({ channel, callback }: Props) => {
             <Text
               fontSize={12}
               fontWeight="medium"
-              noOfLines={4}
+              noOfLines={2}
+              color={"#d3d3d3"}
               textShadow="rgba(208, 234, 53, 0.4) 1px 0 5px"
             >
               {channel.description}
             </Text>
-            <Flex mt="1.2rem">
-              <Image
-                height="1.5rem"
-                width="1.5rem"
-                objectFit="cover"
-                src={
-                  channel.owner.FCImageUrl
-                    ? channel.owner.FCImageUrl
-                    : unlonelyAvatar
-                }
-                borderRadius="full"
-                mr="0.5rem"
-              />
-              <Text
-                fontSize="16px"
-                noOfLines={1}
-                fontWeight="light"
-                textAlign="center"
-                textShadow="rgba(208, 234, 53, 0.4) 1px 0 5px"
-                color={"#D094FF"}
-              >
-                {channel.owner.username ??
-                  centerEllipses(channel.owner.address, 15)}
-              </Text>
-            </Flex>
           </Stack>
         </Flex>
       </Flex>

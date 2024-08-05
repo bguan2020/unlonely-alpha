@@ -57,7 +57,8 @@ export const createCallbackHandler = (
 export const returnDecodedTopics = (
   logs: any[],
   contractAbi: any[],
-  eventName: string
+  eventName: string,
+  strict?: boolean
 ) => {
   let topics = null;
   for (let i = logs.length - 1; i >= 0; i--) {
@@ -66,13 +67,14 @@ export const returnDecodedTopics = (
         abi: contractAbi,
         data: logs[i].data,
         topics: logs[i].topics,
+        strict,
       });
       if (_topics && _topics.eventName === eventName) {
         topics = _topics;
         break;
       }
     } catch (e) {
-      console.log(`${eventName} success decodeEventLog error`, e);
+      console.log(`${eventName} decodeEventLog error`, e);
     }
   }
   return topics;

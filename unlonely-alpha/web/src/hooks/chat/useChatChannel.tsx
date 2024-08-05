@@ -172,7 +172,9 @@ export function useChatChannel(fixedChatName?: string) {
     }
     if (message.name === CHAT_MESSAGE_EVENT) {
       if (message.data.senderStatus === SenderStatus.CHATBOT) {
-        const chatbotTaskType = message?.data?.body?.split(":")[0];
+        const chatbotTaskType =
+          message?.data?.body?.split(":")[0] ||
+          JSON.parse(message?.data?.body).interactionType;
         if (chatbotTaskType === InteractionType.EVENT_LIVE) {
           const betId = message.data.body.split(":")[1];
           const sharesSubjectQuestion = message.data.body.split(":")[2];

@@ -16,6 +16,12 @@ export const resolvers = {
     getNFC(_: any, { id }: { id: number }, ctx: Context) {
       return NFCService.getNFC({ id }, ctx);
     },
+    getLivepeerClipData(
+      _: any,
+      { data }: { data: NFCService.IGetLivepeerClipDataInput },
+    ) {
+      return NFCService.getLivepeerClipData(data);
+    }
   },
   Mutation: {
     postNFC(
@@ -47,6 +53,24 @@ export const resolvers = {
         throw new AuthenticationError("User is not authenticated");
       }
       return NFCService.createLivepeerClip(data, ctx, ctx.user);
+    },
+    requestUploadFromLivepeer(
+      _: any,
+      { data }: { data: NFCService.IRequestUploadFromLivepeerInput }
+    ) {
+      return NFCService.requestUploadFromLivepeer(data);
+    },
+    trimVideo(
+      _: any,
+      { data }: { data: NFCService.ITrimVideoInput },
+    ) {
+        return NFCService.trimVideo(data);
+    },
+    concatenateOutroToTrimmedVideo(
+      _: any,
+      { data }: { data: NFCService.IConcatenateOutroToTrimmedVideoInput },
+    ) {
+        return NFCService.concatenateOutroToTrimmedVideo(data);
     },
     openseaNFCScript: async (_: any, __: any, ctx: Context) => {
       return NFCService.openseaNFCScript(ctx);

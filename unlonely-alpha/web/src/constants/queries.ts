@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 export const GET_USER_QUERY = gql`
-  query getUser($data: GetUserInput!) {
+  query GetUser($data: GetUserInput!) {
     getUser(data: $data) {
       address
       username
@@ -21,8 +21,24 @@ export const GET_USER_QUERY = gql`
   }
 `;
 
+export const GET_USER_CHANNEL_CONTRACT_1155_MAPPING_QUERY = gql`
+  query GetUserChannelContract1155Mapping($data: GetUserInput!) {
+    getUserChannelContract1155Mapping(data: $data)
+  }
+`;
+
+export const GET_LIVEPEER_CLIP_DATA_QUERY = gql`
+  query GetLivepeerClipData($data: GetLivepeerClipDataInput) {
+    getLivepeerClipData(data: $data) {
+      error
+      videoThumbnail
+      videoLink
+    }
+  }
+`
+
 export const GET_USER_TOKEN_HOLDING_QUERY = gql`
-  query Query($data: GetUserTokenHoldingInput!) {
+  query GetUserTokenHolding($data: GetUserTokenHoldingInput!) {
     getUserTokenHolding(data: $data)
   }
 `;
@@ -273,6 +289,7 @@ export const NFC_FEED_QUERY = gql`
   query NFCFeed($data: NFCFeedInput!) {
     getNFCFeed(data: $data) {
       createdAt
+      channelId
       id
       videoLink
       videoThumbnail
@@ -408,6 +425,47 @@ export const GET_CHANNELS_BY_OWNER_ADDRESS_QUERY = gql`
       slug
       createdAt
       name
+    }
+  }
+`;
+
+export const GET_CHANNEL_BY_ID_QUERY = gql`
+  query GetChannelById($id: ID!) {
+    getChannelById(id: $id) {
+      awsId
+      channelArn
+      description
+      customButtonPrice
+      customButtonAction
+      isLive
+      id
+      name
+      slug
+      allowNFCs
+      livepeerPlaybackId
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        chainId
+        channelId
+        options
+        eventState
+        createdAt
+        id
+        resultIndex
+      }
+      owner {
+        FCImageUrl
+        lensImageUrl
+        username
+        address
+      }
+      token {
+        id
+        name
+        symbol
+        address
+      }
     }
   }
 `;

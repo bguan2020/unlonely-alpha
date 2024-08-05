@@ -1,6 +1,7 @@
 import "../styles/globals.css";
 import "../styles/fireworks.css";
 import "../styles/bell.css";
+import "../styles/imageScroller.css";
 
 import { ChakraProvider, Flex, IconButton, Text } from "@chakra-ui/react";
 import { configureChains } from "wagmi";

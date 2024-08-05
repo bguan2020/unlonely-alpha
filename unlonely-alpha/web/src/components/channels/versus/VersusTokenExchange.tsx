@@ -142,7 +142,7 @@ export const VersusTokenExchange = () => {
           )}
         </Flex>
         {focusedTokenToTrade && !isPreSaleOngoing && (
-          <Popover trigger="hover" placement="top" openDelay={500}>
+          <Popover trigger="hover" placement="top" openDelay={500} isLazy>
             <PopoverTrigger>
               <Button
                 bg={"#403c7d"}

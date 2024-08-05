@@ -1,6 +1,13 @@
 import { Text } from "@chakra-ui/react";
 
-export const WavyText = ({ text }: { text: string }) => {
+export const WavyText = ({
+  text,
+  modifier = 0.1,
+}: {
+  text: string;
+  modifier?: number;
+  noSplit?: boolean;
+}) => {
   return (
     <>
       {text.split("").map((letter, index) => (
@@ -9,7 +16,7 @@ export const WavyText = ({ text }: { text: string }) => {
           key={index}
           fontFamily="LoRes15"
           style={{
-            animationDelay: `${index * 0.1}s`,
+            animationDelay: `${index * modifier}s`,
           }}
         >
           {letter}

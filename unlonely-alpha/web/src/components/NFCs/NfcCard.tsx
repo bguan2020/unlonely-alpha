@@ -6,13 +6,15 @@ import { LikedIcon, LikeIcon } from "../icons/LikeIcon";
 
 const unlonelyAvatar = "/icons/icon-192x192.png";
 
-const NfcCard = ({ nfc }: any) => {
+const NfcCard = ({ nfc, makeLinksExternal }: any) => {
   const handleOpenSeaLink = () => {
     window.open(nfc.openseaLink, "_blank");
   };
 
+  const href = `/nfc/${nfc.id}`;
+
   return (
-    <Link href={`/nfc/${nfc.id}`} passHref>
+    <LinkWrapper href={href} isExternal={makeLinksExternal}>
       <Flex
         direction="column"
         padding="0.3rem"
@@ -99,6 +101,22 @@ const NfcCard = ({ nfc }: any) => {
           )}
         </Flex>
       </Flex>
+    </LinkWrapper>
+  );
+};
+
+const LinkWrapper = ({ href, children, isExternal }: any) => {
+  if (isExternal) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer">
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={href} passHref>
+      {children}
     </Link>
   );
 };
