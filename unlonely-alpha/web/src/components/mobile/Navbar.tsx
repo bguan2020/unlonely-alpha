@@ -59,7 +59,7 @@ export const Navbar = () => {
         _focus={{}}
         _active={{}}
         onClick={() => {
-          router.push("/nfcs");
+          router.push("/mobile/nfcs");
         }}
       >
         <Flex direction="column" alignItems="center">

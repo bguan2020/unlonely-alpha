@@ -38,6 +38,9 @@ export enum InteractionType {
   EVENT_LOCK = "event-lock-interaction",
   EVENT_UNLOCK = "event-unlock-interaction",
   EVENT_PAYOUT = "event-payout-interaction",
+
+  PUBLISH_NFC = "publish-nfc-interaction",
+  MINT_NFC_IN_CHAT = "mint-nfc-in-chat-interaction",
 }
 
 export enum BaseChatCommand {
@@ -132,6 +135,7 @@ export const DEFAULT_TOKEN_CLAIM_AMOUNT = 10;
 export const PRE_SALE_MAX_SUPPLY = 1000;
 export const PRE_SALE_PRICE_PER_TOKEN = 23 * 10 ** 12;
 export const MIN_BASE_TOKEN_PRICE = BigInt(2 * 10 ** 13);
+export const ETH_COST_FOR_ONE_NFT_MINT = 0.000777
 
 export const CHANNEL_IDS_NO_VIP = [4]
 export const CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS = ["loveonleverage"]
