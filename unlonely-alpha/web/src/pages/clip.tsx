@@ -996,7 +996,7 @@ const Clip = () => {
                     onClick={() => {
                       window.open(
                         `https://x.com/intent/tweet?text=${encodeURIComponent(
-                          `Check this out: ${finalClipObject?.videoLink}`
+                          `Check this out: ${window.origin}/nfc/${finalClipObject?.id}`
                         )}`,
                         "_blank"
                       );
@@ -1014,7 +1014,7 @@ const Clip = () => {
                     _hover={{}}
                     onClick={() => {
                       window.open(
-                        `https://warpcast.com/~/compose?text=new%20unlonely%20clip%20just%20dropped!&embeds[]=${finalClipObject?.videoLink}`,
+                        `https://warpcast.com/~/compose?text=new%20unlonely%20clip%20just%20dropped!&embeds[]=${window.origin}/nfc/${finalClipObject?.id}`,
                         "_blank"
                       );
                     }}
@@ -1031,7 +1031,7 @@ const Clip = () => {
                     _hover={{}}
                     onClick={() => {
                       window.open(
-                        `https://hey.xyz/?text=new%20unlonely%20clip%20just%20dropped!&url=${finalClipObject?.videoLink}`,
+                        `https://hey.xyz/?text=new%20unlonely%20clip%20just%20dropped!&url=${window.origin}/nfc/${finalClipObject?.id}`,
                         "_blank"
                       );
                     }}
