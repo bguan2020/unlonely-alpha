@@ -75,12 +75,7 @@ const ChatForm = ({
   } = useChannelContext();
   const { isVip } = leaderboard;
   const { handleIsClipUiOpen, loading: clipLoading } = chat;
-  const {
-    handleStartedWelcomeTour,
-    handleIsTourOpen,
-    handleSetTourSteps,
-    handleClipDrawer,
-  } = ui;
+  const { handleStartedWelcomeTour, handleIsTourOpen, handleSetTourSteps } = ui;
 
   const { channelQueryData, realTimeChannelDetails, channelRoles, isOwner } =
     channelContext;
