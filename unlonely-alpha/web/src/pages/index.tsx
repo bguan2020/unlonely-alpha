@@ -342,21 +342,21 @@ function DesktopHomePage({
   const client = new GraphQLClient(endpoint);
 
   // Define the GraphQL query
-  const query = gql`
-    query MyQuery($tokenAddress: String!, $tokenId: String!) {
-      mints(
-        networks: { network: BASE, chain: BASE_MAINNET }
-        sort: { sortKey: TIME, sortDirection: DESC }
-        where: { tokens: { address: $tokenAddress, tokenId: $tokenId } }
-      ) {
-        nodes {
-          mint {
-            quantity
-          }
-        }
-      }
-    }
-  `;
+  // const query = gql`
+  //   query MyQuery($tokenAddress: String!, $tokenId: String!) {
+  //     mints(
+  //       networks: { network: BASE, chain: BASE_MAINNET }
+  //       sort: { sortKey: TIME, sortDirection: DESC }
+  //       where: { tokens: { address: $tokenAddress, tokenId: $tokenId } }
+  //     ) {
+  //       nodes {
+  //         mint {
+  //           quantity
+  //         }
+  //       }
+  //     }
+  //   }
+  // `;
 
   // useEffect(() => {
   //   const variables = {

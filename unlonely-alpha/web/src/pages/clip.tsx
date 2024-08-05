@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { MdDragIndicator } from "react-icons/md";
+import * as tus from "tus-js-client";
 
 import {
   CHAT_MESSAGE_EVENT,
@@ -72,6 +73,10 @@ import centerEllipses from "../utils/centerEllipses";
 import { useNetworkContext } from "../hooks/context/useNetwork";
 import AppLayout from "../components/layout/AppLayout";
 import copy from "copy-to-clipboard";
+import { convertToHHMMSS } from "../utils/time";
+import useRequestUpload from "../hooks/server/channel/useRequestUpload";
+
+let ffmpeg: any; //Store the ffmpeg instance
 
 const multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
 const PROTOCOL_ADDRESS = "0x53D6D64945A67658C66730Ff4a038eb298eC8902";
@@ -123,14 +128,16 @@ const Clip = () => {
   const [transactionMessage, setTransactionMessage] = useState<string | null>(
     null
   );
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+
   const [carouselProgressIndex, setCarouselProgressIndex] = useState(0);
   const [pageState, setPageState] = useState<
     "offline" | "clipping" | "selecting" | "trimming" | "sharing" | "error"
-  >("clipping");
+  >("selecting");
   const [progressPercentage, setProgressPercentage] = useState(0);
   const [roughClipUrl, setRoughClipUrl] = useState(
-    ""
-    // "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a5e1mb4vfge22uvr/1200p0.mp4"
+    // ""
+    "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a5e1mb4vfge22uvr/1200p0.mp4"
   );
   const [finalClipObject, setFinalClipObject] = useState<
     FinalClipObject | undefined
@@ -206,6 +213,12 @@ const Clip = () => {
     GET_LIVEPEER_CLIP_DATA_QUERY
   );
 
+  const { requestUpload } = useRequestUpload({
+    onError: () => {
+      console.log("Error");
+    },
+  });
+
   const { createClip } = useCreateClip({
     onError: (e) => {
       console.log(e);
@@ -243,35 +256,35 @@ const Clip = () => {
     if (channelId) getChannelById();
   }, [channelId]);
 
-  useEffect(() => {
-    const init = async () => {
-      if (!getChannelByIdData || !user) return;
-      if (!getChannelByIdData.getChannelById?.isLive) {
-        setPageState("offline");
-        return;
-      }
-      setPageState("clipping");
-      try {
-        const { res } = await createClip({
-          title: `rough-clip-${Date.now()}`,
-          channelId: getChannelByIdData.getChannelById?.id,
-          livepeerPlaybackId:
-            getChannelByIdData.getChannelById?.livepeerPlaybackId,
-          noDatabasePush: true,
-        });
-        const url = res?.url;
-        if (url) {
-          setRoughClipUrl(url);
-        } else {
-          console.log("Error, url is missing");
-        }
-        setPageState("selecting");
-      } catch (e) {
-        setPageState("error");
-      }
-    };
-    init();
-  }, [getChannelByIdData, user]);
+  // useEffect(() => {
+  //   const init = async () => {
+  //     if (!getChannelByIdData || !user) return;
+  //     if (!getChannelByIdData.getChannelById?.isLive) {
+  //       setPageState("offline");
+  //       return;
+  //     }
+  //     setPageState("clipping");
+  //     try {
+  //       const { res } = await createClip({
+  //         title: `rough-clip-${Date.now()}`,
+  //         channelId: getChannelByIdData.getChannelById?.id,
+  //         livepeerPlaybackId:
+  //           getChannelByIdData.getChannelById?.livepeerPlaybackId,
+  //         noDatabasePush: true,
+  //       });
+  //       const url = res?.url;
+  //       if (url) {
+  //         setRoughClipUrl(url);
+  //       } else {
+  //         console.log("Error, url is missing");
+  //       }
+  //       setPageState("selecting");
+  //     } catch (e) {
+  //       setPageState("error");
+  //     }
+  //   };
+  //   init();
+  // }, [getChannelByIdData, user]);
 
   useEffect(() => {
     if (roughClipUrl && videoRef.current) {
@@ -306,6 +319,205 @@ const Clip = () => {
     }
   };
 
+  const loadScript = (src: any) => {
+    return new Promise((onFulfilled, _) => {
+      const script = document.createElement("script") as any;
+      let loaded: any;
+      script.async = "async";
+      script.defer = "defer";
+      script.setAttribute("src", src);
+      script.onreadystatechange = script.onload = () => {
+        if (!loaded) {
+          onFulfilled(script);
+        }
+        loaded = true;
+      };
+      script.onerror = function () {
+        console.log("Script failed to load");
+      };
+      document.getElementsByTagName("head")[0].appendChild(script);
+    });
+  };
+
+  useEffect(() => {
+    loadScript(
+      "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.2/dist/ffmpeg.min.js"
+    ).then(() => {
+      if (typeof window !== "undefined") {
+        ffmpeg = (window as any).FFmpeg.createFFmpeg({ log: true });
+        ffmpeg.load().then(() => {
+          setIsScriptLoaded(true);
+        });
+      }
+    });
+  }, []);
+
+  const handleTrim = async (info: {
+    startTime: number;
+    endTime: number;
+    videoLink: string;
+    name: string;
+  }) => {
+    if (isScriptLoaded && title) {
+      const trimFunctionStart = Date.now();
+
+      videoRef.current?.pause();
+      const videoBlob = await fetch(info.videoLink).then((res) => res.blob());
+      const videoFile = new File([videoBlob], "in.mp4", {
+        type: "video/mp4",
+      });
+
+      //Write video to memory
+      ffmpeg.FS(
+        "writeFile",
+        "in.mp4",
+        await (window as any).FFmpeg.fetchFile(videoFile)
+      );
+
+      console.log("wrote in.mp4 to memory");
+
+      //Run the ffmpeg command to trim video
+      await ffmpeg.run(
+        "-i",
+        "in.mp4",
+        "-ss",
+        `${convertToHHMMSS(info.startTime.toString())}`,
+        "-to",
+        `${convertToHHMMSS(info.endTime.toString())}`,
+        "-c:v",
+        "copy",
+        "-c:a",
+        "copy",
+        "trimmed.mp4"
+      );
+
+      console.log(
+        "trimmed video, took",
+        `${(Date.now() - trimFunctionStart) / 1000}s`
+      );
+      const outroStart = Date.now();
+
+      // await ffmpeg.run(
+      //   "-v",
+      //   "quiet",
+      //   "-print_format",
+      //   "json",
+      //   "-show_format",
+      //   "-show_streams",
+      //   "trimmed.mp4"
+      // );
+
+      // Create an outro video with the watermark image
+      const watermarkImage = await fetch("/images/unlonely-watermark.png").then(
+        (res) => res.arrayBuffer()
+      );
+      ffmpeg.FS("writeFile", "watermark.png", new Uint8Array(watermarkImage));
+
+      await ffmpeg.run(
+        "-loop",
+        "1",
+        "-i",
+        "watermark.png",
+        "-t",
+        "3",
+        "-vf",
+        "scale=iw*1:ih*1, pad=1280:720:(ow-iw)/2:(oh-ih)/2", // Scale to 40% of original size and center
+        "-c:v",
+        "libx264",
+        "-c:a",
+        "aac",
+        "outro.mp4"
+      );
+
+      console.log("created outro.mp4", `${(Date.now() - outroStart) / 1000}s`);
+      const concatStart = Date.now();
+
+      // Verify the files exist in the FFmpeg file system
+      const trimmedFileExists = ffmpeg
+        .FS("readdir", "/")
+        .includes("trimmed.mp4");
+      const outroFileExists = ffmpeg.FS("readdir", "/").includes("outro.mp4");
+
+      if (!trimmedFileExists || !outroFileExists) {
+        throw new Error("Failed to create trimmed or outro video");
+      }
+
+      // Concatenate using filter_complex without worrying about audio
+      await ffmpeg.run(
+        "-i",
+        "trimmed.mp4",
+        "-i",
+        "outro.mp4",
+        "-filter_complex",
+        "[0:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v1];[1:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v2];[v1][v2]concat=n=2:v=1[outv]",
+        "-map",
+        "[outv]",
+        "-map",
+        "0:a?",
+        "final.mp4"
+      );
+
+      console.log(
+        "concatenated video",
+        `${(Date.now() - concatStart) / 1000}s`
+      );
+
+      //Convert data to url and store in videoTrimmedUrl state
+      const data = ffmpeg.FS("readFile", "final.mp4");
+      const trimmedBlob = new Blob([data.buffer], { type: "video/mp4" });
+      const trimmedUrl = URL.createObjectURL(trimmedBlob);
+      const trimmedFile = new File([trimmedBlob], `${info.name}.mp4`, {
+        type: "video/mp4",
+      });
+
+      console.log("requesting upload");
+      const { res } = await requestUpload({
+        name: info.name,
+      });
+      console.log("res", res);
+
+      const tusEndpoint = res?.tusEndpoint;
+
+      const upload = new tus.Upload(trimmedFile, {
+        endpoint: tusEndpoint,
+        retryDelays: [0, 1000, 3000, 5000],
+        metadata: {
+          filename: `${info.name}.mp4`,
+          filetype: "video/mp4",
+        },
+        onError: function (error: any) {
+          console.log("Failed because: ", error);
+        },
+        onProgress: function (bytesUploaded: number, bytesTotal: number) {
+          const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+          console.log(bytesUploaded, bytesTotal, percentage);
+        },
+        onSuccess: function () {
+          console.log("Download %s from %s", upload.file, upload.url);
+          // setIsPublished(true);
+        },
+      });
+
+      upload.findPreviousUploads().then(function (previousUploads: any) {
+        // Found previous uploads so we select the first one.
+        if (previousUploads.length) {
+          upload.resumeFromPreviousUpload(previousUploads[0]);
+        }
+
+        // Start the upload
+        upload.start();
+      });
+
+      console.log(
+        "total time took",
+        `${(Date.now() - trimFunctionStart) / 1000}s`
+      );
+      return res;
+    } else {
+      console.log("ffmpeg not loaded");
+    }
+  };
+
   const handleTrimVideo = useCallback(async () => {
     if (
       !roughClipUrl ||
@@ -328,7 +540,7 @@ const Clip = () => {
       console.log("existingContract1155Address", existingContract1155Address);
       const trimFunctionStart = Date.now();
       console.log("trimVideo function start", trimFunctionStart);
-      const trimRes = await trimVideo({
+      const trimRes = await handleTrim({
         startTime: clipRange[0],
         endTime: clipRange[1],
         videoLink: roughClipUrl,
@@ -350,7 +562,7 @@ const Clip = () => {
       //   "time took to concatenate",
       //   `${(Date.now() - concatStart) / 1000}s`
       // );
-      const assetId = trimRes?.res;
+      const assetId = trimRes?.asset.id;
       console.log("assetId", assetId);
       let videoThumbnail = "";
       let videoLink = "";
@@ -653,6 +865,10 @@ const Clip = () => {
       setFinalClipObject(_finalClipObject);
       setPageState("sharing");
       setTransactionMessage(null);
+      console.log(
+        "total time taken",
+        `${(Date.now() - trimFunctionStart) / 1000}s`
+      );
     } catch (e) {
       console.log("trimVideo frontend error", e);
       setPageState("error");
