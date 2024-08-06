@@ -55,6 +55,12 @@
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "totalMints",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "possibleTypes": null
@@ -6294,13 +6300,9 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "Channel",
-                "ofType": null
-              }
+              "kind": "OBJECT",
+              "name": "Channel",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -6330,7 +6332,19 @@
             "deprecationReason": null
           },
           {
-            "name": "totalZoraMints",
+            "name": "totalMints",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "tokenId",
             "description": null,
             "args": [],
             "type": {

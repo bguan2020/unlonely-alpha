@@ -4,7 +4,6 @@ import * as AWS from "aws-sdk";
 import axios from "axios";
 
 import { Context } from "../../context";
-import { fetchZoraMints } from "../../utils/fetchZoraMints";
 
 export interface IPostChannelTextInput {
   id: number;
@@ -479,7 +478,6 @@ export const getChannelFeed = async (
   data: IGetChannelFeedInput,
   ctx: Context
 ) => {
-  fetchZoraMints();
   const allChannels: Channel[] = await ctx.prisma.channel.findMany({
     where: { softDelete: false },
   });

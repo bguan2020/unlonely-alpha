@@ -826,7 +826,7 @@ export type MutationUpdateUserNotificationsArgs = {
 
 export type Nfc = Likable & {
   __typename?: "NFC";
-  channel: Channel;
+  channel?: Maybe<Channel>;
   channelId?: Maybe<Scalars["ID"]>;
   contract1155Address?: Maybe<Scalars["String"]>;
   contract1155ChainId?: Maybe<Scalars["Int"]>;
@@ -838,6 +838,8 @@ export type Nfc = Likable & {
   owner: User;
   score: Scalars["Int"];
   title?: Maybe<Scalars["String"]>;
+  tokenId?: Maybe<Scalars["Int"]>;
+  totalMints?: Maybe<Scalars["Int"]>;
   updatedAt: Scalars["DateTime"];
   videoLink?: Maybe<Scalars["String"]>;
   videoThumbnail?: Maybe<Scalars["String"]>;
@@ -1308,6 +1310,7 @@ export type SoftDeleteSubscriptionInput = {
 export enum SortBy {
   CreatedAt = "createdAt",
   Score = "score",
+  TotalMints = "totalMints",
 }
 
 export enum SortOrder {
@@ -2024,6 +2027,7 @@ export type NfcFeedQuery = {
   getNFCFeed?: Array<{
     __typename?: "NFC";
     createdAt: any;
+    updatedAt: any;
     channelId?: string | null;
     id: string;
     videoLink?: string | null;
@@ -2031,15 +2035,19 @@ export type NfcFeedQuery = {
     openseaLink?: string | null;
     score: number;
     liked?: boolean | null;
+    zoraLink?: string | null;
+    contract1155Address?: string | null;
+    contract1155ChainId?: number | null;
+    tokenId?: number | null;
+    totalMints?: number | null;
     title?: string | null;
     owner: {
       __typename?: "User";
       username?: string | null;
       address: string;
       FCImageUrl?: string | null;
-      powerUserLvl: number;
-      videoSavantLvl: number;
     };
+    channel?: { __typename?: "Channel"; slug: string } | null;
   } | null> | null;
 };
 
@@ -4248,6 +4256,7 @@ export const NfcFeedDocument = gql`
   query NFCFeed($data: NFCFeedInput!) {
     getNFCFeed(data: $data) {
       createdAt
+      updatedAt
       channelId
       id
       videoLink
@@ -4255,14 +4264,20 @@ export const NfcFeedDocument = gql`
       openseaLink
       score
       liked
+      zoraLink
+      contract1155Address
+      contract1155ChainId
+      tokenId
+      totalMints
       owner {
         username
         address
         FCImageUrl
-        powerUserLvl
-        videoSavantLvl
       }
       title
+      channel {
+        slug
+      }
     }
   }
 `;

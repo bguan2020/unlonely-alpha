@@ -52,6 +52,7 @@ const Query = gql`
   enum SortBy {
     score
     createdAt
+    totalMints
   }
 
   type Query {

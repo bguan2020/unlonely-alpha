@@ -19,6 +19,7 @@ const prisma = new PrismaClient();
 export const fetchZoraMints = async () => {
     // id is composed of ${contractAddress}-${tokenId}
 
+    try {
     const nfcsWithContract1155Addresses = await prisma.nFC.findMany({
       where: {
         contract1155Address: {
@@ -35,7 +36,7 @@ export const fetchZoraMints = async () => {
 
     // cap to 100 tokens
     const ids = nfcsWithContract1155Addresses
-      .map((nfc) => {return {nfcId: nfc.id, zoraIdentifier: `${nfc.contract1155Address}-${nfc.tokenId}`, totalMinted: nfc.totalMints}})
+      .map((nfc) => {return {nfcId: nfc.id, zoraIdentifier: `${nfc.contract1155Address}-${nfc.tokenId}`}})
       .slice(0, 100).sort((a, b) => {
         // Sort by zoraIdentifier in ascending order
         if (a.zoraIdentifier < b.zoraIdentifier) return -1;
@@ -52,7 +53,6 @@ export const fetchZoraMints = async () => {
       variables: { ids: ids.map((id) => id.zoraIdentifier) },
     });
 
-    try {
       // Make the POST request to the GraphQL endpoint
       const response = await nodeFetch(url, {
         method: "POST",
@@ -64,30 +64,29 @@ export const fetchZoraMints = async () => {
   
       // Parse the response as JSON
       const data = await response.json();
+
+      const updatePromises: any[] = []
+
+      data.data.zoraCreateTokens.forEach((token: any, i: number) => {
+        if (token.id === ids[i].zoraIdentifier) {
+          updatePromises.push(prisma.nFC.update({
+            where: {
+              id: ids[i].nfcId,
+            },
+            data: {
+              totalMints: Number(token.totalMinted),
+              updatedAt: new Date(),
+            },
+          }));
+        }
+      });
   
-      // const updatePromises = data.data.zoraCreateTokens.map((token) => {
-      //   return prisma.nFC.update({
-      //     where: {
-      //       contract1155Address: token.address,
-      //       tokenId: token.tokenId,
-      //     },
-      //     data: {
-      //       totalMinted: token.totalMinted,
-      //       updatedAt: new Date(),
-      //     },
-      //   });
-      // });
-  
-      // await Promise.all(updatePromises); // Execute all updates concurrently
+      await Promise.all(updatePromises);
   
       // Handle errors if the response includes any
       if (data.errors) {
         console.error("GraphQL errors:", data.errors);
       }
-  
-      // Log the data
-      console.log(data.data.zoraCreateTokens.map((token: any) => token.id), ids.map((id) => id.zoraIdentifier));
-
 
     } catch (error) {
       console.error("Fetch error:", error);

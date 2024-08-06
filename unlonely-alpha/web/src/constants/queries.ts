@@ -289,6 +289,7 @@ export const NFC_FEED_QUERY = gql`
   query NFCFeed($data: NFCFeedInput!) {
     getNFCFeed(data: $data) {
       createdAt
+      updatedAt
       channelId
       id
       videoLink
@@ -296,14 +297,20 @@ export const NFC_FEED_QUERY = gql`
       openseaLink
       score
       liked
+      zoraLink
+      contract1155Address
+      contract1155ChainId
+      tokenId
+      totalMints
       owner {
         username
         address
         FCImageUrl
-        powerUserLvl
-        videoSavantLvl
       }
       title
+      channel {
+        slug
+      }
     }
   }
 `;

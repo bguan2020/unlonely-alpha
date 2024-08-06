@@ -735,7 +735,7 @@ export const requestUploadFromLivepeer = async (data: IRequestUploadFromLivepeer
 export interface IGetNFCFeedInput {
   offset: number;
   limit: number;
-  orderBy: "createdAt" | "score";
+  orderBy: "createdAt" | "score" | "totalMints";
   channelId?: number;
   ownerAddress?: string;
 }
@@ -763,6 +763,13 @@ export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
       orderBy: {
         createdAt: "desc",
       },
+      include: {
+        channel: {
+          select: {
+            slug: true,
+          }
+        },
+      },
     });
   } else if (data.orderBy === "score") {
     return ctx.prisma.nFC.findMany({
@@ -771,6 +778,29 @@ export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
       where: whereClause,
       orderBy: {
         score: "desc",
+      },
+      include: {
+        channel: {
+          select: {
+            slug: true,
+          }
+        },
+      },
+    });
+  } else if (data.orderBy === "totalMints") {
+    return ctx.prisma.nFC.findMany({
+      take: data.limit,
+      skip: data.offset,
+      where: whereClause,
+      orderBy: {
+        totalMints: "desc",
+      },
+      include: {
+        channel: {
+          select: {
+            slug: true,
+          }
+        },
       },
     });
   }
