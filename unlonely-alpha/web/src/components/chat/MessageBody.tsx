@@ -122,6 +122,8 @@ const MessageBody = ({
     return fragments;
   }, [messageText, linkArray]);
 
+  console.log("message.data.body", message.data.body);
+
   return (
     <>
       <Flex
@@ -214,25 +216,6 @@ const MessageBody = ({
                     borderRadius={"15px"}
                   >
                     <Flex gap="20px">
-                      {jp(message.data.body as string).id && (
-                        <Link
-                          href={`${window.origin}/nfc/${
-                            jp(message.data.body as string).id
-                          }`}
-                          isExternal
-                        >
-                          <Text
-                            as="span"
-                            color="#15dae4"
-                            fontSize={"12px"}
-                            wordBreak="break-word"
-                            textAlign="left"
-                          >
-                            see clip
-                            <ExternalLinkIcon mx="2px" />
-                          </Text>
-                        </Link>
-                      )}
                       {jp(message.data.body as string).zoraLink && (
                         <Link
                           href={jp(message.data.body as string).zoraLink}
@@ -245,7 +228,7 @@ const MessageBody = ({
                             wordBreak="break-word"
                             textAlign="left"
                           >
-                            see nft
+                            zora link
                             <ExternalLinkIcon mx="2px" />
                           </Text>
                         </Link>
@@ -387,6 +370,9 @@ const MessageBody = ({
                                 ).contract1155Address,
                                 tokenId: jp(message.data.body as string)
                                   .tokenId,
+                                zoraLink: jp(message.data.body as string)
+                                  .zoraLink,
+                                title: jp(message.data.body as string).title,
                               }),
                             },
                           });
