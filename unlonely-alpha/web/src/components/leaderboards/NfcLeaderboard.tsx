@@ -181,7 +181,7 @@ const NfcLeaderboard = () => {
                                       cursor: "pointer",
                                       bg: "#374eff",
                                     }
-                                  : "unset"
+                                  : {}
                               }
                               onClick={() => {
                                 if (!row.data[3]) return;
