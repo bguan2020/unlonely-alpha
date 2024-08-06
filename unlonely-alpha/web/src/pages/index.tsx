@@ -1,5 +1,5 @@
 import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
-import { GraphQLClient, gql } from "graphql-request";
+import { GraphQLClient } from "graphql-request";
 import {
   Box,
   Button,

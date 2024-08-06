@@ -709,29 +709,34 @@ export const requestUploadFromLivepeer = async (data: IRequestUploadFromLivepeer
   const bodyData = {
     name: data.name,
   };
-  const response = await axios.post(
-    "https://livepeer.studio/api/asset/request-upload",
-    bodyData,
-    {
-      headers,
-    }
-  );
-  const returnData: RequestUploadResponse = {
-    url: response.data.url,
-    tusEndpoint: response.data.tusEndpoint,
-    task: response.data.task,
-    asset: {
-      ...response.data.asset,
-      createdAt: String(response.data.asset.createdAt),
-      status: {
-        ...response.data.asset.status,
-        updatedAt: String(response.data.asset.status.updatedAt),
+  try {
+    const response = await axios.post(
+      "https://livepeer.studio/api/asset/request-upload",
+      bodyData,
+      {
+        headers,
       }
-    }
-  };
-  return returnData;
+    );
+    const returnData: RequestUploadResponse = {
+      url: response.data.url,
+      tusEndpoint: response.data.tusEndpoint,
+      task: response.data.task,
+      asset: {
+        ...response.data.asset,
+        createdAt: String(response.data.asset.createdAt),
+        status: {
+          ...response.data.asset.status,
+          updatedAt: String(response.data.asset.status.updatedAt),
+        }
+      }
+    };
+    return returnData;
+  }
+  catch (e) {
+    console.log("Error requesting upload from livepeer", e);
+    throw e;
+  }
 }
-
 export interface IGetNFCFeedInput {
   offset: number;
   limit: number;

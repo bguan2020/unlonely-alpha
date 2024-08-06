@@ -135,9 +135,10 @@ const Clip = () => {
     "offline" | "clipping" | "selecting" | "trimming" | "sharing" | "error"
   >("selecting");
   const [progressPercentage, setProgressPercentage] = useState(0);
+  const [finalVideoURL, setFinalVideoURL] = useState("");
   const [roughClipUrl, setRoughClipUrl] = useState(
-    // ""
-    "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a5e1mb4vfge22uvr/1200p0.mp4"
+    ""
+    // "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/85f88w1q70abhfau/720p0.mp4"
   );
   const [finalClipObject, setFinalClipObject] = useState<
     FinalClipObject | undefined
@@ -256,35 +257,36 @@ const Clip = () => {
     if (channelId) getChannelById();
   }, [channelId]);
 
-  // useEffect(() => {
-  //   const init = async () => {
-  //     if (!getChannelByIdData || !user) return;
-  //     if (!getChannelByIdData.getChannelById?.isLive) {
-  //       setPageState("offline");
-  //       return;
-  //     }
-  //     setPageState("clipping");
-  //     try {
-  //       const { res } = await createClip({
-  //         title: `rough-clip-${Date.now()}`,
-  //         channelId: getChannelByIdData.getChannelById?.id,
-  //         livepeerPlaybackId:
-  //           getChannelByIdData.getChannelById?.livepeerPlaybackId,
-  //         noDatabasePush: true,
-  //       });
-  //       const url = res?.url;
-  //       if (url) {
-  //         setRoughClipUrl(url);
-  //       } else {
-  //         console.log("Error, url is missing");
-  //       }
-  //       setPageState("selecting");
-  //     } catch (e) {
-  //       setPageState("error");
-  //     }
-  //   };
-  //   init();
-  // }, [getChannelByIdData, user]);
+  useEffect(() => {
+    const init = async () => {
+      if (!getChannelByIdData || !user) return;
+      if (!getChannelByIdData.getChannelById?.isLive) {
+        setPageState("offline");
+        return;
+      }
+      setPageState("clipping");
+      try {
+        const { res } = await createClip({
+          title: `rough-clip-${Date.now()}`,
+          channelId: getChannelByIdData.getChannelById?.id,
+          livepeerPlaybackId:
+            getChannelByIdData.getChannelById?.livepeerPlaybackId,
+          noDatabasePush: true,
+        });
+        const url = res?.url;
+        if (url) {
+          setRoughClipUrl(url);
+        } else {
+          console.log("Error, url is missing");
+        }
+        setPageState("selecting");
+      } catch (e) {
+        console.log("createClip error", e);
+        setPageState("error");
+      }
+    };
+    init();
+  }, [getChannelByIdData, user]);
 
   useEffect(() => {
     if (roughClipUrl && videoRef.current) {
@@ -359,160 +361,175 @@ const Clip = () => {
     name: string;
   }) => {
     if (isScriptLoaded && title) {
-      const trimFunctionStart = Date.now();
+      try {
+        const trimFunctionStart = Date.now();
 
-      videoRef.current?.pause();
-      const videoBlob = await fetch(info.videoLink).then((res) => res.blob());
-      const videoFile = new File([videoBlob], "in.mp4", {
-        type: "video/mp4",
-      });
+        videoRef.current?.pause();
+        const videoBlob = await fetch(info.videoLink).then((res) => res.blob());
+        const videoFile = new File([videoBlob], "in.mp4", {
+          type: "video/mp4",
+        });
 
-      //Write video to memory
-      ffmpeg.FS(
-        "writeFile",
-        "in.mp4",
-        await (window as any).FFmpeg.fetchFile(videoFile)
-      );
+        //Write video to memory
+        ffmpeg.FS(
+          "writeFile",
+          "in.mp4",
+          await (window as any).FFmpeg.fetchFile(videoFile)
+        );
 
-      console.log("wrote in.mp4 to memory");
+        console.log("wrote in.mp4 to memory", info);
 
-      //Run the ffmpeg command to trim video
-      await ffmpeg.run(
-        "-i",
-        "in.mp4",
-        "-ss",
-        `${convertToHHMMSS(info.startTime.toString())}`,
-        "-to",
-        `${convertToHHMMSS(info.endTime.toString())}`,
-        "-c:v",
-        "copy",
-        "-c:a",
-        "copy",
-        "trimmed.mp4"
-      );
+        //Run the ffmpeg command to trim video
+        await ffmpeg.run(
+          "-ss",
+          `${convertToHHMMSS(info.startTime.toString())}`,
+          "-i",
+          "in.mp4",
+          "-to",
+          `${convertToHHMMSS(info.endTime.toString())}`,
+          "-c:v",
+          "copy",
+          "-c:a",
+          "copy",
+          "trimmed.mp4"
+        );
 
-      console.log(
-        "trimmed video, took",
-        `${(Date.now() - trimFunctionStart) / 1000}s`
-      );
-      const outroStart = Date.now();
+        console.log(
+          "trimmed video, took",
+          `${(Date.now() - trimFunctionStart) / 1000}s`
+        );
+        const outroStart = Date.now();
 
-      // await ffmpeg.run(
-      //   "-v",
-      //   "quiet",
-      //   "-print_format",
-      //   "json",
-      //   "-show_format",
-      //   "-show_streams",
-      //   "trimmed.mp4"
-      // );
+        await ffmpeg.run(
+          "-v",
+          "quiet",
+          "-print_format",
+          "json",
+          "-show_format",
+          "-show_streams",
+          "trimmed.mp4"
+        );
 
-      // Create an outro video with the watermark image
-      const watermarkImage = await fetch("/images/unlonely-watermark.png").then(
-        (res) => res.arrayBuffer()
-      );
-      ffmpeg.FS("writeFile", "watermark.png", new Uint8Array(watermarkImage));
+        // // // Create an outro video with the watermark image
+        // const watermarkImage = await fetch(
+        //   "/images/unlonely-watermark.png"
+        // ).then((res) => res.arrayBuffer());
+        // ffmpeg.FS("writeFile", "watermark.png", new Uint8Array(watermarkImage));
 
-      await ffmpeg.run(
-        "-loop",
-        "1",
-        "-i",
-        "watermark.png",
-        "-t",
-        "3",
-        "-vf",
-        "scale=iw*1:ih*1, pad=1280:720:(ow-iw)/2:(oh-ih)/2", // Scale to 40% of original size and center
-        "-c:v",
-        "libx264",
-        "-c:a",
-        "aac",
-        "outro.mp4"
-      );
+        // await ffmpeg.run(
+        //   "-loop",
+        //   "1",
+        //   "-i",
+        //   "watermark.png",
+        //   "-t",
+        //   "3",
+        //   "-vf",
+        //   "scale=iw*1:ih*1, pad=1280:720:(ow-iw)/2:(oh-ih)/2", // Scale to 40% of original size and center
+        //   "-c:v",
+        //   "libx264",
+        //   "-c:a",
+        //   "aac",
+        //   "outro.mp4"
+        // );
 
-      console.log("created outro.mp4", `${(Date.now() - outroStart) / 1000}s`);
-      const concatStart = Date.now();
+        // console.log(
+        //   "created outro.mp4",
+        //   `${(Date.now() - outroStart) / 1000}s`
+        // );
+        // const concatStart = Date.now();
 
-      // Verify the files exist in the FFmpeg file system
-      const trimmedFileExists = ffmpeg
-        .FS("readdir", "/")
-        .includes("trimmed.mp4");
-      const outroFileExists = ffmpeg.FS("readdir", "/").includes("outro.mp4");
+        // // // Verify the files exist in the FFmpeg file system
+        // const trimmedFileExists = ffmpeg
+        //   .FS("readdir", "/")
+        //   .includes("trimmed.mp4");
+        // const outroFileExists = ffmpeg.FS("readdir", "/").includes("outro.mp4");
 
-      if (!trimmedFileExists || !outroFileExists) {
-        throw new Error("Failed to create trimmed or outro video");
+        // if (!trimmedFileExists || !outroFileExists) {
+        //   throw new Error("Failed to create trimmed or outro video");
+        // }
+
+        // // // Concatenate using filter_complex without worrying about audio
+        // await ffmpeg.run(
+        //   "-i",
+        //   "trimmed.mp4",
+        //   "-i",
+        //   "outro.mp4",
+        //   "-filter_complex",
+        //   "[0:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v1];[1:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v2];[v1][v2]concat=n=2:v=1[outv]",
+        //   "-map",
+        //   "[outv]",
+        //   "-map",
+        //   "0:a?",
+        //   "final.mp4"
+        // );
+
+        // console.log(
+        //   "concatenated video",
+        //   `${(Date.now() - concatStart) / 1000}s`
+        // );
+
+        // Convert data to url and store in videoTrimmedUrl state
+        // const data = ffmpeg.FS("readFile", "final.mp4");
+        const data = ffmpeg.FS("readFile", "trimmed.mp4");
+
+        const url = URL.createObjectURL(
+          new Blob([data.buffer], { type: "video/mp4" })
+        );
+        setFinalVideoURL(url);
+
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const file = new File([blob], "trimmed_video.mp4", {
+          type: "video/mp4",
+        });
+
+        console.log("requesting upload");
+        const { res } = await requestUpload({
+          name: info.name,
+        });
+        console.log("res", res);
+
+        const tusEndpoint = res?.tusEndpoint;
+
+        const upload = new tus.Upload(file, {
+          endpoint: tusEndpoint,
+          retryDelays: [0, 1000, 3000, 5000],
+          metadata: {
+            filename: `${info.name}.mp4`,
+            filetype: "video/mp4",
+          },
+          onError: function (error: any) {
+            console.log("Failed because: ", error);
+          },
+          onProgress: function (bytesUploaded: number, bytesTotal: number) {
+            const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+            console.log(bytesUploaded, bytesTotal, percentage);
+          },
+          onSuccess: function () {
+            console.log("Download %s from %s", upload.file, upload.url);
+            // setIsPublished(true);
+          },
+        });
+
+        upload.findPreviousUploads().then(function (previousUploads: any) {
+          // Found previous uploads so we select the first one.
+          if (previousUploads.length) {
+            upload.resumeFromPreviousUpload(previousUploads[0]);
+          }
+
+          // Start the upload
+          upload.start();
+        });
+
+        console.log(
+          "total time took",
+          `${(Date.now() - trimFunctionStart) / 1000}s`
+        );
+        return res;
+      } catch (e) {
+        console.log("trimVideo error", e);
+        return null;
       }
-
-      // Concatenate using filter_complex without worrying about audio
-      await ffmpeg.run(
-        "-i",
-        "trimmed.mp4",
-        "-i",
-        "outro.mp4",
-        "-filter_complex",
-        "[0:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v1];[1:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v2];[v1][v2]concat=n=2:v=1[outv]",
-        "-map",
-        "[outv]",
-        "-map",
-        "0:a?",
-        "final.mp4"
-      );
-
-      console.log(
-        "concatenated video",
-        `${(Date.now() - concatStart) / 1000}s`
-      );
-
-      //Convert data to url and store in videoTrimmedUrl state
-      const data = ffmpeg.FS("readFile", "final.mp4");
-      const trimmedBlob = new Blob([data.buffer], { type: "video/mp4" });
-      const trimmedUrl = URL.createObjectURL(trimmedBlob);
-      const trimmedFile = new File([trimmedBlob], `${info.name}.mp4`, {
-        type: "video/mp4",
-      });
-
-      console.log("requesting upload");
-      const { res } = await requestUpload({
-        name: info.name,
-      });
-      console.log("res", res);
-
-      const tusEndpoint = res?.tusEndpoint;
-
-      const upload = new tus.Upload(trimmedFile, {
-        endpoint: tusEndpoint,
-        retryDelays: [0, 1000, 3000, 5000],
-        metadata: {
-          filename: `${info.name}.mp4`,
-          filetype: "video/mp4",
-        },
-        onError: function (error: any) {
-          console.log("Failed because: ", error);
-        },
-        onProgress: function (bytesUploaded: number, bytesTotal: number) {
-          const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-          console.log(bytesUploaded, bytesTotal, percentage);
-        },
-        onSuccess: function () {
-          console.log("Download %s from %s", upload.file, upload.url);
-          // setIsPublished(true);
-        },
-      });
-
-      upload.findPreviousUploads().then(function (previousUploads: any) {
-        // Found previous uploads so we select the first one.
-        if (previousUploads.length) {
-          upload.resumeFromPreviousUpload(previousUploads[0]);
-        }
-
-        // Start the upload
-        upload.start();
-      });
-
-      console.log(
-        "total time took",
-        `${(Date.now() - trimFunctionStart) / 1000}s`
-      );
-      return res;
     } else {
       console.log("ffmpeg not loaded");
     }
@@ -1270,7 +1287,11 @@ const Clip = () => {
                 </Flex>
               )}
             </Flex>
-          ) : null}
+          ) : (
+            <Flex direction={"column"} justifyContent={"center"}>
+              <Text>Something went wrong</Text>
+            </Flex>
+          )}
         </Flex>
       </Flex>
     </AppLayout>
