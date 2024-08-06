@@ -21,6 +21,7 @@ import { Box, Flex, useToast, Text } from "@chakra-ui/react";
 import centerEllipses from "../../utils/centerEllipses";
 import { useTempTokenContext } from "../context/useTempToken";
 import { useVersusTempTokenContext } from "../context/useVersusTempToken";
+import { jp } from "../../utils/validation/jsonParse";
 
 const ably = new Ably.Realtime.Promise({ authUrl: "/api/createTokenRequest" });
 
@@ -103,7 +104,7 @@ export function useChatChannel(fixedChatName?: string) {
       (m) => m.name === CHAT_MESSAGE_EVENT
     );
     if (message.name === TOKEN_TRANSFER_EVENT) {
-      const body = JSON.parse(message.data.body);
+      const body = jp(message.data.body);
       const fromAddress = body.from as string | undefined;
       const toAddress = body.to as string | undefined;
       const amount = body.amount as number;
@@ -148,11 +149,11 @@ export function useChatChannel(fixedChatName?: string) {
       }
     }
     if (message.name === CHANGE_USER_ROLE_EVENT) {
-      const body = JSON.parse(message.data.body);
+      const body = jp(message.data.body);
       handleChannelRoles?.(body.address, body.role, body.isAdding);
     }
     if (message.name === CHANGE_CHANNEL_DETAILS_EVENT) {
-      const body = JSON.parse(message.data.body);
+      const body = jp(message.data.body);
       console.log("body", body);
       handleRealTimeChannelDetails?.({
         channelName: body.channelName,
@@ -163,18 +164,18 @@ export function useChatChannel(fixedChatName?: string) {
       });
     }
     if (message.name === VIBES_TOKEN_PRICE_RANGE_EVENT) {
-      const newSliderValue = JSON.parse(message.data.body);
+      const newSliderValue = jp(message.data.body);
       handleChannelVibesTokenPriceRange?.(newSliderValue);
     }
     if (message.name === PINNED_CHAT_MESSAGES_EVENT) {
-      const _pinnedMessages = JSON.parse(message.data.body);
+      const _pinnedMessages = jp(message.data.body);
       handlePinnedChatMessages?.(_pinnedMessages);
     }
     if (message.name === CHAT_MESSAGE_EVENT) {
       if (message.data.senderStatus === SenderStatus.CHATBOT) {
         const chatbotTaskType =
           message?.data?.body?.split(":")[0] ||
-          JSON.parse(message?.data?.body).interactionType;
+          jp(message?.data?.body).interactionType;
         if (chatbotTaskType === InteractionType.EVENT_LIVE) {
           const betId = message.data.body.split(":")[1];
           const sharesSubjectQuestion = message.data.body.split(":")[2];

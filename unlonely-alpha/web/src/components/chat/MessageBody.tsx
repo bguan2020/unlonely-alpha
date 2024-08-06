@@ -5,22 +5,22 @@ import {
   Link,
   Text,
   IconButton,
-  // Button,
-  // Input,
+  Button,
+  Input,
 } from "@chakra-ui/react";
 import React, { useMemo, useState } from "react";
 import {
-  // ChevronDownIcon,
-  // ChevronUpIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
   ExternalLinkIcon,
 } from "@chakra-ui/icons";
 
-// import {
-//   CHAT_MESSAGE_EVENT,
-//   ETH_COST_FOR_ONE_NFT_MINT,
-//   InteractionType,
-//   NULL_ADDRESS,
-// } from "../../constants";
+import {
+  CHAT_MESSAGE_EVENT,
+  ETH_COST_FOR_ONE_NFT_MINT,
+  InteractionType,
+  NULL_ADDRESS,
+} from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
 import { SenderStatus } from "../../constants/types/chat";
@@ -30,10 +30,11 @@ import { formatTimestampToTime } from "../../utils/time";
 import { TiPin } from "react-icons/ti";
 import { MessageItemProps } from "./MessageList";
 import { messageStyle } from "../../utils/messageStyle";
-// import {
-//   filteredInput,
-//   formatIncompleteNumber,
-// } from "../../utils/validation/input";
+import { jp } from "../../utils/validation/jsonParse";
+import {
+  filteredInput,
+  formatIncompleteNumber,
+} from "../../utils/validation/input";
 
 type Props = MessageItemProps & {
   messageText: string;
@@ -77,13 +78,12 @@ const MessageBody = ({
   );
 
   const isNfcRelated = useMemo(() => {
-    // return (
-    //   message.data.body &&
-    //   (JSON.parse(message.data.body).interactionType ===
-    //     InteractionType.PUBLISH_NFC ||
-    //     JSON.parse(message.data.body).interactionType ===
-    //       InteractionType.MINT_NFC_IN_CHAT)
-    // );
+    return (
+      message.data.body &&
+      (jp(message.data.body).interactionType === InteractionType.PUBLISH_NFC ||
+        jp(message.data.body).interactionType ===
+          InteractionType.MINT_NFC_IN_CHAT)
+    );
     return false;
   }, [message.data.body]);
 
@@ -170,8 +170,8 @@ const MessageBody = ({
                       </span>
                     ))}
                   </Text>
-                  {/* {(message.data.body &&
-                  JSON.parse(message.data.body).interactionType ===
+                  {(message.data.body &&
+                  jp(message.data.body).interactionType ===
                     InteractionType.MINT_NFC_IN_CHAT
                     ? true
                     : false) && (
@@ -195,13 +195,13 @@ const MessageBody = ({
                         setNfcExpanded(!nfcExpanded);
                       }}
                     />
-                  )} */}
+                  )}
                 </Flex>
-                {/* <MintWrapper
+                <MintWrapper
                   hide={
                     !nfcExpanded &&
                     (message.data.body &&
-                    JSON.parse(message.data.body).interactionType ===
+                    jp(message.data.body).interactionType ===
                       InteractionType.MINT_NFC_IN_CHAT
                       ? true
                       : false)
@@ -214,38 +214,42 @@ const MessageBody = ({
                     borderRadius={"15px"}
                   >
                     <Flex gap="20px">
-                      <Link
-                        href={`${window.origin}/nfc/${
-                          JSON.parse(message.data.body as string).id
-                        }`}
-                        isExternal
-                      >
-                        <Text
-                          as="span"
-                          color="#15dae4"
-                          fontSize={"12px"}
-                          wordBreak="break-word"
-                          textAlign="left"
+                      {jp(message.data.body as string).id && (
+                        <Link
+                          href={`${window.origin}/nfc/${
+                            jp(message.data.body as string).id
+                          }`}
+                          isExternal
                         >
-                          see clip
-                          <ExternalLinkIcon mx="2px" />
-                        </Text>
-                      </Link>
-                      <Link
-                        href={JSON.parse(message.data.body as string).zoraLink}
-                        isExternal
-                      >
-                        <Text
-                          as="span"
-                          color="#15dae4"
-                          fontSize={"12px"}
-                          wordBreak="break-word"
-                          textAlign="left"
+                          <Text
+                            as="span"
+                            color="#15dae4"
+                            fontSize={"12px"}
+                            wordBreak="break-word"
+                            textAlign="left"
+                          >
+                            see clip
+                            <ExternalLinkIcon mx="2px" />
+                          </Text>
+                        </Link>
+                      )}
+                      {jp(message.data.body as string).zoraLink && (
+                        <Link
+                          href={jp(message.data.body as string).zoraLink}
+                          isExternal
                         >
-                          see nft
-                          <ExternalLinkIcon mx="2px" />
-                        </Text>
-                      </Link>
+                          <Text
+                            as="span"
+                            color="#15dae4"
+                            fontSize={"12px"}
+                            wordBreak="break-word"
+                            textAlign="left"
+                          >
+                            see nft
+                            <ExternalLinkIcon mx="2px" />
+                          </Text>
+                        </Link>
+                      )}
                     </Flex>
                     <Flex gap="10px" alignItems={"center"}>
                       <Button
@@ -355,9 +359,8 @@ const MessageBody = ({
                             : selectedTokensToMint;
                           if (n === "0") return;
                           const txr = await handleCollectorMint?.(
-                            JSON.parse(message.data.body as string)
-                              .contract1155Address,
-                            JSON.parse(message.data.body as string).tokenId,
+                            jp(message.data.body as string).contract1155Address,
+                            jp(message.data.body as string).tokenId,
                             BigInt(n)
                           );
                           if (!txr) return;
@@ -368,7 +371,7 @@ const MessageBody = ({
                                 user?.username ??
                                 centerEllipses(user?.address, 13)
                               } minted ${n}x "${
-                                JSON.parse(message.data.body as string).title
+                                jp(message.data.body as string).title
                               }"`,
                               username: "🤖",
                               address: NULL_ADDRESS,
@@ -379,10 +382,10 @@ const MessageBody = ({
                               body: JSON.stringify({
                                 interactionType:
                                   InteractionType.MINT_NFC_IN_CHAT,
-                                contract1155Address: JSON.parse(
+                                contract1155Address: jp(
                                   message.data.body as string
                                 ).contract1155Address,
-                                tokenId: JSON.parse(message.data.body as string)
+                                tokenId: jp(message.data.body as string)
                                   .tokenId,
                               }),
                             },
@@ -405,7 +408,7 @@ const MessageBody = ({
                       </Text>
                     </Flex>
                   </Flex>
-                </MintWrapper> */}
+                </MintWrapper>
               </Flex>
             </Box>
           ) : (
