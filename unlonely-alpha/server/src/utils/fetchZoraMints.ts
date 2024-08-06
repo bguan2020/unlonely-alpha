@@ -1,10 +1,11 @@
+import { PrismaClient } from "@prisma/client";
 import nodeFetch from "node-fetch"
 
 const url = "https://api.goldsky.com/api/public/project_clhk16b61ay9t49vm6ntn4mkz/subgraphs/zora-create-base-mainnet/stable/gn"
 
 const query = `
-  query GetTokens($ids: [String!]!) {
-    tokens(where: { id_in: $ids }) {
+  query GetZoraCreateTokens($ids: [String!]!) {
+    zoraCreateTokens(where: { id_in: $ids }, orderBy: address, orderDirection: asc) {
       id
       address
       tokenId
@@ -13,7 +14,33 @@ const query = `
   }
 `;
 
-export const fetchZoraMints = async (ids: string[]) => {
+const prisma = new PrismaClient();
+
+export const fetchZoraMints = async () => {
+    // id is composed of ${contractAddress}-${tokenId}
+
+    const nfcsWithContract1155Addresses = await prisma.nFC.findMany({
+      where: {
+        contract1155Address: {
+          not: null,
+        },
+        tokenId: {
+          not: -1,
+        },
+      },
+      orderBy: {
+        updatedAt: "asc",
+      },
+    });
+
+    // cap to 100 tokens
+    const ids = nfcsWithContract1155Addresses
+      .map((nfc) => `${nfc.contract1155Address}-${nfc.tokenId}`)
+      .slice(0, 100);
+
+    if (!ids.length) {
+      return;
+    }
 
     const body = JSON.stringify({
       query,
@@ -39,7 +66,7 @@ export const fetchZoraMints = async (ids: string[]) => {
       }
   
       // Log the data
-      console.log("GraphQL data:", data.data);
+      console.log("GraphQL data:", data.data.zoraCreateTokens);
     } catch (error) {
       console.error("Fetch error:", error);
     }
