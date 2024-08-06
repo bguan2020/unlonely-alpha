@@ -122,8 +122,6 @@ const MessageBody = ({
     return fragments;
   }, [messageText, linkArray]);
 
-  console.log("message.data.body", message.data.body);
-
   return (
     <>
       <Flex
