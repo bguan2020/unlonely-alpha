@@ -1047,7 +1047,7 @@ const Clip = () => {
                     _active={{}}
                     _hover={{}}
                     onClick={() => {
-                      copy(finalClipObject?.videoLink);
+                      copy(`${window.origin}/nfc/${finalClipObject?.id}`);
                       handleCopy();
                     }}
                   />

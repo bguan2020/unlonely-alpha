@@ -59,6 +59,9 @@ export const ChannelPageNfcsList = () => {
     setChannelNfcs((prev) => [...(prev || []), ...filteredNfcs]);
   }, [channelQueryData?.id, user?.address, pagesFetched]);
 
+  console.log("fetchedUnderLimit", fetchedUnderLimit);
+  console.log("pagesFetched", pagesFetched);
+
   useEffect(() => {
     if (showClipDrawer && channelNfcs?.length === 0) {
       console.log("running on first open");

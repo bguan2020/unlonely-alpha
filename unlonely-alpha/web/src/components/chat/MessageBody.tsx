@@ -30,6 +30,7 @@ import { formatTimestampToTime } from "../../utils/time";
 import { TiPin } from "react-icons/ti";
 import { MessageItemProps } from "./MessageList";
 import { messageStyle } from "../../utils/messageStyle";
+import { jp } from "../../utils/validation/jsonParse";
 import {
   filteredInput,
   formatIncompleteNumber,
@@ -79,11 +80,11 @@ const MessageBody = ({
   const isNfcRelated = useMemo(() => {
     return (
       message.data.body &&
-      (JSON.parse(message.data.body).interactionType ===
-        InteractionType.PUBLISH_NFC ||
-        JSON.parse(message.data.body).interactionType ===
+      (jp(message.data.body).interactionType === InteractionType.PUBLISH_NFC ||
+        jp(message.data.body).interactionType ===
           InteractionType.MINT_NFC_IN_CHAT)
     );
+    return false;
   }, [message.data.body]);
 
   const normalUserReceivesVipMessages = useMemo(
@@ -170,7 +171,7 @@ const MessageBody = ({
                     ))}
                   </Text>
                   {(message.data.body &&
-                  JSON.parse(message.data.body).interactionType ===
+                  jp(message.data.body).interactionType ===
                     InteractionType.MINT_NFC_IN_CHAT
                     ? true
                     : false) && (
@@ -200,7 +201,7 @@ const MessageBody = ({
                   hide={
                     !nfcExpanded &&
                     (message.data.body &&
-                    JSON.parse(message.data.body).interactionType ===
+                    jp(message.data.body).interactionType ===
                       InteractionType.MINT_NFC_IN_CHAT
                       ? true
                       : false)
@@ -213,38 +214,42 @@ const MessageBody = ({
                     borderRadius={"15px"}
                   >
                     <Flex gap="20px">
-                      <Link
-                        href={`${window.origin}/nfc/${
-                          JSON.parse(message.data.body as string).id
-                        }`}
-                        isExternal
-                      >
-                        <Text
-                          as="span"
-                          color="#15dae4"
-                          fontSize={"12px"}
-                          wordBreak="break-word"
-                          textAlign="left"
+                      {jp(message.data.body as string).id && (
+                        <Link
+                          href={`${window.origin}/nfc/${
+                            jp(message.data.body as string).id
+                          }`}
+                          isExternal
                         >
-                          see clip
-                          <ExternalLinkIcon mx="2px" />
-                        </Text>
-                      </Link>
-                      <Link
-                        href={JSON.parse(message.data.body as string).zoraLink}
-                        isExternal
-                      >
-                        <Text
-                          as="span"
-                          color="#15dae4"
-                          fontSize={"12px"}
-                          wordBreak="break-word"
-                          textAlign="left"
+                          <Text
+                            as="span"
+                            color="#15dae4"
+                            fontSize={"12px"}
+                            wordBreak="break-word"
+                            textAlign="left"
+                          >
+                            see clip
+                            <ExternalLinkIcon mx="2px" />
+                          </Text>
+                        </Link>
+                      )}
+                      {jp(message.data.body as string).zoraLink && (
+                        <Link
+                          href={jp(message.data.body as string).zoraLink}
+                          isExternal
                         >
-                          see nft
-                          <ExternalLinkIcon mx="2px" />
-                        </Text>
-                      </Link>
+                          <Text
+                            as="span"
+                            color="#15dae4"
+                            fontSize={"12px"}
+                            wordBreak="break-word"
+                            textAlign="left"
+                          >
+                            see nft
+                            <ExternalLinkIcon mx="2px" />
+                          </Text>
+                        </Link>
+                      )}
                     </Flex>
                     <Flex gap="10px" alignItems={"center"}>
                       <Button
@@ -354,9 +359,8 @@ const MessageBody = ({
                             : selectedTokensToMint;
                           if (n === "0") return;
                           const txr = await handleCollectorMint?.(
-                            JSON.parse(message.data.body as string)
-                              .contract1155Address,
-                            JSON.parse(message.data.body as string).tokenId,
+                            jp(message.data.body as string).contract1155Address,
+                            jp(message.data.body as string).tokenId,
                             BigInt(n)
                           );
                           if (!txr) return;
@@ -367,7 +371,7 @@ const MessageBody = ({
                                 user?.username ??
                                 centerEllipses(user?.address, 13)
                               } minted ${n}x "${
-                                JSON.parse(message.data.body as string).title
+                                jp(message.data.body as string).title
                               }"`,
                               username: "🤖",
                               address: NULL_ADDRESS,
@@ -378,10 +382,10 @@ const MessageBody = ({
                               body: JSON.stringify({
                                 interactionType:
                                   InteractionType.MINT_NFC_IN_CHAT,
-                                contract1155Address: JSON.parse(
+                                contract1155Address: jp(
                                   message.data.body as string
                                 ).contract1155Address,
-                                tokenId: JSON.parse(message.data.body as string)
+                                tokenId: jp(message.data.body as string)
                                   .tokenId,
                               }),
                             },
