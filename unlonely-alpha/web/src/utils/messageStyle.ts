@@ -34,7 +34,7 @@ export const messageStyle = (dataBody?: string) => {
     if (
         dataBody &&
         (eventTypes as string[]).includes(
-          JSON.parse(dataBody).interactionType ??
+          // JSON.parse(dataBody).interactionType ??
             dataBody.split(":")[0]
         )
       ) {
@@ -44,7 +44,7 @@ export const messageStyle = (dataBody?: string) => {
       } else if (
         dataBody &&
         (adminTempTokenInteractionTypes as string[]).includes(
-          JSON.parse(dataBody).interactionType ??
+          // JSON.parse(dataBody).interactionType ??
             dataBody.split(":")[0]
         )
       ) {
@@ -58,7 +58,7 @@ export const messageStyle = (dataBody?: string) => {
       } else if (
         dataBody &&
         (greenTempTokenInteractionTypes as string[]).includes(
-          JSON.parse(dataBody).interactionType ??
+          // JSON.parse(dataBody).interactionType ??
             dataBody.split(":")[0]
         )
       ) {
@@ -72,7 +72,7 @@ export const messageStyle = (dataBody?: string) => {
       } else if (
         dataBody &&
         (redTempTokenInteractionTypes as string[]).includes(
-          JSON.parse(dataBody).interactionType ??
+          // JSON.parse(dataBody).interactionType ??
             dataBody.split(":")[0]
         )
       ) {

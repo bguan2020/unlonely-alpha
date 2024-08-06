@@ -5,22 +5,22 @@ import {
   Link,
   Text,
   IconButton,
-  Button,
-  Input,
+  // Button,
+  // Input,
 } from "@chakra-ui/react";
 import React, { useMemo, useState } from "react";
 import {
-  ChevronDownIcon,
-  ChevronUpIcon,
+  // ChevronDownIcon,
+  // ChevronUpIcon,
   ExternalLinkIcon,
 } from "@chakra-ui/icons";
 
-import {
-  CHAT_MESSAGE_EVENT,
-  ETH_COST_FOR_ONE_NFT_MINT,
-  InteractionType,
-  NULL_ADDRESS,
-} from "../../constants";
+// import {
+//   CHAT_MESSAGE_EVENT,
+//   ETH_COST_FOR_ONE_NFT_MINT,
+//   InteractionType,
+//   NULL_ADDRESS,
+// } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
 import { SenderStatus } from "../../constants/types/chat";
@@ -30,10 +30,10 @@ import { formatTimestampToTime } from "../../utils/time";
 import { TiPin } from "react-icons/ti";
 import { MessageItemProps } from "./MessageList";
 import { messageStyle } from "../../utils/messageStyle";
-import {
-  filteredInput,
-  formatIncompleteNumber,
-} from "../../utils/validation/input";
+// import {
+//   filteredInput,
+//   formatIncompleteNumber,
+// } from "../../utils/validation/input";
 
 type Props = MessageItemProps & {
   messageText: string;
@@ -77,13 +77,14 @@ const MessageBody = ({
   );
 
   const isNfcRelated = useMemo(() => {
-    return (
-      message.data.body &&
-      (JSON.parse(message.data.body).interactionType ===
-        InteractionType.PUBLISH_NFC ||
-        JSON.parse(message.data.body).interactionType ===
-          InteractionType.MINT_NFC_IN_CHAT)
-    );
+    // return (
+    //   message.data.body &&
+    //   (JSON.parse(message.data.body).interactionType ===
+    //     InteractionType.PUBLISH_NFC ||
+    //     JSON.parse(message.data.body).interactionType ===
+    //       InteractionType.MINT_NFC_IN_CHAT)
+    // );
+    return false;
   }, [message.data.body]);
 
   const normalUserReceivesVipMessages = useMemo(
@@ -169,7 +170,7 @@ const MessageBody = ({
                       </span>
                     ))}
                   </Text>
-                  {(message.data.body &&
+                  {/* {(message.data.body &&
                   JSON.parse(message.data.body).interactionType ===
                     InteractionType.MINT_NFC_IN_CHAT
                     ? true
@@ -194,9 +195,9 @@ const MessageBody = ({
                         setNfcExpanded(!nfcExpanded);
                       }}
                     />
-                  )}
+                  )} */}
                 </Flex>
-                <MintWrapper
+                {/* <MintWrapper
                   hide={
                     !nfcExpanded &&
                     (message.data.body &&
@@ -404,7 +405,7 @@ const MessageBody = ({
                       </Text>
                     </Flex>
                   </Flex>
-                </MintWrapper>
+                </MintWrapper> */}
               </Flex>
             </Box>
           ) : (
