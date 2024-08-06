@@ -18,6 +18,7 @@ export const typeDef = gql`
     channel: Channel!
     channelId: ID
     zoraLink: String
+    totalZoraMints: Int
   }
 
   type AssetTask {

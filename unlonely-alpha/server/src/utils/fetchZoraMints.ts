@@ -35,8 +35,13 @@ export const fetchZoraMints = async () => {
 
     // cap to 100 tokens
     const ids = nfcsWithContract1155Addresses
-      .map((nfc) => `${nfc.contract1155Address}-${nfc.tokenId}`)
-      .slice(0, 100);
+      .map((nfc) => {return {nfcId: nfc.id, zoraIdentifier: `${nfc.contract1155Address}-${nfc.tokenId}`, totalMinted: nfc.totalMints}})
+      .slice(0, 100).sort((a, b) => {
+        // Sort by zoraIdentifier in ascending order
+        if (a.zoraIdentifier < b.zoraIdentifier) return -1;
+        if (a.zoraIdentifier > b.zoraIdentifier) return 1;
+        return 0; // If they are equal
+      });
 
     if (!ids.length) {
       return;
@@ -44,7 +49,7 @@ export const fetchZoraMints = async () => {
 
     const body = JSON.stringify({
       query,
-      variables: { ids },
+      variables: { ids: ids.map((id) => id.zoraIdentifier) },
     });
 
     try {
@@ -60,13 +65,30 @@ export const fetchZoraMints = async () => {
       // Parse the response as JSON
       const data = await response.json();
   
+      // const updatePromises = data.data.zoraCreateTokens.map((token) => {
+      //   return prisma.nFC.update({
+      //     where: {
+      //       contract1155Address: token.address,
+      //       tokenId: token.tokenId,
+      //     },
+      //     data: {
+      //       totalMinted: token.totalMinted,
+      //       updatedAt: new Date(),
+      //     },
+      //   });
+      // });
+  
+      // await Promise.all(updatePromises); // Execute all updates concurrently
+  
       // Handle errors if the response includes any
       if (data.errors) {
         console.error("GraphQL errors:", data.errors);
       }
   
       // Log the data
-      console.log("GraphQL data:", data.data.zoraCreateTokens);
+      console.log(data.data.zoraCreateTokens.map((token: any) => token.id), ids.map((id) => id.zoraIdentifier));
+
+
     } catch (error) {
       console.error("Fetch error:", error);
     }

@@ -103,6 +103,7 @@ model NFC {
   tokenId Int @default(-1) // -1 means not minted yet
   zoraLink String? @default("")
   score Int @default(0)
+  totalMints Int @default(0)
 
   likes Like[]
 
