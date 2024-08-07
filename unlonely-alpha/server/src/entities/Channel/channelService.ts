@@ -752,7 +752,7 @@ export const getLivepeerThumbnail = async (livepeerPlaybackId: string) => {
       return thumbnails.url
         .split("/")
         .slice(0, -1)
-        .concat("keyframes_0.jpg")
+        .concat("keyframes_0.png")
         .join("/");
     return null;
   } catch (error: any) {
