@@ -27,7 +27,7 @@ import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useZoraCollect1155 } from "../../hooks/contracts/useZoraCollect1155";
 import { NfcClipMintInterface } from "../general/NfcClipMintInterface";
 
-const headers = ["rank", "title", "clipped by", "channel", "mints"];
+const headers = ["rank", "clip link + title", "clipped by", "channel", "mints"];
 
 const ITEMS_PER_PAGE = 10;
 
@@ -99,12 +99,19 @@ const NfcLeaderboard = () => {
       borderRadius={"10px"}
     >
       <Text
-        fontSize={{ base: "30px", lg: "40px" }}
+        fontSize={{ base: "20px", lg: "24px" }}
         fontWeight="400"
         textAlign={"center"}
         fontFamily={"LoRes15"}
+        onClick={() => {
+          window.open(`${window.origin}/nfcs`, "_blank");
+        }}
+        _hover={{
+          cursor: "pointer",
+          textDecoration: "underline",
+        }}
       >
-        Clip Leaderboard
+        clip leaderboard
       </Text>
       {error ? (
         <Flex justifyContent={"center"}>
@@ -117,7 +124,19 @@ const NfcLeaderboard = () => {
       ) : (
         <>
           {leaderboardRows.length > 0 ? (
-            <Flex direction="column" gap="10px">
+            <Flex direction="column" gap="10px" position="relative">
+              <Button
+                height="25px"
+                width="100px"
+                onClick={() => {
+                  window.open(`${window.origin}/nfcs?sort=createdAt`, "_blank");
+                }}
+                position={"absolute"}
+                bottom={"0"}
+                right={"15px"}
+              >
+                see all
+              </Button>
               <TableContainer overflowX={"auto"} my="10px">
                 <Table variant="unstyled">
                   <Thead>
@@ -159,12 +178,16 @@ const NfcLeaderboard = () => {
                                 );
                               }}
                             >
-                              <Text>{row.data[1].title}</Text>
-                              <Image
-                                src={row.data[1].thumbnail}
-                                w={[`${16 * 10}px`, `${16 * 14}px`]}
-                                h={[`${9 * 10}px`, `${9 * 14}px`]}
-                              />
+                              <Text textAlign={"center"}>
+                                {trailString(row.data[1].title, 37)}
+                              </Text>
+                              <Flex justifyContent={"center"}>
+                                <Image
+                                  src={row.data[1].thumbnail}
+                                  w={[`${16 * 10}px`, `${16 * 14}px`]}
+                                  h={[`${9 * 10}px`, `${9 * 14}px`]}
+                                />
+                              </Flex>
                             </Td>
                             <Td p="5px" textAlign="center">
                               {row.data[2]}
@@ -200,7 +223,12 @@ const NfcLeaderboard = () => {
                                   openDelay={300}
                                 >
                                   <PopoverTrigger>
-                                    <ChevronDownIcon />
+                                    <ChevronDownIcon
+                                      _hover={{
+                                        cursor: "pointer",
+                                        color: "#374eff",
+                                      }}
+                                    />
                                   </PopoverTrigger>
                                   <PopoverContent
                                     bg="#343dbb"
@@ -262,21 +290,6 @@ const NfcLeaderboard = () => {
               </Flex>
             </Flex>
           ) : (
-            // <>
-            //   <Grid
-            //     h="300px"
-            //     templateRows="repeat(3, 1fr)"
-            //     templateColumns="repeat(5, 1fr)"
-            //     gap={4}
-            //     p="10px"
-            //   >
-            //     <GridItem rowSpan={3} colSpan={1} bg="tomato" />
-            //     <GridItem rowSpan={3} colSpan={2} bg="tomato" />
-            //     <GridItem rowSpan={2} colSpan={2} bg="papayawhip" />
-            //     <GridItem colSpan={1} bg="papayawhip" />
-            //     <GridItem colSpan={1} bg="papayawhip" />
-            //   </Grid>
-            // </>
             <Flex direction="column" justifyContent="center" gap="5px">
               <Text textAlign={"center"}>No active tokens to show</Text>
               <Button mx="auto" onClick={fetch}>

@@ -110,6 +110,7 @@ export const NEW_STREAMER_URL_QUERY_PARAM = "new";
 export const STREAMER_MIGRATION_URL_QUERY_PARAM = "migrate";
 export const ADMIN_GRAPH_QUERY_PARAM = "graph";
 export const CLIP_CHANNEL_ID_QUERY_PARAM = "channelId";
+export const NFCS_SORT_QUERY_PARAM = "sort";
 
 export const CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN = [
   "3",

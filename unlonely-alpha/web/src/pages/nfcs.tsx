@@ -23,8 +23,12 @@ import {
 } from "../constants/queries";
 import AppLayout from "../components/layout/AppLayout";
 import Header from "../components/navigation/Header";
+import { NFCS_SORT_QUERY_PARAM } from "../constants";
+import { useRouter } from "next/router";
 
 const Nfcs = () => {
+  const router = useRouter();
+
   const [channelNfcs, setChannelNfcs] = useState<NfcFeedQuery["getNFCFeed"]>(
     []
   );
@@ -44,6 +48,7 @@ const Nfcs = () => {
   const [appliedFilterClipper, setAppliedFilterClipper] = useState("");
 
   const [hasAppliedFilters, setHasAppliedFilters] = useState(false);
+  const [sort, setSort] = useState<"createdAt" | "totalMints">("totalMints");
 
   const channelNfcsToUse = hasAppliedFilters ? filteredNfcs : channelNfcs;
   const toast = useToast();
@@ -96,30 +101,45 @@ const Nfcs = () => {
     setFilteredNfcs(newNfcResults);
   }, [filterStreamer, filterClipper, channelNfcs]);
 
-  const fetchNfcs = useCallback(async () => {
-    const nfcsData = await call({
-      variables: {
-        data: {
-          limit: NFC_FETCH_LIMIT,
-          orderBy: "createdAt",
-          offset: pagesFetched * NFC_FETCH_LIMIT,
+  const fetchNfcs = useCallback(
+    async (orderBy: "createdAt" | "totalMints") => {
+      const nfcsData = await call({
+        variables: {
+          data: {
+            limit: NFC_FETCH_LIMIT,
+            orderBy,
+            offset: pagesFetched * NFC_FETCH_LIMIT,
+          },
         },
-      },
-    });
-    const nfcs: NfcFeedQuery["getNFCFeed"] = nfcsData?.data?.getNFCFeed ?? [];
-    const filteredNfcs = (nfcs ?? []).filter(
-      (nfc): nfc is NonNullable<typeof nfc> => nfc !== null && nfc !== undefined
-    );
-    if (pagesFetched > 1 && filteredNfcs.length < NFC_FETCH_LIMIT) {
-      handleMaxNfcs();
-    }
-    setFetchedUnderLimit(filteredNfcs.length < NFC_FETCH_LIMIT);
-    setPagesFetched((prev) => prev + 1);
-    setChannelNfcs((prev) => [...(prev || []), ...filteredNfcs]);
-  }, [pagesFetched]);
+      });
+      const nfcs: NfcFeedQuery["getNFCFeed"] = nfcsData?.data?.getNFCFeed ?? [];
+      const filteredNfcs = (nfcs ?? []).filter(
+        (nfc): nfc is NonNullable<typeof nfc> =>
+          nfc !== null && nfc !== undefined
+      );
+      if (pagesFetched > 1 && filteredNfcs.length < NFC_FETCH_LIMIT) {
+        handleMaxNfcs();
+      }
+      setFetchedUnderLimit(filteredNfcs.length < NFC_FETCH_LIMIT);
+      setPagesFetched((prev) => prev + 1);
+      setChannelNfcs((prev) => [...(prev || []), ...filteredNfcs]);
+    },
+    [pagesFetched]
+  );
 
   useEffect(() => {
-    if (channelNfcs?.length === 0) fetchNfcs();
+    let orderBy: "createdAt" | "totalMints" = "totalMints";
+    if (
+      router.query[NFCS_SORT_QUERY_PARAM] &&
+      typeof router.query[NFCS_SORT_QUERY_PARAM] === "string" &&
+      ["createdAt", "totalMints"].includes(router.query[NFCS_SORT_QUERY_PARAM])
+    ) {
+      orderBy = router.query[NFCS_SORT_QUERY_PARAM] as
+        | "createdAt"
+        | "totalMints";
+      setSort(orderBy);
+    }
+    if (channelNfcs?.length === 0) fetchNfcs(orderBy);
   }, []);
 
   useEffect(() => {
@@ -214,7 +234,7 @@ const Nfcs = () => {
             left="50%"
             transform="translateX(-50%)"
             onClick={async () => {
-              await fetchNfcs().then(() => {
+              await fetchNfcs(sort).then(() => {
                 setShowNextButton(false);
               });
             }}
