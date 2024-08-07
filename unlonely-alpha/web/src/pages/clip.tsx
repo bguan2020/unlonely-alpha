@@ -8,10 +8,11 @@ import {
   RangeSliderTrack,
   Text,
   Progress,
-  useToast,
+  Spinner,
 } from "@chakra-ui/react";
 import { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { MdDragIndicator } from "react-icons/md";
+import Link from "next/link";
 
 import {
   CHAT_MESSAGE_EVENT,
@@ -46,6 +47,7 @@ import {
   Chain,
   HttpTransport,
   PublicClient,
+  TransactionReceipt,
   encodeFunctionData,
   isAddressEqual,
 } from "viem";
@@ -110,7 +112,6 @@ const Clip = () => {
   });
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  const toast = useToast();
 
   const [clipRange, setClipRange] = useState<[number, number]>([0, 0]);
   const [title, setTitle] = useState("");
@@ -127,11 +128,11 @@ const Clip = () => {
     | "trimming"
     | "redirecting"
     | "error"
-  >("selecting");
+  >("clipping");
   const [progressPercentage, setProgressPercentage] = useState(0);
   const [roughClipUrl, setRoughClipUrl] = useState(
-    // ""
-    "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a5e1mb4vfge22uvr/1200p0.mp4"
+    ""
+    // "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a5e1mb4vfge22uvr/1200p0.mp4"
   );
   const [finalClipObject, setFinalClipObject] = useState<
     FinalClipObject | undefined
@@ -196,7 +197,7 @@ const Clip = () => {
   );
 
   const [channel] = useAblyChannel(chatChannel, async (message) => {
-    console.log("message", message);
+    return message;
   });
 
   const [fetchUserChannelContract1155Mapping] =
@@ -245,38 +246,38 @@ const Clip = () => {
     if (channelId) getChannelById();
   }, [channelId]);
 
-  // useEffect(() => {
-  //   const init = async () => {
-  //     if (!getChannelByIdData || !user) {
-  //       setPageState("lacking");
-  //       return;
-  //     }
-  //     if (!getChannelByIdData.getChannelById?.isLive) {
-  //       setPageState("offline");
-  //       return;
-  //     }
-  //     setPageState("clipping");
-  //     try {
-  //       const { res } = await createClip({
-  //         title: `rough-clip-${Date.now()}`,
-  //         channelId: getChannelByIdData.getChannelById?.id,
-  //         livepeerPlaybackId:
-  //           getChannelByIdData.getChannelById?.livepeerPlaybackId,
-  //         noDatabasePush: true,
-  //       });
-  //       const url = res?.url;
-  //       if (url) {
-  //         setRoughClipUrl(url);
-  //       } else {
-  //         console.log("Error, url is missing");
-  //       }
-  //       setPageState("selecting");
-  //     } catch (e) {
-  //       setPageState("error");
-  //     }
-  //   };
-  //   init();
-  // }, [getChannelByIdData, user]);
+  useEffect(() => {
+    const init = async () => {
+      if (!getChannelByIdData || !user) {
+        setPageState("lacking");
+        return;
+      }
+      if (!getChannelByIdData.getChannelById?.isLive) {
+        setPageState("offline");
+        return;
+      }
+      setPageState("clipping");
+      try {
+        const { res } = await createClip({
+          title: `rough-clip-${Date.now()}`,
+          channelId: getChannelByIdData.getChannelById?.id,
+          livepeerPlaybackId:
+            getChannelByIdData.getChannelById?.livepeerPlaybackId,
+          noDatabasePush: true,
+        });
+        const url = res?.url;
+        if (url) {
+          setRoughClipUrl(url);
+        } else {
+          console.log("Error, url is missing");
+        }
+        setPageState("selecting");
+      } catch (e) {
+        setPageState("error");
+      }
+    };
+    init();
+  }, [getChannelByIdData, user]);
 
   useEffect(() => {
     if (roughClipUrl && videoRef.current) {
@@ -490,22 +491,17 @@ const Clip = () => {
         account: walletClient?.account.address as Address,
       });
 
-      let freqAddress: `0x${string}` = NULL_ADDRESS;
+      let contract1155Address: `0x${string}` = NULL_ADDRESS;
       let tokenId = -1;
       if (predicted.splitExists) {
         console.log("split exists");
         setTransactionMessage("...minting...");
 
-        const transaction = await handleWriteCreate1155(parameters);
-        const logs = transaction?.logs ?? [];
-        console.log("transaction logs", logs);
-        // freqAddress is the address of the 1155 contract
-        const _freqAddress = findMostFrequentString(
+        const { txnReceipt } = await handleWriteCreate1155(parameters);
+        const logs = txnReceipt?.logs ?? [];
+        contract1155Address = findMostFrequentString(
           logs.map((log) => log.address)
-        );
-
-        freqAddress = _freqAddress as `0x${string}`;
-        console.log("freqAddress", freqAddress);
+        ) as `0x${string}`;
 
         const topics = returnDecodedTopics(
           logs,
@@ -514,7 +510,6 @@ const Clip = () => {
           false
         );
 
-        console.log("create1155 topics and split exists", topics);
         if (topics) {
           const args: any = topics.args;
           const _tokenId: bigint = args.tokenId;
@@ -540,16 +535,12 @@ const Clip = () => {
             console.log("splitTransaction logs", splitLogs);
             setTransactionMessage("...minting...");
 
-            const transaction = await handleWriteCreate1155(parameters);
-            const logs = transaction?.logs ?? [];
-            console.log("transaction logs", logs);
+            const { txnReceipt } = await handleWriteCreate1155(parameters);
+            const logs = txnReceipt?.logs ?? [];
 
-            const _freqAddress = findMostFrequentString(
+            contract1155Address = findMostFrequentString(
               logs.map((log) => log.address)
-            );
-
-            console.log("freqAddress", _freqAddress);
-            freqAddress = _freqAddress as `0x${string}`;
+            ) as `0x${string}`;
 
             const topics = returnDecodedTopics(
               logs,
@@ -606,10 +597,6 @@ const Clip = () => {
             });
             const logs = transaction.logs;
             console.log("multicall tx logs", logs);
-            // freqAddress is the address of the 1155 contract
-            const _freqAddress = findMostFrequentString(
-              logs.map((log) => log.address)
-            );
 
             const topics = returnDecodedTopics(
               logs,
@@ -617,11 +604,9 @@ const Clip = () => {
               "UpdatedToken",
               false
             );
-
-            console.log("multicall topics", topics);
-
-            console.log("freqAddress", _freqAddress);
-            freqAddress = _freqAddress as `0x${string}`;
+            contract1155Address = findMostFrequentString(
+              logs.map((log) => log.address)
+            ) as `0x${string}`;
 
             if (topics) {
               const args: any = topics.args;
@@ -633,10 +618,10 @@ const Clip = () => {
         }
       }
       setTransactionMessage("...wrapping up...");
-      if (freqAddress && channelId && !existingContract1155Address) {
+      if (contract1155Address && channelId && !existingContract1155Address) {
         await updateUserChannelContract1155Mapping({
           channelId: channelId,
-          contract1155Address: freqAddress,
+          contract1155Address: contract1155Address,
           contract1155ChainId: network.chainId,
           userAddress: user?.address as Address,
         });
@@ -648,8 +633,8 @@ const Clip = () => {
         videoThumbnail,
         openseaLink: "",
         channelId,
-        contract1155Address: freqAddress,
-        zoraLink: `https://zora.co/collect/base:${freqAddress}/${tokenId}`,
+        contract1155Address: contract1155Address,
+        zoraLink: `https://zora.co/collect/base:${contract1155Address}/${tokenId}`,
         tokenId,
       };
       console.log("postNfcObject", postNfcObject);
@@ -685,7 +670,7 @@ const Clip = () => {
       setFinalClipObject(_finalClipObject);
       setPageState("redirecting");
       setTransactionMessage(null);
-      window.open(`${window.origin}/nfc/${postNFCRes?.res?.id}`, "_self");
+      window.open(`${window.origin}/nfc/${_finalClipObject.id}`, "_self");
     } catch (e) {
       console.log("trimVideo frontend error", e);
       setPageState("error");
@@ -811,29 +796,38 @@ const Clip = () => {
     };
   };
 
-  const handleWriteCreate1155 = async (parameters: any) => {
+  const handleWriteCreate1155 = async (
+    parameters: any
+  ): Promise<{
+    txnReceipt: TransactionReceipt | undefined;
+    error: boolean;
+    errorMessage: string;
+  }> => {
     if (!publicClient || !walletClient?.account.address) {
-      console.log("publicClient or walletClient is missing");
-      return;
+      return {
+        txnReceipt: undefined,
+        error: true,
+        errorMessage: "publicClient or walletClient is missing",
+      };
     }
     const { request } = await publicClient.simulateContract(parameters);
 
     // execute the transaction
     const hash = await walletClient.writeContract(request);
-    if (!hash) return;
+    if (!hash)
+      return {
+        txnReceipt: undefined,
+        error: true,
+        errorMessage: "hash is missing",
+      };
     const transaction = await publicClient.waitForTransactionReceipt({
       hash,
     });
-    return transaction;
-  };
-
-  const handleCopy = () => {
-    toast({
-      title: "copied to clipboard",
-      status: "success",
-      duration: 2000,
-      isClosable: true,
-    });
+    return {
+      txnReceipt: transaction,
+      error: false,
+      errorMessage: "",
+    };
   };
 
   return (
@@ -1012,7 +1006,22 @@ const Clip = () => {
             </Flex>
           ) : pageState === "redirecting" ? (
             <Flex direction={"column"} justifyContent={"center"}>
-              <Text>Redirecting you to the clip</Text>
+              <Text textAlign="center" marginBottom="20px">
+                Redirecting you to the clip
+              </Text>
+              <Flex justifyContent={"center"}>
+                <Spinner />
+              </Flex>
+              <Link
+                href={`/nfc/${finalClipObject?.id}`}
+                passHref
+                style={{
+                  textDecoration: "underline",
+                  marginTop: "40px",
+                }}
+              >
+                If you're not redirected immediately, click here
+              </Link>
             </Flex>
           ) : pageState === "error" ? (
             <Flex direction={"column"} justifyContent={"center"}>
