@@ -125,7 +125,13 @@ const Clip = () => {
   );
   const [carouselProgressIndex, setCarouselProgressIndex] = useState(0);
   const [pageState, setPageState] = useState<
-    "offline" | "clipping" | "selecting" | "trimming" | "sharing" | "error"
+    | "lacking"
+    | "offline"
+    | "clipping"
+    | "selecting"
+    | "trimming"
+    | "sharing"
+    | "error"
   >("clipping");
   const [progressPercentage, setProgressPercentage] = useState(0);
   const [roughClipUrl, setRoughClipUrl] = useState(
@@ -245,7 +251,10 @@ const Clip = () => {
 
   useEffect(() => {
     const init = async () => {
-      if (!getChannelByIdData || !user) return;
+      if (!getChannelByIdData || !user) {
+        setPageState("lacking");
+        return;
+      }
       if (!getChannelByIdData.getChannelById?.isLive) {
         setPageState("offline");
         return;
@@ -653,6 +662,7 @@ const Clip = () => {
       setFinalClipObject(_finalClipObject);
       setPageState("sharing");
       setTransactionMessage(null);
+      window.open(`${window.origin}/nfc/${postNFCRes?.res?.id}`, "_self");
     } catch (e) {
       console.log("trimVideo frontend error", e);
       setPageState("error");
@@ -785,8 +795,12 @@ const Clip = () => {
   };
 
   return (
-    <AppLayout isCustomHeader={false} noHeader>
-      <Flex bg="rgba(5, 0, 31, 1)" direction={"column"} h="100vh">
+    <AppLayout
+      isCustomHeader={false}
+      noHeader
+      customBgColor="rgba(5, 0, 31, 1)"
+    >
+      <Flex direction={"column"} h="100vh">
         <Header />
         {(pageState === "clipping" || pageState === "trimming") && (
           <div
@@ -1054,7 +1068,30 @@ const Clip = () => {
                 </Flex>
               )}
             </Flex>
-          ) : null}
+          ) : pageState === "error" ? (
+            <Flex direction={"column"} justifyContent={"center"}>
+              <Text
+                fontSize="30px"
+                mb="30px"
+                textAlign="center"
+                fontWeight={"bold"}
+              >
+                Something went wrong
+              </Text>
+            </Flex>
+          ) : (
+            <Flex direction={"column"} justifyContent={"center"}>
+              <Text
+                fontSize="30px"
+                mb="30px"
+                textAlign="center"
+                fontWeight={"bold"}
+              >
+                Could not generate rough clip, you must be logged in or the
+                server couldn't fetch channel data
+              </Text>
+            </Flex>
+          )}
         </Flex>
       </Flex>
     </AppLayout>
