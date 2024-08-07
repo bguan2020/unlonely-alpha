@@ -88,6 +88,7 @@ export const fetchZoraMints = async () => {
       if (data.errors) {
         console.error("GraphQL errors:", data.errors);
       }
+      console.log("Zora mints updated", data.data.zoraCreateTokens.length);
 
     } catch (error) {
       console.error("Fetch error:", error);
