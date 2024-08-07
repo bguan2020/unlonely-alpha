@@ -98,46 +98,45 @@ const NfcDetail = ({
         isCustomHeader={true}
       >
         <Flex justifyContent="center" direction="column">
-          {!nfc ? (
-            <Flex width="100%" justifyContent="center">
-              <Spinner />
-            </Flex>
-          ) : (
-            <Flex width="100%" justifyContent="center">
-              <NfcDetailCard nfc={nfc} />
-            </Flex>
-          )}
-          <Flex width="100%" justifyContent="center" mt="2rem">
-            <Flex width="100%" justifyContent="center" direction="column">
-              <Flex width="100%" justifyContent="center" mb="1rem">
-                <Text fontSize="16px">Watch More NFCs!</Text>
-              </Flex>
+          {loading || loadingNFCs ? (
+            <>
               <Flex width="100%" justifyContent="center">
-                {loadingNFCs ? (
-                  <Flex width="100%" justifyContent="center">
-                    <Spinner />
-                  </Flex>
-                ) : (
-                  <Flex
-                    direction="row"
-                    overflowX="scroll"
-                    overflowY="hidden"
-                    justifyContent="left"
-                    m="auto"
-                    width="90%"
-                    height={{
-                      base: "14rem",
-                      sm: "18rem",
-                      md: "18rem",
-                      lg: "18rem",
-                    }}
-                  >
-                    <NfcList nfcs={randomizedNFCs} />
-                  </Flex>
-                )}
+                <Spinner />
               </Flex>
-            </Flex>
-          </Flex>
+              <Text textAlign={"center"}>loading...</Text>
+            </>
+          ) : (
+            <>
+              <Flex width="100%" justifyContent="center">
+                <NfcDetailCard nfc={nfc} />
+              </Flex>
+              <Flex width="100%" justifyContent="center" mt="2rem">
+                <Flex width="100%" justifyContent="center" direction="column">
+                  <Flex width="100%" justifyContent="center" mb="1rem">
+                    <Text fontSize="16px">Watch More NFCs!</Text>
+                  </Flex>
+                  <Flex width="100%" justifyContent="center">
+                    <Flex
+                      direction="row"
+                      overflowX="scroll"
+                      overflowY="hidden"
+                      justifyContent="left"
+                      m="auto"
+                      width="90%"
+                      height={{
+                        base: "14rem",
+                        sm: "18rem",
+                        md: "18rem",
+                        lg: "18rem",
+                      }}
+                    >
+                      <NfcList nfcs={randomizedNFCs} />
+                    </Flex>
+                  </Flex>
+                </Flex>
+              </Flex>
+            </>
+          )}
         </Flex>
       </AppLayout>
     </>
