@@ -31,6 +31,7 @@ export const GET_LIVEPEER_CLIP_DATA_QUERY = gql`
   query GetLivepeerClipData($data: GetLivepeerClipDataInput) {
     getLivepeerClipData(data: $data) {
       error
+      errorMessage
       videoThumbnail
       videoLink
     }

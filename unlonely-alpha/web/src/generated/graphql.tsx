@@ -475,6 +475,7 @@ export enum LikeObj {
 export type LivepeerClipDataResponse = {
   __typename?: "LivepeerClipDataResponse";
   error: Scalars["Boolean"];
+  errorMessage: Scalars["String"];
   videoLink: Scalars["String"];
   videoThumbnail: Scalars["String"];
 };
@@ -1710,6 +1711,7 @@ export type GetLivepeerClipDataQuery = {
   getLivepeerClipData?: {
     __typename?: "LivepeerClipDataResponse";
     error: boolean;
+    errorMessage: string;
     videoThumbnail: string;
     videoLink: string;
   } | null;
@@ -3153,6 +3155,7 @@ export const GetLivepeerClipDataDocument = gql`
   query GetLivepeerClipData($data: GetLivepeerClipDataInput) {
     getLivepeerClipData(data: $data) {
       error
+      errorMessage
       videoThumbnail
       videoLink
     }

@@ -23,14 +23,38 @@ export const NfcClipMintInterface = ({
   tokenId: number;
   zoraLink?: string;
 }) => {
-  const { user } = useUser();
+  const { user, walletIsConnected } = useUser();
 
   const [selectedTokensToMint, setSelectedTokensToMint] = useState<string>("1");
   const [customAmountSelected, setCustomAmountSelected] = useState(false);
   const [customTokensToMint, setCustomTokensToMint] = useState<string>("");
 
   return (
-    <Flex direction="column" bg="rgba(0,0,0,0.5)" p="5px" borderRadius={"15px"}>
+    <Flex
+      direction="column"
+      bg="rgba(0,0,0,0.5)"
+      p="5px"
+      borderRadius={"15px"}
+      position={"relative"}
+    >
+      {(!user || !walletIsConnected) && (
+        <Flex
+          position="absolute"
+          bg="rgba(0,0,0,0.75)"
+          width="100%"
+          h="100%"
+          top="0"
+          left="0"
+          bottom="0"
+          right="0"
+          justifyContent="center"
+          alignItems="center"
+          margin="auto"
+          zIndex={1}
+        >
+          <Text fontFamily="LoRes15">You must connect your wallet to mint</Text>
+        </Flex>
+      )}
       <Flex gap="20px">
         {zoraLink && (
           <Link href={zoraLink} isExternal>
@@ -129,7 +153,9 @@ export const NfcClipMintInterface = ({
               formatIncompleteNumber(
                 customAmountSelected ? customTokensToMint : selectedTokensToMint
               )
-            ) === 0 || !user
+            ) === 0 ||
+            !user ||
+            !walletIsConnected
           }
           onClick={async () => {
             const n = customAmountSelected

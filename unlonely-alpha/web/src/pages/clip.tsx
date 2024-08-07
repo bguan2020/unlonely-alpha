@@ -7,10 +7,7 @@ import {
   RangeSliderThumb,
   RangeSliderTrack,
   Text,
-  Box,
-  Image,
   Progress,
-  IconButton,
   useToast,
 } from "@chakra-ui/react";
 import { useRef, useState, useEffect, useCallback, useMemo } from "react";
@@ -71,7 +68,6 @@ import { SenderStatus } from "../constants/types/chat";
 import centerEllipses from "../utils/centerEllipses";
 import { useNetworkContext } from "../hooks/context/useNetwork";
 import AppLayout from "../components/layout/AppLayout";
-import copy from "copy-to-clipboard";
 
 const multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
 const PROTOCOL_ADDRESS = "0x53D6D64945A67658C66730Ff4a038eb298eC8902";
@@ -88,7 +84,6 @@ const carouselProgressStatusMessages = [
   "...trimming video...",
   "...uploading video...",
   "...uploading blob to ipfs...",
-  "...handling 1155 contract and token...",
 ];
 
 type Aggregate3ValueFunction = ExtractAbiFunction<
@@ -130,17 +125,18 @@ const Clip = () => {
     | "clipping"
     | "selecting"
     | "trimming"
-    | "sharing"
+    | "redirecting"
     | "error"
-  >("clipping");
+  >("selecting");
   const [progressPercentage, setProgressPercentage] = useState(0);
   const [roughClipUrl, setRoughClipUrl] = useState(
-    ""
-    // "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a5e1mb4vfge22uvr/1200p0.mp4"
+    // ""
+    "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a5e1mb4vfge22uvr/1200p0.mp4"
   );
   const [finalClipObject, setFinalClipObject] = useState<
     FinalClipObject | undefined
   >(undefined);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [nyanCatFaceForward, setNyanCatFaceForward] = useState(
     new Array(images.length).fill(true)
   );
@@ -249,38 +245,38 @@ const Clip = () => {
     if (channelId) getChannelById();
   }, [channelId]);
 
-  useEffect(() => {
-    const init = async () => {
-      if (!getChannelByIdData || !user) {
-        setPageState("lacking");
-        return;
-      }
-      if (!getChannelByIdData.getChannelById?.isLive) {
-        setPageState("offline");
-        return;
-      }
-      setPageState("clipping");
-      try {
-        const { res } = await createClip({
-          title: `rough-clip-${Date.now()}`,
-          channelId: getChannelByIdData.getChannelById?.id,
-          livepeerPlaybackId:
-            getChannelByIdData.getChannelById?.livepeerPlaybackId,
-          noDatabasePush: true,
-        });
-        const url = res?.url;
-        if (url) {
-          setRoughClipUrl(url);
-        } else {
-          console.log("Error, url is missing");
-        }
-        setPageState("selecting");
-      } catch (e) {
-        setPageState("error");
-      }
-    };
-    init();
-  }, [getChannelByIdData, user]);
+  // useEffect(() => {
+  //   const init = async () => {
+  //     if (!getChannelByIdData || !user) {
+  //       setPageState("lacking");
+  //       return;
+  //     }
+  //     if (!getChannelByIdData.getChannelById?.isLive) {
+  //       setPageState("offline");
+  //       return;
+  //     }
+  //     setPageState("clipping");
+  //     try {
+  //       const { res } = await createClip({
+  //         title: `rough-clip-${Date.now()}`,
+  //         channelId: getChannelByIdData.getChannelById?.id,
+  //         livepeerPlaybackId:
+  //           getChannelByIdData.getChannelById?.livepeerPlaybackId,
+  //         noDatabasePush: true,
+  //       });
+  //       const url = res?.url;
+  //       if (url) {
+  //         setRoughClipUrl(url);
+  //       } else {
+  //         console.log("Error, url is missing");
+  //       }
+  //       setPageState("selecting");
+  //     } catch (e) {
+  //       setPageState("error");
+  //     }
+  //   };
+  //   init();
+  // }, [getChannelByIdData, user]);
 
   useEffect(() => {
     if (roughClipUrl && videoRef.current) {
@@ -320,7 +316,7 @@ const Clip = () => {
       !roughClipUrl ||
       !channelId ||
       clipRange[0] >= clipRange[1] ||
-      !getChannelByIdData ||
+      !getChannelByIdData?.getChannelById ||
       !network.chainId ||
       !walletClient?.account.address ||
       !user
@@ -347,18 +343,6 @@ const Clip = () => {
         "time took to trim",
         `${(Date.now() - trimFunctionStart) / 1000}s`
       );
-      // const concatStart = Date.now();
-      // const outputIdentifier = trimRes?.res;
-      // await new Promise((resolve) => setTimeout(resolve, 5000));
-      // console.log("outputIdentifier", outputIdentifier);
-      // const concatRes = await concatenateOutroTrimmedVideo({
-      //   trimmedVideoFileName: String(outputIdentifier),
-      //   name: title,
-      // });
-      // console.log(
-      //   "time took to concatenate",
-      //   `${(Date.now() - concatStart) / 1000}s`
-      // );
       const assetId = trimRes?.res;
       console.log("assetId", assetId);
       let videoThumbnail = "";
@@ -380,9 +364,20 @@ const Clip = () => {
       }
       if (data?.getLivepeerClipData?.error) {
         console.log("Error", data.getLivepeerClipData.error);
+        setPageState("error");
+        setErrorMessage(data.getLivepeerClipData.errorMessage);
         return;
       }
-      if (!videoThumbnail || !videoLink) return;
+      if (!videoThumbnail) {
+        setPageState("error");
+        setErrorMessage("Livepeer api did not return video thumbnail");
+        return;
+      }
+      if (!videoLink) {
+        setPageState("error");
+        setErrorMessage("Livepeer api did not return video link");
+        return;
+      }
 
       // CREATE TOKEN METADATA
       const { pinRes: videoFileIpfsUrl } = await createFileBlobAndPinWithPinata(
@@ -390,37 +385,52 @@ const Clip = () => {
         "video.mp4",
         "video/mp4"
       );
-      console.log("videoFileIpfsUrl", videoFileIpfsUrl);
-      if (!videoFileIpfsUrl || !videoLink) return;
+      if (!videoFileIpfsUrl) {
+        setPageState("error");
+        setErrorMessage("Pinata could not pin video file onto ipfs");
+        return;
+      }
 
-      const { file: thumbnailFile, pinRes: thumbnailFileIpfsUrl } =
-        await createFileBlobAndPinWithPinata(
-          String(videoThumbnail),
-          title,
-          "image/png"
-        );
-      if (!thumbnailFileIpfsUrl || !thumbnailFile || !videoThumbnail) return;
-
-      console.log("thumbnailFileIpfsUrl", thumbnailFileIpfsUrl);
-
-      const tokenMetadataJson = await makeMediaTokenMetadata({
-        mediaUrl: videoFileIpfsUrl,
-        thumbnailUrl: thumbnailFileIpfsUrl,
-        name: thumbnailFile.name,
-      });
-      console.log(
-        "makeMediaTokenMetadata tokenMetadataJson",
-        tokenMetadataJson
+      const {
+        file: thumbnailFile,
+        pinRes: thumbnailFileIpfsUrl,
+        error: thumbnailError,
+      } = await createFileBlobAndPinWithPinata(
+        String(videoThumbnail),
+        title,
+        "image/png"
       );
+      if (thumbnailError) {
+        setPageState("error");
+        setErrorMessage(thumbnailError);
+        return;
+      }
+      if (!thumbnailFileIpfsUrl) {
+        setPageState("error");
+        setErrorMessage("Pinata could not pin thumbnail file onto ipfs");
+        return;
+      }
+
+      let tokenMetadataJson: any;
+      try {
+        tokenMetadataJson = await makeMediaTokenMetadata({
+          mediaUrl: videoFileIpfsUrl,
+          thumbnailUrl: thumbnailFileIpfsUrl,
+          name: thumbnailFile.name,
+        });
+      } catch (e) {
+        console.log("makeMediaTokenMetadata error", e);
+        setPageState("error");
+        setErrorMessage("Error calling makeMediaTokenMetadata");
+        return;
+      }
 
       const jsonMetadataUri = await pinJsonWithPinata(tokenMetadataJson);
-      console.log("jsonMetadataUri", jsonMetadataUri);
-
-      // CREATE SPLIT CONFIG
-
-      const { agregate3Calls, predicted, error, splitCallData, splitAddress } =
-        await handleSplitConfig();
-      if (error) return;
+      if (!jsonMetadataUri) {
+        setPageState("error");
+        setErrorMessage("Pinata could not pin metadata json onto ipfs");
+        return;
+      }
 
       let contractObject: ContractType = {
         name: "",
@@ -433,18 +443,36 @@ const Clip = () => {
           image: UNLONELY_LOGO_IPFS_URL,
           name: `${getChannelByIdData?.getChannelById?.slug}'s Unlonely Clips`,
         });
+        if (!_contractMetadataJsonUri) {
+          setPageState("error");
+          setErrorMessage(
+            "Pinata could not pin contract metadata json onto ipfs"
+          );
+          return;
+        }
         contractObject = {
           name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
-          uri: _contractMetadataJsonUri,
+          uri: `ipfs://${_contractMetadataJsonUri}`,
         };
-      } else if (existingContract1155Address) {
-        contractObject = existingContract1155Address;
       } else {
-        console.log("no satisfactory outcome found");
-        return;
+        contractObject = existingContract1155Address;
       }
 
-      console.log("contractObject", contractObject);
+      // CREATE SPLIT CONFIG
+
+      const {
+        agregate3Calls,
+        predicted,
+        error,
+        splitCallData,
+        splitAddress,
+        errorMessage,
+      } = await handleSplitConfig();
+      if (error && errorMessage) {
+        setPageState("error");
+        setErrorMessage(`Error handling split config, ${errorMessage}`);
+        return;
+      }
 
       // CREATE 1155 CONTRACT AND TOKEN
       setTransactionMessage("...handling 1155 contract and token...");
@@ -455,14 +483,12 @@ const Clip = () => {
       const { parameters } = await creatorClient.create1155({
         contract: contractObject,
         token: {
-          tokenMetadataURI: jsonMetadataUri,
+          tokenMetadataURI: `ipfs://${jsonMetadataUri}`,
           payoutRecipient: predicted.splitAddress,
           mintToCreatorCount: 1,
         },
         account: walletClient?.account.address as Address,
       });
-
-      console.log("parameters from create1155", parameters);
 
       let freqAddress: `0x${string}` = NULL_ADDRESS;
       let tokenId = -1;
@@ -555,8 +581,6 @@ const Clip = () => {
             }),
           });
 
-          console.log("agregate3Calls", agregate3Calls);
-
           // simulate the transaction multicall 3 transaction
           const { request } = await publicClient.simulateContract({
             abi: multicall3Abi,
@@ -566,7 +590,6 @@ const Clip = () => {
             account: walletClient?.account.address as Address,
           });
 
-          console.log("simulated multicall3 request", request);
           setTransactionMessage("...minting...");
 
           // execute the transaction
@@ -660,7 +683,7 @@ const Clip = () => {
         },
       });
       setFinalClipObject(_finalClipObject);
-      setPageState("sharing");
+      setPageState("redirecting");
       setTransactionMessage(null);
       window.open(`${window.origin}/nfc/${postNFCRes?.res?.id}`, "_self");
     } catch (e) {
@@ -678,7 +701,14 @@ const Clip = () => {
     walletClient,
   ]);
 
-  const handleSplitConfig = async () => {
+  const handleSplitConfig = async (): Promise<{
+    agregate3Calls: Aggregate3ValueCall[];
+    predicted: { splitAddress: Address; splitExists: boolean };
+    splitCallData: Address | null;
+    splitAddress: Address | null;
+    error: boolean;
+    errorMessage: string;
+  }> => {
     const agregate3Calls: Aggregate3ValueCall[] = [];
     if (!publicClient || !walletClient?.account.address)
       return {
@@ -690,6 +720,7 @@ const Clip = () => {
         splitCallData: null,
         splitAddress: null,
         error: true,
+        errorMessage: "publicClient or walletClient is missing",
       };
     const splitsClient = new SplitV1Client({
       chainId: network.chainId,
@@ -736,29 +767,39 @@ const Clip = () => {
       distributorFeePercent: 0,
     };
 
-    const predicted = await splitsClient.predictImmutableSplitAddress(
-      splitsConfig
-    );
-
-    console.log("predicted", predicted);
-
     let splitCallData = null;
     let splitAddress = null;
-    if (!predicted.splitExists) {
-      // if the split has not been created, add a call to create it
-      // to the multicall3 aggregate call
+    let predicted = {} as any;
+    try {
+      predicted = await splitsClient.predictImmutableSplitAddress(splitsConfig);
+      if (!predicted.splitExists) {
+        // if the split has not been created, add a call to create it
+        // to the multicall3 aggregate call
 
-      const { data, address } = await splitsClient.callData.createSplit(
-        splitsConfig
-      );
-      splitCallData = data;
-      splitAddress = address;
-      agregate3Calls.push({
-        allowFailure: false,
-        callData: data,
-        target: address as Address,
-        value: BigInt(0),
-      });
+        const { data, address } = await splitsClient.callData.createSplit(
+          splitsConfig
+        );
+        splitCallData = data;
+        splitAddress = address as Address;
+        agregate3Calls.push({
+          allowFailure: false,
+          callData: data,
+          target: address as Address,
+          value: BigInt(0),
+        });
+      }
+    } catch (e) {
+      return {
+        agregate3Calls,
+        predicted: {
+          splitAddress: NULL_ADDRESS as Address,
+          splitExists: false,
+        },
+        splitCallData: null,
+        splitAddress: null,
+        error: true,
+        errorMessage: "Error creating split",
+      };
     }
     return {
       agregate3Calls,
@@ -766,6 +807,7 @@ const Clip = () => {
       splitCallData,
       splitAddress,
       error: false,
+      errorMessage: "",
     };
   };
 
@@ -889,7 +931,7 @@ const Clip = () => {
                 ref={videoRef}
                 src={roughClipUrl.concat("#t=0.1")}
                 style={{
-                  height: "500px",
+                  height: "400px",
                 }}
                 onTimeUpdate={handleTimeUpdate}
                 onSeeking={handleSeeking}
@@ -958,115 +1000,19 @@ const Clip = () => {
                     clipRange[1] - clipRange[0] < 2 ||
                     title.length > 100
                   }
+                  py="20px"
+                  mb="20px"
+                  mx="auto"
                 >
-                  <Box
-                    position="absolute"
-                    top="0"
-                    left="0"
-                    height="100%"
-                    bg="green.400"
-                    zIndex="1"
-                  />
-                  <Text position="relative" zIndex="2" width="100%">
-                    Create
+                  <Text position="relative" zIndex="2">
+                    Create NFC
                   </Text>
                 </Button>
               </>
             </Flex>
-          ) : pageState === "sharing" ? (
+          ) : pageState === "redirecting" ? (
             <Flex direction={"column"} justifyContent={"center"}>
-              <video
-                ref={videoRef}
-                src={finalClipObject?.videoLink.concat("#t=0.1")}
-                style={{
-                  height: "500px",
-                }}
-                controls
-              />
-              <Flex>
-                <Text fontSize="35px" textAlign="center">
-                  {finalClipObject?.title ?? "title"}
-                </Text>
-              </Flex>
-              <Flex>
-                <Text fontSize="15px" textAlign="center">
-                  owned by{" "}
-                  {finalClipObject?.owner?.username ??
-                    centerEllipses(finalClipObject?.owner?.address, 13)}
-                </Text>
-              </Flex>
-              {finalClipObject?.videoLink && (
-                <Flex justifyContent={"center"} mt="20px" gap="10px">
-                  <IconButton
-                    aria-label="tweet-clip-link"
-                    color="white"
-                    icon={
-                      <Image src="/images/twitter-350x350.png" height="50px" />
-                    }
-                    bg="transparent"
-                    _focus={{}}
-                    _active={{}}
-                    _hover={{}}
-                    onClick={() => {
-                      window.open(
-                        `https://x.com/intent/tweet?text=${encodeURIComponent(
-                          `Check this out: ${window.origin}/nfc/${finalClipObject?.id}`
-                        )}`,
-                        "_blank"
-                      );
-                    }}
-                  />
-                  <IconButton
-                    aria-label="warpcast-clip-link"
-                    color="white"
-                    icon={
-                      <Image src="/images/warpcast-350x350.png" height="50px" />
-                    }
-                    bg="transparent"
-                    _focus={{}}
-                    _active={{}}
-                    _hover={{}}
-                    onClick={() => {
-                      window.open(
-                        `https://warpcast.com/~/compose?text=new%20unlonely%20clip%20just%20dropped!&embeds[]=${window.origin}/nfc/${finalClipObject?.id}`,
-                        "_blank"
-                      );
-                    }}
-                  />
-                  <IconButton
-                    aria-label="hey-clip-link"
-                    color="white"
-                    icon={
-                      <Image src="/images/lens-350x350.png" height="50px" />
-                    }
-                    bg="transparent"
-                    _focus={{}}
-                    _active={{}}
-                    _hover={{}}
-                    onClick={() => {
-                      window.open(
-                        `https://hey.xyz/?text=new%20unlonely%20clip%20just%20dropped!&url=${window.origin}/nfc/${finalClipObject?.id}`,
-                        "_blank"
-                      );
-                    }}
-                  />
-                  <IconButton
-                    aria-label="copy-clip-link"
-                    color="white"
-                    icon={
-                      <Image src="/images/copy-350x350.png" height="50px" />
-                    }
-                    bg="transparent"
-                    _focus={{}}
-                    _active={{}}
-                    _hover={{}}
-                    onClick={() => {
-                      copy(`${window.origin}/nfc/${finalClipObject?.id}`);
-                      handleCopy();
-                    }}
-                  />
-                </Flex>
-              )}
+              <Text>Redirecting you to the clip</Text>
             </Flex>
           ) : pageState === "error" ? (
             <Flex direction={"column"} justifyContent={"center"}>

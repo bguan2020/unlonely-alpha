@@ -12,9 +12,9 @@ export async function pinFileWithPinata(file: File) {
     body: data,
   });
  
-  const result = (await res.json()) as { IpfsHash: string };
+  const result = (await res.json()) as { IpfsHash: string | undefined };
  
-  return `ipfs://${result.IpfsHash}`;
+  return result.IpfsHash;
 }
  
 export async function pinJsonWithPinata(json: object) {
@@ -34,16 +34,21 @@ export async function pinJsonWithPinata(json: object) {
     body: data,
   });
  
-  const result = (await res.json()) as { IpfsHash: string };
+  const result = (await res.json()) as { IpfsHash: string | undefined };
  
-  return `ipfs://${result.IpfsHash}`;
+  return result.IpfsHash;
 }
 
 export async function createFileBlobAndPinWithPinata(link: string, fileName: string, fileType: string) {
-  if (!link) return {file: null, pinRes: null};
-  const res = await fetch(link);
-  const blob = await res.blob();
-  const file = new File([blob], fileName, { type: fileType });
-  const pinRes = await pinFileWithPinata(file);
-  return { file, pinRes };
+  if (!link) return {file: undefined, pinRes: undefined, error: "No link provided"};
+  try {
+    const res = await fetch(link);
+    const blob = await res.blob();
+    const file = new File([blob], fileName, { type: fileType });
+    const pinRes = await pinFileWithPinata(file);
+    return { file, pinRes: pinRes ? `ipfs://${pinRes}` : undefined };
+  } catch (e) {
+    console.error(e);
+    return {file: undefined, pinRes: undefined, error: `catch error from createFileBlobAndPinWithPinata: ${e}`};
+  }
 }

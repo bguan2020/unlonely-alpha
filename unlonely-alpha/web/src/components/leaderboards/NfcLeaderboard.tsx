@@ -90,8 +90,6 @@ const NfcLeaderboard = () => {
     fetch();
   }, [page]);
 
-  console.log("error", error);
-
   return (
     <Flex
       direction="column"

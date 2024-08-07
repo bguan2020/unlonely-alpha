@@ -671,19 +671,30 @@ export const getLivepeerClipData = async (data: IGetLivepeerClipDataInput) => {
     const res = await poll.json();
     console.log("getLivepeerClipData", res);
     if (res.status.phase === "ready") {
-      const finalPlaybackData: any = await fetch(
-        `https://livepeer.studio/api/playback/${res.playbackId}`,
-        { headers: livepeerHeaders }
-      ).then((res) => res.json());
+      try {
+        const finalPlaybackData: any = await fetch(
+          `https://livepeer.studio/api/playback/${res.playbackId}`,
+          { headers: livepeerHeaders }
+        ).then((res) => res.json());
 
-      const finalPlayBackUrl = finalPlaybackData.meta.source[0].url;
+        const finalPlayBackUrl = finalPlaybackData.meta.source[0].url;
 
-      const thumbNailUrl = await getLivepeerThumbnail(res.playbackId);
-      console.log("nfc ready")
-      return {
-        videoLink: finalPlayBackUrl,
-        videoThumbnail: thumbNailUrl,
-        error: false,
+        const thumbNailUrl = await getLivepeerThumbnail(res.playbackId);
+        console.log("nfc ready")
+        return {
+          videoLink: finalPlayBackUrl,
+          videoThumbnail: thumbNailUrl,
+          errorMessage: "",
+          error: false,
+        }
+      } catch (e) {
+        console.log("getLivepeerClipData error", e);
+        return {
+          videoLink: "",
+          videoThumbnail: "",
+          errorMessage: `error calling livepeer: ${e}`,
+          error: true,
+        }
       }
     }
     if (res.status.phase === "failed") {
@@ -691,6 +702,7 @@ export const getLivepeerClipData = async (data: IGetLivepeerClipDataInput) => {
       return {
         videoLink: "",
         videoThumbnail: "",
+        errorMessage: "livepeer api could not create clip",
         error: true
       }
     }

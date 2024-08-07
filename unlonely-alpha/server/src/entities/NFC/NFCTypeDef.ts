@@ -52,6 +52,7 @@ export const typeDef = gql`
   type LivepeerClipDataResponse {
     videoLink: String!
     videoThumbnail: String!
+    errorMessage: String!
     error: Boolean!
   }
 
