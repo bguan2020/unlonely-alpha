@@ -66,6 +66,7 @@ export const fetchZoraMints = async () => {
       const data = await response.json();
 
       const updatePromises: any[] = []
+      const newDate = new Date();
 
       data.data.zoraCreateTokens.forEach((token: any, i: number) => {
         if (token.id === ids[i].zoraIdentifier) {
@@ -75,7 +76,7 @@ export const fetchZoraMints = async () => {
             },
             data: {
               totalMints: Number(token.totalMinted),
-              updatedAt: new Date(),
+              updatedAt: newDate,
             },
           }));
         }

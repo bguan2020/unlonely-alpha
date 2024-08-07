@@ -13,6 +13,7 @@ import { setLivepeerStreamIsLive } from "./utils/setLivepeerStreamIsLive";
 import { fetchForNewTokenSupplies } from "./utils/fetchForNewTokenSupplies";
 import { directCastFc } from "./utils/directcastfc";
 import { sendPWANotifications } from "./utils/sendPWANotifications";
+import { fetchZoraMints } from "./utils/fetchZoraMints";
 
 const app = express();
 app.use(cors());
@@ -51,6 +52,7 @@ app.get("/aws-scheduler-update", (req, res) => {
     "Authorized access to /aws-scheduler-update, called at",
     new Date().toISOString()
   );
+  fetchZoraMints();
   fetchForNewTempTokenEndtimestamps();
   res.send("/aws-scheduler-update success");
 });
