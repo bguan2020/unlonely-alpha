@@ -813,9 +813,14 @@ export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
       take: data.limit,
       skip: data.offset,
       where: whereClause,
-      orderBy: {
-        totalMints: "desc",
-      },
+      orderBy: [
+        {
+          totalMints: "desc",  // Primary sorting by totalMints in descending order
+        },
+        {
+          createdAt: "desc",   // Secondary sorting by createdAt in descending order for totalMints = 0
+        },
+      ],
       include: {
         channel: {
           select: {
