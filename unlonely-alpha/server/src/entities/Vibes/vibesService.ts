@@ -23,7 +23,10 @@ export interface IPostVibesTradesInput {
   tokenAddress: string;
 }
 
-export const postVibesTrades = async (data: IPostVibesTradesInput, ctx: Context) => {
+export const postVibesTrades = async (
+  data: IPostVibesTradesInput,
+  ctx: Context
+) => {
   try {
     // Get the latest transaction in database
     const latestTransaction = await ctx.prisma.vibesTransaction.findFirst({

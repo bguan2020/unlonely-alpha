@@ -3,35 +3,41 @@ import { GraphQLErrors } from "@apollo/client/errors";
 import { useCallback } from "react";
 
 import { useAuthedMutation } from "../../../apiClient/hooks";
-import { RequestUploadFromLivepeerMutation, RequestUploadFromLivepeerMutationVariables } from "../../../generated/graphql";
+import {
+  RequestUploadFromLivepeerMutation,
+  RequestUploadFromLivepeerMutationVariables,
+} from "../../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
 const MUTATION = gql`
-    mutation RequestUploadFromLivepeer($data: RequestUploadFromLivepeerInput!) {
-      requestUploadFromLivepeer(data: $data) {
-        url
-        tusEndpoint
-        task {
-          id
-        }
-        asset {
-          userId
-          status {
-            updatedAt
-            progress
-            phase
-            errorMessage
-          }
+  mutation RequestUploadFromLivepeer($data: RequestUploadFromLivepeerInput!) {
+    requestUploadFromLivepeer(data: $data) {
+      url
+      tusEndpoint
+      task {
+        id
+      }
+      asset {
+        userId
+        status {
+          updatedAt
+          progress
+          phase
+          errorMessage
         }
       }
     }
+  }
 `;
 
 const useRequestUpload = ({ onError }: Props) => {
-  const [mutate] = useAuthedMutation<RequestUploadFromLivepeerMutation, RequestUploadFromLivepeerMutationVariables>(MUTATION);
+  const [mutate] = useAuthedMutation<
+    RequestUploadFromLivepeerMutation,
+    RequestUploadFromLivepeerMutationVariables
+  >(MUTATION);
 
   const requestUpload = useCallback(
     async (data) => {

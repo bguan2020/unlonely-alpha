@@ -36,7 +36,7 @@ export const GET_LIVEPEER_CLIP_DATA_QUERY = gql`
       videoLink
     }
   }
-`
+`;
 
 export const GET_USER_TOKEN_HOLDING_QUERY = gql`
   query GetUserTokenHolding($data: GetUserTokenHoldingInput!) {

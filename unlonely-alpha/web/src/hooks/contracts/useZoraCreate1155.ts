@@ -1,21 +1,26 @@
 import { ContractType, createCreatorClient } from "@zoralabs/protocol-sdk";
 import { useState, useEffect } from "react";
 import { Hex, SimulateContractParameters, TransactionReceipt } from "viem";
-import { usePublicClient, usePrepareContractWrite, useContractWrite, useWaitForTransaction } from "wagmi";
+import {
+  usePublicClient,
+  usePrepareContractWrite,
+  useContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
 import { useNetworkContext } from "../context/useNetwork";
 import { useUser } from "../context/useUser";
 import { WriteCallbacks } from "../../constants/types";
 
 export const useZoraCreate1155 = (
   contractObject?: ContractType,
-  callbacks?: WriteCallbacks,
+  callbacks?: WriteCallbacks
 ) => {
   const { userAddress } = useUser();
   const { network } = useNetworkContext();
   const { localNetwork } = network;
   const publicClient = usePublicClient();
 
- const [parameters, setParameters] = useState<
+  const [parameters, setParameters] = useState<
     SimulateContractParameters | undefined
   >(undefined);
   const [parametersReady, setParametersReady] = useState<boolean>(false);
@@ -98,4 +103,4 @@ export const useZoraCreate1155 = (
     prepareError: prepObj.error,
     parametersReady,
   };
-}
+};

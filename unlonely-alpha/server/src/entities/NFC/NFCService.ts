@@ -1,12 +1,12 @@
 import { User } from "@prisma/client";
 import * as AWS from "aws-sdk";
 import axios from "axios";
-import * as tus from "tus-js-client"
+import * as tus from "tus-js-client";
 
 import { Context } from "../../context";
 import { getLivepeerThumbnail } from "../Channel/channelService";
 import opensea from "./opensea.json";
-import {v4 as uuidv4} from "uuid";
+import { v4 as uuidv4 } from "uuid";
 import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
 import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
@@ -19,7 +19,12 @@ const livepeerHeaders = {
   "Content-Type": "application/json",
 };
 
-const searchFileInTempDirectory = (substring: string, dir: string, retries = 5, delay = 1000): Promise<string | null> => {
+const searchFileInTempDirectory = (
+  substring: string,
+  dir: string,
+  retries = 5,
+  delay = 1000
+): Promise<string | null> => {
   const tempDir = path.join(__dirname, dir);
   let attempts = 0;
 
@@ -82,15 +87,15 @@ interface RequestUploadResponse {
     name: string;
     id: string;
     playbackId: string;
-    userId: string
+    userId: string;
     createdAt: number;
     status: {
       phase: string;
       updatedAt: number;
       progress?: number;
       errorMessage?: string;
-    }
-  }
+    };
+  };
 }
 
 export interface IPostNFCInput {
@@ -99,9 +104,9 @@ export interface IPostNFCInput {
   videoLink: string;
   videoThumbnail: string;
   openseaLink: string;
-  contract1155Address?: string
-  tokenId?: number
-  zoraLink?: string
+  contract1155Address?: string;
+  tokenId?: number;
+  zoraLink?: string;
 }
 
 export interface IUpdateNFCInput {
@@ -148,7 +153,7 @@ export const postNFC = async (
         connect: {
           id: Number(data.channelId),
         },
-      }
+      },
     },
   });
 };
@@ -311,8 +316,10 @@ export const createLivepeerClip = async (
         break;
       }
       if (res.status.phase === "failed") {
-        console.log("createLivepeerClip status phase returned failed",
-        new Date(Date.now()).toISOString(), `id:${endTime}`
+        console.log(
+          "createLivepeerClip status phase returned failed",
+          new Date(Date.now()).toISOString(),
+          `id:${endTime}`
         );
         return {
           errorMessage:
@@ -335,8 +342,8 @@ export const createLivepeerClip = async (
     const thumbNailUrl = await getLivepeerThumbnail(asset.playbackId);
 
     if (data.noDatabasePush) {
-      return { 
-        id: "0" ,
+      return {
+        id: "0",
         title: data.title,
         videoLink: playBackUrl,
         videoThumbnail: thumbNailUrl,
@@ -347,7 +354,7 @@ export const createLivepeerClip = async (
         owner: user,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        url: playBackUrl, 
+        url: playBackUrl,
         thumbnail: thumbNailUrl,
         errorMessage: "",
       };
@@ -378,11 +385,18 @@ export interface ITrimVideoInput {
 }
 
 export const trimVideo = async (data: ITrimVideoInput) => {
-
   const dateNow = Date.now();
   const videoId = uuidv4();
-  const inputPath = path.join(__dirname, "temp", `${videoId.concat(String(dateNow))}-input.mp4`);
-  const outputPath = path.join(__dirname, "temp", `${videoId.concat(String(dateNow))}-output.mp4`);
+  const inputPath = path.join(
+    __dirname,
+    "temp",
+    `${videoId.concat(String(dateNow))}-input.mp4`
+  );
+  const outputPath = path.join(
+    __dirname,
+    "temp",
+    `${videoId.concat(String(dateNow))}-output.mp4`
+  );
 
   console.log("videoId", videoId);
   console.log("inputPath", inputPath);
@@ -438,10 +452,13 @@ export const trimVideo = async (data: ITrimVideoInput) => {
         .run();
     });
 
-    const foundOutputPath = await searchFileInTempDirectory(`${videoId.concat(String(dateNow))}-output`, "temp");
+    const foundOutputPath = await searchFileInTempDirectory(
+      `${videoId.concat(String(dateNow))}-output`,
+      "temp"
+    );
     if (!foundOutputPath) {
       console.log("Trimmed video file not found");
-      return
+      return;
     } else {
       console.log("Trimmed video file found", foundOutputPath);
     }
@@ -453,10 +470,10 @@ export const trimVideo = async (data: ITrimVideoInput) => {
     // Upload the final video using tus-js-client
     const finalFileSize = fs.statSync(foundOutputPath).size;
     const finalFileStream = fs.createReadStream(foundOutputPath);
-    
-    const requestResForFinal = await requestUploadFromLivepeer({ name: 
-      data.name
-     });
+
+    const requestResForFinal = await requestUploadFromLivepeer({
+      name: data.name,
+    });
 
     new Promise<string>((resolve, reject) => {
       const upload = new tus.Upload(finalFileStream, {
@@ -474,8 +491,8 @@ export const trimVideo = async (data: ITrimVideoInput) => {
           return `trimVideo tus error: ${error}`;
         },
         // onProgress: (bytesUploaded: number, bytesTotal: number) => {
-          // const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-          // console.log(`Upload progress: ${percentage}%`);
+        // const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+        // console.log(`Upload progress: ${percentage}%`);
         // },
         onSuccess: () => {
           // console.log(`Upload finished: ${upload.url}`);
@@ -495,9 +512,9 @@ export const trimVideo = async (data: ITrimVideoInput) => {
       });
     });
 
-    console.log("uploaded video via tus")
+    console.log("uploaded video via tus");
 
-  return requestResForFinal.asset.id
+    return requestResForFinal.asset.id;
   } catch (e) {
     console.log("Error: ", e);
     // Clean up temporary files
@@ -510,155 +527,167 @@ export const trimVideo = async (data: ITrimVideoInput) => {
     // throw e;
     return `trimVideo error: ${e}`;
   }
-}
+};
 
 export type IConcatenateOutroToTrimmedVideoInput = {
   trimmedVideoFileName: string;
   name: string;
 };
 
-export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTrimmedVideoInput) => {
-
+export const concatenateOutroToTrimmedVideo = async (
+  data: IConcatenateOutroToTrimmedVideoInput
+) => {
   const dateNow = Date.now();
   const videoId = uuidv4();
-  const trimmedFilePath = await searchFileInTempDirectory(data.trimmedVideoFileName, "temp");
+  const trimmedFilePath = await searchFileInTempDirectory(
+    data.trimmedVideoFileName,
+    "temp"
+  );
   if (!trimmedFilePath) {
     console.log("Trimmed video file not found");
     throw new Error("Trimmed video file not found");
   }
-  const outroPath = path.join(__dirname, "temp", `${videoId.concat(String(dateNow))}-outro.mp4`);
-  const finalPath = path.join(__dirname, "temp", `${videoId.concat(String(dateNow))}-final.mp4`);
+  const outroPath = path.join(
+    __dirname,
+    "temp",
+    `${videoId.concat(String(dateNow))}-outro.mp4`
+  );
+  const finalPath = path.join(
+    __dirname,
+    "temp",
+    `${videoId.concat(String(dateNow))}-final.mp4`
+  );
 
   console.log(outroPath, finalPath, trimmedFilePath);
 
   try {
-  // const requestForFinalStart = Date.now();
+    // const requestForFinalStart = Date.now();
 
-  // console.log("requested upload from livepeer", `${(Date.now() - requestForFinalStart) / 1000}s`);
-  // const watermarkStart = Date.now();
+    // console.log("requested upload from livepeer", `${(Date.now() - requestForFinalStart) / 1000}s`);
+    // const watermarkStart = Date.now();
 
-  // Create an outro video with the watermark image
-  const watermarkImage = path.join(__dirname, "../../../assets", "unlonely-watermark.png");
-  await new Promise<void>((resolve, reject) => {
-    ffmpeg()
-      .input(watermarkImage)
-      .inputOptions([
-        "-t", "4"
-      ])
-      .complexFilter([
-        "color=black:1280x720:d=3[bg]", // Create a 3-second black background
-        "[0:v]scale=320:-1[wm]; [bg][wm]overlay=(W-w)/2:(H-h)/2" // Overlay watermark with padding
-      ])
-      .outputOptions([
-        "-c:v libx264",
-        "-pix_fmt yuv420p",
-        "-c:a aac"
-      ])
-      .output(outroPath)
-      .on("end", resolve)
-      .on("error", (err) => {
-        console.error("Error creating outro video:", err);
-        reject(err);
-        // Clean up temporary files
-        // if (fs.existsSync(outroPath)) {
-        //   fs.unlinkSync(outroPath);
-        // }
-      })
-      .run();
-  });
+    // Create an outro video with the watermark image
+    const watermarkImage = path.join(
+      __dirname,
+      "../../../assets",
+      "unlonely-watermark.png"
+    );
+    await new Promise<void>((resolve, reject) => {
+      ffmpeg()
+        .input(watermarkImage)
+        .inputOptions(["-t", "4"])
+        .complexFilter([
+          "color=black:1280x720:d=3[bg]", // Create a 3-second black background
+          "[0:v]scale=320:-1[wm]; [bg][wm]overlay=(W-w)/2:(H-h)/2", // Overlay watermark with padding
+        ])
+        .outputOptions(["-c:v libx264", "-pix_fmt yuv420p", "-c:a aac"])
+        .output(outroPath)
+        .on("end", resolve)
+        .on("error", (err) => {
+          console.error("Error creating outro video:", err);
+          reject(err);
+          // Clean up temporary files
+          // if (fs.existsSync(outroPath)) {
+          //   fs.unlinkSync(outroPath);
+          // }
+        })
+        .run();
+    });
 
-  // console.log("created outro video", `${(Date.now() - watermarkStart) / 1000}s`);
-  const concatStart = Date.now();
+    // console.log("created outro video", `${(Date.now() - watermarkStart) / 1000}s`);
+    const concatStart = Date.now();
 
-  // Concatenate the trimmed video with the outro
-  await new Promise<void>((resolve, reject) => {
-    ffmpeg()
-      .input(trimmedFilePath)
-      .input(outroPath)
-      .complexFilter([
-        "[0:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v1]",
-        "[1:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v2]",
-        "[v1][v2]concat=n=2:v=1[outv]"
-      ])
-      .outputOptions([
-        "-map [outv]",
-        "-map 0:a?",
-        "-c:v libx264",
-        "-c:a aac",
-        "-strict experimental",
-        "-shortest"
-      ])
-      .output(finalPath)
-      .on("end", resolve)
-      .on("error", (err) => {
-        console.error("Error concatenating videos:", err);
-        reject(err);
-        // Clean up temporary files
-        // fs.unlinkSync(trimmedFilePath);
-        // fs.unlinkSync(outroPath);
-        // if (fs.existsSync(finalPath)) {
-        //   fs.unlinkSync(finalPath);
-        // }
-      })
-      .run();
-  });
+    // Concatenate the trimmed video with the outro
+    await new Promise<void>((resolve, reject) => {
+      ffmpeg()
+        .input(trimmedFilePath)
+        .input(outroPath)
+        .complexFilter([
+          "[0:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v1]",
+          "[1:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v2]",
+          "[v1][v2]concat=n=2:v=1[outv]",
+        ])
+        .outputOptions([
+          "-map [outv]",
+          "-map 0:a?",
+          "-c:v libx264",
+          "-c:a aac",
+          "-strict experimental",
+          "-shortest",
+        ])
+        .output(finalPath)
+        .on("end", resolve)
+        .on("error", (err) => {
+          console.error("Error concatenating videos:", err);
+          reject(err);
+          // Clean up temporary files
+          // fs.unlinkSync(trimmedFilePath);
+          // fs.unlinkSync(outroPath);
+          // if (fs.existsSync(finalPath)) {
+          //   fs.unlinkSync(finalPath);
+          // }
+        })
+        .run();
+    });
 
-  console.log("concatenated videos", `${(Date.now() - concatStart) / 1000}s`);
-  const uploadStart = Date.now();
+    console.log("concatenated videos", `${(Date.now() - concatStart) / 1000}s`);
+    const uploadStart = Date.now();
 
-  // Upload the final video using tus-js-client
-  const finalFileSize = fs.statSync(finalPath).size;
-  const finalFileStream = fs.createReadStream(finalPath);
+    // Upload the final video using tus-js-client
+    const finalFileSize = fs.statSync(finalPath).size;
+    const finalFileStream = fs.createReadStream(finalPath);
 
-  const requestResForFinal = await requestUploadFromLivepeer({ name: data.name });
+    const requestResForFinal = await requestUploadFromLivepeer({
+      name: data.name,
+    });
 
-  new Promise<string>((resolve, reject) => {
-    const upload = new tus.Upload(finalFileStream, {
-      endpoint: requestResForFinal.tusEndpoint,
-      retryDelays: [0, 1000, 3000, 5000],
-      metadata: {
-        filename: `${data.name}.mp4`,
-        filetype: "video/mp4",
-      },
-      uploadSize: finalFileSize,
-      onError: (error: any) => {
-        console.error("Failed because: ", error);
-        reject(error);
-      },
-      // onProgress: (bytesUploaded: number, bytesTotal: number) => {
+    new Promise<string>((resolve, reject) => {
+      const upload = new tus.Upload(finalFileStream, {
+        endpoint: requestResForFinal.tusEndpoint,
+        retryDelays: [0, 1000, 3000, 5000],
+        metadata: {
+          filename: `${data.name}.mp4`,
+          filetype: "video/mp4",
+        },
+        uploadSize: finalFileSize,
+        onError: (error: any) => {
+          console.error("Failed because: ", error);
+          reject(error);
+        },
+        // onProgress: (bytesUploaded: number, bytesTotal: number) => {
         // const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
         // console.log(`Upload progress: ${percentage}%`);
-      // },
-      onSuccess: () => {
-        // console.log(`Upload finished: ${upload.url}`);
-        resolve(upload.url!);
-        // Clean up temporary files
-        // fs.unlinkSync(trimmedFilePath);
-        // fs.unlinkSync(outroPath);
-        // fs.unlinkSync(finalPath);
-      },
+        // },
+        onSuccess: () => {
+          // console.log(`Upload finished: ${upload.url}`);
+          resolve(upload.url!);
+          // Clean up temporary files
+          // fs.unlinkSync(trimmedFilePath);
+          // fs.unlinkSync(outroPath);
+          // fs.unlinkSync(finalPath);
+        },
+      });
+
+      upload.findPreviousUploads().then((previousUploads) => {
+        if (previousUploads.length) {
+          upload.resumeFromPreviousUpload(previousUploads[0]);
+        }
+        upload.start();
+      });
     });
 
-    upload.findPreviousUploads().then((previousUploads) => {
-      if (previousUploads.length) {
-        upload.resumeFromPreviousUpload(previousUploads[0]);
-      }
-      upload.start();
-    });
-  });
-
-  // console.log("uploaded final video", `${(Date.now() - uploadStart) / 1000}s`);
-  return requestResForFinal.asset.id
-} catch (e) {
-  console.log("Error:", e);
-  // if (fs.existsSync(outroPath)) {
-  //   fs.unlinkSync(outroPath);
-  // }
-  // if (fs.existsSync(finalPath)) {
-  //   fs.unlinkSync(finalPath);
-  // }
-}
-}
+    // console.log("uploaded final video", `${(Date.now() - uploadStart) / 1000}s`);
+    return requestResForFinal.asset.id;
+  } catch (e) {
+    console.log("Error:", e);
+    // if (fs.existsSync(outroPath)) {
+    //   fs.unlinkSync(outroPath);
+    // }
+    // if (fs.existsSync(finalPath)) {
+    //   fs.unlinkSync(finalPath);
+    // }
+  }
+};
 
 export interface IGetLivepeerClipDataInput {
   assetId: string;
@@ -668,7 +697,7 @@ export const getLivepeerClipData = async (data: IGetLivepeerClipDataInput) => {
   const MAX_TRIES = 45;
   let tries = 0;
   while (tries < MAX_TRIES) {
-    tries++
+    tries++;
     await new Promise((resolve) => setTimeout(resolve, 2000));
     const poll = await fetch(
       `https://livepeer.studio/api/asset/${data.assetId}`,
@@ -689,13 +718,13 @@ export const getLivepeerClipData = async (data: IGetLivepeerClipDataInput) => {
         const finalPlayBackUrl = finalPlaybackData.meta.source[0].url;
 
         const thumbNailUrl = await getLivepeerThumbnail(res.playbackId);
-        console.log("nfc ready")
+        console.log("nfc ready");
         return {
           videoLink: finalPlayBackUrl,
           videoThumbnail: thumbNailUrl,
           errorMessage: "",
           error: false,
-        }
+        };
       } catch (e) {
         console.log("getLivepeerClipData error", e);
         return {
@@ -703,7 +732,7 @@ export const getLivepeerClipData = async (data: IGetLivepeerClipDataInput) => {
           videoThumbnail: "",
           errorMessage: `error calling livepeer: ${e}`,
           error: true,
-        }
+        };
       }
     }
     if (res.status.phase === "failed") {
@@ -712,11 +741,11 @@ export const getLivepeerClipData = async (data: IGetLivepeerClipDataInput) => {
         videoLink: "",
         videoThumbnail: "",
         errorMessage: "livepeer api returned status failed",
-        error: true
-      }
+        error: true,
+      };
     }
   }
-}
+};
 
 export interface IGetNFCByTokenDataInput {
   contract1155Address: string;
@@ -724,7 +753,10 @@ export interface IGetNFCByTokenDataInput {
   tokenId: number;
 }
 
-export const getNFCByTokenData = async (data: IGetNFCByTokenDataInput, ctx: Context) => {
+export const getNFCByTokenData = async (
+  data: IGetNFCByTokenDataInput,
+  ctx: Context
+) => {
   return await ctx.prisma.nFC.findFirst({
     where: {
       contract1155Address: data.contract1155Address,
@@ -732,13 +764,15 @@ export const getNFCByTokenData = async (data: IGetNFCByTokenDataInput, ctx: Cont
       contract1155ChainId: data.contract1155ChainId,
     },
   });
-}
+};
 
 export interface IRequestUploadFromLivepeerInput {
   name: string;
 }
 
-export const requestUploadFromLivepeer = async (data: IRequestUploadFromLivepeerInput): Promise<RequestUploadResponse> => {
+export const requestUploadFromLivepeer = async (
+  data: IRequestUploadFromLivepeerInput
+): Promise<RequestUploadResponse> => {
   const headers = {
     Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
     "Content-Type": "application/json",
@@ -763,19 +797,21 @@ export const requestUploadFromLivepeer = async (data: IRequestUploadFromLivepeer
       status: {
         ...response.data.asset.status,
         updatedAt: String(response.data.asset.status.updatedAt),
-      }
-    }
+      },
+    },
   };
   return returnData;
-}
+};
 
 export interface IGetUniqueContract1155AddressesInput {
   offset: number;
   limit: number;
 }
 
-export const getUniqueContract1155Addresses = async (data: IGetUniqueContract1155AddressesInput, ctx: Context) => {
-
+export const getUniqueContract1155Addresses = async (
+  data: IGetUniqueContract1155AddressesInput,
+  ctx: Context
+) => {
   return await ctx.prisma.nFC.findMany({
     take: data.limit,
     skip: data.offset,
@@ -787,10 +823,10 @@ export const getUniqueContract1155Addresses = async (data: IGetUniqueContract115
     },
     select: {
       contract1155Address: true,
-      contract1155ChainId: true
+      contract1155ChainId: true,
     },
   });
-}
+};
 
 export interface IGetNFCFeedInput {
   offset: number;
@@ -827,7 +863,7 @@ export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
         channel: {
           select: {
             slug: true,
-          }
+          },
         },
       },
     });
@@ -843,7 +879,7 @@ export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
         channel: {
           select: {
             slug: true,
-          }
+          },
         },
       },
     });
@@ -854,17 +890,17 @@ export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
       where: whereClause,
       orderBy: [
         {
-          totalMints: "desc",  // Primary sorting by totalMints in descending order
+          totalMints: "desc", // Primary sorting by totalMints in descending order
         },
         {
-          createdAt: "desc",   // Secondary sorting by createdAt in descending order for totalMints = 0
+          createdAt: "desc", // Secondary sorting by createdAt in descending order for totalMints = 0
         },
       ],
       include: {
         channel: {
           select: {
             slug: true,
-          }
+          },
         },
       },
     });

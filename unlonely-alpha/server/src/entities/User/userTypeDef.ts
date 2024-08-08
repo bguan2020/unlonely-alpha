@@ -73,7 +73,9 @@ export const typeDef = gql`
 
   extend type Mutation {
     updateUserNotifications(data: UpdateUserNotificationsInput!): User
-    updateUserChannelContract1155Mapping(data: UpdateUserChannelContract1155MappingInput!): User
+    updateUserChannelContract1155Mapping(
+      data: UpdateUserChannelContract1155MappingInput!
+    ): User
     updateUser(data: UpdateUserInput!): User
   }
 `;

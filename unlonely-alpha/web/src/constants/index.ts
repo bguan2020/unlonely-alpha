@@ -136,8 +136,9 @@ export const DEFAULT_TOKEN_CLAIM_AMOUNT = 10;
 export const PRE_SALE_MAX_SUPPLY = 1000;
 export const PRE_SALE_PRICE_PER_TOKEN = 23 * 10 ** 12;
 export const MIN_BASE_TOKEN_PRICE = BigInt(2 * 10 ** 13);
-export const ETH_COST_FOR_ONE_NFT_MINT = 0.000777
+export const ETH_COST_FOR_ONE_NFT_MINT = 0.000777;
 
-export const CHANNEL_IDS_NO_VIP = [4]
-export const CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS = ["loveonleverage"]
-export const UNLONELY_LOGO_IPFS_URL="ipfs://QmWsm34cghYfsrrkzzRzgPEktqFXuVtYde3bv9Yup2bYhF"
+export const CHANNEL_IDS_NO_VIP = [4];
+export const CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS = ["loveonleverage"];
+export const UNLONELY_LOGO_IPFS_URL =
+  "ipfs://QmWsm34cghYfsrrkzzRzgPEktqFXuVtYde3bv9Yup2bYhF";

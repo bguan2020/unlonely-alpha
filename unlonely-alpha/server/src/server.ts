@@ -94,7 +94,6 @@ const startServer = async () => {
   httpServer.listen(process.env.PORT || 4000, () => {
     console.info(`Server started on port ${process.env.PORT || 4000}`);
   });
-
 };
 
 startServer();

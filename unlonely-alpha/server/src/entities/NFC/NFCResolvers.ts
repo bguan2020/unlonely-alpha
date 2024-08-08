@@ -16,19 +16,26 @@ export const resolvers = {
     getNFC(_: any, { id }: { id: number }, ctx: Context) {
       return NFCService.getNFC({ id }, ctx);
     },
-    getNFCByTokenData(_: any,
-      { data }: { data: NFCService.IGetNFCByTokenDataInput }, ctx: Context) {
-        return NFCService.getNFCByTokenData(data, ctx);
+    getNFCByTokenData(
+      _: any,
+      { data }: { data: NFCService.IGetNFCByTokenDataInput },
+      ctx: Context
+    ) {
+      return NFCService.getNFCByTokenData(data, ctx);
     },
     getLivepeerClipData(
       _: any,
-      { data }: { data: NFCService.IGetLivepeerClipDataInput },
+      { data }: { data: NFCService.IGetLivepeerClipDataInput }
     ) {
       return NFCService.getLivepeerClipData(data);
     },
-    getUniqueContract1155Addresses(_: any, {data} : {data: NFCService.IGetUniqueContract1155AddressesInput}, ctx: Context) {
+    getUniqueContract1155Addresses(
+      _: any,
+      { data }: { data: NFCService.IGetUniqueContract1155AddressesInput },
+      ctx: Context
+    ) {
       return NFCService.getUniqueContract1155Addresses(data, ctx);
-    }
+    },
   },
   Mutation: {
     postNFC(
@@ -67,17 +74,14 @@ export const resolvers = {
     ) {
       return NFCService.requestUploadFromLivepeer(data);
     },
-    trimVideo(
-      _: any,
-      { data }: { data: NFCService.ITrimVideoInput },
-    ) {
-        return NFCService.trimVideo(data);
+    trimVideo(_: any, { data }: { data: NFCService.ITrimVideoInput }) {
+      return NFCService.trimVideo(data);
     },
     concatenateOutroToTrimmedVideo(
       _: any,
-      { data }: { data: NFCService.IConcatenateOutroToTrimmedVideoInput },
+      { data }: { data: NFCService.IConcatenateOutroToTrimmedVideoInput }
     ) {
-        return NFCService.concatenateOutroToTrimmedVideo(data);
+      return NFCService.concatenateOutroToTrimmedVideo(data);
     },
     openseaNFCScript: async (_: any, __: any, ctx: Context) => {
       return NFCService.openseaNFCScript(ctx);

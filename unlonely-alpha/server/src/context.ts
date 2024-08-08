@@ -44,11 +44,11 @@ export const getContext: ContextFunction = async ({
   const user = address ? await findOrCreateUser({ address: address }) : null;
 
   // if (user)
-    // console.log(
-    //   "Authentication success :",
-    //   new Date(Date.now()).toLocaleString(),
-    //   user.address
-    // );
+  // console.log(
+  //   "Authentication success :",
+  //   new Date(Date.now()).toLocaleString(),
+  //   user.address
+  // );
 
   return {
     prisma: prisma,

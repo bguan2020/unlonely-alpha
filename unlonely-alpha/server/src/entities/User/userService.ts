@@ -103,7 +103,7 @@ export const getUserChannelContract1155Mapping = async (
   }
 
   return user.channelContract1155Mapping;
-}
+};
 
 export interface IUpdateUserChannelContract1155MappingInput {
   channelId: number;
