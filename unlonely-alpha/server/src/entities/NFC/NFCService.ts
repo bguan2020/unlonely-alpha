@@ -379,9 +379,10 @@ export interface ITrimVideoInput {
 
 export const trimVideo = async (data: ITrimVideoInput) => {
 
+  const dateNow = Date.now();
   const videoId = uuidv4();
-  const inputPath = path.join(__dirname, "temp", `${videoId}-input.mp4`);
-  const outputPath = path.join(__dirname, "temp", `${videoId}-output.mp4`);
+  const inputPath = path.join(__dirname, "temp", `${videoId.concat(String(dateNow))}-input.mp4`);
+  const outputPath = path.join(__dirname, "temp", `${videoId.concat(String(dateNow))}-output.mp4`);
 
   console.log("videoId", videoId);
   console.log("inputPath", inputPath);
@@ -437,7 +438,7 @@ export const trimVideo = async (data: ITrimVideoInput) => {
         .run();
     });
 
-    const foundOutputPath = await searchFileInTempDirectory(`${videoId}-output`, "temp");
+    const foundOutputPath = await searchFileInTempDirectory(`${videoId.concat(String(dateNow))}-output`, "temp");
     if (!foundOutputPath) {
       console.log("Trimmed video file not found");
       return
@@ -467,6 +468,9 @@ export const trimVideo = async (data: ITrimVideoInput) => {
         },
         uploadSize: finalFileSize,
         onError: (error: any) => {
+          if (fs.existsSync(outputPath)) {
+            fs.unlinkSync(outputPath);
+          }
           return `trimVideo tus error: ${error}`;
         },
         // onProgress: (bytesUploaded: number, bytesTotal: number) => {
@@ -515,14 +519,15 @@ export type IConcatenateOutroToTrimmedVideoInput = {
 
 export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTrimmedVideoInput) => {
 
+  const dateNow = Date.now();
   const videoId = uuidv4();
   const trimmedFilePath = await searchFileInTempDirectory(data.trimmedVideoFileName, "temp");
   if (!trimmedFilePath) {
     console.log("Trimmed video file not found");
     throw new Error("Trimmed video file not found");
   }
-  const outroPath = path.join(__dirname, "temp", `${videoId}-outro.mp4`);
-  const finalPath = path.join(__dirname, "temp", `${videoId}-final.mp4`);
+  const outroPath = path.join(__dirname, "temp", `${videoId.concat(String(dateNow))}-outro.mp4`);
+  const finalPath = path.join(__dirname, "temp", `${videoId.concat(String(dateNow))}-final.mp4`);
 
   console.log(outroPath, finalPath, trimmedFilePath);
 
