@@ -152,7 +152,8 @@ export const typeDef = gql`
     getNFCFeed(data: NFCFeedInput): [NFC]
     getNFC(id: ID!): NFC
     getLivepeerClipData(data: GetLivepeerClipDataInput): LivepeerClipDataResponse
-  }
+    getUniqueContract1155Addresses: [NFC]
+    }
 
   extend type Mutation {
     createLivepeerClip(data: CreateLivepeerClipInput): ClipNFCOutput

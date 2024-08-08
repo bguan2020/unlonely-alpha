@@ -21,6 +21,9 @@ export const resolvers = {
       { data }: { data: NFCService.IGetLivepeerClipDataInput },
     ) {
       return NFCService.getLivepeerClipData(data);
+    },
+    getUniqueContract1155Addresses() {
+      return NFCService.getUniqueContract1155Addresses();
     }
   },
   Mutation: {
