@@ -753,6 +753,29 @@ export const requestUploadFromLivepeer = async (data: IRequestUploadFromLivepeer
   return returnData;
 }
 
+export interface IGetUniqueContract1155AddressesInput {
+  offset: number;
+  limit: number;
+}
+
+export const getUniqueContract1155Addresses = async (data: IGetUniqueContract1155AddressesInput, ctx: Context) => {
+
+  return await ctx.prisma.nFC.findMany({
+    take: data.limit,
+    skip: data.offset,
+    distinct: ["contract1155Address"],
+    where: {
+      contract1155Address: {
+        not: "",
+      },
+    },
+    select: {
+      contract1155Address: true,
+      contract1155ChainId: true
+    },
+  });
+}
+
 export interface IGetNFCFeedInput {
   offset: number;
   limit: number;
