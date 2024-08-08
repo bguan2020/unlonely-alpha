@@ -49,6 +49,11 @@ export const typeDef = gql`
     asset: Asset!
   }
 
+  type UniqueContract1155AddressesResponse {
+    contract1155Address: String!
+    contract1155ChainId: Int  
+  }
+
   type LivepeerClipDataResponse {
     videoLink: String!
     videoThumbnail: String!
@@ -148,12 +153,17 @@ export const typeDef = gql`
     name: String!
   }
 
+  input GetUniqueContract1155AddressesInput {
+    offset: Int
+    limit: Int
+  }
+
   extend type Query {
     getNFCFeed(data: NFCFeedInput): [NFC]
     getNFC(id: ID!): NFC
     getLivepeerClipData(data: GetLivepeerClipDataInput): LivepeerClipDataResponse
-    getUniqueContract1155Addresses: [NFC]
-    }
+    getUniqueContract1155Addresses(data: GetUniqueContract1155AddressesInput): [UniqueContract1155AddressesResponse]
+  }
 
   extend type Mutation {
     createLivepeerClip(data: CreateLivepeerClipInput): ClipNFCOutput

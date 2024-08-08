@@ -1,4 +1,4 @@
-import { PrismaClient, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import * as AWS from "aws-sdk";
 import axios from "axios";
 import * as tus from "tus-js-client"
@@ -13,8 +13,6 @@ import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
 import path from "path";
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
-
-const prisma = new PrismaClient();
 
 const livepeerHeaders = {
   Authorization: `Bearer ${process.env.STUDIO_API_KEY}`,
@@ -755,12 +753,25 @@ export const requestUploadFromLivepeer = async (data: IRequestUploadFromLivepeer
   return returnData;
 }
 
-export const getUniqueContract1155Addresses = async () => {
-  return await prisma.nFC.findMany({
+export interface IGetUniqueContract1155AddressesInput {
+  offset: number;
+  limit: number;
+}
+
+export const getUniqueContract1155Addresses = async (data: IGetUniqueContract1155AddressesInput, ctx: Context) => {
+
+  return await ctx.prisma.nFC.findMany({
+    take: data.limit,
+    skip: data.offset,
     distinct: ["contract1155Address"],
+    where: {
+      contract1155Address: {
+        not: "",
+      },
+    },
     select: {
       contract1155Address: true,
-      contract1155ChainId: true,
+      contract1155ChainId: true
     },
   });
 }
