@@ -1,10 +1,8 @@
-import { PrismaClient } from "@prisma/client";
 import { calculateEthFromVibesAmount } from "../../utils/calculation";
 import { createPublicClient, http as viemHttp, parseAbiItem } from "viem";
 import { base } from "viem/chains";
 import VibesTokenAbi from "../../utils/abi/VibesTokenV1.json";
-
-const prisma = new PrismaClient();
+import { Context } from "../../context";
 
 export enum VibesTransactionType {
   BUY = "BUY",
@@ -25,10 +23,10 @@ export interface IPostVibesTradesInput {
   tokenAddress: string;
 }
 
-export const postVibesTrades = async (data: IPostVibesTradesInput) => {
+export const postVibesTrades = async (data: IPostVibesTradesInput, ctx: Context) => {
   try {
     // Get the latest transaction in database
-    const latestTransaction = await prisma.vibesTransaction.findFirst({
+    const latestTransaction = await ctx.prisma.vibesTransaction.findFirst({
       where: {
         chainId: data.chainId,
       },
@@ -163,12 +161,12 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
     const updatePromises = Array.from(
       uniqueStreamerAddressesToAmounts.entries()
     ).map(async ([address, stats]) => {
-      const existingStat = await prisma.streamerVibesStat.findUnique({
+      const existingStat = await ctx.prisma.streamerVibesStat.findUnique({
         where: { uniqueStatId: `${address}-${String(data.chainId)}` },
       });
 
       if (existingStat) {
-        return prisma.streamerVibesStat.update({
+        return ctx.prisma.streamerVibesStat.update({
           where: { id: existingStat.id },
           data: {
             allTimeTotalVibesVolume: String(
@@ -199,14 +197,14 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
     const creationPromises = Array.from(
       uniqueStreamerAddressesToAmounts.entries()
     ).map(async ([address, stats]) => {
-      const existingStat = await prisma.streamerVibesStat.findUnique({
+      const existingStat = await ctx.prisma.streamerVibesStat.findUnique({
         where: { uniqueStatId: `${address}-${String(data.chainId)}` },
       });
 
       if (existingStat) {
         return null;
       } else {
-        await prisma.streamerVibesStat.create({
+        await ctx.prisma.streamerVibesStat.create({
           data: {
             uniqueStatId: `${address}-${String(data.chainId)}`,
             streamerAddress: address,
@@ -224,7 +222,7 @@ export const postVibesTrades = async (data: IPostVibesTradesInput) => {
     await Promise.all(creationPromises);
 
     // Create the transactions in the database
-    return await prisma.vibesTransaction.createMany({
+    return await ctx.prisma.vibesTransaction.createMany({
       data: formattedTransactions,
       skipDuplicates: true,
     });
@@ -239,9 +237,10 @@ export interface IGetStreamerVibesStatInput {
 }
 
 export const getStreamerVibesStat = async (
-  data: IGetStreamerVibesStatInput
+  data: IGetStreamerVibesStatInput,
+  ctx: Context
 ) => {
-  return await prisma.streamerVibesStat.findMany({
+  return await ctx.prisma.streamerVibesStat.findMany({
     where: {
       streamerAddress: data.streamerAddress,
     },
@@ -260,7 +259,8 @@ export interface IGetVibesTransactionsInput {
 }
 
 export const getVibesTransactions = async (
-  data: IGetVibesTransactionsInput
+  data: IGetVibesTransactionsInput,
+  ctx: Context
 ) => {
   const where: {
     streamerAddress: string;
@@ -288,7 +288,7 @@ export const getVibesTransactions = async (
     where["createdAt"] = createdAt;
   }
 
-  return await prisma.vibesTransaction.findMany({
+  return await ctx.prisma.vibesTransaction.findMany({
     where,
     take: data.take,
     skip: data.skip,

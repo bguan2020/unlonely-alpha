@@ -415,6 +415,11 @@ export type GetUnclaimedEvents = {
   userAddress?: InputMaybe<Scalars["String"]>;
 };
 
+export type GetUniqueContract1155AddressesInput = {
+  limit?: InputMaybe<Scalars["Int"]>;
+  offset?: InputMaybe<Scalars["Int"]>;
+};
+
 export type GetUserInput = {
   address?: InputMaybe<Scalars["String"]>;
 };
@@ -1076,6 +1081,9 @@ export type Query = {
   getTokenHoldersByChannel: Array<UserCreatorToken>;
   getTokenLeaderboard: Array<CreatorToken>;
   getUnclaimedEvents: Array<Maybe<SharesEvent>>;
+  getUniqueContract1155Addresses?: Maybe<
+    Array<Maybe<UniqueContract1155AddressesResponse>>
+  >;
   getUser?: Maybe<User>;
   getUserChannelContract1155Mapping?: Maybe<Scalars["JSON"]>;
   getUserTokenHolding?: Maybe<Scalars["Int"]>;
@@ -1216,6 +1224,10 @@ export type QueryGetTokenHoldersByChannelArgs = {
 
 export type QueryGetUnclaimedEventsArgs = {
   data?: InputMaybe<GetUnclaimedEvents>;
+};
+
+export type QueryGetUniqueContract1155AddressesArgs = {
+  data?: InputMaybe<GetUniqueContract1155AddressesInput>;
 };
 
 export type QueryGetUserArgs = {
@@ -1441,6 +1453,12 @@ export type TrimVideoInput = {
   name: Scalars["String"];
   startTime: Scalars["Float"];
   videoLink: Scalars["String"];
+};
+
+export type UniqueContract1155AddressesResponse = {
+  __typename?: "UniqueContract1155AddressesResponse";
+  contract1155Address: Scalars["String"];
+  contract1155ChainId?: Maybe<Scalars["Int"]>;
 };
 
 export type UpdateChannelAllowNfcsInput = {

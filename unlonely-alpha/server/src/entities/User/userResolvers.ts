@@ -99,7 +99,7 @@ export const resolvers = {
         throw new AuthenticationError("Not authenticated");
       }
 
-      return userService.updateUserChannelContract1155Mapping(data);
+      return userService.updateUserChannelContract1155Mapping(data, ctx);
     },  
   },
 };
