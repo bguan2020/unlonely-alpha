@@ -7,14 +7,12 @@ import {
   RangeSliderThumb,
   RangeSliderTrack,
   Text,
-  Box,
-  Image,
   Progress,
-  IconButton,
-  useToast,
+  Spinner,
 } from "@chakra-ui/react";
 import { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { MdDragIndicator } from "react-icons/md";
+import Link from "next/link";
 
 import {
   CHAT_MESSAGE_EVENT,
@@ -49,6 +47,7 @@ import {
   Chain,
   HttpTransport,
   PublicClient,
+  TransactionReceipt,
   encodeFunctionData,
   isAddressEqual,
 } from "viem";
@@ -71,7 +70,6 @@ import { SenderStatus } from "../constants/types/chat";
 import centerEllipses from "../utils/centerEllipses";
 import { useNetworkContext } from "../hooks/context/useNetwork";
 import AppLayout from "../components/layout/AppLayout";
-import copy from "copy-to-clipboard";
 
 const multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
 const PROTOCOL_ADDRESS = "0x53D6D64945A67658C66730Ff4a038eb298eC8902";
@@ -88,8 +86,9 @@ const carouselProgressStatusMessages = [
   "...trimming video...",
   "...uploading video...",
   "...uploading blob to ipfs...",
-  "...handling 1155 contract and token...",
 ];
+
+const PLEASE_CONTINUE_TRANSACTION = "Please approve the transaction";
 
 type Aggregate3ValueFunction = ExtractAbiFunction<
   typeof multicall3Abi,
@@ -115,19 +114,25 @@ const Clip = () => {
   });
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  const toast = useToast();
 
   const [clipRange, setClipRange] = useState<[number, number]>([0, 0]);
   const [title, setTitle] = useState("");
   const [channelId, setChannelId] = useState<string | null>(null);
-  const [transactionMessage, setTransactionMessage] = useState<string | null>(
-    null
-  );
+  const [transactionProgressMessage, setTransactionProgressMessage] = useState<
+    string | null
+  >(null);
   const [carouselProgressIndex, setCarouselProgressIndex] = useState(0);
   const [pageState, setPageState] = useState<
-    "offline" | "clipping" | "selecting" | "trimming" | "sharing" | "error"
-  >("clipping");
-  const [progressPercentage, setProgressPercentage] = useState(0);
+    | "lacking"
+    | "offline"
+    | "clipping"
+    | "selecting"
+    | "trimming"
+    | "transaction"
+    | "redirecting"
+    | "error"
+  >("lacking");
+  const [trimProgressPercentage, setTrimProgressPercentage] = useState(0);
   const [roughClipUrl, setRoughClipUrl] = useState(
     ""
     // "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a5e1mb4vfge22uvr/1200p0.mp4"
@@ -135,26 +140,19 @@ const Clip = () => {
   const [finalClipObject, setFinalClipObject] = useState<
     FinalClipObject | undefined
   >(undefined);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [nyanCatFaceForward, setNyanCatFaceForward] = useState(
     new Array(images.length).fill(true)
   );
-
-  useEffect(() => {
-    if (pageState === "trimming") {
-      const interval = setInterval(() => {
-        setProgressPercentage((prevPercentage) => prevPercentage + 2);
-        setCarouselProgressIndex((prevIndex) => {
-          if (prevIndex === carouselProgressStatusMessages.length - 1) {
-            return 0;
-          }
-          return prevIndex + 1;
-        });
-      }, 3000);
-
-      // Cleanup interval on component unmount or when trimming changes
-      return () => clearInterval(interval);
-    }
-  }, [pageState]);
+  const [contractObject, setContractObject] = useState<ContractType>({
+    name: "",
+    uri: "",
+  });
+  const [videoThumbnail, setVideoThumbnail] = useState("");
+  const [videoLink, setVideoLink] = useState("");
+  const [tokenJsonMetaDataUri, setTokenJsonMetaDataUri] = useState("");
+  const [existingContract1155Address, setExistingContract1155Address] =
+    useState<`0x${string}` | null>(null);
 
   const handleClickNyanCat = (index: number) => {
     setNyanCatFaceForward((prev) => {
@@ -187,6 +185,40 @@ const Clip = () => {
     fetchPolicy: "network-only",
   });
 
+  const canTrim = useMemo(() => {
+    return (
+      roughClipUrl &&
+      channelId &&
+      clipRange[0] < clipRange[1] &&
+      getChannelByIdData?.getChannelById &&
+      network.chainId &&
+      walletClient?.account.address &&
+      user &&
+      title &&
+      clipRange[1] - clipRange[0] <= 30 &&
+      clipRange[1] - clipRange[0] >= 2 &&
+      title.length <= 100
+    );
+  }, [roughClipUrl, clipRange, title, channelId, getChannelByIdData, user]);
+
+  useEffect(() => {
+    if (pageState === "trimming") {
+      const interval = setInterval(() => {
+        setTrimProgressPercentage((prevPercentage) => prevPercentage + 2);
+        setCarouselProgressIndex((prevIndex) => {
+          if (prevIndex === carouselProgressStatusMessages.length - 1) {
+            return 0;
+          }
+          return prevIndex + 1;
+        });
+      }, 3000);
+
+      // Cleanup interval on component unmount or when trimming changes
+      return () => clearInterval(interval);
+    }
+    if (pageState === "transaction") handleTransaction();
+  }, [pageState]);
+
   const chatChannel = useMemo(
     () =>
       `persistMessages:${getChannelByIdData?.getChannelById?.slug}-chat-channel`,
@@ -194,7 +226,7 @@ const Clip = () => {
   );
 
   const [channel] = useAblyChannel(chatChannel, async (message) => {
-    console.log("message", message);
+    return message;
   });
 
   const [fetchUserChannelContract1155Mapping] =
@@ -208,7 +240,7 @@ const Clip = () => {
 
   const { createClip } = useCreateClip({
     onError: (e) => {
-      console.log(e);
+      console.log("createClip Error", e);
     },
   });
 
@@ -220,14 +252,14 @@ const Clip = () => {
 
   const { updateUserChannelContract1155Mapping } =
     useUpdateUserChannelContract1155Mapping({
-      onError: () => {
-        console.log("Error");
+      onError: (e) => {
+        console.log("updateUserChannelContract1155Mapping Error", e);
       },
     });
 
   const { postNFC } = usePostNFC({
-    onError: () => {
-      console.log("Error");
+    onError: (e) => {
+      console.log("postNFC Error", e);
     },
   });
 
@@ -245,7 +277,10 @@ const Clip = () => {
 
   useEffect(() => {
     const init = async () => {
-      if (!getChannelByIdData || !user) return;
+      if (!getChannelByIdData || !user) {
+        setPageState("lacking");
+        return;
+      }
       if (!getChannelByIdData.getChannelById?.isLive) {
         setPageState("offline");
         return;
@@ -260,14 +295,31 @@ const Clip = () => {
           noDatabasePush: true,
         });
         const url = res?.url;
+        if (res?.errorMessage) {
+          console.log(
+            "Error creating rough clip, got error from createClip,",
+            res.errorMessage
+          );
+          setPageState("error");
+          setErrorMessage(
+            `Error creating rough clip, got error from createClip, ${res.errorMessage}`
+          );
+          return;
+        }
         if (url) {
           setRoughClipUrl(url);
         } else {
-          console.log("Error, url is missing");
+          console.log("Error creating rough clip, no error but url is missing");
+          setPageState("error");
+          setErrorMessage(
+            "Error creating rough clip, no error but url is missing"
+          );
+          return;
         }
         setPageState("selecting");
       } catch (e) {
         setPageState("error");
+        setErrorMessage(`Error creating rough clip, catch block caught ${e}`);
       }
     };
     init();
@@ -307,16 +359,7 @@ const Clip = () => {
   };
 
   const handleTrimVideo = useCallback(async () => {
-    if (
-      !roughClipUrl ||
-      !channelId ||
-      clipRange[0] >= clipRange[1] ||
-      !getChannelByIdData ||
-      !network.chainId ||
-      !walletClient?.account.address ||
-      !user
-    )
-      return;
+    if (!canTrim || !channelId) return;
     try {
       setPageState("trimming");
       const { data: mapping } = await fetchUserChannelContract1155Mapping({
@@ -338,19 +381,12 @@ const Clip = () => {
         "time took to trim",
         `${(Date.now() - trimFunctionStart) / 1000}s`
       );
-      // const concatStart = Date.now();
-      // const outputIdentifier = trimRes?.res;
-      // await new Promise((resolve) => setTimeout(resolve, 5000));
-      // console.log("outputIdentifier", outputIdentifier);
-      // const concatRes = await concatenateOutroTrimmedVideo({
-      //   trimmedVideoFileName: String(outputIdentifier),
-      //   name: title,
-      // });
-      // console.log(
-      //   "time took to concatenate",
-      //   `${(Date.now() - concatStart) / 1000}s`
-      // );
       const assetId = trimRes?.res;
+      if (assetId?.includes("error:")) {
+        setPageState("error");
+        setErrorMessage(assetId);
+        return;
+      }
       console.log("assetId", assetId);
       let videoThumbnail = "";
       let videoLink = "";
@@ -371,9 +407,31 @@ const Clip = () => {
       }
       if (data?.getLivepeerClipData?.error) {
         console.log("Error", data.getLivepeerClipData.error);
+        setPageState("error");
+        setErrorMessage(data.getLivepeerClipData.errorMessage);
         return;
       }
-      if (!videoThumbnail || !videoLink) return;
+      if (!videoThumbnail && !videoLink) {
+        setPageState("error");
+        setErrorMessage(
+          `Livepeer api did not return video thumbnail or video link, please refer to assetID:${assetId}`
+        );
+        return;
+      }
+      if (!videoThumbnail) {
+        setPageState("error");
+        setErrorMessage(
+          `Livepeer api did not return video thumbnail, please refer to assetID:${assetId}`
+        );
+        return;
+      }
+      if (!videoLink) {
+        setPageState("error");
+        setErrorMessage(
+          `Livepeer api did not return video link, please refer to assetID:${assetId}`
+        );
+        return;
+      }
 
       // CREATE TOKEN METADATA
       const { pinRes: videoFileIpfsUrl } = await createFileBlobAndPinWithPinata(
@@ -381,37 +439,77 @@ const Clip = () => {
         "video.mp4",
         "video/mp4"
       );
-      console.log("videoFileIpfsUrl", videoFileIpfsUrl);
-      if (!videoFileIpfsUrl || !videoLink) return;
-
-      const { file: thumbnailFile, pinRes: thumbnailFileIpfsUrl } =
-        await createFileBlobAndPinWithPinata(
-          String(videoThumbnail),
-          title,
-          "image/png"
+      if (!videoFileIpfsUrl) {
+        setPageState("error");
+        setErrorMessage(
+          `Pinata could not pin video file onto ipfs, please see video link: ${videoLink}`
         );
-      if (!thumbnailFileIpfsUrl || !thumbnailFile || !videoThumbnail) return;
+        return;
+      }
+
+      console.log("videoFileIpfsUrl", videoFileIpfsUrl);
+
+      const {
+        file: thumbnailFile,
+        pinRes: thumbnailFileIpfsUrl,
+        error: thumbnailError,
+      } = await createFileBlobAndPinWithPinata(
+        String(videoThumbnail),
+        title,
+        "image/png"
+      );
+      if (thumbnailError) {
+        setPageState("error");
+        setErrorMessage(thumbnailError);
+        return;
+      }
+      if (!thumbnailFileIpfsUrl) {
+        setPageState("error");
+        setErrorMessage(
+          `Pinata could not pin thumbnail file onto ipfs, please see thumbnail link: ${videoThumbnail}`
+        );
+        return;
+      }
 
       console.log("thumbnailFileIpfsUrl", thumbnailFileIpfsUrl);
+      console.log("thumbnailFile", thumbnailFile);
 
-      const tokenMetadataJson = await makeMediaTokenMetadata({
-        mediaUrl: videoFileIpfsUrl,
-        thumbnailUrl: thumbnailFileIpfsUrl,
-        name: thumbnailFile.name,
-      });
-      console.log(
-        "makeMediaTokenMetadata tokenMetadataJson",
-        tokenMetadataJson
-      );
+      let tokenMetadataJson: any;
+      try {
+        tokenMetadataJson = await makeMediaTokenMetadata({
+          mediaUrl: videoFileIpfsUrl,
+          thumbnailUrl: thumbnailFileIpfsUrl,
+          name: thumbnailFile.name,
+        });
+      } catch (e) {
+        console.log("makeMediaTokenMetadata error", e);
+        setPageState("error");
+        setErrorMessage(
+          `Could not format token metadata json properly, please see ${JSON.stringify(
+            {
+              mediaUrl: videoFileIpfsUrl,
+              thumbnailUrl: thumbnailFileIpfsUrl,
+              name: thumbnailFile.name,
+            }
+          )}`
+        );
+        return;
+      }
+
+      console.log("tokenMetadataJson", tokenMetadataJson);
 
       const jsonMetadataUri = await pinJsonWithPinata(tokenMetadataJson);
+      if (!jsonMetadataUri) {
+        setPageState("error");
+        setErrorMessage(
+          `Pinata could not pin token metadata json onto ipfs, please see ${JSON.stringify(
+            tokenMetadataJson
+          )}`
+        );
+        return;
+      }
+
       console.log("jsonMetadataUri", jsonMetadataUri);
-
-      // CREATE SPLIT CONFIG
-
-      const { agregate3Calls, predicted, error, splitCallData, splitAddress } =
-        await handleSplitConfig();
-      if (error) return;
 
       let contractObject: ContractType = {
         name: "",
@@ -424,21 +522,77 @@ const Clip = () => {
           image: UNLONELY_LOGO_IPFS_URL,
           name: `${getChannelByIdData?.getChannelById?.slug}'s Unlonely Clips`,
         });
+        if (!_contractMetadataJsonUri) {
+          setPageState("error");
+          setErrorMessage(
+            `Pinata could not pin contract metadata json onto ipfs, please see ${JSON.stringify(
+              {
+                description: `this was clipped from ${getChannelByIdData?.getChannelById?.slug}'s Unlonely livestream`,
+                image: UNLONELY_LOGO_IPFS_URL,
+                name: `${getChannelByIdData?.getChannelById?.slug}'s Unlonely Clips`,
+              }
+            )}`
+          );
+          return;
+        }
         contractObject = {
           name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
-          uri: _contractMetadataJsonUri,
+          uri: `ipfs://${_contractMetadataJsonUri}`,
         };
-      } else if (existingContract1155Address) {
-        contractObject = existingContract1155Address;
       } else {
-        console.log("no satisfactory outcome found");
+        contractObject = existingContract1155Address;
+      }
+      console.log("contractObject", contractObject);
+
+      setContractObject(contractObject);
+      setTokenJsonMetaDataUri(jsonMetadataUri);
+      setExistingContract1155Address(existingContract1155Address);
+      setVideoThumbnail(videoThumbnail);
+      setVideoLink(videoLink);
+      setPageState("transaction");
+    } catch (e) {
+      console.log("trimVideo frontend error", e);
+      setPageState("error");
+      setErrorMessage("Error finishing operation");
+    }
+  }, [
+    roughClipUrl,
+    clipRange,
+    title,
+    channelId,
+    getChannelByIdData,
+    publicClient,
+    walletClient,
+    canTrim,
+  ]);
+
+  const handleTransaction = useCallback(async () => {
+    if (
+      !user ||
+      !channelId ||
+      !videoLink ||
+      !videoThumbnail ||
+      !tokenJsonMetaDataUri
+    )
+      return;
+    try {
+      // CREATE SPLIT CONFIG
+      const {
+        agregate3Calls,
+        predicted,
+        error,
+        splitCallData,
+        splitAddress,
+        errorMessage,
+      } = await handleSplitConfig();
+      if (error && errorMessage) {
+        setPageState("error");
+        setErrorMessage(`Error handling split config: ${errorMessage}`);
         return;
       }
 
-      console.log("contractObject", contractObject);
-
       // CREATE 1155 CONTRACT AND TOKEN
-      setTransactionMessage("...handling 1155 contract and token...");
+      setTransactionProgressMessage("handling 1155 contract and token...");
       const creatorClient = createCreatorClient({
         chainId: network.chainId,
         publicClient,
@@ -446,31 +600,33 @@ const Clip = () => {
       const { parameters } = await creatorClient.create1155({
         contract: contractObject,
         token: {
-          tokenMetadataURI: jsonMetadataUri,
+          tokenMetadataURI: `ipfs://${tokenJsonMetaDataUri}`,
           payoutRecipient: predicted.splitAddress,
           mintToCreatorCount: 1,
         },
         account: walletClient?.account.address as Address,
       });
-
-      console.log("parameters from create1155", parameters);
-
-      let freqAddress: `0x${string}` = NULL_ADDRESS;
+      console.log("parameters", parameters);
+      let contract1155Address: `0x${string}` = NULL_ADDRESS;
       let tokenId = -1;
       if (predicted.splitExists) {
         console.log("split exists");
-        setTransactionMessage("...minting...");
+        setTransactionProgressMessage("awaiting approval to mint...");
 
-        const transaction = await handleWriteCreate1155(parameters);
-        const logs = transaction?.logs ?? [];
-        console.log("transaction logs", logs);
-        // freqAddress is the address of the 1155 contract
-        const _freqAddress = findMostFrequentString(
-          logs.map((log) => log.address)
+        const { txnReceipt, error, errorMessage } = await handleWriteCreate1155(
+          parameters
         );
-
-        freqAddress = _freqAddress as `0x${string}`;
-        console.log("freqAddress", freqAddress);
+        if (error && errorMessage) {
+          console.log(
+            "split exists, handleWriteCreate1155 error",
+            errorMessage
+          );
+        }
+        const logs = txnReceipt?.logs ?? [];
+        contract1155Address = findMostFrequentString(
+          logs.map((log) => log.address)
+        ) as `0x${string}`;
+        console.log("create1155 logs", logs, contract1155Address);
 
         const topics = returnDecodedTopics(
           logs,
@@ -479,42 +635,56 @@ const Clip = () => {
           false
         );
 
-        console.log("create1155 topics and split exists", topics);
         if (topics) {
           const args: any = topics.args;
           const _tokenId: bigint = args.tokenId;
           console.log("tokenId", _tokenId);
           tokenId = Number(_tokenId);
         }
+
+        console.log("create1155 topics", topics);
       } else {
         if (typeof contractObject === "string") {
           console.log("split does not exist and contractObject is string");
           if (splitCallData && splitAddress && walletClient?.account.address) {
-            setTransactionMessage("...creating split...");
+            setTransactionProgressMessage("awaiting approval to mint...");
             const splitCreationHash = await walletClient.sendTransaction({
               to: splitAddress as Address,
               account: walletClient?.account.address as Address,
               data: splitCallData,
             });
-            if (!splitCreationHash) return;
+            setTransactionProgressMessage("creating split contract...");
+            if (!splitCreationHash) {
+              setPageState("error");
+              setErrorMessage("Error creating split contract");
+              return;
+            }
             const splitTransaction =
               await publicClient.waitForTransactionReceipt({
                 hash: splitCreationHash,
               });
             const splitLogs = splitTransaction?.logs;
-            console.log("splitTransaction logs", splitLogs);
-            setTransactionMessage("...minting...");
 
-            const transaction = await handleWriteCreate1155(parameters);
-            const logs = transaction?.logs ?? [];
-            console.log("transaction logs", logs);
+            const { txnReceipt, error, errorMessage } =
+              await handleWriteCreate1155(parameters);
+            if (error && errorMessage) {
+              console.log(
+                "split does not exist, handleWriteCreate1155 error",
+                errorMessage
+              );
+            }
+            const logs = txnReceipt?.logs ?? [];
+            setTransactionProgressMessage("minting...");
 
-            const _freqAddress = findMostFrequentString(
+            contract1155Address = findMostFrequentString(
               logs.map((log) => log.address)
-            );
+            ) as `0x${string}`;
 
-            console.log("freqAddress", _freqAddress);
-            freqAddress = _freqAddress as `0x${string}`;
+            console.log(
+              "splitTransaction logs",
+              splitLogs,
+              contract1155Address
+            );
 
             const topics = returnDecodedTopics(
               logs,
@@ -546,8 +716,6 @@ const Clip = () => {
             }),
           });
 
-          console.log("agregate3Calls", agregate3Calls);
-
           // simulate the transaction multicall 3 transaction
           const { request } = await publicClient.simulateContract({
             abi: multicall3Abi,
@@ -557,8 +725,9 @@ const Clip = () => {
             account: walletClient?.account.address as Address,
           });
 
-          console.log("simulated multicall3 request", request);
-          setTransactionMessage("...minting...");
+          console.log("simulated request", request);
+
+          setTransactionProgressMessage("awaiting approval to mint...");
 
           // execute the transaction
           const hash = await walletClient
@@ -568,16 +737,15 @@ const Clip = () => {
               return response;
             });
 
+          setTransactionProgressMessage("minting...");
+
+          console.log("hash", hash);
           if (hash) {
             const transaction = await publicClient.waitForTransactionReceipt({
               hash,
             });
             const logs = transaction.logs;
             console.log("multicall tx logs", logs);
-            // freqAddress is the address of the 1155 contract
-            const _freqAddress = findMostFrequentString(
-              logs.map((log) => log.address)
-            );
 
             const topics = returnDecodedTopics(
               logs,
@@ -585,11 +753,9 @@ const Clip = () => {
               "UpdatedToken",
               false
             );
-
-            console.log("multicall topics", topics);
-
-            console.log("freqAddress", _freqAddress);
-            freqAddress = _freqAddress as `0x${string}`;
+            contract1155Address = findMostFrequentString(
+              logs.map((log) => log.address)
+            ) as `0x${string}`;
 
             if (topics) {
               const args: any = topics.args;
@@ -600,11 +766,11 @@ const Clip = () => {
           }
         }
       }
-      setTransactionMessage("...wrapping up...");
-      if (freqAddress && channelId && !existingContract1155Address) {
+      setTransactionProgressMessage("...wrapping up...");
+      if (contract1155Address && channelId && !existingContract1155Address) {
         await updateUserChannelContract1155Mapping({
           channelId: channelId,
-          contract1155Address: freqAddress,
+          contract1155Address: contract1155Address,
           contract1155ChainId: network.chainId,
           userAddress: user?.address as Address,
         });
@@ -616,11 +782,10 @@ const Clip = () => {
         videoThumbnail,
         openseaLink: "",
         channelId,
-        contract1155Address: freqAddress,
-        zoraLink: `https://zora.co/collect/base:${freqAddress}/${tokenId}`,
+        contract1155Address: contract1155Address,
+        zoraLink: `https://zora.co/collect/base:${contract1155Address}/${tokenId}`,
         tokenId,
       };
-      console.log("postNfcObject", postNfcObject);
       const postNFCRes = await postNFC(postNfcObject);
       const _finalClipObject = {
         ...postNfcObject,
@@ -632,6 +797,7 @@ const Clip = () => {
             }
           : undefined,
       };
+      console.log("_finalClipObject", _finalClipObject);
       await channel.publish({
         name: CHAT_MESSAGE_EVENT,
         data: {
@@ -651,24 +817,31 @@ const Clip = () => {
         },
       });
       setFinalClipObject(_finalClipObject);
-      setPageState("sharing");
-      setTransactionMessage(null);
+      setPageState("redirecting");
+      setTransactionProgressMessage(null);
+      window.open(`${window.origin}/nfc/${_finalClipObject.id}`, "_self");
     } catch (e) {
-      console.log("trimVideo frontend error", e);
-      setPageState("error");
+      if ((e as any).message.includes("User rejected the request"))
+        setTransactionProgressMessage(PLEASE_CONTINUE_TRANSACTION);
     }
   }, [
-    roughClipUrl,
-    clipRange,
-    title,
+    user,
     channelId,
-    getChannelByIdData,
-    network.chainId,
-    publicClient,
-    walletClient,
+    videoLink,
+    videoThumbnail,
+    tokenJsonMetaDataUri,
+    contractObject,
+    existingContract1155Address,
   ]);
 
-  const handleSplitConfig = async () => {
+  const handleSplitConfig = async (): Promise<{
+    agregate3Calls: Aggregate3ValueCall[];
+    predicted: { splitAddress: Address; splitExists: boolean };
+    splitCallData: Address | null;
+    splitAddress: Address | null;
+    error: boolean;
+    errorMessage: string;
+  }> => {
     const agregate3Calls: Aggregate3ValueCall[] = [];
     if (!publicClient || !walletClient?.account.address)
       return {
@@ -680,6 +853,7 @@ const Clip = () => {
         splitCallData: null,
         splitAddress: null,
         error: true,
+        errorMessage: "publicClient or walletClient is missing",
       };
     const splitsClient = new SplitV1Client({
       chainId: network.chainId,
@@ -726,29 +900,43 @@ const Clip = () => {
       distributorFeePercent: 0,
     };
 
-    const predicted = await splitsClient.predictImmutableSplitAddress(
-      splitsConfig
-    );
-
-    console.log("predicted", predicted);
-
     let splitCallData = null;
     let splitAddress = null;
-    if (!predicted.splitExists) {
-      // if the split has not been created, add a call to create it
-      // to the multicall3 aggregate call
+    let predicted = {} as any;
+    try {
+      predicted = await splitsClient.predictImmutableSplitAddress(splitsConfig);
+      if (!predicted.splitExists) {
+        // if the split has not been created, add a call to create it
+        // to the multicall3 aggregate call
 
-      const { data, address } = await splitsClient.callData.createSplit(
-        splitsConfig
-      );
-      splitCallData = data;
-      splitAddress = address;
-      agregate3Calls.push({
-        allowFailure: false,
-        callData: data,
-        target: address as Address,
-        value: BigInt(0),
-      });
+        const { data, address } = await splitsClient.callData.createSplit(
+          splitsConfig
+        );
+        splitCallData = data;
+        splitAddress = address as Address;
+        agregate3Calls.push({
+          allowFailure: false,
+          callData: data,
+          target: address as Address,
+          value: BigInt(0),
+        });
+      }
+    } catch (e) {
+      return {
+        agregate3Calls,
+        predicted: {
+          splitAddress: NULL_ADDRESS as Address,
+          splitExists: false,
+        },
+        splitCallData: null,
+        splitAddress: null,
+        error: true,
+        errorMessage: `Error creating split, SPLIT CONFIG: ${JSON.stringify(
+          splitsConfig
+        )}, AGREGATE3CALLS, ${JSON.stringify(
+          agregate3Calls
+        )}}, predicted, ${JSON.stringify(predicted)}`,
+      };
     }
     return {
       agregate3Calls,
@@ -756,37 +944,62 @@ const Clip = () => {
       splitCallData,
       splitAddress,
       error: false,
+      errorMessage: "",
     };
   };
 
-  const handleWriteCreate1155 = async (parameters: any) => {
+  const handleWriteCreate1155 = async (
+    parameters: any
+  ): Promise<{
+    txnReceipt: TransactionReceipt | undefined;
+    error: boolean;
+    errorMessage: string;
+  }> => {
     if (!publicClient || !walletClient?.account.address) {
-      console.log("publicClient or walletClient is missing");
-      return;
+      return {
+        txnReceipt: undefined,
+        error: true,
+        errorMessage: "publicClient or walletClient is missing",
+      };
     }
-    const { request } = await publicClient.simulateContract(parameters);
+    try {
+      const { request } = await publicClient.simulateContract(parameters);
 
-    // execute the transaction
-    const hash = await walletClient.writeContract(request);
-    if (!hash) return;
-    const transaction = await publicClient.waitForTransactionReceipt({
-      hash,
-    });
-    return transaction;
-  };
+      console.log("handleWriteCreate1155 simulated request", request);
 
-  const handleCopy = () => {
-    toast({
-      title: "copied to clipboard",
-      status: "success",
-      duration: 2000,
-      isClosable: true,
-    });
+      // execute the transaction
+      const hash = await walletClient.writeContract(request);
+      if (!hash)
+        return {
+          txnReceipt: undefined,
+          error: true,
+          errorMessage: "hash is missing",
+        };
+      const transaction = await publicClient.waitForTransactionReceipt({
+        hash,
+      });
+      return {
+        txnReceipt: transaction,
+        error: false,
+        errorMessage: "",
+      };
+    } catch (e) {
+      console.log("handleWriteCreate1155 caught error", e);
+      return {
+        txnReceipt: undefined,
+        error: true,
+        errorMessage: `handleWriteCreate1155 caught error: ${e}`,
+      };
+    }
   };
 
   return (
-    <AppLayout isCustomHeader={false} noHeader>
-      <Flex bg="rgba(5, 0, 31, 1)" direction={"column"} h="100vh">
+    <AppLayout
+      isCustomHeader={false}
+      noHeader
+      customBgColor="rgba(5, 0, 31, 1)"
+    >
+      <Flex direction={"column"} h="100vh">
         <Header />
         {(pageState === "clipping" || pageState === "trimming") && (
           <div
@@ -841,11 +1054,10 @@ const Clip = () => {
               <Progress
                 colorScheme="green"
                 height="32px"
-                value={progressPercentage}
+                value={trimProgressPercentage}
               />
               <Text mt="30px" textAlign="center">
-                {transactionMessage ??
-                  carouselProgressStatusMessages[carouselProgressIndex]}
+                {carouselProgressStatusMessages[carouselProgressIndex]}
               </Text>
             </Flex>
           ) : pageState === "clipping" ? (
@@ -875,7 +1087,7 @@ const Clip = () => {
                 ref={videoRef}
                 src={roughClipUrl.concat("#t=0.1")}
                 style={{
-                  height: "500px",
+                  height: "400px",
                 }}
                 onTimeUpdate={handleTimeUpdate}
                 onSeeking={handleSeeking}
@@ -935,126 +1147,77 @@ const Clip = () => {
                 />
                 <Button
                   position="relative"
-                  onClick={() => {
-                    if (title) handleTrimVideo();
-                  }}
-                  isDisabled={
-                    !title ||
-                    clipRange[1] - clipRange[0] > 30 ||
-                    clipRange[1] - clipRange[0] < 2 ||
-                    title.length > 100
-                  }
+                  onClick={handleTrimVideo}
+                  isDisabled={!canTrim}
+                  py="20px"
+                  mb="20px"
+                  mx="auto"
                 >
-                  <Box
-                    position="absolute"
-                    top="0"
-                    left="0"
-                    height="100%"
-                    bg="green.400"
-                    zIndex="1"
-                  />
-                  <Text position="relative" zIndex="2" width="100%">
-                    Create
+                  <Text position="relative" zIndex="2">
+                    Create NFC
                   </Text>
                 </Button>
               </>
             </Flex>
-          ) : pageState === "sharing" ? (
+          ) : pageState === "redirecting" ? (
             <Flex direction={"column"} justifyContent={"center"}>
-              <video
-                ref={videoRef}
-                src={finalClipObject?.videoLink.concat("#t=0.1")}
+              <Text textAlign="center" marginBottom="20px">
+                Redirecting you to the clip
+              </Text>
+              <Flex justifyContent={"center"}>
+                <Spinner />
+              </Flex>
+              <Link
+                href={`/nfc/${finalClipObject?.id}`}
+                passHref
                 style={{
-                  height: "500px",
+                  textDecoration: "underline",
+                  marginTop: "40px",
                 }}
-                controls
-              />
-              <Flex>
-                <Text fontSize="35px" textAlign="center">
-                  {finalClipObject?.title ?? "title"}
-                </Text>
-              </Flex>
-              <Flex>
-                <Text fontSize="15px" textAlign="center">
-                  owned by{" "}
-                  {finalClipObject?.owner?.username ??
-                    centerEllipses(finalClipObject?.owner?.address, 13)}
-                </Text>
-              </Flex>
-              {finalClipObject?.videoLink && (
-                <Flex justifyContent={"center"} mt="20px" gap="10px">
-                  <IconButton
-                    aria-label="tweet-clip-link"
-                    color="white"
-                    icon={
-                      <Image src="/images/twitter-350x350.png" height="50px" />
-                    }
-                    bg="transparent"
-                    _focus={{}}
-                    _active={{}}
-                    _hover={{}}
-                    onClick={() => {
-                      window.open(
-                        `https://x.com/intent/tweet?text=${encodeURIComponent(
-                          `Check this out: ${window.origin}/nfc/${finalClipObject?.id}`
-                        )}`,
-                        "_blank"
-                      );
-                    }}
-                  />
-                  <IconButton
-                    aria-label="warpcast-clip-link"
-                    color="white"
-                    icon={
-                      <Image src="/images/warpcast-350x350.png" height="50px" />
-                    }
-                    bg="transparent"
-                    _focus={{}}
-                    _active={{}}
-                    _hover={{}}
-                    onClick={() => {
-                      window.open(
-                        `https://warpcast.com/~/compose?text=new%20unlonely%20clip%20just%20dropped!&embeds[]=${window.origin}/nfc/${finalClipObject?.id}`,
-                        "_blank"
-                      );
-                    }}
-                  />
-                  <IconButton
-                    aria-label="hey-clip-link"
-                    color="white"
-                    icon={
-                      <Image src="/images/lens-350x350.png" height="50px" />
-                    }
-                    bg="transparent"
-                    _focus={{}}
-                    _active={{}}
-                    _hover={{}}
-                    onClick={() => {
-                      window.open(
-                        `https://hey.xyz/?text=new%20unlonely%20clip%20just%20dropped!&url=${window.origin}/nfc/${finalClipObject?.id}`,
-                        "_blank"
-                      );
-                    }}
-                  />
-                  <IconButton
-                    aria-label="copy-clip-link"
-                    color="white"
-                    icon={
-                      <Image src="/images/copy-350x350.png" height="50px" />
-                    }
-                    bg="transparent"
-                    _focus={{}}
-                    _active={{}}
-                    _hover={{}}
-                    onClick={() => {
-                      copy(`${window.origin}/nfc/${finalClipObject?.id}`);
-                      handleCopy();
-                    }}
-                  />
-                </Flex>
+              >
+                If you're not redirected immediately, click here
+              </Link>
+            </Flex>
+          ) : pageState === "transaction" ? (
+            <Flex direction={"column"} justifyContent={"center"}>
+              <Text
+                fontSize="30px"
+                mb="30px"
+                textAlign="center"
+                fontWeight={"bold"}
+              >
+                {transactionProgressMessage}
+              </Text>
+              {transactionProgressMessage === PLEASE_CONTINUE_TRANSACTION && (
+                <Button
+                  onClick={handleTransaction}
+                  py="20px"
+                  mb="20px"
+                  mx="auto"
+                >
+                  <Text>Continue Transaction</Text>
+                </Button>
               )}
             </Flex>
-          ) : null}
+          ) : pageState === "error" ? (
+            <Flex direction={"column"} justifyContent={"center"}>
+              <Text
+                fontSize="30px"
+                mb="30px"
+                textAlign="center"
+                fontWeight={"bold"}
+              >
+                Something went wrong: {errorMessage}
+              </Text>
+            </Flex>
+          ) : (
+            <Flex direction={"column"} justifyContent={"center"}>
+              <Text>Make sure you're logged in</Text>
+              <Flex justifyContent={"center"}>
+                <Spinner />
+              </Flex>
+            </Flex>
+          )}
         </Flex>
       </Flex>
     </AppLayout>

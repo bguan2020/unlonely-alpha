@@ -288,13 +288,12 @@ export const createLivepeerClip = async (
         headers: livepeerHeaders,
       }
     );
-    // console.log(
-    //   "createLivepeerClip livepeer response at time,",
-    //   new Date(Date.now()).toISOString(),
-    //   `id:${endTime}`,
-    //   `${(Date.now() - endTime) / 1000}s`,
-    //   response
-    // );
+    console.log(
+      "createLivepeerClip livepeer response at time,",
+      new Date(Date.now()).toISOString(),
+      `id:${endTime}`,
+      `${(Date.now() - endTime) / 1000}s`
+    );
     const responseData: ClipResponse = response.data;
     let asset = null;
     while (true) {
@@ -312,17 +311,20 @@ export const createLivepeerClip = async (
         break;
       }
       if (res.status.phase === "failed") {
+        console.log("createLivepeerClip status phase returned failed",
+        new Date(Date.now()).toISOString(), `id:${endTime}`
+        );
         return {
           errorMessage:
             "createLivepeerClip Error livepeer could not create clip",
         };
       }
     }
-    // console.log(
-    //   "createLivepeerClip fetching playback,",
-    //   new Date(Date.now()).toISOString(),
-    //   `id:${endTime}`
-    // );
+    console.log(
+      "createLivepeerClip fetching playback,",
+      new Date(Date.now()).toISOString(),
+      `id:${endTime}`
+    );
     const playbackData: any = await fetch(
       `https://livepeer.studio/api/playback/${asset.playbackId}`,
       { headers: livepeerHeaders }
@@ -364,7 +366,7 @@ export const createLivepeerClip = async (
     return { url: playBackUrl, thumbnail: thumbNailUrl, ...res };
   } catch (e) {
     console.log(`createLivepeerClip Error invoking livepeer, id:${endTime}`, e);
-    return { errorMessage: "Error invoking livepeer" };
+    return { errorMessage: `Error invoking livepeer: ${e}` };
   }
 };
 
@@ -377,16 +379,17 @@ export interface ITrimVideoInput {
 
 export const trimVideo = async (data: ITrimVideoInput) => {
 
+  const dateNow = Date.now();
   const videoId = uuidv4();
-  const inputPath = path.join(__dirname, "temp", `${videoId}-input.mp4`);
-  const outputPath = path.join(__dirname, "temp", `${videoId}-output.mp4`);
+  const inputPath = path.join(__dirname, "temp", `${videoId.concat(String(dateNow))}-input.mp4`);
+  const outputPath = path.join(__dirname, "temp", `${videoId.concat(String(dateNow))}-output.mp4`);
 
   console.log("videoId", videoId);
   console.log("inputPath", inputPath);
   console.log("outputPath", outputPath);
 
   try {
-    // const start = Date.now();
+    const start = Date.now();
 
     const downloadResponse = await axios({
       url: data.videoLink,
@@ -401,7 +404,7 @@ export const trimVideo = async (data: ITrimVideoInput) => {
       writer.on("error", reject);
     });
 
-    // console.log("downloaded video", `${(Date.now() - start) / 1000}s`);
+    console.log("downloaded video", `${(Date.now() - start) / 1000}s`);
     const trimStart = Date.now();
 
     // Trim the video using FFmpeg
@@ -435,7 +438,7 @@ export const trimVideo = async (data: ITrimVideoInput) => {
         .run();
     });
 
-    const foundOutputPath = await searchFileInTempDirectory(`${videoId}-output`, "temp");
+    const foundOutputPath = await searchFileInTempDirectory(`${videoId.concat(String(dateNow))}-output`, "temp");
     if (!foundOutputPath) {
       console.log("Trimmed video file not found");
       return
@@ -465,8 +468,10 @@ export const trimVideo = async (data: ITrimVideoInput) => {
         },
         uploadSize: finalFileSize,
         onError: (error: any) => {
-          console.error("Failed because: ", error);
-          reject(error);
+          if (fs.existsSync(outputPath)) {
+            fs.unlinkSync(outputPath);
+          }
+          return `trimVideo tus error: ${error}`;
         },
         // onProgress: (bytesUploaded: number, bytesTotal: number) => {
           // const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
@@ -490,9 +495,11 @@ export const trimVideo = async (data: ITrimVideoInput) => {
       });
     });
 
+    console.log("uploaded video via tus")
+
   return requestResForFinal.asset.id
   } catch (e) {
-    console.log("Error:", e);
+    console.log("Error: ", e);
     // Clean up temporary files
     if (fs.existsSync(inputPath)) {
       fs.unlinkSync(inputPath);
@@ -500,7 +507,8 @@ export const trimVideo = async (data: ITrimVideoInput) => {
     if (fs.existsSync(outputPath)) {
       fs.unlinkSync(outputPath);
     }
-    throw e;
+    // throw e;
+    return `trimVideo error: ${e}`;
   }
 }
 
@@ -511,14 +519,15 @@ export type IConcatenateOutroToTrimmedVideoInput = {
 
 export const concatenateOutroToTrimmedVideo = async (data: IConcatenateOutroToTrimmedVideoInput) => {
 
+  const dateNow = Date.now();
   const videoId = uuidv4();
   const trimmedFilePath = await searchFileInTempDirectory(data.trimmedVideoFileName, "temp");
   if (!trimmedFilePath) {
     console.log("Trimmed video file not found");
     throw new Error("Trimmed video file not found");
   }
-  const outroPath = path.join(__dirname, "temp", `${videoId}-outro.mp4`);
-  const finalPath = path.join(__dirname, "temp", `${videoId}-final.mp4`);
+  const outroPath = path.join(__dirname, "temp", `${videoId.concat(String(dateNow))}-outro.mp4`);
+  const finalPath = path.join(__dirname, "temp", `${videoId.concat(String(dateNow))}-final.mp4`);
 
   console.log(outroPath, finalPath, trimmedFilePath);
 
@@ -671,19 +680,30 @@ export const getLivepeerClipData = async (data: IGetLivepeerClipDataInput) => {
     const res = await poll.json();
     console.log("getLivepeerClipData", res);
     if (res.status.phase === "ready") {
-      const finalPlaybackData: any = await fetch(
-        `https://livepeer.studio/api/playback/${res.playbackId}`,
-        { headers: livepeerHeaders }
-      ).then((res) => res.json());
+      try {
+        const finalPlaybackData: any = await fetch(
+          `https://livepeer.studio/api/playback/${res.playbackId}`,
+          { headers: livepeerHeaders }
+        ).then((res) => res.json());
 
-      const finalPlayBackUrl = finalPlaybackData.meta.source[0].url;
+        const finalPlayBackUrl = finalPlaybackData.meta.source[0].url;
 
-      const thumbNailUrl = await getLivepeerThumbnail(res.playbackId);
-      console.log("nfc ready")
-      return {
-        videoLink: finalPlayBackUrl,
-        videoThumbnail: thumbNailUrl,
-        error: false,
+        const thumbNailUrl = await getLivepeerThumbnail(res.playbackId);
+        console.log("nfc ready")
+        return {
+          videoLink: finalPlayBackUrl,
+          videoThumbnail: thumbNailUrl,
+          errorMessage: "",
+          error: false,
+        }
+      } catch (e) {
+        console.log("getLivepeerClipData error", e);
+        return {
+          videoLink: "",
+          videoThumbnail: "",
+          errorMessage: `error calling livepeer: ${e}`,
+          error: true,
+        }
       }
     }
     if (res.status.phase === "failed") {
@@ -691,6 +711,7 @@ export const getLivepeerClipData = async (data: IGetLivepeerClipDataInput) => {
       return {
         videoLink: "",
         videoThumbnail: "",
+        errorMessage: "livepeer api returned status failed",
         error: true
       }
     }
@@ -735,7 +756,7 @@ export const requestUploadFromLivepeer = async (data: IRequestUploadFromLivepeer
 export interface IGetNFCFeedInput {
   offset: number;
   limit: number;
-  orderBy: "createdAt" | "score";
+  orderBy: "createdAt" | "score" | "totalMints";
   channelId?: number;
   ownerAddress?: string;
 }
@@ -763,6 +784,13 @@ export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
       orderBy: {
         createdAt: "desc",
       },
+      include: {
+        channel: {
+          select: {
+            slug: true,
+          }
+        },
+      },
     });
   } else if (data.orderBy === "score") {
     return ctx.prisma.nFC.findMany({
@@ -771,6 +799,29 @@ export const getNFCFeed = (data: IGetNFCFeedInput, ctx: Context) => {
       where: whereClause,
       orderBy: {
         score: "desc",
+      },
+      include: {
+        channel: {
+          select: {
+            slug: true,
+          }
+        },
+      },
+    });
+  } else if (data.orderBy === "totalMints") {
+    return ctx.prisma.nFC.findMany({
+      take: data.limit,
+      skip: data.offset,
+      where: whereClause,
+      orderBy: {
+        totalMints: "desc",
+      },
+      include: {
+        channel: {
+          select: {
+            slug: true,
+          }
+        },
       },
     });
   }

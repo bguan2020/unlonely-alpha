@@ -4,6 +4,10 @@ import {
   useBreakpointValue,
   Text,
   Button,
+  PopoverContent,
+  Popover,
+  PopoverTrigger,
+  PopoverArrow,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import NextImage from "next/image";
@@ -66,21 +70,31 @@ const Header: React.FC = () => {
             margin="auto"
             width="100%"
           >
-            <Button
-              border="1px solid white"
-              borderRadius="0"
-              color="white"
-              bg="rgba(70, 168, 0, 1)"
-              px="12px"
-              onClick={redirectToNewChannelPage}
-              _hover={{
-                bg: "rgba(70, 168, 0, 0.8)",
-              }}
-              _active={{}}
-              _focus={{}}
-            >
-              <Text fontFamily="LoRes15">create</Text>
-            </Button>
+            <Popover trigger="hover" placement="left" openDelay={300}>
+              <PopoverTrigger>
+                <Button
+                  border="1px solid white"
+                  borderRadius="0"
+                  color="white"
+                  bg="rgba(70, 168, 0, 1)"
+                  px="12px"
+                  onClick={redirectToNewChannelPage}
+                  _hover={{
+                    bg: "rgba(70, 168, 0, 0.8)",
+                  }}
+                  _active={{}}
+                  _focus={{}}
+                >
+                  <Text fontFamily="LoRes15">create</Text>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent bg="#343dbb" border="none" width="100%" p="2px">
+                <PopoverArrow bg="#343dbb" />
+                <Text fontSize="12px" textAlign={"center"}>
+                  create new channel
+                </Text>
+              </PopoverContent>
+            </Popover>
             <ConnectWallet />
           </Flex>
         </Spacer>

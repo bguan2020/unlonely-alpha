@@ -1,13 +1,4 @@
-import {
-  Box,
-  Image,
-  Flex,
-  Link,
-  Text,
-  IconButton,
-  Button,
-  Input,
-} from "@chakra-ui/react";
+import { Box, Image, Flex, Link, Text, IconButton } from "@chakra-ui/react";
 import React, { useMemo, useState } from "react";
 import {
   ChevronDownIcon,
@@ -17,7 +8,6 @@ import {
 
 import {
   CHAT_MESSAGE_EVENT,
-  ETH_COST_FOR_ONE_NFT_MINT,
   InteractionType,
   NULL_ADDRESS,
 } from "../../constants";
@@ -31,10 +21,7 @@ import { TiPin } from "react-icons/ti";
 import { MessageItemProps } from "./MessageList";
 import { messageStyle } from "../../utils/messageStyle";
 import { jp } from "../../utils/validation/jsonParse";
-import {
-  filteredInput,
-  formatIncompleteNumber,
-} from "../../utils/validation/input";
+import { NfcClipMintInterface } from "../general/NfcClipMintInterface";
 
 type Props = MessageItemProps & {
   messageText: string;
@@ -61,9 +48,6 @@ const MessageBody = ({
   const { channelQueryData, channelRoles } = c;
 
   const [mouseHover, setMouseHover] = useState(false);
-  const [selectedTokensToMint, setSelectedTokensToMint] = useState<string>("1");
-  const [customAmountSelected, setCustomAmountSelected] = useState(false);
-  const [customTokensToMint, setCustomTokensToMint] = useState<string>("");
   const [nfcExpanded, setNfcExpanded] = useState(false);
 
   const userIsChannelOwner = useMemo(
@@ -207,191 +191,45 @@ const MessageBody = ({
                       : false)
                   }
                 >
-                  <Flex
-                    direction="column"
-                    bg="rgba(0,0,0,0.5)"
-                    p="5px"
-                    borderRadius={"15px"}
-                  >
-                    <Flex gap="20px">
-                      {jp(message.data.body as string).zoraLink && (
-                        <Link
-                          href={jp(message.data.body as string).zoraLink}
-                          isExternal
-                        >
-                          <Text
-                            as="span"
-                            color="#15dae4"
-                            fontSize={"12px"}
-                            wordBreak="break-word"
-                            textAlign="left"
-                          >
-                            zora link
-                            <ExternalLinkIcon mx="2px" />
-                          </Text>
-                        </Link>
-                      )}
-                    </Flex>
-                    <Flex gap="10px" alignItems={"center"}>
-                      <Button
-                        color="rgba(63, 59, 253, 1)"
-                        height="20px"
-                        width="20px"
-                        _hover={{}}
-                        bg={
-                          selectedTokensToMint === "1"
-                            ? "rgba(55, 255, 139, 1)"
-                            : "white"
-                        }
-                        onClick={() => {
-                          setCustomAmountSelected(false);
-                          setSelectedTokensToMint("1");
-                        }}
-                      >
-                        1
-                      </Button>
-                      <Button
-                        color="rgba(63, 59, 253, 1)"
-                        height="20px"
-                        width="20px"
-                        _hover={{}}
-                        bg={
-                          selectedTokensToMint === "3"
-                            ? "rgba(55, 255, 139, 1)"
-                            : "white"
-                        }
-                        onClick={() => {
-                          setCustomAmountSelected(false);
-                          setSelectedTokensToMint("3");
-                        }}
-                      >
-                        3
-                      </Button>
-                      <Button
-                        color="rgba(63, 59, 253, 1)"
-                        height="20px"
-                        width="20px"
-                        _hover={{}}
-                        bg={
-                          selectedTokensToMint === "10"
-                            ? "rgba(55, 255, 139, 1)"
-                            : "white"
-                        }
-                        onClick={() => {
-                          setCustomAmountSelected(false);
-                          setSelectedTokensToMint("10");
-                        }}
-                      >
-                        10
-                      </Button>
-                      <Button
-                        color="rgba(63, 59, 253, 1)"
-                        height="20px"
-                        width="70px"
-                        p="0"
-                        _hover={{}}
-                        bg={
-                          customAmountSelected
-                            ? "rgba(55, 255, 139, 1)"
-                            : "white"
-                        }
-                        onClick={() => {
-                          setCustomAmountSelected(true);
-                          setSelectedTokensToMint(customTokensToMint);
-                        }}
-                        position={"relative"}
-                      >
-                        custom
-                        <Input
-                          cursor="pointer"
-                          position="absolute"
-                          bottom={customAmountSelected ? "-25px" : "0px"}
-                          opacity={customAmountSelected ? 1 : 0}
-                          transition={"all 0.3s"}
-                          bg={"white"}
-                          height="20px"
-                          width="70px"
-                          p="4px"
-                          value={customTokensToMint}
-                          onChange={(e) =>
-                            setCustomTokensToMint(filteredInput(e.target.value))
-                          }
-                        />
-                      </Button>
-                      <Button
-                        bg={"rgba(55, 255, 139, 1)"}
-                        borderRadius={"50%"}
-                        width="70px"
-                        minWidth="70px"
-                        height="70px"
-                        p="0"
-                        isDisabled={
-                          Number(
-                            formatIncompleteNumber(
-                              customAmountSelected
-                                ? customTokensToMint
-                                : selectedTokensToMint
-                            )
-                          ) === 0 || !user
-                        }
-                        onClick={async () => {
-                          const n = customAmountSelected
-                            ? customTokensToMint
-                            : selectedTokensToMint;
-                          if (n === "0") return;
-                          const txr = await handleCollectorMint?.(
-                            jp(message.data.body as string).contract1155Address,
-                            jp(message.data.body as string).tokenId,
-                            BigInt(n)
-                          );
-                          if (!txr) return;
-                          channel?.publish({
-                            name: CHAT_MESSAGE_EVENT,
-                            data: {
-                              messageText: `${
-                                user?.username ??
-                                centerEllipses(user?.address, 13)
-                              } minted ${n}x "${
-                                jp(message.data.body as string).title
-                              }"`,
-                              username: "🤖",
-                              address: NULL_ADDRESS,
-                              isFC: false,
-                              isLens: false,
-                              isGif: false,
-                              senderStatus: SenderStatus.CHATBOT,
-                              body: JSON.stringify({
-                                interactionType:
-                                  InteractionType.MINT_NFC_IN_CHAT,
-                                contract1155Address: jp(
-                                  message.data.body as string
-                                ).contract1155Address,
-                                tokenId: jp(message.data.body as string)
-                                  .tokenId,
-                                zoraLink: jp(message.data.body as string)
-                                  .zoraLink,
-                                title: jp(message.data.body as string).title,
-                              }),
-                            },
-                          });
-                        }}
-                      >
-                        <Text whiteSpace={"normal"} overflowWrap={"break-word"}>
-                          MINT NOW
-                        </Text>
-                      </Button>
-                    </Flex>
-                    <Flex>
-                      <Text fontSize="10px" color="rgba(187, 201, 213, 1)">
-                        total cost:{" "}
-                        {(customAmountSelected
-                          ? Number(customTokensToMint)
-                          : Number(selectedTokensToMint)) *
-                          ETH_COST_FOR_ONE_NFT_MINT}{" "}
-                        ETH
-                      </Text>
-                    </Flex>
-                  </Flex>
+                  <NfcClipMintInterface
+                    contract1155Address={
+                      jp(message.data.body as string).contract1155Address
+                    }
+                    tokenId={jp(message.data.body as string).tokenId}
+                    zoraLink={jp(message.data.body as string).zoraLink}
+                    mintCallback={async (contract1155Address, tokenId, n) => {
+                      const txr = await handleCollectorMint?.(
+                        contract1155Address as `0x${string}`,
+                        tokenId,
+                        n
+                      );
+                      if (!txr) return;
+                      channel?.publish({
+                        name: CHAT_MESSAGE_EVENT,
+                        data: {
+                          messageText: `${
+                            user?.username ?? centerEllipses(user?.address, 13)
+                          } minted ${n}x "${
+                            jp(message.data.body as string).title
+                          }"`,
+                          username: "🤖",
+                          address: NULL_ADDRESS,
+                          isFC: false,
+                          isLens: false,
+                          isGif: false,
+                          senderStatus: SenderStatus.CHATBOT,
+                          body: JSON.stringify({
+                            interactionType: InteractionType.MINT_NFC_IN_CHAT,
+                            contract1155Address: jp(message.data.body as string)
+                              .contract1155Address,
+                            tokenId: jp(message.data.body as string).tokenId,
+                            zoraLink: jp(message.data.body as string).zoraLink,
+                            title: jp(message.data.body as string).title,
+                          }),
+                        },
+                      });
+                    }}
+                  />
                 </MintWrapper>
               </Flex>
             </Box>

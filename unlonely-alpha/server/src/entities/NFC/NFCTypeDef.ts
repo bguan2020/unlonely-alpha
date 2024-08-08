@@ -15,9 +15,11 @@ export const typeDef = gql`
     owner: User!
     createdAt: DateTime!
     updatedAt: DateTime!
-    channel: Channel!
+    channel: Channel
     channelId: ID
     zoraLink: String
+    totalMints: Int
+    tokenId: Int
   }
 
   type AssetTask {
@@ -50,6 +52,7 @@ export const typeDef = gql`
   type LivepeerClipDataResponse {
     videoLink: String!
     videoThumbnail: String!
+    errorMessage: String!
     error: Boolean!
   }
 

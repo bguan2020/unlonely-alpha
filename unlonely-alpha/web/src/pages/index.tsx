@@ -1,5 +1,4 @@
 import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
-import { GraphQLClient } from "graphql-request";
 import {
   Box,
   Button,
@@ -26,8 +25,8 @@ import { useRouter } from "next/router";
 import { BiRefresh } from "react-icons/bi";
 
 import AppLayout from "../components/layout/AppLayout";
-import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
-import NfcList from "../components/NFCs/NfcList";
+// import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
+// import NfcList from "../components/NFCs/NfcList";
 import LiveChannelList from "../components/channels/LiveChannelList";
 import { WavyText } from "../components/general/WavyText";
 import useUserAgent from "../hooks/internal/useUserAgent";
@@ -43,11 +42,12 @@ import useRemoveChannelFromSubscription from "../hooks/server/channel/useRemoveC
 import { useUser } from "../hooks/context/useUser";
 import { sortChannels } from "../utils/channelSort";
 import { useCacheContext } from "../hooks/context/useCache";
-import ChannelList from "../components/channels/ChannelList";
-import VibesTokenInterface from "../components/chat/VibesTokenInterface";
+// import ChannelList from "../components/channels/ChannelList";
+// import VibesTokenInterface from "../components/chat/VibesTokenInterface";
 // import HeroBanner from "../components/layout/HeroBanner";
-import TempTokenLeaderboard from "../components/leaderboards/TempTokenLeaderboard";
+// import TempTokenLeaderboard from "../components/leaderboards/TempTokenLeaderboard";
 import { VibesProvider } from "../hooks/context/useVibes";
+import NfcLeaderboard from "../components/leaderboards/NfcLeaderboard";
 
 const FixedComponent = ({
   newHeightPercentage,
@@ -93,8 +93,8 @@ const ScrollableComponent = ({
     {
       variables: {
         data: {
-          limit: 30,
-          orderBy: "createdAt",
+          limit: 10,
+          orderBy: "totalMints",
         },
       },
     }
@@ -197,8 +197,9 @@ const ScrollableComponent = ({
 
   return (
     <Flex direction="column" width="100%" overflowX={"hidden"} gap="10px">
-      <TempTokenLeaderboard />
-      <Flex
+      {/* <TempTokenLeaderboard /> */}
+      <NfcLeaderboard />
+      {/* <Flex
         height="300px"
         gap="5px"
         justifyContent={"space-between"}
@@ -267,7 +268,7 @@ const ScrollableComponent = ({
         </Flex>
       ) : (
         <NfcList nfcs={nfcs} />
-      )}
+      )} */}
       <Flex
         justifyContent={"space-between"}
         my="6"
@@ -334,57 +335,6 @@ function DesktopHomePage({
     md: true,
     xl: true,
   });
-
-  // Define the endpoint URL
-  const endpoint =
-    "https://api.goldsky.com/api/public/project_clhk16b61ay9t49vm6ntn4mkz/subgraphs/zora-create-base-mainnet/stable/gn";
-
-  // Create a GraphQL client
-  const client = new GraphQLClient(endpoint);
-
-  // Define the GraphQL query
-  const query = `
-    query GetTokens($ids: [String!]!) {
-      zoraCreateTokens(where: { id_in: $ids }) {
-        id
-        address
-        tokenId
-        totalMinted
-      }
-    }
-  `;
-
-  async function fetchTokens(ids: string[]) {
-    const variables = {
-      ids, // This is the dynamic input for the IDs
-    };
-
-    try {
-      const data = await client.request(query, variables);
-      console.log(JSON.stringify(data, null, 2));
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  useEffect(() => {
-    fetchTokens([
-      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-15",
-      "0xf64ca5200134c40834b2e79e68fba4cf0d8ccdbb-2",
-      "0x7a33ca39073ed764409895641bb1f2605bbca086-1",
-      "0x552a7ae92a3956f48251031af1414f39b160e021-1",
-      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-17",
-      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-1",
-      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-2",
-      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-3",
-      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-4",
-      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-5",
-      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-6",
-      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-7",
-      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-8",
-      "0x6150accdb15dddfda4d72f166b5edc18e28ca3f2-9",
-    ]);
-  }, []);
 
   return (
     <AppLayout isCustomHeader={false}>
