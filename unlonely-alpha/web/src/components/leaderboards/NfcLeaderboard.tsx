@@ -69,8 +69,9 @@ const NfcLeaderboard = () => {
           data: [
             `${ITEMS_PER_PAGE * page + index + 1}`,
             { title: nfc.title, thumbnail: nfc.videoThumbnail, id: nfc.id },
-            trailString(nfc.owner.username, 25) ??
-              centerEllipses(nfc.owner.address, 13),
+            nfc.owner.username
+              ? trailString(nfc.owner.username, 25)
+              : centerEllipses(nfc.owner.address, 13),
             nfc?.channel?.slug,
             {
               totalMints: nfc.totalMints,
