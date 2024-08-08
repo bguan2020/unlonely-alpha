@@ -8,14 +8,14 @@ export const resolvers = {
       { data }: { data: vibesService.IGetStreamerVibesStatInput },
       ctx: Context
     ) => {
-      return await vibesService.getStreamerVibesStat(data);
+      return await vibesService.getStreamerVibesStat(data, ctx);
     },
     getVibesTransactions: async (
       _: any,
       { data }: { data: vibesService.IGetVibesTransactionsInput },
       ctx: Context
     ) => {
-      return await vibesService.getVibesTransactions(data);
+      return await vibesService.getVibesTransactions(data, ctx);
     },
   },
   Mutation: {
@@ -24,7 +24,7 @@ export const resolvers = {
       { data }: { data: vibesService.IPostVibesTradesInput },
       ctx: Context
     ) => {
-      return await vibesService.postVibesTrades(data);
+      return await vibesService.postVibesTrades(data, ctx);
     },
   },
 };
