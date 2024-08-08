@@ -154,24 +154,6 @@ const Clip = () => {
   const [existingContract1155Address, setExistingContract1155Address] =
     useState<`0x${string}` | null>(null);
 
-  useEffect(() => {
-    if (pageState === "trimming") {
-      const interval = setInterval(() => {
-        setTrimProgressPercentage((prevPercentage) => prevPercentage + 2);
-        setCarouselProgressIndex((prevIndex) => {
-          if (prevIndex === carouselProgressStatusMessages.length - 1) {
-            return 0;
-          }
-          return prevIndex + 1;
-        });
-      }, 3000);
-
-      // Cleanup interval on component unmount or when trimming changes
-      return () => clearInterval(interval);
-    }
-    if (pageState === "transaction") handleTransaction();
-  }, [pageState]);
-
   const handleClickNyanCat = (index: number) => {
     setNyanCatFaceForward((prev) => {
       const newNyanCatFaceForward = [...prev];
@@ -203,6 +185,40 @@ const Clip = () => {
     fetchPolicy: "network-only",
   });
 
+  const canTrim = useMemo(() => {
+    return (
+      roughClipUrl &&
+      channelId &&
+      clipRange[0] < clipRange[1] &&
+      getChannelByIdData?.getChannelById &&
+      network.chainId &&
+      walletClient?.account.address &&
+      user &&
+      title &&
+      clipRange[1] - clipRange[0] <= 30 &&
+      clipRange[1] - clipRange[0] >= 2 &&
+      title.length <= 100
+    );
+  }, [roughClipUrl, clipRange, title, channelId, getChannelByIdData, user]);
+
+  useEffect(() => {
+    if (pageState === "trimming") {
+      const interval = setInterval(() => {
+        setTrimProgressPercentage((prevPercentage) => prevPercentage + 2);
+        setCarouselProgressIndex((prevIndex) => {
+          if (prevIndex === carouselProgressStatusMessages.length - 1) {
+            return 0;
+          }
+          return prevIndex + 1;
+        });
+      }, 3000);
+
+      // Cleanup interval on component unmount or when trimming changes
+      return () => clearInterval(interval);
+    }
+    if (pageState === "transaction") handleTransaction();
+  }, [pageState]);
+
   const chatChannel = useMemo(
     () =>
       `persistMessages:${getChannelByIdData?.getChannelById?.slug}-chat-channel`,
@@ -224,7 +240,7 @@ const Clip = () => {
 
   const { createClip } = useCreateClip({
     onError: (e) => {
-      console.log(e);
+      console.log("createClip Error", e);
     },
   });
 
@@ -236,14 +252,14 @@ const Clip = () => {
 
   const { updateUserChannelContract1155Mapping } =
     useUpdateUserChannelContract1155Mapping({
-      onError: () => {
-        console.log("Error");
+      onError: (e) => {
+        console.log("updateUserChannelContract1155Mapping Error", e);
       },
     });
 
   const { postNFC } = usePostNFC({
-    onError: () => {
-      console.log("Error");
+    onError: (e) => {
+      console.log("postNFC Error", e);
     },
   });
 
@@ -279,14 +295,31 @@ const Clip = () => {
           noDatabasePush: true,
         });
         const url = res?.url;
+        if (res?.errorMessage) {
+          console.log(
+            "Error creating rough clip, got error from createClip,",
+            res.errorMessage
+          );
+          setPageState("error");
+          setErrorMessage(
+            `Error creating rough clip, got error from createClip, ${res.errorMessage}`
+          );
+          return;
+        }
         if (url) {
           setRoughClipUrl(url);
         } else {
-          console.log("Error, url is missing");
+          console.log("Error creating rough clip, no error but url is missing");
+          setPageState("error");
+          setErrorMessage(
+            "Error creating rough clip, no error but url is missing"
+          );
+          return;
         }
         setPageState("selecting");
       } catch (e) {
         setPageState("error");
+        setErrorMessage(`Error creating rough clip, catch block caught ${e}`);
       }
     };
     init();
@@ -326,16 +359,7 @@ const Clip = () => {
   };
 
   const handleTrimVideo = useCallback(async () => {
-    if (
-      !roughClipUrl ||
-      !channelId ||
-      clipRange[0] >= clipRange[1] ||
-      !getChannelByIdData?.getChannelById ||
-      !network.chainId ||
-      !walletClient?.account.address ||
-      !user
-    )
-      return;
+    if (!canTrim || !channelId) return;
     try {
       setPageState("trimming");
       const { data: mapping } = await fetchUserChannelContract1155Mapping({
@@ -405,6 +429,8 @@ const Clip = () => {
         return;
       }
 
+      console.log("videoFileIpfsUrl", videoFileIpfsUrl);
+
       const {
         file: thumbnailFile,
         pinRes: thumbnailFileIpfsUrl,
@@ -425,6 +451,9 @@ const Clip = () => {
         return;
       }
 
+      console.log("thumbnailFileIpfsUrl", thumbnailFileIpfsUrl);
+      console.log("thumbnailFile", thumbnailFile);
+
       let tokenMetadataJson: any;
       try {
         tokenMetadataJson = await makeMediaTokenMetadata({
@@ -435,16 +464,20 @@ const Clip = () => {
       } catch (e) {
         console.log("makeMediaTokenMetadata error", e);
         setPageState("error");
-        setErrorMessage("Error calling makeMediaTokenMetadata");
+        setErrorMessage("Could not format token metadata json properly");
         return;
       }
+
+      console.log("tokenMetadataJson", tokenMetadataJson);
 
       const jsonMetadataUri = await pinJsonWithPinata(tokenMetadataJson);
       if (!jsonMetadataUri) {
         setPageState("error");
-        setErrorMessage("Pinata could not pin metadata json onto ipfs");
+        setErrorMessage("Pinata could not pin token metadata json onto ipfs");
         return;
       }
+
+      console.log("jsonMetadataUri", jsonMetadataUri);
 
       let contractObject: ContractType = {
         name: "",
@@ -471,6 +504,7 @@ const Clip = () => {
       } else {
         contractObject = existingContract1155Address;
       }
+      console.log("contractObject", contractObject);
 
       setContractObject(contractObject);
       setTokenJsonMetaDataUri(jsonMetadataUri);
@@ -489,9 +523,9 @@ const Clip = () => {
     title,
     channelId,
     getChannelByIdData,
-    network.chainId,
     publicClient,
     walletClient,
+    canTrim,
   ]);
 
   const handleTransaction = useCallback(async () => {
@@ -515,7 +549,7 @@ const Clip = () => {
       } = await handleSplitConfig();
       if (error && errorMessage) {
         setPageState("error");
-        setErrorMessage(`Error handling split config, ${errorMessage}`);
+        setErrorMessage(`Error handling split config: ${errorMessage}`);
         return;
       }
 
@@ -534,18 +568,27 @@ const Clip = () => {
         },
         account: walletClient?.account.address as Address,
       });
-
+      console.log("parameters", parameters);
       let contract1155Address: `0x${string}` = NULL_ADDRESS;
       let tokenId = -1;
       if (predicted.splitExists) {
         console.log("split exists");
         setTransactionProgressMessage("awaiting approval to mint...");
 
-        const { txnReceipt } = await handleWriteCreate1155(parameters);
+        const { txnReceipt, error, errorMessage } = await handleWriteCreate1155(
+          parameters
+        );
+        if (error && errorMessage) {
+          console.log(
+            "split exists, handleWriteCreate1155 error",
+            errorMessage
+          );
+        }
         const logs = txnReceipt?.logs ?? [];
         contract1155Address = findMostFrequentString(
           logs.map((log) => log.address)
         ) as `0x${string}`;
+        console.log("create1155 logs", logs, contract1155Address);
 
         const topics = returnDecodedTopics(
           logs,
@@ -560,6 +603,8 @@ const Clip = () => {
           console.log("tokenId", _tokenId);
           tokenId = Number(_tokenId);
         }
+
+        console.log("create1155 topics", topics);
       } else {
         if (typeof contractObject === "string") {
           console.log("split does not exist and contractObject is string");
@@ -581,15 +626,27 @@ const Clip = () => {
                 hash: splitCreationHash,
               });
             const splitLogs = splitTransaction?.logs;
-            console.log("splitTransaction logs", splitLogs);
 
-            const { txnReceipt } = await handleWriteCreate1155(parameters);
+            const { txnReceipt, error, errorMessage } =
+              await handleWriteCreate1155(parameters);
+            if (error && errorMessage) {
+              console.log(
+                "split does not exist, handleWriteCreate1155 error",
+                errorMessage
+              );
+            }
             const logs = txnReceipt?.logs ?? [];
             setTransactionProgressMessage("minting...");
 
             contract1155Address = findMostFrequentString(
               logs.map((log) => log.address)
             ) as `0x${string}`;
+
+            console.log(
+              "splitTransaction logs",
+              splitLogs,
+              contract1155Address
+            );
 
             const topics = returnDecodedTopics(
               logs,
@@ -630,6 +687,8 @@ const Clip = () => {
             account: walletClient?.account.address as Address,
           });
 
+          console.log("simulated request", request);
+
           setTransactionProgressMessage("awaiting approval to mint...");
 
           // execute the transaction
@@ -642,6 +701,7 @@ const Clip = () => {
 
           setTransactionProgressMessage("minting...");
 
+          console.log("hash", hash);
           if (hash) {
             const transaction = await publicClient.waitForTransactionReceipt({
               hash,
@@ -688,7 +748,6 @@ const Clip = () => {
         zoraLink: `https://zora.co/collect/base:${contract1155Address}/${tokenId}`,
         tokenId,
       };
-      console.log("postNfcObject", postNfcObject);
       const postNFCRes = await postNFC(postNfcObject);
       const _finalClipObject = {
         ...postNfcObject,
@@ -700,6 +759,7 @@ const Clip = () => {
             }
           : undefined,
       };
+      console.log("_finalClipObject", _finalClipObject);
       await channel.publish({
         name: CHAT_MESSAGE_EVENT,
         data: {
@@ -833,7 +893,11 @@ const Clip = () => {
         splitCallData: null,
         splitAddress: null,
         error: true,
-        errorMessage: "Error creating split",
+        errorMessage: `Error creating split, SPLIT CONFIG: ${JSON.stringify(
+          splitsConfig
+        )}, AGREGATE3CALLS, ${JSON.stringify(
+          agregate3Calls
+        )}}, predicted, ${JSON.stringify(predicted)}`,
       };
     }
     return {
@@ -860,24 +924,35 @@ const Clip = () => {
         errorMessage: "publicClient or walletClient is missing",
       };
     }
-    const { request } = await publicClient.simulateContract(parameters);
+    try {
+      const { request } = await publicClient.simulateContract(parameters);
 
-    // execute the transaction
-    const hash = await walletClient.writeContract(request);
-    if (!hash)
+      console.log("handleWriteCreate1155 simulated request", request);
+
+      // execute the transaction
+      const hash = await walletClient.writeContract(request);
+      if (!hash)
+        return {
+          txnReceipt: undefined,
+          error: true,
+          errorMessage: "hash is missing",
+        };
+      const transaction = await publicClient.waitForTransactionReceipt({
+        hash,
+      });
+      return {
+        txnReceipt: transaction,
+        error: false,
+        errorMessage: "",
+      };
+    } catch (e) {
+      console.log("handleWriteCreate1155 caught error", e);
       return {
         txnReceipt: undefined,
         error: true,
-        errorMessage: "hash is missing",
+        errorMessage: `handleWriteCreate1155 caught error: ${e}`,
       };
-    const transaction = await publicClient.waitForTransactionReceipt({
-      hash,
-    });
-    return {
-      txnReceipt: transaction,
-      error: false,
-      errorMessage: "",
-    };
+    }
   };
 
   return (
@@ -1034,15 +1109,8 @@ const Clip = () => {
                 />
                 <Button
                   position="relative"
-                  onClick={() => {
-                    if (title) handleTrimVideo();
-                  }}
-                  isDisabled={
-                    !title ||
-                    clipRange[1] - clipRange[0] > 30 ||
-                    clipRange[1] - clipRange[0] < 2 ||
-                    title.length > 100
-                  }
+                  onClick={handleTrimVideo}
+                  isDisabled={!canTrim}
                   py="20px"
                   mb="20px"
                   mx="auto"

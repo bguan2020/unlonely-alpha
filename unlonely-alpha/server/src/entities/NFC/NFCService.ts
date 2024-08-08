@@ -288,13 +288,12 @@ export const createLivepeerClip = async (
         headers: livepeerHeaders,
       }
     );
-    // console.log(
-    //   "createLivepeerClip livepeer response at time,",
-    //   new Date(Date.now()).toISOString(),
-    //   `id:${endTime}`,
-    //   `${(Date.now() - endTime) / 1000}s`,
-    //   response
-    // );
+    console.log(
+      "createLivepeerClip livepeer response at time,",
+      new Date(Date.now()).toISOString(),
+      `id:${endTime}`,
+      `${(Date.now() - endTime) / 1000}s`
+    );
     const responseData: ClipResponse = response.data;
     let asset = null;
     while (true) {
@@ -312,17 +311,20 @@ export const createLivepeerClip = async (
         break;
       }
       if (res.status.phase === "failed") {
+        console.log("createLivepeerClip status phase returned failed",
+        new Date(Date.now()).toISOString(), `id:${endTime}`
+        );
         return {
           errorMessage:
             "createLivepeerClip Error livepeer could not create clip",
         };
       }
     }
-    // console.log(
-    //   "createLivepeerClip fetching playback,",
-    //   new Date(Date.now()).toISOString(),
-    //   `id:${endTime}`
-    // );
+    console.log(
+      "createLivepeerClip fetching playback,",
+      new Date(Date.now()).toISOString(),
+      `id:${endTime}`
+    );
     const playbackData: any = await fetch(
       `https://livepeer.studio/api/playback/${asset.playbackId}`,
       { headers: livepeerHeaders }
@@ -364,7 +366,7 @@ export const createLivepeerClip = async (
     return { url: playBackUrl, thumbnail: thumbNailUrl, ...res };
   } catch (e) {
     console.log(`createLivepeerClip Error invoking livepeer, id:${endTime}`, e);
-    return { errorMessage: "Error invoking livepeer" };
+    return { errorMessage: `Error invoking livepeer: ${e}` };
   }
 };
 
@@ -386,7 +388,7 @@ export const trimVideo = async (data: ITrimVideoInput) => {
   console.log("outputPath", outputPath);
 
   try {
-    // const start = Date.now();
+    const start = Date.now();
 
     const downloadResponse = await axios({
       url: data.videoLink,
@@ -401,7 +403,7 @@ export const trimVideo = async (data: ITrimVideoInput) => {
       writer.on("error", reject);
     });
 
-    // console.log("downloaded video", `${(Date.now() - start) / 1000}s`);
+    console.log("downloaded video", `${(Date.now() - start) / 1000}s`);
     const trimStart = Date.now();
 
     // Trim the video using FFmpeg
@@ -702,7 +704,7 @@ export const getLivepeerClipData = async (data: IGetLivepeerClipDataInput) => {
       return {
         videoLink: "",
         videoThumbnail: "",
-        errorMessage: "livepeer api could not create clip",
+        errorMessage: "livepeer api returned status failed",
         error: true
       }
     }
