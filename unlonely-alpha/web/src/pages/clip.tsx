@@ -131,7 +131,7 @@ const Clip = () => {
     | "transaction"
     | "redirecting"
     | "error"
-  >("clipping");
+  >("lacking");
   const [trimProgressPercentage, setTrimProgressPercentage] = useState(0);
   const [roughClipUrl, setRoughClipUrl] = useState(
     ""
@@ -414,18 +414,22 @@ const Clip = () => {
       if (!videoThumbnail && !videoLink) {
         setPageState("error");
         setErrorMessage(
-          "Livepeer api did not return video thumbnail or video link"
+          `Livepeer api did not return video thumbnail or video link, please refer to assetID:${assetId}`
         );
         return;
       }
       if (!videoThumbnail) {
         setPageState("error");
-        setErrorMessage("Livepeer api did not return video thumbnail");
+        setErrorMessage(
+          `Livepeer api did not return video thumbnail, please refer to assetID:${assetId}`
+        );
         return;
       }
       if (!videoLink) {
         setPageState("error");
-        setErrorMessage("Livepeer api did not return video link");
+        setErrorMessage(
+          `Livepeer api did not return video link, please refer to assetID:${assetId}`
+        );
         return;
       }
 
@@ -1186,15 +1190,10 @@ const Clip = () => {
             </Flex>
           ) : (
             <Flex direction={"column"} justifyContent={"center"}>
-              <Text
-                fontSize="30px"
-                mb="30px"
-                textAlign="center"
-                fontWeight={"bold"}
-              >
-                Could not generate rough clip, you must be logged in or the
-                server couldn't fetch channel data
-              </Text>
+              <Text>Make sure you're logged in</Text>
+              <Flex justifyContent={"center"}>
+                <Spinner />
+              </Flex>
             </Flex>
           )}
         </Flex>

@@ -491,6 +491,8 @@ export const trimVideo = async (data: ITrimVideoInput) => {
       });
     });
 
+    console.log("uploaded video via tus")
+
   return requestResForFinal.asset.id
   } catch (e) {
     console.log("Error: ", e);
@@ -502,7 +504,7 @@ export const trimVideo = async (data: ITrimVideoInput) => {
       fs.unlinkSync(outputPath);
     }
     // throw e;
-    return `error: ${e}`;
+    return `trimVideo error: ${e}`;
   }
 }
 
