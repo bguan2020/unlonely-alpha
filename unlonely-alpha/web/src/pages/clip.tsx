@@ -441,7 +441,9 @@ const Clip = () => {
       );
       if (!videoFileIpfsUrl) {
         setPageState("error");
-        setErrorMessage("Pinata could not pin video file onto ipfs");
+        setErrorMessage(
+          `Pinata could not pin video file onto ipfs, please see video link: ${videoLink}`
+        );
         return;
       }
 
@@ -463,7 +465,9 @@ const Clip = () => {
       }
       if (!thumbnailFileIpfsUrl) {
         setPageState("error");
-        setErrorMessage("Pinata could not pin thumbnail file onto ipfs");
+        setErrorMessage(
+          `Pinata could not pin thumbnail file onto ipfs, please see thumbnail link: ${videoThumbnail}`
+        );
         return;
       }
 
@@ -480,7 +484,15 @@ const Clip = () => {
       } catch (e) {
         console.log("makeMediaTokenMetadata error", e);
         setPageState("error");
-        setErrorMessage("Could not format token metadata json properly");
+        setErrorMessage(
+          `Could not format token metadata json properly, please see ${JSON.stringify(
+            {
+              mediaUrl: videoFileIpfsUrl,
+              thumbnailUrl: thumbnailFileIpfsUrl,
+              name: thumbnailFile.name,
+            }
+          )}`
+        );
         return;
       }
 
@@ -489,7 +501,11 @@ const Clip = () => {
       const jsonMetadataUri = await pinJsonWithPinata(tokenMetadataJson);
       if (!jsonMetadataUri) {
         setPageState("error");
-        setErrorMessage("Pinata could not pin token metadata json onto ipfs");
+        setErrorMessage(
+          `Pinata could not pin token metadata json onto ipfs, please see ${JSON.stringify(
+            tokenMetadataJson
+          )}`
+        );
         return;
       }
 
@@ -509,7 +525,13 @@ const Clip = () => {
         if (!_contractMetadataJsonUri) {
           setPageState("error");
           setErrorMessage(
-            "Pinata could not pin contract metadata json onto ipfs"
+            `Pinata could not pin contract metadata json onto ipfs, please see ${JSON.stringify(
+              {
+                description: `this was clipped from ${getChannelByIdData?.getChannelById?.slug}'s Unlonely livestream`,
+                image: UNLONELY_LOGO_IPFS_URL,
+                name: `${getChannelByIdData?.getChannelById?.slug}'s Unlonely Clips`,
+              }
+            )}`
           );
           return;
         }
