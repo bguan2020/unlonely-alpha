@@ -16,6 +16,10 @@ export const resolvers = {
     getNFC(_: any, { id }: { id: number }, ctx: Context) {
       return NFCService.getNFC({ id }, ctx);
     },
+    getNFCByTokenData(_: any,
+      { data }: { data: NFCService.IGetNFCByTokenDataInput }, ctx: Context) {
+        return NFCService.getNFCByTokenData(data, ctx);
+    },
     getLivepeerClipData(
       _: any,
       { data }: { data: NFCService.IGetLivepeerClipDataInput },

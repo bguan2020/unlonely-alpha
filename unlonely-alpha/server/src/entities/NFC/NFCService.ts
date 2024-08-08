@@ -718,6 +718,22 @@ export const getLivepeerClipData = async (data: IGetLivepeerClipDataInput) => {
   }
 }
 
+export interface IGetNFCByTokenDataInput {
+  contract1155Address: string;
+  contract1155ChainId: number;
+  tokenId: number;
+}
+
+export const getNFCByTokenData = async (data: IGetNFCByTokenDataInput, ctx: Context) => {
+  return await ctx.prisma.nFC.findFirst({
+    where: {
+      contract1155Address: data.contract1155Address,
+      tokenId: data.tokenId,
+      contract1155ChainId: data.contract1155ChainId,
+    },
+  });
+}
+
 export interface IRequestUploadFromLivepeerInput {
   name: string;
 }

@@ -148,6 +148,12 @@ export const typeDef = gql`
     name: String!
   }
 
+  input GetNFCByTokenDataInput {
+    contract1155Address: String!
+    contract1155ChainId: Int!
+    tokenId: Int!
+  }
+
   input ConcatenateOutroToTrimmedVideoInput {
     trimmedVideoFileName: String!
     name: String!
@@ -161,6 +167,7 @@ export const typeDef = gql`
   extend type Query {
     getNFCFeed(data: NFCFeedInput): [NFC]
     getNFC(id: ID!): NFC
+    getNFCByTokenData(data: GetNFCByTokenDataInput): NFC
     getLivepeerClipData(data: GetLivepeerClipDataInput): LivepeerClipDataResponse
     getUniqueContract1155Addresses(data: GetUniqueContract1155AddressesInput): [UniqueContract1155AddressesResponse]
   }
