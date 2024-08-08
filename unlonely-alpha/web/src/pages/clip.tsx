@@ -382,6 +382,11 @@ const Clip = () => {
         `${(Date.now() - trimFunctionStart) / 1000}s`
       );
       const assetId = trimRes?.res;
+      if (assetId?.includes("error:")) {
+        setPageState("error");
+        setErrorMessage(assetId);
+        return;
+      }
       console.log("assetId", assetId);
       let videoThumbnail = "";
       let videoLink = "";
@@ -404,6 +409,13 @@ const Clip = () => {
         console.log("Error", data.getLivepeerClipData.error);
         setPageState("error");
         setErrorMessage(data.getLivepeerClipData.errorMessage);
+        return;
+      }
+      if (!videoThumbnail && !videoLink) {
+        setPageState("error");
+        setErrorMessage(
+          "Livepeer api did not return video thumbnail or video link"
+        );
         return;
       }
       if (!videoThumbnail) {

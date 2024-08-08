@@ -467,8 +467,7 @@ export const trimVideo = async (data: ITrimVideoInput) => {
         },
         uploadSize: finalFileSize,
         onError: (error: any) => {
-          console.error("Failed because: ", error);
-          reject(error);
+          return `trimVideo tus error: ${error}`;
         },
         // onProgress: (bytesUploaded: number, bytesTotal: number) => {
           // const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
@@ -494,7 +493,7 @@ export const trimVideo = async (data: ITrimVideoInput) => {
 
   return requestResForFinal.asset.id
   } catch (e) {
-    console.log("Error:", e);
+    console.log("Error: ", e);
     // Clean up temporary files
     if (fs.existsSync(inputPath)) {
       fs.unlinkSync(inputPath);
@@ -502,7 +501,8 @@ export const trimVideo = async (data: ITrimVideoInput) => {
     if (fs.existsSync(outputPath)) {
       fs.unlinkSync(outputPath);
     }
-    throw e;
+    // throw e;
+    return `error: ${e}`;
   }
 }
 
