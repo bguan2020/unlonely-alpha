@@ -39,6 +39,7 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useVibesContext } from "../../hooks/context/useVibes";
 import { calculateBurnProceeds } from "./ChatUserModal_token";
+import { SelectedUser } from "../../constants/types/chat";
 
 export const ChatUserModal = ({
   isOpen,
@@ -49,7 +50,7 @@ export const ChatUserModal = ({
   isOpen: boolean;
   channel: AblyChannelPromise;
   handleClose: () => void;
-  targetUser?: { address?: string; username?: string };
+  targetUser?: SelectedUser;
 }) => {
   const { user } = useUser();
   const { isStandalone } = useUserAgent();
@@ -330,7 +331,7 @@ export const ChatUserModal = ({
           bg="#3A3A3A"
         >
           {isNormalUi && (
-            <>
+            <Flex direction="column" gap="10px">
               <Text
                 _hover={{ cursor: "pointer" }}
                 fontSize="16px"
@@ -361,6 +362,26 @@ export const ChatUserModal = ({
                   <ExternalLinkIcon />
                 </Flex>
               </Link>
+              {targetUser.FCHandle && (
+                <Link
+                  target="_blank"
+                  href={`https://warpcast.com//${targetUser.FCHandle}`}
+                  passHref
+                >
+                  <Flex
+                    alignItems={"center"}
+                    gap="2px"
+                    border={"1px #7c65c1 solid"}
+                    borderRadius="15px"
+                    justifyContent={"center"}
+                  >
+                    <Text color="#c7dbff" fontSize="13px" noOfLines={1}>
+                      {targetUser.FCHandle}
+                    </Text>
+                    <ExternalLinkIcon />
+                  </Flex>
+                </Link>
+              )}
               <Flex justifyContent={"space-evenly"}>
                 {(isSendingVibes || targetUser.address === user?.address) && (
                   <Text color="#e5fc92">
@@ -516,7 +537,7 @@ export const ChatUserModal = ({
                     </>
                   )}
               </Flex>
-            </>
+            </Flex>
           )}
           {isBanning && (
             <>

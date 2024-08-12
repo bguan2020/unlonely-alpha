@@ -25,6 +25,7 @@ type Props = {
   isCustomHeader: boolean;
   pageUrl?: string | null;
   noHeader?: boolean;
+  customBgColor?: string;
 };
 
 const AppLayout: React.FC<Props> = ({
@@ -37,6 +38,7 @@ const AppLayout: React.FC<Props> = ({
   isCustomHeader,
   pageUrl,
   noHeader,
+  customBgColor,
 }) => {
   const { isStandalone, ready } = useUserAgent();
   const router = useRouter();
@@ -49,7 +51,7 @@ const AppLayout: React.FC<Props> = ({
   });
 
   return (
-    <Box background="rgba(0, 0, 0, 0.65)">
+    <Box background={customBgColor ?? "rgba(0, 0, 0, 0.65)"}>
       {isCustomHeader === false && (
         <NextHead
           title={title ? title : ""}

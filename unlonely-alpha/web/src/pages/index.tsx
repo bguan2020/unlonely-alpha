@@ -1,5 +1,4 @@
 import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
-import { GraphQLClient } from "graphql-request";
 import {
   Box,
   Button,
@@ -26,8 +25,8 @@ import { useRouter } from "next/router";
 import { BiRefresh } from "react-icons/bi";
 
 import AppLayout from "../components/layout/AppLayout";
-import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
-import NfcList from "../components/NFCs/NfcList";
+// import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
+// import NfcList from "../components/NFCs/NfcList";
 import LiveChannelList from "../components/channels/LiveChannelList";
 import { WavyText } from "../components/general/WavyText";
 import useUserAgent from "../hooks/internal/useUserAgent";
@@ -43,11 +42,12 @@ import useRemoveChannelFromSubscription from "../hooks/server/channel/useRemoveC
 import { useUser } from "../hooks/context/useUser";
 import { sortChannels } from "../utils/channelSort";
 import { useCacheContext } from "../hooks/context/useCache";
-import ChannelList from "../components/channels/ChannelList";
-import VibesTokenInterface from "../components/chat/VibesTokenInterface";
+// import ChannelList from "../components/channels/ChannelList";
+// import VibesTokenInterface from "../components/chat/VibesTokenInterface";
 // import HeroBanner from "../components/layout/HeroBanner";
-import TempTokenLeaderboard from "../components/leaderboards/TempTokenLeaderboard";
+// import TempTokenLeaderboard from "../components/leaderboards/TempTokenLeaderboard";
 import { VibesProvider } from "../hooks/context/useVibes";
+import NfcLeaderboard from "../components/leaderboards/NfcLeaderboard";
 
 const FixedComponent = ({
   newHeightPercentage,
@@ -93,8 +93,8 @@ const ScrollableComponent = ({
     {
       variables: {
         data: {
-          limit: 30,
-          orderBy: "createdAt",
+          limit: 10,
+          orderBy: "totalMints",
         },
       },
     }
@@ -197,8 +197,9 @@ const ScrollableComponent = ({
 
   return (
     <Flex direction="column" width="100%" overflowX={"hidden"} gap="10px">
-      <TempTokenLeaderboard />
-      <Flex
+      {/* <TempTokenLeaderboard /> */}
+      <NfcLeaderboard />
+      {/* <Flex
         height="300px"
         gap="5px"
         justifyContent={"space-between"}
@@ -267,7 +268,7 @@ const ScrollableComponent = ({
         </Flex>
       ) : (
         <NfcList nfcs={nfcs} />
-      )}
+      )} */}
       <Flex
         justifyContent={"space-between"}
         my="6"
@@ -334,51 +335,6 @@ function DesktopHomePage({
     md: true,
     xl: true,
   });
-
-  // Define the endpoint URL
-  const endpoint = "https://api.zora.co/graphql";
-
-  // Create a GraphQL client
-  const client = new GraphQLClient(endpoint);
-
-  // Define the GraphQL query
-  // const query = gql`
-  //   query MyQuery($tokenAddress: String!, $tokenId: String!) {
-  //     mints(
-  //       networks: { network: BASE, chain: BASE_MAINNET }
-  //       sort: { sortKey: TIME, sortDirection: DESC }
-  //       where: { tokens: { address: $tokenAddress, tokenId: $tokenId } }
-  //     ) {
-  //       nodes {
-  //         mint {
-  //           quantity
-  //         }
-  //       }
-  //     }
-  //   }
-  // `;
-
-  // useEffect(() => {
-  //   const variables = {
-  //     tokenAddress: "0xf64ca5200134c40834b2e79e68fba4cf0d8ccdbb",
-  //     tokenId: "2",
-  //   };
-  //   const fetchData = async () => {
-  //     try {
-  //       const data = await client.request(query, variables);
-  //       const totalQuantity = data.mints.nodes.reduce(
-  //         (accumulator: number, node: { mint: { quantity: number } }) => {
-  //           return accumulator + node.mint.quantity;
-  //         },
-  //         0
-  //       );
-  //       console.log("Total quantity:", totalQuantity);
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
-  //   fetchData();
-  // }, []);
 
   return (
     <AppLayout isCustomHeader={false}>

@@ -373,6 +373,12 @@ export type GetLivepeerStreamDataInput = {
   streamId?: InputMaybe<Scalars["String"]>;
 };
 
+export type GetNfcByTokenDataInput = {
+  contract1155Address: Scalars["String"];
+  contract1155ChainId: Scalars["Int"];
+  tokenId: Scalars["Int"];
+};
+
 export type GetPoapInput = {
   date: Scalars["String"];
 };
@@ -413,6 +419,11 @@ export type GetUnclaimedEvents = {
   chainId: Scalars["Int"];
   channelId?: InputMaybe<Scalars["ID"]>;
   userAddress?: InputMaybe<Scalars["String"]>;
+};
+
+export type GetUniqueContract1155AddressesInput = {
+  limit?: InputMaybe<Scalars["Int"]>;
+  offset?: InputMaybe<Scalars["Int"]>;
 };
 
 export type GetUserInput = {
@@ -475,6 +486,7 @@ export enum LikeObj {
 export type LivepeerClipDataResponse = {
   __typename?: "LivepeerClipDataResponse";
   error: Scalars["Boolean"];
+  errorMessage: Scalars["String"];
   videoLink: Scalars["String"];
   videoThumbnail: Scalars["String"];
 };
@@ -826,7 +838,7 @@ export type MutationUpdateUserNotificationsArgs = {
 
 export type Nfc = Likable & {
   __typename?: "NFC";
-  channel: Channel;
+  channel?: Maybe<Channel>;
   channelId?: Maybe<Scalars["ID"]>;
   contract1155Address?: Maybe<Scalars["String"]>;
   contract1155ChainId?: Maybe<Scalars["Int"]>;
@@ -838,9 +850,12 @@ export type Nfc = Likable & {
   owner: User;
   score: Scalars["Int"];
   title?: Maybe<Scalars["String"]>;
+  tokenId?: Maybe<Scalars["Int"]>;
+  totalMints?: Maybe<Scalars["Int"]>;
   updatedAt: Scalars["DateTime"];
   videoLink?: Maybe<Scalars["String"]>;
   videoThumbnail?: Maybe<Scalars["String"]>;
+  zoraLink?: Maybe<Scalars["String"]>;
 };
 
 export type NfcFeedInput = {
@@ -1057,6 +1072,7 @@ export type Query = {
   >;
   getLivepeerViewershipMetrics?: Maybe<Array<Maybe<LivepeerViewershipMetrics>>>;
   getNFC?: Maybe<Nfc>;
+  getNFCByTokenData?: Maybe<Nfc>;
   getNFCFeed?: Maybe<Array<Maybe<Nfc>>>;
   getPoap?: Maybe<Poap>;
   getRecentChats?: Maybe<Array<Maybe<Chat>>>;
@@ -1072,6 +1088,9 @@ export type Query = {
   getTokenHoldersByChannel: Array<UserCreatorToken>;
   getTokenLeaderboard: Array<CreatorToken>;
   getUnclaimedEvents: Array<Maybe<SharesEvent>>;
+  getUniqueContract1155Addresses?: Maybe<
+    Array<Maybe<UniqueContract1155AddressesResponse>>
+  >;
   getUser?: Maybe<User>;
   getUserChannelContract1155Mapping?: Maybe<Scalars["JSON"]>;
   getUserTokenHolding?: Maybe<Scalars["Int"]>;
@@ -1158,6 +1177,10 @@ export type QueryGetNfcArgs = {
   id: Scalars["ID"];
 };
 
+export type QueryGetNfcByTokenDataArgs = {
+  data?: InputMaybe<GetNfcByTokenDataInput>;
+};
+
 export type QueryGetNfcFeedArgs = {
   data?: InputMaybe<NfcFeedInput>;
 };
@@ -1212,6 +1235,10 @@ export type QueryGetTokenHoldersByChannelArgs = {
 
 export type QueryGetUnclaimedEventsArgs = {
   data?: InputMaybe<GetUnclaimedEvents>;
+};
+
+export type QueryGetUniqueContract1155AddressesArgs = {
+  data?: InputMaybe<GetUniqueContract1155AddressesInput>;
 };
 
 export type QueryGetUserArgs = {
@@ -1307,6 +1334,7 @@ export type SoftDeleteSubscriptionInput = {
 export enum SortBy {
   CreatedAt = "createdAt",
   Score = "score",
+  TotalMints = "totalMints",
 }
 
 export enum SortOrder {
@@ -1436,6 +1464,12 @@ export type TrimVideoInput = {
   name: Scalars["String"];
   startTime: Scalars["Float"];
   videoLink: Scalars["String"];
+};
+
+export type UniqueContract1155AddressesResponse = {
+  __typename?: "UniqueContract1155AddressesResponse";
+  contract1155Address: Scalars["String"];
+  contract1155ChainId?: Maybe<Scalars["Int"]>;
 };
 
 export type UpdateChannelAllowNfcsInput = {
@@ -1581,6 +1615,7 @@ export type UpdateUserNotificationsInput = {
 
 export type User = {
   __typename?: "User";
+  FCHandle?: Maybe<Scalars["String"]>;
   FCImageUrl?: Maybe<Scalars["String"]>;
   address: Scalars["String"];
   authedAsMe: Scalars["Boolean"];
@@ -1680,6 +1715,7 @@ export type GetUserQuery = {
     videoSavantLvl: number;
     nfcRank: number;
     FCImageUrl?: string | null;
+    FCHandle?: string | null;
     isFCUser: boolean;
     isLensUser: boolean;
     lensHandle?: string | null;
@@ -1706,6 +1742,7 @@ export type GetLivepeerClipDataQuery = {
   getLivepeerClipData?: {
     __typename?: "LivepeerClipDataResponse";
     error: boolean;
+    errorMessage: string;
     videoThumbnail: string;
     videoLink: string;
   } | null;
@@ -1990,6 +2027,7 @@ export type GetChannelFeedQuery = {
     description?: string | null;
     slug: string;
     thumbnailUrl?: string | null;
+    updatedAt: any;
     owner: {
       __typename?: "User";
       username?: string | null;
@@ -2023,6 +2061,7 @@ export type NfcFeedQuery = {
   getNFCFeed?: Array<{
     __typename?: "NFC";
     createdAt: any;
+    updatedAt: any;
     channelId?: string | null;
     id: string;
     videoLink?: string | null;
@@ -2030,15 +2069,19 @@ export type NfcFeedQuery = {
     openseaLink?: string | null;
     score: number;
     liked?: boolean | null;
+    zoraLink?: string | null;
+    contract1155Address?: string | null;
+    contract1155ChainId?: number | null;
+    tokenId?: number | null;
+    totalMints?: number | null;
     title?: string | null;
     owner: {
       __typename?: "User";
       username?: string | null;
       address: string;
       FCImageUrl?: string | null;
-      powerUserLvl: number;
-      videoSavantLvl: number;
     };
+    channel?: { __typename?: "Channel"; slug: string } | null;
   } | null> | null;
 };
 
@@ -2927,7 +2970,7 @@ export type UpdateUserMutation = {
     __typename?: "User";
     address: string;
     lensHandle?: string | null;
-    FCImageUrl?: string | null;
+    FCHandle?: string | null;
     username?: string | null;
   } | null;
 };
@@ -2971,6 +3014,7 @@ export type NfcDetailQuery = {
     score: number;
     liked?: boolean | null;
     updatedAt: any;
+    zoraLink?: string | null;
     owner: {
       __typename?: "User";
       address: string;
@@ -3035,6 +3079,7 @@ export const GetUserDocument = gql`
       videoSavantLvl
       nfcRank
       FCImageUrl
+      FCHandle
       isFCUser
       isLensUser
       lensHandle
@@ -3146,6 +3191,7 @@ export const GetLivepeerClipDataDocument = gql`
   query GetLivepeerClipData($data: GetLivepeerClipDataInput) {
     getLivepeerClipData(data: $data) {
       error
+      errorMessage
       videoThumbnail
       videoLink
     }
@@ -4133,6 +4179,7 @@ export const GetChannelFeedDocument = gql`
         lensImageUrl
       }
       thumbnailUrl
+      updatedAt
     }
   }
 `;
@@ -4249,6 +4296,7 @@ export const NfcFeedDocument = gql`
   query NFCFeed($data: NFCFeedInput!) {
     getNFCFeed(data: $data) {
       createdAt
+      updatedAt
       channelId
       id
       videoLink
@@ -4256,14 +4304,20 @@ export const NfcFeedDocument = gql`
       openseaLink
       score
       liked
+      zoraLink
+      contract1155Address
+      contract1155ChainId
+      tokenId
+      totalMints
       owner {
         username
         address
         FCImageUrl
-        powerUserLvl
-        videoSavantLvl
       }
       title
+      channel {
+        slug
+      }
     }
   }
 `;
@@ -7500,7 +7554,7 @@ export const UpdateUserDocument = gql`
     updateUser(data: $data) {
       address
       lensHandle
-      FCImageUrl
+      FCHandle
       username
     }
   }
@@ -7662,6 +7716,7 @@ export const NfcDetailDocument = gql`
       score
       liked
       updatedAt
+      zoraLink
       owner {
         address
         FCImageUrl

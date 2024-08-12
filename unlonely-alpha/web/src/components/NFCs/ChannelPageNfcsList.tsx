@@ -59,6 +59,9 @@ export const ChannelPageNfcsList = () => {
     setChannelNfcs((prev) => [...(prev || []), ...filteredNfcs]);
   }, [channelQueryData?.id, user?.address, pagesFetched]);
 
+  console.log("fetchedUnderLimit", fetchedUnderLimit);
+  console.log("pagesFetched", pagesFetched);
+
   useEffect(() => {
     if (showClipDrawer && channelNfcs?.length === 0) {
       console.log("running on first open");
@@ -109,7 +112,7 @@ export const ChannelPageNfcsList = () => {
                   _active={{}}
                   onClick={() => setFilterNfcsByUserOnly(true)}
                 >
-                  <Text fontSize="15px">show mine</Text>
+                  <Text fontSize="15px">my clips</Text>
                 </MenuItem>
                 <MenuItem
                   bg={"#131323"}
@@ -129,7 +132,10 @@ export const ChannelPageNfcsList = () => {
           <NfcList
             nfcs={(channelNfcs ?? []).filter((nfc) => {
               if (filterNfcsByUserOnly) {
-                return nfc?.owner?.address === user?.address;
+                return (
+                  nfc?.owner?.address.toLowerCase() ===
+                  user?.address.toLowerCase()
+                );
               }
               return true;
             })}

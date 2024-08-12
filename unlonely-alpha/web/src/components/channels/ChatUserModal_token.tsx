@@ -7,6 +7,7 @@ import {
   Input,
   Spinner,
   Text,
+  Image,
   Tooltip,
   useToast,
   Box,
@@ -36,6 +37,7 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useTempTokenContext } from "../../hooks/context/useTempToken";
 import { bondingCurveBigInt } from "../../utils/contract";
+import { SelectedUser } from "../../constants/types/chat";
 
 export const ChatUserModal_token = ({
   isOpen,
@@ -46,7 +48,7 @@ export const ChatUserModal_token = ({
   isOpen: boolean;
   channel: AblyChannelPromise;
   handleClose: () => void;
-  targetUser?: { address?: string; username?: string };
+  targetUser?: SelectedUser;
 }) => {
   const { user } = useUser();
   const { isStandalone } = useUserAgent();
@@ -335,7 +337,7 @@ export const ChatUserModal_token = ({
           bg="#3A3A3A"
         >
           {isNormalUi && (
-            <>
+            <Flex direction="column" gap="10px">
               <Text
                 _hover={{ cursor: "pointer" }}
                 fontSize="16px"
@@ -366,6 +368,36 @@ export const ChatUserModal_token = ({
                   <ExternalLinkIcon />
                 </Flex>
               </Link>
+              {targetUser.FCHandle && (
+                <Link
+                  target="_blank"
+                  href={`https://warpcast.com//${targetUser.FCHandle}`}
+                  passHref
+                >
+                  <Flex
+                    alignItems={"center"}
+                    gap="2px"
+                    border={"1px #7c65c1 solid"}
+                    borderRadius="15px"
+                    justifyContent={"center"}
+                  >
+                    <Tooltip label="Farcaster profile">
+                      <Image
+                        display="inline-block"
+                        verticalAlign="middle"
+                        src="/images/farcaster_logo.png"
+                        width="20px"
+                        height="20px"
+                        mr="5px"
+                      />
+                    </Tooltip>
+                    <Text color="#c7dbff" fontSize="13px" noOfLines={1}>
+                      {targetUser.FCHandle}
+                    </Text>
+                    <ExternalLinkIcon />
+                  </Flex>
+                </Link>
+              )}
               <>
                 {currentActiveTokenSymbol && (
                   <Flex justifyContent={"space-evenly"}>
@@ -529,7 +561,7 @@ export const ChatUserModal_token = ({
                     </>
                   )}
               </Flex>
-            </>
+            </Flex>
           )}
           {isBanning && (
             <>

@@ -10,6 +10,7 @@ export const GET_USER_QUERY = gql`
       videoSavantLvl
       nfcRank
       FCImageUrl
+      FCHandle
       isFCUser
       isLensUser
       lensHandle
@@ -31,11 +32,12 @@ export const GET_LIVEPEER_CLIP_DATA_QUERY = gql`
   query GetLivepeerClipData($data: GetLivepeerClipDataInput) {
     getLivepeerClipData(data: $data) {
       error
+      errorMessage
       videoThumbnail
       videoLink
     }
   }
-`
+`;
 
 export const GET_USER_TOKEN_HOLDING_QUERY = gql`
   query GetUserTokenHolding($data: GetUserTokenHoldingInput!) {
@@ -271,6 +273,7 @@ export const CHANNEL_FEED_QUERY = gql`
         lensImageUrl
       }
       thumbnailUrl
+      updatedAt
     }
   }
 `;
@@ -289,6 +292,7 @@ export const NFC_FEED_QUERY = gql`
   query NFCFeed($data: NFCFeedInput!) {
     getNFCFeed(data: $data) {
       createdAt
+      updatedAt
       channelId
       id
       videoLink
@@ -296,14 +300,20 @@ export const NFC_FEED_QUERY = gql`
       openseaLink
       score
       liked
+      zoraLink
+      contract1155Address
+      contract1155ChainId
+      tokenId
+      totalMints
       owner {
         username
         address
         FCImageUrl
-        powerUserLvl
-        videoSavantLvl
       }
       title
+      channel {
+        slug
+      }
     }
   }
 `;

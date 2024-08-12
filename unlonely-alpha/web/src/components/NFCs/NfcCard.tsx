@@ -2,7 +2,7 @@ import { Text, Flex, Box, Image, Spacer } from "@chakra-ui/react";
 import Link from "next/link";
 
 import centerEllipses from "../../utils/centerEllipses";
-import { LikedIcon, LikeIcon } from "../icons/LikeIcon";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
 
 const unlonelyAvatar = "/icons/icon-192x192.png";
 
@@ -34,6 +34,21 @@ const NfcCard = ({ nfc, makeLinksExternal }: any) => {
           }}
         >
           <Box position="relative" mb="10px">
+            {nfc.totalMints > 0 && (
+              <Box
+                position="absolute"
+                bg="#05a500ff"
+                px="5px"
+                borderRadius={"5px"}
+                bottom={"10px"}
+                right={"10px"}
+              >
+                <Text fontFamily={"LoRes15"}>
+                  {truncateValue(nfc.totalMints)} mint
+                  {nfc.totalMints > 1 && "s"}
+                </Text>
+              </Box>
+            )}
             <Image
               src={nfc.videoThumbnail ?? "/svg/defaultThumbnail.svg"}
               width={["236px", "380px"]}
@@ -61,14 +76,6 @@ const NfcCard = ({ nfc, makeLinksExternal }: any) => {
           <Text fontSize={16} fontWeight="bold" noOfLines={1}>
             {nfc.title}
           </Text>
-          <Flex mt="0.25rem" direction="row">
-            {nfc.score >= 1 ? <Text fontSize={12}>{nfc.score}</Text> : null}
-            {nfc.liked === true ? (
-              <LikedIcon boxSize={4} />
-            ) : (
-              <LikeIcon boxSize={4} />
-            )}
-          </Flex>
         </Flex>
         <Flex direction="row" justifyContent="flex-end">
           <Image

@@ -133,6 +133,7 @@ export const useChatBox = (
     body?: string
   ) => {
     if (walletIsConnected && user) {
+      console.log("user", user);
       channel.publish({
         name: CHAT_MESSAGE_EVENT,
         data: {
@@ -142,6 +143,7 @@ export const useChatBox = (
           isFC: user.isFCUser,
           isLens: user.isLensUser,
           lensHandle: user.lensHandle,
+          FCHandle: user.FCHandle,
           address: user.address,
           channelUserRank: userRank,
           isGif,

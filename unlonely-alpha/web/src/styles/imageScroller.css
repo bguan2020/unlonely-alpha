@@ -1,37 +1,37 @@
 .image-container {
-    position: relative;
-    width: 100%;
-    height: 100vh; /* Full viewport height */
-    overflow: hidden; /* Hide images that move out of the container */
-  }
-  
-  .scroll-image-forward {
-    position: absolute;
-    width: 300px; /* Adjust width as needed */
-    animation: scrollImageForward 20s linear infinite;
-    visibility: hidden;
-  }
+  position: relative;
+  width: 100%;
+  height: 100vh; /* Full viewport height */
+  overflow: hidden; /* Hide images that move out of the container */
+}
 
-  .scroll-image-backward {
-    position: absolute;
-    width: 300px; /* Adjust width as needed */
-    animation: scrollImageBackward 20s linear infinite;
-    visibility: hidden;
-  }
-  
+.scroll-image-forward {
+  position: absolute;
+  width: 300px; /* Adjust width as needed */
+  animation: scrollImageForward 20s linear infinite;
+  visibility: hidden;
+}
+
+.scroll-image-backward {
+  position: absolute;
+  width: 300px; /* Adjust width as needed */
+  animation: scrollImageBackward 20s linear infinite;
+  visibility: hidden;
+}
+
 @keyframes scrollImageForward {
   from {
-      transform: translateX(0vw);
-      visibility: visible;
-    }
-    to {
-      transform: translateX(100vw);
-      visibility: visible;
-    }
+    transform: translateX(0vw);
+    visibility: visible;
+  }
+  to {
+    transform: translateX(100vw);
+    visibility: visible;
+  }
 }
 
 @keyframes scrollImageBackward {
-from {
+  from {
     transform: translateX(100vw) scaleX(-1);
     visibility: visible;
   }

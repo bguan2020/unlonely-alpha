@@ -2,22 +2,22 @@ import axios from "axios";
 
 type FollowType = {
   object: string;
-  fid: number
-  viewer_context:{
-    following: boolean,
-    followed_by: boolean
-  }
-}
+  fid: number;
+  viewer_context: {
+    following: boolean;
+    followed_by: boolean;
+  };
+};
 
 type NeynarReturnType = {
-  users: FollowType[],
-}
+  users: FollowType[];
+};
 
 export async function isFollowing(
   userFid: number,
   author: number
 ): Promise<boolean> {
-  const url = `https://api.neynar.com/v2/farcaster/user/bulk?fids=${userFid}&viewer_fid=${author}`
+  const url = `https://api.neynar.com/v2/farcaster/user/bulk?fids=${userFid}&viewer_fid=${author}`;
   const options = {
     method: "GET",
     headers: {
@@ -26,25 +26,28 @@ export async function isFollowing(
     },
   };
 
-  console.log("userFid: ", userFid,"viewer_fid", author);
+  console.log("userFid: ", userFid, "viewer_fid", author);
 
   // Function to fetch a page of data
   const fetchData = async (): Promise<NeynarReturnType> => {
-    const response = await axios.get(url, {
-      ...options
-    }).then((res) => res.data).catch((error) => {
-      console.error("Error fetching neynar data:", error);
-      return {
-        users: [],
-      };
-    });
+    const response = await axios
+      .get(url, {
+        ...options,
+      })
+      .then((res) => res.data)
+      .catch((error) => {
+        console.error("Error fetching neynar data:", error);
+        return {
+          users: [],
+        };
+      });
     return response;
   };
 
   const data = await fetchData();
 
-  const isFollowing = data.users[0].viewer_context.followed_by
+  const isFollowing = data.users[0].viewer_context.followed_by;
 
-  console.log ("is user following? ", isFollowing)
+  console.log("is user following? ", isFollowing);
   return isFollowing;
 }

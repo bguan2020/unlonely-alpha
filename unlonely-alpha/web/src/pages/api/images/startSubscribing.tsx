@@ -39,13 +39,13 @@ export default async function GET(req: NextRequest) {
           style={{
             display: "flex",
             flexDirection: "column",
-            fontSize: 36,
-            padding: 20,
+            fontSize: 30,
+            padding: 15,
             position: "absolute",
             color: "white",
             whiteSpace: "pre-wrap",
             width: "100%",
-            height: "100vh",
+            height: "80vh",
           }}
         >
           <h4 style={{ textAlign: "center" }}>

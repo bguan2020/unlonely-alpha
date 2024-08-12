@@ -1,11 +1,9 @@
 import axios from "axios";
-import { PrismaClient, User } from "@prisma/client";
+import { User } from "@prisma/client";
 
 import { Context } from "../../context";
 import { lensClient, LENS_GET_DEFAULT_PROFILE } from "../../utils/lens/client";
 import { fetchSocial } from "../../utils/identityResolver";
-
-const prisma = new PrismaClient();
 
 export const getLeaderboard = (ctx: Context) => {
   return ctx.prisma.user.findMany({
@@ -63,6 +61,7 @@ export const getUser = async (data: IGetUserInput, ctx: Context) => {
       reputation: true,
       isFCUser: true,
       FCImageUrl: true,
+      FCHandle: true,
       isLensUser: true,
       lensHandle: true,
       lensImageUrl: true,
@@ -105,7 +104,7 @@ export const getUserChannelContract1155Mapping = async (
   }
 
   return user.channelContract1155Mapping;
-}
+};
 
 export interface IUpdateUserChannelContract1155MappingInput {
   channelId: number;
@@ -115,10 +114,11 @@ export interface IUpdateUserChannelContract1155MappingInput {
 }
 
 export const updateUserChannelContract1155Mapping = async (
-  data: IUpdateUserChannelContract1155MappingInput
+  data: IUpdateUserChannelContract1155MappingInput,
+  ctx: Context
 ) => {
   // Fetch the current user data to get the existing mapping
-  const user = await prisma.user.findUnique({
+  const user = await ctx.prisma.user.findUnique({
     where: { address: data.userAddress },
   });
 
@@ -136,7 +136,7 @@ export const updateUserChannelContract1155Mapping = async (
   };
 
   // Update the user with the new mapping
-  return prisma.user.update({
+  return ctx.prisma.user.update({
     where: { address: data.userAddress },
     data: {
       channelContract1155Mapping: currentMapping,

@@ -3,20 +3,29 @@ import { GraphQLErrors } from "@apollo/client/errors";
 import { useCallback } from "react";
 
 import { useAuthedMutation } from "../../../apiClient/hooks";
-import { ConcatenateOutroToTrimmedVideoInput, ConcatenateOutroToTrimmedVideoMutation, ConcatenateOutroToTrimmedVideoMutationVariables } from "../../../generated/graphql";
+import {
+  ConcatenateOutroToTrimmedVideoInput,
+  ConcatenateOutroToTrimmedVideoMutation,
+  ConcatenateOutroToTrimmedVideoMutationVariables,
+} from "../../../generated/graphql";
 
 type Props = {
   onError?: (errors?: GraphQLErrors) => void;
 };
 
 const MUTATION = gql`
-  mutation ConcatenateOutroToTrimmedVideo($data: ConcatenateOutroToTrimmedVideoInput!) {
+  mutation ConcatenateOutroToTrimmedVideo(
+    $data: ConcatenateOutroToTrimmedVideoInput!
+  ) {
     concatenateOutroToTrimmedVideo(data: $data)
   }
 `;
 
 const useConcatenateOutroTrimmedVideo = ({ onError }: Props) => {
-  const [mutate] = useAuthedMutation<ConcatenateOutroToTrimmedVideoMutation, ConcatenateOutroToTrimmedVideoMutationVariables>(MUTATION);
+  const [mutate] = useAuthedMutation<
+    ConcatenateOutroToTrimmedVideoMutation,
+    ConcatenateOutroToTrimmedVideoMutationVariables
+  >(MUTATION);
 
   const concatenateOutroTrimmedVideo = useCallback(
     async (data: ConcatenateOutroToTrimmedVideoInput) => {
@@ -31,7 +40,10 @@ const useConcatenateOutroTrimmedVideo = ({ onError }: Props) => {
       });
       res = mutationResult?.data?.concatenateOutroToTrimmedVideo;
       if (res) {
-        console.log("useConcatenateOutroTrimmedVideo ConcatenateOutroTrimmedVideoFromLivepeer success", res);
+        console.log(
+          "useConcatenateOutroTrimmedVideo ConcatenateOutroTrimmedVideoFromLivepeer success",
+          res
+        );
       } else {
         onError && onError();
       }

@@ -62,6 +62,7 @@ const GET_SOCIAL = `
 
 export type SocialData = {
   username?: string;
+  FCHandle?: string;
   FCImageUrl?: string;
   isFCUser?: boolean;
   lensHandle?: string;
@@ -106,6 +107,14 @@ export const fetchSocial = async (
       newData.FCImageUrl = fc.profileImageContentValue.image.small;
     } else {
       newData.FCImageUrl = "";
+    }
+    if (
+      fc?.profileHandle !== null &&
+      fc?.profileHandle !== undefined
+    ) {
+      newData.FCHandle = fc.profileHandle;
+    } else {
+      newData.FCHandle = "";
     }
     if (lens !== null && lens !== undefined) {
       newData.isLensUser = true;

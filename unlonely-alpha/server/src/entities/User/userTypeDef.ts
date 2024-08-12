@@ -18,6 +18,7 @@ export const typeDef = gql`
     reputation: Int
     isFCUser: Boolean!
     FCImageUrl: String
+    FCHandle: String
     isLensUser: Boolean!
     lensHandle: String
     lensImageUrl: String
@@ -73,7 +74,9 @@ export const typeDef = gql`
 
   extend type Mutation {
     updateUserNotifications(data: UpdateUserNotificationsInput!): User
-    updateUserChannelContract1155Mapping(data: UpdateUserChannelContract1155MappingInput!): User
+    updateUserChannelContract1155Mapping(
+      data: UpdateUserChannelContract1155MappingInput!
+    ): User
     updateUser(data: UpdateUserInput!): User
   }
 `;

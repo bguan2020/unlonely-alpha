@@ -40,7 +40,7 @@ export const resolvers = {
     ) => {
       return userService.getUser(data, ctx);
     },
-    getUserChannelContract1155Mapping : (
+    getUserChannelContract1155Mapping: (
       _: any,
       { data }: { data: userService.IGetUserInput },
       ctx: Context
@@ -92,14 +92,16 @@ export const resolvers = {
     },
     updateUserChannelContract1155Mapping: (
       _: any,
-      { data }: { data: userService.IUpdateUserChannelContract1155MappingInput },
+      {
+        data,
+      }: { data: userService.IUpdateUserChannelContract1155MappingInput },
       ctx: Context
     ) => {
       if (!ctx.user) {
         throw new AuthenticationError("Not authenticated");
       }
 
-      return userService.updateUserChannelContract1155Mapping(data);
-    },  
+      return userService.updateUserChannelContract1155Mapping(data, ctx);
+    },
   },
 };

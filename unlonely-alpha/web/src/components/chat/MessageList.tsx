@@ -220,13 +220,7 @@ const MessageList = memo(
                 message={data}
                 handleOpen={handleSelectedUserInChat}
                 handlePinCallback={handleUpdatePinnedChatMessages}
-                handleCollectorMint={
-                  data.data.body &&
-                  JSON.parse(data.data.body).interactionType ===
-                    InteractionType.PUBLISH_NFC
-                    ? collectorMint
-                    : undefined
-                }
+                handleCollectorMint={collectorMint}
                 index={index}
               />
             )}
