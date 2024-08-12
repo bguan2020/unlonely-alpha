@@ -14,6 +14,7 @@ import { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { MdDragIndicator } from "react-icons/md";
 import * as tus from "tus-js-client";
 import Link from "next/link";
+import MP4Box, { MP4Info, MP4ArrayBuffer } from "mp4box";
 
 import {
   CHAT_MESSAGE_EVENT,
@@ -107,6 +108,54 @@ type FinalClipObject = PostNfcInput & {
   owner?: { username?: string; address: string };
 };
 
+interface CodecMapping {
+  codec: string;
+  description: string;
+  profileLevel: string;
+  isSupportedForConcat: boolean;
+  ffmpegParams: { codec: string; [key: string]: string };
+}
+
+const codecMap: { [key: string]: CodecMapping } = {
+  "avc1.4d401f": {
+    codec: "avc1",
+    description: "H.264, Main Profile, Level 3.1",
+    profileLevel: "4d401f",
+    isSupportedForConcat: true,
+    ffmpegParams: {
+      codec: "libx264",
+      profile: "main",
+      level: "3.1",
+    },
+  },
+  "avc1.42E01E": {
+    codec: "avc1",
+    description: "H.264, Baseline Profile, Level 3.0",
+    profileLevel: "42E01E",
+    isSupportedForConcat: true,
+    ffmpegParams: {
+      codec: "libx264",
+      profile: "baseline",
+      level: "3.0",
+    },
+  },
+  "mp4a.40.2": {
+    codec: "mp4a",
+    description: "AAC, Low Complexity Profile",
+    profileLevel: "40.2",
+    isSupportedForConcat: true,
+    ffmpegParams: {
+      codec: "aac",
+      bitrate: "128k",
+    },
+  },
+  // Add more mappings as needed
+};
+
+function canConcatenateWithoutReencoding(codec: string): boolean {
+  return codecMap[codec]?.isSupportedForConcat ?? false;
+}
+
 const Clip = () => {
   const router = useRouter();
   const { user } = useUser();
@@ -138,11 +187,28 @@ const Clip = () => {
     | "transaction"
     | "redirecting"
     | "error"
-  >("selecting");
+  >("lacking");
+  const [copiedVideoProperties, setCopiedVideoProperties] = useState<{
+    width: number;
+    height: number;
+    frameRate: number;
+    videoCodec: string;
+    audioCodec: string;
+    sampleRate: number;
+    channelCount: number;
+  }>({
+    width: 0,
+    height: 0,
+    frameRate: 0,
+    videoCodec: "",
+    audioCodec: "",
+    sampleRate: 0,
+    channelCount: 0,
+  });
   const [trimProgressPercentage, setTrimProgressPercentage] = useState(0);
   const [roughClipUrl, setRoughClipUrl] = useState(
-    // ""
-    "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/85f88w1q70abhfau/720p0.mp4"
+    ""
+    // "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/85f88w1q70abhfau/720p0.mp4"
   );
   const [finalClipObject, setFinalClipObject] = useState<
     FinalClipObject | undefined
@@ -288,56 +354,56 @@ const Clip = () => {
     if (channelId) getChannelById();
   }, [channelId]);
 
-  // useEffect(() => {
-  //   const init = async () => {
-  //     if (!getChannelByIdData || !user) {
-  //       setPageState("lacking");
-  //       return;
-  //     }
-  //     if (!getChannelByIdData.getChannelById?.isLive) {
-  //       setPageState("offline");
-  //       return;
-  //     }
-  //     setPageState("clipping");
-  //     try {
-  //       const { res } = await createClip({
-  //         title: `rough-clip-${Date.now()}`,
-  //         channelId: getChannelByIdData.getChannelById?.id,
-  //         livepeerPlaybackId:
-  //           getChannelByIdData.getChannelById?.livepeerPlaybackId,
-  //         noDatabasePush: true,
-  //       });
-  //       const url = res?.url;
-  //       if (res?.errorMessage) {
-  //         console.log(
-  //           "Error creating rough clip, got error from createClip,",
-  //           res.errorMessage
-  //         );
-  //         setPageState("error");
-  //         setErrorMessage(
-  //           `Error creating rough clip, got error from createClip, ${res.errorMessage}`
-  //         );
-  //         return;
-  //       }
-  //       if (url) {
-  //         setRoughClipUrl(url);
-  //       } else {
-  //         console.log("Error creating rough clip, no error but url is missing");
-  //         setPageState("error");
-  //         setErrorMessage(
-  //           "Error creating rough clip, no error but url is missing"
-  //         );
-  //         return;
-  //       }
-  //       setPageState("selecting");
-  //     } catch (e) {
-  //       console.log("createClip error", e);
-  //       setPageState("error");
-  //       setErrorMessage(`Error creating rough clip, catch block caught ${e}`);
-  //     }
-  //   };
-  //   init();
-  // }, [getChannelByIdData, user]);
+  useEffect(() => {
+    const init = async () => {
+      if (!getChannelByIdData || !user) {
+        setPageState("lacking");
+        return;
+      }
+      if (!getChannelByIdData.getChannelById?.isLive) {
+        setPageState("offline");
+        return;
+      }
+      setPageState("clipping");
+      try {
+        const { res } = await createClip({
+          title: `rough-clip-${Date.now()}`,
+          channelId: getChannelByIdData.getChannelById?.id,
+          livepeerPlaybackId:
+            getChannelByIdData.getChannelById?.livepeerPlaybackId,
+          noDatabasePush: true,
+        });
+        const url = res?.url;
+        if (res?.errorMessage) {
+          console.log(
+            "Error creating rough clip, got error from createClip,",
+            res.errorMessage
+          );
+          setPageState("error");
+          setErrorMessage(
+            `Error creating rough clip, got error from createClip, ${res.errorMessage}`
+          );
+          return;
+        }
+        if (url) {
+          setRoughClipUrl(url);
+        } else {
+          console.log("Error creating rough clip, no error but url is missing");
+          setPageState("error");
+          setErrorMessage(
+            "Error creating rough clip, no error but url is missing"
+          );
+          return;
+        }
+        setPageState("selecting");
+      } catch (e) {
+        console.log("createClip error", e);
+        setPageState("error");
+        setErrorMessage(`Error creating rough clip, catch block caught ${e}`);
+      }
+    };
+    init();
+  }, [getChannelByIdData, user]);
 
   useEffect(() => {
     if (roughClipUrl && videoRef.current) {
@@ -349,9 +415,77 @@ const Clip = () => {
         const duration = videoRef.current?.duration;
         console.log(`Resolution: ${width}x${height}, Duration: ${duration}s`);
         setClipRange([0, videoRef.current?.duration || 0]);
+        fetchAndParseVideo(roughClipUrl);
       };
     }
   }, [roughClipUrl]);
+
+  const fetchAndParseVideo = async (url: string) => {
+    try {
+      const response = await fetch(url);
+      const arrayBuffer = await response.arrayBuffer();
+
+      // Create an MP4ArrayBuffer by adding the fileStart property
+      const mp4ArrayBuffer = Object.assign(new Uint8Array(arrayBuffer).buffer, {
+        fileStart: 0,
+      }) as MP4ArrayBuffer;
+
+      const mp4boxFile = MP4Box.createFile();
+      mp4boxFile.onReady = (info: MP4Info) => {
+        console.log("MP4 info:", info, JSON.stringify(info, null, 2));
+
+        const videoTrack = info.videoTracks[0];
+        const audioTrack = info.audioTracks[0];
+
+        const videoCodec = videoTrack.codec;
+        const width = videoTrack.video.width;
+        const height = videoTrack.video.height;
+        const durationInSeconds = videoTrack.duration / videoTrack.timescale;
+        const framerate = videoTrack.nb_samples / durationInSeconds;
+        console.log(framerate);
+        const audioCodec = audioTrack.codec;
+        const sampleRate = audioTrack.audio.sample_rate;
+        const channels = audioTrack.audio.channel_count;
+
+        console.log(
+          `Can concatenate video codec ${videoCodec} without re-encoding?`,
+          canConcatenateWithoutReencoding(videoCodec)
+        );
+
+        console.log(
+          `Can concatenate audio codec ${audioCodec} without re-encoding?`,
+          canConcatenateWithoutReencoding(audioCodec)
+        );
+
+        setCopiedVideoProperties({
+          width,
+          height,
+          frameRate: framerate,
+          videoCodec,
+          audioCodec,
+          sampleRate,
+          channelCount: channels,
+        });
+        info.tracks.forEach((track) => {
+          if ("video" in track) {
+            console.log(`Codec: ${track.codec}`);
+            console.log(
+              `Resolution: ${track.track_width}x${track.track_height}`
+            );
+          } else if ("audio" in track) {
+            console.log(`Codec: ${track.codec}`);
+            console.log(`Sample Rate: ${track.audio.sample_rate}`);
+          }
+        });
+      };
+
+      // Append the video buffer to mp4box.js and flush to trigger processing
+      mp4boxFile.appendBuffer(mp4ArrayBuffer);
+      mp4boxFile.flush();
+    } catch (error) {
+      console.error("Error fetching or processing video:", error);
+    }
+  };
 
   const handleRangeChange = (range: [number, number]) => {
     setClipRange(range);
@@ -482,11 +616,15 @@ const Clip = () => {
           "-t",
           "3",
           "-vf",
-          "scale=iw*1:ih*1, pad=1280:720:(ow-iw)/2:(oh-ih)/2", // Scale to 40% of original size and center
+          `scale=${copiedVideoProperties.width}:${copiedVideoProperties.height},fps=${copiedVideoProperties.frameRate}`, // Scale to 40% of original size and center
           "-c:v",
-          "libx264",
+          codecMap[copiedVideoProperties.videoCodec].ffmpegParams.codec,
           "-c:a",
-          "aac",
+          codecMap[copiedVideoProperties.audioCodec].ffmpegParams.codec,
+          "-ar",
+          `${copiedVideoProperties.sampleRate}`,
+          "-ac",
+          `${copiedVideoProperties.channelCount}`,
           "outro.mp4"
         );
 
@@ -503,21 +641,48 @@ const Clip = () => {
         const outroFileExists = ffmpeg.FS("readdir", "/").includes("outro.mp4");
 
         if (!trimmedFileExists || !outroFileExists) {
+          if (!trimmedFileExists) console.log("trimmed.mp4 does not exist");
+          if (!outroFileExists) console.log("outro.mp4 does not exist");
           throw new Error("Failed to create trimmed or outro video");
         }
 
         // // Concatenate using filter_complex without worrying about audio
+        // await ffmpeg.run(
+        //   "-i",
+        //   "trimmed.mp4",
+        //   "-i",
+        //   "outro.mp4",
+        //   "-c",
+        //   "copy",
+        //   "-map",
+        //   "0:v",
+        //   "-map",
+        //   "0:a?",
+        //   "-map",
+        //   "1:v",
+        //   "-map",
+        //   "1:a?",
+        //   "final.mp4"
+        // );
+
+        ffmpeg.FS(
+          "writeFile",
+          "concat_list.txt",
+          new TextEncoder().encode(`
+          file 'trimmed.mp4'
+          file 'outro.mp4'
+          `)
+        );
+
         await ffmpeg.run(
+          "-f",
+          "concat",
+          "-safe",
+          "0",
           "-i",
-          "trimmed.mp4",
-          "-i",
-          "outro.mp4",
-          "-filter_complex",
-          "[0:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v1];[1:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v2];[v1][v2]concat=n=2:v=1[outv]",
-          "-map",
-          "[outv]",
-          "-map",
-          "0:a?",
+          "concat_list.txt",
+          "-c",
+          "copy",
           "final.mp4"
         );
 

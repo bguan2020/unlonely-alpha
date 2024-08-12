@@ -28,7 +28,8 @@
     "**/*.tsx",
     "**/*.js",
     "src/hooks/context/useUser.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "src/types/*.d.ts"
   ],
   "exclude": ["node_modules"]
 }

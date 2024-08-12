@@ -9933,6 +9933,11 @@ motion@10.16.2:
     "@motionone/utils" "^10.15.1"
     "@motionone/vue" "^10.16.2"
 
+mp4box@^0.5.2:
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/mp4box/-/mp4box-0.5.2.tgz#6a2d36fdd0e2d3f2f2bee446d2067edf0b3871bc"
+  integrity sha512-zRmGlvxy+YdW3Dmt+TR4xPHynbxwXtAQDTN/Fo9N3LMxaUlB2C5KmZpzYyGKy4c7k4Jf3RCR0A2pm9SZELOLXw==
+
 mpd-parser@0.22.1, mpd-parser@^0.22.1:
   version "0.22.1"
   resolved "https://registry.yarnpkg.com/mpd-parser/-/mpd-parser-0.22.1.tgz#bc2bf7d3e56368e4b0121035b055675401871521"
