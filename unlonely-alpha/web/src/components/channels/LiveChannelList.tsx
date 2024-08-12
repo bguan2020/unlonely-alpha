@@ -12,7 +12,14 @@ const LiveChannelList: React.FunctionComponent<Props> = ({
   channels,
   callback,
 }) => {
-  const liveChannels = channels?.filter((channel: Channel) => channel.isLive);
+  const liveChannels = channels
+    ?.filter((channel: Channel) => channel.isLive)
+    .sort((a, b) => {
+      const dateA = new Date(a.updatedAt);
+      const dateB = new Date(b.updatedAt);
+
+      return dateB.getTime() - dateA.getTime();
+    });
   const listRef = useRef<HTMLDivElement>(null);
   const [isCentered, setIsCentered] = useState(true);
   useLayoutEffect(() => {

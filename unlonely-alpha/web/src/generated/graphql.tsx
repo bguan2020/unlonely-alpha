@@ -373,6 +373,12 @@ export type GetLivepeerStreamDataInput = {
   streamId?: InputMaybe<Scalars["String"]>;
 };
 
+export type GetNfcByTokenDataInput = {
+  contract1155Address: Scalars["String"];
+  contract1155ChainId: Scalars["Int"];
+  tokenId: Scalars["Int"];
+};
+
 export type GetPoapInput = {
   date: Scalars["String"];
 };
@@ -1066,6 +1072,7 @@ export type Query = {
   >;
   getLivepeerViewershipMetrics?: Maybe<Array<Maybe<LivepeerViewershipMetrics>>>;
   getNFC?: Maybe<Nfc>;
+  getNFCByTokenData?: Maybe<Nfc>;
   getNFCFeed?: Maybe<Array<Maybe<Nfc>>>;
   getPoap?: Maybe<Poap>;
   getRecentChats?: Maybe<Array<Maybe<Chat>>>;
@@ -1168,6 +1175,10 @@ export type QueryGetLivepeerViewershipMetricsArgs = {
 
 export type QueryGetNfcArgs = {
   id: Scalars["ID"];
+};
+
+export type QueryGetNfcByTokenDataArgs = {
+  data?: InputMaybe<GetNfcByTokenDataInput>;
 };
 
 export type QueryGetNfcFeedArgs = {
@@ -2014,6 +2025,7 @@ export type GetChannelFeedQuery = {
     description?: string | null;
     slug: string;
     thumbnailUrl?: string | null;
+    updatedAt: any;
     owner: {
       __typename?: "User";
       username?: string | null;
@@ -4161,6 +4173,7 @@ export const GetChannelFeedDocument = gql`
         lensImageUrl
       }
       thumbnailUrl
+      updatedAt
     }
   }
 `;

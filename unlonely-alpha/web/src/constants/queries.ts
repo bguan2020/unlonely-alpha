@@ -272,6 +272,7 @@ export const CHANNEL_FEED_QUERY = gql`
         lensImageUrl
       }
       thumbnailUrl
+      updatedAt
     }
   }
 `;
