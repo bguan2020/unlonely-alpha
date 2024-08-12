@@ -167,8 +167,6 @@ const MessageList = memo(
       }
     };
 
-    console.log("data", chatMessages);
-
     return (
       <>
         {tokenForTransfer === "vibes" ? (

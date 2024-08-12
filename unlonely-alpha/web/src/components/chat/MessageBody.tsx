@@ -245,6 +245,7 @@ const MessageBody = ({
                         handleOpen({
                           address: message.data.address,
                           username: message.data.username,
+                          FCHandle: message.data.FCHandle,
                         });
                     }}
                     _hover={{ cursor: "pointer" }}

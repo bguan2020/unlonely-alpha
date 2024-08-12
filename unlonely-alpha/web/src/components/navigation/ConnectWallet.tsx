@@ -368,14 +368,14 @@ const ConnectedDisplay = () => {
                   const socials = [];
                   socials.push([
                     res?.res?.username ? true : false,
-                    res?.res?.FCImageUrl ? true : false,
+                    res?.res?.FCHandle ? true : false,
                     res?.res?.lensHandle ? true : false,
                   ]);
                   toast({
                     title: "Profile updated",
                     description:
                       `ENS name ${res?.res?.username ? "✅" : "❌"} ` +
-                      `Farcaster ${res?.res?.FCImageUrl ? "✅" : "❌"} ` +
+                      `Farcaster ${res?.res?.FCHandle ? "✅" : "❌"} ` +
                       `Lens ${res?.res?.lensHandle ? "✅" : "❌"}`,
                     status: "success",
                     duration: 3000,

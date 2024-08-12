@@ -10,6 +10,7 @@ export const GET_USER_QUERY = gql`
       videoSavantLvl
       nfcRank
       FCImageUrl
+      FCHandle
       isFCUser
       isLensUser
       lensHandle

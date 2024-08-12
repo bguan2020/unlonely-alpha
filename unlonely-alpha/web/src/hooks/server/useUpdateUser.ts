@@ -17,7 +17,7 @@ const UPDATE_USER_MUTATION = gql`
     updateUser(data: $data) {
       address
       lensHandle
-      FCImageUrl
+      FCHandle
       username
     }
   }

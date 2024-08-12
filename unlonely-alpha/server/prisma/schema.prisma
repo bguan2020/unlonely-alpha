@@ -16,6 +16,7 @@ model User {
   reputation Int @default(0)
   isFCUser Boolean @default(false)
   FCImageUrl String? @default("")
+  FCHandle String? @default("")
 
   isLensUser Boolean @default(false)
   lensHandle String? @default("")

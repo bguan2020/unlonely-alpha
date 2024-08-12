@@ -61,6 +61,7 @@ export const getUser = async (data: IGetUserInput, ctx: Context) => {
       reputation: true,
       isFCUser: true,
       FCImageUrl: true,
+      FCHandle: true,
       isLensUser: true,
       lensHandle: true,
       lensImageUrl: true,
