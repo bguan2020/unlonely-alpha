@@ -138,11 +138,11 @@ const Clip = () => {
     | "transaction"
     | "redirecting"
     | "error"
-  >("lacking");
+  >("selecting");
   const [trimProgressPercentage, setTrimProgressPercentage] = useState(0);
   const [roughClipUrl, setRoughClipUrl] = useState(
-    ""
-    // "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/85f88w1q70abhfau/720p0.mp4"
+    // ""
+    "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/85f88w1q70abhfau/720p0.mp4"
   );
   const [finalClipObject, setFinalClipObject] = useState<
     FinalClipObject | undefined
@@ -288,61 +288,66 @@ const Clip = () => {
     if (channelId) getChannelById();
   }, [channelId]);
 
-  useEffect(() => {
-    const init = async () => {
-      if (!getChannelByIdData || !user) {
-        setPageState("lacking");
-        return;
-      }
-      if (!getChannelByIdData.getChannelById?.isLive) {
-        setPageState("offline");
-        return;
-      }
-      setPageState("clipping");
-      try {
-        const { res } = await createClip({
-          title: `rough-clip-${Date.now()}`,
-          channelId: getChannelByIdData.getChannelById?.id,
-          livepeerPlaybackId:
-            getChannelByIdData.getChannelById?.livepeerPlaybackId,
-          noDatabasePush: true,
-        });
-        const url = res?.url;
-        if (res?.errorMessage) {
-          console.log(
-            "Error creating rough clip, got error from createClip,",
-            res.errorMessage
-          );
-          setPageState("error");
-          setErrorMessage(
-            `Error creating rough clip, got error from createClip, ${res.errorMessage}`
-          );
-          return;
-        }
-        if (url) {
-          setRoughClipUrl(url);
-        } else {
-          console.log("Error creating rough clip, no error but url is missing");
-          setPageState("error");
-          setErrorMessage(
-            "Error creating rough clip, no error but url is missing"
-          );
-          return;
-        }
-        setPageState("selecting");
-      } catch (e) {
-        console.log("createClip error", e);
-        setPageState("error");
-        setErrorMessage(`Error creating rough clip, catch block caught ${e}`);
-      }
-    };
-    init();
-  }, [getChannelByIdData, user]);
+  // useEffect(() => {
+  //   const init = async () => {
+  //     if (!getChannelByIdData || !user) {
+  //       setPageState("lacking");
+  //       return;
+  //     }
+  //     if (!getChannelByIdData.getChannelById?.isLive) {
+  //       setPageState("offline");
+  //       return;
+  //     }
+  //     setPageState("clipping");
+  //     try {
+  //       const { res } = await createClip({
+  //         title: `rough-clip-${Date.now()}`,
+  //         channelId: getChannelByIdData.getChannelById?.id,
+  //         livepeerPlaybackId:
+  //           getChannelByIdData.getChannelById?.livepeerPlaybackId,
+  //         noDatabasePush: true,
+  //       });
+  //       const url = res?.url;
+  //       if (res?.errorMessage) {
+  //         console.log(
+  //           "Error creating rough clip, got error from createClip,",
+  //           res.errorMessage
+  //         );
+  //         setPageState("error");
+  //         setErrorMessage(
+  //           `Error creating rough clip, got error from createClip, ${res.errorMessage}`
+  //         );
+  //         return;
+  //       }
+  //       if (url) {
+  //         setRoughClipUrl(url);
+  //       } else {
+  //         console.log("Error creating rough clip, no error but url is missing");
+  //         setPageState("error");
+  //         setErrorMessage(
+  //           "Error creating rough clip, no error but url is missing"
+  //         );
+  //         return;
+  //       }
+  //       setPageState("selecting");
+  //     } catch (e) {
+  //       console.log("createClip error", e);
+  //       setPageState("error");
+  //       setErrorMessage(`Error creating rough clip, catch block caught ${e}`);
+  //     }
+  //   };
+  //   init();
+  // }, [getChannelByIdData, user]);
 
   useEffect(() => {
     if (roughClipUrl && videoRef.current) {
       videoRef.current.load();
       videoRef.current.onloadedmetadata = () => {
+        console.log("loaded metadata");
+        const width = videoRef.current?.videoWidth;
+        const height = videoRef.current?.videoHeight;
+        const duration = videoRef.current?.duration;
+        console.log(`Resolution: ${width}x${height}, Duration: ${duration}s`);
         setClipRange([0, videoRef.current?.duration || 0]);
       };
     }
@@ -462,68 +467,68 @@ const Clip = () => {
 
         // // // Create an outro video with the watermark image
 
-        // const outroStart = Date.now();
+        const outroStart = Date.now();
 
-        // const watermarkImage = await fetch(
-        //   "/images/unlonely-watermark.png"
-        // ).then((res) => res.arrayBuffer());
-        // ffmpeg.FS("writeFile", "watermark.png", new Uint8Array(watermarkImage));
+        const watermarkImage = await fetch(
+          "/images/unlonely-watermark.png"
+        ).then((res) => res.arrayBuffer());
+        ffmpeg.FS("writeFile", "watermark.png", new Uint8Array(watermarkImage));
 
-        // await ffmpeg.run(
-        //   "-loop",
-        //   "1",
-        //   "-i",
-        //   "watermark.png",
-        //   "-t",
-        //   "3",
-        //   "-vf",
-        //   "scale=iw*1:ih*1, pad=1280:720:(ow-iw)/2:(oh-ih)/2", // Scale to 40% of original size and center
-        //   "-c:v",
-        //   "libx264",
-        //   "-c:a",
-        //   "aac",
-        //   "outro.mp4"
-        // );
+        await ffmpeg.run(
+          "-loop",
+          "1",
+          "-i",
+          "watermark.png",
+          "-t",
+          "3",
+          "-vf",
+          "scale=iw*1:ih*1, pad=1280:720:(ow-iw)/2:(oh-ih)/2", // Scale to 40% of original size and center
+          "-c:v",
+          "libx264",
+          "-c:a",
+          "aac",
+          "outro.mp4"
+        );
 
-        // console.log(
-        //   "created outro.mp4",
-        //   `${(Date.now() - outroStart) / 1000}s`
-        // );
-        // const concatStart = Date.now();
+        console.log(
+          "created outro.mp4",
+          `${(Date.now() - outroStart) / 1000}s`
+        );
+        const concatStart = Date.now();
 
-        // // // Verify the files exist in the FFmpeg file system
-        // const trimmedFileExists = ffmpeg
-        //   .FS("readdir", "/")
-        //   .includes("trimmed.mp4");
-        // const outroFileExists = ffmpeg.FS("readdir", "/").includes("outro.mp4");
+        // // Verify the files exist in the FFmpeg file system
+        const trimmedFileExists = ffmpeg
+          .FS("readdir", "/")
+          .includes("trimmed.mp4");
+        const outroFileExists = ffmpeg.FS("readdir", "/").includes("outro.mp4");
 
-        // if (!trimmedFileExists || !outroFileExists) {
-        //   throw new Error("Failed to create trimmed or outro video");
-        // }
+        if (!trimmedFileExists || !outroFileExists) {
+          throw new Error("Failed to create trimmed or outro video");
+        }
 
-        // // // Concatenate using filter_complex without worrying about audio
-        // await ffmpeg.run(
-        //   "-i",
-        //   "trimmed.mp4",
-        //   "-i",
-        //   "outro.mp4",
-        //   "-filter_complex",
-        //   "[0:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v1];[1:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v2];[v1][v2]concat=n=2:v=1[outv]",
-        //   "-map",
-        //   "[outv]",
-        //   "-map",
-        //   "0:a?",
-        //   "final.mp4"
-        // );
+        // // Concatenate using filter_complex without worrying about audio
+        await ffmpeg.run(
+          "-i",
+          "trimmed.mp4",
+          "-i",
+          "outro.mp4",
+          "-filter_complex",
+          "[0:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v1];[1:v]fps=30,scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v2];[v1][v2]concat=n=2:v=1[outv]",
+          "-map",
+          "[outv]",
+          "-map",
+          "0:a?",
+          "final.mp4"
+        );
 
-        // console.log(
-        //   "concatenated video",
-        //   `${(Date.now() - concatStart) / 1000}s`
-        // );
+        console.log(
+          "concatenated video",
+          `${(Date.now() - concatStart) / 1000}s`
+        );
 
         // Convert data to url and store in videoTrimmedUrl state
-        // const data = ffmpeg.FS("readFile", "final.mp4");
-        const data = ffmpeg.FS("readFile", "trimmed.mp4");
+        const data = ffmpeg.FS("readFile", "final.mp4");
+        // const data = ffmpeg.FS("readFile", "trimmed.mp4");
 
         const url = URL.createObjectURL(
           new Blob([data.buffer], { type: "video/mp4" })

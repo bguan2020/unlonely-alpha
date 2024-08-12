@@ -231,8 +231,6 @@ export const UserProvider = ({
     fetchPolicy: "network-only",
   });
 
-  console.log("user", data);
-
   useEffect(() => {
     if (!address) return;
     fetchUser();
