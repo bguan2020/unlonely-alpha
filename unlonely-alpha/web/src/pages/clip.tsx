@@ -434,15 +434,16 @@ const Clip = () => {
       }
 
       // CREATE TOKEN METADATA
-      const { pinRes: videoFileIpfsUrl } = await createFileBlobAndPinWithPinata(
-        String(videoLink),
-        "video.mp4",
-        "video/mp4"
-      );
+      const { pinRes: videoFileIpfsUrl, error } =
+        await createFileBlobAndPinWithPinata(
+          String(videoLink),
+          "video.mp4",
+          "video/mp4"
+        );
       if (!videoFileIpfsUrl) {
         setPageState("error");
         setErrorMessage(
-          `Pinata could not pin video file onto ipfs, please see video link: ${videoLink}`
+          `Pinata could not pin video file onto ipfs, double check video link: (${videoLink}) & see error msg: ${error}`
         );
         return;
       }
