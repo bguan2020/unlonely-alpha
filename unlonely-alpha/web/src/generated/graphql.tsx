@@ -1615,6 +1615,7 @@ export type UpdateUserNotificationsInput = {
 
 export type User = {
   __typename?: "User";
+  FCHandle?: Maybe<Scalars["String"]>;
   FCImageUrl?: Maybe<Scalars["String"]>;
   address: Scalars["String"];
   authedAsMe: Scalars["Boolean"];
@@ -1714,6 +1715,7 @@ export type GetUserQuery = {
     videoSavantLvl: number;
     nfcRank: number;
     FCImageUrl?: string | null;
+    FCHandle?: string | null;
     isFCUser: boolean;
     isLensUser: boolean;
     lensHandle?: string | null;
@@ -2965,7 +2967,7 @@ export type UpdateUserMutation = {
     __typename?: "User";
     address: string;
     lensHandle?: string | null;
-    FCImageUrl?: string | null;
+    FCHandle?: string | null;
     username?: string | null;
   } | null;
 };
@@ -3074,6 +3076,7 @@ export const GetUserDocument = gql`
       videoSavantLvl
       nfcRank
       FCImageUrl
+      FCHandle
       isFCUser
       isLensUser
       lensHandle
@@ -7545,7 +7548,7 @@ export const UpdateUserDocument = gql`
     updateUser(data: $data) {
       address
       lensHandle
-      FCImageUrl
+      FCHandle
       username
     }
   }

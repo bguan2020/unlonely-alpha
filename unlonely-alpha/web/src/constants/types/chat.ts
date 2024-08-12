@@ -13,7 +13,7 @@ export enum SenderStatus {
 
 export type EmojiTypes = { emojiType: "unicode" | string; count: number }[];
 
-export type SelectedUser = { address?: string; username?: string };
+export type SelectedUser = { address?: string; username?: string; FCHandle?: string };
 
 export type Message = {
   clientId: string;
@@ -25,6 +25,7 @@ export type Message = {
     chatColor: string;
     address: string;
     isFC: boolean;
+    FCHandle: string;
     isLens: boolean;
     lensHandle?: string;
     powerUserLvl: number | null;

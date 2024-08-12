@@ -18,6 +18,7 @@ export const typeDef = gql`
     reputation: Int
     isFCUser: Boolean!
     FCImageUrl: String
+    FCHandle: String
     isLensUser: Boolean!
     lensHandle: String
     lensImageUrl: String
