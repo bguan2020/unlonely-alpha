@@ -360,202 +360,225 @@ const Clip = () => {
 
   const handleTrimVideo = useCallback(async () => {
     if (!canTrim || !channelId) return;
+    setPageState("trimming");
+    const { data: mapping } = await fetchUserChannelContract1155Mapping({
+      variables: { data: { address: user?.address as string } },
+    });
+    const existingContract1155Address =
+      mapping?.getUserChannelContract1155Mapping?.[channelId]
+        ?.contract1155Address;
+    console.log("existingContract1155Address", existingContract1155Address);
+    const trimFunctionStart = Date.now();
+    console.log("trimVideo function start", trimFunctionStart);
+    let trimRes = null;
     try {
-      setPageState("trimming");
-      const { data: mapping } = await fetchUserChannelContract1155Mapping({
-        variables: { data: { address: user?.address as string } },
-      });
-      const existingContract1155Address =
-        mapping?.getUserChannelContract1155Mapping?.[channelId]
-          ?.contract1155Address;
-      console.log("existingContract1155Address", existingContract1155Address);
-      const trimFunctionStart = Date.now();
-      console.log("trimVideo function start", trimFunctionStart);
-      const trimRes = await trimVideo({
+      trimRes = await trimVideo({
         startTime: clipRange[0],
         endTime: clipRange[1],
         videoLink: roughClipUrl,
         name: title,
       });
-      console.log(
-        "time took to trim",
-        `${(Date.now() - trimFunctionStart) / 1000}s`
+    } catch (e) {
+      setPageState("error");
+      setErrorMessage(`Error trimming video, catch block caught ${e}`);
+      return;
+    }
+    if (!trimRes) {
+      setPageState("error");
+      setErrorMessage(
+        "Error trimming video, no error message but response is missing"
       );
-      const assetId = trimRes?.res;
-      if (assetId?.includes("error:")) {
-        setPageState("error");
-        setErrorMessage(assetId);
-        return;
-      }
-      console.log("assetId", assetId);
-      let videoThumbnail = "";
-      let videoLink = "";
+      return;
+    }
+    console.log(
+      "time took to trim",
+      `${(Date.now() - trimFunctionStart) / 1000}s`
+    );
+    const assetId = trimRes?.res;
+    if (assetId?.includes("error:")) {
+      setPageState("error");
+      setErrorMessage(assetId);
+      return;
+    }
+    console.log("assetId", assetId);
+    let videoThumbnail = "";
+    let videoLink = "";
+    let clipData = null;
+    try {
       const { data } = await fetchLivepeerClipData({
         variables: { data: { assetId } },
       });
-      console.log(
-        "waiting for videoThumbnail and videoLink",
-        data?.getLivepeerClipData
+      clipData = data;
+    } catch (e) {
+      setPageState("error");
+      setErrorMessage(
+        `Error fetching livepeer clip data, catch block caught ${e}`
       );
-      if (
-        data?.getLivepeerClipData?.videoThumbnail &&
-        data?.getLivepeerClipData?.videoLink &&
-        !data?.getLivepeerClipData?.error
-      ) {
-        videoThumbnail = data.getLivepeerClipData.videoThumbnail;
-        videoLink = data.getLivepeerClipData.videoLink;
-      }
-      if (data?.getLivepeerClipData?.error) {
-        console.log("Error", data.getLivepeerClipData.error);
-        setPageState("error");
-        setErrorMessage(data.getLivepeerClipData.errorMessage);
-        return;
-      }
-      if (!videoThumbnail && !videoLink) {
-        setPageState("error");
-        setErrorMessage(
-          `Livepeer api did not return video thumbnail or video link, please refer to assetID:${assetId}`
-        );
-        return;
-      }
-      if (!videoThumbnail) {
-        setPageState("error");
-        setErrorMessage(
-          `Livepeer api did not return video thumbnail, please refer to assetID:${assetId}`
-        );
-        return;
-      }
-      if (!videoLink) {
-        setPageState("error");
-        setErrorMessage(
-          `Livepeer api did not return video link, please refer to assetID:${assetId}`
-        );
-        return;
-      }
-
-      // CREATE TOKEN METADATA
-      const { pinRes: videoFileIpfsUrl, error } =
-        await createFileBlobAndPinWithPinata(
-          String(videoLink),
-          "video.mp4",
-          "video/mp4"
-        );
-      if (!videoFileIpfsUrl) {
-        setPageState("error");
-        setErrorMessage(
-          `Pinata could not pin video file onto ipfs, double check video link: (${videoLink}) & see error msg: ${error}`
-        );
-        return;
-      }
-
-      console.log("videoFileIpfsUrl", videoFileIpfsUrl);
-
-      const {
-        file: thumbnailFile,
-        pinRes: thumbnailFileIpfsUrl,
-        error: thumbnailError,
-      } = await createFileBlobAndPinWithPinata(
-        String(videoThumbnail),
-        title,
-        "image/png"
+      return;
+    }
+    if (!clipData) {
+      setPageState("error");
+      setErrorMessage("Error fetching livepeer clip data, response is missing");
+      return;
+    }
+    console.log(
+      "waiting for videoThumbnail and videoLink",
+      clipData?.getLivepeerClipData
+    );
+    if (
+      clipData?.getLivepeerClipData?.videoThumbnail &&
+      clipData?.getLivepeerClipData?.videoLink &&
+      !clipData?.getLivepeerClipData?.error
+    ) {
+      videoThumbnail = clipData.getLivepeerClipData.videoThumbnail;
+      videoLink = clipData.getLivepeerClipData.videoLink;
+    }
+    if (clipData?.getLivepeerClipData?.error) {
+      console.log("Error", clipData.getLivepeerClipData.error);
+      setPageState("error");
+      setErrorMessage(clipData.getLivepeerClipData.errorMessage);
+      return;
+    }
+    if (!videoThumbnail && !videoLink) {
+      setPageState("error");
+      setErrorMessage(
+        `Livepeer api did not return video thumbnail or video link, please refer to assetID:${assetId}`
       );
-      if (thumbnailError) {
-        setPageState("error");
-        setErrorMessage(thumbnailError);
-        return;
-      }
-      if (!thumbnailFileIpfsUrl) {
+      return;
+    }
+    if (!videoThumbnail) {
+      setPageState("error");
+      setErrorMessage(
+        `Livepeer api did not return video thumbnail, please refer to assetID:${assetId}`
+      );
+      return;
+    }
+    if (!videoLink) {
+      setPageState("error");
+      setErrorMessage(
+        `Livepeer api did not return video link, please refer to assetID:${assetId}`
+      );
+      return;
+    }
+
+    // CREATE TOKEN METADATA
+    const { pinRes: videoFileIpfsUrl, error } =
+      await createFileBlobAndPinWithPinata(
+        String(videoLink),
+        "video.mp4",
+        "video/mp4"
+      );
+    if (!videoFileIpfsUrl) {
+      setPageState("error");
+      setErrorMessage(
+        `Pinata could not pin video file onto ipfs, double check video link: (${videoLink}) & see error msg: ${error}`
+      );
+      return;
+    }
+
+    console.log("videoFileIpfsUrl", videoFileIpfsUrl);
+
+    const {
+      file: thumbnailFile,
+      pinRes: thumbnailFileIpfsUrl,
+      error: thumbnailError,
+    } = await createFileBlobAndPinWithPinata(
+      String(videoThumbnail),
+      title,
+      "image/png"
+    );
+    if (thumbnailError) {
+      setPageState("error");
+      setErrorMessage(thumbnailError);
+      return;
+    }
+    if (!thumbnailFileIpfsUrl) {
+      setPageState("error");
+      setErrorMessage(
+        `Pinata could not pin thumbnail file onto ipfs, please see thumbnail link: ${videoThumbnail}`
+      );
+      return;
+    }
+
+    console.log("thumbnailFileIpfsUrl", thumbnailFileIpfsUrl);
+    console.log("thumbnailFile", thumbnailFile);
+
+    let tokenMetadataJson: any;
+    try {
+      tokenMetadataJson = await makeMediaTokenMetadata({
+        mediaUrl: videoFileIpfsUrl,
+        thumbnailUrl: thumbnailFileIpfsUrl,
+        name: thumbnailFile.name,
+      });
+    } catch (e) {
+      console.log("makeMediaTokenMetadata error", e);
+      setPageState("error");
+      setErrorMessage(
+        `Could not format token metadata json properly, please see ${JSON.stringify(
+          {
+            mediaUrl: videoFileIpfsUrl,
+            thumbnailUrl: thumbnailFileIpfsUrl,
+            name: thumbnailFile.name,
+          }
+        )}`
+      );
+      return;
+    }
+
+    console.log("tokenMetadataJson", tokenMetadataJson);
+
+    const jsonMetadataUri = await pinJsonWithPinata(tokenMetadataJson);
+    if (!jsonMetadataUri) {
+      setPageState("error");
+      setErrorMessage(
+        `Pinata could not pin token metadata json onto ipfs, please see ${JSON.stringify(
+          tokenMetadataJson
+        )}`
+      );
+      return;
+    }
+
+    console.log("jsonMetadataUri", jsonMetadataUri);
+
+    let contractObject: ContractType = {
+      name: "",
+      uri: "",
+    };
+
+    if (!existingContract1155Address) {
+      const _contractMetadataJsonUri = await pinJsonWithPinata({
+        description: `this was clipped from ${getChannelByIdData?.getChannelById?.slug}'s Unlonely livestream`,
+        image: UNLONELY_LOGO_IPFS_URL,
+        name: `${getChannelByIdData?.getChannelById?.slug}'s Unlonely Clips`,
+      });
+      if (!_contractMetadataJsonUri) {
         setPageState("error");
         setErrorMessage(
-          `Pinata could not pin thumbnail file onto ipfs, please see thumbnail link: ${videoThumbnail}`
-        );
-        return;
-      }
-
-      console.log("thumbnailFileIpfsUrl", thumbnailFileIpfsUrl);
-      console.log("thumbnailFile", thumbnailFile);
-
-      let tokenMetadataJson: any;
-      try {
-        tokenMetadataJson = await makeMediaTokenMetadata({
-          mediaUrl: videoFileIpfsUrl,
-          thumbnailUrl: thumbnailFileIpfsUrl,
-          name: thumbnailFile.name,
-        });
-      } catch (e) {
-        console.log("makeMediaTokenMetadata error", e);
-        setPageState("error");
-        setErrorMessage(
-          `Could not format token metadata json properly, please see ${JSON.stringify(
+          `Pinata could not pin contract metadata json onto ipfs, please see ${JSON.stringify(
             {
-              mediaUrl: videoFileIpfsUrl,
-              thumbnailUrl: thumbnailFileIpfsUrl,
-              name: thumbnailFile.name,
+              description: `this was clipped from ${getChannelByIdData?.getChannelById?.slug}'s Unlonely livestream`,
+              image: UNLONELY_LOGO_IPFS_URL,
+              name: `${getChannelByIdData?.getChannelById?.slug}'s Unlonely Clips`,
             }
           )}`
         );
         return;
       }
-
-      console.log("tokenMetadataJson", tokenMetadataJson);
-
-      const jsonMetadataUri = await pinJsonWithPinata(tokenMetadataJson);
-      if (!jsonMetadataUri) {
-        setPageState("error");
-        setErrorMessage(
-          `Pinata could not pin token metadata json onto ipfs, please see ${JSON.stringify(
-            tokenMetadataJson
-          )}`
-        );
-        return;
-      }
-
-      console.log("jsonMetadataUri", jsonMetadataUri);
-
-      let contractObject: ContractType = {
-        name: "",
-        uri: "",
+      contractObject = {
+        name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
+        uri: `ipfs://${_contractMetadataJsonUri}`,
       };
-
-      if (!existingContract1155Address) {
-        const _contractMetadataJsonUri = await pinJsonWithPinata({
-          description: `this was clipped from ${getChannelByIdData?.getChannelById?.slug}'s Unlonely livestream`,
-          image: UNLONELY_LOGO_IPFS_URL,
-          name: `${getChannelByIdData?.getChannelById?.slug}'s Unlonely Clips`,
-        });
-        if (!_contractMetadataJsonUri) {
-          setPageState("error");
-          setErrorMessage(
-            `Pinata could not pin contract metadata json onto ipfs, please see ${JSON.stringify(
-              {
-                description: `this was clipped from ${getChannelByIdData?.getChannelById?.slug}'s Unlonely livestream`,
-                image: UNLONELY_LOGO_IPFS_URL,
-                name: `${getChannelByIdData?.getChannelById?.slug}'s Unlonely Clips`,
-              }
-            )}`
-          );
-          return;
-        }
-        contractObject = {
-          name: `${getChannelByIdData?.getChannelById?.slug}-Unlonely-Clips`,
-          uri: `ipfs://${_contractMetadataJsonUri}`,
-        };
-      } else {
-        contractObject = existingContract1155Address;
-      }
-      console.log("contractObject", contractObject);
-
-      setContractObject(contractObject);
-      setTokenJsonMetaDataUri(jsonMetadataUri);
-      setExistingContract1155Address(existingContract1155Address);
-      setVideoThumbnail(videoThumbnail);
-      setVideoLink(videoLink);
-      setPageState("transaction");
-    } catch (e) {
-      console.log("trimVideo frontend error", e);
-      setPageState("error");
-      setErrorMessage("Error finishing operation");
+    } else {
+      contractObject = existingContract1155Address;
     }
+    console.log("contractObject", contractObject);
+
+    setContractObject(contractObject);
+    setTokenJsonMetaDataUri(jsonMetadataUri);
+    setExistingContract1155Address(existingContract1155Address);
+    setVideoThumbnail(videoThumbnail);
+    setVideoLink(videoLink);
+    setPageState("transaction");
   }, [
     roughClipUrl,
     clipRange,
