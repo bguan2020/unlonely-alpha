@@ -564,10 +564,10 @@ const Clip = () => {
     ffmpeg.FS("writeFile", "watermark.png", new Uint8Array(watermarkImage));
 
     await ffmpeg.run(
-      "-i",
-      "input.mp4",
       "-ss",
       "00:00:00",
+      "-i",
+      "input.mp4",
       "-to",
       "00:00:10",
       "-c",
@@ -575,10 +575,10 @@ const Clip = () => {
       "part1.mp4"
     );
     await ffmpeg.run(
-      "-i",
-      "input.mp4",
       "-ss",
       "00:00:10",
+      "-i",
+      "input.mp4",
       "-to",
       "00:00:20",
       "-c",
@@ -586,10 +586,10 @@ const Clip = () => {
       "part2.mp4"
     );
     await ffmpeg.run(
-      "-i",
-      "input.mp4",
       "-ss",
       "00:00:20",
+      "-i",
+      "input.mp4",
       "-to",
       "00:00:30",
       "-c",
