@@ -568,8 +568,8 @@ const Clip = () => {
       "00:00:00",
       "-i",
       "input.mp4",
-      "-to",
-      "00:00:10",
+      "-t",
+      "10", // Duration of 10 seconds
       "-c",
       "copy",
       "part1.mp4"
@@ -582,8 +582,8 @@ const Clip = () => {
       "00:00:10",
       "-i",
       "input.mp4",
-      "-to",
-      "00:00:20",
+      "-t",
+      "3",
       "-c",
       "copy",
       "part2.mp4"
@@ -592,35 +592,14 @@ const Clip = () => {
     console.log("created part2.mp4");
 
     await ffmpeg.run(
-      "-ss",
-      "00:00:20",
-      "-i",
-      "input.mp4",
-      "-to",
-      "00:00:30",
-      "-c",
-      "copy",
-      "part3.mp4"
-    );
-
-    console.log("created part3.mp4");
-
-    // 2. Apply the overlay to the middle segment
-    await ffmpeg.run(
       "-i",
       "part2.mp4",
       "-i",
       "watermark.png",
       "-filter_complex",
-      "[0:v][1:v] overlay",
-      "-map",
-      "0:v", // Map only the video stream
-      "-map",
-      "-0:a", // Exclude the audio stream
-      "-c:v",
-      "libx264", // Re-encode video to maintain synchronization
-      "-preset",
-      "fast", // Use a faster encoding preset
+      "[0:v]pad=width=iw:height=ih:color=black[base];[base][1:v]overlay=(W-w)/2:(H-h)/2",
+      "-c:a",
+      "copy",
       "part2_overlay.mp4"
     );
 
@@ -633,7 +612,6 @@ const Clip = () => {
       new TextEncoder().encode(`
     file 'part1.mp4'
     file 'part2_overlay.mp4'
-    file 'part3.mp4'
   `)
     );
 
