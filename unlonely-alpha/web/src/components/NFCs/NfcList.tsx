@@ -78,6 +78,9 @@ const NfcList: React.FunctionComponent<Props> = ({
             <NfcCard key={h.id} nfc={h} makeLinksExternal={makeLinksExternal} />
           )
       )}
+      {!loading && nfcs?.length === 0 && (
+        <Text>no clips created on this channel yet!</Text>
+      )}
       {loading && [1, 2, 3, 4, 5].map((i) => <NfcCardSkeleton key={i} />)}
       {nextButton && (
         <Button
