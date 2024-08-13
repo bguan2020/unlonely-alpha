@@ -597,7 +597,7 @@ const Clip = () => {
       "-i",
       "watermark.png",
       "-filter_complex",
-      "[0:v]pad=width=iw:height=ih:color=black[base];[base][1:v]overlay=(W-w)/2:(H-h)/2",
+      "[0:v]pad=width=iw:height=ih:color=black[bg];[bg][1:v]overlay=(W-w)/2:(H-h)/2",
       "-c:a",
       "copy",
       "part2_overlay.mp4"
