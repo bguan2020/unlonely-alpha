@@ -574,6 +574,9 @@ const Clip = () => {
       "copy",
       "part1.mp4"
     );
+
+    console.log("created part1.mp4");
+
     await ffmpeg.run(
       "-ss",
       "00:00:10",
@@ -585,6 +588,9 @@ const Clip = () => {
       "copy",
       "part2.mp4"
     );
+
+    console.log("created part2.mp4");
+
     await ffmpeg.run(
       "-ss",
       "00:00:20",
@@ -597,6 +603,8 @@ const Clip = () => {
       "part3.mp4"
     );
 
+    console.log("created part3.mp4");
+
     // 2. Apply the overlay to the middle segment
     await ffmpeg.run(
       "-i",
@@ -605,10 +613,18 @@ const Clip = () => {
       "watermark.png",
       "-filter_complex",
       "[0:v][1:v] overlay",
-      "-c:a",
-      "copy",
+      "-map",
+      "0:v", // Map only the video stream
+      "-map",
+      "-0:a", // Exclude the audio stream
+      "-c:v",
+      "libx264", // Re-encode video to maintain synchronization
+      "-preset",
+      "fast", // Use a faster encoding preset
       "part2_overlay.mp4"
     );
+
+    console.log("created part2_overlay.mp4");
 
     // 3. Create a concat list for the parts
     ffmpeg.FS(
