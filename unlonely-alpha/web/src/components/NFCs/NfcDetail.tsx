@@ -46,7 +46,7 @@ const NfcDetailCard = ({ nfc }: { nfc?: NfcDetailQuery["getNFC"] }) => {
               controls
             />
             <Flex justifyContent={"space-between"}>
-              <Text fontSize="35px" textAlign="center">
+              <Text fontSize="20px" textAlign="left">
                 {nfc?.title ?? "title"}
               </Text>
               {nfc?.zoraLink && (
