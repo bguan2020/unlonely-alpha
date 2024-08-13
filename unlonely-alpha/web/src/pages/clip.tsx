@@ -187,7 +187,7 @@ const Clip = () => {
     | "transaction"
     | "redirecting"
     | "error"
-  >("lacking");
+  >("selecting");
   const [copiedVideoProperties, setCopiedVideoProperties] = useState<{
     width: number;
     height: number;
@@ -207,8 +207,8 @@ const Clip = () => {
   });
   const [trimProgressPercentage, setTrimProgressPercentage] = useState(0);
   const [roughClipUrl, setRoughClipUrl] = useState(
-    ""
-    // "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/85f88w1q70abhfau/720p0.mp4"
+    // ""
+    "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/85f88w1q70abhfau/720p0.mp4"
   );
   const [finalClipObject, setFinalClipObject] = useState<
     FinalClipObject | undefined
@@ -226,6 +226,7 @@ const Clip = () => {
   const [tokenJsonMetaDataUri, setTokenJsonMetaDataUri] = useState("");
   const [existingContract1155Address, setExistingContract1155Address] =
     useState<`0x${string}` | null>(null);
+  const [finalClipURL, setFinalClipURL] = useState("");
 
   const handleClickNyanCat = (index: number) => {
     setNyanCatFaceForward((prev) => {
@@ -354,56 +355,56 @@ const Clip = () => {
     if (channelId) getChannelById();
   }, [channelId]);
 
-  useEffect(() => {
-    const init = async () => {
-      if (!getChannelByIdData || !user) {
-        setPageState("lacking");
-        return;
-      }
-      if (!getChannelByIdData.getChannelById?.isLive) {
-        setPageState("offline");
-        return;
-      }
-      setPageState("clipping");
-      try {
-        const { res } = await createClip({
-          title: `rough-clip-${Date.now()}`,
-          channelId: getChannelByIdData.getChannelById?.id,
-          livepeerPlaybackId:
-            getChannelByIdData.getChannelById?.livepeerPlaybackId,
-          noDatabasePush: true,
-        });
-        const url = res?.url;
-        if (res?.errorMessage) {
-          console.log(
-            "Error creating rough clip, got error from createClip,",
-            res.errorMessage
-          );
-          setPageState("error");
-          setErrorMessage(
-            `Error creating rough clip, got error from createClip, ${res.errorMessage}`
-          );
-          return;
-        }
-        if (url) {
-          setRoughClipUrl(url);
-        } else {
-          console.log("Error creating rough clip, no error but url is missing");
-          setPageState("error");
-          setErrorMessage(
-            "Error creating rough clip, no error but url is missing"
-          );
-          return;
-        }
-        setPageState("selecting");
-      } catch (e) {
-        console.log("createClip error", e);
-        setPageState("error");
-        setErrorMessage(`Error creating rough clip, catch block caught ${e}`);
-      }
-    };
-    init();
-  }, [getChannelByIdData, user]);
+  // useEffect(() => {
+  //   const init = async () => {
+  //     if (!getChannelByIdData || !user) {
+  //       setPageState("lacking");
+  //       return;
+  //     }
+  //     if (!getChannelByIdData.getChannelById?.isLive) {
+  //       setPageState("offline");
+  //       return;
+  //     }
+  //     setPageState("clipping");
+  //     try {
+  //       const { res } = await createClip({
+  //         title: `rough-clip-${Date.now()}`,
+  //         channelId: getChannelByIdData.getChannelById?.id,
+  //         livepeerPlaybackId:
+  //           getChannelByIdData.getChannelById?.livepeerPlaybackId,
+  //         noDatabasePush: true,
+  //       });
+  //       const url = res?.url;
+  //       if (res?.errorMessage) {
+  //         console.log(
+  //           "Error creating rough clip, got error from createClip,",
+  //           res.errorMessage
+  //         );
+  //         setPageState("error");
+  //         setErrorMessage(
+  //           `Error creating rough clip, got error from createClip, ${res.errorMessage}`
+  //         );
+  //         return;
+  //       }
+  //       if (url) {
+  //         setRoughClipUrl(url);
+  //       } else {
+  //         console.log("Error creating rough clip, no error but url is missing");
+  //         setPageState("error");
+  //         setErrorMessage(
+  //           "Error creating rough clip, no error but url is missing"
+  //         );
+  //         return;
+  //       }
+  //       setPageState("selecting");
+  //     } catch (e) {
+  //       console.log("createClip error", e);
+  //       setPageState("error");
+  //       setErrorMessage(`Error creating rough clip, catch block caught ${e}`);
+  //     }
+  //   };
+  //   init();
+  // }, [getChannelByIdData, user]);
 
   useEffect(() => {
     if (roughClipUrl && videoRef.current) {
@@ -544,6 +545,106 @@ const Clip = () => {
     });
   }, []);
 
+  const testOverlay = async () => {
+    videoRef.current?.pause();
+    const videoBlob = await fetch(roughClipUrl).then((res) => res.blob());
+    const videoFile = new File([videoBlob], "input.mp4", {
+      type: "video/mp4",
+    });
+    //Write video to memory
+    ffmpeg.FS(
+      "writeFile",
+      "input.mp4",
+      await (window as any).FFmpeg.fetchFile(videoFile)
+    );
+
+    const watermarkImage = await fetch("/images/unlonely-watermark.png").then(
+      (res) => res.arrayBuffer()
+    );
+    ffmpeg.FS("writeFile", "watermark.png", new Uint8Array(watermarkImage));
+
+    await ffmpeg.run(
+      "-i",
+      "input.mp4",
+      "-ss",
+      "00:00:00",
+      "-to",
+      "00:00:10",
+      "-c",
+      "copy",
+      "part1.mp4"
+    );
+    await ffmpeg.run(
+      "-i",
+      "input.mp4",
+      "-ss",
+      "00:00:10",
+      "-to",
+      "00:00:20",
+      "-c",
+      "copy",
+      "part2.mp4"
+    );
+    await ffmpeg.run(
+      "-i",
+      "input.mp4",
+      "-ss",
+      "00:00:20",
+      "-to",
+      "00:00:30",
+      "-c",
+      "copy",
+      "part3.mp4"
+    );
+
+    // 2. Apply the overlay to the middle segment
+    await ffmpeg.run(
+      "-i",
+      "part2.mp4",
+      "-i",
+      "watermark.png",
+      "-filter_complex",
+      "[0:v][1:v] overlay",
+      "-c:a",
+      "copy",
+      "part2_overlay.mp4"
+    );
+
+    // 3. Create a concat list for the parts
+    ffmpeg.FS(
+      "writeFile",
+      "concat_list.txt",
+      new TextEncoder().encode(`
+    file 'part1.mp4'
+    file 'part2_overlay.mp4'
+    file 'part3.mp4'
+  `)
+    );
+
+    // 4. Concatenate the parts back together
+    await ffmpeg.run(
+      "-f",
+      "concat",
+      "-safe",
+      "0",
+      "-i",
+      "concat_list.txt",
+      "-c",
+      "copy",
+      "output.mp4"
+    );
+
+    // Retrieve the final video file
+    const data = ffmpeg.FS("readFile", "output.mp4");
+
+    // Convert the result to a Blob for download or further processing
+    const finalBlob = new Blob([data.buffer], { type: "video/mp4" });
+
+    // Return the final Blob URL for display or download
+    const url = URL.createObjectURL(finalBlob);
+    setFinalClipURL(url);
+  };
+
   const handleTrim = async (info: {
     startTime: number;
     endTime: number;
@@ -599,39 +700,39 @@ const Clip = () => {
           "trimmed.mp4"
         );
 
-        // // // Create an outro video with the watermark image
+        // // Create an outro video with the watermark image
 
-        const outroStart = Date.now();
+        // const outroStart = Date.now();
 
-        const watermarkImage = await fetch(
-          "/images/unlonely-watermark.png"
-        ).then((res) => res.arrayBuffer());
-        ffmpeg.FS("writeFile", "watermark.png", new Uint8Array(watermarkImage));
+        // const watermarkImage = await fetch(
+        //   "/images/unlonely-watermark.png"
+        // ).then((res) => res.arrayBuffer());
+        // ffmpeg.FS("writeFile", "watermark.png", new Uint8Array(watermarkImage));
 
-        await ffmpeg.run(
-          "-loop",
-          "1",
-          "-i",
-          "watermark.png",
-          "-t",
-          "3",
-          "-vf",
-          `scale=${copiedVideoProperties.width}:${copiedVideoProperties.height},fps=${copiedVideoProperties.frameRate}`, // Scale to 40% of original size and center
-          "-c:v",
-          codecMap[copiedVideoProperties.videoCodec].ffmpegParams.codec,
-          "-c:a",
-          codecMap[copiedVideoProperties.audioCodec].ffmpegParams.codec,
-          "-ar",
-          `${copiedVideoProperties.sampleRate}`,
-          "-ac",
-          `${copiedVideoProperties.channelCount}`,
-          "outro.mp4"
-        );
+        // await ffmpeg.run(
+        //   "-loop",
+        //   "1",
+        //   "-i",
+        //   "watermark.png",
+        //   "-t",
+        //   "3",
+        //   "-vf",
+        //   `scale=${copiedVideoProperties.width}:${copiedVideoProperties.height},fps=${copiedVideoProperties.frameRate}`, // Scale to 40% of original size and center
+        //   "-c:v",
+        //   codecMap[copiedVideoProperties.videoCodec].ffmpegParams.codec,
+        //   "-c:a",
+        //   codecMap[copiedVideoProperties.audioCodec].ffmpegParams.codec,
+        //   "-ar",
+        //   `${copiedVideoProperties.sampleRate}`,
+        //   "-ac",
+        //   `${copiedVideoProperties.channelCount}`,
+        //   "outro.mp4"
+        // );
 
-        console.log(
-          "created outro.mp4",
-          `${(Date.now() - outroStart) / 1000}s`
-        );
+        // console.log(
+        //   "created outro.mp4",
+        //   `${(Date.now() - outroStart) / 1000}s`
+        // );
         const concatStart = Date.now();
 
         // // Verify the files exist in the FFmpeg file system
@@ -1425,6 +1526,16 @@ const Clip = () => {
     >
       <Flex direction={"column"} h="100vh">
         <Header />
+        {finalClipURL && (
+          <video
+            src={finalClipURL}
+            controls
+            style={{
+              width: "100%",
+              height: "100%",
+            }}
+          />
+        )}
         {(pageState === "clipping" || pageState === "trimming") && (
           <div
             className="image-container"
@@ -1581,6 +1692,17 @@ const Clip = () => {
                     Create NFC
                   </Text>
                 </Button>
+                <Button
+                  position="relative"
+                  onClick={testOverlay}
+                  py="20px"
+                  mb="20px"
+                  mx="auto"
+                >
+                  <Text position="relative" zIndex="2">
+                    Test overlay
+                  </Text>
+                </Button>{" "}
               </>
             </Flex>
           ) : pageState === "redirecting" ? (
