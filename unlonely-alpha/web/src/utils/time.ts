@@ -111,7 +111,7 @@ export function formatTimestampToDate(
   }`;
 }
 
-export const convertToHHMMSS = (_seconds: string) => {
+export const convertToHHMMSS = (_seconds: string, completeFormat?: boolean) => {
   const secNum = parseInt(_seconds, 10);
   let hours = String(Math.floor(secNum / 3600));
   let minutes = String(Math.floor((secNum - Number(hours) * 3600) / 60));
@@ -128,7 +128,7 @@ export const convertToHHMMSS = (_seconds: string) => {
   }
   let time;
   // only mm:ss
-  if (hours === "00") {
+  if (hours === "00" && !completeFormat) {
     time = minutes + ":" + seconds;
   } else {
     time = hours + ":" + minutes + ":" + seconds;
