@@ -90,6 +90,13 @@ export const resolvers = {
 
       return userService.updateUser(data, ctx);
     },
+    updateUsers: (
+      _: any,
+      { data }: { data: userService.IUpdateUsersInput },
+      ctx: Context
+    ) => {
+      return userService.updateUsers(data, ctx);
+    },
     updateUserChannelContract1155Mapping: (
       _: any,
       {
