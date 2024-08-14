@@ -71,8 +71,8 @@ import centerEllipses from "../utils/centerEllipses";
 import { useNetworkContext } from "../hooks/context/useNetwork";
 import AppLayout from "../components/layout/AppLayout";
 
-const multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
-const PROTOCOL_ADDRESS = "0x53D6D64945A67658C66730Ff4a038eb298eC8902";
+export const multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
+export const PROTOCOL_ADDRESS = "0x53D6D64945A67658C66730Ff4a038eb298eC8902";
 
 const images = [
   { src: "/images/nyan-cat-every-nyan.gif", top: "10vh", delay: "4s" },
@@ -90,11 +90,11 @@ const carouselProgressStatusMessages = [
 
 const PLEASE_CONTINUE_TRANSACTION = "Please approve the transaction";
 
-type Aggregate3ValueFunction = ExtractAbiFunction<
+export type Aggregate3ValueFunction = ExtractAbiFunction<
   typeof multicall3Abi,
   "aggregate3Value"
 >["inputs"];
-type Aggregate3ValueCall =
+export type Aggregate3ValueCall =
   AbiParametersToPrimitiveTypes<Aggregate3ValueFunction>[0][0];
 
 type FinalClipObject = PostNfcInput & {
