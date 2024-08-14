@@ -214,17 +214,14 @@ export const getAllUsersWithChannel = (ctx: Context) => {
 };
 
 export const updateAllUsers = async (ctx: Context) => {
-  // where FCimageurl is null
-
   const users = await ctx.prisma.user.findMany({
     where: {
-      FCImageUrl: "",
+      FCHandle: "",
+      isFCUser: true
     },
   });
-  // for loop through userse
+  // for loop through users
   for (let i = 0; i < users.length; i++) {
-    // call the api https://searchcaster.xyz/api/profiles?connected_address=${users[i].address}
-    // fetch using axios
     const response = await axios.get(
       `https://searchcaster.xyz/api/profiles?connected_address=${users[i].address}`
     );
