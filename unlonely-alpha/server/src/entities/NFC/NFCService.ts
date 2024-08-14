@@ -714,7 +714,6 @@ export const getLivepeerClipData = async (data: IGetLivepeerClipDataInput) => {
       }
     );
     const res = await poll.json();
-    console.log("getLivepeerClipData", res);
     if (res.status.phase === "ready") {
       try {
         const finalPlaybackData: any = await fetch(
