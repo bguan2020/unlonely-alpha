@@ -583,7 +583,7 @@ const Clip = () => {
       "-i",
       "input.mp4",
       "-t",
-      "3",
+      "2",
       "-c",
       "copy",
       "part2.mp4"
@@ -593,14 +593,14 @@ const Clip = () => {
 
     await ffmpeg.run(
       "-i",
-      "part2.mp4",
+      "part2.mp4", // Input video (2-second clip)
       "-i",
-      "watermark.png",
+      "watermark.png", // Watermark image
       "-filter_complex",
-      "[0:v]pad=width=iw:height=ih:color=black[bg];[bg][1:v]overlay=(W-w)/2:(H-h)/2",
-      "-c:a",
-      "copy",
-      "part2_overlay.mp4"
+      "[0:v]drawbox=c=black:t=fill[bg];[bg][1:v]overlay=(W-w)/2:(H-h)/2", // Overlay watermark and draw background
+      "-af",
+      "volume=0", // Set audio volume to 0 to mute it but keep the audio stream
+      "part2_overlay.mp4" // Output file
     );
 
     console.log("created part2_overlay.mp4");
