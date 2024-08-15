@@ -423,7 +423,9 @@ const Clip = () => {
             parseInt(minutes) * 60 +
             parseFloat(seconds);
 
-          const newDuration = totalSeconds - OUTRO_DURATION_IN_SECONDS;
+          const BUFFER_IN_SECONDS = 2;
+          const newDuration =
+            totalSeconds - OUTRO_DURATION_IN_SECONDS - BUFFER_IN_SECONDS;
           const newDurationString = convertToHHMMSS(
             newDuration.toString(),
             true
