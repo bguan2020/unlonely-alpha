@@ -79,7 +79,7 @@ let ffmpeg: any; //Store the ffmpeg instance
 
 export const multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
 export const PROTOCOL_ADDRESS = "0x53D6D64945A67658C66730Ff4a038eb298eC8902";
-const OUTRO_DURATION_IN_SECONDS = 10;
+const OUTRO_DURATION_IN_SECONDS = 2;
 
 const images = [
   { src: "/images/nyan-cat-every-nyan.gif", top: "10vh", delay: "4s" },
@@ -399,32 +399,30 @@ const Clip = () => {
             await (window as any).FFmpeg.fetchFile(videoFile)
           );
 
-          // Get video duration
-          await ffmpeg.run("-i", "rough.mp4");
-          const durationOutput = ffmpeg.FS("readFile", "rough.mp4");
-          const durationString = new TextDecoder("utf-8").decode(
-            durationOutput
-          );
-          const durationMatch = durationString.match(
-            /Duration: (\d+:\d+:\d+\.\d+)/
-          );
+          let durationString = "";
 
-          if (!durationMatch) {
+          ffmpeg.setLogger(({ type, message }: { type: any; message: any }) => {
+            if (type === "fferr" && message.includes("Duration")) {
+              const match = message.match(/Duration: (\d+:\d+:\d+\.\d+)/);
+              if (match) {
+                durationString = match[1];
+              }
+            }
+          });
+
+          await ffmpeg.run("-i", "rough.mp4");
+
+          if (!durationString) {
             throw new Error("Unable to retrieve video duration.");
           }
 
-          const duration = durationMatch[1];
-
-          console.log("Duration:", duration);
-
           // Convert duration to seconds
-          const [hours, minutes, seconds] = duration.split(":");
+          const [hours, minutes, seconds] = durationString.split(":");
           const totalSeconds =
             parseInt(hours) * 3600 +
             parseInt(minutes) * 60 +
             parseFloat(seconds);
 
-          // Calculate the new duration (2 seconds before the end)
           const newDuration = totalSeconds - OUTRO_DURATION_IN_SECONDS;
           const newDurationString = convertToHHMMSS(
             newDuration.toString(),
