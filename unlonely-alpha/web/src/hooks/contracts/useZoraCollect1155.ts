@@ -44,16 +44,6 @@ export const useZoraCollect1155 = () => {
     });
 
     console.log("splitAddress", splitAddress);
-
-    const rewardsBalance = await publicClient.readContract({
-      abi: protocolRewardsABI,
-      address:
-        protocolRewardsAddress[chainId as keyof typeof protocolRewardsAddress],
-      functionName: "balanceOf",
-      args: [splitAddress],
-    });
-
-    console.log("rewardsBalance", rewardsBalance);
     
     const { parameters } = await collectorClient.mint({
       tokenContract,
@@ -62,18 +52,6 @@ export const useZoraCollect1155 = () => {
       minterAccount: walletClient.account.address,
       tokenId,
     });
-
-    if (rewardsBalance === BigInt(0)) {
-      const { request } = await publicClient.simulateContract(parameters);
-
-      const hash = await walletClient.writeContract(request);
-      if (!hash) return undefined;
-      const transaction = await publicClient.waitForTransactionReceipt({
-        hash,
-      });
-      console.log("transaction", transaction);
-      return transaction;
-    }
 
     const splitsClient = new SplitV1Client({
       chainId,
