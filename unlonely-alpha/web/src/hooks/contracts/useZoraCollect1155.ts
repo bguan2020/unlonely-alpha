@@ -99,7 +99,7 @@ export const useZoraCollect1155 = () => {
       data: encodeFunctionData({
         abi: protocolRewardsABI,
         functionName: "withdrawFor",
-        args: [splitAddress, rewardsBalance],
+        args: [splitAddress, BigInt(0)],
       }),
       address:
         protocolRewardsAddress[chainId as keyof typeof protocolRewardsAddress],
