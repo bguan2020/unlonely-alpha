@@ -3,7 +3,10 @@ import { User } from "@prisma/client";
 
 import { Context } from "../../context";
 import { lensClient, LENS_GET_DEFAULT_PROFILE } from "../../utils/lens/client";
-import { fetchSocial } from "../../utils/identityResolver";
+import {
+  fetchMultipleSocials,
+  fetchSocial,
+} from "../../utils/identityResolver";
 
 export const getLeaderboard = (ctx: Context) => {
   return ctx.prisma.user.findMany({
@@ -214,17 +217,14 @@ export const getAllUsersWithChannel = (ctx: Context) => {
 };
 
 export const updateAllUsers = async (ctx: Context) => {
-  // where FCimageurl is null
-
   const users = await ctx.prisma.user.findMany({
     where: {
-      FCImageUrl: "",
+      FCHandle: "",
+      isFCUser: true,
     },
   });
-  // for loop through userse
+  // for loop through users
   for (let i = 0; i < users.length; i++) {
-    // call the api https://searchcaster.xyz/api/profiles?connected_address=${users[i].address}
-    // fetch using axios
     const response = await axios.get(
       `https://searchcaster.xyz/api/profiles?connected_address=${users[i].address}`
     );
@@ -298,6 +298,70 @@ export const updateUser = async (data: IUpdateUserInput, ctx: Context) => {
     },
     data: socials,
   });
+};
+
+export interface IUpdateUsersInput {
+  addresses: string[];
+}
+
+export const updateUsers = async (data: IUpdateUsersInput, ctx: Context) => {
+  const ITEMS_PER_PAGE = 4;
+
+  let canQuit = false;
+  let skip = 0;
+  let iterations = 0;
+
+  while (!canQuit) {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    const paginatedUniqueUserAddresses = await ctx.prisma.user.findMany({
+      select: {
+        address: true,
+      },
+      take: ITEMS_PER_PAGE,
+      skip,
+    });
+    iterations++;
+    skip += ITEMS_PER_PAGE;
+    console.log("Iteration", iterations, "processed", skip);
+
+    if (paginatedUniqueUserAddresses.length < ITEMS_PER_PAGE) {
+      canQuit = true;
+      break;
+    }
+
+    const uniqueUserAddresses = paginatedUniqueUserAddresses.map(
+      (user) => user.address
+    );
+
+    const socials = await fetchMultipleSocials(
+      uniqueUserAddresses,
+      Array(uniqueUserAddresses.length).fill("ethereum")
+    );
+    // Create an array of promises to update each user
+    const updatePromises = uniqueUserAddresses.map((address) => {
+      const socialData = socials[address];
+
+      if (!socialData) {
+        return;
+      }
+
+      return ctx.prisma.user.update({
+        where: { address },
+        data: {
+          username: socialData.username || null,
+          isFCUser: socialData.isFCUser || false,
+          FCImageUrl: socialData.FCImageUrl || "",
+          FCHandle: socialData.FCHandle || "",
+          isLensUser: socialData.isLensUser || false,
+          lensHandle: socialData.lensHandle || "",
+          lensImageUrl: socialData.lensImageUrl || "",
+        },
+      });
+    });
+
+    // Execute all updates concurrently
+    await Promise.all(updatePromises);
+  }
 };
 
 export interface IUpdateUserNotificationsInput {

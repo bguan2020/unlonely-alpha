@@ -41,6 +41,10 @@ export const typeDef = gql`
     address: String
   }
 
+  input UpdateUsersInput {
+    addresses: [String]
+  }
+
   input GetUserTokenHoldingInput {
     userAddress: String
     tokenAddress: String
@@ -78,5 +82,6 @@ export const typeDef = gql`
       data: UpdateUserChannelContract1155MappingInput!
     ): User
     updateUser(data: UpdateUserInput!): User
+    updateUsers(data: UpdateUsersInput!): [User]
   }
 `;
