@@ -3,7 +3,10 @@ import { User } from "@prisma/client";
 
 import { Context } from "../../context";
 import { lensClient, LENS_GET_DEFAULT_PROFILE } from "../../utils/lens/client";
-import { fetchMultipleSocials, fetchSocial } from "../../utils/identityResolver";
+import {
+  fetchMultipleSocials,
+  fetchSocial,
+} from "../../utils/identityResolver";
 
 export const getLeaderboard = (ctx: Context) => {
   return ctx.prisma.user.findMany({
@@ -217,7 +220,7 @@ export const updateAllUsers = async (ctx: Context) => {
   const users = await ctx.prisma.user.findMany({
     where: {
       FCHandle: "",
-      isFCUser: true
+      isFCUser: true,
     },
   });
   // for loop through users
@@ -302,7 +305,6 @@ export interface IUpdateUsersInput {
 }
 
 export const updateUsers = async (data: IUpdateUsersInput, ctx: Context) => {
-
   const ITEMS_PER_PAGE = 4;
 
   let canQuit = false;
@@ -310,35 +312,39 @@ export const updateUsers = async (data: IUpdateUsersInput, ctx: Context) => {
   let iterations = 0;
 
   while (!canQuit) {
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-  const paginatedUniqueUserAddresses = await ctx.prisma.user.findMany({
-    select: {
-      address: true,
-    },
-    take: ITEMS_PER_PAGE,
-    skip
-  });
-  iterations++;
-  skip += ITEMS_PER_PAGE;
-  console.log("Iteration", iterations, "processed", skip);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    const paginatedUniqueUserAddresses = await ctx.prisma.user.findMany({
+      select: {
+        address: true,
+      },
+      take: ITEMS_PER_PAGE,
+      skip,
+    });
+    iterations++;
+    skip += ITEMS_PER_PAGE;
+    console.log("Iteration", iterations, "processed", skip);
 
-  if (paginatedUniqueUserAddresses.length < ITEMS_PER_PAGE) {
-    canQuit = true;
-    break;
-  }
+    if (paginatedUniqueUserAddresses.length < ITEMS_PER_PAGE) {
+      canQuit = true;
+      break;
+    }
 
+    const uniqueUserAddresses = paginatedUniqueUserAddresses.map(
+      (user) => user.address
+    );
 
-  const uniqueUserAddresses = paginatedUniqueUserAddresses.map((user) => user.address);
-
-  const socials = await fetchMultipleSocials(uniqueUserAddresses, Array(uniqueUserAddresses.length).fill("ethereum"));
+    const socials = await fetchMultipleSocials(
+      uniqueUserAddresses,
+      Array(uniqueUserAddresses.length).fill("ethereum")
+    );
     // Create an array of promises to update each user
     const updatePromises = uniqueUserAddresses.map((address) => {
       const socialData = socials[address];
-  
+
       if (!socialData) {
         return;
       }
-  
+
       return ctx.prisma.user.update({
         where: { address },
         data: {
@@ -352,12 +358,11 @@ export const updateUsers = async (data: IUpdateUsersInput, ctx: Context) => {
         },
       });
     });
-  
+
     // Execute all updates concurrently
     await Promise.all(updatePromises);
   }
-}
-
+};
 
 export interface IUpdateUserNotificationsInput {
   notificationsTokens: string;

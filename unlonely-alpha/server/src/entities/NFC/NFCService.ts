@@ -373,13 +373,13 @@ export const createLivepeerClip = async (
     return { url: playBackUrl, thumbnail: thumbNailUrl, ...res };
   } catch (e) {
     console.log(`createLivepeerClip Error invoking livepeer, id:${endTime}`, e);
-    return { 
+    return {
       id: "0",
       score: 0,
       owner: user,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      errorMessage: `Error invoking livepeer: ${e}`
+      errorMessage: `Error invoking livepeer: ${e}`,
     };
   }
 };

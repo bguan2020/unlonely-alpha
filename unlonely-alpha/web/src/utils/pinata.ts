@@ -15,10 +15,10 @@ export async function pinFileWithPinata(file: File) {
 
     const result = (await res.json()) as { IpfsHash: string | undefined };
     console.log("pinFileWithPinata result: ", result);
-    return {error: undefined, ipfsHash: result.IpfsHash};
+    return { error: undefined, ipfsHash: result.IpfsHash };
   } catch (e) {
     console.log("pinFileWithPinata error: ", file.name, e);
-    return {error: JSON.stringify(e) , ipfsHash: undefined};
+    return { error: JSON.stringify(e), ipfsHash: undefined };
   }
 }
 
@@ -56,7 +56,10 @@ export async function createFileBlobAndPinWithPinata(
     const res = await fetch(link);
     const blob = await res.blob();
     const file = new File([blob], fileName, { type: fileType });
-    console.log("createFileBlobAndPinWithPinata calling pinFileWithPinata with file: ", file);
+    console.log(
+      "createFileBlobAndPinWithPinata calling pinFileWithPinata with file: ",
+      file
+    );
     const { error, ipfsHash } = await pinFileWithPinata(file);
     if (error) {
       return { file, pinRes: undefined, error };

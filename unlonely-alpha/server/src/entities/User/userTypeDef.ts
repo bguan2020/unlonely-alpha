@@ -45,7 +45,6 @@ export const typeDef = gql`
     addresses: [String]
   }
 
-
   input GetUserTokenHoldingInput {
     userAddress: String
     tokenAddress: String

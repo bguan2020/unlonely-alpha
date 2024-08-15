@@ -1,6 +1,5 @@
 import { fetchQuery, init } from "@airstack/node";
 
-
 const walletField = `
 addresses
 primaryDomain {
@@ -53,7 +52,7 @@ lensSocials: socials(input: {filter: {dappName: {_eq: lens}}}) {
 xmtp {
   isXMTPEnabled
 }
-`
+`;
 
 const GET_SOCIAL = `
   query GetSocial($identity: Identity!, $blockchain: TokenBlockchain!) {
@@ -111,10 +110,7 @@ export const fetchSocial = async (
     } else {
       newData.FCImageUrl = "";
     }
-    if (
-      fc?.profileHandle !== null &&
-      fc?.profileHandle !== undefined
-    ) {
+    if (fc?.profileHandle !== null && fc?.profileHandle !== undefined) {
       newData.FCHandle = fc.profileHandle;
     } else {
       newData.FCHandle = "";
@@ -144,7 +140,10 @@ export const fetchSocial = async (
   }
 };
 
-export const fetchMultipleSocials = async (identities: string[], blockchains: string[]) => {
+export const fetchMultipleSocials = async (
+  identities: string[],
+  blockchains: string[]
+) => {
   try {
     if (!process.env.AIRSTACK_API_KEY) {
       throw new Error("AIRSTACK_API_KEY not set");
@@ -157,7 +156,9 @@ export const fetchMultipleSocials = async (identities: string[], blockchains: st
     let batchInput = "";
     let batchFields = "";
     identities.forEach((_, index) => {
-      batchInput += `$identity${index}: Identity!, $blockchain${index}: TokenBlockchain!${index === identities.length - 1 ? "" : ", "}`;
+      batchInput += `$identity${index}: Identity!, $blockchain${index}: TokenBlockchain!${
+        index === identities.length - 1 ? "" : ", "
+      }`;
       batchFields += `
         wallet${index}: Wallet(input: { identity: $identity${index}, blockchain: $blockchain${index} }) {
           ${walletField}
@@ -171,14 +172,20 @@ export const fetchMultipleSocials = async (identities: string[], blockchains: st
     `;
 
     const variables = {
-      ...identities.reduce((acc: { [key: string]: string }, identity, index) => {
-        acc[`identity${index}`] = identity;
-        return acc;
-      }, {}),
-      ...blockchains.reduce((acc: { [key: string]: string }, blockchain, index) => {
-        acc[`blockchain${index}`] = blockchain;
-        return acc;
-      }, {})
+      ...identities.reduce(
+        (acc: { [key: string]: string }, identity, index) => {
+          acc[`identity${index}`] = identity;
+          return acc;
+        },
+        {}
+      ),
+      ...blockchains.reduce(
+        (acc: { [key: string]: string }, blockchain, index) => {
+          acc[`blockchain${index}`] = blockchain;
+          return acc;
+        },
+        {}
+      ),
     };
 
     const { data: res, error } = await fetchQuery(batchQuery, variables);
@@ -213,10 +220,7 @@ export const fetchMultipleSocials = async (identities: string[], blockchains: st
       } else {
         newData[identity].FCImageUrl = "";
       }
-      if (
-        fc?.profileHandle !== null &&
-        fc?.profileHandle !== undefined
-      ) {
+      if (fc?.profileHandle !== null && fc?.profileHandle !== undefined) {
         newData[identity].FCHandle = fc.profileHandle;
       } else {
         newData[identity].FCHandle = "";
@@ -235,7 +239,8 @@ export const fetchMultipleSocials = async (identities: string[], blockchains: st
         lens?.profileImageContentValue?.image?.small !== null &&
         lens?.profileImageContentValue?.image?.small !== undefined
       ) {
-        newData[identity].lensImageUrl = lens.profileImageContentValue.image.small;
+        newData[identity].lensImageUrl =
+          lens.profileImageContentValue.image.small;
       } else {
         newData[identity].lensImageUrl = "";
       }
