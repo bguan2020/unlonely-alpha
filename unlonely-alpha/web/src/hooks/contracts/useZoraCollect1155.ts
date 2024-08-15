@@ -30,8 +30,6 @@ export const useZoraCollect1155 = () => {
       return undefined;
     }
 
-    console.log("walletClient", walletClient);
-
     const agregate3Calls: Aggregate3ValueCall[] = [];
 
     const collectorClient = createCollectorClient({ chainId, publicClient });
@@ -112,8 +110,6 @@ export const useZoraCollect1155 = () => {
     account: walletClient?.account.address as Address,
     value: parameters.value || BigInt(0),
   });
-
-  console.log("simulated request", request);
 
   // execute the transaction
   const hash = await walletClient
