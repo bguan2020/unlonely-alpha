@@ -109,53 +109,53 @@ type FinalClipObject = PostNfcInput & {
   owner?: { username?: string; address: string };
 };
 
-interface CodecMapping {
-  codec: string;
-  description: string;
-  profileLevel: string;
-  isSupportedForConcat: boolean;
-  ffmpegParams: { codec: string; [key: string]: string };
-}
+// interface CodecMapping {
+//   codec: string;
+//   description: string;
+//   profileLevel: string;
+//   isSupportedForConcat: boolean;
+//   ffmpegParams: { codec: string; [key: string]: string };
+// }
 
-const codecMap: { [key: string]: CodecMapping } = {
-  "avc1.4d401f": {
-    codec: "avc1",
-    description: "H.264, Main Profile, Level 3.1",
-    profileLevel: "4d401f",
-    isSupportedForConcat: true,
-    ffmpegParams: {
-      codec: "libx264",
-      profile: "main",
-      level: "3.1",
-    },
-  },
-  "avc1.42E01E": {
-    codec: "avc1",
-    description: "H.264, Baseline Profile, Level 3.0",
-    profileLevel: "42E01E",
-    isSupportedForConcat: true,
-    ffmpegParams: {
-      codec: "libx264",
-      profile: "baseline",
-      level: "3.0",
-    },
-  },
-  "mp4a.40.2": {
-    codec: "mp4a",
-    description: "AAC, Low Complexity Profile",
-    profileLevel: "40.2",
-    isSupportedForConcat: true,
-    ffmpegParams: {
-      codec: "aac",
-      bitrate: "128k",
-    },
-  },
-  // Add more mappings as needed
-};
+// const codecMap: { [key: string]: CodecMapping } = {
+//   "avc1.4d401f": {
+//     codec: "avc1",
+//     description: "H.264, Main Profile, Level 3.1",
+//     profileLevel: "4d401f",
+//     isSupportedForConcat: true,
+//     ffmpegParams: {
+//       codec: "libx264",
+//       profile: "main",
+//       level: "3.1",
+//     },
+//   },
+//   "avc1.42E01E": {
+//     codec: "avc1",
+//     description: "H.264, Baseline Profile, Level 3.0",
+//     profileLevel: "42E01E",
+//     isSupportedForConcat: true,
+//     ffmpegParams: {
+//       codec: "libx264",
+//       profile: "baseline",
+//       level: "3.0",
+//     },
+//   },
+//   "mp4a.40.2": {
+//     codec: "mp4a",
+//     description: "AAC, Low Complexity Profile",
+//     profileLevel: "40.2",
+//     isSupportedForConcat: true,
+//     ffmpegParams: {
+//       codec: "aac",
+//       bitrate: "128k",
+//     },
+//   },
+//   // Add more mappings as needed
+// };
 
-function canConcatenateWithoutReencoding(codec: string): boolean {
-  return codecMap[codec]?.isSupportedForConcat ?? false;
-}
+// function canConcatenateWithoutReencoding(codec: string): boolean {
+//   return codecMap[codec]?.isSupportedForConcat ?? false;
+// }
 
 const Clip = () => {
   const router = useRouter();
