@@ -14,7 +14,7 @@ import { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { MdDragIndicator } from "react-icons/md";
 import * as tus from "tus-js-client";
 import Link from "next/link";
-import MP4Box, { MP4Info, MP4ArrayBuffer } from "mp4box";
+// import MP4Box, { MP4Info, MP4ArrayBuffer } from "mp4box";
 
 import {
   CHAT_MESSAGE_EVENT,
@@ -79,6 +79,7 @@ let ffmpeg: any; //Store the ffmpeg instance
 
 const multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
 const PROTOCOL_ADDRESS = "0x53D6D64945A67658C66730Ff4a038eb298eC8902";
+const OUTRO_DURATION_IN_SECONDS = 10;
 
 const images = [
   { src: "/images/nyan-cat-every-nyan.gif", top: "10vh", delay: "4s" },
@@ -188,28 +189,29 @@ const Clip = () => {
     | "redirecting"
     | "error"
   >("lacking");
-  const [copiedVideoProperties, setCopiedVideoProperties] = useState<{
-    width: number;
-    height: number;
-    frameRate: number;
-    videoCodec: string;
-    audioCodec: string;
-    sampleRate: number;
-    channelCount: number;
-  }>({
-    width: 0,
-    height: 0,
-    frameRate: 0,
-    videoCodec: "",
-    audioCodec: "",
-    sampleRate: 0,
-    channelCount: 0,
-  });
+  // const [copiedVideoProperties, setCopiedVideoProperties] = useState<{
+  //   width: number;
+  //   height: number;
+  //   frameRate: number;
+  //   videoCodec: string;
+  //   audioCodec: string;
+  //   sampleRate: number;
+  //   channelCount: number;
+  // }>({
+  //   width: 0,
+  //   height: 0,
+  //   frameRate: 0,
+  //   videoCodec: "",
+  //   audioCodec: "",
+  //   sampleRate: 0,
+  //   channelCount: 0,
+  // });
   const [trimProgressPercentage, setTrimProgressPercentage] = useState(0);
   const [roughClipUrl, setRoughClipUrl] = useState(
     ""
     // "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/85f88w1q70abhfau/720p0.mp4"
   );
+  const [displayClipUrl, setDisplayClipUrl] = useState("");
   const [finalClipObject, setFinalClipObject] = useState<
     FinalClipObject | undefined
   >(undefined);
@@ -261,7 +263,7 @@ const Clip = () => {
 
   const canTrim = useMemo(() => {
     return (
-      roughClipUrl &&
+      displayClipUrl &&
       channelId &&
       clipRange[0] < clipRange[1] &&
       getChannelByIdData?.getChannelById &&
@@ -273,7 +275,7 @@ const Clip = () => {
       clipRange[1] - clipRange[0] >= 2 &&
       title.length <= 100
     );
-  }, [roughClipUrl, clipRange, title, channelId, getChannelByIdData, user]);
+  }, [displayClipUrl, clipRange, title, channelId, getChannelByIdData, user]);
 
   useEffect(() => {
     if (pageState === "trimming") {
@@ -374,7 +376,7 @@ const Clip = () => {
             getChannelByIdData.getChannelById?.livepeerPlaybackId,
           noDatabasePush: true,
         });
-        const url = res?.url;
+        const roughUrl = res?.url;
         if (res?.errorMessage) {
           console.log(
             "Error creating rough clip, got error from createClip,",
@@ -386,8 +388,69 @@ const Clip = () => {
           );
           return;
         }
-        if (url) {
-          setRoughClipUrl(url);
+        if (roughUrl) {
+          const videoBlob = await fetch(roughUrl).then((res) => res.blob());
+          const videoFile = new File([videoBlob], "rough.mp4", {
+            type: "video/mp4",
+          });
+          ffmpeg.FS(
+            "writeFile",
+            "rough.mp4",
+            await (window as any).FFmpeg.fetchFile(videoFile)
+          );
+
+          // Get video duration
+          await ffmpeg.run("-i", "rough.mp4");
+          const durationOutput = ffmpeg.FS("readFile", "rough.mp4");
+          const durationString = new TextDecoder("utf-8").decode(
+            durationOutput
+          );
+          const durationMatch = durationString.match(
+            /Duration: (\d+:\d+:\d+\.\d+)/
+          );
+
+          if (!durationMatch) {
+            throw new Error("Unable to retrieve video duration.");
+          }
+
+          const duration = durationMatch[1];
+
+          console.log("Duration:", duration);
+
+          // Convert duration to seconds
+          const [hours, minutes, seconds] = duration.split(":");
+          const totalSeconds =
+            parseInt(hours) * 3600 +
+            parseInt(minutes) * 60 +
+            parseFloat(seconds);
+
+          // Calculate the new duration (2 seconds before the end)
+          const newDuration = totalSeconds - OUTRO_DURATION_IN_SECONDS;
+          const newDurationString = convertToHHMMSS(
+            newDuration.toString(),
+            true
+          );
+
+          await ffmpeg.run(
+            "-ss",
+            "00:00:00",
+            "-i",
+            "rough.mp4",
+            "-t",
+            newDurationString,
+            "-c",
+            "copy",
+            "display.mp4"
+          );
+
+          const data = ffmpeg.FS("readFile", "display.mp4");
+
+          const displayUrl = URL.createObjectURL(
+            new Blob([data.buffer], { type: "video/mp4" })
+          );
+
+          setRoughClipUrl(roughUrl);
+          setDisplayClipUrl(displayUrl);
         } else {
           console.log("Error creating rough clip, no error but url is missing");
           setPageState("error");
@@ -407,7 +470,7 @@ const Clip = () => {
   }, [getChannelByIdData, user]);
 
   useEffect(() => {
-    if (roughClipUrl && videoRef.current) {
+    if (displayClipUrl && videoRef.current) {
       videoRef.current.load();
       videoRef.current.onloadedmetadata = () => {
         console.log("loaded metadata");
@@ -416,77 +479,77 @@ const Clip = () => {
         const duration = videoRef.current?.duration;
         console.log(`Resolution: ${width}x${height}, Duration: ${duration}s`);
         setClipRange([0, videoRef.current?.duration || 0]);
-        fetchAndParseVideo(roughClipUrl);
+        // fetchAndParseVideo(displayClipUrl);
       };
     }
-  }, [roughClipUrl]);
+  }, [displayClipUrl]);
 
-  const fetchAndParseVideo = async (url: string) => {
-    try {
-      const response = await fetch(url);
-      const arrayBuffer = await response.arrayBuffer();
+  // const fetchAndParseVideo = async (url: string) => {
+  //   try {
+  //     const response = await fetch(url);
+  //     const arrayBuffer = await response.arrayBuffer();
 
-      // Create an MP4ArrayBuffer by adding the fileStart property
-      const mp4ArrayBuffer = Object.assign(new Uint8Array(arrayBuffer).buffer, {
-        fileStart: 0,
-      }) as MP4ArrayBuffer;
+  //     // Create an MP4ArrayBuffer by adding the fileStart property
+  //     const mp4ArrayBuffer = Object.assign(new Uint8Array(arrayBuffer).buffer, {
+  //       fileStart: 0,
+  //     }) as MP4ArrayBuffer;
 
-      const mp4boxFile = MP4Box.createFile();
-      mp4boxFile.onReady = (info: MP4Info) => {
-        console.log("MP4 info:", info, JSON.stringify(info, null, 2));
+  //     const mp4boxFile = MP4Box.createFile();
+  //     mp4boxFile.onReady = (info: MP4Info) => {
+  //       console.log("MP4 info:", info, JSON.stringify(info, null, 2));
 
-        const videoTrack = info.videoTracks[0];
-        const audioTrack = info.audioTracks[0];
+  //       const videoTrack = info.videoTracks[0];
+  //       const audioTrack = info.audioTracks[0];
 
-        const videoCodec = videoTrack.codec;
-        const width = videoTrack.video.width;
-        const height = videoTrack.video.height;
-        const durationInSeconds = videoTrack.duration / videoTrack.timescale;
-        const framerate = videoTrack.nb_samples / durationInSeconds;
-        console.log(framerate);
-        const audioCodec = audioTrack.codec;
-        const sampleRate = audioTrack.audio.sample_rate;
-        const channels = audioTrack.audio.channel_count;
+  //       const videoCodec = videoTrack.codec;
+  //       const width = videoTrack.video.width;
+  //       const height = videoTrack.video.height;
+  //       const durationInSeconds = videoTrack.duration / videoTrack.timescale;
+  //       const framerate = videoTrack.nb_samples / durationInSeconds;
+  //       console.log(framerate);
+  //       const audioCodec = audioTrack.codec;
+  //       const sampleRate = audioTrack.audio.sample_rate;
+  //       const channels = audioTrack.audio.channel_count;
 
-        console.log(
-          `Can concatenate video codec ${videoCodec} without re-encoding?`,
-          canConcatenateWithoutReencoding(videoCodec)
-        );
+  //       console.log(
+  //         `Can concatenate video codec ${videoCodec} without re-encoding?`,
+  //         canConcatenateWithoutReencoding(videoCodec)
+  //       );
 
-        console.log(
-          `Can concatenate audio codec ${audioCodec} without re-encoding?`,
-          canConcatenateWithoutReencoding(audioCodec)
-        );
+  //       console.log(
+  //         `Can concatenate audio codec ${audioCodec} without re-encoding?`,
+  //         canConcatenateWithoutReencoding(audioCodec)
+  //       );
 
-        setCopiedVideoProperties({
-          width,
-          height,
-          frameRate: framerate,
-          videoCodec,
-          audioCodec,
-          sampleRate,
-          channelCount: channels,
-        });
-        info.tracks.forEach((track) => {
-          if ("video" in track) {
-            console.log(`Codec: ${track.codec}`);
-            console.log(
-              `Resolution: ${track.track_width}x${track.track_height}`
-            );
-          } else if ("audio" in track) {
-            console.log(`Codec: ${track.codec}`);
-            console.log(`Sample Rate: ${track.audio.sample_rate}`);
-          }
-        });
-      };
+  //       setCopiedVideoProperties({
+  //         width,
+  //         height,
+  //         frameRate: framerate,
+  //         videoCodec,
+  //         audioCodec,
+  //         sampleRate,
+  //         channelCount: channels,
+  //       });
+  //       info.tracks.forEach((track) => {
+  //         if ("video" in track) {
+  //           console.log(`Codec: ${track.codec}`);
+  //           console.log(
+  //             `Resolution: ${track.track_width}x${track.track_height}`
+  //           );
+  //         } else if ("audio" in track) {
+  //           console.log(`Codec: ${track.codec}`);
+  //           console.log(`Sample Rate: ${track.audio.sample_rate}`);
+  //         }
+  //       });
+  //     };
 
-      // Append the video buffer to mp4box.js and flush to trigger processing
-      mp4boxFile.appendBuffer(mp4ArrayBuffer);
-      mp4boxFile.flush();
-    } catch (error) {
-      console.error("Error fetching or processing video:", error);
-    }
-  };
+  //     // Append the video buffer to mp4box.js and flush to trigger processing
+  //     mp4boxFile.appendBuffer(mp4ArrayBuffer);
+  //     mp4boxFile.flush();
+  //   } catch (error) {
+  //     console.error("Error fetching or processing video:", error);
+  //   }
+  // };
 
   const handleRangeChange = (range: [number, number]) => {
     setClipRange(range);
@@ -545,99 +608,99 @@ const Clip = () => {
     });
   }, []);
 
-  const testOverlay = async () => {
-    videoRef.current?.pause();
-    const videoBlob = await fetch(roughClipUrl).then((res) => res.blob());
-    const videoFile = new File([videoBlob], "input.mp4", {
-      type: "video/mp4",
-    });
-    //Write video to memory
-    ffmpeg.FS(
-      "writeFile",
-      "input.mp4",
-      await (window as any).FFmpeg.fetchFile(videoFile)
-    );
+  // const testOverlay = async () => {
+  //   videoRef.current?.pause();
+  //   const videoBlob = await fetch(roughClipUrl).then((res) => res.blob());
+  //   const videoFile = new File([videoBlob], "input.mp4", {
+  //     type: "video/mp4",
+  //   });
+  //   //Write video to memory
+  //   ffmpeg.FS(
+  //     "writeFile",
+  //     "input.mp4",
+  //     await (window as any).FFmpeg.fetchFile(videoFile)
+  //   );
 
-    const watermarkImage = await fetch("/images/unlonely-watermark.png").then(
-      (res) => res.arrayBuffer()
-    );
-    ffmpeg.FS("writeFile", "watermark.png", new Uint8Array(watermarkImage));
+  //   const watermarkImage = await fetch("/images/unlonely-watermark.png").then(
+  //     (res) => res.arrayBuffer()
+  //   );
+  //   ffmpeg.FS("writeFile", "watermark.png", new Uint8Array(watermarkImage));
 
-    await ffmpeg.run(
-      "-ss",
-      "00:00:00",
-      "-i",
-      "input.mp4",
-      "-t",
-      "10", // Duration of 10 seconds
-      "-c",
-      "copy",
-      "part1.mp4"
-    );
+  //   await ffmpeg.run(
+  //     "-ss",
+  //     "00:00:00",
+  //     "-i",
+  //     "input.mp4",
+  //     "-t",
+  //     "10", // Duration of 10 seconds
+  //     "-c",
+  //     "copy",
+  //     "part1.mp4"
+  //   );
 
-    console.log("created part1.mp4");
+  //   console.log("created part1.mp4");
 
-    await ffmpeg.run(
-      "-ss",
-      "00:00:00",
-      "-i",
-      "input.mp4",
-      "-t",
-      "2",
-      "-c",
-      "copy",
-      "part2.mp4"
-    );
+  //   await ffmpeg.run(
+  //     "-ss",
+  //     "00:00:00",
+  //     "-i",
+  //     "input.mp4",
+  //     "-t",
+  //     "2",
+  //     "-c",
+  //     "copy",
+  //     "part2.mp4"
+  //   );
 
-    console.log("created part2.mp4");
+  //   console.log("created part2.mp4");
 
-    await ffmpeg.run(
-      "-i",
-      "part2.mp4", // Input video (2-second clip)
-      "-i",
-      "watermark.png", // Watermark image
-      "-filter_complex",
-      "[0:v]drawbox=c=black:t=fill[bg];[bg][1:v]overlay=(W-w)/2:(H-h)/2", // Overlay watermark and draw background
-      "-af",
-      "volume=0", // Set audio volume to 0 to mute it but keep the audio stream
-      "part2_overlay.mp4" // Output file
-    );
+  //   await ffmpeg.run(
+  //     "-i",
+  //     "part2.mp4", // Input video (2-second clip)
+  //     "-i",
+  //     "watermark.png", // Watermark image
+  //     "-filter_complex",
+  //     "[0:v]drawbox=c=black:t=fill[bg];[bg][1:v]overlay=(W-w)/2:(H-h)/2", // Overlay watermark and draw background
+  //     "-af",
+  //     "volume=0", // Set audio volume to 0 to mute it but keep the audio stream
+  //     "part2_overlay.mp4" // Output file
+  //   );
 
-    console.log("created part2_overlay.mp4");
+  //   console.log("created part2_overlay.mp4");
 
-    // 3. Create a concat list for the parts
-    ffmpeg.FS(
-      "writeFile",
-      "concat_list.txt",
-      new TextEncoder().encode(`
-    file 'part1.mp4'
-    file 'part2_overlay.mp4'
-  `)
-    );
+  //   // 3. Create a concat list for the parts
+  //   ffmpeg.FS(
+  //     "writeFile",
+  //     "concat_list.txt",
+  //     new TextEncoder().encode(`
+  //   file 'part1.mp4'
+  //   file 'part2_overlay.mp4'
+  // `)
+  //   );
 
-    // 4. Concatenate the parts back together
-    await ffmpeg.run(
-      "-f",
-      "concat",
-      "-safe",
-      "0",
-      "-i",
-      "concat_list.txt",
-      "-c",
-      "copy",
-      "output.mp4"
-    );
+  //   // 4. Concatenate the parts back together
+  //   await ffmpeg.run(
+  //     "-f",
+  //     "concat",
+  //     "-safe",
+  //     "0",
+  //     "-i",
+  //     "concat_list.txt",
+  //     "-c",
+  //     "copy",
+  //     "output.mp4"
+  //   );
 
-    // Retrieve the final video file
-    const data = ffmpeg.FS("readFile", "output.mp4");
+  //   // Retrieve the final video file
+  //   const data = ffmpeg.FS("readFile", "output.mp4");
 
-    // Convert the result to a Blob for download or further processing
-    const finalBlob = new Blob([data.buffer], { type: "video/mp4" });
+  //   // Convert the result to a Blob for download or further processing
+  //   const finalBlob = new Blob([data.buffer], { type: "video/mp4" });
 
-    // Return the final Blob URL for display or download
-    const url = URL.createObjectURL(finalBlob);
-    setFinalClipURL(url);
-  };
+  //   // Return the final Blob URL for display or download
+  //   const url = URL.createObjectURL(finalBlob);
+  //   setFinalClipURL(url);
+  // };
 
   const handleTrim = async (info: {
     startTime: number;
@@ -650,19 +713,6 @@ const Clip = () => {
         const trimFunctionStart = Date.now();
 
         videoRef.current?.pause();
-        const videoBlob = await fetch(info.videoLink).then((res) => res.blob());
-        const videoFile = new File([videoBlob], "input.mp4", {
-          type: "video/mp4",
-        });
-
-        //Write video to memory
-        ffmpeg.FS(
-          "writeFile",
-          "input.mp4",
-          await (window as any).FFmpeg.fetchFile(videoFile)
-        );
-
-        console.log("wrote input.mp4 to memory", info);
 
         const watermarkImage = await fetch(
           "/images/unlonely-watermark.png"
@@ -678,7 +728,7 @@ const Clip = () => {
           "-ss",
           `${convertToHHMMSS(info.startTime.toString(), true)}`,
           "-i",
-          "input.mp4",
+          "rough.mp4",
           "-t",
           `${info.endTime - info.startTime}`,
           "-c",
@@ -690,11 +740,11 @@ const Clip = () => {
 
         await ffmpeg.run(
           "-ss",
-          `${convertToHHMMSS(info.startTime.toString(), true)}`,
+          `${convertToHHMMSS(info.endTime.toString(), true)}`,
           "-i",
-          "input.mp4",
+          "rough.mp4",
           "-t",
-          "2",
+          `${OUTRO_DURATION_IN_SECONDS}`,
           "-c",
           "copy",
           "part2.mp4"
@@ -758,7 +808,6 @@ const Clip = () => {
         const { res } = await requestUpload({
           name: info.name,
         });
-        console.log("res", res);
 
         const tusEndpoint = res?.tusEndpoint;
 
@@ -1567,7 +1616,7 @@ const Clip = () => {
             <Flex direction="column" gap="10px">
               <video
                 ref={videoRef}
-                src={roughClipUrl.concat("#t=0.1")}
+                src={displayClipUrl.concat("#t=0.1")}
                 style={{
                   height: "400px",
                 }}
@@ -1639,7 +1688,7 @@ const Clip = () => {
                     Create NFC
                   </Text>
                 </Button>
-                <Button
+                {/* <Button
                   position="relative"
                   onClick={testOverlay}
                   py="20px"
@@ -1649,7 +1698,7 @@ const Clip = () => {
                   <Text position="relative" zIndex="2">
                     Test overlay
                   </Text>
-                </Button>{" "}
+                </Button> */}
               </>
             </Flex>
           ) : pageState === "redirecting" ? (
