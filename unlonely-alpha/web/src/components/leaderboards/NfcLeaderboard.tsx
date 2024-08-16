@@ -23,7 +23,6 @@ import {
 } from "@chakra-ui/react";
 import centerEllipses from "../../utils/centerEllipses";
 import trailString from "../../utils/trailString";
-import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useZoraCollect1155 } from "../../hooks/contracts/useZoraCollect1155";
 import { NfcClipMintInterface } from "../general/NfcClipMintInterface";
 
@@ -163,103 +162,128 @@ const NfcLeaderboard = () => {
                       .map((row, rowIndex) => {
                         return (
                           <Tr key={rowIndex}>
-                            <Td p="5px" textAlign="center">
-                              {row.data[0]}
-                            </Td>
-                            <Td
-                              p="5px"
-                              _hover={{
-                                cursor: "pointer",
-                                bg: "#374eff",
-                              }}
-                              onClick={() => {
-                                window.open(
-                                  `${window.origin}/nfc/${row.data[1].id}`,
-                                  "_blank"
-                                );
-                              }}
-                            >
-                              <Text textAlign={"center"}>
-                                {trailString(row.data[1].title, 37)}
-                              </Text>
-                              <Flex justifyContent={"center"}>
-                                <Image
-                                  src={row.data[1].thumbnail}
-                                  w={[`${16 * 10}px`, `${16 * 14}px`]}
-                                  h={[`${9 * 10}px`, `${9 * 14}px`]}
-                                />
-                              </Flex>
-                            </Td>
-                            <Td p="5px" textAlign="center">
-                              {row.data[2]}
-                            </Td>
-                            <Td
-                              p="5px"
-                              color={!row.data[3] ? "gray" : "unset"}
-                              textAlign="center"
-                              _hover={
-                                row.data[3]
-                                  ? {
-                                      cursor: "pointer",
-                                      bg: "#374eff",
-                                    }
-                                  : {}
-                              }
-                              onClick={() => {
-                                if (!row.data[3]) return;
-                                window.open(
-                                  `${window.origin}/channels/${row.data[3]}`,
-                                  "_blank"
-                                );
-                              }}
-                            >
-                              {row.data[3] || "n/a"}
-                            </Td>
-                            <Td p="5px" textAlign="center">
-                              {row.data[4].totalMints}
-                              {row.data[4].zoraLink && (
-                                <Popover
-                                  trigger="click"
-                                  placement="bottom"
-                                  openDelay={300}
-                                >
-                                  <PopoverTrigger>
-                                    <ChevronDownIcon
-                                      _hover={{
+                            {visibleColumns?.includes(0) && (
+                              <Td p="5px" textAlign="center">
+                                {row.data[0]}
+                              </Td>
+                            )}
+                            {visibleColumns?.includes(1) && (
+                              <Td
+                                p="5px"
+                                _hover={{
+                                  cursor: "pointer",
+                                  bg: "#374eff",
+                                }}
+                                onClick={() => {
+                                  window.open(
+                                    `${window.origin}/nfc/${row.data[1].id}`,
+                                    "_blank"
+                                  );
+                                }}
+                              >
+                                <Text textAlign={"center"}>
+                                  {trailString(row.data[1].title, 37)}
+                                </Text>
+                                <Flex justifyContent={"center"}>
+                                  <Image
+                                    src={row.data[1].thumbnail}
+                                    w={[`${16 * 10}px`, `${16 * 14}px`]}
+                                    h={[`${9 * 10}px`, `${9 * 14}px`]}
+                                  />
+                                </Flex>
+                              </Td>
+                            )}
+                            {visibleColumns?.includes(2) && (
+                              <Td p="5px" textAlign="center">
+                                {row.data[2]}
+                              </Td>
+                            )}
+                            {visibleColumns?.includes(3) && (
+                              <Td
+                                p="5px"
+                                color={!row.data[3] ? "gray" : "unset"}
+                                textAlign="center"
+                                _hover={
+                                  row.data[3]
+                                    ? {
                                         cursor: "pointer",
-                                        color: "#374eff",
-                                      }}
-                                    />
-                                  </PopoverTrigger>
-                                  <PopoverContent
-                                    bg="#343dbb"
-                                    border="none"
-                                    width="100%"
-                                    p="2px"
-                                  >
-                                    <PopoverArrow bg="#343dbb" />
-                                    <NfcClipMintInterface
-                                      mintCallback={async (
-                                        contract1155Address,
-                                        tokenId,
-                                        n
-                                      ) => {
-                                        await collectorMint(
-                                          contract1155Address as `0x${string}`,
-                                          tokenId,
-                                          n
-                                        );
-                                      }}
-                                      contract1155Address={
-                                        row.data[4].contract1155Address
+                                        bg: "#374eff",
                                       }
-                                      tokenId={row.data[4].tokenId}
-                                      zoraLink={row.data[4].zoraLink}
-                                    />
-                                  </PopoverContent>
-                                </Popover>
-                              )}
-                            </Td>
+                                    : {}
+                                }
+                                onClick={() => {
+                                  if (!row.data[3]) return;
+                                  window.open(
+                                    `${window.origin}/channels/${row.data[3]}`,
+                                    "_blank"
+                                  );
+                                }}
+                              >
+                                {row.data[3] || "n/a"}
+                              </Td>
+                            )}
+                            {visibleColumns?.includes(4) && (
+                              <Td p="5px" textAlign="center">
+                                <Flex
+                                  gap="20px"
+                                  alignItems={"center"}
+                                  justifyContent={"center"}
+                                >
+                                  {row.data[4].totalMints}
+                                  {row.data[4].zoraLink && (
+                                    <Popover
+                                      trigger="click"
+                                      placement="bottom"
+                                      openDelay={300}
+                                    >
+                                      <PopoverTrigger>
+                                        <Button
+                                          bg={"rgba(55, 255, 139, 1)"}
+                                          borderRadius={"50%"}
+                                          width="70px"
+                                          minWidth="70px"
+                                          height="70px"
+                                          p="0"
+                                        >
+                                          <Text
+                                            whiteSpace={"normal"}
+                                            overflowWrap={"break-word"}
+                                          >
+                                            MINT NOW!
+                                          </Text>
+                                        </Button>
+                                      </PopoverTrigger>
+                                      <PopoverContent
+                                        bg="#343dbb"
+                                        border="none"
+                                        width="100%"
+                                        p="2px"
+                                      >
+                                        <PopoverArrow bg="#343dbb" />
+                                        <NfcClipMintInterface
+                                          mintCallback={async (
+                                            contract1155Address,
+                                            tokenId,
+                                            n
+                                          ) => {
+                                            await collectorMint(
+                                              contract1155Address as `0x${string}`,
+                                              tokenId,
+                                              n
+                                            );
+                                          }}
+                                          contract1155Address={
+                                            row.data[4].contract1155Address
+                                          }
+                                          tokenId={row.data[4].tokenId}
+                                          zoraLink={row.data[4].zoraLink}
+                                        />
+                                      </PopoverContent>
+                                    </Popover>
+                                  )}
+                                </Flex>
+                              </Td>
+                            )}
                           </Tr>
                         );
                       })}
