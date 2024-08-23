@@ -34,12 +34,18 @@ export const useLivepeerStreamData = () => {
     const init = async () => {
       if (!channelQueryData) return;
       if (channelQueryData?.livepeerPlaybackId) {
-        const res = await livepeer.playback.get(
-          channelQueryData?.livepeerPlaybackId
-        );
-        console.log("res livepeer playback", res);
-        const playbackInfo = res.playbackInfo;
-        setPlaybackInfo(playbackInfo);
+        console.log("first if statment passed");
+        try {
+          const res = await livepeer.playback.get(
+            channelQueryData?.livepeerPlaybackId
+          );
+          console.log("res livepeer playback", res);
+          const playbackInfo = res.playbackInfo;
+          setPlaybackInfo(playbackInfo);
+
+        } catch (e) {
+          console.log("error livepeer playback", e);
+        }
       }
       setCheckedForLivepeerPlaybackInfo(true);
     };
