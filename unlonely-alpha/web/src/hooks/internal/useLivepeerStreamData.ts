@@ -36,6 +36,7 @@ export const useLivepeerStreamData = () => {
         const res = await livepeer.playback.get(
           channelQueryData?.livepeerPlaybackId
         );
+        console.log("res livepeer playback", res);
         const playbackInfo = res.playbackInfo;
         setPlaybackInfo(playbackInfo);
       }
