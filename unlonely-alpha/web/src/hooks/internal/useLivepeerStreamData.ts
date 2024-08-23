@@ -30,6 +30,7 @@ export const useLivepeerStreamData = () => {
     useState<boolean>(false);
 
   useEffect(() => {
+    console.log("channelQueryData useeffect useLivePeerStreamData", channelQueryData);
     const init = async () => {
       if (!channelQueryData) return;
       if (channelQueryData?.livepeerPlaybackId) {
