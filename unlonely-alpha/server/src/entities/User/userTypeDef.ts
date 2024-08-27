@@ -33,6 +33,13 @@ export const typeDef = gql`
     channelContract1155Mapping: JSON
   }
 
+  type UpdateUserResponse {
+    newUserData: User
+    newSocialDataString: String
+    rawDataString: String
+    error: String
+  }
+
   input GetUserInput {
     address: String
   }
@@ -81,7 +88,7 @@ export const typeDef = gql`
     updateUserChannelContract1155Mapping(
       data: UpdateUserChannelContract1155MappingInput!
     ): User
-    updateUser(data: UpdateUserInput!): User
+    updateUser(data: UpdateUserInput!): UpdateUserResponse
     updateUsers(data: UpdateUsersInput!): [User]
   }
 `;

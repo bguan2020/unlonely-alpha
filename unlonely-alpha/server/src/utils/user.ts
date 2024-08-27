@@ -23,18 +23,18 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
     }
 
     // Otherwise, create a new user and store the promise in the map
-    const socials = await fetchSocial(address, "ethereum").catch(async (e) => {
+    const { socialData } = await fetchSocial(address, "ethereum").catch(async (e) => {
       console.log("error fetching socials, switching to getEnsName", e);
       const username = await getEnsName(address);
-      return { username };
+      return { socialData: { username } };
     });
-    console.log("new user socials", socials);
+    console.log("new user socials", socialData);
     const userCreationPromise = (async () => {
       try {
         user = await prisma.user.create({
           data: {
             address,
-            ...socials,
+            ...socialData,
           },
         });
       } catch (e) {
@@ -42,7 +42,7 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
         user = await prisma.user.create({
           data: {
             address,
-            ...socials,
+            ...socialData,
           },
         });
         // console.log("findOrCreateUser error but still created new user", user);

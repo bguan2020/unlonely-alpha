@@ -15,10 +15,15 @@ type Props = {
 const UPDATE_USER_MUTATION = gql`
   mutation UpdateUser($data: UpdateUserInput!) {
     updateUser(data: $data) {
-      address
-      lensHandle
-      FCHandle
-      username
+      error
+      rawDataString
+      newSocialDataString
+      newUserData {
+        username
+        address
+        FCHandle
+        lensHandle
+      }
     }
   }
 `;

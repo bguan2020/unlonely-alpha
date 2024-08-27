@@ -14,6 +14,7 @@ import {
   MenuList,
   Spinner,
   Text,
+  Box,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -32,7 +33,6 @@ import trailString from "../../utils/trailString";
 import { OwnedChannelsModal } from "../channels/OwnedChannelsModal";
 import { formatUnits } from "viem";
 import copy from "copy-to-clipboard";
-
 const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
   const router = useRouter();
   const { user, userAddress, ready, privyUser, login, connectWallet, logout } =
@@ -367,19 +367,72 @@ const ConnectedDisplay = () => {
                   await fetchUser();
                   const socials = [];
                   socials.push([
-                    res?.res?.username ? true : false,
-                    res?.res?.FCHandle ? true : false,
-                    res?.res?.lensHandle ? true : false,
+                    res?.res?.newUserData?.username ? true : false,
+                    res?.res?.newUserData?.FCHandle ? true : false,
+                    res?.res?.newUserData?.lensHandle ? true : false,
                   ]);
                   toast({
-                    title: "Profile updated",
-                    description:
-                      `ENS name ${res?.res?.username ? "✅" : "❌"} ` +
-                      `Farcaster ${res?.res?.FCHandle ? "✅" : "❌"} ` +
-                      `Lens ${res?.res?.lensHandle ? "✅" : "❌"}`,
-                    status: "success",
-                    duration: 3000,
+                    duration: 5000,
                     isClosable: true,
+                    position: "bottom",
+                    id: "update-profile",
+                    render: () => (
+                      <Box
+                        bg={res?.res?.error ? "#db3f3f" : "#087a38"}
+                        p="10px"
+                        borderRadius="15px"
+                      >
+                        {res?.res?.error ? (
+                          <Flex direction="column">
+                            <Text>Cannot update profile</Text>
+                            <Button
+                              p="0"
+                              h="5"
+                              mt="10px"
+                              onClick={() => {
+                                copy(
+                                  JSON.stringify({
+                                    error: res?.res?.error,
+                                    rawDataString: res?.res?.rawDataString,
+                                  })
+                                );
+                                handleCopy();
+                              }}
+                            >
+                              copy error
+                            </Button>
+                          </Flex>
+                        ) : (
+                          <Flex direction="column">
+                            <Text>Profile updated</Text>
+                            <Text>
+                              ENS{" "}
+                              {res?.res?.newUserData?.username ? "✅" : "❌"}{" "}
+                              Farcaster{" "}
+                              {res?.res?.newUserData?.FCHandle ? "✅" : "❌"}{" "}
+                              Lens{" "}
+                              {res?.res?.newUserData?.lensHandle ? "✅" : "❌"}
+                            </Text>
+                            {res?.res?.rawDataString && (
+                              <Button
+                                p="0"
+                                h="5"
+                                mt="10px"
+                                border={"1px solid white"}
+                                bg="#ffffff92"
+                                _hover={{ bg: "#ffffff" }}
+                                onClick={() => {
+                                  copy(String(res?.res?.rawDataString));
+                                  handleCopy();
+                                }}
+                              >
+                                copy raw profile data
+                              </Button>
+                            )}
+                          </Flex>
+                        )}
+                      </Box>
+                    ),
                   });
                   setLoading(false);
                 });
