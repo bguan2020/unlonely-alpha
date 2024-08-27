@@ -18,6 +18,11 @@ import Metrics from "./metrics";
 import Header from "../components/navigation/Header";
 import { ADMIN_GRAPH_QUERY_PARAM } from "../constants";
 import { useRouter } from "next/router";
+import { useForm } from "react-hook-form";
+import ModalTerminal, {
+  IFormConfigurator,
+  INITIAL_FORM_CONFIG,
+} from "../components/transactions/SolanaJupiterTerminal";
 const admins = process.env.NEXT_PUBLIC_ADMINS?.split(",");
 
 export default function AdminPage() {
@@ -31,9 +36,25 @@ export default function AdminPage() {
     return false;
   }, [user, admins]);
 
+  const { watch, reset, setValue, formState } = useForm<IFormConfigurator>({
+    defaultValues: INITIAL_FORM_CONFIG,
+  });
+
+  const watchAllFields = watch();
+
   return (
     <AppLayout isCustomHeader={false} noHeader>
       <Header />
+      <ModalTerminal
+        rpcUrl={
+          "https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
+        }
+        formProps={watchAllFields.formProps}
+        simulateWalletPassthrough={watchAllFields.simulateWalletPassthrough}
+        strictTokenList={watchAllFields.strictTokenList}
+        defaultExplorer={watchAllFields.defaultExplorer}
+        useUserSlippage={watchAllFields.useUserSlippage}
+      />
       {isAdmin && <AdminContent />}
       {!isAdmin && <Text>You're not supposed to be here.</Text>}
     </AppLayout>
