@@ -1,0 +1,120 @@
+import { Button } from "@chakra-ui/react";
+import { Connection, PublicKey, Transaction } from "@solana/web3.js";
+import {
+  createAssociatedTokenAccountInstruction,
+  createTransferInstruction,
+  getAssociatedTokenAddress,
+} from "@solana/spl-token";
+import { useWallet } from "@solana/wallet-adapter-react";
+
+export const SolanaTokenTransfer = ({ rpcUrl }: { rpcUrl: string }) => {
+  const { publicKey, sendTransaction, connected } = useWallet();
+
+  const sendTokens = async () => {
+    if (!connected || !publicKey) {
+      console.error("No wallet connected");
+      return;
+    }
+    try {
+      await transferTokens(
+        new Connection(rpcUrl),
+        publicKey,
+        new PublicKey("CGgvXvo9zd8ShBrbqeXeWrDg1RQfNtyUHXAp1DH4By9i"),
+        new PublicKey("FuvamNkNTNjDcnQeWyiAReUCHZ91gJhg59xuNemZ4p9f"),
+        2 // Specify the correct amount in the smallest units
+      );
+    } catch (error) {
+      console.error("Error sending tokens:", error);
+    }
+  };
+
+  const transferTokens = async (
+    connection: Connection,
+    fromWalletPublicKey: PublicKey,
+    toWalletPublicKey: PublicKey,
+    mintAddress: PublicKey,
+    amount: number
+  ) => {
+    try {
+      // Get or create the associated token account for the sender
+      const fromTokenAccount = await getAssociatedTokenAddress(
+        mintAddress,
+        fromWalletPublicKey
+      );
+
+      // Get or create the associated token account for the receiver
+      const toTokenAccount = await getAssociatedTokenAddress(
+        mintAddress,
+        toWalletPublicKey
+      );
+
+      const transaction = new Transaction();
+
+      const fromAccountInfo = await connection.getAccountInfo(fromTokenAccount);
+      if (!fromAccountInfo) {
+        const createFromAccountIx = createAssociatedTokenAccountInstruction(
+          fromWalletPublicKey,
+          fromTokenAccount,
+          fromWalletPublicKey,
+          mintAddress
+        );
+        transaction.add(createFromAccountIx);
+      }
+
+      // Create associated token account instruction if the receiver's token account does not exist
+      const toAccountInfo = await connection.getAccountInfo(toTokenAccount);
+      if (!toAccountInfo) {
+        const createToAccountIx = createAssociatedTokenAccountInstruction(
+          fromWalletPublicKey,
+          toTokenAccount,
+          toWalletPublicKey,
+          mintAddress
+        );
+        transaction.add(createToAccountIx);
+      }
+
+      // Create the transfer instruction
+      const transferInstruction = createTransferInstruction(
+        fromTokenAccount,
+        toTokenAccount,
+        fromWalletPublicKey,
+        amount // Amount in smallest unit (e.g., for USDC, 1 USDC = 1000000 units)
+      );
+
+      transaction.add(transferInstruction);
+
+      try {
+        const { blockhash } = await connection.getLatestBlockhash();
+
+        // Set the recent blockhash and fee payer
+        transaction.recentBlockhash = blockhash;
+        transaction.feePayer = fromWalletPublicKey;
+
+        // Send the transaction using sendTransaction method
+        const signature = await sendTransaction(transaction, connection);
+        console.log(`Transaction sent with signature: ${signature}`);
+
+        await new Promise((resolve) => setTimeout(resolve, 6000));
+
+        const status = await connection.getSignatureStatus(signature, {
+          searchTransactionHistory: true,
+        });
+
+        if (status.value?.confirmationStatus === "confirmed") {
+          console.log(`Transaction confirmed with signature: ${signature}`);
+        } else {
+          console.warn("Transaction is not finalized yet:", status);
+        }
+      } catch (sendError) {
+        console.error("Transaction failed during send:", sendError);
+        if (sendError instanceof Error && "logs" in sendError) {
+          console.error("Transaction logs:", sendError.logs);
+        }
+      }
+    } catch (error) {
+      console.error("Error during token transfer:", error);
+    }
+  };
+
+  return <Button onClick={sendTokens}>Send THOTH</Button>;
+};

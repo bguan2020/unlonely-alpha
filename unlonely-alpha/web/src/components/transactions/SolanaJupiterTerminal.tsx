@@ -5,6 +5,18 @@ import {
 } from "@jup-ag/wallet-adapter";
 import { Button } from "@chakra-ui/react";
 import { PublicKey } from "@solana/web3.js";
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import {
+  ConnectionProvider,
+  WalletProvider,
+} from "@solana/wallet-adapter-react";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+import {
+  PhantomWalletAdapter,
+  SolflareWalletAdapter,
+} from "@solana/wallet-adapter-wallets";
+import { clusterApiUrl } from "@solana/web3.js";
+import { SolanaTokenTransfer } from "./SolanaTokenTransfer";
 
 export enum SwapMode {
   ExactInOrOut = "ExactInOrOut",
@@ -72,6 +84,12 @@ const ModalTerminal = (props: {
         ? passthroughWalletContextState
         : undefined,
       onRequestConnectWallet: () => setShowModal(true),
+      onSuccess: ({ txid, swapResult }: { txid: any; swapResult: any }) => {
+        console.log({ txid, swapResult });
+      },
+      onSwapError: ({ error }: { error: any }) => {
+        console.log("onSwapError", error);
+      },
       strictTokenList,
       defaultExplorer,
       useUserSlippage,
@@ -84,6 +102,13 @@ const ModalTerminal = (props: {
     (window as any)?.Jupiter?.syncProps({ passthroughWalletContextState });
   }, [passthroughWalletContextState, props]);
 
+  // Set the network to use (e.g., 'mainnet-beta', 'devnet')
+  const network = WalletAdapterNetwork.Mainnet;
+  const endpoint = clusterApiUrl(network);
+
+  // Initialize wallet adapters you want to support
+  const wallets = [new PhantomWalletAdapter(), new SolflareWalletAdapter()];
+
   return (
     <>
       {" "}
@@ -93,6 +118,13 @@ const ModalTerminal = (props: {
       <Button onClick={() => launchTerminal(false)} colorScheme="blue">
         Sell
       </Button>
+      <ConnectionProvider endpoint={endpoint}>
+        <WalletProvider wallets={wallets} autoConnect>
+          <WalletModalProvider>
+            <SolanaTokenTransfer rpcUrl={rpcUrl} />
+          </WalletModalProvider>
+        </WalletProvider>
+      </ConnectionProvider>
     </>
   );
 };
