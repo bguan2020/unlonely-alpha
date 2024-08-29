@@ -6,7 +6,7 @@ import {
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { filteredInput } from "../../utils/validation/input";
 
 const isValidSolanaAddress = (address: string): boolean => {
@@ -19,7 +19,7 @@ const isValidSolanaAddress = (address: string): boolean => {
 };
 
 export const SolanaTokenTransfer = ({ rpcUrl }: { rpcUrl: string }) => {
-  const { publicKey, sendTransaction, connected } = useWallet();
+  const { publicKey, sendTransaction, connected, connect } = useWallet();
   const [toAddress, setToAddress] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
 
@@ -128,6 +128,14 @@ export const SolanaTokenTransfer = ({ rpcUrl }: { rpcUrl: string }) => {
       console.error("Error during token transfer:", error);
     }
   };
+
+  useEffect(() => {
+    if (!connected) {
+      connect().catch((error) => {
+        console.error("Failed to connect wallet:", error);
+      });
+    }
+  }, [connected, connect, toAddress]);
 
   return (
     <Flex direction="column">
