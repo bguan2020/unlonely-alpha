@@ -1,4 +1,4 @@
-import { Button } from "@chakra-ui/react";
+import { Button, Flex, Input } from "@chakra-ui/react";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 import {
   createAssociatedTokenAccountInstruction,
@@ -6,9 +6,22 @@ import {
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { useState } from "react";
+import { filteredInput } from "../../utils/validation/input";
+
+const isValidSolanaAddress = (address: string): boolean => {
+  try {
+    new PublicKey(address); // Attempt to create a PublicKey object
+    return true; // If no error is thrown, the address is valid
+  } catch (error) {
+    return false; // If an error is thrown, the address is invalid
+  }
+};
 
 export const SolanaTokenTransfer = ({ rpcUrl }: { rpcUrl: string }) => {
   const { publicKey, sendTransaction, connected } = useWallet();
+  const [toAddress, setToAddress] = useState<string>("");
+  const [amount, setAmount] = useState<string>("");
 
   const sendTokens = async () => {
     if (!connected || !publicKey) {
@@ -19,9 +32,9 @@ export const SolanaTokenTransfer = ({ rpcUrl }: { rpcUrl: string }) => {
       await transferTokens(
         new Connection(rpcUrl),
         publicKey,
-        new PublicKey("CGgvXvo9zd8ShBrbqeXeWrDg1RQfNtyUHXAp1DH4By9i"),
+        new PublicKey(toAddress),
         new PublicKey("FuvamNkNTNjDcnQeWyiAReUCHZ91gJhg59xuNemZ4p9f"),
-        2 // Specify the correct amount in the smallest units
+        Number(amount)
       );
     } catch (error) {
       console.error("Error sending tokens:", error);
@@ -78,7 +91,7 @@ export const SolanaTokenTransfer = ({ rpcUrl }: { rpcUrl: string }) => {
         fromTokenAccount,
         toTokenAccount,
         fromWalletPublicKey,
-        amount // Amount in smallest unit (e.g., for USDC, 1 USDC = 1000000 units)
+        Number(amount) * 10 ** 9
       );
 
       transaction.add(transferInstruction);
@@ -116,5 +129,26 @@ export const SolanaTokenTransfer = ({ rpcUrl }: { rpcUrl: string }) => {
     }
   };
 
-  return <Button onClick={sendTokens}>Send THOTH</Button>;
+  return (
+    <Flex direction="column">
+      <Input
+        placeholder="To Address"
+        value={toAddress}
+        onChange={(e) => setToAddress(e.target.value)}
+      />
+      <Input
+        placeholder="Amount"
+        value={amount}
+        onChange={(e) => setAmount(filteredInput(e.target.value, true))}
+      />
+      <Button
+        onClick={sendTokens}
+        isDisabled={
+          Number(amount) === 0 || !connected || !isValidSolanaAddress(toAddress)
+        }
+      >
+        Send THOTH
+      </Button>
+    </Flex>
+  );
 };
