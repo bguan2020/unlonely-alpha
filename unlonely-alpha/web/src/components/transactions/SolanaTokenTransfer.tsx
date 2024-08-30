@@ -131,6 +131,7 @@ export const SolanaTokenTransfer = ({ rpcUrl }: { rpcUrl: string }) => {
 
   useEffect(() => {
     if (!connected) {
+      console.log("Connecting wallet...", connect);
       connect().catch((error) => {
         console.error("Failed to connect wallet:", error);
       });
@@ -149,6 +150,7 @@ export const SolanaTokenTransfer = ({ rpcUrl }: { rpcUrl: string }) => {
         value={amount}
         onChange={(e) => setAmount(filteredInput(e.target.value, true))}
       />
+      {!connected && <Button onClick={connect}>Connect Phantom</Button>}
       <Button
         onClick={sendTokens}
         isDisabled={
