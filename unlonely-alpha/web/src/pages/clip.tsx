@@ -575,13 +575,15 @@ const Clip = () => {
     } catch (e) {
       setPageState("error");
       setErrorMessage(
-        `Error fetching livepeer clip data, catch block caught ${e}`
+        `Error fetching livepeer clip data after trimming, catch block caught ${e}`
       );
       return;
     }
     if (!clipData) {
       setPageState("error");
-      setErrorMessage("Error fetching livepeer clip data, response is missing");
+      setErrorMessage(
+        "Error fetching livepeer clip data after trimming, response is missing"
+      );
       return;
     }
     console.log(
