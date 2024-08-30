@@ -110,3 +110,28 @@ export function formatTimestampToDate(
     noClock ? "" : " " + formatTimestampToTime(timestampInMilliseconds)
   }`;
 }
+
+export const convertToHHMMSS = (_seconds: string, completeFormat?: boolean) => {
+  const secNum = parseInt(_seconds, 10);
+  let hours = String(Math.floor(secNum / 3600));
+  let minutes = String(Math.floor((secNum - Number(hours) * 3600) / 60));
+  let seconds = String(secNum - Number(hours) * 3600 - Number(minutes) * 60);
+
+  if (Number(hours) < 10) {
+    hours = "0" + hours;
+  }
+  if (Number(minutes) < 10) {
+    minutes = "0" + minutes;
+  }
+  if (Number(seconds) < 10) {
+    seconds = "0" + seconds;
+  }
+  let time;
+  // only mm:ss
+  if (hours === "00" && !completeFormat) {
+    time = minutes + ":" + seconds;
+  } else {
+    time = hours + ":" + minutes + ":" + seconds;
+  }
+  return time;
+};

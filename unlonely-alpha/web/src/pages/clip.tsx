@@ -12,6 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { MdDragIndicator } from "react-icons/md";
+import * as tus from "tus-js-client";
 import Link from "next/link";
 
 import {
@@ -23,7 +24,6 @@ import {
 } from "../constants";
 import { useRouter } from "next/router";
 import useCreateClip from "../hooks/server/channel/useCreateClip";
-import useTrimVideo from "../hooks/server/channel/useTrimVideo";
 import { SplitV1Client, SplitRecipient } from "@0xsplits/splits-sdk";
 import {
   createFileBlobAndPinWithPinata,
@@ -70,6 +70,10 @@ import { SenderStatus } from "../constants/types/chat";
 import centerEllipses from "../utils/centerEllipses";
 import { useNetworkContext } from "../hooks/context/useNetwork";
 import AppLayout from "../components/layout/AppLayout";
+import { convertToHHMMSS } from "../utils/time";
+import useRequestUpload from "../hooks/server/channel/useRequestUpload";
+
+let ffmpeg: any; //Store the ffmpeg instance
 
 export const multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11";
 export const PROTOCOL_ADDRESS = "0x53D6D64945A67658C66730Ff4a038eb298eC8902";
@@ -121,6 +125,8 @@ const Clip = () => {
   const [transactionProgressMessage, setTransactionProgressMessage] = useState<
     string | null
   >(null);
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+
   const [carouselProgressIndex, setCarouselProgressIndex] = useState(0);
   const [pageState, setPageState] = useState<
     | "lacking"
@@ -135,7 +141,7 @@ const Clip = () => {
   const [trimProgressPercentage, setTrimProgressPercentage] = useState(0);
   const [roughClipUrl, setRoughClipUrl] = useState(
     ""
-    // "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a5e1mb4vfge22uvr/1200p0.mp4"
+    // "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/85f88w1q70abhfau/720p0.mp4"
   );
   const [finalClipObject, setFinalClipObject] = useState<
     FinalClipObject | undefined
@@ -238,18 +244,17 @@ const Clip = () => {
     GET_LIVEPEER_CLIP_DATA_QUERY
   );
 
+  const { requestUpload } = useRequestUpload({
+    onError: () => {
+      console.log("Error");
+    },
+  });
+
   const { createClip } = useCreateClip({
     onError: (e) => {
       console.log("createClip Error", e);
     },
   });
-
-  const { trimVideo } = useTrimVideo({
-    onError: (e) => {
-      console.log("trimVideo Error", e);
-    },
-  });
-
   const { updateUserChannelContract1155Mapping } =
     useUpdateUserChannelContract1155Mapping({
       onError: (e) => {
@@ -294,7 +299,7 @@ const Clip = () => {
             getChannelByIdData.getChannelById?.livepeerPlaybackId,
           noDatabasePush: true,
         });
-        const url = res?.url;
+        const roughUrl = res?.url;
         if (res?.errorMessage) {
           console.log(
             "Error creating rough clip, got error from createClip,",
@@ -306,8 +311,35 @@ const Clip = () => {
           );
           return;
         }
-        if (url) {
-          setRoughClipUrl(url);
+        if (roughUrl) {
+          const videoBlob = await fetch(roughUrl).then((res) => res.blob());
+          const videoFile = new File([videoBlob], "rough.mp4", {
+            type: "video/mp4",
+          });
+          ffmpeg.FS(
+            "writeFile",
+            "rough.mp4",
+            await (window as any).FFmpeg.fetchFile(videoFile)
+          );
+
+          let durationString = "";
+
+          ffmpeg.setLogger(({ type, message }: { type: any; message: any }) => {
+            if (type === "fferr" && message.includes("Duration")) {
+              const match = message.match(/Duration: (\d+:\d+:\d+\.\d+)/);
+              if (match) {
+                durationString = match[1];
+              }
+            }
+          });
+
+          await ffmpeg.run("-i", "rough.mp4");
+
+          if (!durationString) {
+            throw new Error("Unable to retrieve video duration.");
+          }
+
+          setRoughClipUrl(roughUrl);
         } else {
           console.log("Error creating rough clip, no error but url is missing");
           setPageState("error");
@@ -318,6 +350,7 @@ const Clip = () => {
         }
         setPageState("selecting");
       } catch (e) {
+        console.log("createClip error", e);
         setPageState("error");
         setErrorMessage(`Error creating rough clip, catch block caught ${e}`);
       }
@@ -329,6 +362,11 @@ const Clip = () => {
     if (roughClipUrl && videoRef.current) {
       videoRef.current.load();
       videoRef.current.onloadedmetadata = () => {
+        console.log("loaded metadata");
+        const width = videoRef.current?.videoWidth;
+        const height = videoRef.current?.videoHeight;
+        const duration = videoRef.current?.duration;
+        console.log(`Resolution: ${width}x${height}, Duration: ${duration}s`);
         setClipRange([0, videoRef.current?.duration || 0]);
       };
     }
@@ -358,6 +396,131 @@ const Clip = () => {
     }
   };
 
+  const loadScript = (src: any) => {
+    return new Promise((onFulfilled, _) => {
+      const script = document.createElement("script") as any;
+      let loaded: any;
+      script.async = "async";
+      script.defer = "defer";
+      script.setAttribute("src", src);
+      script.onreadystatechange = script.onload = () => {
+        if (!loaded) {
+          onFulfilled(script);
+        }
+        loaded = true;
+      };
+      script.onerror = function () {
+        console.log("Script failed to load");
+      };
+      document.getElementsByTagName("head")[0].appendChild(script);
+    });
+  };
+
+  useEffect(() => {
+    loadScript(
+      "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.2/dist/ffmpeg.min.js"
+    ).then(() => {
+      if (typeof window !== "undefined") {
+        ffmpeg = (window as any).FFmpeg.createFFmpeg({ log: true });
+        ffmpeg.load().then(() => {
+          setIsScriptLoaded(true);
+        });
+      }
+    });
+  }, []);
+
+  const handleTrim = async (info: {
+    startTime: number;
+    endTime: number;
+    videoLink: string;
+    name: string;
+  }) => {
+    if (isScriptLoaded && title) {
+      try {
+        const trimFunctionStart = Date.now();
+
+        videoRef.current?.pause();
+
+        console.log(
+          `${convertToHHMMSS(info.startTime.toString(), true)}`,
+          info.endTime - info.startTime
+        );
+
+        await ffmpeg.run(
+          "-ss",
+          `${convertToHHMMSS(info.startTime.toString(), true)}`,
+          "-i",
+          "rough.mp4",
+          "-t",
+          `${info.endTime - info.startTime}`,
+          "-c",
+          "copy",
+          "trimmed.mp4"
+        );
+        // Convert data to url and store in videoTrimmedUrl state
+        const data = ffmpeg.FS("readFile", "trimmed.mp4");
+
+        const url = URL.createObjectURL(
+          new Blob([data.buffer], { type: "video/mp4" })
+        );
+
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const file = new File([blob], "trimmed_video.mp4", {
+          type: "video/mp4",
+        });
+
+        console.log("requesting upload");
+        const { res } = await requestUpload({
+          name: info.name,
+        });
+
+        const tusEndpoint = res?.tusEndpoint;
+
+        const upload = new tus.Upload(file, {
+          endpoint: tusEndpoint,
+          retryDelays: [0, 1000, 3000, 5000],
+          metadata: {
+            filename: `${info.name}.mp4`,
+            filetype: "video/mp4",
+          },
+          onError: function (error: any) {
+            console.log("Failed because: ", error);
+          },
+          onProgress: function (bytesUploaded: number, bytesTotal: number) {
+            const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+            console.log(bytesUploaded, bytesTotal, percentage);
+          },
+          onSuccess: function () {
+            console.log("Download %s from %s", upload.file, upload.url);
+            // setIsPublished(true);
+          },
+        });
+
+        upload.findPreviousUploads().then(function (previousUploads: any) {
+          // Found previous uploads so we select the first one.
+          if (previousUploads.length) {
+            upload.resumeFromPreviousUpload(previousUploads[0]);
+          }
+
+          // Start the upload
+          upload.start();
+        });
+
+        console.log(
+          "total time took",
+          `${(Date.now() - trimFunctionStart) / 1000}s`
+        );
+        return { res: res?.asset.id };
+      } catch (e) {
+        console.log("trimVideo error", e);
+        return null;
+      }
+    } else {
+      console.log("ffmpeg not loaded");
+    }
+  };
+
   const handleTrimVideo = useCallback(async () => {
     if (!canTrim || !channelId) return;
     setPageState("trimming");
@@ -372,7 +535,7 @@ const Clip = () => {
     console.log("trimVideo function start", trimFunctionStart);
     let trimRes = null;
     try {
-      trimRes = await trimVideo({
+      trimRes = await handleTrim({
         startTime: clipRange[0],
         endTime: clipRange[1],
         videoLink: roughClipUrl,
@@ -645,6 +808,7 @@ const Clip = () => {
             "split exists, handleWriteCreate1155 error",
             errorMessage
           );
+          throw new Error(errorMessage);
         }
         const logs = txnReceipt?.logs ?? [];
         contract1155Address = findMostFrequentString(
@@ -672,11 +836,18 @@ const Clip = () => {
           console.log("split does not exist and contractObject is string");
           if (splitCallData && splitAddress && walletClient?.account.address) {
             setTransactionProgressMessage("awaiting approval to mint...");
-            const splitCreationHash = await walletClient.sendTransaction({
-              to: splitAddress as Address,
-              account: walletClient?.account.address as Address,
-              data: splitCallData,
-            });
+            let splitCreationHash: `0x${string}` | null = null;
+            try {
+              splitCreationHash = await walletClient.sendTransaction({
+                to: splitAddress as Address,
+                account: walletClient?.account.address as Address,
+                data: splitCallData,
+              });
+            } catch (e) {
+              console.log("walletClient.sendTransaction caught error", e);
+              if (String(e as any).includes("User rejected the request"))
+                throw new Error((e as any).message);
+            }
             setTransactionProgressMessage("creating split contract...");
             if (!splitCreationHash) {
               setPageState("error");
@@ -696,6 +867,7 @@ const Clip = () => {
                 "split does not exist, handleWriteCreate1155 error",
                 errorMessage
               );
+              throw new Error(errorMessage);
             }
             const logs = txnReceipt?.logs ?? [];
             setTransactionProgressMessage("minting...");
@@ -753,13 +925,20 @@ const Clip = () => {
 
           setTransactionProgressMessage("awaiting approval to mint...");
 
-          // execute the transaction
-          const hash = await walletClient
-            ?.writeContract(request)
-            .then((response) => {
-              console.log("multicall3 response", response);
-              return response;
-            });
+          let hash: `0x${string}` | null | undefined = null;
+          try {
+            // execute the transaction
+            hash = await walletClient
+              ?.writeContract(request)
+              .then((response) => {
+                console.log("multicall3 response", response);
+                return response;
+              });
+          } catch (e) {
+            console.log("walletClient.writeContract caught error", e);
+            if (String(e as any).includes("User rejected the request"))
+              throw new Error((e as any).message);
+          }
 
           setTransactionProgressMessage("minting...");
 
@@ -845,7 +1024,8 @@ const Clip = () => {
       setTransactionProgressMessage(null);
       window.open(`${window.origin}/nfc/${_finalClipObject.id}`, "_self");
     } catch (e) {
-      if ((e as any).message.includes("User rejected the request"))
+      console.log("handleTransaction caught error", e, (e as any).message);
+      if (String(e as any).includes("User rejected the request"))
         setTransactionProgressMessage(PLEASE_CONTINUE_TRANSACTION);
     }
   }, [
