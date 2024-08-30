@@ -21,6 +21,9 @@ const MUTATION = gql`
         id
       }
       asset {
+        id
+        playbackId
+        name
         userId
         status {
           updatedAt

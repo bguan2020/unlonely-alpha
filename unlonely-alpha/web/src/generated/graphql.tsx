@@ -2532,6 +2532,9 @@ export type RequestUploadFromLivepeerMutation = {
     task: { __typename?: "AssetTask"; id: string };
     asset: {
       __typename?: "Asset";
+      id: string;
+      playbackId: string;
+      name: string;
       userId: string;
       status: {
         __typename?: "AssetStatus";
@@ -5777,6 +5780,9 @@ export const RequestUploadFromLivepeerDocument = gql`
         id
       }
       asset {
+        id
+        playbackId
+        name
         userId
         status {
           updatedAt
