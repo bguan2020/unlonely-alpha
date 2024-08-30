@@ -1,4 +1,4 @@
-import { ApolloError, useLazyQuery, useQuery } from "@apollo/client";
+import { ApolloError, useLazyQuery } from "@apollo/client";
 import {
   Box,
   Button,
@@ -25,28 +25,17 @@ import { useRouter } from "next/router";
 import { BiRefresh } from "react-icons/bi";
 
 import AppLayout from "../components/layout/AppLayout";
-// import NfcCardSkeleton from "../components/NFCs/NfcCardSkeleton";
-// import NfcList from "../components/NFCs/NfcList";
 import LiveChannelList from "../components/channels/LiveChannelList";
 import { WavyText } from "../components/general/WavyText";
 import useUserAgent from "../hooks/internal/useUserAgent";
-import {
-  Channel,
-  GetSubscriptionQuery,
-  NfcFeedQuery,
-} from "../generated/graphql";
+import { Channel, GetSubscriptionQuery } from "../generated/graphql";
 import { SelectableChannel } from "../components/mobile/SelectableChannel";
-import { GET_SUBSCRIPTION, NFC_FEED_QUERY } from "../constants/queries";
+import { GET_SUBSCRIPTION } from "../constants/queries";
 import useAddChannelToSubscription from "../hooks/server/useAddChannelToSubscription";
 import useRemoveChannelFromSubscription from "../hooks/server/channel/useRemoveChannelFromSubscription";
 import { useUser } from "../hooks/context/useUser";
 import { sortChannels } from "../utils/channelSort";
 import { useCacheContext } from "../hooks/context/useCache";
-// import ChannelList from "../components/channels/ChannelList";
-// import VibesTokenInterface from "../components/chat/VibesTokenInterface";
-// import HeroBanner from "../components/layout/HeroBanner";
-// import TempTokenLeaderboard from "../components/leaderboards/TempTokenLeaderboard";
-import { VibesProvider } from "../hooks/context/useVibes";
 import NfcLeaderboard from "../components/leaderboards/NfcLeaderboard";
 
 const FixedComponent = ({
@@ -79,196 +68,10 @@ const FixedComponent = ({
   );
 };
 
-const ScrollableComponent = ({
-  channels,
-  loading,
-  callback,
-}: {
-  channels: Channel[];
-  loading: boolean;
-  callback?: () => void;
-}) => {
-  const { data: dataNFCs, loading: loadingNFCs } = useQuery<NfcFeedQuery>(
-    NFC_FEED_QUERY,
-    {
-      variables: {
-        data: {
-          limit: 10,
-          orderBy: "totalMints",
-        },
-      },
-    }
-  );
-  const router = useRouter();
-  const { initialNotificationsGranted, userAddress } = useUser();
-  const [indexOfOwner, setIndexOfOwner] = useState<number>(-1);
-
-  const [endpoint, setEndpoint] = useState<string>("");
-  const [sortedChannels, setSortedChannels] = useState<Channel[]>([]);
-
-  const [getSubscription, { data: subscriptionData }] =
-    useLazyQuery<GetSubscriptionQuery>(GET_SUBSCRIPTION, {
-      fetchPolicy: "network-only",
-    });
-
-  const suggestedChannels =
-    subscriptionData?.getSubscriptionByEndpoint?.allowedChannels;
-
-  const handleSelectChannel = useCallback(
-    (slug: string, redirect?: boolean) => {
-      callback?.();
-      if (redirect === undefined || redirect) router.push(`/channels/${slug}`);
-    },
-    []
-  );
-
-  const { addChannelToSubscription } = useAddChannelToSubscription({
-    onError: () => {
-      console.error("Failed to add channel to subscription.");
-    },
-  });
-
-  const { removeChannelFromSubscription } = useRemoveChannelFromSubscription({
-    onError: () => {
-      console.error("Failed to remove channel from subscription.");
-    },
-  });
-
-  const handleGetSubscription = useCallback(async () => {
-    await getSubscription({
-      variables: { data: { endpoint } },
-    });
-  }, [endpoint]);
-
-  useEffect(() => {
-    if (endpoint) {
-      handleGetSubscription();
-    }
-  }, [endpoint]);
-
-  useEffect(() => {
-    const init = async () => {
-      if ("serviceWorker" in navigator) {
-        const registrationExists =
-          await navigator.serviceWorker.getRegistration("/");
-        if (registrationExists) {
-          const subscription =
-            await registrationExists.pushManager.getSubscription();
-          if (subscription) {
-            const endpoint = subscription.endpoint;
-            setEndpoint(endpoint);
-          }
-        }
-      }
-    };
-    init();
-  }, [initialNotificationsGranted]);
-
-  useEffect(() => {
-    const _suggestedChannels = suggestedChannels
-      ? channels.filter((channel) =>
-          suggestedChannels?.includes(String(channel.id))
-        )
-      : [];
-    const otherChannels = suggestedChannels
-      ? channels.filter(
-          (channel) => !suggestedChannels?.includes(String(channel.id))
-        )
-      : channels.filter((channel) => !channel.isLive);
-    const sortedSuggestedChannels = sortChannels(_suggestedChannels);
-    const sortedOtherChannels = sortChannels(otherChannels);
-    const sortedChannels = [...sortedSuggestedChannels, ...sortedOtherChannels];
-    const indexOfOwner = sortedChannels.findIndex(
-      (element) => element.owner.address === userAddress
-    );
-    const sortedChannelsWithOwnerInFront =
-      indexOfOwner === -1
-        ? sortedChannels
-        : [
-            sortedChannels[indexOfOwner],
-            ...sortedChannels.slice(0, indexOfOwner),
-            ...sortedChannels.slice(indexOfOwner + 1),
-          ];
-    setIndexOfOwner(indexOfOwner > -1 ? 0 : -1);
-    setSortedChannels(sortedChannelsWithOwnerInFront);
-  }, [channels, suggestedChannels, userAddress]);
-
-  const nfcs = dataNFCs?.getNFCFeed;
-
+const ScrollableComponent = () => {
   return (
     <Flex direction="column" width="100%" overflowX={"hidden"} gap="10px">
-      {/* <TempTokenLeaderboard /> */}
       <NfcLeaderboard />
-      {/* <Flex
-        height="300px"
-        gap="5px"
-        justifyContent={"space-between"}
-        bg="#131323"
-        p="5px"
-        borderRadius={"10px"}
-      >
-        <VibesTokenInterface defaultTimeFilter="all" allStreams />
-      </Flex>
-      <Text
-        fontSize={{ base: "30px", lg: "40px" }}
-        lineHeight={{ base: "60px", lg: "80px" }}
-        textAlign="center"
-        fontFamily="LoRes15"
-      >
-        channels
-      </Text>
-      {loading ? (
-        <Flex
-          direction="row"
-          overflowX="scroll"
-          overflowY="clip"
-          width="100%"
-          height="18rem"
-        >
-          {[1, 2, 3, 4, 5].map((i) => (
-            <NfcCardSkeleton key={i} />
-          ))}
-        </Flex>
-      ) : (
-        <ChannelList
-          channels={sortedChannels}
-          suggestedChannels={
-            suggestedChannels === null ? undefined : suggestedChannels
-          }
-          addChannelToSubscription={addChannelToSubscription}
-          removeChannelFromSubscription={removeChannelFromSubscription}
-          handleGetSubscription={handleGetSubscription}
-          endpoint={endpoint}
-          indexOfOwner={indexOfOwner}
-          callback={handleSelectChannel}
-        />
-      )}
-      <Text
-        fontSize={{ base: "30px", lg: "40px" }}
-        lineHeight={{ base: "60px", lg: "80px" }}
-        textAlign="center"
-        fontFamily="LoRes15"
-      >
-        non-fungible clips
-      </Text>
-      <Text fontSize={"24px"} className="gradient-text" textAlign="center">
-        catch up on recent unlonely streams
-      </Text>
-      {!nfcs || loadingNFCs ? (
-        <Flex
-          direction="row"
-          overflowX="scroll"
-          overflowY="clip"
-          width="100%"
-          height="18rem"
-        >
-          {[1, 2, 3, 4, 5].map((i) => (
-            <NfcCardSkeleton key={i} />
-          ))}
-        </Flex>
-      ) : (
-        <NfcList nfcs={nfcs} />
-      )} */}
       <Flex
         justifyContent={"space-between"}
         my="6"
@@ -423,11 +226,7 @@ function DesktopHomePage({
                 maxWidth={"100%"}
                 gap="1rem"
               >
-                <ScrollableComponent
-                  channels={channels}
-                  loading={loading}
-                  callback={() => setDirectingToChannel(true)}
-                />
+                <ScrollableComponent />
               </Container>
             </Box>
             {sideBarBreakpoints && (
@@ -702,7 +501,7 @@ export default function Page() {
   if (feedError) console.error("channel feed query error:", feedError);
 
   return (
-    <VibesProvider>
+    <>
       {ready ? (
         <>
           {!isStandalone ? (
@@ -724,6 +523,6 @@ export default function Page() {
           <Spinner />
         </AppLayout>
       )}
-    </VibesProvider>
+    </>
   );
 }

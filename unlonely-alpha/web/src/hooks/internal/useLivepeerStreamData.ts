@@ -30,14 +30,20 @@ export const useLivepeerStreamData = () => {
     useState<boolean>(false);
 
   useEffect(() => {
+    console.log("channelQueryData useeffect useLivePeerStreamData", channelQueryData);
     const init = async () => {
       if (!channelQueryData) return;
       if (channelQueryData?.livepeerPlaybackId) {
-        const res = await livepeer.playback.get(
-          channelQueryData?.livepeerPlaybackId
-        );
-        const playbackInfo = res.playbackInfo;
-        setPlaybackInfo(playbackInfo);
+        console.log("first if statment passed", channelQueryData?.livepeerPlaybackId);
+        try {
+          const res = await livepeer.playback.get(channelQueryData?.livepeerPlaybackId);
+          console.log("res livepeer playback", res);
+          if (!res) throw new Error("No response from livepeer playback.");
+          const playbackInfo = res.playbackInfo;
+          setPlaybackInfo(playbackInfo);
+        } catch (e) {
+          console.log("error livepeer playback", e);
+        }        
       }
       setCheckedForLivepeerPlaybackInfo(true);
     };

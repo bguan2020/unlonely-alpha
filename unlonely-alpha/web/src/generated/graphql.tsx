@@ -590,10 +590,11 @@ export type Mutation = {
   updateTempTokenHighestTotalSupply?: Maybe<Array<Maybe<TempToken>>>;
   updateTempTokenIsAlwaysTradeable: Scalars["Boolean"];
   updateTempTokenTransferredLiquidityOnExpiration?: Maybe<TempToken>;
-  updateUser?: Maybe<User>;
+  updateUser?: Maybe<UpdateUserResponse>;
   updateUserChannelContract1155Mapping?: Maybe<User>;
   updateUserCreatorTokenQuantity: UserCreatorToken;
   updateUserNotifications?: Maybe<User>;
+  updateUsers?: Maybe<Array<Maybe<User>>>;
 };
 
 export type MutationAddChannelToSubscriptionArgs = {
@@ -834,6 +835,10 @@ export type MutationUpdateUserCreatorTokenQuantityArgs = {
 
 export type MutationUpdateUserNotificationsArgs = {
   data: UpdateUserNotificationsInput;
+};
+
+export type MutationUpdateUsersArgs = {
+  data: UpdateUsersInput;
 };
 
 export type Nfc = Likable & {
@@ -1611,6 +1616,18 @@ export type UpdateUserNotificationsInput = {
   notificationsLive?: InputMaybe<Scalars["Boolean"]>;
   notificationsNFCs?: InputMaybe<Scalars["Boolean"]>;
   notificationsTokens?: InputMaybe<Scalars["String"]>;
+};
+
+export type UpdateUserResponse = {
+  __typename?: "UpdateUserResponse";
+  error?: Maybe<Scalars["String"]>;
+  newSocialDataString?: Maybe<Scalars["String"]>;
+  newUserData?: Maybe<User>;
+  rawDataString?: Maybe<Scalars["String"]>;
+};
+
+export type UpdateUsersInput = {
+  addresses?: InputMaybe<Array<InputMaybe<Scalars["String"]>>>;
 };
 
 export type User = {
@@ -2967,11 +2984,17 @@ export type UpdateUserMutationVariables = Exact<{
 export type UpdateUserMutation = {
   __typename?: "Mutation";
   updateUser?: {
-    __typename?: "User";
-    address: string;
-    lensHandle?: string | null;
-    FCHandle?: string | null;
-    username?: string | null;
+    __typename?: "UpdateUserResponse";
+    error?: string | null;
+    rawDataString?: string | null;
+    newSocialDataString?: string | null;
+    newUserData?: {
+      __typename?: "User";
+      username?: string | null;
+      address: string;
+      FCHandle?: string | null;
+      lensHandle?: string | null;
+    } | null;
   } | null;
 };
 
@@ -7552,10 +7575,15 @@ export type UpdateNfcMutationOptions = Apollo.BaseMutationOptions<
 export const UpdateUserDocument = gql`
   mutation UpdateUser($data: UpdateUserInput!) {
     updateUser(data: $data) {
-      address
-      lensHandle
-      FCHandle
-      username
+      error
+      rawDataString
+      newSocialDataString
+      newUserData {
+        username
+        address
+        FCHandle
+        lensHandle
+      }
     }
   }
 `;

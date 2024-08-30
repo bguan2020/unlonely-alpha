@@ -18,12 +18,11 @@ import {
 } from "../internal/versus-token/read/useReadVersusTempTokenGlobalState";
 import { useReadVersusTempTokenOnMount } from "../internal/versus-token/read/useReadVersusTempTokenOnMount";
 import { useVersusGameStateTransitioner } from "../internal/versus-token/ui/useVersusGameStateTransitioner";
-import { createPublicClient, http } from "viem";
-import { base } from "viem/chains";
 import { useChannelContext } from "./useChannel";
 import { useUser } from "./useUser";
 import { useRouter } from "next/router";
 import { InteractionType } from "../../constants";
+import { usePublicClient } from "wagmi";
 
 export const useVersusTempTokenContext = () => {
   return useContext(VersusTempTokenContext);
@@ -78,28 +77,19 @@ export const VersusTempTokenProvider = ({
   });
   const router = useRouter();
 
-  const baseClient = useMemo(
-    () =>
-      createPublicClient({
-        chain: base,
-        transport: http(
-          `https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_BASE_API_KEY}`
-        ),
-      }),
-    []
-  );
+  const publicClient = usePublicClient();
 
   const readTempTokenTxs_a = useReadTempTokenTxs({
     tokenCreationBlockNumber:
       globalState.tokenA?.creationBlockNumber ?? BigInt(0),
-    baseClient,
+    baseClient: publicClient,
     tempTokenContract: globalState.tokenA.contractData,
   });
 
   const readTempTokenTxs_b = useReadTempTokenTxs({
     tokenCreationBlockNumber:
       globalState.tokenB?.creationBlockNumber ?? BigInt(0),
-    baseClient,
+    baseClient: publicClient,
     tempTokenContract: globalState.tokenB.contractData,
   });
 
@@ -177,7 +167,7 @@ export const VersusTempTokenProvider = ({
    */
   useEffect(() => {
     const onGameFinish = async () => {
-      if (!globalState.isGameFinished || !baseClient) return;
+      if (!globalState.isGameFinished || !publicClient) return;
       console.log("game finished");
       globalState.handleIsGameOngoing(false);
       if (
@@ -213,7 +203,7 @@ export const VersusTempTokenProvider = ({
     globalState.isGameFinished,
     globalState.tokenA,
     globalState.tokenB,
-    baseClient,
+    publicClient,
     router,
     isOwner,
   ]);

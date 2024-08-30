@@ -49,9 +49,6 @@ lensSocials: socials(input: {filter: {dappName: {_eq: lens}}}) {
     }
   }
 }
-xmtp {
-  isXMTPEnabled
-}
 `;
 
 const GET_SOCIAL = `
@@ -75,7 +72,7 @@ export type SocialData = {
 export const fetchSocial = async (
   identity: string,
   blockchain: string
-): Promise<SocialData> => {
+): Promise<{ socialData: SocialData, rawData: any, error: string }> => {
   try {
     if (!process.env.AIRSTACK_API_KEY) {
       throw new Error("AIRSTACK_API_KEY not set");
@@ -87,7 +84,7 @@ export const fetchSocial = async (
     });
     if (error) {
       console.log("airstack query error", identity, error);
-      return {};
+      return { socialData: {}, rawData: {}, error: error.message };
     }
     const ens =
       res?.Wallet?.primaryDomain?.name ?? res?.Wallet?.domains?.[0]?.name;
@@ -133,10 +130,10 @@ export const fetchSocial = async (
     } else {
       newData.lensImageUrl = "";
     }
-    return newData;
-  } catch (e) {
+    return {socialData: newData, rawData: res, error: ""};
+  } catch (e: any) {
     console.log("fetchSocial error", identity, e);
-    return {};
+    return { socialData: {}, rawData: {}, error: String(e.message) };
   }
 };
 
