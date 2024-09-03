@@ -5,20 +5,11 @@ import {
 } from "@jup-ag/wallet-adapter";
 import { Button } from "@chakra-ui/react";
 import { PublicKey } from "@solana/web3.js";
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import {
-  ConnectionProvider,
-  useWallet,
-  WalletProvider,
-} from "@solana/wallet-adapter-react";
-import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
-import {
-  PhantomWalletAdapter,
-  SolflareWalletAdapter,
-} from "@solana/wallet-adapter-wallets";
-import { Connection, clusterApiUrl } from "@solana/web3.js";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { Connection } from "@solana/web3.js";
 import { SolanaTokenTransfer } from "./SolanaTokenTransfer";
 import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
+import Decimal from "decimal.js";
 
 export enum SwapMode {
   ExactInOrOut = "ExactInOrOut",
@@ -98,9 +89,12 @@ const ModalTerminal = (props: {
       // Fetch the token account information
       const tokenAccount = await getAccount(connection, tokenAccountAddress);
 
-      const decimals = 9;
-      const balance = tokenAccount.amount / BigInt(Math.pow(10, decimals));
+      const amount = new Decimal(tokenAccount.amount.toString());
 
+      const decimals = 9;
+      const balance = amount.div(new Decimal(10).pow(decimals)).toString();
+
+      console.log("Token balance:", balance);
       setBalance(Number(balance));
     } catch (error) {
       console.error("Error fetching token balance:", error);
@@ -149,13 +143,6 @@ const ModalTerminal = (props: {
     (window as any)?.Jupiter?.syncProps({ passthroughWalletContextState });
   }, [passthroughWalletContextState, props]);
 
-  // Set the network to use (e.g., 'mainnet-beta', 'devnet')
-  const network = WalletAdapterNetwork.Mainnet;
-  const endpoint = clusterApiUrl(network);
-
-  // Initialize wallet adapters you want to support
-  const wallets = [new PhantomWalletAdapter(), new SolflareWalletAdapter()];
-
   return (
     <>
       {" "}
@@ -165,17 +152,11 @@ const ModalTerminal = (props: {
       <Button onClick={() => launchTerminal(false)} colorScheme="blue">
         Sell
       </Button>
-      <ConnectionProvider endpoint={endpoint}>
-        <WalletProvider wallets={wallets} autoConnect>
-          <WalletModalProvider>
-            <SolanaTokenTransfer
-              rpcUrl={rpcUrl}
-              balance={balance}
-              fetchTokenBalance={fetchTokenBalance}
-            />
-          </WalletModalProvider>
-        </WalletProvider>
-      </ConnectionProvider>
+      <SolanaTokenTransfer
+        rpcUrl={rpcUrl}
+        balance={balance}
+        fetchTokenBalance={fetchTokenBalance}
+      />
       <div
         style={{
           position: "relative" as const,
