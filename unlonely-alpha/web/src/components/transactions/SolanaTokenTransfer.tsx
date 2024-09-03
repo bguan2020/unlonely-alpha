@@ -18,7 +18,15 @@ const isValidSolanaAddress = (address: string): boolean => {
   }
 };
 
-export const SolanaTokenTransfer = ({ rpcUrl }: { rpcUrl: string }) => {
+export const SolanaTokenTransfer = ({
+  rpcUrl,
+  balance,
+  fetchTokenBalance,
+}: {
+  rpcUrl: string;
+  balance: number | null;
+  fetchTokenBalance: () => void;
+}) => {
   const { publicKey, sendTransaction, connected, connect } = useWallet();
   const [toAddress, setToAddress] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
@@ -115,6 +123,7 @@ export const SolanaTokenTransfer = ({ rpcUrl }: { rpcUrl: string }) => {
 
         if (status.value?.confirmationStatus === "confirmed") {
           console.log(`Transaction confirmed with signature: ${signature}`);
+          await fetchTokenBalance();
         } else {
           console.warn("Transaction is not finalized yet:", status);
         }
@@ -154,7 +163,10 @@ export const SolanaTokenTransfer = ({ rpcUrl }: { rpcUrl: string }) => {
       <Button
         onClick={sendTokens}
         isDisabled={
-          Number(amount) === 0 || !connected || !isValidSolanaAddress(toAddress)
+          Number(amount) === 0 ||
+          !connected ||
+          !isValidSolanaAddress(toAddress) ||
+          Number(amount) > balance!
         }
       >
         Send THOTH

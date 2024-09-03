@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   useUnifiedWalletContext,
   useUnifiedWallet,
@@ -8,6 +8,7 @@ import { PublicKey } from "@solana/web3.js";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
   ConnectionProvider,
+  useWallet,
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
@@ -15,8 +16,9 @@ import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
-import { clusterApiUrl } from "@solana/web3.js";
+import { Connection, clusterApiUrl } from "@solana/web3.js";
 import { SolanaTokenTransfer } from "./SolanaTokenTransfer";
+import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 
 export enum SwapMode {
   ExactInOrOut = "ExactInOrOut",
@@ -62,6 +64,50 @@ const ModalTerminal = (props: {
 
   const passthroughWalletContextState = useUnifiedWallet();
   const { setShowModal } = useUnifiedWalletContext();
+  const { publicKey, connected } = useWallet();
+
+  const [loading, setLoading] = useState(false);
+  const [balance, setBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (connected && publicKey) {
+      fetchTokenBalance();
+    }
+  }, [connected, publicKey]);
+
+  const fetchTokenBalance = async () => {
+    if (!publicKey) {
+      console.error("No wallet connected");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const connection = new Connection(rpcUrl, "confirmed");
+      const tokenMint = new PublicKey(
+        "FuvamNkNTNjDcnQeWyiAReUCHZ91gJhg59xuNemZ4p9f"
+      );
+
+      // Get the associated token account address for the user
+      const tokenAccountAddress = await getAssociatedTokenAddress(
+        tokenMint,
+        publicKey
+      );
+
+      // Fetch the token account information
+      const tokenAccount = await getAccount(connection, tokenAccountAddress);
+
+      const decimals = 9;
+      const balance = tokenAccount.amount / BigInt(Math.pow(10, decimals));
+
+      setBalance(Number(balance));
+    } catch (error) {
+      console.error("Error fetching token balance:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const launchTerminal = (isBuying: boolean) => {
     (window as any)?.Jupiter?.init({
@@ -86,6 +132,7 @@ const ModalTerminal = (props: {
       onRequestConnectWallet: () => setShowModal(true),
       onSuccess: ({ txid, swapResult }: { txid: any; swapResult: any }) => {
         console.log({ txid, swapResult });
+        fetchTokenBalance();
       },
       onSwapError: ({ error }: { error: any }) => {
         console.log("onSwapError", error);
@@ -121,10 +168,31 @@ const ModalTerminal = (props: {
       <ConnectionProvider endpoint={endpoint}>
         <WalletProvider wallets={wallets} autoConnect>
           <WalletModalProvider>
-            <SolanaTokenTransfer rpcUrl={rpcUrl} />
+            <SolanaTokenTransfer
+              rpcUrl={rpcUrl}
+              balance={balance}
+              fetchTokenBalance={fetchTokenBalance}
+            />
           </WalletModalProvider>
         </WalletProvider>
       </ConnectionProvider>
+      <div
+        style={{
+          position: "relative" as const,
+          width: "100%",
+          paddingBottom: "125%",
+        }}
+        id="dexscreener-embed"
+      >
+        <iframe
+          height="600px"
+          width="100%"
+          id="geckoterminal-embed"
+          title="GeckoTerminal Embed"
+          src="https://www.geckoterminal.com/solana/pools/DtxxzR77SEsrVhPzSixCdM1dcuANwQsMiNsM5vSPdYL1?embed=1&info=0&swaps=1"
+          allow="clipboard-write"
+        ></iframe>
+      </div>
     </>
   );
 };
