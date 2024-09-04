@@ -1,13 +1,16 @@
-import { Button, Flex, Input } from "@chakra-ui/react";
+import { Button, Flex, Input, Text } from "@chakra-ui/react";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 import {
   createAssociatedTokenAccountInstruction,
   createTransferInstruction,
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
+
 import { useWallet } from "@solana/wallet-adapter-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+
 import { filteredInput } from "../../utils/validation/input";
+import { FIXED_SOLANA_MINT } from "./SolanaJupiterTerminal";
 
 const isValidSolanaAddress = (address: string): boolean => {
   try {
@@ -41,7 +44,7 @@ export const SolanaTokenTransfer = ({
         new Connection(rpcUrl),
         publicKey,
         new PublicKey(toAddress),
-        new PublicKey("FuvamNkNTNjDcnQeWyiAReUCHZ91gJhg59xuNemZ4p9f"),
+        new PublicKey(FIXED_SOLANA_MINT),
         Number(amount)
       );
     } catch (error) {
@@ -138,14 +141,22 @@ export const SolanaTokenTransfer = ({
     }
   };
 
-  useEffect(() => {
+  const connectWallet = useCallback(async () => {
     if (!connected) {
-      console.log("Connecting wallet...", connect);
-      connect().catch((error) => {
+      try {
+        // Add a small delay before connecting
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        await connect();
+        console.log("Wallet connected successfully");
+      } catch (error) {
         console.error("Failed to connect wallet:", error);
-      });
+      }
     }
-  }, [connected, connect, toAddress]);
+  }, [connect, connected]);
+
+  useEffect(() => {
+    connectWallet();
+  }, [connectWallet]);
 
   return (
     <Flex direction="column">
@@ -160,13 +171,15 @@ export const SolanaTokenTransfer = ({
         onChange={(e) => setAmount(filteredInput(e.target.value, true))}
       />
       {!connected && <Button onClick={connect}>Connect Phantom</Button>}
+      <Text>Available THOTH Balance: {balance}</Text>
       <Button
         onClick={sendTokens}
         isDisabled={
           Number(amount) === 0 ||
           !connected ||
           !isValidSolanaAddress(toAddress) ||
-          Number(amount) > balance!
+          balance === null ||
+          Number(amount) > balance
         }
       >
         Send THOTH

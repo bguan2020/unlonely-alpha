@@ -11,6 +11,8 @@ import { SolanaTokenTransfer } from "./SolanaTokenTransfer";
 import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 import Decimal from "decimal.js";
 
+export const FIXED_SOLANA_MINT = "FuvamNkNTNjDcnQeWyiAReUCHZ91gJhg59xuNemZ4p9f";
+
 export enum SwapMode {
   ExactInOrOut = "ExactInOrOut",
   ExactIn = "ExactIn",
@@ -76,9 +78,7 @@ const ModalTerminal = (props: {
 
     try {
       const connection = new Connection(rpcUrl, "confirmed");
-      const tokenMint = new PublicKey(
-        "FuvamNkNTNjDcnQeWyiAReUCHZ91gJhg59xuNemZ4p9f"
-      );
+      const tokenMint = new PublicKey(FIXED_SOLANA_MINT);
 
       // Get the associated token account address for the user
       const tokenAccountAddress = await getAssociatedTokenAddress(
@@ -104,20 +104,19 @@ const ModalTerminal = (props: {
   };
 
   const launchTerminal = (isBuying: boolean) => {
+    const commonProps = { fixedInputMint: true, fixedOutputMint: true };
     (window as any)?.Jupiter?.init({
       endpoint: rpcUrl,
       formProps: isBuying
         ? {
             initialInputMint: WRAPPED_SOL_MINT.toString(),
-            initialOutputMint: "FuvamNkNTNjDcnQeWyiAReUCHZ91gJhg59xuNemZ4p9f",
-            fixedInputMint: true,
-            fixedOutputMint: true,
+            initialOutputMint: FIXED_SOLANA_MINT,
+            ...commonProps,
           }
         : {
-            initialInputMint: "FuvamNkNTNjDcnQeWyiAReUCHZ91gJhg59xuNemZ4p9f",
+            initialInputMint: FIXED_SOLANA_MINT,
             initialOutputMint: WRAPPED_SOL_MINT.toString(),
-            fixedInputMint: true,
-            fixedOutputMint: true,
+            ...commonProps,
           },
       enableWalletPassthrough: simulateWalletPassthrough,
       passthroughWalletContextState: simulateWalletPassthrough
@@ -201,7 +200,7 @@ export const INITIAL_FORM_CONFIG: IFormConfigurator = Object.freeze({
     fixedAmount: false,
     initialAmount: "",
     initialInputMint: WRAPPED_SOL_MINT.toString(),
-    initialOutputMint: "FuvamNkNTNjDcnQeWyiAReUCHZ91gJhg59xuNemZ4p9f",
+    initialOutputMint: FIXED_SOLANA_MINT,
   },
   useUserSlippage: true,
 });
