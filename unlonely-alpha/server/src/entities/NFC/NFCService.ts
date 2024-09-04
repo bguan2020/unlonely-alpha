@@ -786,28 +786,33 @@ export const requestUploadFromLivepeer = async (
   const bodyData = {
     name: data.name,
   };
-  const response = await axios.post(
-    "https://livepeer.studio/api/asset/request-upload",
-    bodyData,
-    {
-      headers,
-    }
-  );
-  const returnData: RequestUploadResponse = {
-    url: response.data.url,
-    tusEndpoint: response.data.tusEndpoint,
-    task: response.data.task,
-    asset: {
-      ...response.data.asset,
-      createdAt: String(response.data.asset.createdAt),
-      status: {
-        ...response.data.asset.status,
-        updatedAt: String(response.data.asset.status.updatedAt),
+  try {
+    const response = await axios.post(
+      "https://livepeer.studio/api/asset/request-upload",
+      bodyData,
+      {
+        headers,
+      }
+    );
+    const returnData: RequestUploadResponse = {
+      url: response.data.url,
+      tusEndpoint: response.data.tusEndpoint,
+      task: response.data.task,
+      asset: {
+        ...response.data.asset,
+        createdAt: String(response.data.asset.createdAt),
+        status: {
+          ...response.data.asset.status,
+          updatedAt: String(response.data.asset.status.updatedAt),
+        },
       },
-    },
+    };
+    return returnData;
+  } catch (e) {
+      console.log("Error requesting upload from livepeer", e);
+      throw e;
+    }
   };
-  return returnData;
-};
 
 export interface IGetUniqueContract1155AddressesInput {
   offset: number;
@@ -833,7 +838,7 @@ export const getUniqueContract1155Addresses = async (
     },
   });
 };
-
+  
 export interface IGetNFCFeedInput {
   offset: number;
   limit: number;

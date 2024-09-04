@@ -69,6 +69,7 @@
     "react-icons": "^4.10.1",
     "react-virtuoso": "^4.4.2",
     "recharts": "^2.10.3",
+    "tus-js-client": "^4.1.0",
     "video.js": "^7.20.2",
     "viem": "1.18.9",
     "wagmi": "1.4.12",
