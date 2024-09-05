@@ -4,7 +4,6 @@ import {
   WarningIcon,
 } from "@chakra-ui/icons";
 import {
-  Badge,
   Button,
   Flex,
   Menu,
@@ -17,12 +16,10 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { HiDotsVertical } from "react-icons/hi";
-import Confetti from "react-confetti";
-import { useBalance, useFeeData } from "wagmi";
+import { useBalance, useEstimateFeesPerGas } from "wagmi";
 
-import { useCacheContext } from "../../hooks/context/useCache";
 import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import centerEllipses from "../../utils/centerEllipses";
@@ -156,7 +153,6 @@ const ConnectedDisplay = () => {
 
   const { user, userAddress, loginMethod, fetchUser, logout, exportWallet } =
     useUser();
-  const { claimableBets } = useCacheContext();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork } = network;
 
@@ -168,13 +164,11 @@ const ConnectedDisplay = () => {
   const [isChannelsModalOpen, setIsChannelsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { data: feeData, refetch: refetchFeeData } = useFeeData({
+  const { data: feeData, refetch: refetchFeeData } = useEstimateFeesPerGas({
     chainId: localNetwork.config.chainId,
-    enabled: false,
   });
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
-    enabled: false,
   });
 
   const { updateUser } = useUpdateUser({});
@@ -198,38 +192,10 @@ const ConnectedDisplay = () => {
     }
   }, [isStandalone, router]);
 
-  const redirectToClaim = useCallback(() => {
-    if (isStandalone) {
-      router.push("/claim");
-    } else {
-      window.open(`${window.location.origin}/claim`, "_blank");
-    }
-  }, [isStandalone, router]);
-
   const callLogout = useCallback(() => {
     logout();
     setIsCloseModalOpen(false);
   }, []);
-
-  const parentRef = useRef<HTMLDivElement>(null);
-
-  const [parentWidth, setParentWidth] = useState(0);
-  const [parentHeight, setParentHeight] = useState(0);
-
-  useEffect(() => {
-    const updateSize = () => {
-      if (parentRef.current) {
-        setParentWidth(parentRef.current.offsetWidth);
-        setParentHeight(parentRef.current.offsetHeight);
-      }
-    };
-
-    updateSize(); // Update width on mount
-
-    window.addEventListener("resize", updateSize); // Update width on window resize
-
-    return () => window.removeEventListener("resize", updateSize); // Cleanup listener
-  }, [claimableBets.length]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -281,29 +247,18 @@ const ConnectedDisplay = () => {
           }
         >
           <MenuButton
-            ref={parentRef}
             color="white"
             width={"100%"}
             as={Button}
             borderRadius="0"
-            _hover={{
-              bg: claimableBets.length > 0 ? "#E09025" : "#020202",
-            }}
             _focus={{}}
             _active={{}}
+            _hover={{}}
             px="10px"
             bg={"#131323"}
             rightIcon={<ChevronDownIcon />}
             position="relative"
           >
-            {claimableBets.length > 0 && (
-              <Confetti
-                width={parentWidth}
-                height={parentHeight}
-                style={{ zIndex: "2" }}
-                numberOfPieces={15}
-              />
-            )}
             {isLowEthBalance && (
               <Flex
                 className="attention"
@@ -327,19 +282,6 @@ const ConnectedDisplay = () => {
                   centerEllipses(userAddress, 13)
                 )}{" "}
               </Text>
-              {claimableBets.length > 0 && (
-                <Text>
-                  <Badge
-                    className="hithere"
-                    variant="solid"
-                    ml="1"
-                    colorScheme={"red"}
-                    fontSize="0.7em"
-                  >
-                    {claimableBets.length > 99 ? "99+" : claimableBets.length}
-                  </Badge>
-                </Text>
-              )}
             </Flex>
           </MenuButton>
         </Flex>
@@ -441,28 +383,6 @@ const ConnectedDisplay = () => {
               <Text>update ENS/socials</Text>
             </MenuItem>
           )}
-          <MenuItem
-            bg={claimableBets.length > 0 ? "#E09025" : "#131323"}
-            _hover={{ bg: "#f07c1d" }}
-            _focus={{}}
-            _active={{}}
-            onClick={redirectToClaim}
-          >
-            claim payouts{" "}
-            {claimableBets.length > 0 && (
-              <Text>
-                <Badge
-                  variant="solid"
-                  ml="1"
-                  colorScheme={"red"}
-                  fontSize="0.7em"
-                >
-                  {claimableBets.length > 99 ? "99+" : claimableBets.length}
-                </Badge>
-              </Text>
-            )}
-            {!isStandalone && <ExternalLinkIcon />}
-          </MenuItem>
           <MenuItem
             bg={isLowEthBalance ? "#004b9c" : "#131323"}
             _hover={{ bg: "#0056b1" }}

@@ -2,10 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { isAddress } from "viem";
 import { usePublicClient } from "wagmi";
 
-import { NULL_ADDRESS } from "../../constants";
-import { ContractData, WriteCallbacks } from "../../constants/types";
-import { createCallbackHandler } from "../../utils/contract";
-import { useWrite } from "./useWrite";
+import { NULL_ADDRESS } from "../../../constants";
+import { ContractData, WriteCallbacks } from "../../../constants/types";
+import { createCallbackHandler } from "../../../utils/contract";
+import { useWrite } from "../useWrite";
 
 export const useReadPublic = (
   contract: ContractData,

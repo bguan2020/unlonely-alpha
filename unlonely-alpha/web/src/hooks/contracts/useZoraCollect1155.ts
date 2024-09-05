@@ -14,11 +14,7 @@ import { useCallback } from "react";
 export const useZoraCollect1155 = () => {
   const chainId = useChainId();
   const publicClient = usePublicClient();
-  const { data: walletClient } = useWalletClient({
-    onSuccess(data) {
-      console.log("Success", data);
-    },
-  });
+  const { data: walletClient } = useWalletClient();
 
   const collectorMint = useCallback(
     async (

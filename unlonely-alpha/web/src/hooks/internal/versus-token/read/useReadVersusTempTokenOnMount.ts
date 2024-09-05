@@ -48,7 +48,7 @@ export const useReadVersusTempTokenOnMount = ({
 
   useEffect(() => {
     const fetchVersusTempTokens = async () => {
-      if (!(Number(channelQueryData?.id ?? "0") > 0)) return;
+      if (!(Number(channelQueryData?.id ?? "0") > 0) || !publicClient) return;
       try {
         const getTempTokenQueryRes = await getTempTokensQuery({
           variables: {

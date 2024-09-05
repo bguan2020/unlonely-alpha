@@ -54,7 +54,8 @@ export const useGetClaimBetEvents = () => {
         isFetching.current ||
         !userAddress ||
         !walletIsConnected ||
-        !activeWallet
+        !activeWallet ||
+        window.location.pathname !== "/claim"
       ) {
         setFetchingBets(false);
         return;
@@ -94,7 +95,7 @@ export const useGetClaimBetEvents = () => {
             abi: contractData.abi,
             functionName: "getVotePayout",
             args: [
-              event.sharesSubjectAddress,
+              event.sharesSubjectAddress as string,
               event.id,
               EventTypeForContract.YAY_NAY_VOTE,
               userAddress,

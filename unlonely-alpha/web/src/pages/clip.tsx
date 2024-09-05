@@ -51,7 +51,12 @@ import {
   encodeFunctionData,
   isAddressEqual,
 } from "viem";
-import { usePublicClient, useWalletClient } from "wagmi";
+import {
+  useConnectorClient,
+  usePublicClient,
+  useSendTransaction,
+  useWriteContract,
+} from "wagmi";
 import { ExtractAbiFunction, AbiParametersToPrimitiveTypes } from "abitype";
 import {
   ContractType,
@@ -111,11 +116,7 @@ const Clip = () => {
   const { user } = useUser();
   const { network } = useNetworkContext();
   const publicClient = usePublicClient();
-  const { data: walletClient } = useWalletClient({
-    onSuccess(data) {
-      console.log("Success", data);
-    },
-  });
+  const { data: walletClient } = useConnectorClient();
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -159,6 +160,9 @@ const Clip = () => {
   const [tokenJsonMetaDataUri, setTokenJsonMetaDataUri] = useState("");
   const [existingContract1155Address, setExistingContract1155Address] =
     useState<`0x${string}` | null>(null);
+
+  const { sendTransaction } = useSendTransaction();
+  const { writeContractAsync } = useWriteContract();
 
   const handleClickNyanCat = (index: number) => {
     setNyanCatFaceForward((prev) => {
@@ -255,6 +259,13 @@ const Clip = () => {
       console.log("createClip Error", e);
     },
   });
+
+  // const { trimVideo } = useTrimVideo({
+  //   onError: (e) => {
+  //     console.log("trimVideo Error", e);
+  //   },
+  // });
+
   const { updateUserChannelContract1155Mapping } =
     useUpdateUserChannelContract1155Mapping({
       onError: (e) => {
@@ -535,6 +546,7 @@ const Clip = () => {
     console.log("trimVideo function start", trimFunctionStart);
     let trimRes = null;
     try {
+      // can be either handleTrim or trimVideo, one is for local trimming and the other is for server side trimming
       trimRes = await handleTrim({
         startTime: clipRange[0],
         endTime: clipRange[1],
@@ -575,13 +587,15 @@ const Clip = () => {
     } catch (e) {
       setPageState("error");
       setErrorMessage(
-        `Error fetching livepeer clip data, catch block caught ${e}`
+        `Error fetching livepeer clip data after trimming, catch block caught ${e}`
       );
       return;
     }
     if (!clipData) {
       setPageState("error");
-      setErrorMessage("Error fetching livepeer clip data, response is missing");
+      setErrorMessage(
+        "Error fetching livepeer clip data after trimming, response is missing"
+      );
       return;
     }
     console.log(
@@ -734,7 +748,6 @@ const Clip = () => {
     } else {
       contractObject = existingContract1155Address;
     }
-    console.log("contractObject", contractObject);
 
     setContractObject(contractObject);
     setTokenJsonMetaDataUri(jsonMetadataUri);
@@ -759,7 +772,9 @@ const Clip = () => {
       !channelId ||
       !videoLink ||
       !videoThumbnail ||
-      !tokenJsonMetaDataUri
+      !tokenJsonMetaDataUri ||
+      !publicClient ||
+      !walletClient
     )
       return;
     try {
@@ -784,6 +799,7 @@ const Clip = () => {
         chainId: network.chainId,
         publicClient,
       });
+      console.log("contractObject", contractObject);
       const { parameters } = await creatorClient.create1155({
         contract: contractObject,
         token: {
@@ -838,11 +854,19 @@ const Clip = () => {
             setTransactionProgressMessage("awaiting approval to mint...");
             let splitCreationHash: `0x${string}` | null = null;
             try {
-              splitCreationHash = await walletClient.sendTransaction({
-                to: splitAddress as Address,
-                account: walletClient?.account.address as Address,
-                data: splitCallData,
-              });
+              await sendTransaction(
+                {
+                  to: splitAddress as Address,
+                  account: walletClient?.account.address as Address,
+                  data: splitCallData,
+                },
+                {
+                  onSuccess: (data) => {
+                    console.log("splitCreationHash", data);
+                    splitCreationHash = data;
+                  },
+                }
+              );
             } catch (e) {
               console.log("walletClient.sendTransaction caught error", e);
               if (String(e as any).includes("User rejected the request"))
@@ -928,12 +952,8 @@ const Clip = () => {
           let hash: `0x${string}` | null | undefined = null;
           try {
             // execute the transaction
-            hash = await walletClient
-              ?.writeContract(request)
-              .then((response) => {
-                console.log("multicall3 response", response);
-                return response;
-              });
+            hash = await writeContractAsync(request);
+            console.log("multicall3 response", hash);
           } catch (e) {
             console.log("walletClient.writeContract caught error", e);
             if (String(e as any).includes("User rejected the request"))
@@ -1172,7 +1192,7 @@ const Clip = () => {
       console.log("handleWriteCreate1155 simulated request", request);
 
       // execute the transaction
-      const hash = await walletClient.writeContract(request);
+      const hash = await writeContractAsync(request);
       if (!hash)
         return {
           txnReceipt: undefined,

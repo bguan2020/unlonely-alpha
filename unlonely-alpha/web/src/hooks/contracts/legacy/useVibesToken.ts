@@ -1,15 +1,14 @@
 import {
-  useContractWrite,
+  useWaitForTransactionReceipt,
   usePublicClient,
-  useWaitForTransaction,
+  useWriteContract 
 } from "wagmi";
 import { useState, useCallback, useEffect } from "react";
 
-import { ContractData, WriteCallbacks } from "../../constants/types";
-import { NULL_ADDRESS } from "../../constants";
-import { useWrite } from "./useWrite";
-import { createCallbackHandler } from "../../utils/contract";
-import { Hex, TransactionReceipt } from "viem";
+import { ContractData, WriteCallbacks } from "../../../constants/types";
+import { NULL_ADDRESS } from "../../../constants";
+import { useWrite } from "../useWrite";
+import { createCallbackHandler } from "../../../utils/contract";
 
 export const useReadPublic = (contract: ContractData) => {
   const publicClient = usePublicClient();
@@ -238,35 +237,41 @@ export const useUnpreparedMint = (
   const {
     data: writeData,
     error: writeError,
-    write,
-  } = useContractWrite({
-    ...contract,
-    functionName: "mint",
-    args: [args.amount, args.streamer],
-    gas: overrides?.gas,
-    value: args.value,
-    onSuccess(data: { hash: Hex }) {
-      if (callbacks?.onWriteSuccess) callbacks?.onWriteSuccess(data);
-    },
-    onError(error: Error) {
-      if (callbacks?.onWriteError) callbacks?.onWriteError(error);
-    },
-  });
+    writeContract,
+  } = useWriteContract();
 
   const {
     data: txData,
     error: txError,
     isLoading: isTxLoading,
     isSuccess: isTxSuccess,
-  } = useWaitForTransaction({
-    hash: writeData?.hash,
-    onSuccess(data: TransactionReceipt) {
-      if (callbacks?.onTxSuccess) callbacks?.onTxSuccess(data);
-    },
-    onError(error: Error) {
-      if (callbacks?.onTxError) callbacks?.onTxError(error);
-    },
+  } = useWaitForTransactionReceipt({
+    hash: writeData,
   });
+  
+  useEffect(() => {
+    if (txData) {
+      if (callbacks?.onTxSuccess) callbacks.onTxSuccess(txData);
+    }
+  }, [txData, callbacks]);
+
+  useEffect(() => {
+    if (txError) {
+      if (callbacks?.onTxError) callbacks.onTxError(txError);
+    }
+  }, [txError, callbacks]);
+
+  const write = useCallback(() => {
+    if (contract.address && contract.abi) {
+      writeContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "mint",
+        args: [args.amount, args.streamer],
+        value: args.value,
+      });
+    }
+  }, [writeContract, contract, args, overrides]);
 
   return {
     write,
@@ -290,33 +295,40 @@ export const useUnpreparedBurn = (
   const {
     data: writeData,
     error: writeError,
-    write,
-  } = useContractWrite({
-    ...contract,
-    functionName: "burn",
-    args: [args.amount, args.streamer],
-    onSuccess(data: { hash: Hex }) {
-      if (callbacks?.onWriteSuccess) callbacks?.onWriteSuccess(data);
-    },
-    onError(error: Error) {
-      if (callbacks?.onWriteError) callbacks?.onWriteError(error);
-    },
-  });
+    writeContract,
+  } = useWriteContract();
 
   const {
     data: txData,
     error: txError,
     isLoading: isTxLoading,
     isSuccess: isTxSuccess,
-  } = useWaitForTransaction({
-    hash: writeData?.hash,
-    onSuccess(data: TransactionReceipt) {
-      if (callbacks?.onTxSuccess) callbacks?.onTxSuccess(data);
-    },
-    onError(error: Error) {
-      if (callbacks?.onTxError) callbacks?.onTxError(error);
-    },
+  } = useWaitForTransactionReceipt({
+    hash: writeData
   });
+
+  useEffect(() => {
+    if (txData) {
+      if (callbacks?.onTxSuccess) callbacks.onTxSuccess(txData);
+    }
+  }, [txData, callbacks]);
+
+  useEffect(() => {
+    if (txError) {
+      if (callbacks?.onTxError) callbacks.onTxError(txError);
+    }
+  }, [txError, callbacks]);
+
+  const write = useCallback(() => {
+    if (contract.address && contract.abi) {
+      writeContract({
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "burn",
+        args: [args.amount, args.streamer],
+      });
+    }
+  }, [writeContract, contract, args]);
 
   return {
     write,

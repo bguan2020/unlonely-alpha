@@ -260,7 +260,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
   useEffect(() => {
     if (isTokenATheWinner === undefined) return;
     setWinningTokenTradeableAndTransferLiquidity?.();
-  }, [isTokenATheWinner, setWinningTokenTradeableAndTransferLiquidity]);
+  }, [isTokenATheWinner]);
 
   const callSetWinningTokenTradeableAndTransferLiquidity = useCallback(
     (_isTokenATheWinner: boolean) => {

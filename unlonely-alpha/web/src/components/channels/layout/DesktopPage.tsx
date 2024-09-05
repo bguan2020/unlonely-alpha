@@ -8,7 +8,7 @@ import { useChannelContext } from "../../../hooks/context/useChannel";
 import { useUser } from "../../../hooks/context/useUser";
 import { streamerTourSteps } from "../../../pages/_app";
 import ChatComponent from "../../chat/ChatComponent";
-import VibesTokenInterface from "../../chat/VibesTokenInterface";
+import VibesTokenInterface from "../vibes/VibesTokenInterface";
 import { WavyText } from "../../general/WavyText";
 import AppLayout from "../../layout/AppLayout";
 import ChannelNextHead from "../../layout/ChannelNextHead";

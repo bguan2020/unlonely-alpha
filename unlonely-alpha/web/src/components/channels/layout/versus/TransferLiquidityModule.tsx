@@ -32,11 +32,7 @@ export const TransferLiquidityModule = () => {
         clearInterval(intervalId);
       }
     };
-  }, [
-    isFunctionAvailable,
-    intervalId,
-    refetchSetWinningTokenTradeableAndTransferLiquidity,
-  ]);
+  }, [isFunctionAvailable, intervalId]);
 
   return (
     <Flex justifyContent={"space-evenly"}>
