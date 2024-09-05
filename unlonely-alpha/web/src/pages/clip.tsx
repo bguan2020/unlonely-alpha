@@ -259,6 +259,13 @@ const Clip = () => {
       console.log("createClip Error", e);
     },
   });
+
+  // const { trimVideo } = useTrimVideo({
+  //   onError: (e) => {
+  //     console.log("trimVideo Error", e);
+  //   },
+  // });
+
   const { updateUserChannelContract1155Mapping } =
     useUpdateUserChannelContract1155Mapping({
       onError: (e) => {
@@ -539,6 +546,7 @@ const Clip = () => {
     console.log("trimVideo function start", trimFunctionStart);
     let trimRes = null;
     try {
+      // can be either handleTrim or trimVideo, one is for local trimming and the other is for server side trimming
       trimRes = await handleTrim({
         startTime: clipRange[0],
         endTime: clipRange[1],
@@ -579,13 +587,15 @@ const Clip = () => {
     } catch (e) {
       setPageState("error");
       setErrorMessage(
-        `Error fetching livepeer clip data, catch block caught ${e}`
+        `Error fetching livepeer clip data after trimming, catch block caught ${e}`
       );
       return;
     }
     if (!clipData) {
       setPageState("error");
-      setErrorMessage("Error fetching livepeer clip data, response is missing");
+      setErrorMessage(
+        "Error fetching livepeer clip data after trimming, response is missing"
+      );
       return;
     }
     console.log(
