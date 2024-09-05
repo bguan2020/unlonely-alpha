@@ -15,9 +15,7 @@ import { alphanumericInput } from "../../../utils/validation/input";
 import { formatUnits } from "viem";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { useCacheContext } from "../../../hooks/context/useCache";
-import {
-  bondingCurveBigInt,
-} from "../../../utils/contract";
+import { bondingCurveBigInt } from "../../../utils/contract";
 import { MIN_BASE_TOKEN_PRICE } from "../../../constants";
 
 export const TempTokenCreationModal = ({
@@ -189,7 +187,7 @@ export const TempTokenCreationModal = ({
           </Text>
           <Text>Duration</Text>
           <Flex gap="5px" justifyContent={"center"}>
-            <Button
+            {/* <Button
               _hover={{}}
               _focus={{}}
               _active={{}}
@@ -197,8 +195,8 @@ export const TempTokenCreationModal = ({
               onClick={() => handleNewTokenDuration(BigInt("120"))}
             >
               2 mins
-            </Button>
-            <Button
+            </Button> */}
+            {/* <Button
               _hover={{}}
               _focus={{}}
               _active={{}}
@@ -206,7 +204,7 @@ export const TempTokenCreationModal = ({
               onClick={() => handleNewTokenDuration(BigInt("300"))}
             >
               5 mins
-            </Button>
+            </Button> */}
             <Button
               _hover={{}}
               _focus={{}}
