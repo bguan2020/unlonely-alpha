@@ -212,7 +212,7 @@ export const useReadSharesSubject = (
   const [userPayout, setUserPayout] = useState<bigint>(BigInt(0));
 
   const getData = useCallback(async () => {
-    if (!contract.address || !contract.abi || !publicClient) {
+    if (!contract.address || !contract.abi || !publicClient || !userAddress) {
       setPooledEth(BigInt(0));
       setYaySharesSupply(BigInt(0));
       setNaySharesSupply(BigInt(0));

@@ -92,7 +92,6 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
-    enabled: isAddress(userAddress as `0x${string}`),
   });
 
   const { protocolFeeDestination, refetch: refetchDest } =

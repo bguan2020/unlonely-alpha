@@ -37,7 +37,7 @@ export type UseCreateTempTokenStateType = {
   newTokenDuration: bigint;
   newTokenTotalSupplyThreshold: bigint;
   newPreSaleDuration: bigint;
-  createTempToken?: () => Promise<any>;
+  createTempToken?: () => void;
   createTempTokenData: any;
   createTempTokenTxData: any;
   isCreateTempTokenLoading: boolean;
@@ -103,6 +103,8 @@ export const useCreateTempTokenState = ({
     }
   );
 
+  console.log("useCreateTempTokenState render");
+
   const {
     createTempToken: _createTempToken,
     createTempTokenData,
@@ -151,7 +153,7 @@ export const useCreateTempTokenState = ({
         canAddToChatbot_create.current = false;
       },
       onTxSuccess: async (data) => {
-        if (!canAddToChatbot_create.current) return;
+        if (!canAddToChatbot_create.current || !publicClient) return;
         const topics = returnDecodedTopics(
           data.logs,
           factoryContract.abi,

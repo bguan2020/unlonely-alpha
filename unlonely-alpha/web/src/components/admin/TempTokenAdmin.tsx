@@ -89,7 +89,7 @@ export const TempTokenAdmin = () => {
         },
       });
       const tokens = res.data?.getTempTokens;
-      if (!tokens) return;
+      if (!tokens || !publicClient) return;
       const nonNullTokens = tokens.filter(
         (token): token is TempToken => token !== null
       );
@@ -175,6 +175,7 @@ export const TempTokenAdmin = () => {
    * Read from contract and update database
    */
   const handleTempTokenHasHitTotalSupplyThreshold = useCallback(async () => {
+    if (!publicClient) return;
     set_loading_updateDb_hasHitTotalSupplyThreshold(true);
     const chainPromises = tokenAddressesIncludedForOperation.map((a) => {
       return publicClient.readContract({
@@ -204,6 +205,7 @@ export const TempTokenAdmin = () => {
   }, [tokenAddressesIncludedForOperation, publicClient]);
 
   const handleTempTokenHighestTotalSupply = useCallback(async () => {
+    if (!publicClient) return;
     set_loading_updateDb_highestTotalSupply(true);
     const chainPromises = tokenAddressesIncludedForOperation.map((a) => {
       return publicClient.readContract({

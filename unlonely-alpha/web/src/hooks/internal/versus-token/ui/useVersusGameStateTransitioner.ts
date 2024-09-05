@@ -32,6 +32,7 @@ export const useVersusGameStateTransitioner = () => {
       handleOwnerMustMakeWinningTokenTradeable: (value: boolean) => void;
       handleOwnerMustPermamint: (value: boolean | number) => void;
     }) => {
+      if (!factoryContract.address) return;
       let _winningToken: VersusTokenDataType | null = null;
       let _losingToken: VersusTokenDataType | null = null;
       if (!tokenA.isAlwaysTradeable && !tokenB.isAlwaysTradeable) {
@@ -69,7 +70,7 @@ export const useVersusGameStateTransitioner = () => {
          * double check losing balance because according to our factory smart contract, a token can be set tradeable through a separate function,
          * so if the losing token has a balance, the owner must call the setWinningTokenTradeableAndTransferLiquidity function
          */
-        const losingTokenBalance = await publicClient.readContract({
+        const losingTokenBalance = await publicClient?.readContract({
           address: _losingToken.contractData.address as `0x${string}`,
           abi: _losingToken.contractData.abi,
           functionName: "getBalance",
@@ -88,7 +89,7 @@ export const useVersusGameStateTransitioner = () => {
          * if it has a balance, it means the permamint was successful,
          * else the user is redirected to the permamint phase
          */
-        const winningTokenBalanceForFactory = await publicClient.readContract({
+        const winningTokenBalanceForFactory = await publicClient?.readContract({
           address: _winningToken.contractData.address as `0x${string}`,
           abi: _winningToken.contractData.abi,
           functionName: "balanceOf",

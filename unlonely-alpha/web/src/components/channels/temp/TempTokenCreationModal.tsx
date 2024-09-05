@@ -68,6 +68,8 @@ export const TempTokenCreationModal = ({
     handlePreSaleDuration,
   } = useCreateTempTokenState({ callbackOnTxSuccess: handleClose });
 
+  console.log("TempTokenCreationModal render");
+
   useEffect(() => {
     const checkIfLiveBeforeCreateToken = async () => {
       if (realTimeChannelDetails.isLive) {
@@ -198,7 +200,7 @@ export const TempTokenCreationModal = ({
           </Text>
           <Text>Duration</Text>
           <Flex gap="5px" justifyContent={"center"}>
-            {/* <Button
+            <Button
               _hover={{}}
               _focus={{}}
               _active={{}}
@@ -215,7 +217,7 @@ export const TempTokenCreationModal = ({
               onClick={() => handleNewTokenDuration(BigInt("300"))}
             >
               5 mins
-            </Button> */}
+            </Button>
             <Button
               _hover={{}}
               _focus={{}}

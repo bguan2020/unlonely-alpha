@@ -1,13 +1,37 @@
-import { Hex, TransactionReceipt } from "viem";
 import {
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
+  useWriteContract,
+  useSimulateContract,
+  useWaitForTransactionReceipt,
 } from "wagmi";
-import { useEffect } from "react";
+import { useEffect, useCallback, useState } from "react";
 
 import { WriteCallbacks } from "../../constants/types";
 import { useCacheContext } from "../context/useCache";
+
+// Add this type guard function at the top of the file
+function isConnectorNotFoundError(error: unknown): error is Error {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    error.name === "ConnectorNotFoundError"
+  );
+}
+
+function convertBigIntsToStrings(obj: any): any {
+  if (typeof obj === "bigint") {
+    return obj.toString();
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(convertBigIntsToStrings);
+  }
+  if (typeof obj === "object" && obj !== null) {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, convertBigIntsToStrings(value)])
+    );
+  }
+  return obj;
+}
 
 export const useWrite = (
   contract: { address?: `0x${string}`; abi?: any; chainId?: number },
@@ -17,70 +41,115 @@ export const useWrite = (
   overrides?: { value?: bigint; gas?: bigint; enabled?: boolean }
 ) => {
   const { addAppError, popAppError } = useCacheContext();
+  const [isRefetching, setIsRefetching] = useState(false);
 
-  const prepObj = usePrepareContractWrite({
-    address: contract.address,
-    abi: contract.abi,
-    functionName,
-    args,
-    chainId: contract.chainId,
-    value: overrides?.value,
-    gas: overrides?.gas,
-    cacheTime: 0,
-    enabled: overrides?.enabled === undefined ? true : overrides?.enabled,
-    onSuccess(data) {
-      if (callbacks?.onPrepareSuccess) callbacks?.onPrepareSuccess(data);
+  const { data: simulateData, error: simulateError, refetch: simulateRefetch } = useSimulateContract(
+    convertBigIntsToStrings({
+      address: contract.address,
+      abi: contract.abi,
+      functionName,
+      args,
+      chainId: contract.chainId,
+      value: overrides?.value,
+      gas: overrides?.gas,
+    })
+  );
+
+  useEffect(() => {
+    if (simulateData) {
+      if (callbacks?.onPrepareSuccess) callbacks.onPrepareSuccess(simulateData);
       popAppError("ConnectorNotFoundError", "name");
       popAppError(functionName, "functionName");
-    },
-    onError(error: Error) {
-      if (callbacks?.onPrepareError) callbacks?.onPrepareError(error);
-      if (error.message && error.name) {
-        if (error.name !== "ConnectorNotFoundError") {
-          popAppError("ConnectorNotFoundError", "name");
-        }
-        addAppError(error, functionName);
-      } else {
-        if (!(error as unknown as string).includes("ConnectorNotFoundError")) {
-          console.log("error string", error as unknown as string);
-          popAppError("ConnectorNotFoundError", "name");
-        }
-      }
-    },
-  });
+    }
+  }, [simulateData, functionName]);
 
-  const {
-    data: writeData,
-    error: writeError,
-    writeAsync,
-  } = useContractWrite({
-    ...prepObj.config,
-    onSuccess(data: { hash: Hex }) {
-      if (callbacks?.onWriteSuccess) callbacks?.onWriteSuccess(data);
-    },
-    onError(error: Error) {
-      if (callbacks?.onWriteError) callbacks?.onWriteError(error);
-    },
-  });
+  useEffect(() => {
+    if (simulateError) {
+      const errorMessage = simulateError instanceof Error ? simulateError.message : String(simulateError);
+      
+      if (callbacks?.onPrepareError) callbacks.onPrepareError(simulateError);
+      
+      if (isConnectorNotFoundError(simulateError)) {
+        console.log("ConnectorNotFoundError:", errorMessage);
+        addAppError(simulateError, functionName);
+      } else if (simulateError instanceof Error) {
+        if (simulateError.name === "ContractFunctionExecutionError") {
+          console.log("Contract execution error:", errorMessage);
+        } else {
+          console.log("Other known error:", simulateError.name, errorMessage);
+        }
+        addAppError(simulateError, functionName);
+      } else {
+        console.log("Unknown error:", errorMessage);
+        addAppError({ name: "UnknownError", message: errorMessage }, functionName);
+      }
+      
+      if (!isConnectorNotFoundError(simulateError)) {
+        popAppError("ConnectorNotFoundError", "name");
+      }
+    }
+  }, [simulateError, functionName]);
+
+  const { data: writeData, error: writeError, writeContract } = useWriteContract();
+
+  useEffect(() => {
+    if (writeData) {
+      console.log("writeData", writeData);
+      if (callbacks?.onWriteSuccess) callbacks.onWriteSuccess(writeData);
+    }
+  }, [writeData]);
+
+  useEffect(() => {
+    if (writeError) {
+      console.log("writeError", writeError);
+      if (callbacks?.onWriteError) callbacks.onWriteError(writeError);
+    }
+  }, [writeError]);
 
   const {
     data: txData,
     error: txError,
     isLoading: isTxLoading,
     isSuccess: isTxSuccess,
-  } = useWaitForTransaction({
-    hash: writeData?.hash,
-    onSuccess(data: TransactionReceipt) {
-      if (callbacks?.onTxSuccess) callbacks?.onTxSuccess(data);
-    },
-    onError(error: Error) {
-      if (callbacks?.onTxError) callbacks?.onTxError(error);
-    },
+  } = useWaitForTransactionReceipt({
+    hash: writeData,
   });
 
   useEffect(() => {
-    prepObj.refetch();
-  }, [contract.address]);
+    if (txData) {
+      console.log("txData", txData);
+      if (callbacks?.onTxSuccess) callbacks.onTxSuccess(txData);
+    }
+  }, [txData]);
+
+  useEffect(() => {
+    if (txError) {
+      console.log("txError", txError);
+      if (callbacks?.onTxError) callbacks.onTxError(txError);
+    }
+  }, [txError]);
+
+  const writeAsync = useCallback(() => {
+    if (contract.address && contract.abi) {
+      writeContract?.({
+        address: contract.address,
+        abi: contract.abi,
+        functionName,
+        args,
+        chainId: contract.chainId,
+        value: overrides?.value ? overrides.value.toString() : undefined,
+        gas: overrides?.gas ? overrides.gas.toString() : undefined,
+      });
+    }
+  }, [contract, functionName, args, overrides]);
+
+  const refetch = useCallback(async () => {
+    setIsRefetching(true);
+    await simulateRefetch?.();
+    setIsRefetching(false);
+  }, [simulateRefetch]);
+
+  console.log("useWrite render");
 
   return {
     writeAsync,
@@ -90,8 +159,9 @@ export const useWrite = (
     isTxSuccess,
     writeError,
     txError,
-    refetch: prepObj.refetch,
-    isRefetching: prepObj.isRefetching,
-    prepareError: prepObj.error,
+    simulateData,
+    simulateError,
+    refetch,
+    isRefetching,
   };
 };

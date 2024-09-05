@@ -4,18 +4,18 @@ import "../styles/bell.css";
 import "../styles/imageScroller.css";
 
 import { ChakraProvider, Flex, IconButton, Text } from "@chakra-ui/react";
-import { configureChains } from "wagmi";
-import { alchemyProvider } from "wagmi/providers/alchemy";
-import { publicProvider } from "wagmi/providers/public";
+import { createConfig, http } from "wagmi";
 import { AppProps } from "next/app";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
 import { PrivyProvider } from "@privy-io/react-auth";
-import { PrivyWagmiConnector } from "@privy-io/wagmi-connector";
+import { WagmiProvider } from "@privy-io/wagmi";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import { FaArrowRight } from "react-icons/fa";
 import { FaArrowLeft } from "react-icons/fa";
 
-import { Base, NETWORKS } from "../constants/networks";
+import { Base, Mainnet } from "../constants/networks";
 import { UserProvider } from "../hooks/context/useUser";
 import { ScreenAnimationsProvider } from "../hooks/context/useScreenAnimations";
 import theme from "../styles/theme";
@@ -24,6 +24,8 @@ import { CacheProvider } from "../hooks/context/useCache";
 import { TourProvider } from "@reactour/tour";
 import Link from "next/link";
 import { ApolloProvider } from "../hooks/context/useApollo";
+
+const queryClient = new QueryClient();
 
 export type Cookies = Record<string, string | undefined>;
 
@@ -127,24 +129,36 @@ interface InitialProps {
 type Props = AppProps & InitialProps;
 
 function App({ Component, pageProps }: Props) {
-  const configureChainsConfig = configureChains(
-    NETWORKS, // first chain in array determines the first chain to interact with via publicClient
-    [
-      alchemyProvider({
-        apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_BASE_API_KEY), // base
-      }),
-      alchemyProvider({
-        apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_API_KEY), // eth mainnet
-      }),
-      alchemyProvider({
-        apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_GOERLI_API_KEY), // goerli
-      }),
-      alchemyProvider({
-        apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_SEPOLIA_KEY), // base sepolia
-      }),
-      publicProvider(),
-    ]
-  );
+  // const configureChainsConfig = configureChains(
+  //   NETWORKS, // first chain in array determines the first chain to interact with via publicClient
+  //   [
+  //     alchemyProvider({
+  //       apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_BASE_API_KEY), // base
+  //     }),
+  //     alchemyProvider({
+  //       apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_API_KEY), // eth mainnet
+  //     }),
+  //     alchemyProvider({
+  //       apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_GOERLI_API_KEY), // goerli
+  //     }),
+  //     alchemyProvider({
+  //       apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_SEPOLIA_KEY), // base sepolia
+  //     }),
+  //     publicProvider(),
+  //   ]
+  // );
+
+  const config = createConfig({
+    chains: [Base, Mainnet],
+    transports: {
+      [Base.id]: http(
+        `https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_BASE_API_KEY}`
+      ),
+      [Mainnet.id]: http(
+        `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
+      ),
+    },
+  });
 
   // useLogin from privy to detect user login and with what address, use this callback to update the user context on the backend
   return (
@@ -172,77 +186,79 @@ function App({ Component, pageProps }: Props) {
           },
         }}
       >
-        <PrivyWagmiConnector wagmiChainsConfig={configureChainsConfig}>
-          <ApolloProvider pageProps={pageProps}>
-            <TourProvider
-              steps={streamerTourSteps}
-              styles={tourStyles}
-              prevButton={({ currentStep, setCurrentStep }) => {
-                const first = currentStep === 0;
-                if (first) return null;
-                return (
-                  <IconButton
-                    aria-label="tour-back"
-                    icon={<FaArrowLeft />}
-                    onClick={() => setCurrentStep((s) => s - 1)}
-                    height="20px"
-                    width="20px"
-                    fontSize="10px"
-                    _hover={{}}
-                    _active={{}}
-                    _focus={{}}
-                  >
-                    back
-                  </IconButton>
-                );
-              }}
-              nextButton={({
-                currentStep,
-                stepsLength,
-                setIsOpen,
-                setCurrentStep,
-                steps,
-              }) => {
-                const last = currentStep === stepsLength - 1;
-                return (
-                  <IconButton
-                    aria-label="tour-next"
-                    icon={!last ? <FaArrowRight /> : <Text>close</Text>}
-                    height="20px"
-                    width="20px"
-                    fontSize="10px"
-                    bg={last ? "green" : "white"}
-                    color={last ? "white" : "black"}
-                    _hover={{}}
-                    _active={{}}
-                    _focus={{}}
-                    onClick={() => {
-                      if (last) {
-                        setIsOpen(false);
-                      } else {
-                        setCurrentStep((s) =>
-                          s === (steps?.length ?? 1) - 1 ? 0 : s + 1
-                        );
-                      }
-                    }}
-                  >
-                    {last ? "finish" : "next"}
-                  </IconButton>
-                );
-              }}
-            >
-              <UserProvider>
-                <ScreenAnimationsProvider>
-                  <NetworkProvider>
-                    <CacheProvider>
-                      <Component {...pageProps} />
-                    </CacheProvider>
-                  </NetworkProvider>
-                </ScreenAnimationsProvider>
-              </UserProvider>
-            </TourProvider>
-          </ApolloProvider>
-        </PrivyWagmiConnector>
+        <QueryClientProvider client={queryClient}>
+          <WagmiProvider config={config}>
+            <ApolloProvider pageProps={pageProps}>
+              <TourProvider
+                steps={streamerTourSteps}
+                styles={tourStyles}
+                prevButton={({ currentStep, setCurrentStep }) => {
+                  const first = currentStep === 0;
+                  if (first) return null;
+                  return (
+                    <IconButton
+                      aria-label="tour-back"
+                      icon={<FaArrowLeft />}
+                      onClick={() => setCurrentStep((s) => s - 1)}
+                      height="20px"
+                      width="20px"
+                      fontSize="10px"
+                      _hover={{}}
+                      _active={{}}
+                      _focus={{}}
+                    >
+                      back
+                    </IconButton>
+                  );
+                }}
+                nextButton={({
+                  currentStep,
+                  stepsLength,
+                  setIsOpen,
+                  setCurrentStep,
+                  steps,
+                }) => {
+                  const last = currentStep === stepsLength - 1;
+                  return (
+                    <IconButton
+                      aria-label="tour-next"
+                      icon={!last ? <FaArrowRight /> : <Text>close</Text>}
+                      height="20px"
+                      width="20px"
+                      fontSize="10px"
+                      bg={last ? "green" : "white"}
+                      color={last ? "white" : "black"}
+                      _hover={{}}
+                      _active={{}}
+                      _focus={{}}
+                      onClick={() => {
+                        if (last) {
+                          setIsOpen(false);
+                        } else {
+                          setCurrentStep((s) =>
+                            s === (steps?.length ?? 1) - 1 ? 0 : s + 1
+                          );
+                        }
+                      }}
+                    >
+                      {last ? "finish" : "next"}
+                    </IconButton>
+                  );
+                }}
+              >
+                <UserProvider>
+                  <ScreenAnimationsProvider>
+                    <NetworkProvider>
+                      <CacheProvider>
+                        <Component {...pageProps} />
+                      </CacheProvider>
+                    </NetworkProvider>
+                  </ScreenAnimationsProvider>
+                </UserProvider>
+              </TourProvider>
+            </ApolloProvider>
+          </WagmiProvider>
+        </QueryClientProvider>
       </PrivyProvider>
     </ChakraProvider>
   );

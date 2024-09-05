@@ -94,7 +94,7 @@ export const useGetClaimBetEvents = () => {
             abi: contractData.abi,
             functionName: "getVotePayout",
             args: [
-              event.sharesSubjectAddress,
+              event.sharesSubjectAddress as string,
               event.id,
               EventTypeForContract.YAY_NAY_VOTE,
               userAddress,

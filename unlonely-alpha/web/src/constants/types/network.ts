@@ -1,4 +1,4 @@
-import { Chain } from "wagmi";
+import { Chain } from "viem";
 
 export type Network = Chain & {
   config: {

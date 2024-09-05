@@ -161,7 +161,6 @@ const FullTempTokenChart = ({
           )}
           <TempTokenInterface
             isFullChart
-            ablyChannel={chat.channel}
             customLoading={channelStaticLoading}
             noChannelData={channelStaticError !== undefined}
           />

@@ -16,6 +16,8 @@ export const TransferLiquidityModule = () => {
   // State to control the interval
   const [intervalId, setIntervalId] = useState<any>(null);
 
+  console.log("TransferLiquidityModule render");
+
   // Effect to start polling
   useEffect(() => {
     if (!isFunctionAvailable && !intervalId) {
@@ -32,11 +34,7 @@ export const TransferLiquidityModule = () => {
         clearInterval(intervalId);
       }
     };
-  }, [
-    isFunctionAvailable,
-    intervalId,
-    refetchSetWinningTokenTradeableAndTransferLiquidity,
-  ]);
+  }, [isFunctionAvailable, intervalId]);
 
   return (
     <Flex justifyContent={"space-evenly"}>

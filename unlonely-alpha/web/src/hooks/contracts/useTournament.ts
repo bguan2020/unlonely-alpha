@@ -87,11 +87,12 @@ export const useReadPublic = (contract: ContractData) => {
         args: [],
       }),
     ]);
+    const t: any = tournament;
     setTournament({
-      isActive: Boolean(tournament[0]),
-      isPayoutClaimable: Boolean(tournament[1]),
-      winningBadge: String(tournament[2]),
-      vipPooledEth: BigInt(String(tournament[3])),
+      isActive: Boolean(t[0]),
+      isPayoutClaimable: Boolean(t[1]),
+      winningBadge: String(t[2]),
+      vipPooledEth: BigInt(String(t[3])),
     });
     setProtocolFeeDestination(String(protocolFeeDestination));
     setProtocolFeePercent(BigInt(String(protocolFeePercent)));
@@ -165,7 +166,7 @@ export const useReadMappings = (key: string, contract: ContractData) => {
     useState<boolean>(false);
 
   const getData = useCallback(async () => {
-    if (!contract.address || !contract.abi || !publicClient) {
+    if (!contract.address || !contract.abi || !publicClient || !userAddress) {
       setVipBadgeSupply(BigInt(0));
       setIsTournamentCreator(false);
       return;

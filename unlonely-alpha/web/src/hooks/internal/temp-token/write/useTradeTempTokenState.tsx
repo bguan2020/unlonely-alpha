@@ -23,7 +23,6 @@ import {
 import useDebounce from "../../useDebounce";
 import { Flex, Box, useToast, Text } from "@chakra-ui/react";
 import Link from "next/link";
-import { isAddress } from "viem";
 import centerEllipses from "../../../../utils/centerEllipses";
 import {
   burnErrors,
@@ -53,9 +52,9 @@ export type UseTradeTempTokenStateType = {
   errorMessage: string;
   userEthBalance?: FetchBalanceResult;
 
-  mint?: () => Promise<any>;
+  mint?: () => void;
   refetchMint: () => void;
-  burn?: () => Promise<any>;
+  burn?: () => void;
   refetchBurn: () => void;
   handleAmount: (event: any) => void;
   handleAmountDirectly: (input: string) => void;
@@ -118,7 +117,6 @@ export const useTradeTempTokenState = ({
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
-    enabled: isAddress(userAddress as `0x${string}`),
   });
 
   const {

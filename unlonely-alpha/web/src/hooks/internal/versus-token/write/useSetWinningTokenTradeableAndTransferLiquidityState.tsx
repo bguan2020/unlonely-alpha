@@ -49,6 +49,8 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
   const { updateTempTokenIsAlwaysTradeable } =
     useUpdateTempTokenIsAlwaysTradeable({});
 
+  console.log("useSetWinningTokenTradeableAndTransferLiquidityState render");
+
   const {
     setWinningTokenTradeableAndTransferLiquidity,
     refetchSetWinningTokenTradeableAndTransferLiquidity,
@@ -259,11 +261,18 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
 
   useEffect(() => {
     if (isTokenATheWinner === undefined) return;
+    console.log(
+      "useSetWinningTokenTradeableAndTransferLiquidityState useEffect"
+    );
     setWinningTokenTradeableAndTransferLiquidity?.();
-  }, [isTokenATheWinner, setWinningTokenTradeableAndTransferLiquidity]);
+  }, [isTokenATheWinner]);
 
   const callSetWinningTokenTradeableAndTransferLiquidity = useCallback(
     (_isTokenATheWinner: boolean) => {
+      console.log(
+        "callSetWinningTokenTradeableAndTransferLiquidity",
+        _isTokenATheWinner
+      );
       setIsTokenATheWinner(_isTokenATheWinner);
     },
     []
