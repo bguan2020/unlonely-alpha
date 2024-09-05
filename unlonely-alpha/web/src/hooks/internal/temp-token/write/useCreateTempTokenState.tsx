@@ -103,8 +103,6 @@ export const useCreateTempTokenState = ({
     }
   );
 
-  console.log("useCreateTempTokenState render");
-
   const {
     createTempToken: _createTempToken,
     createTempTokenData,

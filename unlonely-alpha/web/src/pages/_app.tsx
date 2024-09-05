@@ -129,25 +129,6 @@ interface InitialProps {
 type Props = AppProps & InitialProps;
 
 function App({ Component, pageProps }: Props) {
-  // const configureChainsConfig = configureChains(
-  //   NETWORKS, // first chain in array determines the first chain to interact with via publicClient
-  //   [
-  //     alchemyProvider({
-  //       apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_BASE_API_KEY), // base
-  //     }),
-  //     alchemyProvider({
-  //       apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_API_KEY), // eth mainnet
-  //     }),
-  //     alchemyProvider({
-  //       apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_GOERLI_API_KEY), // goerli
-  //     }),
-  //     alchemyProvider({
-  //       apiKey: String(process.env.NEXT_PUBLIC_ALCHEMY_SEPOLIA_KEY), // base sepolia
-  //     }),
-  //     publicProvider(),
-  //   ]
-  // );
-
   const config = createConfig({
     chains: [Base, Mainnet],
     transports: {

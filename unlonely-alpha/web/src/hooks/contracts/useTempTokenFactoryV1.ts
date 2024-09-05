@@ -286,8 +286,6 @@ export const useSetWinningTokenTradeableAndTransferLiquidity = (
     )
   );
 
-  console.log("useSetWinningTokenTradeableAndTransferLiquidity render");
-
   return {
     setWinningTokenTradeableAndTransferLiquidity,
     setWinningTokenTradeableAndTransferLiquidityData,
