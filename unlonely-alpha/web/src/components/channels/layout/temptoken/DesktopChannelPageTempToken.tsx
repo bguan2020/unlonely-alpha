@@ -90,9 +90,9 @@ export const DesktopChannelPageTempToken = ({
   const toast = useToast();
   const { livepeerData, playbackInfo, checkedForLivepeerPlaybackInfo } =
     useLivepeerStreamData();
-  console.log("livepeerData", livepeerData);
-  console.log("playbackInfo", playbackInfo);
-  console.log("checkedForLivepeerPlaybackInfo", checkedForLivepeerPlaybackInfo);
+  // console.log("livepeerData", livepeerData);
+  // console.log("playbackInfo", playbackInfo);
+  // console.log("checkedForLivepeerPlaybackInfo", checkedForLivepeerPlaybackInfo);
   useVipBadgeUi(chat);
   useTempTokenAblyInterpreter(chat);
   useVersusTempTokenAblyInterpreter(chat);

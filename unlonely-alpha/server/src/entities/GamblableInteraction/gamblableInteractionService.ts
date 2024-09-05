@@ -447,20 +447,23 @@ export const getUnclaimedEvents = async (
   /* STEP 2: fetch for all gamblable interactions that match the userAddress, eventIds returned above, the eventType, and gamblableEvent types
               this is us basically asking "give me all the buy and claim interactions that this user made for each of these ongoing events"
   */
-  const userInteractions = await ctx.prisma.gamblableInteraction.findMany({
-    where: {
-      eventId: { in: eventIds },
-      eventType: EventType.YAY_NAY_VOTE,
-      userAddress: data.userAddress,
-      type: {
-        in: [
-          GamblableEvent.BET_YES_BUY,
-          GamblableEvent.BET_NO_BUY,
-          GamblableEvent.BET_CLAIM_PAYOUT,
-        ],
-      },
-      softDelete: false,
+
+  const whereQuery = {
+    eventId: { in: eventIds },
+    eventType: EventType.YAY_NAY_VOTE,
+    ...(data.userAddress ? { userAddress: data.userAddress } : {}),
+    type: {
+      in: [
+        GamblableEvent.BET_YES_BUY,
+        GamblableEvent.BET_NO_BUY,
+        GamblableEvent.BET_CLAIM_PAYOUT,
+      ]
     },
+    softDelete: false,
+  }
+
+  const userInteractions = await ctx.prisma.gamblableInteraction.findMany({
+    where: whereQuery,
   });
 
   // STEP 3: we filter out the events that have already been claimed by the user, thus returning only the events the user had not claimed for
