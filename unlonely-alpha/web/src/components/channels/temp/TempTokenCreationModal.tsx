@@ -17,10 +17,8 @@ import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { useCacheContext } from "../../../hooks/context/useCache";
 import {
   bondingCurveBigInt,
-  getContractFromNetwork,
 } from "../../../utils/contract";
-import { MIN_BASE_TOKEN_PRICE, Contract } from "../../../constants";
-import { useNetworkContext } from "../../../hooks/context/useNetwork";
+import { MIN_BASE_TOKEN_PRICE } from "../../../constants";
 
 export const TempTokenCreationModal = ({
   title,
@@ -32,13 +30,6 @@ export const TempTokenCreationModal = ({
   handleClose: () => void;
 }) => {
   const { ethPriceInUsd } = useCacheContext();
-  const { network } = useNetworkContext();
-  const { localNetwork } = network;
-
-  const factoryContract = getContractFromNetwork(
-    Contract.TEMP_TOKEN_FACTORY_V1,
-    localNetwork
-  );
 
   const { channel } = useChannelContext();
   const { channelQueryData, realTimeChannelDetails } = channel;
@@ -67,8 +58,6 @@ export const TempTokenCreationModal = ({
     handleNewTokenTotalSupplyThreshold,
     handlePreSaleDuration,
   } = useCreateTempTokenState({ callbackOnTxSuccess: handleClose });
-
-  console.log("TempTokenCreationModal render");
 
   useEffect(() => {
     const checkIfLiveBeforeCreateToken = async () => {
