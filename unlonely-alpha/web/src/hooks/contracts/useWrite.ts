@@ -157,8 +157,6 @@ export const useWrite = (
     setIsRefetching(false);
   }, [simulateRefetch]);
 
-  console.log("useWrite render");
-
   return {
     writeAsync,
     writeData,

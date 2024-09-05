@@ -27,7 +27,7 @@ import centerEllipses from "../../../../utils/centerEllipses";
 import {
   burnErrors,
   mintErrors,
-} from "../../../../components/chat/VibesTokenExchange";
+} from "../../../../components/channels/vibes/VibesTokenExchange";
 import {
   filteredInput,
   formatIncompleteNumber,

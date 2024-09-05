@@ -21,30 +21,30 @@ import {
   Contract,
   DEFAULT_TOKEN_TRADE_AMOUNT,
   InteractionType,
-} from "../../constants";
+} from "../../../constants";
 import {
   useGetMintCostAfterFees,
   useMint,
   useBurn,
   useReadPublic,
   useGetBurnProceedsAfterFees,
-} from "../../hooks/contracts/legacy/useVibesToken";
-import useDebounce from "../../hooks/internal/useDebounce";
-import centerEllipses from "../../utils/centerEllipses";
+} from "../../../hooks/contracts/legacy/useVibesToken";
+import useDebounce from "../../../hooks/internal/useDebounce";
+import centerEllipses from "../../../utils/centerEllipses";
 import {
   filteredInput,
   formatIncompleteNumber,
-} from "../../utils/validation/input";
-import { useChannelContext } from "../../hooks/context/useChannel";
-import { useNetworkContext } from "../../hooks/context/useNetwork";
-import { useUser } from "../../hooks/context/useUser";
+} from "../../../utils/validation/input";
+import { useChannelContext } from "../../../hooks/context/useChannel";
+import { useNetworkContext } from "../../../hooks/context/useNetwork";
+import { useUser } from "../../../hooks/context/useUser";
 import {
   getContractFromNetwork,
   returnDecodedTopics,
-} from "../../utils/contract";
-import { truncateValue } from "../../utils/tokenDisplayFormatting";
-import useUserAgent from "../../hooks/internal/useUserAgent";
-import { useVibesContext } from "../../hooks/context/useVibes";
+} from "../../../utils/contract";
+import { truncateValue } from "../../../utils/tokenDisplayFormatting";
+import useUserAgent from "../../../hooks/internal/useUserAgent";
+import { useVibesContext } from "../../../hooks/context/useVibes";
 
 export const mintErrors: { [key: string]: string } = {
   InsufficientValue:

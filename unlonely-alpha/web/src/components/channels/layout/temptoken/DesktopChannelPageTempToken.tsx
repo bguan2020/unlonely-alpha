@@ -117,8 +117,6 @@ export const DesktopChannelPageTempToken = ({
     channelSSRDataLoading,
   ]);
 
-  console.log("DesktopChannelPageTempToken render");
-
   useEffect(() => {
     const init = async () => {
       if (
