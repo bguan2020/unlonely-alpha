@@ -18,6 +18,10 @@ function isConnectorNotFoundError(error: unknown): error is Error {
   );
 }
 
+function isErrorWithName(error: unknown): error is { name: string; message: string } {
+  return typeof error === "object" && error !== null && "name" in error && "message" in error;
+}
+
 function convertBigIntsToStrings(obj: any): any {
   if (typeof obj === "bigint") {
     return obj.toString();
@@ -65,20 +69,21 @@ export const useWrite = (
 
   useEffect(() => {
     if (simulateError) {
-      const errorMessage = simulateError instanceof Error ? simulateError.message : String(simulateError);
+      const errorMessage = isErrorWithName(simulateError) ? simulateError.message : String(simulateError);
       
       if (callbacks?.onPrepareError) callbacks.onPrepareError(simulateError);
       
       if (isConnectorNotFoundError(simulateError)) {
         console.log("ConnectorNotFoundError:", errorMessage);
         addAppError(simulateError, functionName);
-      } else if (simulateError instanceof Error) {
-        if (simulateError.name === "ContractFunctionExecutionError") {
+      } else if (isErrorWithName(simulateError)) {
+        const namedError = simulateError as { name: string; message: string };
+        if (namedError.name === "ContractFunctionExecutionError") {
           console.log("Contract execution error:", errorMessage);
         } else {
-          console.log("Other known error:", simulateError.name, errorMessage);
+          console.log("Other known error:", namedError.name, errorMessage);
         }
-        addAppError(simulateError, functionName);
+        addAppError(namedError, functionName);
       } else {
         console.log("Unknown error:", errorMessage);
         addAppError({ name: "UnknownError", message: errorMessage }, functionName);
@@ -137,8 +142,8 @@ export const useWrite = (
         functionName,
         args,
         chainId: contract.chainId,
-        value: overrides?.value ? overrides.value.toString() : undefined,
-        gas: overrides?.gas ? overrides.gas.toString() : undefined,
+        value: overrides?.value,
+        gas: overrides?.gas,
       });
     }
   }, [contract, functionName, args, overrides]);
