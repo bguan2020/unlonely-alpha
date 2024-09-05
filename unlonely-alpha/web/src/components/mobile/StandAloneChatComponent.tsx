@@ -313,23 +313,6 @@ const StandaloneChatComponent = ({
           </Button>
         </Flex>
       </TransactionModalTemplate>
-      {/* {tokenStateView === "chat" ? (
-        <TabsComponent chat={chat} />
-      ) : tokenStateView === "single" ? (
-        <>
-          {presenceChannel && (
-            <Participants ablyPresenceChannel={presenceChannel} />
-          )}
-          <MobileTempTokenInterface ablyChannel={chat.channel} />
-        </>
-      ) : (
-        <>
-          {presenceChannel && (
-            <Participants ablyPresenceChannel={presenceChannel} />
-          )}
-          <MobileVersusTempTokensInterface ablyChannel={chat.channel} />
-        </>
-      )} */}
       <TabsComponent chat={chat} />
     </Flex>
   );
