@@ -118,6 +118,9 @@ export const useWrite = (
     isSuccess: isTxSuccess,
   } = useWaitForTransactionReceipt({
     hash: writeData,
+    query: {
+      select: (data) => convertBigIntsToStrings(data),
+    },
   });
 
   useEffect(() => {
