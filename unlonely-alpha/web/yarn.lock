@@ -3989,11 +3989,6 @@
     web3-core "^1.8.0"
     web3-core-helpers "^1.8.0"
 
-"@privy-io/wagmi-connector@0.1.12":
-  version "0.1.12"
-  resolved "https://registry.yarnpkg.com/@privy-io/wagmi-connector/-/wagmi-connector-0.1.12.tgz#18af76b32a44370c0bd6488b0a4d814712c66715"
-  integrity sha512-sH082gTKOxu0WW1vlKykbkP5iuI67gYsk/lARywQz4QhV8eFoQZUTKSYZ0VCYdk7PPI4sX2vkDVJLtlDS6k6/w==
-
 "@privy-io/wagmi@^0.2.12":
   version "0.2.12"
   resolved "https://registry.yarnpkg.com/@privy-io/wagmi/-/wagmi-0.2.12.tgz#e56e5eca48137f0a08aacca195bfeb43f73383c7"
