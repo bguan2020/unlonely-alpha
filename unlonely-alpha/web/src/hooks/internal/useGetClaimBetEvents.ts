@@ -54,7 +54,8 @@ export const useGetClaimBetEvents = () => {
         isFetching.current ||
         !userAddress ||
         !walletIsConnected ||
-        !activeWallet
+        !activeWallet ||
+        window.location.pathname !== "/claim"
       ) {
         setFetchingBets(false);
         return;
