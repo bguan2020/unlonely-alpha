@@ -1,9 +1,9 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import {
-  useContractRead,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
+  useReadContract,
+  useWriteContract,
+  useSimulateContract,
+  useWaitForTransactionReceipt,
 } from "wagmi";
 
 // function uses variables amount and amountToApprove to differentiate the value used for comparison and the value used for the actual approval
@@ -31,53 +31,49 @@ export const useApproval = (
     error: allowanceError,
     isLoading: allowanceLoading,
     refetch: refetchAllowance,
-  } = useContractRead({
+  } = useReadContract({
     address: tokenAddress,
     abi,
     functionName: "allowance",
     args: [owner, spender],
     chainId,
-    onSuccess: (data) => {
-      console.log("useApproval allowance read success", data);
-      callbacks?.onReadSuccess?.(data);
-    },
-    onError: (error) => {
-      console.log("useApproval allowance read error", error);
-      callbacks?.onReadError?.(error);
-    },
   });
 
-  const { config } = usePrepareContractWrite({
+  useEffect(() => {
+    if (allowance) {
+      console.log("useApproval allowance read success", allowance);
+      callbacks?.onReadSuccess?.(allowance);
+    }
+  }, [allowance]);
+
+  useEffect(() => {
+    if (allowanceError) {
+      console.log("useApproval allowance read error", allowanceError);
+      callbacks?.onReadError?.(allowanceError);
+    }
+  }, [allowanceError]);
+
+  const { data: simulateData } = useSimulateContract({
     address: tokenAddress,
     abi,
     functionName: "approve",
     args: [spender, amountToApprove ?? amount],
     chainId,
-    onSuccess: (data) => {
-      console.log("useApproval approve prepareWrite success", data);
-      callbacks?.onPrepareWriteSuccess?.(data);
-    },
-    onError: (error) => {
-      console.log("useApproval approve prepareWrite error", error);
-      callbacks?.onPrepareWriteError?.(error);
-    },
   });
+
+  useEffect(() => {
+    if (simulateData) {
+      console.log("useApproval approve simulation success", simulateData);
+      callbacks?.onPrepareWriteSuccess?.(simulateData);
+    }
+  }, [simulateData]);
+
+  const { data: hash, writeContract } = useWriteContract();
 
   const {
     data: approvalData,
     error: approvalError,
-    writeAsync: writeApproval,
-  } = useContractWrite({
-    ...config,
-    onSuccess: (data) => {
-      console.log("useApproval approve write success", data);
-      callbacks?.onWriteSuccess?.(data);
-    },
-    onError: (error) => {
-      console.log("useApproval approve write error", error);
-      callbacks?.onWriteError?.(error);
-    },
-  });
+  } = useWriteContract();
 
   const requiresApproval = useMemo(() => {
     return (allowance as unknown as bigint) < amount;
@@ -86,28 +82,39 @@ export const useApproval = (
   const {
     isLoading,
     isSuccess,
-    error: approvalRejectError,
-  } = useWaitForTransaction({
-    hash: approvalData?.hash,
-    onSuccess: async (data) => {
-      console.log("useApproval approve tx success", data);
-      callbacks?.onTxSuccess?.(data);
-    },
-    onError: (error) => {
-      console.log("useApproval approve tx error", error);
-      callbacks?.onTxError?.(error);
-    },
+    data: txData,
+    error: txError,
+  } = useWaitForTransactionReceipt({
+    hash,
   });
+
+  useEffect(() => {
+    if (txData) {
+      if (callbacks?.onTxSuccess) callbacks?.onTxSuccess(txData);
+    }
+  }, [txData])
+
+  useEffect(() => {
+    if (txError) {
+      if (callbacks?.onTxError) callbacks?.onTxError(txError);
+    }
+  }, [txError])    
 
   return {
     isTxLoading: isLoading,
     isTxSuccess: isSuccess,
-    isTxError: approvalRejectError,
+    isTxError: txError,
     allowance: (allowance as unknown as bigint) ?? BigInt(0),
     isAllowanceLoading: allowanceLoading,
     writeApprovalError: approvalError,
     readAllowanceError: allowanceError,
-    writeApproval,
+    writeApproval: () => writeContract({
+      address: tokenAddress,
+      abi,
+      functionName: "approve",
+      args: [spender, amountToApprove ?? amount],
+      chainId,
+    }),
     requiresApproval,
     refetchAllowance,
   };

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { ChartTokenTx } from "../../../../components/chat/VibesTokenInterface";
+import { ChartTokenTx } from "../../../../components/channels/vibes/VibesTokenInterface";
 import { TradeableTokenTx } from "../../../../constants/types";
 import { useCacheContext } from "../../../context/useCache";
 import { formatUnits } from "viem";

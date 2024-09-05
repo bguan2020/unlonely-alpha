@@ -34,7 +34,7 @@ export type UseCreateMultipleTempTokensState = {
   newTokenBSymbol: string;
   newDuration: bigint;
   newPreSaleDuration: bigint;
-  createMultipleTempTokens?: () => Promise<any>;
+  createMultipleTempTokens?: () => void;
   createMultipleTempTokensData: any;
   createMultipleTempTokensTxData: any;
   isCreateMultipleTempTokensLoading: boolean;
@@ -149,7 +149,7 @@ export const useCreateMultipleTempTokensState = ({
         canAddToChatbot_create.current = false;
       },
       onTxSuccess: async (data) => {
-        if (!canAddToChatbot_create.current) return;
+        if (!canAddToChatbot_create.current || !publicClient) return;
         const topics = returnDecodedTopics(
           data.logs,
           factoryContract.abi,

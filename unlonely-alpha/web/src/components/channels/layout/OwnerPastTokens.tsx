@@ -89,6 +89,7 @@ export const OwnerPastTokens = () => {
       if (!tokensPaginated.length) return;
       // check if first token has totalSupply defined, if so, that means the rest of the tokens have totalSupply defined so we can skip fetch
       if (tokensPaginated[0].totalSupply) return;
+      if (!publicClient) return;
       // otherwise fetch totalSupply for all tokens and then update state
       const chainPromises = tokensPaginated.map((a) => {
         return publicClient.readContract({

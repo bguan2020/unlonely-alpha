@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { usePublicClient } from "wagmi";
 
-import { NULL_ADDRESS } from "../../constants";
-import { ContractData, WriteCallbacks } from "../../constants/types";
-import { createCallbackHandler } from "../../utils/contract";
-import { useUser } from "../context/useUser";
-import { useWrite } from "./useWrite";
+import { NULL_ADDRESS } from "../../../constants";
+import { ContractData, WriteCallbacks } from "../../../constants/types";
+import { createCallbackHandler } from "../../../utils/contract";
+import { useUser } from "../../context/useUser";
+import { useWrite } from "../useWrite";
 
 export const useReadPublic = (contract: ContractData) => {
   const publicClient = usePublicClient();
@@ -212,7 +212,7 @@ export const useReadSharesSubject = (
   const [userPayout, setUserPayout] = useState<bigint>(BigInt(0));
 
   const getData = useCallback(async () => {
-    if (!contract.address || !contract.abi || !publicClient) {
+    if (!contract.address || !contract.abi || !publicClient || !userAddress) {
       setPooledEth(BigInt(0));
       setYaySharesSupply(BigInt(0));
       setNaySharesSupply(BigInt(0));

@@ -18,7 +18,7 @@ import {
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { HiDotsVertical } from "react-icons/hi";
-import { useBalance, useFeeData } from "wagmi";
+import { useBalance, useEstimateFeesPerGas } from "wagmi";
 
 import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
@@ -164,13 +164,11 @@ const ConnectedDisplay = () => {
   const [isChannelsModalOpen, setIsChannelsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { data: feeData, refetch: refetchFeeData } = useFeeData({
+  const { data: feeData, refetch: refetchFeeData } = useEstimateFeesPerGas({
     chainId: localNetwork.config.chainId,
-    enabled: false,
   });
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
-    enabled: false,
   });
 
   const { updateUser } = useUpdateUser({});

@@ -201,6 +201,7 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
 
   useEffect(() => {
     const init = async () => {
+      if (!publicClient) return;
       const [_totalSupplyThreshold, _hasHitTotalSupplyThreshold, _getIsActive] =
         await Promise.all([
           publicClient.readContract({

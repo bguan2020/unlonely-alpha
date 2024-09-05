@@ -9,7 +9,7 @@ import ChatForm from "../chat/ChatForm";
 import { BorderType, OuterBorder } from "../general/OuterBorder";
 import Participants from "../presence/Participants";
 import { VipBadgeBuy } from "../channels/vibes/VipBadgeBuy";
-import VibesTokenInterface from "../chat/VibesTokenInterface";
+import VibesTokenInterface from "../channels/vibes/VibesTokenInterface";
 import { useChatBox } from "../../hooks/chat/useChatBox";
 import {
   CHANNEL_IDS_NO_VIP,

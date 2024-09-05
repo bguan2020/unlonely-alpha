@@ -1,7 +1,7 @@
 import { Button, Text, Box, useToast, Flex } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { formatUnits, isAddress } from "viem";
+import { formatUnits } from "viem";
 import { useBalance } from "wagmi";
 
 import { useUser } from "../../../hooks/context/useUser";
@@ -42,7 +42,6 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
     address: userAddress as `0x${string}`,
-    enabled: isAddress(userAddress as `0x${string}`),
   });
   const mountingMessages = useRef(true);
 

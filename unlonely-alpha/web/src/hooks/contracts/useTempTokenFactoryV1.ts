@@ -154,7 +154,7 @@ export const useReadTokenInfo = (
       setTokenInfo(tokenInfoInitialState);
       return;
     }
-    const tokenInfo = await publicClient.readContract({
+    const tokenInfo: any = await publicClient.readContract({
       address: contract.address,
       abi: contract.abi,
       functionName: "getTokenInfo",
@@ -193,6 +193,7 @@ export const useCreateTempToken = (
   contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
+
   const {
     writeAsync: createTempToken,
     writeData: createTempTokenData,

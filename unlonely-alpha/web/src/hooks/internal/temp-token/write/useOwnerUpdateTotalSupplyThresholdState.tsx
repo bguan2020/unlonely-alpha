@@ -155,7 +155,7 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
   useEffect(() => {
     if (newSupplyThreshold === BigInt(0)) return;
     updateTotalSupplyThreshold?.();
-  }, [newSupplyThreshold, updateTotalSupplyThreshold]);
+  }, [newSupplyThreshold]);
 
   return {
     callSetTotalSupplyThresholdForTokens,

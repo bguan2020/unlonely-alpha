@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
-import VibesTokenInterface from "../../components/chat/VibesTokenInterface";
+import VibesTokenInterface from "../../components/channels/vibes/VibesTokenInterface";
 import {
   ChannelProvider,
   useChannelContext,

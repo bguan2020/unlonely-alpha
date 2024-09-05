@@ -1,6 +1,6 @@
 import { formatUnits } from "viem";
 import { ConsolidatedTradeData } from "../components/channels/layout/versus/VersusTempTokenChart";
-import { ChartTokenTx } from "../components/chat/VibesTokenInterface";
+import { ChartTokenTx } from "../components/channels/vibes/VibesTokenInterface";
 
 export const consolidateChartData = (
   arr_a: ChartTokenTx[],

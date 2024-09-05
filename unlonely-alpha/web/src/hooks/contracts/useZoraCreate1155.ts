@@ -1,15 +1,12 @@
 import { ContractType, createCreatorClient } from "@zoralabs/protocol-sdk";
-import { useState, useEffect } from "react";
-import { Hex, SimulateContractParameters, TransactionReceipt } from "viem";
-import {
-  usePublicClient,
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
+import { useState, useEffect, useCallback } from "react";
+import { SimulateContractParameters } from "viem";
+import { usePublicClient } from "wagmi";
 import { useNetworkContext } from "../context/useNetwork";
 import { useUser } from "../context/useUser";
 import { WriteCallbacks } from "../../constants/types";
+import { useWrite } from "./useWrite";
+import { createCallbackHandler } from "../../utils/contract";
 
 export const useZoraCreate1155 = (
   contractObject?: ContractType,
@@ -25,70 +22,55 @@ export const useZoraCreate1155 = (
   >(undefined);
   const [parametersReady, setParametersReady] = useState<boolean>(false);
 
-  const creatorClient = createCreatorClient({
+  const creatorClient = publicClient ? createCreatorClient({
     chainId: localNetwork.config.chainId,
     publicClient,
-  });
+  }) : undefined;
+
+  const initParameters = useCallback(async () => {
+    if (!userAddress || !contractObject || !creatorClient) return;
+    setParametersReady(false);
+    const { parameters } = await creatorClient.create1155({
+      contract: contractObject,
+      token: {
+        tokenMetadataURI: "ipfs://DUMMY/token.json",
+      },
+      account: userAddress,
+    });
+    // Cast the parameters to the expected type
+    setParameters(parameters as SimulateContractParameters);
+    setParametersReady(true);
+  }, [userAddress, contractObject, creatorClient]);
 
   useEffect(() => {
-    if (!userAddress || !contractObject) return;
-    const init = async () => {
-      setParametersReady(false);
-      const { parameters } = await creatorClient.create1155({
-        // by providing a contract creation config, the contract will be created
-        // if it does not exist at a deterministic address
-        contract: contractObject,
-        token: {
-          tokenMetadataURI: "ipfs://DUMMY/token.json",
-        },
-        // account to execute the transaction (the creator)
-        account: userAddress,
-      });
-      setParameters(parameters);
-      setParametersReady(true);
-    };
-    init();
-  }, [userAddress, contractObject]);
-
-  const prepObj = usePrepareContractWrite({
-    ...parameters,
-    onSuccess: () => {
-      console.log("success");
-    },
-  });
+    initParameters();
+  }, [initParameters]);
 
   const {
-    data: writeData,
-    error: writeError,
     writeAsync,
-  } = useContractWrite({
-    ...prepObj.config,
-    onSuccess(data: { hash: Hex }) {
-      if (callbacks?.onWriteSuccess) callbacks?.onWriteSuccess(data);
+    writeData,
+    txData,
+    isTxLoading,
+    isTxSuccess,
+    writeError,
+    txError,
+    refetch,
+    isRefetching,
+    simulateError: prepareError,
+  } = useWrite(
+    {
+      address: parameters?.address,
+      abi: parameters?.abi,
+      chainId: localNetwork.config.chainId,
     },
-    onError(error: Error) {
-      if (callbacks?.onWriteError) callbacks?.onWriteError(error);
-    },
-  });
-
-  const {
-    data: txData,
-    error: txError,
-    isLoading: isTxLoading,
-    isSuccess: isTxSuccess,
-  } = useWaitForTransaction({
-    hash: writeData?.hash,
-    onSuccess(data: TransactionReceipt) {
-      if (callbacks?.onTxSuccess) callbacks?.onTxSuccess(data);
-    },
-    onError(error: Error) {
-      if (callbacks?.onTxError) callbacks?.onTxError(error);
-    },
-  });
-
-  useEffect(() => {
-    prepObj.refetch();
-  }, []);
+    parameters?.functionName ?? "",
+    [ ...(parameters?.args ?? []) ],
+    createCallbackHandler("useZoraCreate1155", callbacks),
+    {
+      value: parameters?.value,
+      enabled: parametersReady,
+    }
+  );
 
   return {
     writeAsync,
@@ -98,9 +80,9 @@ export const useZoraCreate1155 = (
     isTxSuccess,
     writeError,
     txError,
-    refetch: prepObj.refetch,
-    isRefetching: prepObj.isRefetching,
-    prepareError: prepObj.error,
+    refetch,
+    isRefetching,
+    prepareError,
     parametersReady,
   };
 };
