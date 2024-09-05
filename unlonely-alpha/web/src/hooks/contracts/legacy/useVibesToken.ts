@@ -5,10 +5,10 @@ import {
 } from "wagmi";
 import { useState, useCallback, useEffect } from "react";
 
-import { ContractData, WriteCallbacks } from "../../constants/types";
-import { NULL_ADDRESS } from "../../constants";
-import { useWrite } from "./useWrite";
-import { createCallbackHandler } from "../../utils/contract";
+import { ContractData, WriteCallbacks } from "../../../constants/types";
+import { NULL_ADDRESS } from "../../../constants";
+import { useWrite } from "../useWrite";
+import { createCallbackHandler } from "../../../utils/contract";
 
 export const useReadPublic = (contract: ContractData) => {
   const publicClient = usePublicClient();

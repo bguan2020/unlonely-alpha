@@ -28,7 +28,7 @@ import {
   useBurn,
   useReadPublic,
   useGetBurnProceedsAfterFees,
-} from "../../hooks/contracts/useVibesToken";
+} from "../../hooks/contracts/legacy/useVibesToken";
 import useDebounce from "../../hooks/internal/useDebounce";
 import centerEllipses from "../../utils/centerEllipses";
 import {
@@ -119,7 +119,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
     },
     contract,
     {
-      onWriteSuccess: (data) => {
+      onWriteSuccess: (data: any) => {
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
@@ -138,7 +138,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         });
         canAddToChatbot_mint.current = true;
       },
-      onWriteError: (error) => {
+      onWriteError: (error: any) => {
         console.log("mint write error", error);
         toast({
           duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
@@ -152,7 +152,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         });
         canAddToChatbot_mint.current = false;
       },
-      onTxSuccess: async (data) => {
+      onTxSuccess: async (data: any) => {
         if (!canAddToChatbot_mint.current) return;
         toast({
           render: () => (
@@ -191,7 +191,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         canAddToChatbot_mint.current = false;
         setAmountOfVibes(String(DEFAULT_TOKEN_TRADE_AMOUNT));
       },
-      onTxError: (error) => {
+      onTxError: (error: any) => {
         console.log("mint error", error);
         let message =
           "Unknown error, please check the explorer for more details";
@@ -233,7 +233,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
     },
     contract,
     {
-      onWriteSuccess: (data) => {
+      onWriteSuccess: (data: any) => {
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
@@ -252,7 +252,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         });
         canAddToChatbot_burn.current = true;
       },
-      onWriteError: (error) => {
+      onWriteError: (error: any) => {
         console.log("burn write error", error);
         toast({
           duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
@@ -266,7 +266,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         });
         canAddToChatbot_burn.current = false;
       },
-      onTxSuccess: async (data) => {
+      onTxSuccess: async (data: any) => {
         if (!canAddToChatbot_burn.current) return;
         toast({
           render: () => (
@@ -303,7 +303,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         canAddToChatbot_burn.current = false;
         setAmountOfVibes(String(DEFAULT_TOKEN_TRADE_AMOUNT));
       },
-      onTxError: (error) => {
+      onTxError: (error: any) => {
         console.log("burn error", error);
         let message =
           "Unknown error, please check the explorer for more details";

@@ -6,11 +6,11 @@ import {
   EventTypeForContract,
   NULL_ADDRESS,
   NULL_ADDRESS_BYTES32,
-} from "../../constants";
-import { ContractData, WriteCallbacks } from "../../constants/types";
-import { createCallbackHandler } from "../../utils/contract";
-import { useUser } from "../context/useUser";
-import { useWrite } from "./useWrite";
+} from "../../../constants";
+import { ContractData, WriteCallbacks } from "../../../constants/types";
+import { createCallbackHandler } from "../../../utils/contract";
+import { useUser } from "../../context/useUser";
+import { useWrite } from "../useWrite";
 
 export const useReadPublic = (contract: ContractData) => {
   const publicClient = usePublicClient();
