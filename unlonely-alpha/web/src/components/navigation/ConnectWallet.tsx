@@ -255,6 +255,7 @@ const ConnectedDisplay = () => {
             borderRadius="0"
             _focus={{}}
             _active={{}}
+            _hover={{}}
             px="10px"
             bg={"#131323"}
             rightIcon={<ChevronDownIcon />}
