@@ -10,7 +10,7 @@ import {
 import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import useUpdateChannelVibesTokenPriceRange from "../../../hooks/server/channel/useUpdateChannelVibesTokenPriceRange";
-import VibesTokenInterface from "../../chat/VibesTokenInterface";
+import VibesTokenInterface from "./VibesTokenInterface";
 import VibesTokenZoneModalControls from "./VibesTokenZoneModalControls";
 import { convertSciNotaToPrecise } from "../../../utils/tokenDisplayFormatting";
 

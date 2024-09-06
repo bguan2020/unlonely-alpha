@@ -29,26 +29,26 @@ import * as AWS from "aws-sdk";
 import Link from "next/link";
 import { FaMagnifyingGlassChart } from "react-icons/fa6";
 
-import { useCacheContext } from "../../hooks/context/useCache";
-import centerEllipses from "../../utils/centerEllipses";
-import { useChannelContext } from "../../hooks/context/useChannel";
-import { truncateValue } from "../../utils/tokenDisplayFormatting";
-import { useUser } from "../../hooks/context/useUser";
-import { AblyChannelPromise } from "../../constants";
-import VibesTokenZoneModal from "../channels/vibes/VibesTokenZoneModal";
-import VibesTokenExchange from "./VibesTokenExchange";
-import useUserAgent from "../../hooks/internal/useUserAgent";
-import { useWindowSize } from "../../hooks/internal/useWindowSize";
-import ConnectWallet from "../navigation/ConnectWallet";
-import { useNetworkContext } from "../../hooks/context/useNetwork";
+import { useCacheContext } from "../../../hooks/context/useCache";
+import centerEllipses from "../../../utils/centerEllipses";
+import { useChannelContext } from "../../../hooks/context/useChannel";
+import { truncateValue } from "../../../utils/tokenDisplayFormatting";
+import { useUser } from "../../../hooks/context/useUser";
+import { AblyChannelPromise } from "../../../constants";
+import VibesTokenZoneModal from "./VibesTokenZoneModal";
+import useUserAgent from "../../../hooks/internal/useUserAgent";
+import { useWindowSize } from "../../../hooks/internal/useWindowSize";
+import ConnectWallet from "../../navigation/ConnectWallet";
+import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import { FaPause } from "react-icons/fa";
 import {
   blockNumberDaysAgo,
   blockNumberHoursAgo,
-} from "../../hooks/internal/useVibesCheck";
-import { GET_USER_QUERY } from "../../constants/queries";
+} from "../../../hooks/internal/useVibesCheck";
+import { GET_USER_QUERY } from "../../../constants/queries";
 import { useApolloClient } from "@apollo/client";
-import { useVibesContext } from "../../hooks/context/useVibes";
+import { useVibesContext } from "../../../hooks/context/useVibes";
+import VibesTokenExchange from "./VibesTokenExchange";
 
 export type ChartTokenTx = {
   user: string;

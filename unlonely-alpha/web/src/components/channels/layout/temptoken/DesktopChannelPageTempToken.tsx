@@ -371,10 +371,7 @@ export const DesktopChannelPageTempToken = ({
                       gap="1rem"
                       height="100%"
                     >
-                      <TempTokenInterface
-                        ablyChannel={chat.channel}
-                        customHeight="100%"
-                      />
+                      <TempTokenInterface customHeight="100%" />
                     </Flex>
                   ) : (
                     <Flex
@@ -396,10 +393,7 @@ export const DesktopChannelPageTempToken = ({
                             versus
                           </Button>
                         )}
-                        <TempTokenInterface
-                          ablyChannel={chat.channel}
-                          customHeight="100%"
-                        />
+                        <TempTokenInterface customHeight="100%" />
                       </Flex>
                       <ChatComponent
                         chat={chat}

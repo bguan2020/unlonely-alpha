@@ -112,25 +112,6 @@ export const ADMIN_GRAPH_QUERY_PARAM = "graph";
 export const CLIP_CHANNEL_ID_QUERY_PARAM = "channelId";
 export const NFCS_SORT_QUERY_PARAM = "sort";
 
-export const CHANNEL_IDS_ALLOWED_TO_DESKTOP_CHANNEL_TEMP_TOKEN = [
-  "3",
-  "15",
-  "29",
-  "483",
-  "182",
-  "138",
-  "27",
-  "32",
-  "426",
-  "478",
-  "191",
-  "525",
-  "554",
-  "127",
-  "496",
-  "688",
-];
-
 export const DEFAULT_TOKEN_TRADE_AMOUNT = 1000;
 export const DEFAULT_TOKEN_CLAIM_AMOUNT = 10;
 export const PRE_SALE_MAX_SUPPLY = 1000;

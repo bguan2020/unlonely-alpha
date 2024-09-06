@@ -1,34 +1,37 @@
 import { useEffect, useState } from "react";
-import { useContractRead } from "wagmi";
+import { useReadContract } from "wagmi";
 
 export const useRead = <T>(
   contract: { address: `0x${string}`; abi: any; chainId: number },
   functionName: string,
   args?: any[],
   callbacks?: {
-    onSuccess?: (data: any) => any;
-    onError?: (error: Error) => any;
+    onSuccess?: (data: any) => void;
+    onError?: (error: Error) => void;
   }
 ) => {
   const [returnedData, setReturnedData] = useState<T | undefined>(undefined);
 
-  const { data, error, isLoading, refetch } = useContractRead({
+  const { data, error, isLoading, refetch } = useReadContract({
     address: contract.address,
     abi: contract.abi,
     functionName,
     args,
     chainId: contract.chainId,
-    onSuccess(data) {
-      if (callbacks?.onSuccess) callbacks?.onSuccess(data);
-    },
-    onError(error) {
-      if (callbacks?.onError) callbacks?.onError(error);
-    },
   });
 
   useEffect(() => {
-    if (data) setReturnedData(data as unknown as T);
-  }, [data]);
+    if (data) {
+      setReturnedData(data as T);
+      callbacks?.onSuccess?.(data);
+    }
+  }, [data, callbacks]);
+
+  useEffect(() => {
+    if (error) {
+      callbacks?.onError?.(error);
+    }
+  }, [error, callbacks]);
 
   return { data: returnedData, error, isLoading, refetch };
 };

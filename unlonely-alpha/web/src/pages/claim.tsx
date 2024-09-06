@@ -23,7 +23,7 @@ import {
 } from "../generated/graphql";
 import { useNetworkContext } from "../hooks/context/useNetwork";
 import { useUser } from "../hooks/context/useUser";
-import { useClaimVotePayout } from "../hooks/contracts/useSharesContractV2";
+import { useClaimVotePayout } from "../hooks/contracts/legacy/useSharesContractV2";
 import centerEllipses from "../utils/centerEllipses";
 import { getContractFromNetwork, returnDecodedTopics } from "../utils/contract";
 import { truncateValue } from "../utils/tokenDisplayFormatting";

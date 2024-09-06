@@ -54,12 +54,17 @@ export const createCallbackHandler = (
   },
 });
 
+type DecodedTopics = {
+  eventName: string | undefined;
+  args: any; // Use a more specific type for args if possible
+};
+
 export const returnDecodedTopics = (
   logs: any[],
   contractAbi: any[],
   eventName: string,
   strict?: boolean
-) => {
+): DecodedTopics | null => {
   let topics = null;
   for (let i = logs.length - 1; i >= 0; i--) {
     try {
@@ -68,9 +73,9 @@ export const returnDecodedTopics = (
         data: logs[i].data,
         topics: logs[i].topics,
         strict,
-      });
-      if (_topics && _topics.eventName === eventName) {
-        topics = _topics;
+      }) as Record<string, any>;
+      if (_topics && typeof _topics === "object" && "eventName" in _topics && _topics.eventName === eventName) {
+        topics = _topics as DecodedTopics;
         break;
       }
     } catch (e) {

@@ -141,7 +141,7 @@ export const useSendRemainingFundsToWinnerState = (
               data?.getUser?.username ??
               centerEllipses(resultingWinnerAddress, 15)
           );
-        const symbol = await publicClient.readContract({
+        const symbol = await publicClient?.readContract({
           address: tokenContractData.address as `0x${string}`,
           abi: tokenContractData.abi,
           functionName: "symbol",

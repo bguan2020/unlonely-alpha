@@ -49,7 +49,7 @@ export const useReadTempTokenOnMount = ({
 
   useEffect(() => {
     const init = async () => {
-      if (!(Number(channelQueryData?.id ?? "0") > 0)) return;
+      if (!(Number(channelQueryData?.id ?? "0") > 0) || !publicClient) return;
       try {
         const getTempTokenQueryRes = await getTempTokensQuery({
           variables: {
@@ -171,7 +171,8 @@ export const useReadTempTokenOnMount = ({
         if (
           nonNullListOfTokensWithNonZeroBalances &&
           nonNullListOfTokensWithNonZeroBalances.length > 0 &&
-          isOwner
+          isOwner &&
+          publicClient
         ) {
           const lastInactiveTokenWithBalance =
             nonNullListOfTokensWithNonZeroBalances[0];

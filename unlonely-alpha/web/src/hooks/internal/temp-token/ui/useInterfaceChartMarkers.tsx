@@ -6,7 +6,7 @@ import { GET_USER_QUERY } from "../../../../constants/queries";
 import centerEllipses from "../../../../utils/centerEllipses";
 import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
 import { useCacheContext } from "../../../context/useCache";
-import { ChartTokenTx } from "../../../../components/chat/VibesTokenInterface";
+import { ChartTokenTx } from "../../../../components/channels/vibes/VibesTokenInterface";
 import { Contract } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";

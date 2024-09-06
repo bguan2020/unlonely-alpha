@@ -17,7 +17,7 @@ import { useChannelContext } from "../../../../hooks/context/useChannel";
 import { useInterfaceChartData } from "../../../../hooks/internal/temp-token/ui/useInterfaceChartData";
 
 import { useCacheContext } from "../../../../hooks/context/useCache";
-import { AblyChannelPromise, NULL_ADDRESS } from "../../../../constants";
+import { NULL_ADDRESS } from "../../../../constants";
 import { TransactionModalTemplate } from "../../../transactions/TransactionModalTemplate";
 import { useWindowSize } from "../../../../hooks/internal/useWindowSize";
 import { usePublicClient } from "wagmi";
@@ -33,13 +33,11 @@ import { bondingCurveBigInt } from "../../../../utils/contract";
 export const TempTokenInterface = ({
   customHeight,
   isFullChart,
-  ablyChannel,
   customLoading,
   noChannelData,
 }: {
   customHeight?: string;
   isFullChart?: boolean;
-  ablyChannel?: AblyChannelPromise;
   customLoading?: boolean;
   noChannelData?: boolean;
 }) => {
@@ -136,6 +134,7 @@ export const TempTokenInterface = ({
 
   useEffect(() => {
     const checkBalanceAfterExpiration = async () => {
+      if (!publicClient) return;
       const balance = await publicClient.readContract({
         address: currentTempTokenContract.address as `0x${string}`,
         abi: currentTempTokenContract.abi,

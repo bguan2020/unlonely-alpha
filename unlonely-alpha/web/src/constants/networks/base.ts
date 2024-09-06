@@ -1,5 +1,3 @@
-import { Chain } from "wagmi";
-
 import { Network } from "../types";
 import unlonelyArcadeAbi from "../abi/UnlonelyArcadeContract.json";
 import UnlonelySharesV1 from "../abi/UnlonelySharesV1.json";
@@ -8,6 +6,8 @@ import UnlonelyTournament from "../abi/UnlonelyTournament.json";
 import VibesTokenV1 from "../abi/VibesTokenV1.json";
 import TempTokenFactoryV1 from "../abi/TempTokenFactoryV1.json";
 import { Contract } from "..";
+
+import { Chain } from "viem";
 
 const base = {
   id: 8453,
