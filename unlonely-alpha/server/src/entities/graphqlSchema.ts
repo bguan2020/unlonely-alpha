@@ -22,7 +22,6 @@ import { typeDef as subscriptionTypeDef } from "./Subscription/SubscriptionTypeD
 import { typeDef as baseLeaderboardTypeDef } from "./BaseLeaderboard/baseLeaderboardTypeDef";
 import { typeDef as gamblableInteractionTypeDef } from "./GamblableInteraction/gamblableInteractionTypeDef";
 import { typeDef as vibesTypeDef } from "./Vibes/vibesTypeDef";
-import { typeDef as sideBetTypeDef } from "./SideBet/sideBetTypeDef";
 import { typeDef as tempTokenTypeDef } from "./TempToken/tempTokenTypeDef";
 import { resolvers as likeResolvers } from "./Like/likeResolvers";
 import { resolvers as userResolvers } from "./User/userResolvers";
@@ -39,7 +38,6 @@ import { resolvers as chatCommandResolvers } from "./ChatCommand/chatCommandReso
 import { resolvers as subscriptionResolvers } from "./Subscription/SubscriptionResolvers";
 import { resolvers as baseLeaderboardResolvers } from "./BaseLeaderboard/baseLeaderboardResolvers";
 import { resolvers as gamblableInteractionResolvers } from "./GamblableInteraction/gamblableInteractionResolvers";
-import { resolvers as sideBetResolvers } from "./SideBet/sideBetResolvers";
 import { resolvers as vibesResolvers } from "./Vibes/vibesResolvers";
 import { resolvers as tempTokenResolvers } from "./TempToken/tempTokenResolvers";
 
@@ -87,7 +85,6 @@ export default makeExecutableSchema({
     subscriptionTypeDef,
     baseLeaderboardTypeDef,
     gamblableInteractionTypeDef,
-    sideBetTypeDef,
     vibesTypeDef,
     tempTokenTypeDef,
   ],
@@ -108,7 +105,6 @@ export default makeExecutableSchema({
     subscriptionResolvers,
     baseLeaderboardResolvers,
     gamblableInteractionResolvers,
-    sideBetResolvers,
     vibesResolvers,
     tempTokenResolvers
   ),

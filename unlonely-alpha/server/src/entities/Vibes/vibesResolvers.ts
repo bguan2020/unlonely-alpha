@@ -3,13 +3,6 @@ import * as vibesService from "./vibesService";
 
 export const resolvers = {
   Query: {
-    getStreamerVibesStat: async (
-      _: any,
-      { data }: { data: vibesService.IGetStreamerVibesStatInput },
-      ctx: Context
-    ) => {
-      return await vibesService.getStreamerVibesStat(data, ctx);
-    },
     getVibesTransactions: async (
       _: any,
       { data }: { data: vibesService.IGetVibesTransactionsInput },
