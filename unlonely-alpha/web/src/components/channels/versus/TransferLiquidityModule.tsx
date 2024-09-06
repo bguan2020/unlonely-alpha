@@ -1,7 +1,7 @@
 import { Button, Spinner, Flex, Text } from "@chakra-ui/react";
-import { useSetWinningTokenTradeableAndTransferLiquidityState } from "../../../../hooks/internal/versus-token/write/useSetWinningTokenTradeableAndTransferLiquidityState";
+import { useSetWinningTokenTradeableAndTransferLiquidityState } from "../../../hooks/internal/versus-token/write/useSetWinningTokenTradeableAndTransferLiquidityState";
 import { useState, useEffect } from "react";
-import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
+import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempToken";
 
 export const TransferLiquidityModule = () => {
   const {

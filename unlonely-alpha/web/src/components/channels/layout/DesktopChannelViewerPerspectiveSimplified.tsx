@@ -1,13 +1,13 @@
 import { Text, Flex, Spinner } from "@chakra-ui/react";
 import { PlaybackInfo } from "livepeer/models/components/playbackinfo";
 import { useMemo, useRef, useState } from "react";
-import { useChannelContext } from "../../../../hooks/context/useChannel";
+import { useChannelContext } from "../../../hooks/context/useChannel";
 import { getSrc } from "@livepeer/react/external";
-import IVSPlayer from "../../../stream/IVSPlayer";
-import LivepeerPlayer from "../../../stream/LivepeerPlayer";
-import { ChatWithTempTokenTimer } from "../../../chat/ChatWithTempTokenTimer";
-import { ChatReturnType } from "../../../../hooks/chat/useChat";
-import ChannelDesc from "../../ChannelDesc";
+import IVSPlayer from "../../stream/IVSPlayer";
+import LivepeerPlayer from "../../stream/LivepeerPlayer";
+import { ChatWithTempTokenTimer } from "../../chat/ChatWithTempTokenTimer";
+import { ChatReturnType } from "../../../hooks/chat/useChat";
+import ChannelDesc from "../ChannelDesc";
 
 export const DesktopChannelViewerPerspectiveSimplified = ({
   playbackData,

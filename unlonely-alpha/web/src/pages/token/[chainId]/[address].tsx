@@ -42,7 +42,7 @@ import {
 import {
   NUMBER_OF_DAYS_IN_MONTH,
   NUMBER_OF_HOURS_IN_DAY,
-} from "../../../components/channels/layout/temptoken/TempTokenChart";
+} from "../../../components/channels/temp/TempTokenChart";
 import { useInterfaceChartMarkers } from "../../../hooks/internal/temp-token/ui/useInterfaceChartMarkers";
 import { useCacheContext } from "../../../hooks/context/useCache";
 import { formatUnits } from "viem";

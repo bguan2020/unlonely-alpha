@@ -1,16 +1,16 @@
-import { AblyChannelPromise } from "../../../../constants";
+import { AblyChannelPromise } from "../../../constants";
 import { Flex, Text, Button } from "@chakra-ui/react";
-import { useTempTokenContext } from "../../../../hooks/context/useTempToken";
-import { TransactionModalTemplate } from "../../../transactions/TransactionModalTemplate";
+import { useTempTokenContext } from "../../../hooks/context/useTempToken";
+import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 import { useEffect, useMemo } from "react";
 import { TempTokenChart } from "./TempTokenChart";
-import { useInterfaceChartData } from "../../../../hooks/internal/temp-token/ui/useInterfaceChartData";
+import { useInterfaceChartData } from "../../../hooks/internal/temp-token/ui/useInterfaceChartData";
 import { formatUnits, isAddress } from "viem";
-import { useCacheContext } from "../../../../hooks/context/useCache";
-import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
-import { MobileTempTokenExchange } from "../../temp/MobileTempTokenExchange";
-import { bondingCurveBigInt } from "../../../../utils/contract";
-import { useUser } from "../../../../hooks/context/useUser";
+import { useCacheContext } from "../../../hooks/context/useCache";
+import { truncateValue } from "../../../utils/tokenDisplayFormatting";
+import { MobileTempTokenExchange } from "../temp/MobileTempTokenExchange";
+import { bondingCurveBigInt } from "../../../utils/contract";
+import { useUser } from "../../../hooks/context/useUser";
 
 export const MobileTempTokenInterface = ({
   ablyChannel,

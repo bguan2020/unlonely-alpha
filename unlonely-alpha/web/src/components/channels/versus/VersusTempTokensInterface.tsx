@@ -17,23 +17,23 @@ import {
   StepTitle,
   Stepper,
 } from "@chakra-ui/react";
-import { AblyChannelPromise } from "../../../../constants";
-import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
-import { useWindowSize } from "../../../../hooks/internal/useWindowSize";
-import { useChannelContext } from "../../../../hooks/context/useChannel";
+import { AblyChannelPromise } from "../../../constants";
+import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempToken";
+import { useWindowSize } from "../../../hooks/internal/useWindowSize";
+import { useChannelContext } from "../../../hooks/context/useChannel";
 import { VersusTempTokenChart } from "./VersusTempTokenChart";
 import { useEffect, useState } from "react";
-import { VersusTokenCreationModal } from "../../versus/VersusTokenCreationModal";
-import { VersusTokenDisclaimerModal } from "../../versus/VersusTokenDisclaimerModal";
+import { VersusTokenCreationModal } from "./VersusTokenCreationModal";
+import { VersusTokenDisclaimerModal } from "./VersusTokenDisclaimerModal";
 import { isAddress, isAddressEqual } from "viem";
 import { TransferLiquidityModule } from "./TransferLiquidityModule";
 import { PermamintModule } from "./PermamintModule";
-import centerEllipses from "../../../../utils/centerEllipses";
+import centerEllipses from "../../../utils/centerEllipses";
 import Link from "next/link";
-import { useNetworkContext } from "../../../../hooks/context/useNetwork";
+import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { VersusTempTokenTimerView } from "../../versus/VersusTokenTimerView";
-import { TransactionModalTemplate } from "../../../transactions/TransactionModalTemplate";
+import { VersusTempTokenTimerView } from "./VersusTokenTimerView";
+import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
 
 const steps = [{ title: "streamer must select winner" }];
 

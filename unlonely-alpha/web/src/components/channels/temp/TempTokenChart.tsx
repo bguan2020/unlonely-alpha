@@ -1,5 +1,5 @@
 import { Flex, Text, Button, Tooltip as ChakraTooltip } from "@chakra-ui/react";
-import { useNetworkContext } from "../../../../hooks/context/useNetwork";
+import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import { FaPause } from "react-icons/fa";
 import { FaMagnifyingGlassChart } from "react-icons/fa6";
 import {
@@ -15,20 +15,20 @@ import {
 import {
   blockNumberDaysAgo,
   blockNumberHoursAgo,
-} from "../../../../hooks/internal/useVibesCheck";
-import { useInterfaceChartMarkers } from "../../../../hooks/internal/temp-token/ui/useInterfaceChartMarkers";
-import { UseInterfaceChartDataType } from "../../../../hooks/internal/temp-token/ui/useInterfaceChartData";
-import { useTempTokenContext } from "../../../../hooks/context/useTempToken";
+} from "../../../hooks/internal/useVibesCheck";
+import { useInterfaceChartMarkers } from "../../../hooks/internal/temp-token/ui/useInterfaceChartMarkers";
+import { UseInterfaceChartDataType } from "../../../hooks/internal/temp-token/ui/useInterfaceChartData";
+import { useTempTokenContext } from "../../../hooks/context/useTempToken";
 import { formatUnits } from "viem";
-import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
-import { TempTokenExchange } from "../../temp/TempTokenExchange";
+import { truncateValue } from "../../../utils/tokenDisplayFormatting";
+import { TempTokenExchange } from "../temp/TempTokenExchange";
 import { useMemo, useState } from "react";
-import { useCacheContext } from "../../../../hooks/context/useCache";
-import { useChannelContext } from "../../../../hooks/context/useChannel";
-import { useOwnerUpdateTotalSupplyThresholdState } from "../../../../hooks/internal/temp-token/write/useOwnerUpdateTotalSupplyThresholdState";
-import useUserAgent from "../../../../hooks/internal/useUserAgent";
-import { SingleTempTokenTimerView } from "../../temp/TempTokenTimerView";
-import { useUser } from "../../../../hooks/context/useUser";
+import { useCacheContext } from "../../../hooks/context/useCache";
+import { useChannelContext } from "../../../hooks/context/useChannel";
+import { useOwnerUpdateTotalSupplyThresholdState } from "../../../hooks/internal/temp-token/write/useOwnerUpdateTotalSupplyThresholdState";
+import useUserAgent from "../../../hooks/internal/useUserAgent";
+import { SingleTempTokenTimerView } from "../temp/TempTokenTimerView";
+import { useUser } from "../../../hooks/context/useUser";
 
 export const ZONE_BREADTH = 0.05;
 export const NUMBER_OF_HOURS_IN_DAY = 24;

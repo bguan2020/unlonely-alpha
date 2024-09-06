@@ -11,22 +11,19 @@ import {
   Stepper,
   Text,
 } from "@chakra-ui/react";
-import { AblyChannelPromise } from "../../../../constants";
 import { useEffect } from "react";
-import { TransactionModalTemplate } from "../../../transactions/TransactionModalTemplate";
-import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
+import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
+import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempToken";
 import { isAddressEqual } from "viem";
 import { VersusTempTokenChart } from "./VersusTempTokenChart";
-import { MobileVersusTokenExchange } from "../../versus/MobileVersusTokenExchange";
-import { useUser } from "../../../../hooks/context/useUser";
+import { MobileVersusTokenExchange } from "../versus/MobileVersusTokenExchange";
+import { useUser } from "../../../hooks/context/useUser";
 
 const steps = [{ title: "streamer must select winner" }];
 
 export const MobileVersusTempTokensInterface = ({
-  ablyChannel,
   customHeight,
 }: {
-  ablyChannel?: AblyChannelPromise;
   customHeight?: string;
 }) => {
   const { walletIsConnected, privyUser, login, connectWallet, user } =
