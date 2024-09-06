@@ -7,22 +7,22 @@ import {
   Line,
   Tooltip,
 } from "recharts";
-import { useInterfaceChartData } from "../../../../hooks/internal/temp-token/ui/useInterfaceChartData";
-import { useNetworkContext } from "../../../../hooks/context/useNetwork";
-import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
+import { useInterfaceChartData } from "../../../hooks/internal/temp-token/ui/useInterfaceChartData";
+import { useNetworkContext } from "../../../hooks/context/useNetwork";
+import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempToken";
 import { useEffect, useMemo, useState } from "react";
-import { useCacheContext } from "../../../../hooks/context/useCache";
+import { useCacheContext } from "../../../hooks/context/useCache";
 import { formatUnits, isAddress, isAddressEqual } from "viem";
-import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
-import { GET_USER_QUERY } from "../../../../constants/queries";
-import centerEllipses from "../../../../utils/centerEllipses";
+import { truncateValue } from "../../../utils/tokenDisplayFormatting";
+import { GET_USER_QUERY } from "../../../constants/queries";
+import centerEllipses from "../../../utils/centerEllipses";
 import { useApolloClient } from "@apollo/client";
-import { useInterfaceChartMarkers } from "../../../../hooks/internal/temp-token/ui/useInterfaceChartMarkers";
-import { VersusTokenExchange } from "../../versus/VersusTokenExchange";
-import useUserAgent from "../../../../hooks/internal/useUserAgent";
-import { VersusTempTokenTimerView } from "../../versus/VersusTokenTimerView";
-import { consolidateChartData } from "../../../../utils/chart";
-import { useUser } from "../../../../hooks/context/useUser";
+import { useInterfaceChartMarkers } from "../../../hooks/internal/temp-token/ui/useInterfaceChartMarkers";
+import { VersusTokenExchange } from "../versus/VersusTokenExchange";
+import useUserAgent from "../../../hooks/internal/useUserAgent";
+import { VersusTempTokenTimerView } from "../versus/VersusTokenTimerView";
+import { consolidateChartData } from "../../../utils/chart";
+import { useUser } from "../../../hooks/context/useUser";
 
 export type ConsolidatedTradeData = {
   tokenATrader: string;
