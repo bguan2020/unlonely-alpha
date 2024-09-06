@@ -18,11 +18,7 @@ import Metrics from "./metrics";
 import Header from "../components/navigation/Header";
 import { ADMIN_GRAPH_QUERY_PARAM } from "../constants";
 import { useRouter } from "next/router";
-import { useForm } from "react-hook-form";
-import ModalTerminal, {
-  IFormConfigurator,
-  INITIAL_FORM_CONFIG,
-} from "../components/transactions/SolanaJupiterTerminal";
+import ModalTerminal from "../components/transactions/SolanaJupiterTerminal";
 import {
   ConnectionProvider,
   WalletProvider,
@@ -47,12 +43,6 @@ export default function AdminPage() {
     return false;
   }, [user, admins]);
 
-  const { watch, reset, setValue, formState } = useForm<IFormConfigurator>({
-    defaultValues: INITIAL_FORM_CONFIG,
-  });
-
-  const watchAllFields = watch();
-
   // Set the network to use (e.g., 'mainnet-beta', 'devnet')
   const network = WalletAdapterNetwork.Mainnet;
   const endpoint = clusterApiUrl(network);
@@ -70,13 +60,6 @@ export default function AdminPage() {
               rpcUrl={
                 "https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
               }
-              formProps={watchAllFields.formProps}
-              simulateWalletPassthrough={
-                watchAllFields.simulateWalletPassthrough
-              }
-              strictTokenList={watchAllFields.strictTokenList}
-              defaultExplorer={watchAllFields.defaultExplorer}
-              useUserSlippage={watchAllFields.useUserSlippage}
             />
           </WalletModalProvider>
         </WalletProvider>

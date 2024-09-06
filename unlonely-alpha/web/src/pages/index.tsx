@@ -37,6 +37,7 @@ import { useUser } from "../hooks/context/useUser";
 import { sortChannels } from "../utils/channelSort";
 import { useCacheContext } from "../hooks/context/useCache";
 import NfcLeaderboard from "../components/leaderboards/NfcLeaderboard";
+import BooEventWrapper from "../components/layout/BooEventWrapper";
 
 const FixedComponent = ({
   newHeightPercentage,
@@ -164,7 +165,7 @@ function DesktopHomePage({
             </DrawerContent>
           </Drawer>
           <Flex direction="column" gap={5}>
-            {/* <HeroBanner /> */}
+            <BooEventWrapper />
             {!sideBarBreakpoints && !loading && (
               <Flex justifyContent={"center"}>
                 <Button

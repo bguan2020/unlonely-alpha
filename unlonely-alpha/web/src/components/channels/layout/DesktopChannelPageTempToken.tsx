@@ -59,6 +59,7 @@ export const DesktopChannelPageTempToken = ({
     error: channelDataError,
     handleChannelStaticData,
     isOwner,
+    channelQueryData,
   } = channel;
   const chat = useChat();
 
@@ -89,7 +90,10 @@ export const DesktopChannelPageTempToken = ({
 
   const toast = useToast();
   const { livepeerData, playbackInfo, checkedForLivepeerPlaybackInfo } =
-    useLivepeerStreamData();
+    useLivepeerStreamData({
+      livepeerStreamId: channelQueryData?.livepeerStreamId ?? undefined,
+      livepeerPlaybackId: channelQueryData?.livepeerPlaybackId ?? undefined,
+    });
   // console.log("livepeerData", livepeerData);
   // console.log("playbackInfo", playbackInfo);
   // console.log("checkedForLivepeerPlaybackInfo", checkedForLivepeerPlaybackInfo);

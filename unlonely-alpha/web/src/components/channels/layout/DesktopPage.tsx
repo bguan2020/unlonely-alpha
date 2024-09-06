@@ -40,6 +40,7 @@ export const DesktopPage = ({
     error: channelDataError,
     handleChannelStaticData,
     isOwner,
+    channelQueryData,
   } = channel;
   const {
     welcomeStreamerModal,
@@ -50,7 +51,10 @@ export const DesktopPage = ({
   } = ui;
   const toast = useToast();
   const { livepeerData, playbackInfo, checkedForLivepeerPlaybackInfo } =
-    useLivepeerStreamData();
+    useLivepeerStreamData({
+      livepeerStreamId: channelQueryData?.livepeerStreamId ?? undefined,
+      livepeerPlaybackId: channelQueryData?.livepeerPlaybackId ?? undefined,
+    });
   useVipBadgeUi(chat);
 
   useEffect(() => {

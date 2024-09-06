@@ -34,10 +34,14 @@ export const MobilePage = ({
     error: channelDataError,
     isOwner,
     handleChannelStaticData,
+    channelQueryData,
   } = channel;
   const toast = useToast();
   const { livepeerData, playbackInfo, checkedForLivepeerPlaybackInfo } =
-    useLivepeerStreamData();
+    useLivepeerStreamData({
+      livepeerStreamId: channelQueryData?.livepeerStreamId ?? undefined,
+      livepeerPlaybackId: channelQueryData?.livepeerPlaybackId ?? undefined,
+    });
   const chat = useChat();
   useVipBadgeUi(chat);
   useTempTokenAblyInterpreter(chat);

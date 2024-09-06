@@ -4,11 +4,14 @@ import { PlaybackInfo } from "livepeer/models/components/playbackinfo";
 import { useState, useEffect } from "react";
 import { GET_LIVEPEER_STREAM_DATA_QUERY } from "../../constants/queries";
 import { GetLivepeerStreamDataQuery } from "../../generated/graphql";
-import { useChannelContext } from "../context/useChannel";
 
-export const useLivepeerStreamData = () => {
-  const { channel } = useChannelContext();
-  const { channelQueryData } = channel;
+export const useLivepeerStreamData = ({
+  livepeerStreamId,
+  livepeerPlaybackId,
+}: {
+  livepeerStreamId?: string;
+  livepeerPlaybackId?: string;
+}) => {
   const [livepeerData, setLivepeerData] =
     useState<GetLivepeerStreamDataQuery["getLivepeerStreamData"]>();
 
@@ -30,13 +33,11 @@ export const useLivepeerStreamData = () => {
     useState<boolean>(false);
 
   useEffect(() => {
-    console.log("channelQueryData useeffect useLivePeerStreamData", channelQueryData);
     const init = async () => {
-      if (!channelQueryData) return;
-      if (channelQueryData?.livepeerPlaybackId) {
-        console.log("first if statment passed", channelQueryData?.livepeerPlaybackId);
+      if (livepeerPlaybackId) {
+        console.log("first if statment passed", livepeerPlaybackId);
         try {
-          const res = await livepeer.playback.get(channelQueryData?.livepeerPlaybackId);
+          const res = await livepeer.playback.get(livepeerPlaybackId);
           console.log("res livepeer playback", res);
           if (!res) throw new Error("No response from livepeer playback.");
           const playbackInfo = res.playbackInfo;
@@ -48,21 +49,21 @@ export const useLivepeerStreamData = () => {
       setCheckedForLivepeerPlaybackInfo(true);
     };
     init();
-  }, [channelQueryData]);
+  }, [livepeerPlaybackId]);
 
   useEffect(() => {
     const init = async () => {
-      if (channelQueryData?.livepeerStreamId) {
+      if (livepeerStreamId) {
         const res = await getLivepeerStreamData({
           variables: {
-            data: { streamId: channelQueryData?.livepeerStreamId },
+            data: { streamId: livepeerStreamId },
           },
         });
         setLivepeerData(res.data?.getLivepeerStreamData);
       }
     };
     init();
-  }, [channelQueryData?.livepeerStreamId]);
+  }, [livepeerStreamId]);
 
   return {
     livepeerData,

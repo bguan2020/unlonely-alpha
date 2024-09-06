@@ -96,6 +96,7 @@ const LivepeerPlayer = memo(
         position="relative"
         onTouchStart={handleOpacity} // Handle touch event
         onMouseMove={handleOpacity} // Set opacity to 1 on mouse enter
+        transition="all 0.3s"
       >
         <Player.Root
           aspectRatio={null}
