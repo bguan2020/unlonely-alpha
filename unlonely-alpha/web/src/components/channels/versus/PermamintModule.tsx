@@ -1,22 +1,22 @@
 import { Box, Button, Spinner, useToast } from "@chakra-ui/react";
-import { useMintWinnerTokens } from "../../../../hooks/contracts/useTempTokenFactoryV1";
-import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
+import { useMintWinnerTokens } from "../../../hooks/contracts/useTempTokenFactoryV1";
+import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempToken";
 import { useEffect, useState } from "react";
 import {
   CHAKRA_UI_TX_TOAST_DURATION,
   Contract,
   InteractionType,
-} from "../../../../constants";
-import { useNetworkContext } from "../../../../hooks/context/useNetwork";
+} from "../../../constants";
+import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import {
   getContractFromNetwork,
   returnDecodedTopics,
-} from "../../../../utils/contract";
+} from "../../../utils/contract";
 import { isAddressEqual } from "viem";
 import Link from "next/link";
 import { usePublicClient } from "wagmi";
-import { useUser } from "../../../../hooks/context/useUser";
-import { useChannelContext } from "../../../../hooks/context/useChannel";
+import { useUser } from "../../../hooks/context/useUser";
+import { useChannelContext } from "../../../hooks/context/useChannel";
 
 export const PermamintModule = () => {
   const { userAddress, user } = useUser();

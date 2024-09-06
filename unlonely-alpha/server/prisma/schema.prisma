@@ -155,7 +155,6 @@ model Channel {
 
   gamblableInteractions GamblableInteraction[]
   gamblableEventLeaderboardEntries GamblableEventLeaderboard[]
-  sideBets SideBet[]
   tempTokens TempToken[]
 
   subscribedFIDs Int[]
@@ -270,21 +269,6 @@ model SharesEvent {
   channelId Int
 }
 
-model SideBet {
-  id        Int      @id @default(autoincrement())
-  wagerDescription String
-  creatorAddress String
-  opponentAddress String
-  chainId Int
-  result Boolean?
-
-  createdAt DateTime @default(now())
-  softDelete Boolean @default(false)
-
-  channel Channel @relation(fields: [channelId], references: [id])
-  channelId Int
-}
-
 model GamblableEventLeaderboard {
   id        Int      @id @default(autoincrement())
   chainId Int
@@ -369,19 +353,6 @@ model VibesTransaction {
   weiAmount                      String
   protocolWeiFees                String
   streamerWeiFees                String
-  createdAt                      DateTime @default(now())
-}
-
-model StreamerVibesStat {
-  id                             Int      @id @default(autoincrement())
-  uniqueStatId                   String   @unique
-  streamerAddress                String
-  chainId                        Int
-  allTimeTotalVibesVolume        String
-  allTimeTotalWeiVolume          String
-  allTimeTotalProtocolWeiFees    String
-  allTimeTotalStreamerWeiFees    String
-  updatedAt                      DateTime @updatedAt
   createdAt                      DateTime @default(now())
 }
 

@@ -11,7 +11,7 @@ import { useChat } from "../../hooks/chat/useChat";
 import AppLayout from "../../components/layout/AppLayout";
 import { ChannelStaticQuery } from "../../generated/graphql";
 import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
-import { TempTokenInterface } from "../../components/channels/layout/temptoken/TempTokenInterface";
+import { TempTokenInterface } from "../../components/channels/temp/TempTokenInterface";
 import {
   TempTokenProvider,
   useTempTokenContext,
@@ -20,7 +20,7 @@ import {
   VersusTempTokenProvider,
   useVersusTempTokenContext,
 } from "../../hooks/context/useVersusTempToken";
-import { VersusTempTokensInterface } from "../../components/channels/layout/versus/VersusTempTokensInterface";
+import { VersusTempTokensInterface } from "../../components/channels/versus/VersusTempTokensInterface";
 import { useTempTokenAblyInterpreter } from "../../hooks/internal/temp-token/ui/useTempTokenAblyInterpreter";
 import { useVersusTempTokenAblyInterpreter } from "../../hooks/internal/versus-token/ui/useVersusTempTokenAblyInterpreter";
 import { calculateMaxWinnerTokensToMint } from "../../utils/calculateMaxWinnerTokensToMint";

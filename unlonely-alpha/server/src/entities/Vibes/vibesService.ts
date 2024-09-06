@@ -160,70 +160,6 @@ export const postVibesTrades = async (
       };
     });
 
-    // update a streamer's stat if already exist
-    const updatePromises = Array.from(
-      uniqueStreamerAddressesToAmounts.entries()
-    ).map(async ([address, stats]) => {
-      const existingStat = await ctx.prisma.streamerVibesStat.findUnique({
-        where: { uniqueStatId: `${address}-${String(data.chainId)}` },
-      });
-
-      if (existingStat) {
-        return ctx.prisma.streamerVibesStat.update({
-          where: { id: existingStat.id },
-          data: {
-            allTimeTotalVibesVolume: String(
-              BigInt(existingStat.allTimeTotalVibesVolume) +
-                BigInt(stats.newTotalVibesVolume)
-            ),
-            allTimeTotalWeiVolume: String(
-              BigInt(existingStat.allTimeTotalWeiVolume) +
-                BigInt(stats.newTotalWeiVolume)
-            ),
-            allTimeTotalProtocolWeiFees: String(
-              BigInt(existingStat.allTimeTotalProtocolWeiFees) +
-                BigInt(stats.newTotalProtocolWeiFees)
-            ),
-            allTimeTotalStreamerWeiFees: String(
-              BigInt(existingStat.allTimeTotalStreamerWeiFees) +
-                BigInt(stats.newTotalStreamerWeiFees)
-            ),
-          },
-        });
-      } else {
-        return null;
-      }
-    });
-    await Promise.all(updatePromises);
-
-    // create a streamer's stat if not exist yet
-    const creationPromises = Array.from(
-      uniqueStreamerAddressesToAmounts.entries()
-    ).map(async ([address, stats]) => {
-      const existingStat = await ctx.prisma.streamerVibesStat.findUnique({
-        where: { uniqueStatId: `${address}-${String(data.chainId)}` },
-      });
-
-      if (existingStat) {
-        return null;
-      } else {
-        await ctx.prisma.streamerVibesStat.create({
-          data: {
-            uniqueStatId: `${address}-${String(data.chainId)}`,
-            streamerAddress: address,
-            chainId: data.chainId,
-            allTimeTotalVibesVolume: stats.newTotalVibesVolume,
-            allTimeTotalWeiVolume: stats.newTotalWeiVolume,
-            allTimeTotalProtocolWeiFees: stats.newTotalProtocolWeiFees,
-            allTimeTotalStreamerWeiFees: stats.newTotalStreamerWeiFees,
-          },
-        });
-        return address;
-      }
-    });
-
-    await Promise.all(creationPromises);
-
     // Create the transactions in the database
     return await ctx.prisma.vibesTransaction.createMany({
       data: formattedTransactions,
@@ -233,21 +169,6 @@ export const postVibesTrades = async (
     console.error("Error in postVibesTrades", error);
     return [];
   }
-};
-
-export interface IGetStreamerVibesStatInput {
-  streamerAddress: string;
-}
-
-export const getStreamerVibesStat = async (
-  data: IGetStreamerVibesStatInput,
-  ctx: Context
-) => {
-  return await ctx.prisma.streamerVibesStat.findMany({
-    where: {
-      streamerAddress: data.streamerAddress,
-    },
-  });
 };
 
 export interface IGetVibesTransactionsInput {

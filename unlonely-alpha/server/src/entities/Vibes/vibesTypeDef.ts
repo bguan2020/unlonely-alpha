@@ -23,26 +23,9 @@ export const typeDef = gql`
     createdAt: DateTime!
   }
 
-  type StreamerVibesStat {
-    id: ID!
-    uniqueStatId: String!
-    streamerAddress: String!
-    chainId: Int!
-    allTimeTotalVibesVolume: String!
-    allTimeTotalWeiVolume: String!
-    allTimeTotalProtocolWeiFees: String!
-    allTimeTotalStreamerWeiFees: String!
-    updatedAt: DateTime!
-    createdAt: DateTime!
-  }
-
   input DateRange {
     start: DateTime
     end: DateTime
-  }
-
-  input GetStreamerVibesStatInput {
-    streamerAddress: String!
   }
 
   input GetVibesTransactionsInput {
@@ -59,7 +42,6 @@ export const typeDef = gql`
   }
 
   extend type Query {
-    getStreamerVibesStat(data: GetStreamerVibesStatInput!): [StreamerVibesStat]
     getVibesTransactions(data: GetVibesTransactionsInput!): [VibesTransaction]
   }
 

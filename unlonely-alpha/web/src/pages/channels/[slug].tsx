@@ -9,7 +9,7 @@ import { ChannelProvider } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { MobilePage } from "../../components/channels/layout/MobilePage";
 import { TempTokenProvider } from "../../hooks/context/useTempToken";
-import { DesktopChannelPageTempToken } from "../../components/channels/layout/temptoken/DesktopChannelPageTempToken";
+import { DesktopChannelPageTempToken } from "../../components/channels/layout/DesktopChannelPageTempToken";
 import { VersusTempTokenProvider } from "../../hooks/context/useVersusTempToken";
 import Head from "next/head";
 import { VibesProvider } from "../../hooks/context/useVibes";

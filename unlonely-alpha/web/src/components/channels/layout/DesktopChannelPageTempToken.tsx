@@ -1,11 +1,11 @@
 import { ApolloError } from "@apollo/client";
-import { ChannelStaticQuery } from "../../../../generated/graphql";
+import { ChannelStaticQuery } from "../../../generated/graphql";
 import { useEffect, useMemo } from "react";
-import { useChat } from "../../../../hooks/chat/useChat";
-import { useChannelContext } from "../../../../hooks/context/useChannel";
-import { useUser } from "../../../../hooks/context/useUser";
-import { useLivepeerStreamData } from "../../../../hooks/internal/useLivepeerStreamData";
-import { useVipBadgeUi } from "../../../../hooks/internal/useVipBadgeUi";
+import { useChat } from "../../../hooks/chat/useChat";
+import { useChannelContext } from "../../../hooks/context/useChannel";
+import { useUser } from "../../../hooks/context/useUser";
+import { useLivepeerStreamData } from "../../../hooks/internal/useLivepeerStreamData";
+import { useVipBadgeUi } from "../../../hooks/internal/useVipBadgeUi";
 import {
   Button,
   Flex,
@@ -23,25 +23,25 @@ import {
   Link,
 } from "@chakra-ui/react";
 import copy from "copy-to-clipboard";
-import { formatApolloError } from "../../../../utils/errorFormatting";
-import trailString from "../../../../utils/trailString";
-import ChatComponent from "../../../chat/ChatComponent";
-import { WavyText } from "../../../general/WavyText";
-import ChannelNextHead from "../../../layout/ChannelNextHead";
-import Header from "../../../navigation/Header";
-import { ChannelWideModals } from "../../ChannelWideModals";
-import { DesktopChannelStreamerPerspectiveSimplified } from "../temptoken/DesktopChannelStreamerPerspectiveSimplified";
-import { DesktopChannelViewerPerspectiveSimplified } from "../temptoken/DesktopChannelViewerPerspectiveSimplified";
-import { useTempTokenContext } from "../../../../hooks/context/useTempToken";
-import { useTempTokenAblyInterpreter } from "../../../../hooks/internal/temp-token/ui/useTempTokenAblyInterpreter";
-import { TempTokenInterface } from "./TempTokenInterface";
-import { useVersusTempTokenAblyInterpreter } from "../../../../hooks/internal/versus-token/ui/useVersusTempTokenAblyInterpreter";
-import { useVersusTempTokenContext } from "../../../../hooks/context/useVersusTempToken";
+import { formatApolloError } from "../../../utils/errorFormatting";
+import trailString from "../../../utils/trailString";
+import ChatComponent from "../../chat/ChatComponent";
+import { WavyText } from "../../general/WavyText";
+import ChannelNextHead from "../../layout/ChannelNextHead";
+import Header from "../../navigation/Header";
+import { ChannelWideModals } from "../ChannelWideModals";
+import { DesktopChannelStreamerPerspectiveSimplified } from "./DesktopChannelStreamerPerspectiveSimplified";
+import { DesktopChannelViewerPerspectiveSimplified } from "./DesktopChannelViewerPerspectiveSimplified";
+import { useTempTokenContext } from "../../../hooks/context/useTempToken";
+import { useTempTokenAblyInterpreter } from "../../../hooks/internal/temp-token/ui/useTempTokenAblyInterpreter";
+import { TempTokenInterface } from "../temp/TempTokenInterface";
+import { useVersusTempTokenAblyInterpreter } from "../../../hooks/internal/versus-token/ui/useVersusTempTokenAblyInterpreter";
+import { useVersusTempTokenContext } from "../../../hooks/context/useVersusTempToken";
 import { VersusTempTokensInterface } from "../versus/VersusTempTokensInterface";
-import { calculateMaxWinnerTokensToMint } from "../../../../utils/calculateMaxWinnerTokensToMint";
-import { useIsGameOngoing } from "../../../../hooks/internal/temp-token/ui/useIsGameOngoing";
-import { TransactionModalTemplate } from "../../../transactions/TransactionModalTemplate";
-import { ChannelPageNfcsList } from "../../../NFCs/ChannelPageNfcsList";
+import { calculateMaxWinnerTokensToMint } from "../../../utils/calculateMaxWinnerTokensToMint";
+import { useIsGameOngoing } from "../../../hooks/internal/temp-token/ui/useIsGameOngoing";
+import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
+import { ChannelPageNfcsList } from "../../NFCs/ChannelPageNfcsList";
 
 export const DesktopChannelPageTempToken = ({
   channelSSR,

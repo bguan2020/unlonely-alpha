@@ -12,23 +12,23 @@ import {
   PopoverTrigger,
   IconButton,
 } from "@chakra-ui/react";
-import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
-import { useChannelContext } from "../../../../hooks/context/useChannel";
-import { useInterfaceChartData } from "../../../../hooks/internal/temp-token/ui/useInterfaceChartData";
+import { truncateValue } from "../../../utils/tokenDisplayFormatting";
+import { useChannelContext } from "../../../hooks/context/useChannel";
+import { useInterfaceChartData } from "../../../hooks/internal/temp-token/ui/useInterfaceChartData";
 
-import { useCacheContext } from "../../../../hooks/context/useCache";
-import { NULL_ADDRESS } from "../../../../constants";
-import { TransactionModalTemplate } from "../../../transactions/TransactionModalTemplate";
-import { useWindowSize } from "../../../../hooks/internal/useWindowSize";
+import { useCacheContext } from "../../../hooks/context/useCache";
+import { NULL_ADDRESS } from "../../../constants";
+import { TransactionModalTemplate } from "../../transactions/TransactionModalTemplate";
+import { useWindowSize } from "../../../hooks/internal/useWindowSize";
 import { usePublicClient } from "wagmi";
-import { TempTokenDisclaimerModal } from "../../temp/TempTokenDisclaimerModal";
-import { useTempTokenContext } from "../../../../hooks/context/useTempToken";
+import { TempTokenDisclaimerModal } from "../temp/TempTokenDisclaimerModal";
+import { useTempTokenContext } from "../../../hooks/context/useTempToken";
 import { TempTokenChart } from "./TempTokenChart";
-import { TempTokenCreationModal } from "../../temp/TempTokenCreationModal";
-import { SendRemainingFundsFromTokenModal } from "../../temp/SendRemainingFundsFromTokenModal";
-import { SingleTempTokenTimerView } from "../../temp/TempTokenTimerView";
-import useUserAgent from "../../../../hooks/internal/useUserAgent";
-import { bondingCurveBigInt } from "../../../../utils/contract";
+import { TempTokenCreationModal } from "../temp/TempTokenCreationModal";
+import { SendRemainingFundsFromTokenModal } from "../temp/SendRemainingFundsFromTokenModal";
+import { SingleTempTokenTimerView } from "../temp/TempTokenTimerView";
+import useUserAgent from "../../../hooks/internal/useUserAgent";
+import { bondingCurveBigInt } from "../../../utils/contract";
 
 export const TempTokenInterface = ({
   customHeight,

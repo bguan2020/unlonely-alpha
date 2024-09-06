@@ -1,5 +1,5 @@
 import { formatUnits } from "viem";
-import { ConsolidatedTradeData } from "../components/channels/layout/versus/VersusTempTokenChart";
+import { ConsolidatedTradeData } from "../components/channels/versus/VersusTempTokenChart";
 import { ChartTokenTx } from "../components/channels/vibes/VibesTokenInterface";
 
 export const consolidateChartData = (
