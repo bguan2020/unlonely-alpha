@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "@chakra-ui/react";
 import { PublicKey } from "@solana/web3.js";
 import { SolanaTokenTransfer } from "./SolanaTokenTransfer";
-import { useBooTokenTerminal } from "../../hooks/internal/boo-token/useBooTokenTerminal";
+import { useBooTokenTerminal } from "../../../hooks/internal/boo-token/useBooTokenTerminal";
 import { useForm } from "react-hook-form";
 
 export const FIXED_SOLANA_MINT = "FuvamNkNTNjDcnQeWyiAReUCHZ91gJhg59xuNemZ4p9f";

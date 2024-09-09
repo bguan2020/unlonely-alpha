@@ -5,7 +5,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { Connection } from "@solana/web3.js";
 import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 import Decimal from "decimal.js";
-import { FormProps, FIXED_SOLANA_MINT, WRAPPED_SOL_MINT } from "../../../components/transactions/SolanaJupiterTerminal";
+import { FormProps, FIXED_SOLANA_MINT, WRAPPED_SOL_MINT } from "../../../components/transactions/solana/SolanaJupiterTerminal";
 
 export const useBooTokenTerminal = (props: {
   rpcUrl: string;

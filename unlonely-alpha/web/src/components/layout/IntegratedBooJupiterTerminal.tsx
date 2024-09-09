@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, memo } from "react";
 import { useUnifiedWalletContext, useWallet } from "@jup-ag/wallet-adapter";
-import { FormProps } from "../transactions/SolanaJupiterTerminal";
+import { FormProps } from "../transactions/solana/SolanaJupiterTerminal";
 import { Spinner } from "@chakra-ui/react";
 
 interface IntegratedTerminalProps {

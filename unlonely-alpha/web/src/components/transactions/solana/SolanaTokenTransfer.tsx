@@ -9,7 +9,7 @@ import {
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useEffect, useState, useCallback } from "react";
 
-import { filteredInput } from "../../utils/validation/input";
+import { filteredInput } from "../../../utils/validation/input";
 import { FIXED_SOLANA_MINT } from "./SolanaJupiterTerminal";
 
 const isValidSolanaAddress = (address: string): boolean => {

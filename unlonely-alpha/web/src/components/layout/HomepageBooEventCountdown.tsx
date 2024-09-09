@@ -3,7 +3,7 @@ import { Flex, Text } from "@chakra-ui/react";
 import {
   IFormConfigurator,
   INITIAL_FORM_CONFIG,
-} from "../transactions/SolanaJupiterTerminal";
+} from "../transactions/solana/SolanaJupiterTerminal";
 import { getTimeFromMillis } from "../../utils/time";
 import { useBooTokenTerminal } from "../../hooks/internal/boo-token/useBooTokenTerminal";
 import { useForm } from "react-hook-form";

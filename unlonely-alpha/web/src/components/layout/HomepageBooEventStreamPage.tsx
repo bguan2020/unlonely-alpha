@@ -9,7 +9,7 @@ import {
   IFormConfigurator,
   INITIAL_FORM_CONFIG,
   WRAPPED_SOL_MINT,
-} from "../transactions/SolanaJupiterTerminal";
+} from "../transactions/solana/SolanaJupiterTerminal";
 import LivepeerPlayer from "../stream/LivepeerPlayer";
 import { getSrc } from "@livepeer/react/external";
 import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";

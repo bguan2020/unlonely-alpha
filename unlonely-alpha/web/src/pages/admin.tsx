@@ -18,7 +18,7 @@ import Metrics from "./metrics";
 import Header from "../components/navigation/Header";
 import { ADMIN_GRAPH_QUERY_PARAM } from "../constants";
 import { useRouter } from "next/router";
-import ModalTerminal from "../components/transactions/SolanaJupiterTerminal";
+import ModalTerminal from "../components/transactions/solana/SolanaJupiterTerminal";
 import {
   ConnectionProvider,
   WalletProvider,
