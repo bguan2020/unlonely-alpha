@@ -171,7 +171,7 @@ export const ChatUserModal_token = ({
   });
 
   const userIsChannelOwner = useMemo(
-    () => user?.address === channelQueryData?.owner.address,
+    () => user?.address === channelQueryData?.owner?.address,
     [user, channelQueryData]
   );
 
@@ -529,7 +529,7 @@ export const ChatUserModal_token = ({
                     </Button>
                   )}
                 {(userIsChannelOwner || userIsModerator) &&
-                  targetUser.address !== channelQueryData?.owner.address &&
+                  targetUser.address !== channelQueryData?.owner?.address &&
                   targetUser.address !== user?.address &&
                   isNormalUi &&
                   !isSendingTokens && (

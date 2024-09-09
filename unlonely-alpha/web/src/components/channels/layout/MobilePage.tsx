@@ -28,7 +28,7 @@ export const MobilePage = ({
   channelSSRDataLoading: boolean;
   channelSSRDataError?: ApolloError;
 }) => {
-  const { channel } = useChannelContext();
+  const { channel, chat: c } = useChannelContext();
   const {
     loading: channelDataLoading,
     error: channelDataError,
@@ -42,7 +42,7 @@ export const MobilePage = ({
       livepeerStreamId: channelQueryData?.livepeerStreamId ?? undefined,
       livepeerPlaybackId: channelQueryData?.livepeerPlaybackId ?? undefined,
     });
-  const chat = useChat();
+  const chat = useChat({ chatBot: c.chatBot });
   useVipBadgeUi(chat);
   useTempTokenAblyInterpreter(chat);
   useVersusTempTokenAblyInterpreter(chat);

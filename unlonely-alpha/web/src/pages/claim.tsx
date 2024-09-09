@@ -325,20 +325,20 @@ const EventCard = ({
           name={
             matchingChannel?.owner.username
               ? matchingChannel?.owner.username
-              : matchingChannel?.owner.address
+              : matchingChannel?.owner?.address
           }
           src={ipfsUrl}
           bg={getColorFromString(
             matchingChannel?.owner.username
               ? matchingChannel?.owner.username
-              : matchingChannel?.owner.address ?? ""
+              : matchingChannel?.owner?.address ?? ""
           )}
           size="sm"
         />
         <Flex direction="column">
           <Text fontFamily="LoRes15">
             {matchingChannel?.owner.username ??
-              centerEllipses(matchingChannel?.owner.address, 13)}
+              centerEllipses(matchingChannel?.owner?.address, 13)}
           </Text>
           <Text
             textAlign={"center"}

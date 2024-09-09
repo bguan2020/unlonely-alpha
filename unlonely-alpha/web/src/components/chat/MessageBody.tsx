@@ -51,7 +51,7 @@ const MessageBody = ({
   const [nfcExpanded, setNfcExpanded] = useState(false);
 
   const userIsChannelOwner = useMemo(
-    () => user?.address === channelQueryData?.owner.address,
+    () => user?.address === channelQueryData?.owner?.address,
     [user, channelQueryData]
   );
 

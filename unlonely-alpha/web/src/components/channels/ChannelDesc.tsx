@@ -51,13 +51,13 @@ const ChannelDesc = () => {
             name={
               channelQueryData?.owner.username
                 ? channelQueryData?.owner.username ?? ""
-                : channelQueryData?.owner.address ?? ""
+                : channelQueryData?.owner?.address ?? ""
             }
             src={ipfsUrl}
             bg={getColorFromString(
               channelQueryData?.owner.username
                 ? channelQueryData?.owner.username ?? ""
-                : channelQueryData?.owner.address ?? ""
+                : channelQueryData?.owner?.address ?? ""
             )}
             size="md"
           />

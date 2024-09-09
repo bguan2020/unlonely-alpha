@@ -38,6 +38,7 @@ import { sortChannels } from "../utils/channelSort";
 import { useCacheContext } from "../hooks/context/useCache";
 import NfcLeaderboard from "../components/leaderboards/NfcLeaderboard";
 import BooEventWrapper from "../components/layout/BooEventWrapper";
+import Header from "../components/navigation/Header";
 
 const FixedComponent = ({
   newHeightPercentage,
@@ -141,7 +142,17 @@ function DesktopHomePage({
   });
 
   return (
-    <AppLayout isCustomHeader={false}>
+    <AppLayout isCustomHeader={false} noHeader>
+      <Flex
+        h="100vh"
+        bg="rgba(5, 0, 31, 1)"
+        position={"relative"}
+        direction="column"
+        overflowY={"hidden"}
+      >
+        <Header />
+        <BooEventWrapper />
+      </Flex>
       {!directingToChannel ? (
         <Flex
           direction="column"
@@ -165,7 +176,6 @@ function DesktopHomePage({
             </DrawerContent>
           </Drawer>
           <Flex direction="column" gap={5}>
-            <BooEventWrapper />
             {!sideBarBreakpoints && !loading && (
               <Flex justifyContent={"center"}>
                 <Button

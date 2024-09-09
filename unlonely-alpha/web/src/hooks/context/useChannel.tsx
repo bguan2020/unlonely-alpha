@@ -36,6 +36,7 @@ import {
   useChannelWideModalsState,
 } from "../internal/modals/useChannelWideModalsState";
 import { isAddressEqual } from "viem";
+import { useChatBotState } from "../chat/useChatBotState";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -116,8 +117,10 @@ const ChannelContext = createContext<{
 
 export const ChannelProvider = ({
   children,
+  providedSlug,
 }: {
   children: React.ReactNode;
+  providedSlug?: string;
 }) => {
   const { network } = useNetworkContext();
   const { localNetwork } = network;
@@ -133,8 +136,6 @@ export const ChannelProvider = ({
   >(undefined);
   const [isVip, setIsVip] = useState<boolean>(false);
 
-  const [chatBot, setChatBot] = useState<ChatBot[]>([]);
-
   const [selectedUserInChat, setSelectedUserInChat] = useState<
     SelectedUser | undefined
   >(undefined);
@@ -142,7 +143,7 @@ export const ChannelProvider = ({
   const [totalBadges, setTotalBadges] = useState<string>("0");
   const [vipPool, setVipPool] = useState<string>("0");
   const [tradeLoading, setTradeLoading] = useState<boolean>(false);
-  const channelDetails = useChannelDetails(slug);
+  const channelDetails = useChannelDetails(providedSlug ?? slug);
   const [latestBet, setLatestBet] = useState<SharesEvent | undefined>(
     undefined
   );
@@ -152,14 +153,15 @@ export const ChannelProvider = ({
       return false;
     return isAddressEqual(
       userAddress,
-      channelDetails?.channelQueryData?.owner.address as `0x${string}`
+      channelDetails?.channelQueryData?.owner?.address as `0x${string}`
     );
-  }, [userAddress, channelDetails?.channelQueryData?.owner.address]);
+  }, [userAddress, channelDetails?.channelQueryData?.owner?.address]);
 
   const welcomeTour = useWelcomeTourState(isOwner);
 
   const clip = useClip(channelDetails.channelQueryData);
   const channelWideModalsState = useChannelWideModalsState();
+  const { chatBot, addToChatbot } = useChatBotState();
 
   const ongoingBets = useMemo(
     () =>
@@ -204,10 +206,6 @@ export const ChannelProvider = ({
     const latestBet = ongoingBets[0];
     setLatestBet(latestBet);
   }, [ongoingBets]);
-
-  const addToChatbot = useCallback((chatBotMessageToAdd: ChatBot) => {
-    setChatBot((prev) => [...prev, chatBotMessageToAdd]);
-  }, []);
 
   const handleIsVip = useCallback((value: boolean) => {
     setIsVip(value);

@@ -7,11 +7,10 @@ import {
   InteractionType,
   NULL_ADDRESS,
 } from "../../constants";
-import { useChannelContext } from "../context/useChannel";
-import { useUser } from "../context/useUser";
 import { useScreenAnimationsContext } from "../context/useScreenAnimations";
 import { Message, SenderStatus } from "../../constants/types/chat";
 import { useChatChannel } from "./useChatChannel";
+import { ChatBot } from "../../constants/types";
 
 export type ChatReturnType = {
   channel: AblyChannelPromise;
@@ -21,7 +20,11 @@ export type ChatReturnType = {
   mounted: boolean;
 };
 
-export const useChat = (): ChatReturnType => {
+export const useChat = ({
+  chatBot,
+}: {
+  chatBot: ChatBot[];
+}): ChatReturnType => {
   const {
     ablyChannel: channel,
     hasMessagesLoaded,
@@ -29,9 +32,6 @@ export const useChat = (): ChatReturnType => {
     allMessages,
     mounted,
   } = useChatChannel();
-  const { username, userAddress: address } = useUser();
-  const { chat } = useChannelContext();
-  const { chatBot } = chat;
 
   const mountingMessages = useRef(true);
   const { emojiBlast, fireworks } = useScreenAnimationsContext();
@@ -119,20 +119,12 @@ export const useChat = (): ChatReturnType => {
     if (chatBot.length > 0) {
       const lastMessage = chatBot[chatBot.length - 1];
       let body: string | undefined = undefined;
-      let messageText = `${
-        username ?? address
-      } paid 5 $BRIAN to switch to a random scene!`;
-      if (lastMessage.taskType === "video") {
-        messageText = `${username ?? address} added a ${
-          lastMessage.taskType
-        } task: "${lastMessage.title}", "${lastMessage.description}"`;
-      }
       if (
         Object.values(InteractionType).includes(
           lastMessage.taskType as InteractionType
         )
       ) {
-        messageText = lastMessage.title ?? lastMessage.taskType;
+        const messageText = lastMessage.title ?? lastMessage.taskType;
         body = `${lastMessage.taskType}:${lastMessage.description ?? ""}`;
         publishChatBotMessage(messageText, body);
       }

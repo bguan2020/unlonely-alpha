@@ -12,8 +12,10 @@ import {
 } from "@solana/wallet-adapter-wallets";
 import { HomePageBooEventTokenCountdown } from "./HomepageBooEventCountdown";
 import { HomePageBooEventStreamPage } from "./HomepageBooEventStreamPage";
+import { ChannelProvider } from "../../hooks/context/useChannel";
 
 export const eventStartTime = 133548029;
+const slug = "danny";
 
 const BooEventWrapper = () => {
   const network = WalletAdapterNetwork.Mainnet;
@@ -25,7 +27,9 @@ const BooEventWrapper = () => {
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
           {Date.now() / 1000 > eventStartTime ? (
-            <HomePageBooEventStreamPage />
+            <ChannelProvider providedSlug={slug}>
+              <HomePageBooEventStreamPage slug={slug} />
+            </ChannelProvider>
           ) : (
             <HomePageBooEventTokenCountdown
               rpcUrl={

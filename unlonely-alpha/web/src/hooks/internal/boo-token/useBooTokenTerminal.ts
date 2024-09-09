@@ -17,7 +17,6 @@ export const useBooTokenTerminal = (props: {
 }) => {
   const {
     rpcUrl,
-    formProps,
     simulateWalletPassthrough,
     strictTokenList,
     defaultExplorer,

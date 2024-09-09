@@ -33,8 +33,8 @@ export const DesktopPage = ({
   channelSSRDataError?: ApolloError;
 }) => {
   const { walletIsConnected } = useUser();
-  const { channel, ui } = useChannelContext();
-  const chat = useChat();
+  const { channel, ui, chat: c } = useChannelContext();
+  const chat = useChat({ chatBot: c.chatBot });
   const {
     loading: channelDataLoading,
     error: channelDataError,

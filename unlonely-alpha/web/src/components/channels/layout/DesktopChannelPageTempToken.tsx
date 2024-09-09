@@ -53,7 +53,7 @@ export const DesktopChannelPageTempToken = ({
   channelSSRDataError?: ApolloError;
 }) => {
   const { walletIsConnected } = useUser();
-  const { channel } = useChannelContext();
+  const { channel, chat: c } = useChannelContext();
   const {
     loading: channelDataLoading,
     error: channelDataError,
@@ -61,7 +61,8 @@ export const DesktopChannelPageTempToken = ({
     isOwner,
     channelQueryData,
   } = channel;
-  const chat = useChat();
+
+  const chat = useChat({ chatBot: c.chatBot });
 
   const { tempToken } = useTempTokenContext();
 

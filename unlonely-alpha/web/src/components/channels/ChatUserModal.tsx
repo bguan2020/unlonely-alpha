@@ -163,7 +163,7 @@ export const ChatUserModal = ({
   });
 
   const userIsChannelOwner = useMemo(
-    () => user?.address === channelQueryData?.owner.address,
+    () => user?.address === channelQueryData?.owner?.address,
     [user, channelQueryData]
   );
 
@@ -505,7 +505,7 @@ export const ChatUserModal = ({
                     </Button>
                   )}
                 {(userIsChannelOwner || userIsModerator) &&
-                  targetUser.address !== channelQueryData?.owner.address &&
+                  targetUser.address !== channelQueryData?.owner?.address &&
                   targetUser.address !== user?.address &&
                   isNormalUi &&
                   !isSendingVibes && (
