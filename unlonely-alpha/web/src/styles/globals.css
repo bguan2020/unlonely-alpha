@@ -20,6 +20,11 @@
   src: url("/fonts/Inter.ttf");
 }
 
+@font-face {
+  font-family: "DigitalDisplay";
+  src: url("/fonts/digital-7.ttf");
+}
+
 html {
   overscroll-behavior: none;
 }

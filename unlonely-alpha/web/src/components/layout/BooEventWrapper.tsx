@@ -14,7 +14,7 @@ import { HomePageBooEventTokenCountdown } from "./HomepageBooEventCountdown";
 import { HomePageBooEventStreamPage } from "./HomepageBooEventStreamPage";
 import { ChannelProvider } from "../../hooks/context/useChannel";
 
-export const eventStartTime = 133548029;
+export const eventStartTime = 1933548029;
 const slug = "danny";
 
 const BooEventWrapper = () => {
@@ -26,7 +26,7 @@ const BooEventWrapper = () => {
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
-          {Date.now() / 1000 > eventStartTime ? (
+          {true ? (
             <ChannelProvider providedSlug={slug}>
               <HomePageBooEventStreamPage slug={slug} />
             </ChannelProvider>

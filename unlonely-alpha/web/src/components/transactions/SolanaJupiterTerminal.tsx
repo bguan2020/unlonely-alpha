@@ -65,7 +65,6 @@ const ModalTerminal = (props: { rpcUrl: string }) => {
           width: "100%",
           paddingBottom: "125%",
         }}
-        id="dexscreener-embed"
       >
         <iframe
           height="600px"

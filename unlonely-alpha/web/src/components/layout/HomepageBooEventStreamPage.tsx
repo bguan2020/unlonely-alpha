@@ -3,11 +3,12 @@ import { Box, Button, Flex } from "@chakra-ui/react";
 import { useChat } from "../../hooks/chat/useChat";
 import { useLivepeerStreamData } from "../../hooks/internal/useLivepeerStreamData";
 import ChatComponent from "../chat/ChatComponent";
-import { useBooTokenTerminal } from "../../hooks/internal/boo-token/useBooTokenTerminal";
 import { useForm } from "react-hook-form";
 import {
+  FIXED_SOLANA_MINT,
   IFormConfigurator,
   INITIAL_FORM_CONFIG,
+  WRAPPED_SOL_MINT,
 } from "../transactions/SolanaJupiterTerminal";
 import LivepeerPlayer from "../stream/LivepeerPlayer";
 import { getSrc } from "@livepeer/react/external";
@@ -47,12 +48,11 @@ const OpacityWrapper = ({
 
   return (
     <Box
+      opacity={opacity === 1 || alwaysShow ? 1 : 0.5}
+      transition="opacity 0.3s"
       onTouchStart={handleOpacity}
       onMouseMove={handleOpacity}
-      style={{
-        opacity: opacity === 1 || alwaysShow ? 1 : 0.5,
-        transition: "opacity 0.3s",
-      }}
+      overflow="auto"
     >
       {children}
     </Box>
@@ -69,17 +69,25 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
     livepeerStreamId: channelQueryData?.livepeerStreamId ?? undefined,
   });
 
-  const { watch } = useForm<IFormConfigurator>({
+  const [isSell, setIsSell] = useState(false);
+
+  const { watch: watchBuy } = useForm<IFormConfigurator>({
     defaultValues: INITIAL_FORM_CONFIG,
   });
 
-  const watchAllFields = watch();
-
-  const { balance, fetchTokenBalance, launchTerminal } = useBooTokenTerminal({
-    rpcUrl:
-      "https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf",
-    ...watchAllFields,
+  const { watch: watchSell } = useForm<IFormConfigurator>({
+    defaultValues: {
+      ...INITIAL_FORM_CONFIG,
+      formProps: {
+        ...INITIAL_FORM_CONFIG.formProps,
+        initialInputMint: FIXED_SOLANA_MINT,
+        initialOutputMint: WRAPPED_SOL_MINT.toString(),
+      },
+    },
   });
+
+  const watchAllFieldsBuy = watchBuy();
+  const watchAllFieldsSell = watchSell();
 
   const [viewState, setViewState] = useState<"stream" | "token">("stream");
 
@@ -100,13 +108,13 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
     >
       <Flex
         direction="column"
-        width={["100%", "100%", "70%"]}
+        width={["100%", "100%", "80%"]}
         height="100%"
         position="relative"
       >
         <Box
           position="absolute"
-          bottom={viewState === "token" ? 0 : "40px"}
+          bottom={viewState === "token" ? 0 : "120px"}
           right={viewState === "token" ? 0 : "40px"}
           width={viewState === "token" ? "100%" : undefined}
           height={viewState === "token" ? "100%" : "50%"}
@@ -115,17 +123,26 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
           bg={"rgba(0, 0, 0, 0.8)"}
         >
           <OpacityWrapper alwaysShow={viewState === "token"}>
-            <Button
-              onClick={() => {
-                if (viewState === "stream") {
-                  setViewState("token");
-                } else {
-                  setViewState("stream");
-                }
-              }}
-            >
-              change
-            </Button>
+            <Flex justifyContent="space-between" p={1} gap={1}>
+              <Button
+                onClick={() => {
+                  if (viewState === "stream") {
+                    setViewState("token");
+                  } else {
+                    setViewState("stream");
+                  }
+                }}
+              >
+                change
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsSell(!isSell);
+                }}
+              >
+                {isSell ? "sell" : "buy"}
+              </Button>
+            </Flex>
             <Flex>
               <iframe
                 height="360px"
@@ -138,12 +155,26 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
               ></iframe>
               <IntegratedTerminal
                 rpcUrl="https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
-                formProps={watchAllFields.formProps}
-                simulateWalletPassthrough={
-                  watchAllFields.simulateWalletPassthrough
+                formProps={
+                  isSell
+                    ? watchAllFieldsSell.formProps
+                    : watchAllFieldsBuy.formProps
                 }
-                strictTokenList={watchAllFields.strictTokenList}
-                defaultExplorer={watchAllFields.defaultExplorer}
+                simulateWalletPassthrough={
+                  isSell
+                    ? watchAllFieldsSell.simulateWalletPassthrough
+                    : watchAllFieldsBuy.simulateWalletPassthrough
+                }
+                strictTokenList={
+                  isSell
+                    ? watchAllFieldsSell.strictTokenList
+                    : watchAllFieldsBuy.strictTokenList
+                }
+                defaultExplorer={
+                  isSell
+                    ? watchAllFieldsSell.defaultExplorer
+                    : watchAllFieldsBuy.defaultExplorer
+                }
                 useUserSlippage={false}
               />
             </Flex>
@@ -164,7 +195,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
           </Box>
         )}
       </Flex>
-      <Flex direction="column" width={["100%", "100%", "30%"]} height="100%">
+      <Flex direction="column" width={["100%", "100%", "20%"]} height="100%">
         <ChatComponent
           chat={chat}
           customHeight="100%"

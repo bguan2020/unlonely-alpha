@@ -10,10 +10,14 @@ interface IntegratedTerminalProps {
   strictTokenList: boolean;
   defaultExplorer: "Solana Explorer" | "Solscan" | "Solana Beach" | "SolanaFM";
   useUserSlippage: boolean;
+  height?: string;
+  width?: string;
 }
 
 export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
   const {
+    height,
+    width,
     rpcUrl,
     formProps,
     simulateWalletPassthrough,
@@ -88,8 +92,8 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
         id="integrated-terminal"
         style={{
           overflow: "auto",
-          height: "350px",
-          width: "330px",
+          height: height ? height : "350px",
+          width: width ? width : "330px",
         }}
       />
     </div>

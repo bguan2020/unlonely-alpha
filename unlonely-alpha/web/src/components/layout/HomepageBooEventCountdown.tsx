@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Flex, Text, Button } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 import {
   IFormConfigurator,
   INITIAL_FORM_CONFIG,
@@ -8,6 +8,7 @@ import { getTimeFromMillis } from "../../utils/time";
 import { useBooTokenTerminal } from "../../hooks/internal/boo-token/useBooTokenTerminal";
 import { useForm } from "react-hook-form";
 import { eventStartTime } from "./BooEventWrapper";
+import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";
 
 export const HomePageBooEventTokenCountdown = ({
   rpcUrl,
@@ -39,37 +40,55 @@ export const HomePageBooEventTokenCountdown = ({
 
   return (
     <Flex direction="column" alignItems="center">
-      <Text
-        fontSize={"40px"}
-        color={timeLeft > 0 ? "#ec3f3f" : "green"}
-        className={timeLeft > 0 ? "flashing-text" : ""}
-        fontWeight="bold"
-      >
-        {timeLeft > 0 && getTimeFromMillis(timeLeft * 1000, true, true)}
-      </Text>
-      <Flex mt={4} direction={"column"} gap={4}>
+      <Flex mt={4} direction={"column"} gap={4} width="100%">
         <div
           style={{
             position: "relative" as const,
             width: "100%",
+            height: "40vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
           }}
-          id="dexscreener-embed"
         >
+          <Flex
+            position="absolute"
+            direction="column"
+            gap={4}
+            alignItems="center"
+            textAlign="center"
+            width="100%"
+            pointerEvents="none"
+            opacity={0.5}
+          >
+            <Text fontFamily={"DigitalDisplay"} fontSize="50px">
+              AN UNMISSABLE HALLOWEEN SPECIAL IS ARRIVING IN 1243
+            </Text>
+            <Text fontFamily={"DigitalDisplay"} fontSize="50px">
+              {getTimeFromMillis(timeLeft * 1000, true, true, true)}
+            </Text>
+          </Flex>
           <iframe
-            height="600px"
-            width="500px"
+            height="100%"
+            width="100%"
             id="geckoterminal-embed"
             title="GeckoTerminal Embed"
-            src="https://www.geckoterminal.com/solana/pools/DtxxzR77SEsrVhPzSixCdM1dcuANwQsMiNsM5vSPdYL1?embed=1&info=0&swaps=1"
+            src="https://www.geckoterminal.com/solana/pools/DtxxzR77SEsrVhPzSixCdM1dcuANwQsMiNsM5vSPdYL1?embed=1&info=0&swaps=0"
             allow="clipboard-write"
           ></iframe>
         </div>
-        <Button onClick={() => launchTerminal(true)} colorScheme="blue">
-          Buy
-        </Button>
-        <Button onClick={() => launchTerminal(false)} colorScheme="blue">
-          Sell
-        </Button>
+        <Flex justifyContent={"center"}>
+          <IntegratedTerminal
+            rpcUrl="https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
+            formProps={watchAllFields.formProps}
+            simulateWalletPassthrough={watchAllFields.simulateWalletPassthrough}
+            strictTokenList={watchAllFields.strictTokenList}
+            defaultExplorer={watchAllFields.defaultExplorer}
+            useUserSlippage={false}
+            height="40vh"
+            width="400px"
+          />
+        </Flex>
       </Flex>
     </Flex>
   );
