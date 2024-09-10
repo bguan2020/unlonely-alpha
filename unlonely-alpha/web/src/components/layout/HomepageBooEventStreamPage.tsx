@@ -19,6 +19,12 @@ import { useQuery } from "@apollo/client";
 import { FaExpandArrowsAlt } from "react-icons/fa";
 import { BooEventTile } from "./BooEventTile";
 
+const TTS_BROADCAST_MESSAGE_HEIGHT = 90;
+const TOKEN_VIEW_COLUMN_2_WIDTH = 330;
+const TOKEN_VIEW_MINI_PLAYER_HEIGHT = 200;
+const TOKEN_VIEW_TILE_GAP = 5;
+const STREAM_VIEW_JUPITER_TERMINAL_HEIGHT = 340;
+
 export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const { chat: c, channel } = useChannelContext();
   const { channelQueryData, handleChannelStaticData } = channel;
@@ -99,14 +105,20 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
           bottom={viewState === "token" ? 0 : "30px"}
           right={viewState === "token" ? 0 : "30px"}
           width={viewState === "token" ? "100%" : undefined}
-          height={viewState === "token" ? "100%" : "350px"}
+          height={
+            viewState === "token"
+              ? "100%"
+              : `${STREAM_VIEW_JUPITER_TERMINAL_HEIGHT}px`
+          }
           transition="all 0.3s"
           zIndex={viewState === "token" ? 0 : 1}
           overflow="auto"
           bg={viewState === "token" ? "#37FF8B" : "#1F2935"}
           borderRadius={viewState === "token" ? "0px" : "10px"}
           border={
-            viewState === "token" ? "5px solid #37FF8B" : "2px solid #37FF8B"
+            viewState === "token"
+              ? `${TOKEN_VIEW_TILE_GAP}px solid #37FF8B`
+              : "2px solid #37FF8B"
           }
         >
           {viewState === "stream" && (
@@ -123,10 +135,17 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
               />
             </Flex>
           )}
-          <Flex width="100%" gap="5px">
-            <Flex direction="column" width="100%" gap="5px">
+          <Flex
+            width="100%"
+            gap={viewState === "token" ? `${TOKEN_VIEW_TILE_GAP}px` : "0px"}
+          >
+            <Flex
+              direction="column"
+              width="100%"
+              gap={`${TOKEN_VIEW_TILE_GAP}px`}
+            >
               <iframe
-                height="350px"
+                height="60%"
                 id="geckoterminal-embed"
                 title="GeckoTerminal Embed"
                 src="https://www.geckoterminal.com/solana/pools/DtxxzR77SEsrVhPzSixCdM1dcuANwQsMiNsM5vSPdYL1?embed=1&info=0&swaps=0"
@@ -135,35 +154,21 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
               ></iframe>
               {viewState === "token" && (
                 <>
-                  <BooEventTile color="#796AFF" width="100%" height="90px">
-                    <Flex
-                      justifyContent={"center"}
-                      alignItems={"center"}
-                      width={"100%"}
-                    >
-                      <Text
-                        textAlign={"center"}
-                        fontFamily="LoRes15"
-                        fontSize="20px"
-                      >
-                        TTS: send a custom text-to-speech message to contestants
-                      </Text>
-                    </Flex>
-                  </BooEventTile>
-                  <Flex gap="5px" height="50%">
+                  <Flex gap={`${TOKEN_VIEW_TILE_GAP}px`} height="40%">
                     <BooEventTile color="#F57CA1" width="100%" height="100%">
                       <Flex
                         justifyContent="center"
+                        alignItems={"flex-start"}
                         width="100%"
                         height="100%"
-                        p="5px"
+                        p={`${TOKEN_VIEW_TILE_GAP}px`}
                       >
-                        <Flex alignItems="flex-start">
+                        <Flex alignItems="center" gap="10px">
                           <Image src="/images/pixel-heart.png" alt="heart" />
                           <Text
                             textAlign="center"
                             fontFamily="LoRes15"
-                            fontSize="20px"
+                            fontSize={["20px", "30px"]}
                             mx={2}
                           >
                             CARE PACKAGES
@@ -178,11 +183,12 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                         width="100%"
                         height="100%"
                         position="relative"
-                        p="5px"
+                        p={`${TOKEN_VIEW_TILE_GAP}px`}
+                        alignItems={"flex-start"}
                       >
                         <Flex
                           position="absolute"
-                          top="-15px"
+                          top="-10px"
                           left="0"
                           right="0"
                           bottom="0"
@@ -199,17 +205,17 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                                 src="/images/pixel-blood.png"
                                 alt="blood"
                                 width="20%"
-                                height="20%"
+                                height="10%"
                                 objectFit="cover"
                               />
                             ))}
                         </Flex>
-                        <Flex alignItems="flex-start">
+                        <Flex alignItems="center" gap="10px">
                           <Image src="/images/pixel-ghost.png" alt="ghost" />
                           <Text
                             textAlign="center"
                             fontFamily="LoRes15"
-                            fontSize="20px"
+                            fontSize={["20px", "30px"]}
                             mx={2}
                           >
                             SCARE PACKAGES
@@ -222,41 +228,86 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                 </>
               )}
             </Flex>
-
-            <IntegratedTerminal
-              rpcUrl="https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
-              formProps={
-                isSell
-                  ? watchAllFieldsSell.formProps
-                  : watchAllFieldsBuy.formProps
-              }
-              simulateWalletPassthrough={
-                isSell
-                  ? watchAllFieldsSell.simulateWalletPassthrough
-                  : watchAllFieldsBuy.simulateWalletPassthrough
-              }
-              strictTokenList={
-                isSell
-                  ? watchAllFieldsSell.strictTokenList
-                  : watchAllFieldsBuy.strictTokenList
-              }
-              defaultExplorer={
-                isSell
-                  ? watchAllFieldsSell.defaultExplorer
-                  : watchAllFieldsBuy.defaultExplorer
-              }
-              useUserSlippage={false}
-            />
+            <Flex
+              direction="column"
+              height={"100%"}
+              gap={`${TOKEN_VIEW_TILE_GAP}px`}
+            >
+              <IntegratedTerminal
+                height={
+                  viewState === "token"
+                    ? `calc(100% - ${TOKEN_VIEW_MINI_PLAYER_HEIGHT}px - ${TTS_BROADCAST_MESSAGE_HEIGHT}px - ${
+                        TOKEN_VIEW_TILE_GAP * 2
+                      }px)`
+                    : `${TOKEN_VIEW_COLUMN_2_WIDTH}px`
+                }
+                rpcUrl="https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
+                formProps={
+                  isSell
+                    ? watchAllFieldsSell.formProps
+                    : watchAllFieldsBuy.formProps
+                }
+                simulateWalletPassthrough={
+                  isSell
+                    ? watchAllFieldsSell.simulateWalletPassthrough
+                    : watchAllFieldsBuy.simulateWalletPassthrough
+                }
+                strictTokenList={
+                  isSell
+                    ? watchAllFieldsSell.strictTokenList
+                    : watchAllFieldsBuy.strictTokenList
+                }
+                defaultExplorer={
+                  isSell
+                    ? watchAllFieldsSell.defaultExplorer
+                    : watchAllFieldsBuy.defaultExplorer
+                }
+                useUserSlippage={false}
+              />
+              {viewState === "token" && (
+                <BooEventTile
+                  color="#796AFF"
+                  width="100%"
+                  height={`${TTS_BROADCAST_MESSAGE_HEIGHT}px`}
+                >
+                  <Flex
+                    justifyContent={"center"}
+                    alignItems={"center"}
+                    width={"100%"}
+                    gap="16px"
+                  >
+                    <Image
+                      src="/images/megaphone.png"
+                      alt="megaphone"
+                      width="20px"
+                      height="20px"
+                    />
+                    <Text
+                      textAlign={"center"}
+                      fontFamily="LoRes15"
+                      fontSize="20px"
+                    >
+                      TTS BROADCAST MESSAGE
+                    </Text>
+                  </Flex>
+                </BooEventTile>
+              )}
+            </Flex>
           </Flex>
         </Flex>
-
         {playbackInfo && (
           <Box
             position="absolute"
-            bottom={viewState === "stream" ? 0 : "5px"}
-            right={viewState === "stream" ? 0 : "5px"}
-            width={viewState === "stream" ? "100%" : "330px"}
-            height={viewState === "stream" ? "100%" : "200px"}
+            bottom={viewState === "stream" ? 0 : `${TOKEN_VIEW_TILE_GAP}px`}
+            right={viewState === "stream" ? 0 : `${TOKEN_VIEW_TILE_GAP}px`}
+            width={
+              viewState === "stream" ? "100%" : `${TOKEN_VIEW_COLUMN_2_WIDTH}px`
+            }
+            height={
+              viewState === "stream"
+                ? "100%"
+                : `${TOKEN_VIEW_MINI_PLAYER_HEIGHT}px`
+            }
             transition="all 0.3s"
             zIndex={viewState === "stream" ? 0 : 1}
           >

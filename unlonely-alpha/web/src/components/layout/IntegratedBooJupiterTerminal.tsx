@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState, memo } from "react";
 import { useUnifiedWalletContext, useWallet } from "@jup-ag/wallet-adapter";
 import { FormProps } from "../transactions/solana/SolanaJupiterTerminal";
-import { Spinner } from "@chakra-ui/react";
 
 interface IntegratedTerminalProps {
   rpcUrl: string;
@@ -84,18 +83,14 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
   }, [passthroughWalletContextState]);
 
   return (
-    <div>
-      {/* Loading state */}
-      {!isLoaded && <Spinner />}
-
-      <div
-        id="integrated-terminal"
-        style={{
-          height: height ? height : "350px",
-          width: width ? width : "330px",
-          backgroundColor: "#1F2935",
-        }}
-      />
-    </div>
+    <div
+      id="integrated-terminal"
+      style={{
+        height: height ? height : "330px",
+        width: width ? width : "330px",
+        backgroundColor: "#1F2935",
+        overflowY: "auto",
+      }}
+    />
   );
 });
