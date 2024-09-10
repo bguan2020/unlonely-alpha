@@ -19,11 +19,11 @@ import { useQuery } from "@apollo/client";
 import { FaExpandArrowsAlt } from "react-icons/fa";
 import { BooEventTile } from "./BooEventTile";
 
-const TTS_BROADCAST_MESSAGE_HEIGHT = 90;
-const TOKEN_VIEW_COLUMN_2_WIDTH = 330;
-const TOKEN_VIEW_MINI_PLAYER_HEIGHT = 200;
-const TOKEN_VIEW_TILE_GAP = 5;
-const STREAM_VIEW_JUPITER_TERMINAL_HEIGHT = 340;
+const TTS_BROADCAST_MESSAGE_PIXEL_HEIGHT = 70;
+const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
+const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
+const TOKEN_VIEW_TILE_PIXEL_GAP = 5;
+const STREAM_VIEW_JUPITER_TERMINAL_PIXEL_HEIGHT = 340;
 
 export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const { chat: c, channel } = useChannelContext();
@@ -108,7 +108,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
           height={
             viewState === "token"
               ? "100%"
-              : `${STREAM_VIEW_JUPITER_TERMINAL_HEIGHT}px`
+              : `${STREAM_VIEW_JUPITER_TERMINAL_PIXEL_HEIGHT}px`
           }
           transition="all 0.3s"
           zIndex={viewState === "token" ? 0 : 1}
@@ -117,7 +117,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
           borderRadius={viewState === "token" ? "0px" : "10px"}
           border={
             viewState === "token"
-              ? `${TOKEN_VIEW_TILE_GAP}px solid #37FF8B`
+              ? `${TOKEN_VIEW_TILE_PIXEL_GAP}px solid #37FF8B`
               : "2px solid #37FF8B"
           }
         >
@@ -137,12 +137,14 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
           )}
           <Flex
             width="100%"
-            gap={viewState === "token" ? `${TOKEN_VIEW_TILE_GAP}px` : "0px"}
+            gap={
+              viewState === "token" ? `${TOKEN_VIEW_TILE_PIXEL_GAP}px` : "0px"
+            }
           >
             <Flex
               direction="column"
               width="100%"
-              gap={`${TOKEN_VIEW_TILE_GAP}px`}
+              gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
             >
               <iframe
                 height="60%"
@@ -154,14 +156,14 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
               ></iframe>
               {viewState === "token" && (
                 <>
-                  <Flex gap={`${TOKEN_VIEW_TILE_GAP}px`} height="40%">
+                  <Flex gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`} height="40%">
                     <BooEventTile color="#F57CA1" width="100%" height="100%">
                       <Flex
                         justifyContent="center"
                         alignItems={"flex-start"}
                         width="100%"
                         height="100%"
-                        p={`${TOKEN_VIEW_TILE_GAP}px`}
+                        p={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
                       >
                         <Flex alignItems="center" gap="10px">
                           <Image src="/images/pixel-heart.png" alt="heart" />
@@ -183,7 +185,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                         width="100%"
                         height="100%"
                         position="relative"
-                        p={`${TOKEN_VIEW_TILE_GAP}px`}
+                        p={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
                         alignItems={"flex-start"}
                       >
                         <Flex
@@ -231,15 +233,15 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
             <Flex
               direction="column"
               height={"100%"}
-              gap={`${TOKEN_VIEW_TILE_GAP}px`}
+              gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
             >
               <IntegratedTerminal
                 height={
                   viewState === "token"
-                    ? `calc(100% - ${TOKEN_VIEW_MINI_PLAYER_HEIGHT}px - ${TTS_BROADCAST_MESSAGE_HEIGHT}px - ${
-                        TOKEN_VIEW_TILE_GAP * 2
+                    ? `calc(100% - ${TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT}px - ${TTS_BROADCAST_MESSAGE_PIXEL_HEIGHT}px - ${
+                        TOKEN_VIEW_TILE_PIXEL_GAP * 2
                       }px)`
-                    : `${TOKEN_VIEW_COLUMN_2_WIDTH}px`
+                    : `${TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH}px`
                 }
                 rpcUrl="https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
                 formProps={
@@ -268,7 +270,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                 <BooEventTile
                   color="#796AFF"
                   width="100%"
-                  height={`${TTS_BROADCAST_MESSAGE_HEIGHT}px`}
+                  height={`${TTS_BROADCAST_MESSAGE_PIXEL_HEIGHT}px`}
                 >
                   <Flex
                     justifyContent={"center"}
@@ -298,15 +300,21 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
         {playbackInfo && (
           <Box
             position="absolute"
-            bottom={viewState === "stream" ? 0 : `${TOKEN_VIEW_TILE_GAP}px`}
-            right={viewState === "stream" ? 0 : `${TOKEN_VIEW_TILE_GAP}px`}
+            bottom={
+              viewState === "stream" ? 0 : `${TOKEN_VIEW_TILE_PIXEL_GAP}px`
+            }
+            right={
+              viewState === "stream" ? 0 : `${TOKEN_VIEW_TILE_PIXEL_GAP}px`
+            }
             width={
-              viewState === "stream" ? "100%" : `${TOKEN_VIEW_COLUMN_2_WIDTH}px`
+              viewState === "stream"
+                ? "100%"
+                : `${TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH}px`
             }
             height={
               viewState === "stream"
                 ? "100%"
-                : `${TOKEN_VIEW_MINI_PLAYER_HEIGHT}px`
+                : `${TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT}px`
             }
             transition="all 0.3s"
             zIndex={viewState === "stream" ? 0 : 1}
