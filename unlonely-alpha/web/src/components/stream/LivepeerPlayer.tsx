@@ -30,10 +30,14 @@ const LivepeerPlayer = memo(
     src,
     isPreview,
     customSizePercentages,
+    borderRadius,
+    cannotOpenClipDrawer,
   }: {
     src: Src[] | null;
     isPreview?: boolean;
     customSizePercentages?: { width: `${number}%`; height: `${number}%` };
+    borderRadius?: string;
+    cannotOpenClipDrawer?: boolean;
   }) => {
     const { ui } = useChannelContext();
     const { showClipDrawer, handleClipDrawer } = ui;
@@ -74,6 +78,7 @@ const LivepeerPlayer = memo(
           height="100%"
           backgroundColor={"black"}
           position="relative"
+          borderRadius={borderRadius}
         >
           <Flex
             style={{
@@ -119,6 +124,7 @@ const LivepeerPlayer = memo(
               backgroundColor: "black",
               width: "100%",
               height: "100%",
+              borderRadius: borderRadius,
             }}
           >
             <Player.Video
@@ -184,6 +190,7 @@ const LivepeerPlayer = memo(
                   width: "100%",
                   height: "100%",
                 }}
+                borderRadius={borderRadius}
               >
                 <Flex
                   direction="column"
@@ -239,7 +246,7 @@ const LivepeerPlayer = memo(
                       >
                         stream offline
                       </Text>
-                      {!isPreview && (
+                      {!isPreview && !cannotOpenClipDrawer && (
                         <>
                           <Text textAlign="center">
                             open here to catch up on clips from recent streams
@@ -262,20 +269,6 @@ const LivepeerPlayer = memo(
                           />
                         </>
                       )}
-                      {/* <IconButton
-                        color="white"
-                        aria-label="refresh"
-                        icon={<BiRefresh size="30px" />}
-                        bg="rgb(0, 0, 0, 0.5)"
-                        onClick={() => window?.location?.reload()}
-                        _hover={{
-                          bg: "rgb(255,255,255, 0.1)",
-                        }}
-                        _focus={{}}
-                        _active={{}}
-                        borderWidth="1px"
-                        zIndex="1"
-                      /> */}
                     </>
                   )}
                 </Flex>

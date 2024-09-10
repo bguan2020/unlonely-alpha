@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Box, Button, Flex } from "@chakra-ui/react";
+import React, { useEffect, useState, useRef } from "react";
+import { Box, Flex, IconButton, Text, Image } from "@chakra-ui/react";
 import { useChat } from "../../hooks/chat/useChat";
 import { useLivepeerStreamData } from "../../hooks/internal/useLivepeerStreamData";
 import ChatComponent from "../chat/ChatComponent";
@@ -16,48 +16,8 @@ import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
 import { useQuery } from "@apollo/client";
-
-const OpacityWrapper = ({
-  alwaysShow,
-  children,
-}: {
-  alwaysShow?: boolean;
-  children: React.ReactNode;
-}) => {
-  const [opacity, setOpacity] = useState(0);
-  const timeoutRef = useRef<number | NodeJS.Timeout | null>(null);
-
-  const handleOpacity = () => {
-    setOpacity(1);
-    if (timeoutRef.current !== null) {
-      clearTimeout(timeoutRef.current);
-    }
-    timeoutRef.current = setTimeout(() => {
-      setOpacity(0);
-      timeoutRef.current = null;
-    }, 2000);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current !== null) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
-
-  return (
-    <Box
-      opacity={opacity === 1 || alwaysShow ? 1 : 0.5}
-      transition="opacity 0.3s"
-      onTouchStart={handleOpacity}
-      onMouseMove={handleOpacity}
-      overflow="auto"
-    >
-      {children}
-    </Box>
-  );
-};
+import { FaExpandArrowsAlt } from "react-icons/fa";
+import { BooEventTile } from "./BooEventTile";
 
 export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const { chat: c, channel } = useChannelContext();
@@ -100,6 +60,28 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
     if (channelStatic) handleChannelStaticData(channelStatic?.getChannelBySlug);
   }, [channelStatic]);
 
+  const [bloodImageCount, setBloodImageCount] = useState(0);
+  const bloodContainerRef = useRef<HTMLDivElement>(null);
+
+  const calculateImageCount = () => {
+    console.log("calculateImageCount", bloodContainerRef.current);
+    if (bloodContainerRef.current) {
+      const containerWidth = bloodContainerRef.current.offsetWidth;
+      const imageWidth = containerWidth * 0.2;
+      const imagesPerRow = Math.ceil(containerWidth / imageWidth);
+      setBloodImageCount(imagesPerRow);
+    }
+  };
+
+  useEffect(() => {
+    if (viewState === "token" && bloodImageCount === 0) calculateImageCount();
+  }, [viewState]);
+
+  useEffect(() => {
+    window.addEventListener("resize", calculateImageCount);
+    return () => window.removeEventListener("resize", calculateImageCount);
+  }, []);
+
   return (
     <Flex
       direction={["column", "column", "row"]}
@@ -112,86 +94,193 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
         height="100%"
         position="relative"
       >
-        <Box
+        <Flex
           position="absolute"
-          bottom={viewState === "token" ? 0 : "120px"}
-          right={viewState === "token" ? 0 : "40px"}
+          bottom={viewState === "token" ? 0 : "30px"}
+          right={viewState === "token" ? 0 : "30px"}
           width={viewState === "token" ? "100%" : undefined}
-          height={viewState === "token" ? "100%" : "50%"}
+          height={viewState === "token" ? "100%" : "350px"}
           transition="all 0.3s"
           zIndex={viewState === "token" ? 0 : 1}
-          bg={"rgba(0, 0, 0, 0.8)"}
+          overflow="auto"
+          bg={viewState === "token" ? "#37FF8B" : "#1F2935"}
+          borderRadius={viewState === "token" ? "0px" : "10px"}
+          border={
+            viewState === "token" ? "5px solid #37FF8B" : "2px solid #37FF8B"
+          }
         >
-          <OpacityWrapper alwaysShow={viewState === "token"}>
-            <Flex justifyContent="space-between" p={1} gap={1}>
-              <Button
+          {viewState === "stream" && (
+            <Flex justifyContent="space-between" flexDirection="column">
+              <IconButton
+                bg="transparent"
+                color="white"
+                _hover={{}}
+                aria-label="minimize stream"
+                icon={<FaExpandArrowsAlt />}
                 onClick={() => {
-                  if (viewState === "stream") {
-                    setViewState("token");
-                  } else {
-                    setViewState("stream");
-                  }
+                  setViewState("token");
                 }}
-              >
-                change
-              </Button>
-              <Button
-                onClick={() => {
-                  setIsSell(!isSell);
-                }}
-              >
-                {isSell ? "sell" : "buy"}
-              </Button>
+              />
             </Flex>
-            <Flex>
+          )}
+          <Flex width="100%" gap="5px">
+            <Flex direction="column" width="100%" gap="5px">
               <iframe
-                height="360px"
-                width="100%"
+                height="350px"
                 id="geckoterminal-embed"
                 title="GeckoTerminal Embed"
-                src="https://www.geckoterminal.com/solana/pools/DtxxzR77SEsrVhPzSixCdM1dcuANwQsMiNsM5vSPdYL1?embed=1&info=0&swaps=1"
+                src="https://www.geckoterminal.com/solana/pools/DtxxzR77SEsrVhPzSixCdM1dcuANwQsMiNsM5vSPdYL1?embed=1&info=0&swaps=0"
                 allow="clipboard-write"
                 hidden={viewState !== "token"}
               ></iframe>
-              <IntegratedTerminal
-                rpcUrl="https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
-                formProps={
-                  isSell
-                    ? watchAllFieldsSell.formProps
-                    : watchAllFieldsBuy.formProps
-                }
-                simulateWalletPassthrough={
-                  isSell
-                    ? watchAllFieldsSell.simulateWalletPassthrough
-                    : watchAllFieldsBuy.simulateWalletPassthrough
-                }
-                strictTokenList={
-                  isSell
-                    ? watchAllFieldsSell.strictTokenList
-                    : watchAllFieldsBuy.strictTokenList
-                }
-                defaultExplorer={
-                  isSell
-                    ? watchAllFieldsSell.defaultExplorer
-                    : watchAllFieldsBuy.defaultExplorer
-                }
-                useUserSlippage={false}
-              />
+              {viewState === "token" && (
+                <>
+                  <BooEventTile color="#796AFF" width="100%" height="90px">
+                    <Flex
+                      justifyContent={"center"}
+                      alignItems={"center"}
+                      width={"100%"}
+                    >
+                      <Text
+                        textAlign={"center"}
+                        fontFamily="LoRes15"
+                        fontSize="20px"
+                      >
+                        TTS: send a custom text-to-speech message to contestants
+                      </Text>
+                    </Flex>
+                  </BooEventTile>
+                  <Flex gap="5px" height="50%">
+                    <BooEventTile color="#F57CA1" width="100%" height="100%">
+                      <Flex
+                        justifyContent="center"
+                        width="100%"
+                        height="100%"
+                        p="5px"
+                      >
+                        <Flex alignItems="flex-start">
+                          <Image src="/images/pixel-heart.png" alt="heart" />
+                          <Text
+                            textAlign="center"
+                            fontFamily="LoRes15"
+                            fontSize="20px"
+                            mx={2}
+                          >
+                            CARE PACKAGES
+                          </Text>
+                          <Image src="/images/pixel-heart.png" alt="heart" />
+                        </Flex>
+                      </Flex>
+                    </BooEventTile>
+                    <BooEventTile color="#B52423" width="100%" height="100%">
+                      <Flex
+                        justifyContent="center"
+                        width="100%"
+                        height="100%"
+                        position="relative"
+                        p="5px"
+                      >
+                        <Flex
+                          position="absolute"
+                          top="-15px"
+                          left="0"
+                          right="0"
+                          bottom="0"
+                          zIndex="1"
+                          flexWrap="wrap"
+                          overflow="hidden"
+                          ref={bloodContainerRef}
+                        >
+                          {Array(bloodImageCount)
+                            .fill(0)
+                            .map((_, index) => (
+                              <Image
+                                key={index}
+                                src="/images/pixel-blood.png"
+                                alt="blood"
+                                width="20%"
+                                height="20%"
+                                objectFit="cover"
+                              />
+                            ))}
+                        </Flex>
+                        <Flex alignItems="flex-start">
+                          <Image src="/images/pixel-ghost.png" alt="ghost" />
+                          <Text
+                            textAlign="center"
+                            fontFamily="LoRes15"
+                            fontSize="20px"
+                            mx={2}
+                          >
+                            SCARE PACKAGES
+                          </Text>
+                          <Image src="/images/pixel-ghost.png" alt="ghost" />
+                        </Flex>
+                      </Flex>
+                    </BooEventTile>
+                  </Flex>
+                </>
+              )}
             </Flex>
-          </OpacityWrapper>
-        </Box>
+
+            <IntegratedTerminal
+              rpcUrl="https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
+              formProps={
+                isSell
+                  ? watchAllFieldsSell.formProps
+                  : watchAllFieldsBuy.formProps
+              }
+              simulateWalletPassthrough={
+                isSell
+                  ? watchAllFieldsSell.simulateWalletPassthrough
+                  : watchAllFieldsBuy.simulateWalletPassthrough
+              }
+              strictTokenList={
+                isSell
+                  ? watchAllFieldsSell.strictTokenList
+                  : watchAllFieldsBuy.strictTokenList
+              }
+              defaultExplorer={
+                isSell
+                  ? watchAllFieldsSell.defaultExplorer
+                  : watchAllFieldsBuy.defaultExplorer
+              }
+              useUserSlippage={false}
+            />
+          </Flex>
+        </Flex>
 
         {playbackInfo && (
           <Box
             position="absolute"
-            bottom={viewState === "stream" ? 0 : "40px"}
-            right={viewState === "stream" ? 0 : "40px"}
-            width={viewState === "stream" ? "100%" : "30%"}
-            height={viewState === "stream" ? "100%" : "30%"}
+            bottom={viewState === "stream" ? 0 : "5px"}
+            right={viewState === "stream" ? 0 : "5px"}
+            width={viewState === "stream" ? "100%" : "330px"}
+            height={viewState === "stream" ? "100%" : "200px"}
             transition="all 0.3s"
             zIndex={viewState === "stream" ? 0 : 1}
           >
-            <LivepeerPlayer src={getSrc(playbackInfo)} />
+            {viewState === "token" && (
+              <IconButton
+                position="absolute"
+                top="0px"
+                left="0px"
+                bg="rgba(0, 0, 0, 0.5)"
+                color="white"
+                _hover={{ bg: "rgba(0, 0, 0, 0.7)" }}
+                aria-label={"expand stream"}
+                icon={<FaExpandArrowsAlt />}
+                onClick={() => {
+                  setViewState("stream");
+                }}
+                zIndex={2}
+              />
+            )}
+            <LivepeerPlayer
+              src={getSrc(playbackInfo)}
+              borderRadius={viewState === "stream" ? "0px" : "10px"}
+              cannotOpenClipDrawer
+            />
           </Box>
         )}
       </Flex>

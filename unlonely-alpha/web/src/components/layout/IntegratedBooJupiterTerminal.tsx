@@ -91,9 +91,9 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
       <div
         id="integrated-terminal"
         style={{
-          overflow: "auto",
           height: height ? height : "350px",
           width: width ? width : "330px",
+          backgroundColor: "#1F2935",
         }}
       />
     </div>
