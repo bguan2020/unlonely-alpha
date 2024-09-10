@@ -19,11 +19,12 @@ import { useQuery } from "@apollo/client";
 import { FaExpandArrowsAlt } from "react-icons/fa";
 import { BooEventTile } from "./BooEventTile";
 
-const TTS_BROADCAST_MESSAGE_PIXEL_HEIGHT = 70;
 const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
 const TOKEN_VIEW_TILE_PIXEL_GAP = 5;
 const STREAM_VIEW_JUPITER_TERMINAL_PIXEL_HEIGHT = 340;
+
+const TOKEN_VIEW_GRAPH_PERCENT_HEIGHT = 60;
 
 export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const { chat: c, channel } = useChannelContext();
@@ -147,7 +148,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
               gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
             >
               <iframe
-                height="60%"
+                height={`${TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}%`}
                 id="geckoterminal-embed"
                 title="GeckoTerminal Embed"
                 src="https://www.geckoterminal.com/solana/pools/DtxxzR77SEsrVhPzSixCdM1dcuANwQsMiNsM5vSPdYL1?embed=1&info=0&swaps=0"
@@ -198,6 +199,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                           flexWrap="wrap"
                           overflow="hidden"
                           ref={bloodContainerRef}
+                          pointerEvents="none"
                         >
                           {Array(bloodImageCount)
                             .fill(0)
@@ -238,9 +240,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
               <IntegratedTerminal
                 height={
                   viewState === "token"
-                    ? `calc(100% - ${TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT}px - ${TTS_BROADCAST_MESSAGE_PIXEL_HEIGHT}px - ${
-                        TOKEN_VIEW_TILE_PIXEL_GAP * 2
-                      }px)`
+                    ? `${TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}%`
                     : `${TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH}px`
                 }
                 rpcUrl="https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
@@ -270,7 +270,9 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                 <BooEventTile
                   color="#796AFF"
                   width="100%"
-                  height={`${TTS_BROADCAST_MESSAGE_PIXEL_HEIGHT}px`}
+                  height={`calc(100% - ${TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}% - ${
+                    TOKEN_VIEW_TILE_PIXEL_GAP * 2
+                  }px - ${TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT}px)`}
                 >
                   <Flex
                     justifyContent={"center"}
