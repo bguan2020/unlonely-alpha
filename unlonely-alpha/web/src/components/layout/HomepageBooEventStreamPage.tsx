@@ -340,21 +340,19 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                         }}
                       />
                     )}
-                    {viewState === "token" && (
-                      <IconButton
-                        bg="#1F2935"
-                        color="#21ec54"
-                        _hover={{
-                          bg: "#354559",
-                        }}
-                        aria-label="swap token input"
-                        icon={<RiSwapFill />}
-                        zIndex={51}
-                        onClick={() => {
-                          setIsSell((prev) => !prev);
-                        }}
-                      />
-                    )}
+                    <IconButton
+                      bg="#1F2935"
+                      color="#21ec54"
+                      _hover={{
+                        bg: "#354559",
+                      }}
+                      aria-label="swap token input"
+                      icon={<RiSwapFill />}
+                      zIndex={51}
+                      onClick={() => {
+                        setIsSell((prev) => !prev);
+                      }}
+                    />
                     <IconButton
                       bg="#1F2935"
                       color="#21ec54"
