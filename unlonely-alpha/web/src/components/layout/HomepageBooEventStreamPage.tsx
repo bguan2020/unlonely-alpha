@@ -17,7 +17,7 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
 import { useQuery } from "@apollo/client";
 import { FaExpandArrowsAlt } from "react-icons/fa";
-import { MdDragIndicator } from "react-icons/md";
+import { RiSwapFill } from "react-icons/ri";
 import { BooEventTile } from "./BooEventTile";
 import {
   DndContext,
@@ -26,13 +26,14 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import Draggable from "./Draggable";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
 const TOKEN_VIEW_TILE_PIXEL_GAP = 5;
 const STREAM_VIEW_JUPITER_TERMINAL_PIXEL_HEIGHT = 340;
 
-const TOKEN_VIEW_GRAPH_PERCENT_HEIGHT = 60;
+const TOKEN_VIEW_GRAPH_PERCENT_HEIGHT = 50;
 const STREAM_VIEW_JUPITER_TERMINAL_MIN_X_OFFSET = 30;
 const STREAM_VIEW_JUPITER_TERMINAL_MIN_Y_OFFSET = 30;
 
@@ -82,7 +83,6 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const bloodContainerRef = useRef<HTMLDivElement>(null);
 
   const calculateImageCount = () => {
-    console.log("calculateImageCount", bloodContainerRef.current);
     if (bloodContainerRef.current) {
       const containerWidth = bloodContainerRef.current.offsetWidth;
       const imageWidth = containerWidth * 0.2;
@@ -195,31 +195,6 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                   : undefined
               }
             >
-              {viewState === "stream" && (
-                <Flex flexDirection="column">
-                  <IconButton
-                    bg="transparent"
-                    color="white"
-                    _hover={{}}
-                    aria-label="drag terminal"
-                    className="drag-handle"
-                    icon={<MdDragIndicator />}
-                    cursor="move"
-                  />
-                  <IconButton
-                    bg="transparent"
-                    color="white"
-                    _hover={{}}
-                    aria-label="minimize stream"
-                    icon={<FaExpandArrowsAlt />}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      console.log("clicked");
-                      setViewState("token");
-                    }}
-                  />
-                </Flex>
-              )}
               <Flex
                 width="100%"
                 gap={
@@ -243,7 +218,10 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                   ></iframe>
                   {viewState === "token" && (
                     <>
-                      <Flex gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`} height="40%">
+                      <Flex
+                        gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
+                        height={`${100 - TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}%`}
+                      >
                         <BooEventTile
                           color="#F57CA1"
                           width="100%"
@@ -254,7 +232,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                             alignItems={"flex-start"}
                             width="100%"
                             height="100%"
-                            p={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
+                            p={`${TOKEN_VIEW_TILE_PIXEL_GAP * 2}px`}
                           >
                             <Flex alignItems="center" gap="10px">
                               <Image
@@ -286,7 +264,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                             width="100%"
                             height="100%"
                             position="relative"
-                            p={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
+                            p={`${TOKEN_VIEW_TILE_PIXEL_GAP * 2}px`}
                             alignItems={"flex-start"}
                           >
                             <Flex
@@ -342,7 +320,58 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                   direction="column"
                   height={"100%"}
                   gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
+                  position={"relative"}
                 >
+                  <Flex position={"absolute"}>
+                    {viewState === "stream" && (
+                      <IconButton
+                        bg="#1F2935"
+                        color="#21ec54"
+                        _hover={{
+                          bg: "#354559",
+                        }}
+                        aria-label="minimize stream"
+                        icon={<FaExpandArrowsAlt />}
+                        zIndex={51}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          console.log("clicked");
+                          setViewState("token");
+                        }}
+                      />
+                    )}
+                    {viewState === "token" && (
+                      <IconButton
+                        bg="#1F2935"
+                        color="#21ec54"
+                        _hover={{
+                          bg: "#354559",
+                        }}
+                        aria-label="swap token input"
+                        icon={<RiSwapFill />}
+                        zIndex={51}
+                        onClick={() => {
+                          setIsSell((prev) => !prev);
+                        }}
+                      />
+                    )}
+                    <IconButton
+                      bg="#1F2935"
+                      color="#21ec54"
+                      _hover={{
+                        bg: "#354559",
+                      }}
+                      aria-label="go to pool"
+                      icon={<ExternalLinkIcon />}
+                      zIndex={51}
+                      onClick={() => {
+                        window.open(
+                          `https://raydium.io/swap/?inputMint=${FIXED_SOLANA_MINT}&outputMint=sol`,
+                          "_blank"
+                        );
+                      }}
+                    />
+                  </Flex>
                   <IntegratedTerminal
                     height={
                       viewState === "token"
@@ -435,7 +464,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                 top="0px"
                 left="0px"
                 bg="rgba(0, 0, 0, 0.5)"
-                color="white"
+                color="#21ec54"
                 _hover={{ bg: "rgba(0, 0, 0, 0.7)" }}
                 aria-label={"expand stream"}
                 icon={<FaExpandArrowsAlt />}
