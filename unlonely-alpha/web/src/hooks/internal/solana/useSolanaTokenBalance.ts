@@ -41,7 +41,7 @@ export const useSolanaTokenBalance = (rpcUrl: string) => {
         const decimals = 9;
         const balance = amount.div(new Decimal(10).pow(decimals)).toString();
   
-        console.log(`Token balance for ${FIXED_SOLANA_MINT} on Solana:`, balance);
+        console.log(`Token balance of ${FIXED_SOLANA_MINT} for ${publicKey} on Solana:`, balance);
         setBalance(Number(balance));
       } catch (error) {
         console.error("Error fetching token balance:", error);

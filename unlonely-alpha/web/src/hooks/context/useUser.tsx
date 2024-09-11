@@ -241,12 +241,12 @@ export const UserProvider = ({
     const auth =
       authenticated && wallets[0] !== undefined && user !== undefined;
     const matchingWallet = wallets[0]?.address === address;
-    // console.log("walletIsConnected auth", authenticated, wallets, user);
-    // console.log(
-    //   "walletIsConnected matchingWallet",
-    //   wallets[0]?.address,
-    //   address
-    // );
+    console.log("walletIsConnected auth", authenticated, wallets, user);
+    console.log(
+      "walletIsConnected matchingWallet",
+      wallets[0]?.address,
+      address
+    );
     return auth && matchingWallet;
   }, [authenticated, wallets, user, address]);
 
@@ -255,7 +255,7 @@ export const UserProvider = ({
     setUsername(data?.getUser?.username ?? centerEllipses(address, 9));
   }, [data, address]);
 
-  // console.log("privyUser", privyUser, user, walletIsConnected);
+  console.log("privyUser", privyUser, user, walletIsConnected);
 
   useEffect(() => {
     const f = async () => {

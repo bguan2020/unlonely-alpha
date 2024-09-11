@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Box, Flex, IconButton, Text, Image } from "@chakra-ui/react";
+import { Box, Flex, IconButton, Text, Image, Tooltip } from "@chakra-ui/react";
 import { useChat } from "../../hooks/chat/useChat";
 import { useLivepeerStreamData } from "../../hooks/internal/useLivepeerStreamData";
 import ChatComponent from "../chat/ChatComponent";
@@ -30,6 +30,7 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { useSolanaTokenBalance } from "../../hooks/internal/solana/useSolanaTokenBalance";
 import { Connection } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { useJupiterQuoteSwap } from "../../hooks/internal/solana/useJupiterQuoteSwap";
 
 const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
@@ -83,6 +84,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   });
 
   const { publicKey, connected } = useWallet();
+  const { quoteSwap } = useJupiterQuoteSwap();
 
   useEffect(() => {
     if (channelStatic) handleChannelStaticData(channelStatic?.getChannelBySlug);
@@ -91,8 +93,10 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   useEffect(() => {
     const init = async () => {
       if (!connected) return;
+      quoteSwap(1);
       const details = await getTransactionDetails(
-        "651Wn461brWUCwc34YL4xAHcpdZTJRZPELTqwZyZUCwdPHzwEWdbUMCV2zkp5toLz4gCjuEhacgxANhUYLnZ8UST",
+        // "651Wn461brWUCwc34YL4xAHcpdZTJRZPELTqwZyZUCwdPHzwEWdbUMCV2zkp5toLz4gCjuEhacgxANhUYLnZ8UST",
+        "DqdkgqkvhjtWJmCJXxrWeTpr5ezbLPSuKkeJNko7KfnJC5fQamqPE4moVmYLCEdkD59wXabh9oQK8UXKo22ppyy",
         new Connection(
           "https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
         )
@@ -402,52 +406,61 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                     bg="#1F2935"
                   >
                     {viewState === "stream" && (
-                      <IconButton
-                        bg="#1F2935"
-                        color="#21ec54"
-                        _hover={{
-                          bg: "#354559",
-                        }}
-                        aria-label="minimize stream"
-                        icon={<FaExpandArrowsAlt />}
-                        zIndex={51}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          console.log("clicked");
-                          setViewState("token");
-                        }}
-                      />
+                      <Tooltip label="expand" shouldWrapChildren>
+                        <IconButton
+                          bg="#1F2935"
+                          color="#21ec54"
+                          _hover={{
+                            bg: "#354559",
+                          }}
+                          aria-label="minimize stream"
+                          icon={<FaExpandArrowsAlt />}
+                          zIndex={51}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            console.log("clicked");
+                            setViewState("token");
+                          }}
+                        />
+                      </Tooltip>
                     )}
-                    <IconButton
-                      bg="#1F2935"
-                      color="#21ec54"
-                      _hover={{
-                        bg: "#354559",
-                      }}
-                      aria-label="swap token input"
-                      icon={<RiSwapFill />}
-                      zIndex={51}
-                      onClick={() => {
-                        setIsSell((prev) => !prev);
-                      }}
-                    />
-                    {viewState === "token" && (
+                    <Tooltip
+                      label={`switch to ${isSell ? "buy" : "sell"}`}
+                      shouldWrapChildren
+                    >
                       <IconButton
                         bg="#1F2935"
                         color="#21ec54"
                         _hover={{
                           bg: "#354559",
                         }}
-                        aria-label="go to pool"
-                        icon={<ExternalLinkIcon />}
+                        aria-label="swap token input"
+                        icon={<RiSwapFill />}
                         zIndex={51}
                         onClick={() => {
-                          window.open(
-                            `https://raydium.io/swap/?inputMint=${FIXED_SOLANA_MINT}&outputMint=sol`,
-                            "_blank"
-                          );
+                          setIsSell((prev) => !prev);
                         }}
                       />
+                    </Tooltip>
+                    {viewState === "token" && (
+                      <Tooltip label="pool page" shouldWrapChildren>
+                        <IconButton
+                          bg="#1F2935"
+                          color="#21ec54"
+                          _hover={{
+                            bg: "#354559",
+                          }}
+                          aria-label="go to pool"
+                          icon={<ExternalLinkIcon />}
+                          zIndex={51}
+                          onClick={() => {
+                            window.open(
+                              `https://raydium.io/swap/?inputMint=${FIXED_SOLANA_MINT}&outputMint=sol`,
+                              "_blank"
+                            );
+                          }}
+                        />
+                      </Tooltip>
                     )}
                   </Flex>
                   <IntegratedTerminal
@@ -537,20 +550,23 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
             zIndex={viewState === "stream" ? 0 : 1}
           >
             {viewState === "token" && (
-              <IconButton
-                position="absolute"
-                top="0px"
-                left="0px"
-                bg="rgba(0, 0, 0, 0.5)"
-                color="#21ec54"
-                _hover={{ bg: "rgba(0, 0, 0, 0.7)" }}
-                aria-label={"expand stream"}
-                icon={<FaExpandArrowsAlt />}
-                onClick={() => {
-                  setViewState("stream");
-                }}
-                zIndex={2}
-              />
+              <Box position="absolute" top="0px" left="0px">
+                <Tooltip label="expand" shouldWrapChildren>
+                  <IconButton
+                    bg="rgba(0, 0, 0, 0.5)"
+                    color="#21ec54"
+                    _hover={{
+                      bg: "#354559",
+                    }}
+                    aria-label={"expand stream"}
+                    icon={<FaExpandArrowsAlt />}
+                    onClick={() => {
+                      setViewState("stream");
+                    }}
+                    zIndex={2}
+                  />
+                </Tooltip>
+              </Box>
             )}
             <LivepeerPlayer
               src={getSrc(playbackInfo)}
