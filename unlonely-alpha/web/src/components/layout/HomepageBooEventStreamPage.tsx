@@ -17,7 +17,15 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
 import { useQuery } from "@apollo/client";
 import { FaExpandArrowsAlt } from "react-icons/fa";
+import { MdDragIndicator } from "react-icons/md";
 import { BooEventTile } from "./BooEventTile";
+import {
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import Draggable from "./Draggable";
 
 const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
@@ -25,6 +33,8 @@ const TOKEN_VIEW_TILE_PIXEL_GAP = 5;
 const STREAM_VIEW_JUPITER_TERMINAL_PIXEL_HEIGHT = 340;
 
 const TOKEN_VIEW_GRAPH_PERCENT_HEIGHT = 60;
+const STREAM_VIEW_JUPITER_TERMINAL_MIN_X_OFFSET = 30;
+const STREAM_VIEW_JUPITER_TERMINAL_MIN_Y_OFFSET = 30;
 
 export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const { chat: c, channel } = useChannelContext();
@@ -37,6 +47,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   });
 
   const [isSell, setIsSell] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const { watch: watchBuy } = useForm<IFormConfigurator>({
     defaultValues: INITIAL_FORM_CONFIG,
@@ -89,6 +100,48 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
     return () => window.removeEventListener("resize", calculateImageCount);
   }, []);
 
+  const [draggablePosition, setDraggablePosition] = useState({ x: 0, y: 0 });
+  const dragOriginRef = useRef({ x: 0, y: 0 });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 20,
+      },
+    })
+  );
+
+  const handleDragStart = () => {
+    dragOriginRef.current = { ...draggablePosition };
+  };
+
+  const handleDrag = (x: number, y: number) => {
+    if (viewState === "stream" && containerRef.current) {
+      const container = containerRef.current.getBoundingClientRect();
+      const terminalWidth = STREAM_VIEW_JUPITER_TERMINAL_PIXEL_HEIGHT;
+      const terminalHeight = STREAM_VIEW_JUPITER_TERMINAL_PIXEL_HEIGHT;
+
+      const maxX = container.width - terminalWidth;
+      const maxY = container.height - terminalHeight;
+
+      // Calculate new position based on drag origin and current drag offset
+      const newX = dragOriginRef.current.x + x;
+      const newY = dragOriginRef.current.y + y;
+
+      // Constrain the new position within the container boundaries
+      const constrainedX = Math.max(
+        STREAM_VIEW_JUPITER_TERMINAL_MIN_X_OFFSET * 3 - maxX,
+        Math.min(newX, 0)
+      );
+      const constrainedY = Math.max(
+        STREAM_VIEW_JUPITER_TERMINAL_MIN_Y_OFFSET * 2 - maxY,
+        Math.min(newY, 0)
+      );
+
+      setDraggablePosition({ x: constrainedX, y: constrainedY });
+    }
+  };
+
   return (
     <Flex
       direction={["column", "column", "row"]}
@@ -96,209 +149,264 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
       width="100%"
     >
       <Flex
+        ref={containerRef}
         direction="column"
         width={["100%", "100%", "80%"]}
         height="100%"
         position="relative"
       >
-        <Flex
-          position="absolute"
-          bottom={viewState === "token" ? 0 : "30px"}
-          right={viewState === "token" ? 0 : "30px"}
-          width={viewState === "token" ? "100%" : undefined}
-          height={
-            viewState === "token"
-              ? "100%"
-              : `${STREAM_VIEW_JUPITER_TERMINAL_PIXEL_HEIGHT}px`
-          }
-          transition="all 0.3s"
-          zIndex={viewState === "token" ? 0 : 1}
-          overflow="auto"
-          bg={viewState === "token" ? "#37FF8B" : "#1F2935"}
-          borderRadius={viewState === "token" ? "0px" : "10px"}
-          border={
-            viewState === "token"
-              ? `${TOKEN_VIEW_TILE_PIXEL_GAP}px solid #37FF8B`
-              : "2px solid #37FF8B"
-          }
-        >
-          {viewState === "stream" && (
-            <Flex justifyContent="space-between" flexDirection="column">
-              <IconButton
-                bg="transparent"
-                color="white"
-                _hover={{}}
-                aria-label="minimize stream"
-                icon={<FaExpandArrowsAlt />}
-                onClick={() => {
-                  setViewState("token");
-                }}
-              />
-            </Flex>
-          )}
-          <Flex
-            width="100%"
-            gap={
-              viewState === "token" ? `${TOKEN_VIEW_TILE_PIXEL_GAP}px` : "0px"
-            }
+        <DndContext sensors={sensors} onDragStart={handleDragStart}>
+          <Draggable
+            id="draggable-terminal"
+            onDrag={handleDrag}
+            dragHandleClassName="drag-handle"
           >
             <Flex
-              direction="column"
-              width="100%"
-              gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
+              position="absolute"
+              bottom={
+                viewState === "token"
+                  ? 0
+                  : STREAM_VIEW_JUPITER_TERMINAL_MIN_Y_OFFSET
+              }
+              right={
+                viewState === "token"
+                  ? 0
+                  : STREAM_VIEW_JUPITER_TERMINAL_MIN_X_OFFSET
+              }
+              width={viewState === "token" ? "100%" : undefined}
+              height={
+                viewState === "token"
+                  ? "100%"
+                  : `${STREAM_VIEW_JUPITER_TERMINAL_PIXEL_HEIGHT}px`
+              }
+              transition="width 0.3s, height 0.3s, bottom 0.3s, right 0.3s"
+              zIndex={viewState === "token" ? 0 : 1}
+              overflow="auto"
+              bg={viewState === "token" ? "#37FF8B" : "#1F2935"}
+              borderRadius={viewState === "token" ? "0px" : "10px"}
+              border={
+                viewState === "token"
+                  ? `${TOKEN_VIEW_TILE_PIXEL_GAP}px solid #37FF8B`
+                  : "2px solid #37FF8B"
+              }
+              transform={
+                viewState === "stream"
+                  ? `translate(${draggablePosition.x}px, ${draggablePosition.y}px)`
+                  : undefined
+              }
             >
-              <iframe
-                height={`${TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}%`}
-                id="geckoterminal-embed"
-                title="GeckoTerminal Embed"
-                src="https://www.geckoterminal.com/solana/pools/DtxxzR77SEsrVhPzSixCdM1dcuANwQsMiNsM5vSPdYL1?embed=1&info=0&swaps=0"
-                allow="clipboard-write"
-                hidden={viewState !== "token"}
-              ></iframe>
-              {viewState === "token" && (
-                <>
-                  <Flex gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`} height="40%">
-                    <BooEventTile color="#F57CA1" width="100%" height="100%">
-                      <Flex
-                        justifyContent="center"
-                        alignItems={"flex-start"}
-                        width="100%"
-                        height="100%"
-                        p={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
-                      >
-                        <Flex alignItems="center" gap="10px">
-                          <Image src="/images/pixel-heart.png" alt="heart" />
-                          <Text
-                            textAlign="center"
-                            fontFamily="LoRes15"
-                            fontSize={["20px", "30px"]}
-                            mx={2}
-                          >
-                            CARE PACKAGES
-                          </Text>
-                          <Image src="/images/pixel-heart.png" alt="heart" />
-                        </Flex>
-                      </Flex>
-                    </BooEventTile>
-                    <BooEventTile color="#B52423" width="100%" height="100%">
-                      <Flex
-                        justifyContent="center"
-                        width="100%"
-                        height="100%"
-                        position="relative"
-                        p={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
-                        alignItems={"flex-start"}
-                      >
-                        <Flex
-                          position="absolute"
-                          top="-10px"
-                          left="0"
-                          right="0"
-                          bottom="0"
-                          zIndex="1"
-                          flexWrap="wrap"
-                          overflow="hidden"
-                          ref={bloodContainerRef}
-                          pointerEvents="none"
-                        >
-                          {Array(bloodImageCount)
-                            .fill(0)
-                            .map((_, index) => (
-                              <Image
-                                key={index}
-                                src="/images/pixel-blood.png"
-                                alt="blood"
-                                width="20%"
-                                height="10%"
-                                objectFit="cover"
-                              />
-                            ))}
-                        </Flex>
-                        <Flex alignItems="center" gap="10px">
-                          <Image src="/images/pixel-ghost.png" alt="ghost" />
-                          <Text
-                            textAlign="center"
-                            fontFamily="LoRes15"
-                            fontSize={["20px", "30px"]}
-                            mx={2}
-                          >
-                            SCARE PACKAGES
-                          </Text>
-                          <Image src="/images/pixel-ghost.png" alt="ghost" />
-                        </Flex>
-                      </Flex>
-                    </BooEventTile>
-                  </Flex>
-                </>
+              {viewState === "stream" && (
+                <Flex flexDirection="column">
+                  <IconButton
+                    bg="transparent"
+                    color="white"
+                    _hover={{}}
+                    aria-label="drag terminal"
+                    className="drag-handle"
+                    icon={<MdDragIndicator />}
+                    cursor="move"
+                  />
+                  <IconButton
+                    bg="transparent"
+                    color="white"
+                    _hover={{}}
+                    aria-label="minimize stream"
+                    icon={<FaExpandArrowsAlt />}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log("clicked");
+                      setViewState("token");
+                    }}
+                  />
+                </Flex>
               )}
-            </Flex>
-            <Flex
-              direction="column"
-              height={"100%"}
-              gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
-            >
-              <IntegratedTerminal
-                height={
+              <Flex
+                width="100%"
+                gap={
                   viewState === "token"
-                    ? `${TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}%`
-                    : `${TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH}px`
+                    ? `${TOKEN_VIEW_TILE_PIXEL_GAP}px`
+                    : "0px"
                 }
-                rpcUrl="https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
-                formProps={
-                  isSell
-                    ? watchAllFieldsSell.formProps
-                    : watchAllFieldsBuy.formProps
-                }
-                simulateWalletPassthrough={
-                  isSell
-                    ? watchAllFieldsSell.simulateWalletPassthrough
-                    : watchAllFieldsBuy.simulateWalletPassthrough
-                }
-                strictTokenList={
-                  isSell
-                    ? watchAllFieldsSell.strictTokenList
-                    : watchAllFieldsBuy.strictTokenList
-                }
-                defaultExplorer={
-                  isSell
-                    ? watchAllFieldsSell.defaultExplorer
-                    : watchAllFieldsBuy.defaultExplorer
-                }
-                useUserSlippage={false}
-              />
-              {viewState === "token" && (
-                <BooEventTile
-                  color="#796AFF"
+              >
+                <Flex
+                  direction="column"
                   width="100%"
-                  height={`calc(100% - ${TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}% - ${
-                    TOKEN_VIEW_TILE_PIXEL_GAP * 2
-                  }px - ${TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT}px)`}
+                  gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
                 >
-                  <Flex
-                    justifyContent={"center"}
-                    alignItems={"center"}
-                    width={"100%"}
-                    gap="16px"
-                  >
-                    <Image
-                      src="/images/megaphone.png"
-                      alt="megaphone"
-                      width="20px"
-                      height="20px"
-                    />
-                    <Text
-                      textAlign={"center"}
-                      fontFamily="LoRes15"
-                      fontSize="20px"
+                  <iframe
+                    height={`${TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}%`}
+                    id="geckoterminal-embed"
+                    title="GeckoTerminal Embed"
+                    src="https://www.geckoterminal.com/solana/pools/DtxxzR77SEsrVhPzSixCdM1dcuANwQsMiNsM5vSPdYL1?embed=1&info=0&swaps=0"
+                    allow="clipboard-write"
+                    hidden={viewState !== "token"}
+                  ></iframe>
+                  {viewState === "token" && (
+                    <>
+                      <Flex gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`} height="40%">
+                        <BooEventTile
+                          color="#F57CA1"
+                          width="100%"
+                          height="100%"
+                        >
+                          <Flex
+                            justifyContent="center"
+                            alignItems={"flex-start"}
+                            width="100%"
+                            height="100%"
+                            p={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
+                          >
+                            <Flex alignItems="center" gap="10px">
+                              <Image
+                                src="/images/pixel-heart.png"
+                                alt="heart"
+                              />
+                              <Text
+                                textAlign="center"
+                                fontFamily="LoRes15"
+                                fontSize={["20px", "30px"]}
+                                mx={2}
+                              >
+                                CARE PACKAGES
+                              </Text>
+                              <Image
+                                src="/images/pixel-heart.png"
+                                alt="heart"
+                              />
+                            </Flex>
+                          </Flex>
+                        </BooEventTile>
+                        <BooEventTile
+                          color="#B52423"
+                          width="100%"
+                          height="100%"
+                        >
+                          <Flex
+                            justifyContent="center"
+                            width="100%"
+                            height="100%"
+                            position="relative"
+                            p={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
+                            alignItems={"flex-start"}
+                          >
+                            <Flex
+                              position="absolute"
+                              top="-10px"
+                              left="0"
+                              right="0"
+                              bottom="0"
+                              zIndex="1"
+                              flexWrap="wrap"
+                              overflow="hidden"
+                              ref={bloodContainerRef}
+                              pointerEvents="none"
+                            >
+                              {Array(bloodImageCount)
+                                .fill(0)
+                                .map((_, index) => (
+                                  <Image
+                                    key={index}
+                                    src="/images/pixel-blood.png"
+                                    alt="blood"
+                                    width="20%"
+                                    height="10%"
+                                    objectFit="cover"
+                                  />
+                                ))}
+                            </Flex>
+                            <Flex alignItems="center" gap="10px">
+                              <Image
+                                src="/images/pixel-ghost.png"
+                                alt="ghost"
+                              />
+                              <Text
+                                textAlign="center"
+                                fontFamily="LoRes15"
+                                fontSize={["20px", "30px"]}
+                                mx={2}
+                              >
+                                SCARE PACKAGES
+                              </Text>
+                              <Image
+                                src="/images/pixel-ghost.png"
+                                alt="ghost"
+                              />
+                            </Flex>
+                          </Flex>
+                        </BooEventTile>
+                      </Flex>
+                    </>
+                  )}
+                </Flex>
+                <Flex
+                  direction="column"
+                  height={"100%"}
+                  gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
+                >
+                  <IntegratedTerminal
+                    height={
+                      viewState === "token"
+                        ? `${TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}%`
+                        : `${TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH}px`
+                    }
+                    rpcUrl="https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
+                    formProps={
+                      isSell
+                        ? watchAllFieldsSell.formProps
+                        : watchAllFieldsBuy.formProps
+                    }
+                    simulateWalletPassthrough={
+                      isSell
+                        ? watchAllFieldsSell.simulateWalletPassthrough
+                        : watchAllFieldsBuy.simulateWalletPassthrough
+                    }
+                    strictTokenList={
+                      isSell
+                        ? watchAllFieldsSell.strictTokenList
+                        : watchAllFieldsBuy.strictTokenList
+                    }
+                    defaultExplorer={
+                      isSell
+                        ? watchAllFieldsSell.defaultExplorer
+                        : watchAllFieldsBuy.defaultExplorer
+                    }
+                    useUserSlippage={false}
+                  />
+                  {viewState === "token" && (
+                    <BooEventTile
+                      color="#796AFF"
+                      width="100%"
+                      height={`calc(100% - ${TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}% - ${
+                        TOKEN_VIEW_TILE_PIXEL_GAP * 2
+                      }px - ${TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT}px)`}
                     >
-                      TTS BROADCAST MESSAGE
-                    </Text>
-                  </Flex>
-                </BooEventTile>
-              )}
+                      <Flex
+                        justifyContent={"center"}
+                        alignItems={"center"}
+                        width={"100%"}
+                        gap="16px"
+                      >
+                        <Image
+                          src="/images/megaphone.png"
+                          alt="megaphone"
+                          width="20px"
+                          height="20px"
+                        />
+                        <Text
+                          textAlign={"center"}
+                          fontFamily="LoRes15"
+                          fontSize="20px"
+                        >
+                          TTS BROADCAST MESSAGE
+                        </Text>
+                      </Flex>
+                    </BooEventTile>
+                  )}
+                </Flex>
+              </Flex>
             </Flex>
-          </Flex>
-        </Flex>
+          </Draggable>
+        </DndContext>
         {playbackInfo && (
           <Box
             position="absolute"

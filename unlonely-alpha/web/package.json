@@ -24,6 +24,7 @@
     "@chakra-ui/core": "^0.8.0",
     "@chakra-ui/icons": "1.1.1",
     "@chakra-ui/react": "2.8.2",
+    "@dnd-kit/core": "^6.1.0",
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
     "@eth-optimism/sdk": "^3.1.3",
