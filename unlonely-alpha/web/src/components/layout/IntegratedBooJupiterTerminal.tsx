@@ -43,6 +43,9 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
       strictTokenList,
       defaultExplorer,
       useUserSlippage,
+      onSuccess: ({ txid, swapResult }: { txid: any; swapResult: any }) => {
+        console.log({ txid, swapResult });
+      },
     });
   }, [
     defaultExplorer,

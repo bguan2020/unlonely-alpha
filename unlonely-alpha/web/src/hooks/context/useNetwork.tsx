@@ -44,6 +44,10 @@ const NetworkContext = createContext<{
   },
 });
 
+const doesWalletClientSupportBase = (walletClientType: string) => {
+  return walletClientType !== "phantom";
+};
+
 export const NetworkProvider = ({
   children,
 }: {
@@ -73,6 +77,7 @@ export const NetworkProvider = ({
       wallets[0] &&
       user?.address &&
       wallets[0]?.chainId?.split(":")[1] &&
+      doesWalletClientSupportBase(wallets[0]?.walletClientType) &&
       wallets[0]?.chainId?.split(":")[1] !==
         String(NETWORKS[0].config.chainId) &&
       !router.pathname.startsWith("/bridge")

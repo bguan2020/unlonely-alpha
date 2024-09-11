@@ -127,6 +127,8 @@ export const SolanaTokenTransfer = ({
         if (status.value?.confirmationStatus === "confirmed") {
           console.log(`Transaction confirmed with signature: ${signature}`);
           await fetchTokenBalance();
+          const logs = await getTransactionLogs(signature, connection);
+          console.log("Transaction logs:", logs);
         } else {
           console.warn("Transaction is not finalized yet:", status);
         }
@@ -138,6 +140,27 @@ export const SolanaTokenTransfer = ({
       }
     } catch (error) {
       console.error("Error during token transfer:", error);
+    }
+  };
+
+  const getTransactionLogs = async (
+    transactionId: string,
+    connection: Connection
+  ) => {
+    try {
+      const transaction = await connection.getTransaction(transactionId, {
+        maxSupportedTransactionVersion: 0,
+      });
+
+      if (transaction && transaction.meta) {
+        return transaction.meta.logMessages;
+      } else {
+        console.log("Transaction not found or logs are unavailable.");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching transaction logs:", error);
+      return null;
     }
   };
 

@@ -1,10 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useUnifiedWalletContext, useUnifiedWallet } from "@jup-ag/wallet-adapter";
-import { PublicKey } from "@solana/web3.js";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { Connection } from "@solana/web3.js";
-import { getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
-import Decimal from "decimal.js";
 import { FormProps, FIXED_SOLANA_MINT, WRAPPED_SOL_MINT } from "../../../components/transactions/solana/SolanaJupiterTerminal";
 
 export const useBooTokenTerminal = (props: {
@@ -25,49 +20,6 @@ export const useBooTokenTerminal = (props: {
 
   const passthroughWalletContextState = useUnifiedWallet();
   const { setShowModal } = useUnifiedWalletContext();
-  const { publicKey, connected } = useWallet();
-
-  const [loading, setLoading] = useState(false);
-  const [balance, setBalance] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (connected && publicKey) {
-      fetchTokenBalance();
-    }
-  }, [connected, publicKey]);
-
-  const fetchTokenBalance = async () => {
-    if (!publicKey) {
-      console.error("No wallet connected");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const connection = new Connection(rpcUrl, "confirmed");
-      const tokenMint = new PublicKey(FIXED_SOLANA_MINT);
-
-      const tokenAccountAddress = await getAssociatedTokenAddress(
-        tokenMint,
-        publicKey
-      );
-
-      const tokenAccount = await getAccount(connection, tokenAccountAddress);
-
-      const amount = new Decimal(tokenAccount.amount.toString());
-
-      const decimals = 9;
-      const balance = amount.div(new Decimal(10).pow(decimals)).toString();
-
-      console.log("Token balance:", balance);
-      setBalance(Number(balance));
-    } catch (error) {
-      console.error("Error fetching token balance:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const launchTerminal = (isBuying: boolean) => {
     const commonProps = { fixedInputMint: true, fixedOutputMint: true };
@@ -91,7 +43,6 @@ export const useBooTokenTerminal = (props: {
       onRequestConnectWallet: () => setShowModal(true),
       onSuccess: ({ txid, swapResult }: { txid: any; swapResult: any }) => {
         console.log({ txid, swapResult });
-        fetchTokenBalance();
       },
       onSwapError: ({ error }: { error: any }) => {
         console.log("onSwapError", error);
@@ -108,9 +59,6 @@ export const useBooTokenTerminal = (props: {
   }, [passthroughWalletContextState, props]);
 
   return {
-    balance,
-    loading,
-    fetchTokenBalance,
     launchTerminal,
   };
 };

@@ -2,8 +2,9 @@ import React from "react";
 import { Button } from "@chakra-ui/react";
 import { PublicKey } from "@solana/web3.js";
 import { SolanaTokenTransfer } from "./SolanaTokenTransfer";
-import { useBooTokenTerminal } from "../../../hooks/internal/boo-token/useBooTokenTerminal";
+import { useBooTokenTerminal } from "../../../hooks/internal/solana/useBooTokenTerminal";
 import { useForm } from "react-hook-form";
+import { useSolanaTokenBalance } from "../../../hooks/internal/solana/useSolanaTokenBalance";
 
 export const FIXED_SOLANA_MINT = "FuvamNkNTNjDcnQeWyiAReUCHZ91gJhg59xuNemZ4p9f";
 
@@ -41,10 +42,12 @@ const ModalTerminal = (props: { rpcUrl: string }) => {
 
   const watchAllFields = watch();
 
-  const { balance, fetchTokenBalance, launchTerminal } = useBooTokenTerminal({
+  const { launchTerminal } = useBooTokenTerminal({
     ...props,
     ...watchAllFields,
   });
+
+  const { balance, fetchTokenBalance } = useSolanaTokenBalance(rpcUrl);
 
   return (
     <>

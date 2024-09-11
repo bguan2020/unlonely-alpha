@@ -27,6 +27,9 @@ import {
 } from "@dnd-kit/core";
 import Draggable from "./Draggable";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { useSolanaTokenBalance } from "../../hooks/internal/solana/useSolanaTokenBalance";
+import { Connection } from "@solana/web3.js";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
@@ -68,6 +71,10 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const watchAllFieldsBuy = watchBuy();
   const watchAllFieldsSell = watchSell();
 
+  const { balance, fetchTokenBalance } = useSolanaTokenBalance(
+    "https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
+  );
+
   const [viewState, setViewState] = useState<"stream" | "token">("stream");
 
   const { data: channelStatic } = useQuery(CHANNEL_STATIC_QUERY, {
@@ -75,9 +82,75 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
     fetchPolicy: "network-only",
   });
 
+  const { publicKey, connected } = useWallet();
+
   useEffect(() => {
     if (channelStatic) handleChannelStaticData(channelStatic?.getChannelBySlug);
   }, [channelStatic]);
+
+  useEffect(() => {
+    const init = async () => {
+      if (!connected) return;
+      const details = await getTransactionDetails(
+        "651Wn461brWUCwc34YL4xAHcpdZTJRZPELTqwZyZUCwdPHzwEWdbUMCV2zkp5toLz4gCjuEhacgxANhUYLnZ8UST",
+        new Connection(
+          "https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
+        )
+      );
+      if (!details) return;
+      const { preTokenBalances, postTokenBalances } = details;
+
+      const preBalance =
+        preTokenBalances?.find(
+          (balance) => balance.owner === publicKey?.toString()
+        )?.uiTokenAmount.uiAmount || 0;
+      const postBalance =
+        postTokenBalances?.find(
+          (balance) => balance.owner === publicKey?.toString()
+        )?.uiTokenAmount.uiAmount || 0;
+
+      const balanceDifference = Math.abs(postBalance - preBalance);
+      console.log(`Balance difference: ${balanceDifference}`);
+    };
+    init();
+  }, [connected]);
+
+  const getTransactionDetails = async (
+    transactionId: string,
+    connection: Connection
+  ) => {
+    try {
+      const transaction = await connection.getParsedTransaction(transactionId, {
+        maxSupportedTransactionVersion: 0,
+      });
+
+      if (!transaction) {
+        console.log("Transaction not found");
+        return null;
+      }
+
+      const { meta } = transaction;
+      if (!meta) {
+        console.log("Transaction metadata not available");
+        return null;
+      }
+
+      const { preTokenBalances, postTokenBalances } = meta;
+
+      const swapDetails = {
+        fee: meta.fee,
+        innerInstructions: meta.innerInstructions,
+        preTokenBalances,
+        postTokenBalances,
+        // Add more relevant fields as needed
+      };
+
+      return swapDetails;
+    } catch (error) {
+      console.error("Error fetching transaction details:", error);
+      return null;
+    }
+  };
 
   const [bloodImageCount, setBloodImageCount] = useState(0);
   const bloodContainerRef = useRef<HTMLDivElement>(null);
@@ -322,7 +395,12 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                   gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
                   position={"relative"}
                 >
-                  <Flex position={"absolute"}>
+                  <Flex
+                    position={"absolute"}
+                    width={"100px"}
+                    zIndex={51}
+                    bg="#1F2935"
+                  >
                     {viewState === "stream" && (
                       <IconButton
                         bg="#1F2935"
@@ -353,22 +431,24 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                         setIsSell((prev) => !prev);
                       }}
                     />
-                    <IconButton
-                      bg="#1F2935"
-                      color="#21ec54"
-                      _hover={{
-                        bg: "#354559",
-                      }}
-                      aria-label="go to pool"
-                      icon={<ExternalLinkIcon />}
-                      zIndex={51}
-                      onClick={() => {
-                        window.open(
-                          `https://raydium.io/swap/?inputMint=${FIXED_SOLANA_MINT}&outputMint=sol`,
-                          "_blank"
-                        );
-                      }}
-                    />
+                    {viewState === "token" && (
+                      <IconButton
+                        bg="#1F2935"
+                        color="#21ec54"
+                        _hover={{
+                          bg: "#354559",
+                        }}
+                        aria-label="go to pool"
+                        icon={<ExternalLinkIcon />}
+                        zIndex={51}
+                        onClick={() => {
+                          window.open(
+                            `https://raydium.io/swap/?inputMint=${FIXED_SOLANA_MINT}&outputMint=sol`,
+                            "_blank"
+                          );
+                        }}
+                      />
+                    )}
                   </Flex>
                   <IntegratedTerminal
                     height={

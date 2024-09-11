@@ -5,16 +5,11 @@ import {
   INITIAL_FORM_CONFIG,
 } from "../transactions/solana/SolanaJupiterTerminal";
 import { getTimeFromMillis } from "../../utils/time";
-import { useBooTokenTerminal } from "../../hooks/internal/boo-token/useBooTokenTerminal";
 import { useForm } from "react-hook-form";
 import { eventStartTime } from "./BooEventWrapper";
 import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";
 
-export const HomePageBooEventTokenCountdown = ({
-  rpcUrl,
-}: {
-  rpcUrl: string;
-}) => {
+export const HomePageBooEventTokenCountdown = () => {
   const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
@@ -32,11 +27,6 @@ export const HomePageBooEventTokenCountdown = ({
   });
 
   const watchAllFields = watch();
-
-  const { balance, fetchTokenBalance, launchTerminal } = useBooTokenTerminal({
-    rpcUrl,
-    ...watchAllFields,
-  });
 
   return (
     <Flex mt={4} direction={"row"} width="100%" height="calc(100vh - 64px)">

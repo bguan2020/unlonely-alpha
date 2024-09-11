@@ -31,11 +31,7 @@ const BooEventWrapper = () => {
               <HomePageBooEventStreamPage slug={slug} />
             </ChannelProvider>
           ) : (
-            <HomePageBooEventTokenCountdown
-              rpcUrl={
-                "https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
-              }
-            />
+            <HomePageBooEventTokenCountdown />
           )}
         </WalletModalProvider>
       </WalletProvider>
