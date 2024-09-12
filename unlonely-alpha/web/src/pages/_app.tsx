@@ -4,12 +4,12 @@ import "../styles/bell.css";
 import "../styles/imageScroller.css";
 
 import { ChakraProvider, Flex, IconButton, Text } from "@chakra-ui/react";
-import { createConfig, http } from "wagmi";
+import { http } from "wagmi";
 import { AppProps } from "next/app";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
 import { PrivyProvider } from "@privy-io/react-auth";
-import { WagmiProvider } from "@privy-io/wagmi";
+import { WagmiProvider, createConfig } from "@privy-io/wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { FaArrowRight } from "react-icons/fa";
