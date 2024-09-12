@@ -29,7 +29,7 @@ import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { ChatReturnType } from "../../../hooks/chat/useChat";
 
 export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
-  const { userAddress, walletIsConnected, user } = useUser();
+  const { wagmiAddress, user } = useUser();
   const { channel, chat: c } = useChannelContext();
   const { channelQueryData } = channel;
   const { addToChatbot } = c;
@@ -41,7 +41,7 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
   const canAddToChatbot = useRef(false);
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
-    address: userAddress as `0x${string}`,
+    address: user?.address as `0x${string}`,
   });
   const mountingMessages = useRef(true);
 
@@ -176,19 +176,19 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
         const args: any = topics.args;
         console.log("VipBadgeBuy", args);
         const newSupply = args.trade.supply as bigint;
-        const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
+        const title = `${user?.username ?? centerEllipses(user?.address, 15)} ${
           args.trade.isBuy ? "bought" : "sold"
         } ${args.trade.badgeAmount} badges!`;
         addToChatbot({
           username: user?.username ?? "",
-          address: userAddress ?? "",
+          address: user?.address ?? "",
           taskType: InteractionType.BUY_BADGES,
           title,
           description: `${args.trade.trader}:${args.trade.badgeAmount}:${newSupply}:${args.trade.eventByte}`,
         });
         await postBadgeTrade({
           channelId: channelQueryData?.id as string,
-          userAddress: userAddress as `0x${string}`,
+          userAddress: user?.address as `0x${string}`,
           isBuying: true,
           eventId: 0,
           chainId: localNetwork.config.chainId,
@@ -232,7 +232,7 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
   }, [chat.receivedMessages]);
 
   useEffect(() => {
-    if (!walletIsConnected) {
+    if (!wagmiAddress) {
       setErrorMessage("connect wallet first");
     } else if (!matchingChain) {
       setErrorMessage("wrong network");
@@ -241,7 +241,7 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
     } else {
       setErrorMessage("");
     }
-  }, [walletIsConnected, matchingChain, badgePrice, userEthBalance]);
+  }, [wagmiAddress, matchingChain, badgePrice, userEthBalance]);
 
   return (
     <Flex direction="column" p="0.5rem">

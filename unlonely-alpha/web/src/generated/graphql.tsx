@@ -350,6 +350,17 @@ export type GetDeviceByTokenInput = {
   token: Scalars["String"];
 };
 
+export type GetDoesUserAddressMatchInput = {
+  address: Scalars["String"];
+};
+
+export type GetDoesUserAddressMatchResponse = {
+  __typename?: "GetDoesUserAddressMatchResponse";
+  contextUser?: Maybe<User>;
+  doesMatch?: Maybe<Scalars["Boolean"]>;
+  user?: Maybe<User>;
+};
+
 export type GetGamblableEventLeaderboardByChannelIdInput = {
   chainId: Scalars["Int"];
   channelId: Scalars["ID"];
@@ -1036,6 +1047,7 @@ export type Query = {
   getChannelsByNumberOfBadgeHolders: Array<Maybe<NumberOfHolders>>;
   getChannelsByOwnerAddress?: Maybe<Array<Maybe<Channel>>>;
   getDeviceByToken?: Maybe<DeviceToken>;
+  getDoesUserAddressMatch?: Maybe<GetDoesUserAddressMatchResponse>;
   getGamblableEventLeaderboardByChannelId: Array<GamblableEventLeaderboard>;
   getGamblableEventUserRank: Scalars["Int"];
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
@@ -1117,6 +1129,10 @@ export type QueryGetChannelsByOwnerAddressArgs = {
 
 export type QueryGetDeviceByTokenArgs = {
   data: GetDeviceByTokenInput;
+};
+
+export type QueryGetDoesUserAddressMatchArgs = {
+  data: GetDoesUserAddressMatchInput;
 };
 
 export type QueryGetGamblableEventLeaderboardByChannelIdArgs = {
@@ -1654,6 +1670,20 @@ export type GetUserQuery = {
     lensHandle?: string | null;
     lensImageUrl?: string | null;
     channel?: Array<{ __typename?: "Channel"; slug: string } | null> | null;
+  } | null;
+};
+
+export type GetDoesUserAddressMatchQueryVariables = Exact<{
+  data: GetDoesUserAddressMatchInput;
+}>;
+
+export type GetDoesUserAddressMatchQuery = {
+  __typename?: "Query";
+  getDoesUserAddressMatch?: {
+    __typename?: "GetDoesUserAddressMatchResponse";
+    doesMatch?: boolean | null;
+    user?: { __typename?: "User"; address: string } | null;
+    contextUser?: { __typename?: "User"; address: string } | null;
   } | null;
 };
 
@@ -3069,6 +3099,70 @@ export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
 export type GetUserQueryResult = Apollo.QueryResult<
   GetUserQuery,
   GetUserQueryVariables
+>;
+export const GetDoesUserAddressMatchDocument = gql`
+  query GetDoesUserAddressMatch($data: GetDoesUserAddressMatchInput!) {
+    getDoesUserAddressMatch(data: $data) {
+      user {
+        address
+      }
+      contextUser {
+        address
+      }
+      doesMatch
+    }
+  }
+`;
+
+/**
+ * __useGetDoesUserAddressMatchQuery__
+ *
+ * To run a query within a React component, call `useGetDoesUserAddressMatchQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetDoesUserAddressMatchQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDoesUserAddressMatchQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetDoesUserAddressMatchQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetDoesUserAddressMatchQuery,
+    GetDoesUserAddressMatchQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetDoesUserAddressMatchQuery,
+    GetDoesUserAddressMatchQueryVariables
+  >(GetDoesUserAddressMatchDocument, options);
+}
+export function useGetDoesUserAddressMatchLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetDoesUserAddressMatchQuery,
+    GetDoesUserAddressMatchQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetDoesUserAddressMatchQuery,
+    GetDoesUserAddressMatchQueryVariables
+  >(GetDoesUserAddressMatchDocument, options);
+}
+export type GetDoesUserAddressMatchQueryHookResult = ReturnType<
+  typeof useGetDoesUserAddressMatchQuery
+>;
+export type GetDoesUserAddressMatchLazyQueryHookResult = ReturnType<
+  typeof useGetDoesUserAddressMatchLazyQuery
+>;
+export type GetDoesUserAddressMatchQueryResult = Apollo.QueryResult<
+  GetDoesUserAddressMatchQuery,
+  GetDoesUserAddressMatchQueryVariables
 >;
 export const GetUserChannelContract1155MappingDocument = gql`
   query GetUserChannelContract1155Mapping($data: GetUserInput!) {

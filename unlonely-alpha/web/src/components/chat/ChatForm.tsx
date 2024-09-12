@@ -62,7 +62,7 @@ const ChatForm = ({
   channel,
   isVipChat,
 }: Props) => {
-  const { user, walletIsConnected, userAddress: address } = useUser();
+  const { user, wagmiAddress } = useUser();
   const { isStandalone } = useUserAgent();
   // const { setIsOpen: setIsTourOpen, setSteps: setTourSteps } = useTour();
 
@@ -227,7 +227,7 @@ const ChatForm = ({
         }}
       >
         <Stack direction={"row"} spacing={"10px"}>
-          {!walletIsConnected || !user ? (
+          {!wagmiAddress || !user ? (
             <Flex
               justifyContent={"center"}
               direction="column"

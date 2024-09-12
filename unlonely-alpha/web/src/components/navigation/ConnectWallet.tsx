@@ -30,12 +30,23 @@ import trailString from "../../utils/trailString";
 import { OwnedChannelsModal } from "../channels/OwnedChannelsModal";
 import { formatUnits } from "viem";
 import copy from "copy-to-clipboard";
+import { WalletWithMetadata } from "@privy-io/react-auth";
 const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
   const router = useRouter();
-  const { user, userAddress, ready, privyUser, login, connectWallet, logout } =
-    useUser();
+  const {
+    wagmiAddress,
+    ready,
+    privyUser,
+    authenticated,
+    login,
+    connectWallet,
+    logout,
+    handleIsManagingWallets,
+  } = useUser();
   const { isStandalone } = useUserAgent();
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+
+  const loggedInWithPrivy = authenticated && ready;
 
   const callLogout = useCallback(() => {
     logout();
@@ -73,7 +84,7 @@ const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
               logout
             </Button>
           </TransactionModalTemplate>
-          {user && userAddress ? (
+          {loggedInWithPrivy && wagmiAddress ? (
             <ConnectedDisplay />
           ) : (
             <Menu>
@@ -96,7 +107,7 @@ const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
                   rightIcon={<ChevronDownIcon />}
                 >
                   <Text fontFamily="LoRes15" fontSize="15px">
-                    {privyUser ? "Connect" : "Login"}
+                    {loggedInWithPrivy ? "Connect" : "Login"}
                   </Text>
                 </MenuButton>
               </Flex>
@@ -107,10 +118,19 @@ const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
                   _focus={{}}
                   _active={{}}
                   onClick={() => {
-                    privyUser ? connectWallet() : login();
+                    loggedInWithPrivy ? connectWallet() : login();
                   }}
                 >
-                  {privyUser ? "connect wallet" : "login"}
+                  {loggedInWithPrivy ? "connect wallet" : "login"}
+                </MenuItem>
+                <MenuItem
+                  bg={"#131323"}
+                  _hover={{ bg: "#1f1f3c" }}
+                  _focus={{}}
+                  _active={{}}
+                  onClick={() => handleIsManagingWallets(true)}
+                >
+                  <Text>manage wallets</Text>
                 </MenuItem>
                 {!hideBridge && (
                   <MenuItem
@@ -124,7 +144,7 @@ const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
                     <ExternalLinkIcon />
                   </MenuItem>
                 )}
-                {privyUser && (
+                {loggedInWithPrivy && (
                   <MenuItem
                     bg={"#131323"}
                     _hover={{ bg: "#1f1f3c" }}
@@ -151,10 +171,26 @@ export default ConnectWallet;
 const ConnectedDisplay = () => {
   const router = useRouter();
 
-  const { user, userAddress, loginMethod, fetchUser, logout, exportWallet } =
-    useUser();
+  const {
+    user,
+    privyUser,
+    wagmiAddress,
+    fetchUser,
+    logout,
+    exportWallet,
+    handleIsManagingWallets,
+  } = useUser();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork } = network;
+
+  const loginMethod = useMemo(() => {
+    const wallet = privyUser?.linkedAccounts?.find(
+      (account): account is WalletWithMetadata =>
+        account.type === "wallet" && "walletClientType" in account
+    );
+    if (!wallet) return undefined;
+    return wallet.walletClientType;
+  }, [privyUser]);
 
   const toast = useToast();
 
@@ -168,7 +204,7 @@ const ConnectedDisplay = () => {
     chainId: localNetwork.config.chainId,
   });
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
-    address: userAddress as `0x${string}`,
+    address: wagmiAddress as `0x${string}`,
   });
 
   const { updateUser } = useUpdateUser({});
@@ -279,7 +315,7 @@ const ConnectedDisplay = () => {
                 ) : user?.username ? (
                   trailString(user?.username)
                 ) : (
-                  centerEllipses(userAddress, 13)
+                  centerEllipses(user?.address, 13)
                 )}{" "}
               </Text>
             </Flex>
@@ -297,7 +333,16 @@ const ConnectedDisplay = () => {
               <Text>my channels</Text>
             </MenuItem>
           )}
-          {userAddress && (
+          <MenuItem
+            bg={"#131323"}
+            _hover={{ bg: "#1f1f3c" }}
+            _focus={{}}
+            _active={{}}
+            onClick={() => handleIsManagingWallets(true)}
+          >
+            <Text>manage wallets</Text>
+          </MenuItem>
+          {user?.address && (
             <MenuItem
               bg={"#131323"}
               _hover={{ bg: "#1f1f3c" }}
@@ -305,79 +350,83 @@ const ConnectedDisplay = () => {
               _active={{}}
               onClick={async () => {
                 setLoading(true);
-                await updateUser({ address: userAddress }).then(async (res) => {
-                  await fetchUser();
-                  const socials = [];
-                  socials.push([
-                    res?.res?.newUserData?.username ? true : false,
-                    res?.res?.newUserData?.FCHandle ? true : false,
-                    res?.res?.newUserData?.lensHandle ? true : false,
-                  ]);
-                  toast({
-                    duration: 5000,
-                    isClosable: true,
-                    position: "bottom",
-                    id: "update-profile",
-                    render: () => (
-                      <Box
-                        bg={res?.res?.error ? "#db3f3f" : "#087a38"}
-                        p="10px"
-                        borderRadius="15px"
-                      >
-                        {res?.res?.error ? (
-                          <Flex direction="column">
-                            <Text>Cannot update profile</Text>
-                            <Button
-                              p="0"
-                              h="5"
-                              mt="10px"
-                              onClick={() => {
-                                copy(
-                                  JSON.stringify({
-                                    error: res?.res?.error,
-                                    rawDataString: res?.res?.rawDataString,
-                                  })
-                                );
-                                handleCopy();
-                              }}
-                            >
-                              copy error
-                            </Button>
-                          </Flex>
-                        ) : (
-                          <Flex direction="column">
-                            <Text>Profile updated</Text>
-                            <Text>
-                              ENS{" "}
-                              {res?.res?.newUserData?.username ? "✅" : "❌"}{" "}
-                              Farcaster{" "}
-                              {res?.res?.newUserData?.FCHandle ? "✅" : "❌"}{" "}
-                              Lens{" "}
-                              {res?.res?.newUserData?.lensHandle ? "✅" : "❌"}
-                            </Text>
-                            {res?.res?.rawDataString && (
+                await updateUser({ address: user?.address }).then(
+                  async (res) => {
+                    await fetchUser();
+                    const socials = [];
+                    socials.push([
+                      res?.res?.newUserData?.username ? true : false,
+                      res?.res?.newUserData?.FCHandle ? true : false,
+                      res?.res?.newUserData?.lensHandle ? true : false,
+                    ]);
+                    toast({
+                      duration: 5000,
+                      isClosable: true,
+                      position: "bottom",
+                      id: "update-profile",
+                      render: () => (
+                        <Box
+                          bg={res?.res?.error ? "#db3f3f" : "#087a38"}
+                          p="10px"
+                          borderRadius="15px"
+                        >
+                          {res?.res?.error ? (
+                            <Flex direction="column">
+                              <Text>Cannot update profile</Text>
                               <Button
                                 p="0"
                                 h="5"
                                 mt="10px"
-                                border={"1px solid white"}
-                                bg="#ffffff92"
-                                _hover={{ bg: "#ffffff" }}
                                 onClick={() => {
-                                  copy(String(res?.res?.rawDataString));
+                                  copy(
+                                    JSON.stringify({
+                                      error: res?.res?.error,
+                                      rawDataString: res?.res?.rawDataString,
+                                    })
+                                  );
                                   handleCopy();
                                 }}
                               >
-                                copy raw profile data
+                                copy error
                               </Button>
-                            )}
-                          </Flex>
-                        )}
-                      </Box>
-                    ),
-                  });
-                  setLoading(false);
-                });
+                            </Flex>
+                          ) : (
+                            <Flex direction="column">
+                              <Text>Profile updated</Text>
+                              <Text>
+                                ENS{" "}
+                                {res?.res?.newUserData?.username ? "✅" : "❌"}{" "}
+                                Farcaster{" "}
+                                {res?.res?.newUserData?.FCHandle ? "✅" : "❌"}{" "}
+                                Lens{" "}
+                                {res?.res?.newUserData?.lensHandle
+                                  ? "✅"
+                                  : "❌"}
+                              </Text>
+                              {res?.res?.rawDataString && (
+                                <Button
+                                  p="0"
+                                  h="5"
+                                  mt="10px"
+                                  border={"1px solid white"}
+                                  bg="#ffffff92"
+                                  _hover={{ bg: "#ffffff" }}
+                                  onClick={() => {
+                                    copy(String(res?.res?.rawDataString));
+                                    handleCopy();
+                                  }}
+                                >
+                                  copy raw profile data
+                                </Button>
+                              )}
+                            </Flex>
+                          )}
+                        </Box>
+                      ),
+                    });
+                    setLoading(false);
+                  }
+                );
               }}
             >
               <Text>update ENS/socials</Text>
@@ -409,14 +458,14 @@ const ConnectedDisplay = () => {
               export wallet
             </MenuItem>
           )}
-          {userAddress && (
+          {wagmiAddress && (
             <MenuItem
               bg={"#131323"}
               _hover={{ bg: "#1f1f3c" }}
               _focus={{}}
               _active={{}}
               onClick={() => {
-                copy(userAddress);
+                copy(wagmiAddress);
                 handleCopy();
               }}
             >

@@ -55,7 +55,7 @@ export function useAblyChannel(
 }
 
 export function useChatChannel(fixedChatName?: string) {
-  const { userAddress } = useUser();
+  const { user } = useUser();
   const { channel: c, chat, ui } = useChannelContext();
   const {
     channelRoles,
@@ -114,8 +114,8 @@ export function useChatChannel(fixedChatName?: string) {
         isAddress(toAddress) &&
         fromAddress &&
         isAddress(fromAddress) &&
-        (isAddressEqual(fromAddress, userAddress as `0x${string}`) ||
-          isAddressEqual(toAddress, userAddress as `0x${string}`));
+        (isAddressEqual(fromAddress, user?.address as `0x${string}`) ||
+          isAddressEqual(toAddress, user?.address as `0x${string}`));
       if (includesUser) {
         if (symbol === "vibes") {
           refetchVibesBalance?.();
@@ -130,7 +130,7 @@ export function useChatChannel(fixedChatName?: string) {
       if (
         toAddress &&
         isAddress(toAddress) &&
-        isAddressEqual(toAddress, userAddress as `0x${string}`)
+        isAddressEqual(toAddress, user?.address as `0x${string}`)
       ) {
         toast({
           duration: 5000,
@@ -208,7 +208,7 @@ export function useChatChannel(fixedChatName?: string) {
       if (localBanList.length === 0) {
         setReceivedMessages([...messageHistory, message]);
       } else {
-        if (userAddress && localBanList.includes(userAddress)) {
+        if (user?.address && localBanList.includes(user?.address)) {
           // Current user is banned, they see all messages
           setReceivedMessages([...messageHistory, message]);
         } else {
@@ -245,8 +245,8 @@ export function useChatChannel(fixedChatName?: string) {
 
           const senderIsBanned = localBanList.includes(message.data.address);
 
-          // For non-banned users or users without a userAddress
-          if (!userAddress || !localBanList.includes(userAddress)) {
+          // For non-banned users or users without a user?.address
+          if (!user?.address || !localBanList.includes(user?.address)) {
             return !senderIsBanned;
           }
 
@@ -259,7 +259,7 @@ export function useChatChannel(fixedChatName?: string) {
       setMounted(true);
     }
     getMessages();
-  }, [channel, userAddress, localBanList]);
+  }, [channel, user?.address, localBanList]);
 
   return {
     ably,

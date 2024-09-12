@@ -70,6 +70,16 @@ export const typeDef = gql`
     userAddress: String!
   }
 
+  input GetDoesUserAddressMatchInput {
+    address: String!
+  }
+
+  type GetDoesUserAddressMatchResponse {
+    doesMatch: Boolean
+    user: User
+    contextUser: User
+  }
+
   extend type Query {
     currentUser: User
     currentUserAuthMessage: String
@@ -81,6 +91,7 @@ export const typeDef = gql`
     getAllUsersWithNotificationsToken: [User]
     getUserChannelContract1155Mapping(data: GetUserInput!): JSON
     getUserTokenHolding(data: GetUserTokenHoldingInput!): Int
+    getDoesUserAddressMatch(data: GetDoesUserAddressMatchInput!): GetDoesUserAddressMatchResponse
   }
 
   extend type Mutation {

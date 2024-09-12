@@ -32,7 +32,7 @@ export const DesktopPage = ({
   channelSSRDataLoading: boolean;
   channelSSRDataError?: ApolloError;
 }) => {
-  const { walletIsConnected } = useUser();
+  const { wagmiAddress } = useUser();
   const { channel, ui, chat: c } = useChannelContext();
   const chat = useChat({ chatBot: c.chatBot });
   const {
@@ -158,7 +158,7 @@ export const DesktopPage = ({
               direction={["column", "column", "row", "row"]}
             >
               <Stack direction="column" width={"100%"}>
-                {isOwner && walletIsConnected ? (
+                {isOwner && wagmiAddress ? (
                   <>
                     <ChannelWideModals ablyChannel={chat.channel} />
                     {checkedForLivepeerPlaybackInfo && (

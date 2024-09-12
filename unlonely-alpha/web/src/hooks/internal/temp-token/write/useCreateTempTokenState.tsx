@@ -70,7 +70,7 @@ export const useCreateTempTokenState = ({
 }: {
   callbackOnTxSuccess: () => void;
 }): UseCreateTempTokenStateType => {
-  const { userAddress, user } = useUser();
+  const { user } = useUser();
   const { chat, channel } = useChannelContext();
   const { network } = useNetworkContext();
   const { addToChatbot: addToChatbotForTempToken } = chat;
@@ -243,7 +243,7 @@ export const useCreateTempTokenState = ({
         ];
         addToChatbotForTempToken({
           username: user?.username ?? "",
-          address: userAddress ?? "",
+          address: user?.address ?? "",
           taskType: InteractionType.CREATE_TEMP_TOKEN,
           title,
           description: dataToSend.join(":"),

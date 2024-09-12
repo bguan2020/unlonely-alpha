@@ -23,7 +23,7 @@ import { useCallback, useEffect, useState } from "react";
 export const useSetWinningTokenTradeableAndTransferLiquidityState = (
   callbackOnTxSuccess?: any
 ) => {
-  const { userAddress, user } = useUser();
+  const { user } = useUser();
 
   const toast = useToast();
 
@@ -232,11 +232,13 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
         const title = `The $${_winningToken.symbol} token is now tradeable!`;
         addToChatbot({
           username: user?.username ?? "",
-          address: userAddress ?? "",
+          address: user?.address ?? "",
           taskType:
             InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
           title,
-          description: `${userAddress}:${winnerTokenAddress}:${loserTokenAddress}:${String(
+          description: `${
+            user?.address
+          }:${winnerTokenAddress}:${loserTokenAddress}:${String(
             transferredLiquidityInWei
           )}:${_tokenType}:${String(maxNumTokens)}`,
         });

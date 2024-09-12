@@ -67,7 +67,7 @@ export const useCreateMultipleTempTokensState = ({
 }: {
   callbackOnTxSuccess: () => void;
 }): UseCreateMultipleTempTokensState => {
-  const { userAddress, user } = useUser();
+  const { user } = useUser();
   const { channel, chat } = useChannelContext();
   const { addToChatbot: addToChatbotForTempToken } = chat;
   const { channelQueryData } = channel;
@@ -295,7 +295,7 @@ export const useCreateMultipleTempTokensState = ({
         ];
         addToChatbotForTempToken({
           username: user?.username ?? "",
-          address: userAddress ?? "",
+          address: user?.address ?? "",
           taskType: InteractionType.CREATE_MULTIPLE_TEMP_TOKENS,
           title,
           description: dataToSend.join(":"),

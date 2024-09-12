@@ -22,6 +22,19 @@ export const GET_USER_QUERY = gql`
   }
 `;
 
+export const GET_DOES_USER_ADDRESS_MATCH_QUERY = gql`
+query GetDoesUserAddressMatch($data: GetDoesUserAddressMatchInput!) {
+  getDoesUserAddressMatch(data: $data) {
+    user {
+      address
+    }
+    contextUser {
+      address
+    }
+    doesMatch
+  }
+}`
+
 export const GET_USER_CHANNEL_CONTRACT_1155_MAPPING_QUERY = gql`
   query GetUserChannelContract1155Mapping($data: GetUserInput!) {
     getUserChannelContract1155Mapping(data: $data)

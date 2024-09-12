@@ -6,64 +6,82 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useLazyQuery } from "@apollo/client";
+import { useApolloClient, useLazyQuery } from "@apollo/client";
 import {
-  ConnectedWallet,
   usePrivy,
   User as PrivyUser,
   useWallets,
-  WalletWithMetadata,
   useLogin,
+  useLogout,
   useConnectWallet,
 } from "@privy-io/react-auth";
-import { Box, Button, Flex, Text, useToast } from "@chakra-ui/react";
-import { isAddress, isAddressEqual } from "viem";
+import { Box, Button, Flex, Spinner, Text, useToast } from "@chakra-ui/react";
 
-import { User } from "../../generated/graphql";
+import { Channel, GetUserQuery, Maybe, Scalars } from "../../generated/graphql";
 import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
-import { GET_USER_QUERY } from "../../constants/queries";
+import {
+  GET_DOES_USER_ADDRESS_MATCH_QUERY,
+  GET_USER_QUERY,
+} from "../../constants/queries";
 import centerEllipses from "../../utils/centerEllipses";
 import { Tos } from "../../components/general/Tos";
 import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
 import copy from "copy-to-clipboard";
 import { useApolloContext } from "./useApollo";
+import { useAccount, useSignMessage } from "wagmi";
+import { useSetActiveWallet } from "@privy-io/wagmi";
+
+const FETCH_TRIES = 3;
 
 export const useUser = () => {
   return useContext(UserContext);
 };
 
+type DatabaseUser = {
+  address: Scalars["String"];
+  channel?: Maybe<Array<Maybe<Partial<Channel>>>>;
+  username?: Maybe<Scalars["String"]>;
+  FCImageUrl?: Maybe<Scalars["String"]>;
+  FCHandle?: Maybe<Scalars["String"]>;
+  lensHandle?: Maybe<Scalars["String"]>;
+  lensImageUrl?: Maybe<Scalars["String"]>;
+  powerUserLvl: Scalars["Int"];
+};
+
 const UserContext = createContext<{
   privyUser: PrivyUser | null;
-  user?: User;
+  user?: DatabaseUser;
   username?: string;
-  userAddress?: `0x${string}`;
-  walletIsConnected: boolean;
-  loginMethod?: string;
   initialNotificationsGranted: boolean;
-  activeWallet?: ConnectedWallet;
+  wagmiAddress?: `0x${string}`;
   ready: boolean;
   authenticated: boolean;
+  isManagingWallets: boolean;
+  fetchingUser: boolean;
+  doesUserAddressMatch: boolean | undefined;
   fetchUser: () => any;
   login: () => void;
   connectWallet: () => void;
   logout: () => void;
   exportWallet: () => Promise<void>;
+  handleIsManagingWallets: (value: boolean) => void;
 }>({
   privyUser: null,
   user: undefined,
   username: undefined,
-  userAddress: undefined,
-  walletIsConnected: false,
-  loginMethod: undefined,
   initialNotificationsGranted: false,
-  activeWallet: undefined,
+  wagmiAddress: undefined,
   ready: false,
   authenticated: false,
+  isManagingWallets: false,
+  fetchingUser: false,
+  doesUserAddressMatch: undefined,
   fetchUser: () => undefined,
   login: () => undefined,
   connectWallet: () => undefined,
   logout: () => undefined,
   exportWallet: () => Promise.resolve(),
+  handleIsManagingWallets: () => undefined,
 });
 
 export const UserProvider = ({
@@ -72,16 +90,41 @@ export const UserProvider = ({
   children: JSX.Element[] | JSX.Element;
 }) => {
   const { handleLatestVerifiedAddress } = useApolloContext();
-  const [user, setUser] = useState<User | undefined>(undefined);
+  const { setActiveWallet } = useSetActiveWallet();
+  const [user, setUser] = useState<DatabaseUser | undefined>(undefined);
   const [username, setUsername] = useState<string | undefined>();
+  const [isManagingWallets, setIsManagingWallets] = useState(false);
+
+  const [differentWallet, setDifferentWallet] = useState(false);
+  const [initialNotificationsGranted, setInitialNotificationsGranted] =
+    useState(false);
+  const [fetchingUser, setFetchingUser] = useState(false);
+  const [doesUserAddressMatch, setDoesUserAddressMatch] = useState<
+    boolean | undefined
+  >(undefined);
+
+  const {
+    address: wagmiAddress,
+    isConnected,
+    isConnecting,
+    isDisconnected,
+  } = useAccount();
+
+  const { signMessage } = useSignMessage();
+  const handleInitialNotificationsGranted = useCallback((granted: boolean) => {
+    setInitialNotificationsGranted(granted);
+  }, []);
+
   const {
     authenticated,
     user: privyUser,
     ready,
-    logout,
     exportWallet,
+    linkWallet,
+    unlinkWallet,
   } = usePrivy();
-  const { wallets } = useWallets();
+  const { wallets, ready: walletsReady } = useWallets();
+
   const toast = useToast();
   const { login } = useLogin({
     onComplete: (
@@ -101,7 +144,8 @@ export const UserProvider = ({
         authenticated,
         privyUser,
         user,
-        ready
+        ready,
+        wallets
       );
     },
     onError: (error) => {
@@ -144,6 +188,13 @@ export const UserProvider = ({
   });
 
   const { connectWallet } = useConnectWallet({
+    onSuccess: (wallet) => {
+      console.log("wallet connected", wallet);
+      const foundWallet = wallets.find((w) => w.address === wallet.address);
+      if (foundWallet) {
+        setActiveWallet(foundWallet);
+      }
+    },
     onError: (err) => {
       console.error("connect wallet error", err);
       toast({
@@ -183,125 +234,121 @@ export const UserProvider = ({
     },
   });
 
-  const [differentWallet, setDifferentWallet] = useState(false);
-  const [initialNotificationsGranted, setInitialNotificationsGranted] =
-    useState(false);
+  const { logout } = useLogout({
+    onSuccess: () => {
+      setUser(undefined);
+      setUsername(undefined);
+    },
+  });
 
-  const handleInitialNotificationsGranted = useCallback((granted: boolean) => {
-    setInitialNotificationsGranted(granted);
-  }, []);
-
-  const loginMethod = useMemo(() => {
-    const wallet = privyUser?.linkedAccounts?.find(
-      (account): account is WalletWithMetadata =>
-        account.type === "wallet" && "walletClientType" in account
-    );
-    if (!wallet) return undefined;
-    return wallet.walletClientType;
-  }, [privyUser]);
-
-  const address = useMemo(() => {
-    let foundWalletAddress: string | undefined;
-
-    const filteredAccounts = privyUser?.linkedAccounts.filter(
-      (a): a is WalletWithMetadata => a.type === "wallet"
-    );
-
-    for (const wallet of wallets) {
-      if (
-        filteredAccounts?.find((account) =>
-          isAddressEqual(
-            wallet.address as `0x${string}`,
-            account.address as `0x${string}`
-          )
-        )
-      ) {
-        foundWalletAddress = wallet.address;
-        break;
-      }
-    }
-
-    return foundWalletAddress;
-    // return logged in but no wallet found, meaning privyUser is defined
-    // return not logged in at all, meaning privyUser is undefined
-  }, [wallets, privyUser?.linkedAccounts]);
-
-  const [fetchUser, { data }] = useLazyQuery(GET_USER_QUERY, {
-    variables: { data: { address } },
+  const [fetchUser] = useLazyQuery<GetUserQuery>(GET_USER_QUERY, {
     fetchPolicy: "network-only",
   });
 
+  const client = useApolloClient();
+
+  const fetchUserData = useCallback(async () => {
+    setFetchingUser(true);
+    if (!wallets[0]) {
+      setFetchingUser(false);
+      return;
+    }
+    handleLatestVerifiedAddress(wallets[0].address);
+    await setActiveWallet(wallets[0]);
+    setDoesUserAddressMatch(true);
+    const data = await fetchUser({
+      variables: {
+        data: {
+          address: wallets[0].address,
+        },
+      },
+    });
+    console.log("fetching user data...", wallets, data);
+    if (data?.data?.getUser) {
+      setUser({
+        address: data?.data?.getUser?.address,
+        channel: data?.data?.getUser?.channel as DatabaseUser["channel"],
+        username: data?.data?.getUser?.username,
+        FCImageUrl: data?.data?.getUser?.FCImageUrl,
+        FCHandle: data?.data?.getUser?.FCHandle,
+        lensHandle: data?.data?.getUser?.lensHandle,
+        lensImageUrl: data?.data?.getUser?.lensImageUrl,
+        powerUserLvl: data?.data?.getUser?.powerUserLvl,
+      });
+      setUsername(
+        data?.data?.getUser?.username ?? centerEllipses(wallets[0].address, 9)
+      );
+      for (let i = 0; i < FETCH_TRIES; i++) {
+        const { data: getDoesUserAddressMatchData } = await client.query({
+          query: GET_DOES_USER_ADDRESS_MATCH_QUERY,
+          variables: { data: { address: wallets[0].address } },
+        });
+        console.log(
+          "verified getDoesUserAddressMatchData",
+          getDoesUserAddressMatchData,
+          i
+        );
+        if (getDoesUserAddressMatchData?.getDoesUserAddressMatch) {
+          setDoesUserAddressMatch(true);
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        setDoesUserAddressMatch(false);
+      }
+      console.log("fetching finished");
+    } else {
+      console.error("user not found in database", data);
+    }
+    console.log("fetching user done");
+    setFetchingUser(false);
+  }, [wallets]);
+
   useEffect(() => {
-    if (!address) return;
-    fetchUser();
-    handleLatestVerifiedAddress(address);
-  }, [address]);
+    fetchUserData();
+  }, [fetchUserData]);
 
-  const walletIsConnected = useMemo(() => {
-    const auth =
-      authenticated && wallets[0] !== undefined && user !== undefined;
-    const matchingWallet = wallets[0]?.address === address;
-    console.log("walletIsConnected auth", authenticated, wallets, user);
-    console.log(
-      "walletIsConnected matchingWallet",
-      wallets[0]?.address,
-      address
-    );
-    return auth && matchingWallet;
-  }, [authenticated, wallets, user, address]);
+  console.log("wallets", wallets);
 
-  useEffect(() => {
-    setUser(data?.getUser);
-    setUsername(data?.getUser?.username ?? centerEllipses(address, 9));
-  }, [data, address]);
-
-  console.log("privyUser", privyUser, user, walletIsConnected);
-
-  useEffect(() => {
-    const f = async () => {
-      const isUsingDifferentWallet =
-        user?.address !== undefined &&
-        isAddress(wallets[0]?.address as `${string}`) &&
-        wallets[0]?.address !== user?.address;
-      setDifferentWallet(isUsingDifferentWallet);
-    };
-    f();
-  }, [wallets, user]);
+  const handleIsManagingWallets = useCallback((value: boolean) => {
+    setIsManagingWallets(value);
+  }, []);
 
   const value = useMemo(
     () => ({
       privyUser,
       user,
       username,
-      userAddress: address as `0x${string}`,
-      walletIsConnected,
-      loginMethod,
       initialNotificationsGranted,
-      activeWallet: wallets[0],
+      wagmiAddress,
       ready,
       authenticated,
+      isManagingWallets,
+      fetchingUser,
+      doesUserAddressMatch,
       fetchUser,
       login,
       connectWallet,
       logout,
       exportWallet,
+      handleIsManagingWallets,
     }),
     [
       privyUser,
       user,
       username,
-      address,
-      walletIsConnected,
-      loginMethod,
       initialNotificationsGranted,
       wallets,
       ready,
       authenticated,
+      isManagingWallets,
+      fetchingUser,
+      doesUserAddressMatch,
       fetchUser,
       login,
       connectWallet,
       logout,
       exportWallet,
+      handleIsManagingWallets,
     ]
   );
 
@@ -310,6 +357,95 @@ export const UserProvider = ({
       <TurnOnNotificationsModal
         handleInitialNotificationsGranted={handleInitialNotificationsGranted}
       />
+      <TransactionModalTemplate
+        title="manage your linked wallets"
+        isOpen={isManagingWallets}
+        handleClose={() => setIsManagingWallets(false)}
+        isModalLoading={false}
+        size="sm"
+        hideFooter
+      >
+        <Flex direction={"column"} gap="5px">
+          {fetchingUser ? (
+            <Flex justifyContent={"center"}>
+              <Spinner />
+            </Flex>
+          ) : (
+            <>
+              {doesUserAddressMatch ? (
+                <Text color="green">user address matches</Text>
+              ) : doesUserAddressMatch === false ? (
+                <Text color="red">user address does not match</Text>
+              ) : (
+                <Text>waiting for user address match...</Text>
+              )}
+              {
+                <p>
+                  Wallet Connection status for {wagmiAddress}:{" "}
+                  {isConnecting && <span>🟡 connecting...</span>}
+                  {isConnected && <span>🟢 connected.</span>}
+                  {isDisconnected && <span> 🔴 disconnected.</span>}
+                </p>
+              }
+              {walletsReady &&
+                wallets.map((wallet) => {
+                  return (
+                    <Flex direction={"column"} gap="5px">
+                      <Text>{wallet.address}</Text>
+                      <Text>{wallet.walletClientType}</Text>
+                      <Button
+                        onClick={() => {
+                          const foundWallet = wallets.find(
+                            (w) => w.address === wallet.address
+                          );
+                          if (foundWallet) {
+                            connectWallet({
+                              suggestedAddress: foundWallet.address,
+                            });
+                          }
+                        }}
+                        isDisabled={wagmiAddress === wallet.address}
+                      >
+                        use
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          unlinkWallet(wallet.address);
+                        }}
+                      >
+                        unlink
+                      </Button>
+                    </Flex>
+                  );
+                })}
+              <Button
+                onClick={async () => {
+                  setDoesUserAddressMatch(undefined);
+                  const { data: getDoesUserAddressMatchData } =
+                    await client.query({
+                      query: GET_DOES_USER_ADDRESS_MATCH_QUERY,
+                      variables: { data: { address: wallets[0].address } },
+                    });
+                  console.log(
+                    "getDoesUserAddressMatchData",
+                    getDoesUserAddressMatchData,
+                    wallets
+                  );
+                  setDoesUserAddressMatch(
+                    getDoesUserAddressMatchData?.getDoesUserAddressMatch
+                  );
+                }}
+              >
+                test backend
+              </Button>
+              <Button onClick={() => signMessage({ message: "hello world" })}>
+                test sign message
+              </Button>
+              <Button onClick={linkWallet}>link wallet</Button>
+            </>
+          )}
+        </Flex>
+      </TransactionModalTemplate>
       <TransactionModalTemplate
         confirmButton="logout"
         title="did you change wallet accounts?"

@@ -69,7 +69,7 @@ export const VersusTempTokenProvider = ({
   const { channel, chat } = useChannelContext();
   const { isOwner } = channel;
   const { addToChatbot: addToChatbotForTempToken } = chat;
-  const { user, userAddress } = useUser();
+  const { user } = useUser();
   const globalState = useReadVersusTempTokenGlobalState();
   const transitionGameState = useVersusGameStateTransitioner();
   const { loadingOnMount } = useReadVersusTempTokenOnMount({
@@ -180,7 +180,7 @@ export const VersusTempTokenProvider = ({
       if (isOwner && router.pathname.startsWith("/channels")) {
         addToChatbotForTempToken({
           username: user?.username ?? "",
-          address: userAddress ?? "",
+          address: user?.address ?? "",
           taskType: InteractionType.TEMP_TOKEN_EXPIRED,
           title: "Game finished! Both tokens are now expired!",
           description: "",

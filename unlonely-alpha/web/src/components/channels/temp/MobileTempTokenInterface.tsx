@@ -19,8 +19,7 @@ export const MobileTempTokenInterface = ({
   ablyChannel: AblyChannelPromise;
   customHeight?: string;
 }) => {
-  const { walletIsConnected, privyUser, login, connectWallet, user } =
-    useUser();
+  const { wagmiAddress, privyUser, login, connectWallet, user } = useUser();
   const { ethPriceInUsd } = useCacheContext();
 
   const { tempToken } = useTempTokenContext();
@@ -151,7 +150,7 @@ export const MobileTempTokenInterface = ({
             />
           </Flex>
           <Flex direction={"column"} height="150px">
-            {walletIsConnected && user?.address ? (
+            {wagmiAddress && user?.address ? (
               <MobileTempTokenExchange />
             ) : (
               <Flex direction="column">

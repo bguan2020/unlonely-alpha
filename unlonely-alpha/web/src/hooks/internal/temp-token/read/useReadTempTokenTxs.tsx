@@ -57,7 +57,7 @@ export const useReadTempTokenTxs = ({
   baseClient: any;
   tempTokenContract: ContractData;
 }): UseReadTempTokenTxsType => {
-  const { userAddress } = useUser();
+  const { user } = useUser();
   const [tempTokenTxs, setTempTokenTxs] = useState<TradeableTokenTx[]>([]);
   const [initialTempTokenLoading, setInitialTempTokenLoading] = useState(true);
 
@@ -76,7 +76,7 @@ export const useReadTempTokenTxs = ({
   const {
     balance: userTempTokenBalance,
     refetch: refetchUserTempTokenBalance,
-  } = useGetUserBalance(userAddress as `0x${string}`, tempTokenContract);
+  } = useGetUserBalance(user?.address as `0x${string}`, tempTokenContract);
 
   const getTempTokenEvents = useCallback(
     async (

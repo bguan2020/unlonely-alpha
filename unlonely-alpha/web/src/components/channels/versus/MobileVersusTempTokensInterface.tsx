@@ -26,8 +26,7 @@ export const MobileVersusTempTokensInterface = ({
 }: {
   customHeight?: string;
 }) => {
-  const { walletIsConnected, privyUser, login, connectWallet, user } =
-    useUser();
+  const { wagmiAddress, privyUser, login, connectWallet, user } = useUser();
   const { gameState } = useVersusTempTokenContext();
 
   const {
@@ -132,7 +131,7 @@ export const MobileVersusTempTokensInterface = ({
             </Stepper>
           ) : (
             <>
-              {walletIsConnected && user?.address ? (
+              {wagmiAddress && user?.address ? (
                 <MobileVersusTokenExchange />
               ) : (
                 <Flex direction="column">

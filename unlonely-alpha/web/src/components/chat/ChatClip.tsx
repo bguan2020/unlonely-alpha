@@ -22,7 +22,7 @@ import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 
 export const ChatClip = () => {
-  const { user, userAddress } = useUser();
+  const { user } = useUser();
   const { isStandalone } = useUserAgent();
   const { chat } = useChannelContext();
   const {
@@ -69,7 +69,7 @@ export const ChatClip = () => {
       address: user?.address ?? "",
       taskType: InteractionType.CLIP,
       title: `${
-        user?.username ?? centerEllipses(userAddress, 15)
+        user?.username ?? centerEllipses(user?.address, 15)
       } has just clipped a highlight from this stream!`,
       description: "",
     });

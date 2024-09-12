@@ -9,7 +9,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import { LikedIcon, LikeIcon } from "../icons/LikeIcon";
 
 export const NFCComponent = ({ nfc }: { nfc?: any }) => {
-  const { user, walletIsConnected } = useUser();
+  const { user, wagmiAddress } = useUser();
 
   const videoRef = useRef<HTMLVideoElement>(null); // Ref for the video element
 

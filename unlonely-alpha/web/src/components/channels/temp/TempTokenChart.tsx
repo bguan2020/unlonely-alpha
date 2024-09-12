@@ -49,8 +49,7 @@ export const TempTokenChart = ({
   isFullChart?: boolean;
   customChartHeightInPx?: number;
 }) => {
-  const { walletIsConnected, privyUser, login, connectWallet, user } =
-    useUser();
+  const { wagmiAddress, privyUser, login, connectWallet, user } = useUser();
   const { isStandalone } = useUserAgent();
 
   const { channel } = useChannelContext();
@@ -562,7 +561,7 @@ export const TempTokenChart = ({
             </Flex>
           </Flex>
           <Flex direction={"column"} height={isFullChart ? "150px" : undefined}>
-            {walletIsConnected && user?.address ? (
+            {wagmiAddress && user?.address ? (
               <TempTokenExchange />
             ) : (
               <Flex direction="column">
