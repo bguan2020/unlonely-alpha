@@ -77,13 +77,13 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
         launchTerminal();
       }
     }, 200);
-  }, [isLoaded, launchTerminal]);
+  }, [isLoaded, simulateWalletPassthrough, props, launchTerminal]);
 
   // To make sure passthrough wallet are synced
   useEffect(() => {
     if (!(window as any)?.Jupiter.syncProps) return;
     (window as any)?.Jupiter.syncProps({ passthroughWalletContextState });
-  }, [passthroughWalletContextState]);
+  }, [passthroughWalletContextState.connected, props]);
 
   return (
     <div

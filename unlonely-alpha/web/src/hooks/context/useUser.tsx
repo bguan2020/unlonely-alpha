@@ -14,7 +14,19 @@ import {
   useLogout,
   useConnectWallet,
 } from "@privy-io/react-auth";
-import { Box, Button, Flex, Spinner, Text, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  IconButton,
+  Text,
+  Image,
+  Tooltip,
+  useToast,
+} from "@chakra-ui/react";
+import { RiSubtractFill } from "react-icons/ri";
+import { GoUnlink } from "react-icons/go";
+import debounce from "lodash/debounce";
 
 import { Channel, GetUserQuery, Maybe, Scalars } from "../../generated/graphql";
 import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
@@ -29,8 +41,28 @@ import copy from "copy-to-clipboard";
 import { useApolloContext } from "./useApollo";
 import { useAccount, useSignMessage } from "wagmi";
 import { useSetActiveWallet } from "@privy-io/wagmi";
+import usePostStreamInteraction from "../server/usePostStreamInteraction";
+import { FaExclamationTriangle } from "react-icons/fa";
 
 const FETCH_TRIES = 3;
+
+type WalletListEntry =
+  | "metamask"
+  | "phantom"
+  | "rainbow"
+  | "rabby_wallet"
+  | "coinbase_wallet"
+  | "zerion"
+  | "cryptocom"
+  | "uniswap"
+  | "okx_wallet"
+  | "detected_wallets"
+  | "wallet_connect"
+  | "safe";
+
+const isWalletListEntry = (value: unknown): value is WalletListEntry => {
+  return typeof value === "string" && (value as WalletListEntry) === value;
+};
 
 export const useUser = () => {
   return useContext(UserContext);
@@ -112,11 +144,18 @@ export const UserProvider = ({
     setInitialNotificationsGranted(granted);
   }, []);
 
-  const { authenticated, ready, exportWallet, linkWallet, unlinkWallet } =
-    usePrivy();
-  const { wallets, ready: walletsReady } = useWallets();
+  const {
+    authenticated,
+    ready,
+    exportWallet,
+    linkWallet,
+    unlinkWallet,
+    user: privyUser,
+  } = usePrivy();
+  const { wallets } = useWallets();
 
   const toast = useToast();
+  const { postStreamInteraction } = usePostStreamInteraction({});
   const { login } = useLogin({
     onComplete: (
       _user,
@@ -230,12 +269,7 @@ export const UserProvider = ({
     },
   });
 
-  const { logout } = useLogout({
-    onSuccess: () => {
-      setUser(undefined);
-      setUsername(undefined);
-    },
-  });
+  const { logout } = useLogout();
 
   const [fetchUser] = useLazyQuery<GetUserQuery>(GET_USER_QUERY, {
     fetchPolicy: "network-only",
@@ -243,14 +277,31 @@ export const UserProvider = ({
 
   const client = useApolloClient();
 
-  // useEffect(() => {
-  //   if (wallets.length > 0) {
-  //     console.log("ARC setting active wallet", wallets[0]);
-  //     setActiveWallet(wallets[0]); // not updating wagmiAddress properly
-  //   }
-  // }, [wallets[0]?.address]);
+  console.log(
+    "ARC wagmiAddress",
+    wagmiAddress,
+    wallets,
+    privyUser?.linkedAccounts
+  );
 
-  console.log("ARC wagmiAddress", wagmiAddress, wallets);
+  const debouncedSetActiveWallet = useMemo(
+    () =>
+      debounce((wallet: any) => {
+        console.log("ARC setting active wallet", wallet);
+        setActiveWallet(wallet);
+      }, 500),
+    [setActiveWallet]
+  );
+
+  useEffect(() => {
+    if (wallets.length > 0) {
+      debouncedSetActiveWallet(wallets[0]);
+    }
+
+    return () => {
+      debouncedSetActiveWallet.cancel();
+    };
+  }, [wallets[0]?.address, debouncedSetActiveWallet]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -260,14 +311,19 @@ export const UserProvider = ({
         return;
       }
       handleLatestVerifiedAddress(wagmiAddress);
-      setDoesUserAddressMatch(true);
-      const data = await fetchUser({
-        variables: {
-          data: {
-            address: wagmiAddress,
+      setDoesUserAddressMatch(undefined);
+      let data;
+      try {
+        data = await fetchUser({
+          variables: {
+            data: {
+              address: wagmiAddress,
+            },
           },
-        },
-      });
+        });
+      } catch (e) {
+        console.error("ARC fetching user data error", e);
+      }
       console.log("ARC fetching user data...", wagmiAddress, data);
       if (data?.data?.getUser) {
         setUser({
@@ -336,12 +392,12 @@ export const UserProvider = ({
       user,
       username,
       initialNotificationsGranted,
-      wallets,
       ready,
       authenticated,
       isManagingWallets,
       fetchingUser,
       doesUserAddressMatch,
+      wagmiAddress,
       fetchUser,
       login,
       connectWallet,
@@ -357,7 +413,7 @@ export const UserProvider = ({
         handleInitialNotificationsGranted={handleInitialNotificationsGranted}
       />
       <TransactionModalTemplate
-        title="manage your linked wallets"
+        title="manage your wallets"
         isOpen={isManagingWallets}
         handleClose={() => setIsManagingWallets(false)}
         isModalLoading={false}
@@ -365,78 +421,134 @@ export const UserProvider = ({
         hideFooter
       >
         <Flex direction={"column"} gap="5px">
-          {fetchingUser ? (
-            <Flex justifyContent={"center"}>
-              <Spinner />
-            </Flex>
-          ) : (
-            <>
-              {doesUserAddressMatch ? (
-                <Text color="green">user address matches</Text>
-              ) : doesUserAddressMatch === false ? (
-                <Text color="red">user address does not match</Text>
-              ) : (
-                <Text>waiting for user address match...</Text>
-              )}
-              {walletsReady &&
-                wallets.map((wallet) => {
-                  return (
-                    <Flex gap="5px">
-                      {wallet.address === wagmiAddress && (
-                        <>
-                          {isConnecting && <span>🟡</span>}
-                          {isConnected && <span>🟢</span>}
-                          {isDisconnected && <span>🔴</span>}
-                        </>
-                      )}
-                      <Flex direction={"column"} gap="5px">
-                        <Text>{centerEllipses(wallet.address, 10)}</Text>
-                        <Text>{wallet.walletClientType}</Text>
+          <Flex justifyContent={"space-between"}>
+            <Text fontSize="10px">privy user id</Text>
+            <Text fontSize="10px" color="#acacac">
+              {privyUser?.id}
+            </Text>
+          </Flex>
+          {privyUser?.linkedAccounts
+            .filter((account) => account.type === "wallet")
+            .sort((a, b) => a.address.localeCompare(b.address))
+            .map((account) => {
+              return (
+                <Flex
+                  gap="5px"
+                  background="rgba(0, 0, 0, 0.5)"
+                  borderRadius="5px"
+                  p="5px"
+                  justifyContent={"space-between"}
+                  alignItems={"center"}
+                >
+                  <Flex gap="5px" alignItems={"center"}>
+                    {wallets.find((w) => w.address === account.address)?.meta
+                      .icon ? (
+                      <Image
+                        src={
+                          wallets.find((w) => w.address === account.address)
+                            ?.meta.icon
+                        }
+                        alt="wallet image"
+                        width="20px"
+                        height="20px"
+                      />
+                    ) : (
+                      <GoUnlink />
+                    )}
+                    <Text fontFamily={"LoRes15"}>
+                      {centerEllipses(account.address, 13)}
+                    </Text>
+                  </Flex>
+                  <Flex gap="5px" alignItems={"end"}>
+                    {wagmiAddress === account.address ? (
+                      <Flex gap="5px">
+                        {doesUserAddressMatch === false && (
+                          <Tooltip
+                            shouldWrapChildren
+                            label="not synced with unlonely server"
+                          >
+                            <Flex
+                              background="#ce3b1a"
+                              alignItems="center"
+                              borderRadius="5px"
+                              px="5px"
+                              height={"20px"}
+                            >
+                              <FaExclamationTriangle />
+                            </Flex>
+                          </Tooltip>
+                        )}
+                        <Flex
+                          background="#22b66e"
+                          alignItems="center"
+                          borderRadius="5px"
+                          px="5px"
+                          height={"20px"}
+                          fontSize="15px"
+                        >
+                          <Text>Active</Text>
+                        </Flex>
                       </Flex>
+                    ) : (
                       <Button
-                        onClick={() => {
-                          setActiveWallet(wallet);
+                        border="1px white solid"
+                        height={"20px"}
+                        fontSize="15px"
+                        bg="transparent"
+                        color="white"
+                        _hover={{
+                          bg: "rgba(255, 255, 255, 0.2)",
                         }}
-                        isDisabled={wagmiAddress === wallet.address}
-                      >
-                        use
-                      </Button>
-                      <Button
                         onClick={() => {
-                          unlinkWallet(wallet.address);
+                          const foundWallet = wallets.find(
+                            (w) => w.address === account.address
+                          );
+                          if (foundWallet) {
+                            setActiveWallet(foundWallet);
+                          } else {
+                            connectWallet({
+                              suggestedAddress: account.address,
+                              walletList:
+                                account.walletClientType &&
+                                isWalletListEntry(account.walletClientType)
+                                  ? [account.walletClientType]
+                                  : undefined,
+                            });
+                          }
                         }}
                       >
-                        unlink
+                        {wallets.find((w) => w.address === account.address)
+                          ? "set active"
+                          : "connect"}
                       </Button>
-                    </Flex>
-                  );
-                })}
-              <Button
-                onClick={async () => {
-                  setDoesUserAddressMatch(undefined);
-                  const { data: getDoesUserAddressMatchData } =
-                    await client.query({
-                      query: GET_DOES_USER_ADDRESS_MATCH_QUERY,
-                      variables: { data: { address: wallets[0].address } },
-                    });
-                  console.log(
-                    "getDoesUserAddressMatchData",
-                    getDoesUserAddressMatchData,
-                    wallets
-                  );
-                  setDoesUserAddressMatch(
-                    getDoesUserAddressMatchData?.getDoesUserAddressMatch
-                  );
-                }}
-              >
-                test backend
-              </Button>
-              <Button onClick={() => signMessage({ message: "hello world" })}>
-                test sign message
-              </Button>
-              <Button onClick={linkWallet}>link wallet</Button>
-            </>
-          )}
+                    )}
+                    <Tooltip label="unlink wallet" shouldWrapChildren>
+                      <IconButton
+                        border="1px white solid"
+                        color="white"
+                        bg="transparent"
+                        _hover={{
+                          bg: "rgba(255, 255, 255, 0.2)",
+                        }}
+                        height={"20px"}
+                        icon={<RiSubtractFill />}
+                        aria-label="unlink wallet"
+                        onClick={async () => {
+                          const newPrivyUser = await unlinkWallet(
+                            account.address
+                          );
+                          console.log("newPrivyUser", newPrivyUser);
+                        }}
+                      />
+                    </Tooltip>
+                  </Flex>
+                </Flex>
+              );
+            })}
+          <Button onClick={() => signMessage({ message: "hello world" })}>
+            test sign message
+          </Button>
+          <Button onClick={linkWallet}>link new wallet</Button>
         </Flex>
       </TransactionModalTemplate>
       <TransactionModalTemplate

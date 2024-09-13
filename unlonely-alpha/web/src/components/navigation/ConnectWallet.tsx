@@ -14,6 +14,7 @@ import {
   Spinner,
   Text,
   Box,
+  Image,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -33,15 +34,8 @@ import copy from "copy-to-clipboard";
 import { usePrivy, WalletWithMetadata } from "@privy-io/react-auth";
 const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
   const router = useRouter();
-  const {
-    wagmiAddress,
-    ready,
-    authenticated,
-    login,
-    connectWallet,
-    logout,
-    handleIsManagingWallets,
-  } = useUser();
+  const { wagmiAddress, ready, authenticated, login, connectWallet, logout } =
+    useUser();
   const { isStandalone } = useUserAgent();
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
 
@@ -121,15 +115,6 @@ const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
                   }}
                 >
                   {loggedInWithPrivy ? "connect wallet" : "login"}
-                </MenuItem>
-                <MenuItem
-                  bg={"#131323"}
-                  _hover={{ bg: "#1f1f3c" }}
-                  _focus={{}}
-                  _active={{}}
-                  onClick={() => handleIsManagingWallets(true)}
-                >
-                  <Text>manage wallets</Text>
                 </MenuItem>
                 {!hideBridge && (
                   <MenuItem
@@ -339,7 +324,10 @@ const ConnectedDisplay = () => {
             _active={{}}
             onClick={() => handleIsManagingWallets(true)}
           >
-            <Text>manage wallets</Text>
+            <Flex alignItems={"center"} gap="5px">
+              <Text>manage wallets</Text>
+              <Image src={"/images/privy-orange.png"} height={"20px"} />
+            </Flex>
           </MenuItem>
           {user?.address && (
             <MenuItem

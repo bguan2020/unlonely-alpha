@@ -75,7 +75,7 @@ export const useTradeTempTokenState = ({
   callbackOnMintTxSuccess?: () => void;
   callbackOnBurnTxSuccess?: () => void;
 }): UseTradeTempTokenStateType => {
-  const { wagmiAddress, wagmiAddress, user } = useUser();
+  const { wagmiAddress, user } = useUser();
 
   const { chat, channel } = useChannelContext();
   const { channelQueryData } = channel;

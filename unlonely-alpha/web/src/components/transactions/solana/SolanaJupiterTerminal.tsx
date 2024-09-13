@@ -96,7 +96,7 @@ export interface IFormConfigurator {
 
 export const INITIAL_FORM_CONFIG: IFormConfigurator = Object.freeze({
   simulateWalletPassthrough: false,
-  strictTokenList: false,
+  strictTokenList: true,
   defaultExplorer: "Solana Explorer",
   formProps: {
     fixedInputMint: true,

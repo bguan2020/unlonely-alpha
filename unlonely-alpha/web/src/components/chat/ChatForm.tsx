@@ -62,9 +62,14 @@ const ChatForm = ({
   channel,
   isVipChat,
 }: Props) => {
-  const { user, wagmiAddress } = useUser();
+  const { user, wagmiAddress, ready, authenticated } = useUser();
   const { isStandalone } = useUserAgent();
   // const { setIsOpen: setIsTourOpen, setSteps: setTourSteps } = useTour();
+
+  const loggedInWithPrivy = useMemo(
+    () => ready && authenticated,
+    [ready, authenticated]
+  );
 
   const toast = useToast();
   const {
@@ -227,7 +232,7 @@ const ChatForm = ({
         }}
       >
         <Stack direction={"row"} spacing={"10px"}>
-          {!wagmiAddress || !user ? (
+          {!wagmiAddress || !user || !loggedInWithPrivy ? (
             <Flex
               justifyContent={"center"}
               direction="column"

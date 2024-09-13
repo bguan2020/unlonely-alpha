@@ -337,7 +337,6 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   };
 
   useEffect(() => {
-    console.log("vibesTokenInterface, tx length change detected");
     if (
       vibesTokenTxs.length === 0 ||
       isFetching.current ||
