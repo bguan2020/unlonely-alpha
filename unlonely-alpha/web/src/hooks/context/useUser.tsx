@@ -9,7 +9,6 @@ import {
 import { useApolloClient, useLazyQuery } from "@apollo/client";
 import {
   usePrivy,
-  User as PrivyUser,
   useWallets,
   useLogin,
   useLogout,
@@ -49,7 +48,6 @@ type DatabaseUser = {
 };
 
 const UserContext = createContext<{
-  privyUser: PrivyUser | null;
   user?: DatabaseUser;
   username?: string;
   initialNotificationsGranted: boolean;
@@ -66,7 +64,6 @@ const UserContext = createContext<{
   exportWallet: () => Promise<void>;
   handleIsManagingWallets: (value: boolean) => void;
 }>({
-  privyUser: null,
   user: undefined,
   username: undefined,
   initialNotificationsGranted: false,
@@ -115,14 +112,8 @@ export const UserProvider = ({
     setInitialNotificationsGranted(granted);
   }, []);
 
-  const {
-    authenticated,
-    user: privyUser,
-    ready,
-    exportWallet,
-    linkWallet,
-    unlinkWallet,
-  } = usePrivy();
+  const { authenticated, ready, exportWallet, linkWallet, unlinkWallet } =
+    usePrivy();
   const { wallets, ready: walletsReady } = useWallets();
 
   const toast = useToast();
@@ -142,11 +133,16 @@ export const UserProvider = ({
         loginMethod,
         loginAccount,
         authenticated,
-        privyUser,
         user,
         ready,
         wallets
       );
+      // const foundWallet = wallets.find(
+      //   (w) => w.address === (loginAccount as WalletWithMetadata)?.address
+      // );
+      // if (foundWallet) {
+      //   setActiveWallet(foundWallet);
+      // }
     },
     onError: (error) => {
       console.error("login error", error);
@@ -189,11 +185,11 @@ export const UserProvider = ({
 
   const { connectWallet } = useConnectWallet({
     onSuccess: (wallet) => {
-      console.log("wallet connected", wallet);
-      const foundWallet = wallets.find((w) => w.address === wallet.address);
-      if (foundWallet) {
-        setActiveWallet(foundWallet);
-      }
+      // const foundWallet = wallets.find((w) => w.address === wallet.address);
+      // if (foundWallet) {
+      //   console.log("ARC wallet connected", wallet, wallets);
+      //   setActiveWallet(foundWallet);
+      // }
     },
     onError: (err) => {
       console.error("connect wallet error", err);
@@ -247,67 +243,72 @@ export const UserProvider = ({
 
   const client = useApolloClient();
 
-  const fetchUserData = useCallback(async () => {
-    setFetchingUser(true);
-    if (!wallets[0]) {
-      setFetchingUser(false);
-      return;
-    }
-    handleLatestVerifiedAddress(wallets[0].address);
-    await setActiveWallet(wallets[0]);
-    setDoesUserAddressMatch(true);
-    const data = await fetchUser({
-      variables: {
-        data: {
-          address: wallets[0].address,
-        },
-      },
-    });
-    console.log("fetching user data...", wallets, data);
-    if (data?.data?.getUser) {
-      setUser({
-        address: data?.data?.getUser?.address,
-        channel: data?.data?.getUser?.channel as DatabaseUser["channel"],
-        username: data?.data?.getUser?.username,
-        FCImageUrl: data?.data?.getUser?.FCImageUrl,
-        FCHandle: data?.data?.getUser?.FCHandle,
-        lensHandle: data?.data?.getUser?.lensHandle,
-        lensImageUrl: data?.data?.getUser?.lensImageUrl,
-        powerUserLvl: data?.data?.getUser?.powerUserLvl,
-      });
-      setUsername(
-        data?.data?.getUser?.username ?? centerEllipses(wallets[0].address, 9)
-      );
-      for (let i = 0; i < FETCH_TRIES; i++) {
-        const { data: getDoesUserAddressMatchData } = await client.query({
-          query: GET_DOES_USER_ADDRESS_MATCH_QUERY,
-          variables: { data: { address: wallets[0].address } },
-        });
-        console.log(
-          "verified getDoesUserAddressMatchData",
-          getDoesUserAddressMatchData,
-          i
-        );
-        if (getDoesUserAddressMatchData?.getDoesUserAddressMatch) {
-          setDoesUserAddressMatch(true);
-          break;
-        }
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        setDoesUserAddressMatch(false);
-      }
-      console.log("fetching finished");
-    } else {
-      console.error("user not found in database", data);
-    }
-    console.log("fetching user done");
-    setFetchingUser(false);
-  }, [wallets]);
+  // useEffect(() => {
+  //   if (wallets.length > 0) {
+  //     console.log("ARC setting active wallet", wallets[0]);
+  //     setActiveWallet(wallets[0]); // not updating wagmiAddress properly
+  //   }
+  // }, [wallets[0]?.address]);
+
+  console.log("ARC wagmiAddress", wagmiAddress, wallets);
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      setFetchingUser(true);
+      if (!wagmiAddress) {
+        setFetchingUser(false);
+        return;
+      }
+      handleLatestVerifiedAddress(wagmiAddress);
+      setDoesUserAddressMatch(true);
+      const data = await fetchUser({
+        variables: {
+          data: {
+            address: wagmiAddress,
+          },
+        },
+      });
+      console.log("ARC fetching user data...", wagmiAddress, data);
+      if (data?.data?.getUser) {
+        setUser({
+          address: data?.data?.getUser?.address,
+          channel: data?.data?.getUser?.channel as DatabaseUser["channel"],
+          username: data?.data?.getUser?.username,
+          FCImageUrl: data?.data?.getUser?.FCImageUrl,
+          FCHandle: data?.data?.getUser?.FCHandle,
+          lensHandle: data?.data?.getUser?.lensHandle,
+          lensImageUrl: data?.data?.getUser?.lensImageUrl,
+          powerUserLvl: data?.data?.getUser?.powerUserLvl,
+        });
+        setUsername(
+          data?.data?.getUser?.username ?? centerEllipses(wagmiAddress, 9)
+        );
+        for (let i = 0; i < FETCH_TRIES; i++) {
+          const { data: getDoesUserAddressMatchData } = await client.query({
+            query: GET_DOES_USER_ADDRESS_MATCH_QUERY,
+            variables: { data: { address: wagmiAddress } },
+          });
+          console.log(
+            "ARC verified getDoesUserAddressMatchData",
+            getDoesUserAddressMatchData,
+            i
+          );
+          if (getDoesUserAddressMatchData?.getDoesUserAddressMatch) {
+            setDoesUserAddressMatch(true);
+            break;
+          }
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          setDoesUserAddressMatch(false);
+        }
+        console.log("ARC fetching finished");
+      } else {
+        console.error("user not found in database", data);
+      }
+      console.log("ARC fetching user done");
+      setFetchingUser(false);
+    };
     fetchUserData();
-  }, [fetchUserData]);
-
-  console.log("wallets", wallets);
+  }, [wagmiAddress]);
 
   const handleIsManagingWallets = useCallback((value: boolean) => {
     setIsManagingWallets(value);
@@ -315,7 +316,6 @@ export const UserProvider = ({
 
   const value = useMemo(
     () => ({
-      privyUser,
       user,
       username,
       initialNotificationsGranted,
@@ -333,7 +333,6 @@ export const UserProvider = ({
       handleIsManagingWallets,
     }),
     [
-      privyUser,
       user,
       username,
       initialNotificationsGranted,
@@ -379,30 +378,24 @@ export const UserProvider = ({
               ) : (
                 <Text>waiting for user address match...</Text>
               )}
-              {
-                <p>
-                  Wallet Connection status for {wagmiAddress}:{" "}
-                  {isConnecting && <span>🟡 connecting...</span>}
-                  {isConnected && <span>🟢 connected.</span>}
-                  {isDisconnected && <span> 🔴 disconnected.</span>}
-                </p>
-              }
               {walletsReady &&
                 wallets.map((wallet) => {
                   return (
-                    <Flex direction={"column"} gap="5px">
-                      <Text>{wallet.address}</Text>
-                      <Text>{wallet.walletClientType}</Text>
+                    <Flex gap="5px">
+                      {wallet.address === wagmiAddress && (
+                        <>
+                          {isConnecting && <span>🟡</span>}
+                          {isConnected && <span>🟢</span>}
+                          {isDisconnected && <span>🔴</span>}
+                        </>
+                      )}
+                      <Flex direction={"column"} gap="5px">
+                        <Text>{centerEllipses(wallet.address, 10)}</Text>
+                        <Text>{wallet.walletClientType}</Text>
+                      </Flex>
                       <Button
                         onClick={() => {
-                          const foundWallet = wallets.find(
-                            (w) => w.address === wallet.address
-                          );
-                          if (foundWallet) {
-                            connectWallet({
-                              suggestedAddress: foundWallet.address,
-                            });
-                          }
+                          setActiveWallet(wallet);
                         }}
                         isDisabled={wagmiAddress === wallet.address}
                       >

@@ -19,7 +19,8 @@ export const MobileTempTokenInterface = ({
   ablyChannel: AblyChannelPromise;
   customHeight?: string;
 }) => {
-  const { wagmiAddress, privyUser, login, connectWallet, user } = useUser();
+  const { wagmiAddress, ready, authenticated, login, connectWallet, user } =
+    useUser();
   const { ethPriceInUsd } = useCacheContext();
 
   const { tempToken } = useTempTokenContext();
@@ -41,6 +42,8 @@ export const MobileTempTokenInterface = ({
     handleIsSuccessGameModalOpen,
     handleIsPermanentGameModalOpen,
   } = gameState;
+
+  const loggedInWithPrivy = authenticated && ready;
 
   const interfaceChartData = useInterfaceChartData({
     chartTimeIndexes: tempTokenChartTimeIndexes,
@@ -164,10 +167,10 @@ export const MobileTempTokenInterface = ({
                   _focus={{}}
                   _active={{}}
                   onClick={() => {
-                    privyUser ? connectWallet() : login();
+                    loggedInWithPrivy ? connectWallet() : login();
                   }}
                 >
-                  {privyUser ? "Connect" : "Sign in"}
+                  {loggedInWithPrivy ? "Connect" : "Sign in"}
                 </Button>
               </Flex>
             )}

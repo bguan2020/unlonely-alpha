@@ -30,13 +30,12 @@ import trailString from "../../utils/trailString";
 import { OwnedChannelsModal } from "../channels/OwnedChannelsModal";
 import { formatUnits } from "viem";
 import copy from "copy-to-clipboard";
-import { WalletWithMetadata } from "@privy-io/react-auth";
+import { usePrivy, WalletWithMetadata } from "@privy-io/react-auth";
 const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
   const router = useRouter();
   const {
     wagmiAddress,
     ready,
-    privyUser,
     authenticated,
     login,
     connectWallet,
@@ -173,13 +172,13 @@ const ConnectedDisplay = () => {
 
   const {
     user,
-    privyUser,
     wagmiAddress,
     fetchUser,
     logout,
     exportWallet,
     handleIsManagingWallets,
   } = useUser();
+  const { user: privyUser } = usePrivy();
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork } = network;
 

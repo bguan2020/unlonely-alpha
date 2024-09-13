@@ -49,7 +49,8 @@ export const TempTokenChart = ({
   isFullChart?: boolean;
   customChartHeightInPx?: number;
 }) => {
-  const { wagmiAddress, privyUser, login, connectWallet, user } = useUser();
+  const { wagmiAddress, authenticated, ready, login, connectWallet, user } =
+    useUser();
   const { isStandalone } = useUserAgent();
 
   const { channel } = useChannelContext();
@@ -73,6 +74,8 @@ export const TempTokenChart = ({
   const { matchingChain } = network;
 
   const [thresholdOn, setThresholdOn] = useState(true);
+
+  const loggedInWithPrivy = authenticated && ready;
 
   const {
     CustomDot,
@@ -575,10 +578,10 @@ export const TempTokenChart = ({
                   _focus={{}}
                   _active={{}}
                   onClick={() => {
-                    privyUser ? connectWallet() : login();
+                    loggedInWithPrivy ? connectWallet() : login();
                   }}
                 >
-                  {privyUser ? "Connect" : "Sign in"}
+                  {loggedInWithPrivy ? "Connect" : "Sign in"}
                 </Button>
               </Flex>
             )}

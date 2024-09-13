@@ -26,7 +26,10 @@ import { useNetworkContext } from "../hooks/context/useNetwork";
 const SLUG_MAX_CHARS = 25;
 
 const Onboard = () => {
-  const { login, privyUser, user, wagmiAddress, connectWallet } = useUser();
+  const { login, ready, authenticated, user, wagmiAddress, connectWallet } =
+    useUser();
+
+  const loggedInWithPrivy = authenticated && ready;
 
   return (
     <AppLayout isCustomHeader={false}>
@@ -49,10 +52,10 @@ const Onboard = () => {
             _focus={{}}
             _active={{}}
             onClick={() => {
-              privyUser ? connectWallet() : login();
+              loggedInWithPrivy ? connectWallet() : login();
             }}
           >
-            {privyUser ? "Connect wallet now" : "Sign in now"}
+            {loggedInWithPrivy ? "Connect wallet now" : "Sign in now"}
           </Button>
         </Flex>
       ) : (
