@@ -31,20 +31,19 @@ import debounce from "lodash/debounce";
 import { Channel, GetUserQuery, Maybe, Scalars } from "../../generated/graphql";
 import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
 import {
-  GET_DOES_USER_ADDRESS_MATCH_QUERY,
+  // GET_DOES_USER_ADDRESS_MATCH_QUERY,
   GET_USER_QUERY,
 } from "../../constants/queries";
 import centerEllipses from "../../utils/centerEllipses";
 import { Tos } from "../../components/general/Tos";
 import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
-import copy from "copy-to-clipboard";
 import { useApolloContext } from "./useApollo";
 import { useAccount, useSignMessage } from "wagmi";
 import { useSetActiveWallet } from "@privy-io/wagmi";
 import usePostStreamInteraction from "../server/usePostStreamInteraction";
-import { FaExclamationTriangle } from "react-icons/fa";
+// import { FaExclamationTriangle } from "react-icons/fa";
 
-const FETCH_TRIES = 3;
+// const FETCH_TRIES = 3;
 
 type WalletListEntry =
   | "metamask"
@@ -185,40 +184,40 @@ export const UserProvider = ({
     },
     onError: (error) => {
       console.error("login error", error);
-      toast({
-        render: () => (
-          <Box as="button" borderRadius="md" bg="#b82929" p={4}>
-            <Flex direction="column">
-              <Text fontFamily={"LoRes15"} fontSize="20px">
-                login error
-              </Text>
-              <Text>please copy error log to help developer diagnose</Text>
-              <Button
-                color="#b82929"
-                width="100%"
-                bg="white"
-                onClick={() => {
-                  copy(error.toString());
-                  toast({
-                    title: "copied to clipboard",
-                    status: "success",
-                    duration: 2000,
-                    isClosable: true,
-                  });
-                }}
-                _focus={{}}
-                _active={{}}
-                _hover={{ background: "#f44343", color: "white" }}
-              >
-                copy error
-              </Button>
-            </Flex>
-          </Box>
-        ),
-        duration: 12000,
-        isClosable: true,
-        position: "top",
-      });
+      // toast({
+      //   render: () => (
+      //     <Box as="button" borderRadius="md" bg="#b82929" p={4}>
+      //       <Flex direction="column">
+      //         <Text fontFamily={"LoRes15"} fontSize="20px">
+      //           login error
+      //         </Text>
+      //         <Text>please copy error log to help developer diagnose</Text>
+      //         <Button
+      //           color="#b82929"
+      //           width="100%"
+      //           bg="white"
+      //           onClick={() => {
+      //             copy(error.toString());
+      //             toast({
+      //               title: "copied to clipboard",
+      //               status: "success",
+      //               duration: 2000,
+      //               isClosable: true,
+      //             });
+      //           }}
+      //           _focus={{}}
+      //           _active={{}}
+      //           _hover={{ background: "#f44343", color: "white" }}
+      //         >
+      //           copy error
+      //         </Button>
+      //       </Flex>
+      //     </Box>
+      //   ),
+      //   duration: 12000,
+      //   isClosable: true,
+      //   position: "top",
+      // });
     },
   });
 
@@ -232,40 +231,40 @@ export const UserProvider = ({
     },
     onError: (err) => {
       console.error("connect wallet error", err);
-      toast({
-        render: () => (
-          <Box as="button" borderRadius="md" bg="#b82929" p={4}>
-            <Flex direction="column">
-              <Text fontFamily={"LoRes15"} fontSize="20px">
-                connect wallet error
-              </Text>
-              <Text>please copy error log to help developer diagnose</Text>
-              <Button
-                color="#b82929"
-                width="100%"
-                bg="white"
-                onClick={() => {
-                  copy(err.toString());
-                  toast({
-                    title: "copied to clipboard",
-                    status: "success",
-                    duration: 2000,
-                    isClosable: true,
-                  });
-                }}
-                _focus={{}}
-                _active={{}}
-                _hover={{ background: "#f44343", color: "white" }}
-              >
-                copy error
-              </Button>
-            </Flex>
-          </Box>
-        ),
-        duration: 12000,
-        isClosable: true,
-        position: "top",
-      });
+      // toast({
+      //   render: () => (
+      //     <Box as="button" borderRadius="md" bg="#b82929" p={4}>
+      //       <Flex direction="column">
+      //         <Text fontFamily={"LoRes15"} fontSize="20px">
+      //           connect wallet error
+      //         </Text>
+      //         <Text>please copy error log to help developer diagnose</Text>
+      //         <Button
+      //           color="#b82929"
+      //           width="100%"
+      //           bg="white"
+      //           onClick={() => {
+      //             copy(err.toString());
+      //             toast({
+      //               title: "copied to clipboard",
+      //               status: "success",
+      //               duration: 2000,
+      //               isClosable: true,
+      //             });
+      //           }}
+      //           _focus={{}}
+      //           _active={{}}
+      //           _hover={{ background: "#f44343", color: "white" }}
+      //         >
+      //           copy error
+      //         </Button>
+      //       </Flex>
+      //     </Box>
+      //   ),
+      //   duration: 12000,
+      //   isClosable: true,
+      //   position: "top",
+      // });
     },
   });
 
@@ -339,23 +338,24 @@ export const UserProvider = ({
         setUsername(
           data?.data?.getUser?.username ?? centerEllipses(wagmiAddress, 9)
         );
-        for (let i = 0; i < FETCH_TRIES; i++) {
-          const { data: getDoesUserAddressMatchData } = await client.query({
-            query: GET_DOES_USER_ADDRESS_MATCH_QUERY,
-            variables: { data: { address: wagmiAddress } },
-          });
-          console.log(
-            "ARC verified getDoesUserAddressMatchData",
-            getDoesUserAddressMatchData,
-            i
-          );
-          if (getDoesUserAddressMatchData?.getDoesUserAddressMatch) {
-            setDoesUserAddressMatch(true);
-            break;
-          }
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-          setDoesUserAddressMatch(false);
-        }
+        // for (let i = 0; i < FETCH_TRIES; i++) {
+        //   const { data: getDoesUserAddressMatchData } = await client.query({
+        //     query: GET_DOES_USER_ADDRESS_MATCH_QUERY,
+        //     variables: { data: { address: wagmiAddress } },
+        //   });
+        //   console.log(
+        //     "ARC verified getDoesUserAddressMatchData",
+        //     getDoesUserAddressMatchData,
+        //     wagmiAddress,
+        //     i
+        //   );
+        //   if (getDoesUserAddressMatchData?.getDoesUserAddressMatch) {
+        //     setDoesUserAddressMatch(true);
+        //     break;
+        //   }
+        //   await new Promise((resolve) => setTimeout(resolve, 2000));
+        //   setDoesUserAddressMatch(false);
+        // }
         console.log("ARC fetching finished");
       } else {
         console.error("user not found in database", data);
@@ -429,7 +429,6 @@ export const UserProvider = ({
           </Flex>
           {privyUser?.linkedAccounts
             .filter((account) => account.type === "wallet")
-            .sort((a, b) => a.address.localeCompare(b.address))
             .map((account) => {
               return (
                 <Flex
@@ -462,7 +461,7 @@ export const UserProvider = ({
                   <Flex gap="5px" alignItems={"end"}>
                     {wagmiAddress === account.address ? (
                       <Flex gap="5px">
-                        {doesUserAddressMatch === false && (
+                        {/* {doesUserAddressMatch === false && (
                           <Tooltip
                             shouldWrapChildren
                             label="not synced with unlonely server"
@@ -477,7 +476,7 @@ export const UserProvider = ({
                               <FaExclamationTriangle />
                             </Flex>
                           </Tooltip>
-                        )}
+                        )} */}
                         <Flex
                           background="#22b66e"
                           alignItems="center"
@@ -548,6 +547,27 @@ export const UserProvider = ({
           <Button onClick={() => signMessage({ message: "hello world" })}>
             test sign message
           </Button>
+          {/* <Button
+            onClick={async () => {
+              // const { data: getDoesUserAddressMatchData } = await client.query({
+              //   query: GET_DOES_USER_ADDRESS_MATCH_QUERY,
+              //   variables: { data: { address: wagmiAddress } },
+              // });
+              // console.log(
+              //   "ARC verified manual getDoesUserAddressMatchData",
+              //   getDoesUserAddressMatchData
+              // );
+              // setDoesUserAddressMatch(
+              //   getDoesUserAddressMatchData?.getDoesUserAddressMatch
+              // );
+              postStreamInteraction({
+                interactionType: "test",
+                channelId: "1",
+              });
+            }}
+          >
+            test backend
+          </Button> */}
           <Button onClick={linkWallet}>link new wallet</Button>
         </Flex>
       </TransactionModalTemplate>
