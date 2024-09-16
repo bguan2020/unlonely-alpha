@@ -508,9 +508,16 @@ export const UserProvider = ({
                               suggestedAddress: (account as WalletWithMetadata)
                                 .address,
                               walletList:
-                                account.walletClientType &&
-                                isWalletListEntry(account.walletClientType)
-                                  ? [account.walletClientType]
+                                (account as WalletWithMetadata)
+                                  .walletClientType &&
+                                isWalletListEntry(
+                                  (account as WalletWithMetadata)
+                                    .walletClientType
+                                )
+                                  ? ([
+                                      (account as WalletWithMetadata)
+                                        .walletClientType,
+                                    ] as WalletListEntry[])
                                   : undefined,
                             });
                           }
