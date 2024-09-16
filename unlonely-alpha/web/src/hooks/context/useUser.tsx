@@ -13,6 +13,7 @@ import {
   useLogin,
   useLogout,
   useConnectWallet,
+  WalletWithMetadata,
 } from "@privy-io/react-auth";
 import {
   Box,
@@ -427,12 +428,17 @@ export const UserProvider = ({
                   alignItems={"center"}
                 >
                   <Flex gap="5px" alignItems={"center"}>
-                    {wallets.find((w) => w.address === account.address)?.meta
-                      .icon ? (
+                    {wallets.find(
+                      (w) =>
+                        w.address === (account as WalletWithMetadata).address
+                    )?.meta.icon ? (
                       <Image
                         src={
-                          wallets.find((w) => w.address === account.address)
-                            ?.meta.icon
+                          wallets.find(
+                            (w) =>
+                              w.address ===
+                              (account as WalletWithMetadata).address
+                          )?.meta.icon
                         }
                         alt="wallet image"
                         width="20px"
@@ -487,7 +493,9 @@ export const UserProvider = ({
                         }}
                         onClick={() => {
                           const foundWallet = wallets.find(
-                            (w) => w.address === account.address
+                            (w) =>
+                              w.address ===
+                              (account as WalletWithMetadata).address
                           );
                           if (foundWallet) {
                             setActiveWallet(foundWallet);
@@ -503,7 +511,11 @@ export const UserProvider = ({
                           }
                         }}
                       >
-                        {wallets.find((w) => w.address === account.address)
+                        {wallets.find(
+                          (w) =>
+                            w.address ===
+                            (account as WalletWithMetadata).address
+                        )
                           ? "set active"
                           : "connect"}
                       </Button>
