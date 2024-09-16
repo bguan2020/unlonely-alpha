@@ -30,11 +30,11 @@ export const useBooTokenTerminal = (props: {
       formProps: isBuying
         ? {
             initialInputMint: WRAPPED_SOL_MINT.toString(),
-            initialOutputMint: FIXED_SOLANA_MINT,
+            initialOutputMint: FIXED_SOLANA_MINT.address,
             ...commonProps,
           }
         : {
-            initialInputMint: FIXED_SOLANA_MINT,
+            initialInputMint: FIXED_SOLANA_MINT.address,
             initialOutputMint: WRAPPED_SOL_MINT.toString(),
             ...commonProps,
           },

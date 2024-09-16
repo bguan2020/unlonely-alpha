@@ -54,7 +54,7 @@ type Props = {
   allowPopout?: boolean;
   channel?: AblyChannelPromise;
   tokenGating?: {
-    openTokenExchange: () => void;
+    ctaBuyTokens: () => void;
     tokenName: string;
   };
 };
@@ -596,7 +596,7 @@ const ChatForm = ({
                       zIndex={1}
                     >
                       <Button
-                        onClick={tokenGating.openTokenExchange}
+                        onClick={tokenGating.ctaBuyTokens}
                         bg="transparent"
                         _hover={{}}
                         _active={{}}

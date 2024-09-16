@@ -11,6 +11,7 @@ interface IntegratedTerminalProps {
   useUserSlippage: boolean;
   height?: string;
   width?: string;
+  txCallback?: (txid: string, swapResult: any) => void;
 }
 
 export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
@@ -23,6 +24,7 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
     strictTokenList,
     defaultExplorer,
     useUserSlippage,
+    txCallback,
   } = props;
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -46,6 +48,7 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
         useUserSlippage,
         onSuccess: ({ txid, swapResult }: { txid: any; swapResult: any }) => {
           console.log({ txid, swapResult });
+          txCallback?.(txid, swapResult);
         },
       });
     }

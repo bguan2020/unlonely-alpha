@@ -34,6 +34,19 @@ html {
   pointer-events: none;
 }
 
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 0px #37FF8B;
+  }
+  50% {
+    box-shadow: 0 0 10px #37FF8B, 0 0 20px #37FF8B, 0 0 30px #37FF8B;
+  }
+}
+
+.glowing-border {
+  animation: glowPulse 1.5s ease infinite;
+}
+
 @keyframes rotate-clockwise {
   from {
     transform: rotate(0deg);

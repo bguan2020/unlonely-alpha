@@ -104,7 +104,7 @@ export const INITIAL_FORM_CONFIG: IFormConfigurator = Object.freeze({
     fixedAmount: false,
     initialAmount: "",
     initialInputMint: WRAPPED_SOL_MINT.toString(),
-    initialOutputMint: FIXED_SOLANA_MINT,
+    initialOutputMint: FIXED_SOLANA_MINT.address,
   },
   useUserSlippage: true,
 });

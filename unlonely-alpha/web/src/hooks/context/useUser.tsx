@@ -6,7 +6,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useApolloClient, useLazyQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import {
   usePrivy,
   useWallets,
@@ -274,19 +274,9 @@ export const UserProvider = ({
     fetchPolicy: "network-only",
   });
 
-  const client = useApolloClient();
-
-  console.log(
-    "ARC wagmiAddress",
-    wagmiAddress,
-    wallets,
-    privyUser?.linkedAccounts
-  );
-
   const debouncedSetActiveWallet = useMemo(
     () =>
       debounce((wallet: any) => {
-        console.log("ARC setting active wallet", wallet);
         setActiveWallet(wallet);
       }, 500),
     [setActiveWallet]
@@ -321,9 +311,8 @@ export const UserProvider = ({
           },
         });
       } catch (e) {
-        console.error("ARC fetching user data error", e);
+        console.error("fetching user data error", e);
       }
-      console.log("ARC fetching user data...", wagmiAddress, data);
       if (data?.data?.getUser) {
         setUser({
           address: data?.data?.getUser?.address,
@@ -356,11 +345,9 @@ export const UserProvider = ({
         //   await new Promise((resolve) => setTimeout(resolve, 2000));
         //   setDoesUserAddressMatch(false);
         // }
-        console.log("ARC fetching finished");
       } else {
         console.error("user not found in database", data);
       }
-      console.log("ARC fetching user done");
       setFetchingUser(false);
     };
     fetchUserData();

@@ -19,7 +19,7 @@ export const Chat = ({
   tokenForTransfer: "vibes" | "tempToken";
   isVipChat?: boolean;
   tokenGating?: {
-    openTokenExchange: () => void;
+    ctaBuyTokens: () => void;
     tokenName: string;
   };
 }) => {

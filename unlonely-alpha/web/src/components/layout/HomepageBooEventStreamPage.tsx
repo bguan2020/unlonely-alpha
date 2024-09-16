@@ -29,8 +29,8 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { useSolanaTokenBalance } from "../../hooks/internal/solana/useSolanaTokenBalance";
 import { Connection } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { useJupiterQuoteSwap } from "../../hooks/internal/solana/useJupiterQuoteSwap";
-import { useBooTokenTerminal } from "../../hooks/internal/solana/useBooTokenTerminal";
+// import { useJupiterQuoteSwap } from "../../hooks/internal/solana/useJupiterQuoteSwap";
+// import { useBooTokenTerminal } from "../../hooks/internal/solana/useBooTokenTerminal";
 import { SOLANA_RPC_URL, FIXED_SOLANA_MINT } from "../../constants";
 
 const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
@@ -64,7 +64,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
       ...INITIAL_FORM_CONFIG,
       formProps: {
         ...INITIAL_FORM_CONFIG.formProps,
-        initialInputMint: FIXED_SOLANA_MINT,
+        initialInputMint: FIXED_SOLANA_MINT.address,
         initialOutputMint: WRAPPED_SOL_MINT.toString(),
       },
     },
@@ -73,20 +73,21 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const watchAllFieldsBuy = watchBuy();
   const watchAllFieldsSell = watchSell();
 
-  const { launchTerminal } = useBooTokenTerminal({
-    rpcUrl: SOLANA_RPC_URL,
-    ...watchAllFieldsBuy,
-    txCallback: (txid, swapResult) => {
-      console.log("txid", txid);
-      console.log("swapResult", swapResult);
-      getTransactionData(txid);
-      fetchTokenBalance();
-    },
-  });
+  // const { launchTerminal } = useBooTokenTerminal({
+  //   rpcUrl: SOLANA_RPC_URL,
+  //   ...watchAllFieldsBuy,
+  //   txCallback: (txid, swapResult) => {
+  //     console.log("txid", txid);
+  //     console.log("swapResult", swapResult);
+  //     getTransactionData(txid);
+  //     fetchTokenBalance();
+  //   },
+  // });
 
   const { balance, fetchTokenBalance } = useSolanaTokenBalance(SOLANA_RPC_URL);
 
   const [viewState, setViewState] = useState<"stream" | "token">("stream");
+  const [isGlowing, setIsGlowing] = useState(false);
 
   const { data: channelStatic } = useQuery(CHANNEL_STATIC_QUERY, {
     variables: { slug },
@@ -94,7 +95,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   });
 
   const { publicKey, connected } = useWallet();
-  const { quoteSwap } = useJupiterQuoteSwap();
+  // const { quoteSwap } = useJupiterQuoteSwap();
 
   useEffect(() => {
     if (channelStatic) handleChannelStaticData(channelStatic?.getChannelBySlug);
@@ -107,6 +108,8 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
     );
     if (!details) return;
     const { preTokenBalances, postTokenBalances } = details;
+    console.log("preTokenBalances", preTokenBalances);
+    console.log("postTokenBalances", postTokenBalances);
 
     const preBalance =
       preTokenBalances?.find(
@@ -124,10 +127,10 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   useEffect(() => {
     const init = async () => {
       if (!connected) return;
-      quoteSwap(1);
-      await getTransactionData(
-        "DqdkgqkvhjtWJmCJXxrWeTpr5ezbLPSuKkeJNko7KfnJC5fQamqPE4moVmYLCEdkD59wXabh9oQK8UXKo22ppyy"
-      );
+      // quoteSwap(1);
+      // await getTransactionData(
+      //   "DqdkgqkvhjtWJmCJXxrWeTpr5ezbLPSuKkeJNko7KfnJC5fQamqPE4moVmYLCEdkD59wXabh9oQK8UXKo22ppyy"
+      // );
     };
     init();
   }, [connected]);
@@ -232,6 +235,11 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
     }
   };
 
+  const triggerGlowingEffect = () => {
+    setIsGlowing(true);
+    setTimeout(() => setIsGlowing(false), 3000); // Stop glowing after 3 seconds
+  };
+
   return (
     <Flex
       direction={["column", "column", "row"]}
@@ -284,6 +292,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                   ? `translate(${draggablePosition.x}px, ${draggablePosition.y}px)`
                   : undefined
               }
+              className={isGlowing ? "glowing-border" : ""}
             >
               <Flex
                 width="100%"
@@ -468,7 +477,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                           zIndex={51}
                           onClick={() => {
                             window.open(
-                              `https://raydium.io/swap/?inputMint=${FIXED_SOLANA_MINT}&outputMint=sol`,
+                              `https://raydium.io/swap/?inputMint=${FIXED_SOLANA_MINT.address}&outputMint=sol`,
                               "_blank"
                             );
                           }}
@@ -504,6 +513,10 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                         : watchAllFieldsBuy.defaultExplorer
                     }
                     useUserSlippage={false}
+                    txCallback={(txid, swapResult) => {
+                      getTransactionData(txid);
+                      fetchTokenBalance();
+                    }}
                   />
                   {viewState === "token" && (
                     <BooEventTile
@@ -599,9 +612,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
             balance && balance > 0
               ? undefined
               : {
-                  openTokenExchange: () => {
-                    launchTerminal(true);
-                  },
+                  ctaBuyTokens: triggerGlowingEffect,
                   tokenName: "BOO",
                 }
           }

@@ -39,7 +39,7 @@ const ChatComponent = ({
   customHeight?: string;
   noTabs?: boolean;
   tokenGating?: {
-    openTokenExchange: () => void;
+    ctaBuyTokens: () => void;
     tokenName: string;
   };
 }) => {
