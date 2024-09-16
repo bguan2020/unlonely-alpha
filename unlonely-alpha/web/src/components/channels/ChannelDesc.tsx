@@ -20,7 +20,7 @@ import { useUser } from "../../hooks/context/useUser";
 import { SessionsModal } from "./SessionsModal";
 
 const ChannelDesc = () => {
-  const { walletIsConnected } = useUser();
+  const { wagmiAddress } = useUser();
   const { isStandalone } = useUserAgent();
   const { channel, ui } = useChannelContext();
   const { channelQueryData, totalBadges, realTimeChannelDetails, isOwner } =
@@ -128,7 +128,7 @@ const ChannelDesc = () => {
           >
             {realTimeChannelDetails.channelName}
           </Text>
-          {isOwner && walletIsConnected && (
+          {isOwner && wagmiAddress && (
             <IconButton
               aria-label="edit channel title"
               _focus={{}}

@@ -10,7 +10,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { useEffect, useState, useCallback } from "react";
 
 import { filteredInput } from "../../../utils/validation/input";
-import { FIXED_SOLANA_MINT } from "./SolanaJupiterTerminal";
+import { FIXED_SOLANA_MINT } from "../../../constants";
 
 const isValidSolanaAddress = (address: string): boolean => {
   try {
@@ -44,7 +44,7 @@ export const SolanaTokenTransfer = ({
         new Connection(rpcUrl),
         publicKey,
         new PublicKey(toAddress),
-        new PublicKey(FIXED_SOLANA_MINT),
+        new PublicKey(FIXED_SOLANA_MINT.address),
         Number(amount)
       );
     } catch (error) {

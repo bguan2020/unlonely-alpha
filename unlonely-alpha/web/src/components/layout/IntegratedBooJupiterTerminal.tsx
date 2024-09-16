@@ -11,6 +11,10 @@ interface IntegratedTerminalProps {
   useUserSlippage: boolean;
   height?: string;
   width?: string;
+  txCallback?: (txid: string, swapResult: any) => void;
+  interfaceStyle?: {
+    isGlowing: boolean;
+  };
 }
 
 export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
@@ -23,30 +27,35 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
     strictTokenList,
     defaultExplorer,
     useUserSlippage,
+    txCallback,
+    interfaceStyle,
   } = props;
   const [isLoaded, setIsLoaded] = useState(false);
 
   const passthroughWalletContextState = useWallet();
   const { setShowModal } = useUnifiedWalletContext();
 
-  const launchTerminal = useCallback(async () => {
-    (window as any)?.Jupiter.init({
-      displayMode: "integrated",
-      integratedTargetId: "integrated-terminal",
-      endpoint: rpcUrl,
-      formProps,
-      enableWalletPassthrough: simulateWalletPassthrough,
-      passthroughWalletContextState: simulateWalletPassthrough
-        ? passthroughWalletContextState
-        : undefined,
-      onRequestConnectWallet: () => setShowModal(true),
-      strictTokenList,
-      defaultExplorer,
-      useUserSlippage,
-      onSuccess: ({ txid, swapResult }: { txid: any; swapResult: any }) => {
-        console.log({ txid, swapResult });
-      },
-    });
+  const memoizedLaunchTerminal = useCallback(() => {
+    if ((window as any)?.Jupiter.init) {
+      (window as any)?.Jupiter.init({
+        displayMode: "integrated",
+        integratedTargetId: "integrated-terminal",
+        endpoint: rpcUrl,
+        formProps,
+        enableWalletPassthrough: simulateWalletPassthrough,
+        passthroughWalletContextState: simulateWalletPassthrough
+          ? passthroughWalletContextState
+          : undefined,
+        onRequestConnectWallet: () => setShowModal(true),
+        strictTokenList,
+        defaultExplorer,
+        useUserSlippage,
+        onSuccess: ({ txid, swapResult }: { txid: any; swapResult: any }) => {
+          console.log({ txid, swapResult });
+          txCallback?.(txid, swapResult);
+        },
+      });
+    }
   }, [
     defaultExplorer,
     formProps,
@@ -72,22 +81,22 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
   }, [isLoaded]);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (isLoaded && Boolean((window as any)?.Jupiter.init)) {
-        launchTerminal();
-      }
-    }, 200);
-  }, [isLoaded, launchTerminal]);
+    if (isLoaded) {
+      const timer = setTimeout(memoizedLaunchTerminal, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoaded, memoizedLaunchTerminal]);
 
   // To make sure passthrough wallet are synced
   useEffect(() => {
     if (!(window as any)?.Jupiter.syncProps) return;
     (window as any)?.Jupiter.syncProps({ passthroughWalletContextState });
-  }, [passthroughWalletContextState]);
+  }, [passthroughWalletContextState.connected, props]);
 
   return (
     <div
       id="integrated-terminal"
+      className={interfaceStyle?.isGlowing ? "glowing-background" : ""}
       style={{
         height: height ? height : "330px",
         width: width ? width : "330px",

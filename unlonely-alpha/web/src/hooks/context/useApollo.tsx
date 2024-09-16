@@ -29,9 +29,13 @@ export const ApolloProvider = ({
     string | null
   >(null);
 
-  const apolloClient = useApollo(
-    pageProps ? pageProps.initialApolloState : null,
-    latestVerifiedAddress
+  const apolloClient = useMemo(
+    () =>
+      useApollo(
+        pageProps ? pageProps.initialApolloState : null,
+        latestVerifiedAddress
+      ),
+    [pageProps, latestVerifiedAddress]
   );
 
   const handleLatestVerifiedAddress = useCallback((address: string) => {
@@ -39,8 +43,8 @@ export const ApolloProvider = ({
   }, []);
 
   const value = useMemo(
-    () => ({ handleLatestVerifiedAddress }),
-    [handleLatestVerifiedAddress]
+    () => ({ handleLatestVerifiedAddress, latestVerifiedAddress }),
+    [handleLatestVerifiedAddress, latestVerifiedAddress]
   );
 
   return (

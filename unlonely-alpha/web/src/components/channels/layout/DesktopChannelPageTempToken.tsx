@@ -52,7 +52,7 @@ export const DesktopChannelPageTempToken = ({
   channelSSRDataLoading: boolean;
   channelSSRDataError?: ApolloError;
 }) => {
-  const { walletIsConnected } = useUser();
+  const { wagmiAddress } = useUser();
   const { channel, chat: c } = useChannelContext();
   const {
     loading: channelDataLoading,
@@ -205,7 +205,7 @@ export const DesktopChannelPageTempToken = ({
               width="100%"
             >
               <Flex direction="column" width={"100%"} height="100%">
-                {isOwner && walletIsConnected ? (
+                {isOwner && wagmiAddress ? (
                   <>
                     <ChannelWideModals ablyChannel={chat.channel} />
                     {checkedForLivepeerPlaybackInfo && (

@@ -9,14 +9,19 @@ import { useUser } from "../../hooks/context/useUser";
 import { VipBadgeBuy } from "../channels/vibes/VipBadgeBuy";
 import { useChatBox } from "../../hooks/chat/useChatBox";
 
-const Chat = ({
+export const Chat = ({
   chat,
   tokenForTransfer,
   isVipChat,
+  tokenGating,
 }: {
   chat: ChatReturnType;
   tokenForTransfer: "vibes" | "tempToken";
   isVipChat?: boolean;
+  tokenGating?: {
+    ctaBuyTokens: () => void;
+    tokenName: string;
+  };
 }) => {
   const { channel, leaderboard } = useChannelContext();
   const { channelQueryData, channelRoles } = channel;
@@ -119,11 +124,10 @@ const Chat = ({
             allowPopout
             channel={chat.channel}
             isVipChat={isVipChat}
+            tokenGating={tokenGating}
           />
         </Flex>
       )}
     </Flex>
   );
 };
-
-export default Chat;

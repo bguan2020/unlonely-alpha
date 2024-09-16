@@ -14,7 +14,7 @@ import { ChatReturnType } from "../chat/useChat";
 import { isAddress, isAddressEqual } from "viem";
 
 export const useVipBadgeUi = (chat: ChatReturnType) => {
-  const { userAddress } = useUser();
+  const { user } = useUser();
   const { channel, leaderboard } = useChannelContext();
   const { network } = useNetworkContext();
   const { localNetwork } = network;
@@ -40,7 +40,7 @@ export const useVipBadgeUi = (chat: ChatReturnType) => {
   const { vipBadgeBalance, setVipBadgeBalance } = useGetHolderBalance(
     channelQueryData?.owner?.address as `0x${string}`,
     0,
-    userAddress as `0x${string}`,
+    user?.address as `0x${string}`,
     tournamentContract
   );
 
@@ -62,11 +62,11 @@ export const useVipBadgeUi = (chat: ChatReturnType) => {
         ) {
           if (body.split(":")[4] === generatedKey) {
             if (
-              userAddress &&
+              user?.address &&
               isAddress(body.split(":")[1]) &&
               isAddressEqual(
                 body.split(":")[1] as `0x${string}`,
-                userAddress as `0x${string}`
+                user?.address as `0x${string}`
               )
             ) {
               setVipBadgeBalance((prev) =>

@@ -75,7 +75,7 @@ export const useTradeTempTokenState = ({
   callbackOnMintTxSuccess?: () => void;
   callbackOnBurnTxSuccess?: () => void;
 }): UseTradeTempTokenStateType => {
-  const { walletIsConnected, userAddress, user } = useUser();
+  const { wagmiAddress, user } = useUser();
 
   const { chat, channel } = useChannelContext();
   const { channelQueryData } = channel;
@@ -116,7 +116,7 @@ export const useTradeTempTokenState = ({
    */
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
-    address: userAddress as `0x${string}`,
+    address: wagmiAddress as `0x${string}`,
   });
 
   const {
@@ -265,10 +265,10 @@ export const useTradeTempTokenState = ({
           const hasTotalSupplyThresholdReachedEvent = data.logs.length > 2;
           addToChatbotForTempToken({
             username: user?.username ?? "",
-            address: userAddress ?? "",
+            address: wagmiAddress ?? "",
             taskType: InteractionType.BUY_TEMP_TOKENS,
             title,
-            description: `${userAddress}:${Number(
+            description: `${wagmiAddress}:${Number(
               args.amount as bigint
             )}:${String(data.blockNumber)}:${tokenAddress}:${String(
               totalSupply
@@ -312,7 +312,7 @@ export const useTradeTempTokenState = ({
             const _title = `The $${tokenSymbol} token has hit the price goal and survives for another 24 hours! 🎉`;
             addToChatbotForTempToken({
               username: user?.username ?? "",
-              address: userAddress ?? "",
+              address: wagmiAddress ?? "",
               taskType: InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
               title: _title,
               description: "",
@@ -433,10 +433,10 @@ export const useTradeTempTokenState = ({
           } sold ${Number(args.amount as bigint)} $${tokenSymbol}!`;
           addToChatbotForTempToken({
             username: user?.username ?? "",
-            address: userAddress ?? "",
+            address: wagmiAddress ?? "",
             taskType: InteractionType.SELL_TEMP_TOKENS,
             title,
-            description: `${userAddress}:${Number(
+            description: `${wagmiAddress}:${Number(
               args.amount as bigint
             )}:${String(data.blockNumber)}:${tokenAddress}:${String(
               totalSupply
@@ -493,8 +493,7 @@ export const useTradeTempTokenState = ({
    * For every new transaction, fetch the new balances and costs
    */
   useEffect(() => {
-    if (!tempTokenContract.address || !userAddress || !walletIsConnected)
-      return;
+    if (!tempTokenContract.address || !wagmiAddress || !wagmiAddress) return;
     const fetch = async () => {
       const startTime = Date.now();
       console.log("useTradeTokenState, fetching", startTime);

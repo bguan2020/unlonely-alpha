@@ -10,7 +10,7 @@ import { useScreenAnimationsContext } from "../../../context/useScreenAnimations
 import { Text } from "@chakra-ui/react";
 
 export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
-  const { userAddress } = useUser();
+  const { user } = useUser();
 
   const { channel } = useChannelContext();
   const { handleRealTimeChannelDetails } = channel;
@@ -90,11 +90,11 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           txBlockNumber
         );
         if (
-          userAddress &&
-          isAddress(userAddress) &&
+          user?.address &&
+          isAddress(user?.address) &&
           isAddress(_userAddress) &&
           isAddressEqual(
-            userAddress as `0x${string}`,
+            user?.address as `0x${string}`,
             _userAddress as `0x${string}`
           )
         ) {

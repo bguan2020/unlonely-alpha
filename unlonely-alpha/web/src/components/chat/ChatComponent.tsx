@@ -21,7 +21,7 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { OuterBorder, BorderType } from "../general/OuterBorder";
 import Participants from "../presence/Participants";
-import Chat from "./Chat";
+import { Chat } from "./Chat";
 import {
   CHANNEL_IDS_NO_VIP,
   CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS,
@@ -32,11 +32,16 @@ const ChatComponent = ({
   tokenForTransfer,
   customHeight,
   noTabs,
+  tokenGating,
 }: {
   chat: ChatReturnType;
   tokenForTransfer: "vibes" | "tempToken";
   customHeight?: string;
   noTabs?: boolean;
+  tokenGating?: {
+    ctaBuyTokens: () => void;
+    tokenName: string;
+  };
 }) => {
   const { isStandalone } = useUserAgent();
   const [selectedTab, setSelectedTab] = useState<"chat" | "vip">("chat");
@@ -257,13 +262,18 @@ const ChatComponent = ({
                 )}
               </Flex>
               {selectedTab === "chat" && (
-                <Chat chat={chat} tokenForTransfer={tokenForTransfer} />
+                <Chat
+                  chat={chat}
+                  tokenForTransfer={tokenForTransfer}
+                  tokenGating={tokenGating}
+                />
               )}
               {selectedTab === "vip" && (
                 <Chat
                   chat={chat}
                   tokenForTransfer={tokenForTransfer}
                   isVipChat
+                  tokenGating={tokenGating}
                 />
               )}
             </Flex>

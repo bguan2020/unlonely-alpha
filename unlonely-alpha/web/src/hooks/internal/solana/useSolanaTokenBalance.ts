@@ -2,8 +2,8 @@ import { getAssociatedTokenAddress, getAccount } from "@solana/spl-token";
 import Decimal from "decimal.js";
 import { PublicKey, Connection } from "@solana/web3.js";
 import { useState, useEffect } from "react";
-import { FIXED_SOLANA_MINT } from "../../../components/transactions/solana/SolanaJupiterTerminal";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { FIXED_SOLANA_MINT } from "../../../constants";
 
 export const useSolanaTokenBalance = (rpcUrl: string) => {
     const [balance, setBalance] = useState<number | null>(null);
@@ -27,7 +27,7 @@ export const useSolanaTokenBalance = (rpcUrl: string) => {
   
       try {
         const connection = new Connection(rpcUrl, "confirmed");
-        const tokenMint = new PublicKey(FIXED_SOLANA_MINT);
+        const tokenMint = new PublicKey(FIXED_SOLANA_MINT.address);
   
         const tokenAccountAddress = await getAssociatedTokenAddress(
           tokenMint,
@@ -38,10 +38,10 @@ export const useSolanaTokenBalance = (rpcUrl: string) => {
   
         const amount = new Decimal(tokenAccount.amount.toString());
   
-        const decimals = 9;
+        const decimals = FIXED_SOLANA_MINT.decimals;
         const balance = amount.div(new Decimal(10).pow(decimals)).toString();
   
-        console.log(`Token balance of ${FIXED_SOLANA_MINT} for ${publicKey} on Solana:`, balance);
+        console.log(`Token balance of ${FIXED_SOLANA_MINT.address} for ${publicKey} on Solana:`, balance);
         setBalance(Number(balance));
       } catch (error) {
         console.error("Error fetching token balance:", error);

@@ -23,7 +23,7 @@ export const NfcClipMintInterface = ({
   tokenId: number;
   zoraLink?: string;
 }) => {
-  const { user, walletIsConnected } = useUser();
+  const { user, wagmiAddress } = useUser();
 
   const [selectedTokensToMint, setSelectedTokensToMint] = useState<string>("1");
   const [customAmountSelected, setCustomAmountSelected] = useState(false);
@@ -37,7 +37,7 @@ export const NfcClipMintInterface = ({
       borderRadius={"15px"}
       position={"relative"}
     >
-      {(!user || !walletIsConnected) && (
+      {(!user || !wagmiAddress) && (
         <Flex
           position="absolute"
           bg="rgba(0,0,0,0.75)"
@@ -155,7 +155,7 @@ export const NfcClipMintInterface = ({
               )
             ) === 0 ||
             !user ||
-            !walletIsConnected
+            !wagmiAddress
           }
           onClick={async () => {
             const n = customAmountSelected

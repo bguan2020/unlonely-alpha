@@ -43,7 +43,7 @@ export const useVibesCheckInitial: UseVibesCheckType = {
 };
 
 export const useVibesCheck = () => {
-  const { userAddress } = useUser();
+  const { user } = useUser();
   const { isStandalone } = useUserAgent();
   const [tokenTxs, setTokenTxs] = useState<TradeableTokenTx[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +55,7 @@ export const useVibesCheck = () => {
   const router = useRouter();
 
   const { balance: vibesBalance, refetch: refetchVibesBalance } =
-    useGetUserBalance(userAddress as `0x${string}`, contract);
+    useGetUserBalance(user?.address as `0x${string}`, contract);
 
   const [lastChainInteractionTimestamp, setLastChainInteractionTimestamp] =
     useState<number>(0);

@@ -49,7 +49,7 @@ export const TempTokenChart = ({
   isFullChart?: boolean;
   customChartHeightInPx?: number;
 }) => {
-  const { walletIsConnected, privyUser, login, connectWallet, user } =
+  const { wagmiAddress, authenticated, ready, login, connectWallet, user } =
     useUser();
   const { isStandalone } = useUserAgent();
 
@@ -74,6 +74,8 @@ export const TempTokenChart = ({
   const { matchingChain } = network;
 
   const [thresholdOn, setThresholdOn] = useState(true);
+
+  const loggedInWithPrivy = authenticated && ready;
 
   const {
     CustomDot,
@@ -562,7 +564,7 @@ export const TempTokenChart = ({
             </Flex>
           </Flex>
           <Flex direction={"column"} height={isFullChart ? "150px" : undefined}>
-            {walletIsConnected && user?.address ? (
+            {wagmiAddress && user?.address ? (
               <TempTokenExchange />
             ) : (
               <Flex direction="column">
@@ -576,10 +578,10 @@ export const TempTokenChart = ({
                   _focus={{}}
                   _active={{}}
                   onClick={() => {
-                    privyUser ? connectWallet() : login();
+                    loggedInWithPrivy ? connectWallet() : login();
                   }}
                 >
-                  {privyUser ? "Connect" : "Sign in"}
+                  {loggedInWithPrivy ? "Connect" : "Sign in"}
                 </Button>
               </Flex>
             )}

@@ -49,7 +49,7 @@ export const VersusTempTokenChart = ({
   isFullChart?: boolean;
   customChartHeightInPx?: number;
 }) => {
-  const { walletIsConnected, privyUser, login, connectWallet, user } =
+  const { wagmiAddress, authenticated, ready, login, connectWallet, user } =
     useUser();
   const { isStandalone } = useUserAgent();
 
@@ -72,6 +72,8 @@ export const VersusTempTokenChart = ({
     [],
     "all"
   );
+
+  const loggedInWithPrivy = authenticated && ready;
 
   const tokenAChartData = useInterfaceChartData({
     chartTimeIndexes: new Map<string, { index?: number }>(),
@@ -512,7 +514,7 @@ export const VersusTempTokenChart = ({
       </Flex>
       {!isStandalone && (canPlayToken || canBuyPostGame) && (
         <Flex direction={"column"} h="150px" position={"relative"}>
-          {walletIsConnected && user?.address ? (
+          {wagmiAddress && user?.address ? (
             <VersusTokenExchange />
           ) : (
             <Flex direction="column">
@@ -526,10 +528,10 @@ export const VersusTempTokenChart = ({
                 _focus={{}}
                 _active={{}}
                 onClick={() => {
-                  privyUser ? connectWallet() : login();
+                  loggedInWithPrivy ? connectWallet() : login();
                 }}
               >
-                {privyUser ? "Connect" : "Sign in"}
+                {loggedInWithPrivy ? "Connect" : "Sign in"}
               </Button>
             </Flex>
           )}

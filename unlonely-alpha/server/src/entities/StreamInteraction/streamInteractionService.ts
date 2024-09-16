@@ -11,6 +11,7 @@ export const postStreamInteraction = (
   user: User,
   ctx: Context
 ) => {
+  console.log("postStreamInteraction", data, user);
   return ctx.prisma.streamInteraction.create({
     data: {
       interactionType: data.interactionType,

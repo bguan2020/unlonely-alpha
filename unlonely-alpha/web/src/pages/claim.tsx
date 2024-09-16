@@ -34,11 +34,11 @@ import { useCacheContext } from "../hooks/context/useCache";
 import { CHAKRA_UI_TX_TOAST_DURATION, Contract } from "../constants";
 
 export default function ClaimPage() {
-  const { user, walletIsConnected } = useUser();
+  const { user, wagmiAddress } = useUser();
 
   return (
     <AppLayout isCustomHeader={false}>
-      {user && walletIsConnected ? (
+      {user && wagmiAddress ? (
         <ClaimContent />
       ) : (
         <Text>You must be logged in to see this page.</Text>
@@ -171,7 +171,7 @@ const EventCard = ({
   claimedPayouts: SharesEvent[];
   addPayoutToClaimedPayouts: (event: SharesEvent) => void;
 }) => {
-  const { userAddress } = useUser();
+  const { wagmiAddress } = useUser();
   const { network } = useNetworkContext();
   const { localNetwork, explorerUrl } = network;
   const contractData = getContractFromNetwork(Contract.SHARES_V2, localNetwork);
@@ -281,7 +281,7 @@ const EventCard = ({
         const args: any = topics.args;
         await postClaimPayout({
           channelId: event.channelId as string,
-          userAddress: userAddress as `0x${string}`,
+          userAddress: wagmiAddress as `0x${string}`,
           eventId: Number(event.id),
           eventType: EventType.YayNayVote,
         });

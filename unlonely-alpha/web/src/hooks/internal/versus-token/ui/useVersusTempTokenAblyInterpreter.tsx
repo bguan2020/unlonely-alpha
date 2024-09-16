@@ -15,7 +15,7 @@ import {
 } from "../../../../constants/types/token";
 
 export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
-  const { userAddress } = useUser();
+  const { wagmiAddress } = useUser();
   const { channel } = useChannelContext();
   const { handleRealTimeChannelDetails } = channel;
   const mountingMessages = useRef(true);
@@ -123,11 +123,11 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           ? "b"
           : "a";
       if (
-        userAddress &&
-        isAddress(userAddress) &&
+        wagmiAddress &&
+        isAddress(wagmiAddress) &&
         isAddress(_userAddress) &&
         isAddressEqual(
-          userAddress as `0x${string}`,
+          wagmiAddress as `0x${string}`,
           _userAddress as `0x${string}`
         )
       ) {

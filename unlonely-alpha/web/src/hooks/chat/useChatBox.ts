@@ -27,7 +27,7 @@ export const useChatBox = (
   const toast = useToast();
   const { channel: channelContext } = useChannelContext();
   const { realTimeChannelDetails, channelQueryData } = channelContext;
-  const { user, walletIsConnected } = useUser();
+  const { user, wagmiAddress } = useUser();
 
   const { postFirstChat } = usePostFirstChat({
     onError: (m) => {
@@ -132,15 +132,15 @@ export const useChatBox = (
     senderStatus: SenderStatus,
     body?: string
   ) => {
-    if (walletIsConnected && user) {
+    if (wagmiAddress && user) {
       channel.publish({
         name: CHAT_MESSAGE_EVENT,
         data: {
           messageText,
           username: user.username,
           chatColor: RANDOM_CHAT_COLOR,
-          isFC: user.isFCUser,
-          isLens: user.isLensUser,
+          isFC: user.FCHandle ? true : false,
+          isLens: user.lensHandle ? true : false,
           lensHandle: user.lensHandle,
           FCHandle: user.FCHandle,
           address: user.address,

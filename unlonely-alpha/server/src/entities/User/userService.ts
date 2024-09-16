@@ -393,3 +393,23 @@ export const updateUserNotifications = async (
     },
   });
 };
+
+// implemented to ensure user address from frontend and backend match to prevent any mistakes with the database
+export interface IGetDoesUserAddressMatchInput {
+  address: string;
+}
+
+export const getDoesUserAddressMatch = async (data: IGetDoesUserAddressMatchInput, ctx: Context) => {
+  const user = await ctx.prisma.user.findUnique({
+    where: {
+      address: data.address,
+    },
+  });
+
+  if (!user) throw new Error("User not found from address");
+  if (!ctx.user) throw new Error("User not found in context");
+
+  const contextUser = ctx.user
+
+  return {doesMatch: user.address === contextUser.address, user, contextUser: ctx.user}
+}

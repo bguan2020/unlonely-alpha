@@ -124,7 +124,7 @@ export const ChannelProvider = ({
 }) => {
   const { network } = useNetworkContext();
   const { localNetwork } = network;
-  const { user, userAddress } = useUser();
+  const { user } = useUser();
   const router = useRouter();
   const { slug } = router.query;
 
@@ -149,13 +149,13 @@ export const ChannelProvider = ({
   );
 
   const isOwner = useMemo(() => {
-    if (!userAddress || !channelDetails?.channelQueryData?.owner?.address)
+    if (!user?.address || !channelDetails?.channelQueryData?.owner?.address)
       return false;
     return isAddressEqual(
-      userAddress,
+      user?.address as `0x${string}`,
       channelDetails?.channelQueryData?.owner?.address as `0x${string}`
     );
-  }, [userAddress, channelDetails?.channelQueryData?.owner?.address]);
+  }, [user?.address, channelDetails?.channelQueryData?.owner?.address]);
 
   const welcomeTour = useWelcomeTourState(isOwner);
 
