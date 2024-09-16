@@ -448,11 +448,15 @@ export const UserProvider = ({
                       <GoUnlink />
                     )}
                     <Text fontFamily={"LoRes15"}>
-                      {centerEllipses(account.address, 13)}
+                      {centerEllipses(
+                        (account as WalletWithMetadata).address,
+                        13
+                      )}
                     </Text>
                   </Flex>
                   <Flex gap="5px" alignItems={"end"}>
-                    {wagmiAddress === account.address ? (
+                    {wagmiAddress ===
+                    (account as WalletWithMetadata).address ? (
                       <Flex gap="5px">
                         {/* {doesUserAddressMatch === false && (
                           <Tooltip
@@ -501,7 +505,8 @@ export const UserProvider = ({
                             setActiveWallet(foundWallet);
                           } else {
                             connectWallet({
-                              suggestedAddress: account.address,
+                              suggestedAddress: (account as WalletWithMetadata)
+                                .address,
                               walletList:
                                 account.walletClientType &&
                                 isWalletListEntry(account.walletClientType)
@@ -533,7 +538,7 @@ export const UserProvider = ({
                         aria-label="unlink wallet"
                         onClick={async () => {
                           const newPrivyUser = await unlinkWallet(
-                            account.address
+                            (account as WalletWithMetadata).address
                           );
                           console.log("newPrivyUser", newPrivyUser);
                         }}
