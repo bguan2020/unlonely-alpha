@@ -292,7 +292,9 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                   ? `translate(${draggablePosition.x}px, ${draggablePosition.y}px)`
                   : undefined
               }
-              className={isGlowing ? "glowing-border" : ""}
+              className={
+                isGlowing && viewState === "stream" ? "glowing-border" : ""
+              }
             >
               <Flex
                 width="100%"
@@ -426,6 +428,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                     width={"100px"}
                     zIndex={51}
                     bg="#1F2935"
+                    className={isGlowing ? "glowing-background" : ""}
                   >
                     {viewState === "stream" && (
                       <Tooltip label="expand" shouldWrapChildren>
@@ -443,6 +446,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                             console.log("clicked");
                             setViewState("token");
                           }}
+                          className={isGlowing ? "glowing-background" : ""}
                         />
                       </Tooltip>
                     )}
@@ -462,6 +466,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                         onClick={() => {
                           setIsSell((prev) => !prev);
                         }}
+                        className={isGlowing ? "glowing-background" : ""}
                       />
                     </Tooltip>
                     {viewState === "token" && (
@@ -481,6 +486,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                               "_blank"
                             );
                           }}
+                          className={isGlowing ? "glowing-background" : ""}
                         />
                       </Tooltip>
                     )}
@@ -516,6 +522,9 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                     txCallback={(txid, swapResult) => {
                       getTransactionData(txid);
                       fetchTokenBalance();
+                    }}
+                    interfaceStyle={{
+                      isGlowing,
                     }}
                   />
                   {viewState === "token" && (

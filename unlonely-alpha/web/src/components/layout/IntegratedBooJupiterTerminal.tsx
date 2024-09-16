@@ -12,6 +12,9 @@ interface IntegratedTerminalProps {
   height?: string;
   width?: string;
   txCallback?: (txid: string, swapResult: any) => void;
+  interfaceStyle?: {
+    isGlowing: boolean;
+  };
 }
 
 export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
@@ -25,6 +28,7 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
     defaultExplorer,
     useUserSlippage,
     txCallback,
+    interfaceStyle,
   } = props;
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -92,6 +96,7 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
   return (
     <div
       id="integrated-terminal"
+      className={interfaceStyle?.isGlowing ? "glowing-background" : ""}
       style={{
         height: height ? height : "330px",
         width: width ? width : "330px",

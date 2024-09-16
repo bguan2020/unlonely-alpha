@@ -603,7 +603,7 @@ const ChatForm = ({
                         _focus={{}}
                         width="100%"
                       >
-                        <Text color="white">
+                        <Text color="red" fontWeight="bold" fontSize="20px">
                           BUY ${tokenGating.tokenName} TO JOIN CHAT
                         </Text>
                       </Button>
