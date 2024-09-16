@@ -5,8 +5,7 @@ import { SolanaTokenTransfer } from "./SolanaTokenTransfer";
 import { useBooTokenTerminal } from "../../../hooks/internal/solana/useBooTokenTerminal";
 import { useForm } from "react-hook-form";
 import { useSolanaTokenBalance } from "../../../hooks/internal/solana/useSolanaTokenBalance";
-
-export const FIXED_SOLANA_MINT = "FuvamNkNTNjDcnQeWyiAReUCHZ91gJhg59xuNemZ4p9f";
+import { FIXED_SOLANA_MINT } from "../../../constants";
 
 export enum SwapMode {
   ExactInOrOut = "ExactInOrOut",

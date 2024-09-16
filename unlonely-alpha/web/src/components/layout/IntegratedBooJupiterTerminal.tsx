@@ -29,24 +29,26 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
   const passthroughWalletContextState = useWallet();
   const { setShowModal } = useUnifiedWalletContext();
 
-  const launchTerminal = useCallback(async () => {
-    (window as any)?.Jupiter.init({
-      displayMode: "integrated",
-      integratedTargetId: "integrated-terminal",
-      endpoint: rpcUrl,
-      formProps,
-      enableWalletPassthrough: simulateWalletPassthrough,
-      passthroughWalletContextState: simulateWalletPassthrough
-        ? passthroughWalletContextState
-        : undefined,
-      onRequestConnectWallet: () => setShowModal(true),
-      strictTokenList,
-      defaultExplorer,
-      useUserSlippage,
-      onSuccess: ({ txid, swapResult }: { txid: any; swapResult: any }) => {
-        console.log({ txid, swapResult });
-      },
-    });
+  const memoizedLaunchTerminal = useCallback(() => {
+    if ((window as any)?.Jupiter.init) {
+      (window as any)?.Jupiter.init({
+        displayMode: "integrated",
+        integratedTargetId: "integrated-terminal",
+        endpoint: rpcUrl,
+        formProps,
+        enableWalletPassthrough: simulateWalletPassthrough,
+        passthroughWalletContextState: simulateWalletPassthrough
+          ? passthroughWalletContextState
+          : undefined,
+        onRequestConnectWallet: () => setShowModal(true),
+        strictTokenList,
+        defaultExplorer,
+        useUserSlippage,
+        onSuccess: ({ txid, swapResult }: { txid: any; swapResult: any }) => {
+          console.log({ txid, swapResult });
+        },
+      });
+    }
   }, [
     defaultExplorer,
     formProps,
@@ -72,12 +74,11 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
   }, [isLoaded]);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (isLoaded && Boolean((window as any)?.Jupiter.init)) {
-        launchTerminal();
-      }
-    }, 200);
-  }, [isLoaded, simulateWalletPassthrough, props, launchTerminal]);
+    if (isLoaded) {
+      const timer = setTimeout(memoizedLaunchTerminal, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoaded, memoizedLaunchTerminal]);
 
   // To make sure passthrough wallet are synced
   useEffect(() => {

@@ -8,6 +8,7 @@ import { getTimeFromMillis } from "../../utils/time";
 import { useForm } from "react-hook-form";
 import { eventStartTime } from "./BooEventWrapper";
 import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";
+import { SOLANA_RPC_URL } from "../../constants";
 
 export const HomePageBooEventTokenCountdown = () => {
   const [timeLeft, setTimeLeft] = useState(0);
@@ -73,7 +74,7 @@ export const HomePageBooEventTokenCountdown = () => {
       </div>
       <Flex justifyContent={"center"}>
         <IntegratedTerminal
-          rpcUrl="https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
+          rpcUrl={SOLANA_RPC_URL}
           formProps={watchAllFields.formProps}
           simulateWalletPassthrough={watchAllFields.simulateWalletPassthrough}
           strictTokenList={watchAllFields.strictTokenList}

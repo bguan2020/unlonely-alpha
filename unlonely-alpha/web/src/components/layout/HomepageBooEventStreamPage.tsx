@@ -5,7 +5,6 @@ import { useLivepeerStreamData } from "../../hooks/internal/useLivepeerStreamDat
 import ChatComponent from "../chat/ChatComponent";
 import { useForm } from "react-hook-form";
 import {
-  FIXED_SOLANA_MINT,
   IFormConfigurator,
   INITIAL_FORM_CONFIG,
   WRAPPED_SOL_MINT,
@@ -31,6 +30,8 @@ import { useSolanaTokenBalance } from "../../hooks/internal/solana/useSolanaToke
 import { Connection } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useJupiterQuoteSwap } from "../../hooks/internal/solana/useJupiterQuoteSwap";
+import { useBooTokenTerminal } from "../../hooks/internal/solana/useBooTokenTerminal";
+import { SOLANA_RPC_URL, FIXED_SOLANA_MINT } from "../../constants";
 
 const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
@@ -72,9 +73,18 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const watchAllFieldsBuy = watchBuy();
   const watchAllFieldsSell = watchSell();
 
-  const { balance, fetchTokenBalance } = useSolanaTokenBalance(
-    "https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
-  );
+  const { launchTerminal } = useBooTokenTerminal({
+    rpcUrl: SOLANA_RPC_URL,
+    ...watchAllFieldsBuy,
+    txCallback: (txid, swapResult) => {
+      console.log("txid", txid);
+      console.log("swapResult", swapResult);
+      getTransactionData(txid);
+      fetchTokenBalance();
+    },
+  });
+
+  const { balance, fetchTokenBalance } = useSolanaTokenBalance(SOLANA_RPC_URL);
 
   const [viewState, setViewState] = useState<"stream" | "token">("stream");
 
@@ -90,31 +100,34 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
     if (channelStatic) handleChannelStaticData(channelStatic?.getChannelBySlug);
   }, [channelStatic]);
 
+  const getTransactionData = async (transactionId: string) => {
+    const details = await getTransactionDetails(
+      transactionId,
+      new Connection(SOLANA_RPC_URL)
+    );
+    if (!details) return;
+    const { preTokenBalances, postTokenBalances } = details;
+
+    const preBalance =
+      preTokenBalances?.find(
+        (balance) => balance.owner === publicKey?.toString()
+      )?.uiTokenAmount.uiAmount || 0;
+    const postBalance =
+      postTokenBalances?.find(
+        (balance) => balance.owner === publicKey?.toString()
+      )?.uiTokenAmount.uiAmount || 0;
+
+    const balanceDifference = Math.abs(postBalance - preBalance);
+    console.log(`Balance difference: ${balanceDifference}`);
+  };
+
   useEffect(() => {
     const init = async () => {
       if (!connected) return;
       quoteSwap(1);
-      const details = await getTransactionDetails(
-        // "651Wn461brWUCwc34YL4xAHcpdZTJRZPELTqwZyZUCwdPHzwEWdbUMCV2zkp5toLz4gCjuEhacgxANhUYLnZ8UST",
-        "DqdkgqkvhjtWJmCJXxrWeTpr5ezbLPSuKkeJNko7KfnJC5fQamqPE4moVmYLCEdkD59wXabh9oQK8UXKo22ppyy",
-        new Connection(
-          "https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
-        )
+      await getTransactionData(
+        "DqdkgqkvhjtWJmCJXxrWeTpr5ezbLPSuKkeJNko7KfnJC5fQamqPE4moVmYLCEdkD59wXabh9oQK8UXKo22ppyy"
       );
-      if (!details) return;
-      const { preTokenBalances, postTokenBalances } = details;
-
-      const preBalance =
-        preTokenBalances?.find(
-          (balance) => balance.owner === publicKey?.toString()
-        )?.uiTokenAmount.uiAmount || 0;
-      const postBalance =
-        postTokenBalances?.find(
-          (balance) => balance.owner === publicKey?.toString()
-        )?.uiTokenAmount.uiAmount || 0;
-
-      const balanceDifference = Math.abs(postBalance - preBalance);
-      console.log(`Balance difference: ${balanceDifference}`);
     };
     init();
   }, [connected]);
@@ -469,7 +482,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                         ? `${TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}%`
                         : `${TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH}px`
                     }
-                    rpcUrl="https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf"
+                    rpcUrl={SOLANA_RPC_URL}
                     formProps={
                       isSell
                         ? watchAllFieldsSell.formProps
@@ -582,6 +595,16 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
           customHeight="100%"
           tokenForTransfer="vibes"
           noTabs
+          tokenGating={
+            balance && balance > 0
+              ? undefined
+              : {
+                  openTokenExchange: () => {
+                    launchTerminal(true);
+                  },
+                  tokenName: "BOO",
+                }
+          }
         />
       </Flex>
     </Flex>

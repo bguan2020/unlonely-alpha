@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useUnifiedWalletContext, useUnifiedWallet } from "@jup-ag/wallet-adapter";
-import { FormProps, FIXED_SOLANA_MINT, WRAPPED_SOL_MINT } from "../../../components/transactions/solana/SolanaJupiterTerminal";
-
+import { FormProps, WRAPPED_SOL_MINT } from "../../../components/transactions/solana/SolanaJupiterTerminal";
+import { FIXED_SOLANA_MINT } from "../../../constants";
 export const useBooTokenTerminal = (props: {
   rpcUrl: string;
   formProps: FormProps;
@@ -9,6 +9,7 @@ export const useBooTokenTerminal = (props: {
   strictTokenList: boolean;
   defaultExplorer: "Solana Explorer" | "Solscan" | "Solana Beach" | "SolanaFM";
   useUserSlippage: boolean;
+  txCallback?: (txid: string, swapResult: any) => void;
 }) => {
   const {
     rpcUrl,
@@ -16,6 +17,7 @@ export const useBooTokenTerminal = (props: {
     strictTokenList,
     defaultExplorer,
     useUserSlippage,
+    txCallback,
   } = props;
 
   const passthroughWalletContextState = useUnifiedWallet();
@@ -42,7 +44,7 @@ export const useBooTokenTerminal = (props: {
         : undefined,
       onRequestConnectWallet: () => setShowModal(true),
       onSuccess: ({ txid, swapResult }: { txid: any; swapResult: any }) => {
-        console.log({ txid, swapResult });
+        txCallback?.(txid, swapResult);
       },
       onSwapError: ({ error }: { error: any }) => {
         console.log("onSwapError", error);

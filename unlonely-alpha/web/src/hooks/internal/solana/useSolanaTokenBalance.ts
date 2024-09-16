@@ -2,8 +2,8 @@ import { getAssociatedTokenAddress, getAccount } from "@solana/spl-token";
 import Decimal from "decimal.js";
 import { PublicKey, Connection } from "@solana/web3.js";
 import { useState, useEffect } from "react";
-import { FIXED_SOLANA_MINT } from "../../../components/transactions/solana/SolanaJupiterTerminal";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { FIXED_SOLANA_MINT } from "../../../constants";
 
 export const useSolanaTokenBalance = (rpcUrl: string) => {
     const [balance, setBalance] = useState<number | null>(null);

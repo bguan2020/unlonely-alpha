@@ -12,6 +12,7 @@ import {
   PopoverContent,
   PopoverArrow,
   Input,
+  Box,
 } from "@chakra-ui/react";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import copy from "copy-to-clipboard";
@@ -52,6 +53,10 @@ type Props = {
   additionalChatCommands?: CommandData[];
   allowPopout?: boolean;
   channel?: AblyChannelPromise;
+  tokenGating?: {
+    openTokenExchange: () => void;
+    tokenName: string;
+  };
 };
 
 const ChatForm = ({
@@ -61,9 +66,12 @@ const ChatForm = ({
   allowPopout,
   channel,
   isVipChat,
+  tokenGating,
 }: Props) => {
   const { user, wagmiAddress, ready, authenticated } = useUser();
   const { isStandalone } = useUserAgent();
+  const [isHovered, setIsHovered] = useState(false);
+
   // const { setIsOpen: setIsTourOpen, setSteps: setTourSteps } = useTour();
 
   const loggedInWithPrivy = useMemo(
@@ -523,7 +531,13 @@ const ChatForm = ({
                 p="5px"
                 background={blastMode ? "rgba(255, 108, 108, 0.35)" : "#131225"}
               >
-                <Flex alignItems="center" gap="5px">
+                <Flex
+                  alignItems="center"
+                  gap="5px"
+                  position="relative"
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                >
                   <Input
                     ref={inputRef}
                     fontSize={isStandalone ? "16px" : "unset"}
@@ -568,6 +582,33 @@ const ChatForm = ({
                     _hover={{ transform: "scale(1.15)" }}
                     _active={{ transform: "scale(1.3)" }}
                   />
+                  {isHovered && tokenGating && (
+                    <Box
+                      position="absolute"
+                      top="0"
+                      left="0"
+                      right="0"
+                      bottom="0"
+                      bg="rgba(0, 0, 0, 0.9)"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      zIndex={1}
+                    >
+                      <Button
+                        onClick={tokenGating.openTokenExchange}
+                        bg="transparent"
+                        _hover={{}}
+                        _active={{}}
+                        _focus={{}}
+                        width="100%"
+                      >
+                        <Text color="white">
+                          BUY ${tokenGating.tokenName} TO JOIN CHAT
+                        </Text>
+                      </Button>
+                    </Box>
+                  )}
                 </Flex>
                 <Flex
                   position="absolute"

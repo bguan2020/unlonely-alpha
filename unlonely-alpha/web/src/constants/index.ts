@@ -123,3 +123,7 @@ export const CHANNEL_IDS_NO_VIP = [4];
 export const CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS = ["loveonleverage"];
 export const UNLONELY_LOGO_IPFS_URL =
   "ipfs://QmWsm34cghYfsrrkzzRzgPEktqFXuVtYde3bv9Yup2bYhF";
+
+export const SOLANA_RPC_URL =
+  "https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf";
+export const FIXED_SOLANA_MINT = "FuvamNkNTNjDcnQeWyiAReUCHZ91gJhg59xuNemZ4p9f";
