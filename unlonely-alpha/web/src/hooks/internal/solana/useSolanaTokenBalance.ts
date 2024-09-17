@@ -2,24 +2,24 @@ import { getAssociatedTokenAddress, getAccount } from "@solana/spl-token";
 import Decimal from "decimal.js";
 import { PublicKey, Connection } from "@solana/web3.js";
 import { useState, useEffect } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
 import { FIXED_SOLANA_MINT } from "../../../constants";
+import { useUser } from "../../context/useUser";
 
 export const useSolanaTokenBalance = (rpcUrl: string) => {
     const [balance, setBalance] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
-
-    const { publicKey, connected } = useWallet();
+    
+    const {solanaAddress, activeWallet} = useUser();
 
     useEffect(() => {
-      if (connected && publicKey) {
+      if (solanaAddress && activeWallet?.walletClientType === "phantom"){
         fetchTokenBalance();
       }
-    }, [connected, publicKey]);
+    }, [solanaAddress, activeWallet]);
   
     const fetchTokenBalance = async () => {
-      if (!publicKey) {
-        console.error("No wallet connected");
+      if (!solanaAddress) {
+        console.error("No address");
         return;
       }
   
@@ -31,7 +31,7 @@ export const useSolanaTokenBalance = (rpcUrl: string) => {
   
         const tokenAccountAddress = await getAssociatedTokenAddress(
           tokenMint,
-          publicKey
+          new PublicKey(solanaAddress)
         );
   
         const tokenAccount = await getAccount(connection, tokenAccountAddress);
@@ -41,7 +41,7 @@ export const useSolanaTokenBalance = (rpcUrl: string) => {
         const decimals = FIXED_SOLANA_MINT.decimals;
         const balance = amount.div(new Decimal(10).pow(decimals)).toString();
   
-        console.log(`Token balance of ${FIXED_SOLANA_MINT.address} for ${publicKey} on Solana:`, balance);
+        console.log(`Token balance of ${FIXED_SOLANA_MINT.address} for ${solanaAddress} on Solana:`, balance);
         setBalance(Number(balance));
       } catch (error) {
         console.error("Error fetching token balance:", error);

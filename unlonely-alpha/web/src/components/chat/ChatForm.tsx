@@ -36,7 +36,6 @@ import { ChatClip } from "./ChatClip";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { streamerTourSteps } from "../../pages/_app";
 
-import { isAddress, isAddressEqual } from "viem";
 import { NULL_ADDRESS } from "../../constants";
 import { Message } from "../../constants/types/chat";
 
@@ -55,7 +54,7 @@ type Props = {
   channel?: AblyChannelPromise;
   tokenGating?: {
     ctaBuyTokens: () => void;
-    tokenName: string;
+    gateMessage: string;
   };
 };
 
@@ -604,7 +603,7 @@ const ChatForm = ({
                         width="100%"
                       >
                         <Text color="red" fontWeight="bold" fontSize="20px">
-                          BUY ${tokenGating.tokenName} TO JOIN CHAT
+                          {tokenGating.gateMessage}
                         </Text>
                       </Button>
                     </Box>
@@ -656,9 +655,7 @@ const compileParticipantsInfo = (messages: Message[]) => {
   let numberOfParticipants = 0;
 
   messages
-    .filter(
-      (m) => !isAddressEqual(NULL_ADDRESS, m.data.address as `0x${string}`)
-    )
+    .filter((m) => m.data.address !== NULL_ADDRESS)
     .forEach((message) => {
       const usernameOrAddress = message.data.username || message.data.address;
       if (!participants.has(usernameOrAddress)) {
@@ -673,8 +670,7 @@ const compileParticipantsInfo = (messages: Message[]) => {
   let participantsWithoutUsernames = "";
   participants.forEach((address, username) => {
     const isUsernameEqualToAddress =
-      isAddress(username) &&
-      isAddressEqual(username as `0x${string}`, address as `0x${string}`);
+      username.toUpperCase() === address.toUpperCase();
     if (isUsernameEqualToAddress) {
       participantsWithoutUsernames += `Address: ${address}\n`;
     } else {
@@ -690,9 +686,7 @@ const formatChatHistory = (messages: Message[]) => {
   let chatHistory = "Chat History:\n";
 
   messages
-    .filter(
-      (m) => !isAddressEqual(NULL_ADDRESS, m.data.address as `0x${string}`)
-    )
+    .filter((m) => NULL_ADDRESS !== m.data.address)
     .forEach((message) => {
       const date = new Date(message.timestamp).toLocaleString();
       const usernameOrAddress = message.data.username || message.data.address;

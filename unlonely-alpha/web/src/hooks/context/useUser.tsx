@@ -14,6 +14,7 @@ import {
   useLogout,
   useConnectWallet,
   WalletWithMetadata,
+  ConnectedWallet,
 } from "@privy-io/react-auth";
 import {
   Box,
@@ -44,7 +45,7 @@ import { useSetActiveWallet } from "@privy-io/wagmi";
 import usePostStreamInteraction from "../server/usePostStreamInteraction";
 // import { FaExclamationTriangle } from "react-icons/fa";
 
-// const FETCH_TRIES = 3;
+const FETCH_TRIES = 3;
 
 type WalletListEntry =
   | "metamask"
@@ -84,11 +85,22 @@ const UserContext = createContext<{
   username?: string;
   initialNotificationsGranted: boolean;
   wagmiAddress?: `0x${string}`;
+  solanaAddress?: string;
   ready: boolean;
   authenticated: boolean;
   isManagingWallets: boolean;
   fetchingUser: boolean;
   doesUserAddressMatch: boolean | undefined;
+  activeWallet: ConnectedWallet | undefined;
+  injectedUserData: {
+    username: string | undefined;
+    address: string | undefined;
+  };
+  handleInjectedUserData: (data: {
+    username?: string;
+    address?: string;
+  }) => void;
+  handleSolanaAddress: (address: string | undefined) => void;
   fetchUser: () => any;
   login: () => void;
   connectWallet: () => void;
@@ -100,11 +112,19 @@ const UserContext = createContext<{
   username: undefined,
   initialNotificationsGranted: false,
   wagmiAddress: undefined,
+  solanaAddress: undefined,
   ready: false,
   authenticated: false,
   isManagingWallets: false,
   fetchingUser: false,
   doesUserAddressMatch: undefined,
+  activeWallet: undefined,
+  injectedUserData: {
+    username: undefined,
+    address: undefined,
+  },
+  handleInjectedUserData: () => undefined,
+  handleSolanaAddress: () => undefined,
   fetchUser: () => undefined,
   login: () => undefined,
   connectWallet: () => undefined,
@@ -121,7 +141,6 @@ export const UserProvider = ({
   const { handleLatestVerifiedAddress } = useApolloContext();
   const { setActiveWallet } = useSetActiveWallet();
   const [user, setUser] = useState<DatabaseUser | undefined>(undefined);
-  const [username, setUsername] = useState<string | undefined>();
   const [isManagingWallets, setIsManagingWallets] = useState(false);
 
   const [differentWallet, setDifferentWallet] = useState(false);
@@ -131,6 +150,18 @@ export const UserProvider = ({
   const [doesUserAddressMatch, setDoesUserAddressMatch] = useState<
     boolean | undefined
   >(undefined);
+
+  const [injectedUserData, setInjectedUserData] = useState<{
+    username: string | undefined;
+    address: string | undefined;
+  }>({
+    username: undefined,
+    address: undefined,
+  });
+
+  const [solanaAddress, setSolanaAddress] = useState<string | undefined>(
+    undefined
+  );
 
   const {
     address: wagmiAddress,
@@ -302,66 +333,76 @@ export const UserProvider = ({
       }
       handleLatestVerifiedAddress(wagmiAddress);
       setDoesUserAddressMatch(undefined);
-      let data;
-      try {
-        data = await fetchUser({
-          variables: {
-            data: {
-              address: wagmiAddress,
+      for (let i = 0; i < FETCH_TRIES; i++) {
+        let data;
+        try {
+          data = await fetchUser({
+            variables: {
+              data: {
+                address: wagmiAddress,
+              },
             },
-          },
-        });
-      } catch (e) {
-        console.error("fetching user data error", e);
-      }
-      if (data?.data?.getUser) {
-        setUser({
-          address: data?.data?.getUser?.address,
-          channel: data?.data?.getUser?.channel as DatabaseUser["channel"],
-          username: data?.data?.getUser?.username,
-          FCImageUrl: data?.data?.getUser?.FCImageUrl,
-          FCHandle: data?.data?.getUser?.FCHandle,
-          lensHandle: data?.data?.getUser?.lensHandle,
-          lensImageUrl: data?.data?.getUser?.lensImageUrl,
-          powerUserLvl: data?.data?.getUser?.powerUserLvl,
-        });
-        setUsername(
-          data?.data?.getUser?.username ?? centerEllipses(wagmiAddress, 9)
-        );
-        // for (let i = 0; i < FETCH_TRIES; i++) {
-        //   const { data: getDoesUserAddressMatchData } = await client.query({
-        //     query: GET_DOES_USER_ADDRESS_MATCH_QUERY,
-        //     variables: { data: { address: wagmiAddress } },
-        //   });
-        //   console.log(
-        //     "ARC verified getDoesUserAddressMatchData",
-        //     getDoesUserAddressMatchData,
-        //     wagmiAddress,
-        //     i
-        //   );
-        //   if (getDoesUserAddressMatchData?.getDoesUserAddressMatch) {
-        //     setDoesUserAddressMatch(true);
-        //     break;
-        //   }
-        //   await new Promise((resolve) => setTimeout(resolve, 2000));
-        //   setDoesUserAddressMatch(false);
-        // }
-      } else {
-        console.error("user not found in database", data);
+          });
+        } catch (e) {
+          console.error("fetching user data error", e);
+        }
+        if (data?.data?.getUser) {
+          console.log("user found in database", data);
+          setUser({
+            address: data?.data?.getUser?.address,
+            channel: data?.data?.getUser?.channel as DatabaseUser["channel"],
+            username: data?.data?.getUser?.username,
+            FCImageUrl: data?.data?.getUser?.FCImageUrl,
+            FCHandle: data?.data?.getUser?.FCHandle,
+            lensHandle: data?.data?.getUser?.lensHandle,
+            lensImageUrl: data?.data?.getUser?.lensImageUrl,
+            powerUserLvl: data?.data?.getUser?.powerUserLvl,
+          });
+          break;
+        } else {
+          console.error("user not found in database", data); // todo: create error toast just in case
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
       setFetchingUser(false);
     };
     fetchUserData();
   }, [wagmiAddress]);
 
+  useEffect(() => {
+    if (injectedUserData && user) {
+      setUser((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          username: injectedUserData.username ?? prev.username,
+          address: injectedUserData.address ?? prev.address,
+        };
+      });
+    }
+  }, [injectedUserData]);
+
   const handleIsManagingWallets = useCallback((value: boolean) => {
     setIsManagingWallets(value);
+  }, []);
+
+  const handleInjectedUserData = useCallback(
+    (data: { username?: string; address?: string }) => {
+      setInjectedUserData({
+        username: data.username,
+        address: data.address,
+      });
+    },
+    []
+  );
+
+  const handleSolanaAddress = useCallback((address: string | undefined) => {
+    setSolanaAddress(address);
   }, []);
 
   const value = useMemo(
     () => ({
       user,
-      username,
       initialNotificationsGranted,
       wagmiAddress,
       ready,
@@ -369,16 +410,20 @@ export const UserProvider = ({
       isManagingWallets,
       fetchingUser,
       doesUserAddressMatch,
+      activeWallet: wallets.find((w) => w.address === wagmiAddress),
+      injectedUserData,
+      solanaAddress,
+      handleInjectedUserData,
       fetchUser,
       login,
       connectWallet,
       logout,
       exportWallet,
       handleIsManagingWallets,
+      handleSolanaAddress,
     }),
     [
       user,
-      username,
       initialNotificationsGranted,
       ready,
       authenticated,
@@ -386,12 +431,16 @@ export const UserProvider = ({
       fetchingUser,
       doesUserAddressMatch,
       wagmiAddress,
+      injectedUserData,
+      solanaAddress,
+      handleInjectedUserData,
       fetchUser,
       login,
       connectWallet,
       logout,
       exportWallet,
       handleIsManagingWallets,
+      handleSolanaAddress,
     ]
   );
 

@@ -32,6 +32,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 // import { useJupiterQuoteSwap } from "../../hooks/internal/solana/useJupiterQuoteSwap";
 // import { useBooTokenTerminal } from "../../hooks/internal/solana/useBooTokenTerminal";
 import { SOLANA_RPC_URL, FIXED_SOLANA_MINT } from "../../constants";
+import { useUser } from "../../hooks/context/useUser";
 
 const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
@@ -51,7 +52,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
     livepeerPlaybackId: channelQueryData?.livepeerPlaybackId ?? undefined,
     livepeerStreamId: channelQueryData?.livepeerStreamId ?? undefined,
   });
-
+  const { solanaAddress, handleIsManagingWallets } = useUser();
   const [isSell, setIsSell] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -491,6 +492,23 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                       </Tooltip>
                     )}
                   </Flex>
+                  {!solanaAddress && (
+                    <Flex
+                      position="absolute"
+                      width="100%"
+                      height="100%"
+                      justifyContent="center"
+                      alignItems="center"
+                      bg="rgba(0, 0, 0, 0.9)"
+                      zIndex={100}
+                      p="20px"
+                    >
+                      <Text textAlign="center">
+                        You must log into Unlonely with a Solana-compatible
+                        wallet to use this feature.
+                      </Text>
+                    </Flex>
+                  )}
                   <IntegratedTerminal
                     height={
                       viewState === "token"
@@ -618,11 +636,16 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
           tokenForTransfer="vibes"
           noTabs
           tokenGating={
-            balance && balance > 0
+            balance && balance > 0 && solanaAddress
               ? undefined
-              : {
+              : solanaAddress
+              ? {
                   ctaBuyTokens: triggerGlowingEffect,
-                  tokenName: "BOO",
+                  gateMessage: "BUY $BOO TO JOIN CHAT",
+                }
+              : {
+                  ctaBuyTokens: () => handleIsManagingWallets(true),
+                  gateMessage: "SWITCH TO SOLANA",
                 }
           }
         />

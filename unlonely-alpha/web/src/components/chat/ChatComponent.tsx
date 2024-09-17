@@ -40,7 +40,7 @@ const ChatComponent = ({
   noTabs?: boolean;
   tokenGating?: {
     ctaBuyTokens: () => void;
-    tokenName: string;
+    gateMessage: string;
   };
 }) => {
   const { isStandalone } = useUserAgent();

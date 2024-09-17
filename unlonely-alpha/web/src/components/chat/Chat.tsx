@@ -20,7 +20,7 @@ export const Chat = ({
   isVipChat?: boolean;
   tokenGating?: {
     ctaBuyTokens: () => void;
-    tokenName: string;
+    gateMessage: string;
   };
 }) => {
   const { channel, leaderboard } = useChannelContext();
