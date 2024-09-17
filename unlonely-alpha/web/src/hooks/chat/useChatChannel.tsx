@@ -114,6 +114,7 @@ export function useChatChannel(fixedChatName?: string) {
         isAddress(toAddress) &&
         fromAddress &&
         isAddress(fromAddress) &&
+        isAddress(user?.address ?? "") &&
         (isAddressEqual(fromAddress, user?.address as `0x${string}`) ||
           isAddressEqual(toAddress, user?.address as `0x${string}`));
       if (includesUser) {
@@ -130,6 +131,7 @@ export function useChatChannel(fixedChatName?: string) {
       if (
         toAddress &&
         isAddress(toAddress) &&
+        isAddress(user?.address ?? "") &&
         isAddressEqual(toAddress, user?.address as `0x${string}`)
       ) {
         toast({

@@ -22,6 +22,7 @@ import { MessageItemProps } from "./MessageList";
 import { messageStyle } from "../../utils/messageStyle";
 import { jp } from "../../utils/validation/jsonParse";
 import { NfcClipMintInterface } from "../general/NfcClipMintInterface";
+import trailString from "../../utils/trailString";
 
 type Props = MessageItemProps & {
   messageText: string;
@@ -254,7 +255,7 @@ const MessageBody = ({
                     fontWeight="bold"
                   >
                     {message.data.username
-                      ? message.data.username
+                      ? trailString(message.data.username)
                       : centerEllipses(message.data.address, 10)}
                   </Text>
                   {message.data.username !== "🤖" ? ":" : ""}{" "}

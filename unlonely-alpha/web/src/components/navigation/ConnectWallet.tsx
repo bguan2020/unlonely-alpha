@@ -38,6 +38,7 @@ const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
     wagmiAddress,
     ready,
     authenticated,
+    fetchingUser,
     login,
     connectWallet,
     logout,
@@ -63,7 +64,7 @@ const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
 
   return (
     <>
-      {ready ? (
+      {ready && !fetchingUser ? (
         <>
           <TransactionModalTemplate
             title="are you sure you want to log out?"

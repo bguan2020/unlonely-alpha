@@ -62,7 +62,7 @@ export const useVipBadgeUi = (chat: ChatReturnType) => {
         ) {
           if (body.split(":")[4] === generatedKey) {
             if (
-              user?.address &&
+              isAddress(user?.address ?? "") &&
               isAddress(body.split(":")[1]) &&
               isAddressEqual(
                 body.split(":")[1] as `0x${string}`,
