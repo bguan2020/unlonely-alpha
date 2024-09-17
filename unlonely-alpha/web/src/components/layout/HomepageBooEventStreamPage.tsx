@@ -305,8 +305,10 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                 isGlowing && viewState === "stream" ? "glowing-border" : ""
               }
             >
-              {((!solanaAddress && !userIsChannelOwner) ||
-                !loggedInWithPrivy) && (
+              {(!loggedInWithPrivy ||
+                (loggedInWithPrivy &&
+                  !solanaAddress &&
+                  !userIsChannelOwner)) && (
                 <Flex
                   position="absolute"
                   width="100%"
