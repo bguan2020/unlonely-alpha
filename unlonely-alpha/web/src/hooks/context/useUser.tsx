@@ -300,7 +300,11 @@ export const UserProvider = ({
     },
   });
 
-  const { logout } = useLogout();
+  const { logout } = useLogout({
+    onSuccess: () => {
+      setSolanaAddress(undefined);
+    },
+  });
 
   const [fetchUser] = useLazyQuery<GetUserQuery>(GET_USER_QUERY, {
     fetchPolicy: "network-only",

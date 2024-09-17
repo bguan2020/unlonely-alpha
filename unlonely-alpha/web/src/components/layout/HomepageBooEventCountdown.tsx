@@ -9,11 +9,9 @@ import { useForm } from "react-hook-form";
 import { eventStartTime } from "./BooEventWrapper";
 import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";
 import { SOLANA_RPC_URL } from "../../constants";
-import { useUser } from "../../hooks/context/useUser";
 
 export const HomePageBooEventTokenCountdown = () => {
   const [timeLeft, setTimeLeft] = useState(0);
-  const { solanaAddress } = useUser();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -75,23 +73,6 @@ export const HomePageBooEventTokenCountdown = () => {
         ></iframe>
       </div>
       <Flex justifyContent={"center"} position="relative">
-        {!solanaAddress && (
-          <Flex
-            position="absolute"
-            width="100%"
-            height="100%"
-            justifyContent="center"
-            alignItems="center"
-            bg="rgba(0, 0, 0, 0.9)"
-            zIndex={100}
-            p="20px"
-          >
-            <Text textAlign="center">
-              You must log into Unlonely with a Solana-compatible wallet to use
-              this feature.
-            </Text>
-          </Flex>
-        )}
         <IntegratedTerminal
           rpcUrl={SOLANA_RPC_URL}
           formProps={watchAllFields.formProps}

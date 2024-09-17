@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { Box, Flex, IconButton, Text, Image, Tooltip } from "@chakra-ui/react";
 import { useChat } from "../../hooks/chat/useChat";
 import { useLivepeerStreamData } from "../../hooks/internal/useLivepeerStreamData";
@@ -52,7 +52,8 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
     livepeerPlaybackId: channelQueryData?.livepeerPlaybackId ?? undefined,
     livepeerStreamId: channelQueryData?.livepeerStreamId ?? undefined,
   });
-  const { solanaAddress, handleIsManagingWallets } = useUser();
+  const { user, solanaAddress, authenticated, ready, handleIsManagingWallets } =
+    useUser();
   const [isSell, setIsSell] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -70,6 +71,13 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
       },
     },
   });
+
+  const loggedInWithPrivy = authenticated && ready;
+
+  const userIsChannelOwner = useMemo(
+    () => user?.address === channelQueryData?.owner?.address,
+    [user, channelQueryData]
+  );
 
   const watchAllFieldsBuy = watchBuy();
   const watchAllFieldsSell = watchSell();
@@ -297,6 +305,24 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                 isGlowing && viewState === "stream" ? "glowing-border" : ""
               }
             >
+              {((!solanaAddress && !userIsChannelOwner) ||
+                !loggedInWithPrivy) && (
+                <Flex
+                  position="absolute"
+                  width="100%"
+                  height="100%"
+                  justifyContent="center"
+                  alignItems="center"
+                  bg="rgba(0, 0, 0, 0.9)"
+                  zIndex={100}
+                  p="20px"
+                >
+                  <Text textAlign="center">
+                    You must log into Unlonely with a Solana-compatible wallet
+                    to use this feature.
+                  </Text>
+                </Flex>
+              )}
               <Flex
                 width="100%"
                 gap={
@@ -492,23 +518,6 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                       </Tooltip>
                     )}
                   </Flex>
-                  {!solanaAddress && (
-                    <Flex
-                      position="absolute"
-                      width="100%"
-                      height="100%"
-                      justifyContent="center"
-                      alignItems="center"
-                      bg="rgba(0, 0, 0, 0.9)"
-                      zIndex={100}
-                      p="20px"
-                    >
-                      <Text textAlign="center">
-                        You must log into Unlonely with a Solana-compatible
-                        wallet to use this feature.
-                      </Text>
-                    </Flex>
-                  )}
                   <IntegratedTerminal
                     height={
                       viewState === "token"
