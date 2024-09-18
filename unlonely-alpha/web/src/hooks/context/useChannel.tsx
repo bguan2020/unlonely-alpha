@@ -35,7 +35,6 @@ import {
   useChannelWideModalsInitialState,
   useChannelWideModalsState,
 } from "../internal/modals/useChannelWideModalsState";
-import { isAddress, isAddressEqual } from "viem";
 import { useChatBotState } from "../chat/useChatBotState";
 
 export const useChannelContext = () => {
@@ -152,12 +151,8 @@ export const ChannelProvider = ({
     if (!user?.address || !channelDetails?.channelQueryData?.owner?.address)
       return false;
     return (
-      isAddress(user?.address) &&
-      isAddress(channelDetails?.channelQueryData?.owner?.address) &&
-      isAddressEqual(
-        user?.address as `0x${string}`,
-        channelDetails?.channelQueryData?.owner?.address as `0x${string}`
-      )
+      user?.address.toUpperCase() ===
+      channelDetails?.channelQueryData?.owner?.address
     );
   }, [user?.address, channelDetails?.channelQueryData?.owner?.address]);
 

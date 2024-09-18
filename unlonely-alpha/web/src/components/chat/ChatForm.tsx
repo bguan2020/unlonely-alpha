@@ -67,7 +67,7 @@ const ChatForm = ({
   isVipChat,
   tokenGating,
 }: Props) => {
-  const { user, wagmiAddress, ready, authenticated } = useUser();
+  const { user, ready, authenticated } = useUser();
   const { isStandalone } = useUserAgent();
   const [isHovered, setIsHovered] = useState(false);
 
@@ -239,7 +239,7 @@ const ChatForm = ({
         }}
       >
         <Stack direction={"row"} spacing={"10px"}>
-          {!wagmiAddress || !user || !loggedInWithPrivy ? (
+          {!user || !loggedInWithPrivy ? (
             <Flex
               justifyContent={"center"}
               direction="column"

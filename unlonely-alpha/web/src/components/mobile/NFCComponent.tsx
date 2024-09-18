@@ -9,7 +9,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import { LikedIcon, LikeIcon } from "../icons/LikeIcon";
 
 export const NFCComponent = ({ nfc }: { nfc?: any }) => {
-  const { user, wagmiAddress } = useUser();
+  const { user } = useUser();
 
   const videoRef = useRef<HTMLVideoElement>(null); // Ref for the video element
 
@@ -71,8 +71,6 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
       console.log("Your browser does not support the Web Share API.");
     }
   };
-
-  console.log("nfc", nfc);
 
   return (
     <Flex

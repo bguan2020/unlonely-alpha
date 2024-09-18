@@ -1,8 +1,4 @@
-import {
-  ChevronDownIcon,
-  ExternalLinkIcon,
-  WarningIcon,
-} from "@chakra-ui/icons";
+import { ChevronDownIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import {
   Button,
   Flex,
@@ -17,32 +13,27 @@ import {
   Image,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { HiDotsVertical } from "react-icons/hi";
-import { useBalance, useEstimateFeesPerGas } from "wagmi";
 
 import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import centerEllipses from "../../utils/centerEllipses";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
-import { useNetworkContext } from "../../hooks/context/useNetwork";
 import useUpdateUser from "../../hooks/server/useUpdateUser";
 import trailString from "../../utils/trailString";
 import { OwnedChannelsModal } from "../channels/OwnedChannelsModal";
-import { formatUnits } from "viem";
 import copy from "copy-to-clipboard";
-import { usePrivy, WalletWithMetadata } from "@privy-io/react-auth";
 const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
   const router = useRouter();
   const {
-    wagmiAddress,
+    user,
     ready,
     authenticated,
     fetchingUser,
     login,
     connectWallet,
     logout,
-    // handleIsManagingWallets,
   } = useUser();
   const { isStandalone } = useUserAgent();
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
@@ -85,7 +76,7 @@ const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
               logout
             </Button>
           </TransactionModalTemplate>
-          {loggedInWithPrivy && wagmiAddress ? (
+          {loggedInWithPrivy && user ? (
             <ConnectedDisplay />
           ) : (
             <Menu>
@@ -124,18 +115,6 @@ const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
                 >
                   {loggedInWithPrivy ? "connect wallet" : "login"}
                 </MenuItem>
-                {/* <MenuItem
-                  bg={"#131323"}
-                  _hover={{ bg: "#1f1f3c" }}
-                  _focus={{}}
-                  _active={{}}
-                  onClick={() => handleIsManagingWallets(true)}
-                >
-                  <Flex alignItems={"center"} gap="5px">
-                    <Text>manage wallets</Text>
-                    <Image src={"/images/privy-orange.png"} height={"20px"} />
-                  </Flex>
-                </MenuItem> */}
                 {!hideBridge && (
                   <MenuItem
                     bg={"#131323"}
@@ -176,25 +155,13 @@ const ConnectedDisplay = () => {
   const router = useRouter();
 
   const {
+    activeWallet,
     user,
-    wagmiAddress,
     fetchUser,
     logout,
     exportWallet,
     handleIsManagingWallets,
   } = useUser();
-  const { user: privyUser } = usePrivy();
-  const { network } = useNetworkContext();
-  const { matchingChain, localNetwork } = network;
-
-  const loginMethod = useMemo(() => {
-    const wallet = privyUser?.linkedAccounts?.find(
-      (account): account is WalletWithMetadata =>
-        account.type === "wallet" && "walletClientType" in account
-    );
-    if (!wallet) return undefined;
-    return wallet.walletClientType;
-  }, [privyUser]);
 
   const toast = useToast();
 
@@ -204,25 +171,7 @@ const ConnectedDisplay = () => {
   const [isChannelsModalOpen, setIsChannelsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { data: feeData, refetch: refetchFeeData } = useEstimateFeesPerGas({
-    chainId: localNetwork.config.chainId,
-  });
-  const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
-    address: wagmiAddress as `0x${string}`,
-  });
-
   const { updateUser } = useUpdateUser({});
-
-  const isLowEthBalance = useMemo(() => {
-    if (!userEthBalance || !feeData || !matchingChain) {
-      return false;
-    }
-
-    return (
-      Number(feeData?.formatted?.gasPrice ?? "0") >
-      Number(formatUnits(userEthBalance.value, 18))
-    );
-  }, [feeData?.formatted?.gasPrice, userEthBalance, matchingChain]);
 
   const redirectToBridge = useCallback(() => {
     if (isStandalone) {
@@ -235,22 +184,6 @@ const ConnectedDisplay = () => {
   const callLogout = useCallback(() => {
     logout();
     setIsCloseModalOpen(false);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const calls: any[] = [refetchFeeData(), refetchUserEthBalance()];
-      const fetch = async () => {
-        try {
-          await Promise.all(calls);
-        } catch (err) {
-          console.log("connect fetching error", err);
-        }
-      };
-      fetch();
-    }, 180000);
-
-    return () => clearInterval(interval);
   }, []);
 
   const handleCopy = () => {
@@ -299,17 +232,6 @@ const ConnectedDisplay = () => {
             rightIcon={<ChevronDownIcon />}
             position="relative"
           >
-            {isLowEthBalance && (
-              <Flex
-                className="attention"
-                position="absolute"
-                bottom="-1px"
-                alignItems="end"
-              >
-                <WarningIcon mr="2px" height="1em" />
-                <Text fontFamily="LoRes15">LOW ETH</Text>
-              </Flex>
-            )}
             <Flex alignItems={"center"}>
               <Text fontFamily="LoRes15" fontSize="15px">
                 {loading ? (
@@ -440,21 +362,16 @@ const ConnectedDisplay = () => {
             </MenuItem>
           )}
           <MenuItem
-            bg={isLowEthBalance ? "#004b9c" : "#131323"}
+            bg={"#131323"}
             _hover={{ bg: "#0056b1" }}
             _focus={{}}
             _active={{}}
             onClick={redirectToBridge}
           >
             <Text>bridge ETH to base</Text>
-            {isLowEthBalance && (
-              <Text ml="1" className="attention">
-                <WarningIcon />
-              </Text>
-            )}
             {!isStandalone && <ExternalLinkIcon />}
           </MenuItem>
-          {loginMethod === "privy" && (
+          {activeWallet?.walletClientType === "privy" && (
             <MenuItem
               bg={"#131323"}
               _hover={{ bg: "#1f1f3c" }}
@@ -465,14 +382,14 @@ const ConnectedDisplay = () => {
               export wallet
             </MenuItem>
           )}
-          {wagmiAddress && (
+          {user?.address && (
             <MenuItem
               bg={"#131323"}
               _hover={{ bg: "#1f1f3c" }}
               _focus={{}}
               _active={{}}
               onClick={() => {
-                copy(wagmiAddress);
+                copy(user?.address);
                 handleCopy();
               }}
             >

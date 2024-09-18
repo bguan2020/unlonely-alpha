@@ -26,14 +26,13 @@ import { useNetworkContext } from "../hooks/context/useNetwork";
 const SLUG_MAX_CHARS = 25;
 
 const Onboard = () => {
-  const { login, ready, authenticated, user, wagmiAddress, connectWallet } =
-    useUser();
+  const { login, ready, authenticated, user, connectWallet } = useUser();
 
   const loggedInWithPrivy = authenticated && ready;
 
   return (
     <AppLayout isCustomHeader={false}>
-      {!user?.address || !wagmiAddress ? (
+      {!user?.address ? (
         <Flex
           alignItems={"center"}
           justifyContent={"center"}

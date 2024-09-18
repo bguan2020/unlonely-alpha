@@ -27,7 +27,9 @@ export const useChatBox = (
   const toast = useToast();
   const { channel: channelContext } = useChannelContext();
   const { realTimeChannelDetails, channelQueryData } = channelContext;
-  const { user, wagmiAddress } = useUser();
+  const { user, ready, authenticated } = useUser();
+  
+  const loggedInWithPrivy = ready && authenticated;
 
   const { postFirstChat } = usePostFirstChat({
     onError: (m) => {
@@ -132,7 +134,7 @@ export const useChatBox = (
     senderStatus: SenderStatus,
     body?: string
   ) => {
-    if (wagmiAddress && user) {
+    if (loggedInWithPrivy && user) {
       channel.publish({
         name: CHAT_MESSAGE_EVENT,
         data: {

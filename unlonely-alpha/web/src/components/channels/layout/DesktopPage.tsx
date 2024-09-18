@@ -5,7 +5,6 @@ import { useEffect } from "react";
 import { ChannelStaticQuery } from "../../../generated/graphql";
 import { useChat } from "../../../hooks/chat/useChat";
 import { useChannelContext } from "../../../hooks/context/useChannel";
-import { useUser } from "../../../hooks/context/useUser";
 import { streamerTourSteps } from "../../../pages/_app";
 import ChatComponent from "../../chat/ChatComponent";
 import VibesTokenInterface from "../vibes/VibesTokenInterface";
@@ -32,7 +31,6 @@ export const DesktopPage = ({
   channelSSRDataLoading: boolean;
   channelSSRDataError?: ApolloError;
 }) => {
-  const { wagmiAddress } = useUser();
   const { channel, ui, chat: c } = useChannelContext();
   const chat = useChat({ chatBot: c.chatBot });
   const {
@@ -158,7 +156,7 @@ export const DesktopPage = ({
               direction={["column", "column", "row", "row"]}
             >
               <Stack direction="column" width={"100%"}>
-                {isOwner && wagmiAddress ? (
+                {isOwner ? (
                   <>
                     <ChannelWideModals ablyChannel={chat.channel} />
                     {checkedForLivepeerPlaybackInfo && (

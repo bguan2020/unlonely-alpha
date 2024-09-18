@@ -493,7 +493,7 @@ export const useTradeTempTokenState = ({
    * For every new transaction, fetch the new balances and costs
    */
   useEffect(() => {
-    if (!tempTokenContract.address || !wagmiAddress || !wagmiAddress) return;
+    if (!tempTokenContract.address || !wagmiAddress) return;
     const fetch = async () => {
       const startTime = Date.now();
       console.log("useTradeTokenState, fetching", startTime);

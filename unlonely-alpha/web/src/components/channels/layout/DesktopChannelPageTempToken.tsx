@@ -3,7 +3,6 @@ import { ChannelStaticQuery } from "../../../generated/graphql";
 import { useEffect, useMemo } from "react";
 import { useChat } from "../../../hooks/chat/useChat";
 import { useChannelContext } from "../../../hooks/context/useChannel";
-import { useUser } from "../../../hooks/context/useUser";
 import { useLivepeerStreamData } from "../../../hooks/internal/useLivepeerStreamData";
 import { useVipBadgeUi } from "../../../hooks/internal/useVipBadgeUi";
 import {
@@ -52,7 +51,6 @@ export const DesktopChannelPageTempToken = ({
   channelSSRDataLoading: boolean;
   channelSSRDataError?: ApolloError;
 }) => {
-  const { wagmiAddress } = useUser();
   const { channel, chat: c } = useChannelContext();
   const {
     loading: channelDataLoading,
@@ -205,7 +203,7 @@ export const DesktopChannelPageTempToken = ({
               width="100%"
             >
               <Flex direction="column" width={"100%"} height="100%">
-                {isOwner && wagmiAddress ? (
+                {isOwner ? (
                   <>
                     <ChannelWideModals ablyChannel={chat.channel} />
                     {checkedForLivepeerPlaybackInfo && (

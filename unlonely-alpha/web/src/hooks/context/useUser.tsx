@@ -32,10 +32,7 @@ import debounce from "lodash/debounce";
 
 import { Channel, GetUserQuery, Maybe, Scalars } from "../../generated/graphql";
 import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
-import {
-  // GET_DOES_USER_ADDRESS_MATCH_QUERY,
-  GET_USER_QUERY,
-} from "../../constants/queries";
+import { GET_USER_QUERY } from "../../constants/queries";
 import centerEllipses from "../../utils/centerEllipses";
 import { Tos } from "../../components/general/Tos";
 import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
@@ -43,9 +40,8 @@ import { useApolloContext } from "./useApollo";
 import { useAccount, useSignMessage } from "wagmi";
 import { useSetActiveWallet } from "@privy-io/wagmi";
 import usePostStreamInteraction from "../server/usePostStreamInteraction";
-// import { FaExclamationTriangle } from "react-icons/fa";
 
-const FETCH_TRIES = 3;
+const FETCH_TRIES = 5;
 
 type WalletListEntry =
   | "metamask"
@@ -300,8 +296,15 @@ export const UserProvider = ({
     },
   });
 
+  console.log("wallets, changing networks", wallets);
+
   const { logout } = useLogout({
     onSuccess: () => {
+      setUser(undefined);
+      setInjectedUserData({
+        username: undefined,
+        address: undefined,
+      });
       setSolanaAddress(undefined);
     },
   });

@@ -49,8 +49,7 @@ export const VersusTempTokenChart = ({
   isFullChart?: boolean;
   customChartHeightInPx?: number;
 }) => {
-  const { wagmiAddress, authenticated, ready, login, connectWallet, user } =
-    useUser();
+  const { authenticated, ready, login, connectWallet, user } = useUser();
   const { isStandalone } = useUserAgent();
 
   const { ethPriceInUsd } = useCacheContext();
@@ -514,7 +513,7 @@ export const VersusTempTokenChart = ({
       </Flex>
       {!isStandalone && (canPlayToken || canBuyPostGame) && (
         <Flex direction={"column"} h="150px" position={"relative"}>
-          {wagmiAddress && user?.address ? (
+          {user?.address ? (
             <VersusTokenExchange />
           ) : (
             <Flex direction="column">

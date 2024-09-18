@@ -16,11 +16,9 @@ import { BorderType, OuterBorder } from "../general/OuterBorder";
 import { getColorFromString } from "../../styles/Colors";
 import { FaPencilAlt } from "react-icons/fa";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { useUser } from "../../hooks/context/useUser";
 import { SessionsModal } from "./SessionsModal";
 
 const ChannelDesc = () => {
-  const { wagmiAddress } = useUser();
   const { isStandalone } = useUserAgent();
   const { channel, ui } = useChannelContext();
   const { channelQueryData, totalBadges, realTimeChannelDetails, isOwner } =
@@ -128,7 +126,7 @@ const ChannelDesc = () => {
           >
             {realTimeChannelDetails.channelName}
           </Text>
-          {isOwner && wagmiAddress && (
+          {isOwner && (
             <IconButton
               aria-label="edit channel title"
               _focus={{}}
