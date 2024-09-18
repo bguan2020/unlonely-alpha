@@ -41,6 +41,12 @@ export const GET_USER_CHANNEL_CONTRACT_1155_MAPPING_QUERY = gql`
   }
 `;
 
+export const GET_USER_BOO_PACKAGE_COOLDOWN_MAPPING_QUERY = gql`
+  query GetUserBooPackageCooldownMapping($data: GetUserInput!) {
+    getUserBooPackageCooldownMapping(data: $data)
+  }
+`;
+
 export const GET_LIVEPEER_CLIP_DATA_QUERY = gql`
   query GetLivepeerClipData($data: GetLivepeerClipDataInput) {
     getLivepeerClipData(data: $data) {

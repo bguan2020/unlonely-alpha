@@ -122,6 +122,11 @@ export type BaseLeaderboard = {
   owner?: Maybe<User>;
 };
 
+export type BooPackageCooldownMapping = {
+  __typename?: "BooPackageCooldownMapping";
+  lastUsedAt: Scalars["String"];
+};
+
 export type Channel = {
   __typename?: "Channel";
   allowNFCs?: Maybe<Scalars["Boolean"]>;
@@ -591,6 +596,7 @@ export type Mutation = {
   updateTempTokenIsAlwaysTradeable: Scalars["Boolean"];
   updateTempTokenTransferredLiquidityOnExpiration?: Maybe<TempToken>;
   updateUser?: Maybe<UpdateUserResponse>;
+  updateUserBooPackageCooldownMapping?: Maybe<User>;
   updateUserChannelContract1155Mapping?: Maybe<User>;
   updateUserCreatorTokenQuantity: UserCreatorToken;
   updateUserNotifications?: Maybe<User>;
@@ -811,6 +817,10 @@ export type MutationUpdateTempTokenTransferredLiquidityOnExpirationArgs = {
 
 export type MutationUpdateUserArgs = {
   data: UpdateUserInput;
+};
+
+export type MutationUpdateUserBooPackageCooldownMappingArgs = {
+  data: UpdateUserBooPackageCooldownMappingInput;
 };
 
 export type MutationUpdateUserChannelContract1155MappingArgs = {
@@ -1074,6 +1084,7 @@ export type Query = {
     Array<Maybe<UniqueContract1155AddressesResponse>>
   >;
   getUser?: Maybe<User>;
+  getUserBooPackageCooldownMapping?: Maybe<Scalars["JSON"]>;
   getUserChannelContract1155Mapping?: Maybe<Scalars["JSON"]>;
   getUserTokenHolding?: Maybe<Scalars["Int"]>;
   getVibesTransactions?: Maybe<Array<Maybe<VibesTransaction>>>;
@@ -1212,6 +1223,10 @@ export type QueryGetUniqueContract1155AddressesArgs = {
 };
 
 export type QueryGetUserArgs = {
+  data: GetUserInput;
+};
+
+export type QueryGetUserBooPackageCooldownMappingArgs = {
   data: GetUserInput;
 };
 
@@ -1528,6 +1543,11 @@ export type UpdateTempTokenTransferredLiquidityOnExpirationInput = {
   losingTokenAddress: Scalars["String"];
 };
 
+export type UpdateUserBooPackageCooldownMappingInput = {
+  packageName: Scalars["String"];
+  userAddress: Scalars["String"];
+};
+
 export type UpdateUserChannelContract1155MappingInput = {
   channelId: Scalars["ID"];
   contract1155Address: Scalars["String"];
@@ -1569,6 +1589,7 @@ export type User = {
   address: Scalars["String"];
   authedAsMe: Scalars["Boolean"];
   bio?: Maybe<Scalars["String"]>;
+  booPackageCooldownMapping?: Maybe<Scalars["JSON"]>;
   channel?: Maybe<Array<Maybe<Channel>>>;
   channelContract1155Mapping?: Maybe<Scalars["JSON"]>;
   createdAt: Scalars["DateTime"];
@@ -1694,6 +1715,15 @@ export type GetUserChannelContract1155MappingQueryVariables = Exact<{
 export type GetUserChannelContract1155MappingQuery = {
   __typename?: "Query";
   getUserChannelContract1155Mapping?: any | null;
+};
+
+export type GetUserBooPackageCooldownMappingQueryVariables = Exact<{
+  data: GetUserInput;
+}>;
+
+export type GetUserBooPackageCooldownMappingQuery = {
+  __typename?: "Query";
+  getUserBooPackageCooldownMapping?: any | null;
 };
 
 export type GetLivepeerClipDataQueryVariables = Exact<{
@@ -3038,6 +3068,20 @@ export type FetchCurrentUserQuery = {
   } | null;
 };
 
+export type UpdateUserBooPackageCooldownMappingMutationVariables = Exact<{
+  data: UpdateUserBooPackageCooldownMappingInput;
+}>;
+
+export type UpdateUserBooPackageCooldownMappingMutation = {
+  __typename?: "Mutation";
+  updateUserBooPackageCooldownMapping?: {
+    __typename?: "User";
+    address: string;
+    username?: string | null;
+    booPackageCooldownMapping?: any | null;
+  } | null;
+};
+
 export const GetUserDocument = gql`
   query GetUser($data: GetUserInput!) {
     getUser(data: $data) {
@@ -3219,6 +3263,62 @@ export type GetUserChannelContract1155MappingLazyQueryHookResult = ReturnType<
 export type GetUserChannelContract1155MappingQueryResult = Apollo.QueryResult<
   GetUserChannelContract1155MappingQuery,
   GetUserChannelContract1155MappingQueryVariables
+>;
+export const GetUserBooPackageCooldownMappingDocument = gql`
+  query GetUserBooPackageCooldownMapping($data: GetUserInput!) {
+    getUserBooPackageCooldownMapping(data: $data)
+  }
+`;
+
+/**
+ * __useGetUserBooPackageCooldownMappingQuery__
+ *
+ * To run a query within a React component, call `useGetUserBooPackageCooldownMappingQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserBooPackageCooldownMappingQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserBooPackageCooldownMappingQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetUserBooPackageCooldownMappingQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetUserBooPackageCooldownMappingQuery,
+    GetUserBooPackageCooldownMappingQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetUserBooPackageCooldownMappingQuery,
+    GetUserBooPackageCooldownMappingQueryVariables
+  >(GetUserBooPackageCooldownMappingDocument, options);
+}
+export function useGetUserBooPackageCooldownMappingLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetUserBooPackageCooldownMappingQuery,
+    GetUserBooPackageCooldownMappingQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetUserBooPackageCooldownMappingQuery,
+    GetUserBooPackageCooldownMappingQueryVariables
+  >(GetUserBooPackageCooldownMappingDocument, options);
+}
+export type GetUserBooPackageCooldownMappingQueryHookResult = ReturnType<
+  typeof useGetUserBooPackageCooldownMappingQuery
+>;
+export type GetUserBooPackageCooldownMappingLazyQueryHookResult = ReturnType<
+  typeof useGetUserBooPackageCooldownMappingLazyQuery
+>;
+export type GetUserBooPackageCooldownMappingQueryResult = Apollo.QueryResult<
+  GetUserBooPackageCooldownMappingQuery,
+  GetUserBooPackageCooldownMappingQueryVariables
 >;
 export const GetLivepeerClipDataDocument = gql`
   query GetLivepeerClipData($data: GetLivepeerClipDataInput) {
@@ -7994,3 +8094,59 @@ export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
 >;
+export const UpdateUserBooPackageCooldownMappingDocument = gql`
+  mutation UpdateUserBooPackageCooldownMapping(
+    $data: UpdateUserBooPackageCooldownMappingInput!
+  ) {
+    updateUserBooPackageCooldownMapping(data: $data) {
+      address
+      username
+      booPackageCooldownMapping
+    }
+  }
+`;
+export type UpdateUserBooPackageCooldownMappingMutationFn =
+  Apollo.MutationFunction<
+    UpdateUserBooPackageCooldownMappingMutation,
+    UpdateUserBooPackageCooldownMappingMutationVariables
+  >;
+
+/**
+ * __useUpdateUserBooPackageCooldownMappingMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserBooPackageCooldownMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserBooPackageCooldownMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserBooPackageCooldownMappingMutation, { data, loading, error }] = useUpdateUserBooPackageCooldownMappingMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateUserBooPackageCooldownMappingMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateUserBooPackageCooldownMappingMutation,
+    UpdateUserBooPackageCooldownMappingMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateUserBooPackageCooldownMappingMutation,
+    UpdateUserBooPackageCooldownMappingMutationVariables
+  >(UpdateUserBooPackageCooldownMappingDocument, options);
+}
+export type UpdateUserBooPackageCooldownMappingMutationHookResult = ReturnType<
+  typeof useUpdateUserBooPackageCooldownMappingMutation
+>;
+export type UpdateUserBooPackageCooldownMappingMutationResult =
+  Apollo.MutationResult<UpdateUserBooPackageCooldownMappingMutation>;
+export type UpdateUserBooPackageCooldownMappingMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateUserBooPackageCooldownMappingMutation,
+    UpdateUserBooPackageCooldownMappingMutationVariables
+  >;
