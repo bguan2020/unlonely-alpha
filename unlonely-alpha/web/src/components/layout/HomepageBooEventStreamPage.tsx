@@ -1,5 +1,19 @@
-import React, { useEffect, useState, useRef, useMemo } from "react";
-import { Box, Flex, IconButton, Text, Image, Tooltip } from "@chakra-ui/react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
+import {
+  Box,
+  Flex,
+  IconButton,
+  Text,
+  Image,
+  Tooltip,
+  Button,
+} from "@chakra-ui/react";
 import { useChat } from "../../hooks/chat/useChat";
 import { useLivepeerStreamData } from "../../hooks/internal/useLivepeerStreamData";
 import ChatComponent from "../chat/ChatComponent";
@@ -13,8 +27,11 @@ import LivepeerPlayer from "../stream/LivepeerPlayer";
 import { getSrc } from "@livepeer/react/external";
 import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
-import { useQuery } from "@apollo/client";
+import {
+  CHANNEL_STATIC_QUERY,
+  GET_USER_BOO_PACKAGE_COOLDOWN_MAPPING_QUERY,
+} from "../../constants/queries";
+import { useLazyQuery, useQuery } from "@apollo/client";
 import { FaExpandArrowsAlt } from "react-icons/fa";
 import { RiSwapFill } from "react-icons/ri";
 import { BooEventTile } from "./BooEventTile";
@@ -33,6 +50,8 @@ import { useWallet } from "@solana/wallet-adapter-react";
 // import { useBooTokenTerminal } from "../../hooks/internal/solana/useBooTokenTerminal";
 import { SOLANA_RPC_URL, FIXED_SOLANA_MINT } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
+import useUpdateUserBooPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserBooPackageCooldownMapping";
+import { GetUserBooPackageCooldownMappingQuery } from "../../generated/graphql";
 
 const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
@@ -42,6 +61,8 @@ const STREAM_VIEW_JUPITER_TERMINAL_PIXEL_HEIGHT = 340;
 const TOKEN_VIEW_GRAPH_PERCENT_HEIGHT = 50;
 const STREAM_VIEW_JUPITER_TERMINAL_MIN_X_OFFSET = 30;
 const STREAM_VIEW_JUPITER_TERMINAL_MIN_Y_OFFSET = 30;
+
+const WATER_PACKAGE_COOLDOWN = 30; // seconds
 
 export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const { chat: c, channel } = useChannelContext();
@@ -82,6 +103,26 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const watchAllFieldsBuy = watchBuy();
   const watchAllFieldsSell = watchSell();
 
+  const [userBooPackageCooldowns, setUserBooPackageCooldowns] = useState<
+    Record<string, number>
+  >({});
+
+  const fetchCooldownMapping = useCallback(async (userAddress: string) => {
+    const { data: cooldownMapping } = await fetchUserBooPackageCooldownMapping({
+      variables: {
+        userAddress,
+      },
+    });
+    if (cooldownMapping)
+      setUserBooPackageCooldowns(
+        cooldownMapping.getUserBooPackageCooldownMapping
+      );
+  }, []);
+
+  useEffect(() => {
+    if (user) fetchCooldownMapping(user?.address);
+  }, [user]);
+
   // const { launchTerminal } = useBooTokenTerminal({
   //   rpcUrl: SOLANA_RPC_URL,
   //   ...watchAllFieldsBuy,
@@ -92,6 +133,15 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   //     fetchTokenBalance();
   //   },
   // });
+
+  const [dateNow, setDateNow] = useState(Date.now() / 1000);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDateNow(Date.now() / 1000);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const { balance, fetchTokenBalance } = useSolanaTokenBalance(SOLANA_RPC_URL);
 
@@ -104,6 +154,13 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   });
 
   const { publicKey, connected } = useWallet();
+  const { updateUserBooPackageCooldownMapping } =
+    useUpdateUserBooPackageCooldownMapping({});
+
+  const [fetchUserBooPackageCooldownMapping] =
+    useLazyQuery<GetUserBooPackageCooldownMappingQuery>(
+      GET_USER_BOO_PACKAGE_COOLDOWN_MAPPING_QUERY
+    );
   // const { quoteSwap } = useJupiterQuoteSwap();
 
   useEffect(() => {
@@ -381,6 +438,23 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                                 src="/images/pixel-heart.png"
                                 alt="heart"
                               />
+                            </Flex>
+                            <Flex flexWrap={"wrap"}>
+                              <Button
+                                onClick={async () => {
+                                  await updateUserBooPackageCooldownMapping({
+                                    userAddress: solanaAddress ?? "",
+                                    packageName: "water",
+                                  }).then(async () => {
+                                    await fetchCooldownMapping(
+                                      user?.address ?? ""
+                                    );
+                                  });
+                                }}
+                              >
+                                water
+                              </Button>
+                              <Button>flashlight</Button>
                             </Flex>
                           </Flex>
                         </BooEventTile>

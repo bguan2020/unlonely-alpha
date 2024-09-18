@@ -9,7 +9,7 @@ import {
   UpdateUserBooPackageCooldownMappingMutationVariables,
 } from "../../../generated/graphql";
 
-const UPDATE_CHANNEL_CONTRACT1155_MUTATION = gql`
+const MUTATION = gql`
   mutation UpdateUserBooPackageCooldownMapping($data: UpdateUserBooPackageCooldownMappingInput!) {
   updateUserBooPackageCooldownMapping(data: $data) {
     address
@@ -28,7 +28,7 @@ const useUpdateUserBooPackageCooldownMapping = ({
   const [mutate] = useAuthedMutation<
     UpdateUserBooPackageCooldownMappingMutation,
     UpdateUserBooPackageCooldownMappingMutationVariables
-  >(UPDATE_CHANNEL_CONTRACT1155_MUTATION);
+  >(MUTATION);
 
   const updateUserBooPackageCooldownMapping = useCallback(
     async (data: UpdateUserBooPackageCooldownMappingInput) => {
