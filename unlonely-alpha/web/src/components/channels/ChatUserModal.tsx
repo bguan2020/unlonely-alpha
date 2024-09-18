@@ -4,24 +4,24 @@ import {
   ModalContent,
   Button,
   Flex,
-  Input,
+  // Input,
   Spinner,
   Text,
-  Tooltip,
-  useToast,
-  Box,
+  // Tooltip,
+  // useToast,
+  // Box,
 } from "@chakra-ui/react";
 import { useState, useMemo, useEffect } from "react";
-import { formatUnits, isAddress } from "viem";
+// import { formatUnits, isAddress } from "viem";
 import {
   AblyChannelPromise,
-  CHAKRA_UI_TX_TOAST_DURATION,
+  // CHAKRA_UI_TX_TOAST_DURATION,
   CHANGE_USER_ROLE_EVENT,
   Contract,
-  TOKEN_TRANSFER_EVENT,
+  // TOKEN_TRANSFER_EVENT,
 } from "../../constants";
 import { NETWORKS } from "../../constants/networks";
-import { useCacheContext } from "../../hooks/context/useCache";
+// import { useCacheContext } from "../../hooks/context/useCache";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useNetworkContext } from "../../hooks/context/useNetwork";
 import { useUser } from "../../hooks/context/useUser";
@@ -29,16 +29,18 @@ import useUserAgent from "../../hooks/internal/useUserAgent";
 import usePostUserRoleForChannel from "../../hooks/server/channel/usePostUserRoleForChannel";
 import centerEllipses from "../../utils/centerEllipses";
 import { getContractFromNetwork } from "../../utils/contract";
-import {
-  filteredInput,
-  formatIncompleteNumber,
-} from "../../utils/validation/input";
-import { useGetUserBalance, useTransfer } from "../../hooks/contracts/useToken";
+// import {
+//   filteredInput,
+//   formatIncompleteNumber,
+// } from "../../utils/validation/input";
+// import { useGetUserBalance,
+//    useTransfer
+//   } from "../../hooks/contracts/useToken";
 import Link from "next/link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { truncateValue } from "../../utils/tokenDisplayFormatting";
-import { useVibesContext } from "../../hooks/context/useVibes";
-import { calculateBurnProceeds } from "./ChatUserModal_token";
+// import { truncateValue } from "../../utils/tokenDisplayFormatting";
+// import { useVibesContext } from "../../hooks/context/useVibes";
+// import { calculateBurnProceeds } from "./ChatUserModal_token";
 import { SelectedUser } from "../../constants/types/chat";
 
 export const ChatUserModal = ({
@@ -58,103 +60,103 @@ export const ChatUserModal = ({
   const { channelQueryData, channelRoles } = c;
   const { network } = useNetworkContext();
   const { matchingChain, explorerUrl } = network;
-  const { ethPriceInUsd } = useCacheContext();
-  const { vibesTokenTxs, userVibesBalance } = useVibesContext();
+  // const { ethPriceInUsd } = useCacheContext();
+  // const { vibesTokenTxs, userVibesBalance } = useVibesContext();
 
   const [isBanning, setIsBanning] = useState<boolean>(false);
   const [isAppointing, setIsAppointing] = useState<boolean>(false);
   const [isRemovingModerator, setIsRemovingModerator] =
     useState<boolean>(false);
-  const [isSendingVibes, setIsSendingVibes] = useState<boolean>(false);
-  const [amountOfVibesToSend, setAmountOfVibesToSend] = useState<string>("10");
+  // const [isSendingVibes, setIsSendingVibes] = useState<boolean>(false);
+  // const [amountOfVibesToSend, setAmountOfVibesToSend] = useState<string>("10");
   const contract = getContractFromNetwork(Contract.VIBES_TOKEN_V1, NETWORKS[0]);
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const toast = useToast();
+  // const toast = useToast();
 
-  const { transfer, refetch: refetchTransfer } = useTransfer(
-    {
-      to: targetUser?.address as `0x${string}`,
-      amount: BigInt(amountOfVibesToSend),
-    },
-    contract,
-    {
-      onWriteSuccess: (data) => {
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
-              <Link
-                target="_blank"
-                href={`${explorerUrl}/tx/${data.hash}`}
-                passHref
-              >
-                transfer vibes pending, click to view
-              </Link>
-            </Box>
-          ),
-          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
-          isClosable: true,
-          position: "bottom", // chakra ui toast position
-        });
-      },
-      onWriteError: (error) => {
-        toast({
-          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
-          isClosable: true,
-          position: "bottom", // chakra ui toast position
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
-              transfer vibes cancelled
-            </Box>
-          ),
-        });
-      },
-      onTxSuccess: async (data) => {
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
-              <Link
-                target="_blank"
-                href={`${explorerUrl}/tx/${data.transactionHash}`}
-                passHref
-              >
-                transfer vibes success, click to view
-              </Link>
-            </Box>
-          ),
-          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
-          isClosable: true,
-          position: "bottom", // chakra ui toast position
-        });
-        channel.publish({
-          name: TOKEN_TRANSFER_EVENT,
-          data: {
-            body: JSON.stringify({
-              from: user?.address,
-              to: targetUser?.address,
-              amount: Number(amountOfVibesToSend),
-              symbol: "vibes",
-            }),
-          },
-        });
-        setAmountOfVibesToSend("10");
-      },
-      onTxError: (error) => {
-        toast({
-          render: () => (
-            <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
-              transfer vibes error
-            </Box>
-          ),
-          duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
-          isClosable: true,
-          position: "bottom", // chakra ui toast position
-        });
-      },
-    }
-  );
+  // const { transfer, refetch: refetchTransfer } = useTransfer(
+  //   {
+  //     to: targetUser?.address as `0x${string}`,
+  //     amount: BigInt(amountOfVibesToSend),
+  //   },
+  //   contract,
+  //   {
+  //     onWriteSuccess: (data) => {
+  //       toast({
+  //         render: () => (
+  //           <Box as="button" borderRadius="md" bg="#287ab0" px={4} h={8}>
+  //             <Link
+  //               target="_blank"
+  //               href={`${explorerUrl}/tx/${data.hash}`}
+  //               passHref
+  //             >
+  //               transfer vibes pending, click to view
+  //             </Link>
+  //           </Box>
+  //         ),
+  //         duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
+  //         isClosable: true,
+  //         position: "bottom", // chakra ui toast position
+  //       });
+  //     },
+  //     onWriteError: (error) => {
+  //       toast({
+  //         duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
+  //         isClosable: true,
+  //         position: "bottom", // chakra ui toast position
+  //         render: () => (
+  //           <Box as="button" borderRadius="md" bg="#bd711b" px={4} h={8}>
+  //             transfer vibes cancelled
+  //           </Box>
+  //         ),
+  //       });
+  //     },
+  //     onTxSuccess: async (data) => {
+  //       toast({
+  //         render: () => (
+  //           <Box as="button" borderRadius="md" bg="#50C878" px={4} h={8}>
+  //             <Link
+  //               target="_blank"
+  //               href={`${explorerUrl}/tx/${data.transactionHash}`}
+  //               passHref
+  //             >
+  //               transfer vibes success, click to view
+  //             </Link>
+  //           </Box>
+  //         ),
+  //         duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
+  //         isClosable: true,
+  //         position: "bottom", // chakra ui toast position
+  //       });
+  //       channel.publish({
+  //         name: TOKEN_TRANSFER_EVENT,
+  //         data: {
+  //           body: JSON.stringify({
+  //             from: user?.address,
+  //             to: targetUser?.address,
+  //             amount: Number(amountOfVibesToSend),
+  //             symbol: "vibes",
+  //           }),
+  //         },
+  //       });
+  //       setAmountOfVibesToSend("10");
+  //     },
+  //     onTxError: (error) => {
+  //       toast({
+  //         render: () => (
+  //           <Box as="button" borderRadius="md" bg="#b82929" px={4} h={8}>
+  //             transfer vibes error
+  //           </Box>
+  //         ),
+  //         duration: CHAKRA_UI_TX_TOAST_DURATION, // chakra ui toast duration
+  //         isClosable: true,
+  //         position: "bottom", // chakra ui toast position
+  //       });
+  //     },
+  //   }
+  // );
 
-  const { balance: targetVibesBalance, refetch: refetchTargetVibesBalance } =
-    useGetUserBalance(targetUser?.address as `0x${string}`, contract);
+  // const { balance: targetVibesBalance, refetch: refetchTargetVibesBalance } =
+  //   useGetUserBalance(targetUser?.address as `0x${string}`, contract);
 
   const { postUserRoleForChannel, loading } = usePostUserRoleForChannel({
     onError: (error) => {
@@ -177,20 +179,20 @@ export const ChatUserModal = ({
     return !isBanning && !isAppointing && !isRemovingModerator;
   }, [isBanning, isAppointing, isRemovingModerator]);
 
-  const previewedBurnProceeds = useMemo(() => {
-    return vibesTokenTxs.length > 0
-      ? Number(
-          formatUnits(
-            calculateBurnProceeds(
-              vibesTokenTxs[vibesTokenTxs.length - 1].supply,
-              BigInt(amountOfVibesToSend),
-              BigInt(0)
-            ),
-            18
-          )
-        )
-      : 0;
-  }, [vibesTokenTxs, amountOfVibesToSend]);
+  // const previewedBurnProceeds = useMemo(() => {
+  //   return vibesTokenTxs.length > 0
+  //     ? Number(
+  //         formatUnits(
+  //           calculateBurnProceeds(
+  //             vibesTokenTxs[vibesTokenTxs.length - 1].supply,
+  //             BigInt(amountOfVibesToSend),
+  //             BigInt(0)
+  //           ),
+  //           18
+  //         )
+  //       )
+  //     : 0;
+  // }, [vibesTokenTxs, amountOfVibesToSend]);
 
   const appoint = async () => {
     await postUserRoleForChannel({
@@ -249,69 +251,69 @@ export const ChatUserModal = ({
     handleClose();
   };
 
-  useEffect(() => {
-    const init = async () => {
-      let calls: any[] = [];
-      if (
-        isOpen &&
-        targetUser !== undefined &&
-        isAddress(targetUser.address as `0x${string}`)
-      ) {
-        calls = calls.concat([refetchTargetVibesBalance()]);
-      }
-      if (user) {
-        calls = calls.concat([refetchTransfer()]);
-      }
-      try {
-        await Promise.all(calls);
-      } catch (err) {
-        console.log("cannot fetch vibes balance data", err);
-      }
-    };
-    init();
-  }, [targetUser, isOpen, user]);
+  // useEffect(() => {
+  //   const init = async () => {
+  //     let calls: any[] = [];
+  //     if (
+  //       isOpen &&
+  //       targetUser !== undefined &&
+  //       isAddress(targetUser.address as `0x${string}`)
+  //     ) {
+  //       calls = calls.concat([refetchTargetVibesBalance()]);
+  //     }
+  //     if (user) {
+  //       calls = calls.concat([refetchTransfer()]);
+  //     }
+  //     try {
+  //       await Promise.all(calls);
+  //     } catch (err) {
+  //       console.log("cannot fetch vibes balance data", err);
+  //     }
+  //   };
+  //   init();
+  // }, [targetUser, isOpen, user]);
 
-  useEffect(() => {
-    const init = async () => {
-      if (
-        userVibesBalance > BigInt(0) &&
-        isOpen &&
-        targetUser !== undefined &&
-        isAddress(targetUser.address as `0x${string}`)
-      ) {
-        await Promise.all([refetchTargetVibesBalance(), refetchTransfer()]);
-      }
-    };
-    init();
-  }, [userVibesBalance]);
+  // useEffect(() => {
+  //   const init = async () => {
+  //     if (
+  //       userVibesBalance > BigInt(0) &&
+  //       isOpen &&
+  //       targetUser !== undefined &&
+  //       isAddress(targetUser.address as `0x${string}`)
+  //     ) {
+  //       await Promise.all([refetchTargetVibesBalance(), refetchTransfer()]);
+  //     }
+  //   };
+  //   init();
+  // }, [userVibesBalance]);
 
-  const handleInputChange = (event: any) => {
-    const input = event.target.value;
-    const filtered = filteredInput(input);
-    setAmountOfVibesToSend(filtered);
-  };
+  // const handleInputChange = (event: any) => {
+  //   const input = event.target.value;
+  //   const filtered = filteredInput(input);
+  //   setAmountOfVibesToSend(filtered);
+  // };
 
-  useEffect(() => {
-    if (!matchingChain) {
-      setErrorMessage("wrong network");
-    } else if (Number(formatIncompleteNumber(amountOfVibesToSend)) <= 0) {
-      setErrorMessage("enter amount first");
-    } else if (
-      Number(amountOfVibesToSend) > Number(userVibesBalance.toString())
-    ) {
-      setErrorMessage("insufficient $VIBES");
-    } else {
-      setErrorMessage("");
-    }
-  }, [matchingChain, userVibesBalance, amountOfVibesToSend]);
+  // useEffect(() => {
+  //   if (!matchingChain) {
+  //     setErrorMessage("wrong network");
+  //   } else if (Number(formatIncompleteNumber(amountOfVibesToSend)) <= 0) {
+  //     setErrorMessage("enter amount first");
+  //   } else if (
+  //     Number(amountOfVibesToSend) > Number(userVibesBalance.toString())
+  //   ) {
+  //     setErrorMessage("insufficient $VIBES");
+  //   } else {
+  //     setErrorMessage("");
+  //   }
+  // }, [matchingChain, userVibesBalance, amountOfVibesToSend]);
 
   useEffect(() => {
     if (!isOpen) {
       setIsBanning(false);
       setIsAppointing(false);
       setIsRemovingModerator(false);
-      setIsSendingVibes(false);
-      setAmountOfVibesToSend("10");
+      // setIsSendingVibes(false);
+      // setAmountOfVibesToSend("10");
     }
   }, [isOpen]);
 
@@ -382,7 +384,7 @@ export const ChatUserModal = ({
                   </Flex>
                 </Link>
               )}
-              <Flex justifyContent={"space-evenly"}>
+              {/* <Flex justifyContent={"space-evenly"}>
                 {(isSendingVibes || targetUser.address === user?.address) && (
                   <Text color="#e5fc92">
                     your $VIBES:{" "}
@@ -399,8 +401,8 @@ export const ChatUserModal = ({
                     </Text>
                   </Text>
                 )}
-              </Flex>
-              <Flex direction="column" gap="10px">
+              </Flex> */}
+              {/* <Flex direction="column" gap="10px">
                 {true && (
                   <>
                     {!isSendingVibes ? (
@@ -536,7 +538,7 @@ export const ChatUserModal = ({
                       )}
                     </>
                   )}
-              </Flex>
+              </Flex> */}
             </Flex>
           )}
           {isBanning && (

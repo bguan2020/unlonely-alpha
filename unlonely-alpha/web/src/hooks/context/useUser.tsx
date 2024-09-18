@@ -92,10 +92,6 @@ const UserContext = createContext<{
     username: string | undefined;
     address: string | undefined;
   };
-  handleInjectedUserData: (data: {
-    username?: string;
-    address?: string;
-  }) => void;
   handleSolanaAddress: (address: string | undefined) => void;
   fetchUser: () => any;
   login: () => void;
@@ -103,6 +99,7 @@ const UserContext = createContext<{
   logout: () => void;
   exportWallet: () => Promise<void>;
   handleIsManagingWallets: (value: boolean) => void;
+  fetchAndSetUserData: (address: string) => void;
 }>({
   user: undefined,
   username: undefined,
@@ -119,7 +116,6 @@ const UserContext = createContext<{
     username: undefined,
     address: undefined,
   },
-  handleInjectedUserData: () => undefined,
   handleSolanaAddress: () => undefined,
   fetchUser: () => undefined,
   login: () => undefined,
@@ -127,6 +123,7 @@ const UserContext = createContext<{
   logout: () => undefined,
   exportWallet: () => Promise.resolve(),
   handleIsManagingWallets: () => undefined,
+  fetchAndSetUserData: () => undefined,
 });
 
 export const UserProvider = ({
@@ -296,8 +293,6 @@ export const UserProvider = ({
     },
   });
 
-  console.log("wallets, changing networks", wallets);
-
   const { logout } = useLogout({
     onSuccess: () => {
       setUser(undefined);
@@ -331,49 +326,46 @@ export const UserProvider = ({
     };
   }, [wallets[0]?.address, debouncedSetActiveWallet]);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      setFetchingUser(true);
-      if (!wagmiAddress) {
-        setFetchingUser(false);
-        return;
-      }
-      handleLatestVerifiedAddress(wagmiAddress);
-      setDoesUserAddressMatch(undefined);
-      for (let i = 0; i < FETCH_TRIES; i++) {
-        let data;
-        try {
-          data = await fetchUser({
-            variables: {
-              data: {
-                address: wagmiAddress,
-              },
+  const fetchAndSetUserData = useCallback(async (_address: string) => {
+    setFetchingUser(true);
+    handleLatestVerifiedAddress(_address);
+    setDoesUserAddressMatch(undefined);
+    for (let i = 0; i < FETCH_TRIES; i++) {
+      let data;
+      try {
+        data = await fetchUser({
+          variables: {
+            data: {
+              address: _address,
             },
-          });
-        } catch (e) {
-          console.error("fetching user data error", e);
-        }
-        if (data?.data?.getUser) {
-          console.log("user found in database", data);
-          setUser({
-            address: data?.data?.getUser?.address,
-            channel: data?.data?.getUser?.channel as DatabaseUser["channel"],
-            username: data?.data?.getUser?.username,
-            FCImageUrl: data?.data?.getUser?.FCImageUrl,
-            FCHandle: data?.data?.getUser?.FCHandle,
-            lensHandle: data?.data?.getUser?.lensHandle,
-            lensImageUrl: data?.data?.getUser?.lensImageUrl,
-            powerUserLvl: data?.data?.getUser?.powerUserLvl,
-          });
-          break;
-        } else {
-          console.error("user not found in database", data); // todo: create error toast just in case
-        }
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+          },
+        });
+      } catch (e) {
+        console.error("fetching user data error", e);
       }
-      setFetchingUser(false);
-    };
-    fetchUserData();
+      if (data?.data?.getUser) {
+        console.log("user found in database", data);
+        setUser({
+          address: data?.data?.getUser?.address,
+          channel: data?.data?.getUser?.channel as DatabaseUser["channel"],
+          username: data?.data?.getUser?.username,
+          FCImageUrl: data?.data?.getUser?.FCImageUrl,
+          FCHandle: data?.data?.getUser?.FCHandle,
+          lensHandle: data?.data?.getUser?.lensHandle,
+          lensImageUrl: data?.data?.getUser?.lensImageUrl,
+          powerUserLvl: data?.data?.getUser?.powerUserLvl,
+        });
+        break;
+      } else {
+        console.error("user not found in database", data); // todo: create error toast just in case
+      }
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+    setFetchingUser(false);
+  }, []);
+
+  useEffect(() => {
+    if (wagmiAddress) fetchAndSetUserData(wagmiAddress);
   }, [wagmiAddress]);
 
   useEffect(() => {
@@ -393,16 +385,6 @@ export const UserProvider = ({
     setIsManagingWallets(value);
   }, []);
 
-  const handleInjectedUserData = useCallback(
-    (data: { username?: string; address?: string }) => {
-      setInjectedUserData({
-        username: data.username,
-        address: data.address,
-      });
-    },
-    []
-  );
-
   const handleSolanaAddress = useCallback((address: string | undefined) => {
     setSolanaAddress(address);
   }, []);
@@ -420,7 +402,6 @@ export const UserProvider = ({
       activeWallet: wallets.find((w) => w.address === wagmiAddress),
       injectedUserData,
       solanaAddress,
-      handleInjectedUserData,
       fetchUser,
       login,
       connectWallet,
@@ -428,6 +409,7 @@ export const UserProvider = ({
       exportWallet,
       handleIsManagingWallets,
       handleSolanaAddress,
+      fetchAndSetUserData,
     }),
     [
       user,
@@ -440,7 +422,6 @@ export const UserProvider = ({
       wagmiAddress,
       injectedUserData,
       solanaAddress,
-      handleInjectedUserData,
       fetchUser,
       login,
       connectWallet,
@@ -448,6 +429,7 @@ export const UserProvider = ({
       exportWallet,
       handleIsManagingWallets,
       handleSolanaAddress,
+      fetchAndSetUserData,
     ]
   );
 
