@@ -564,7 +564,7 @@ export const TempTokenChart = ({
             </Flex>
           </Flex>
           <Flex direction={"column"} height={isFullChart ? "150px" : undefined}>
-            {wagmiAddress && user?.address ? (
+            {wagmiAddress && user && loggedInWithPrivy ? (
               <TempTokenExchange />
             ) : (
               <Flex direction="column">

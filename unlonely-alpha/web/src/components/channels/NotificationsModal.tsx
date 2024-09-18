@@ -11,7 +11,6 @@ import {
   TabList,
 } from "@chakra-ui/react";
 import { useState, useMemo, useCallback } from "react";
-import { isAddress, isAddressEqual } from "viem";
 
 import { SEND_ALL_NOTIFICATIONS_QUERY } from "../../constants/queries";
 import { QuerySendAllNotificationsArgs } from "../../generated/graphql";
@@ -50,10 +49,7 @@ export default function NotificationsModal({
   const { isStandalone } = useUserAgent();
 
   const isBrian = useMemo(
-    () =>
-      isAddress(user?.address ?? "")
-        ? isAddressEqual(user?.address as `0x${string}`, BRIAN)
-        : false,
+    () => BRIAN.toUpperCase() === user?.address?.toUpperCase(),
     [user?.address]
   );
 

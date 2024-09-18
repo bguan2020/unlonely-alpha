@@ -153,7 +153,7 @@ export const MobileTempTokenInterface = ({
             />
           </Flex>
           <Flex direction={"column"} height="150px">
-            {wagmiAddress && user?.address ? (
+            {wagmiAddress && user && loggedInWithPrivy ? (
               <MobileTempTokenExchange />
             ) : (
               <Flex direction="column">

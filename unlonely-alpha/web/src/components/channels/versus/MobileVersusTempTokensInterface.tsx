@@ -134,7 +134,7 @@ export const MobileVersusTempTokensInterface = ({
             </Stepper>
           ) : (
             <>
-              {wagmiAddress && user?.address ? (
+              {wagmiAddress && user && loggedInWithPrivy ? (
                 <MobileVersusTokenExchange />
               ) : (
                 <Flex direction="column">
