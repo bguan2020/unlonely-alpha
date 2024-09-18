@@ -6,6 +6,10 @@ export const typeDef = gql`
     contract1155ChainId: Int!
   }
 
+  type BooPackageCooldownMapping {
+    lastUsedAt: String!
+  }
+
   type User {
     id: ID!
     address: String!
@@ -31,6 +35,7 @@ export const typeDef = gql`
     notificationsNFCs: Boolean
     channel: [Channel]
     channelContract1155Mapping: JSON
+    booPackageCooldownMapping: JSON
   }
 
   type UpdateUserResponse {
@@ -70,6 +75,11 @@ export const typeDef = gql`
     userAddress: String!
   }
 
+  input UpdateUserBooPackageCooldownMappingInput {
+    userAddress: String!
+    packageName: String!
+  }
+
   extend type Query {
     currentUser: User
     currentUserAuthMessage: String
@@ -80,6 +90,7 @@ export const typeDef = gql`
     getAllUsersWithChannel: [User]
     getAllUsersWithNotificationsToken: [User]
     getUserChannelContract1155Mapping(data: GetUserInput!): JSON
+    getUserBooPackageCooldownMapping(data: GetUserInput!): JSON
     getUserTokenHolding(data: GetUserTokenHoldingInput!): Int
   }
 
@@ -87,6 +98,9 @@ export const typeDef = gql`
     updateUserNotifications(data: UpdateUserNotificationsInput!): User
     updateUserChannelContract1155Mapping(
       data: UpdateUserChannelContract1155MappingInput!
+    ): User
+    updateUserBooPackageCooldownMapping(
+      data: UpdateUserBooPackageCooldownMappingInput!
     ): User
     updateUser(data: UpdateUserInput!): UpdateUserResponse
     updateUsers(data: UpdateUsersInput!): [User]

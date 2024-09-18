@@ -49,6 +49,7 @@ model User {
   gamblableInteractions GamblableInteraction[]
   gamblableEventLeaderboardEntries GamblableEventLeaderboard[]
   channelContract1155Mapping Json @default("{}")
+  booPackageCooldownMapping Json @default("{}")
 }
 
 model Subscription {
