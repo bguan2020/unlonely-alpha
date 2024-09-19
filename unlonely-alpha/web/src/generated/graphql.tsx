@@ -122,6 +122,14 @@ export type BaseLeaderboard = {
   owner?: Maybe<User>;
 };
 
+export type BooPackage = {
+  __typename?: "BooPackage";
+  cooldownInSeconds: Scalars["Int"];
+  id: Scalars["ID"];
+  packageName: Scalars["String"];
+  priceMultiplier?: Maybe<Scalars["String"]>;
+};
+
 export type BooPackageCooldownMapping = {
   __typename?: "BooPackageCooldownMapping";
   lastUsedAt: Scalars["String"];
@@ -574,6 +582,7 @@ export type Mutation = {
   softDeleteVideo?: Maybe<Scalars["Boolean"]>;
   toggleSubscription?: Maybe<Subscription>;
   trimVideo?: Maybe<Scalars["String"]>;
+  updateBooPackage: BooPackage;
   updateChannelAllowNfcs?: Maybe<Channel>;
   updateChannelCustomButton?: Maybe<Channel>;
   updateChannelFidSubscription?: Maybe<Scalars["String"]>;
@@ -741,6 +750,10 @@ export type MutationToggleSubscriptionArgs = {
 
 export type MutationTrimVideoArgs = {
   data: TrimVideoInput;
+};
+
+export type MutationUpdateBooPackageArgs = {
+  data: UpdateBooPackageInput;
 };
 
 export type MutationUpdateChannelAllowNfcsArgs = {
@@ -1048,6 +1061,7 @@ export type Query = {
   getBaseLeaderboard: Array<BaseLeaderboard>;
   getBetsByChannel: Array<Maybe<GamblableInteraction>>;
   getBetsByUser: Array<Maybe<GamblableInteraction>>;
+  getBooPackages: Array<BooPackage>;
   getChannelByAwsId?: Maybe<Channel>;
   getChannelById?: Maybe<Channel>;
   getChannelBySlug?: Maybe<Channel>;
@@ -1431,6 +1445,12 @@ export type UniqueContract1155AddressesResponse = {
   contract1155ChainId?: Maybe<Scalars["Int"]>;
 };
 
+export type UpdateBooPackageInput = {
+  cooldownInSeconds: Scalars["Int"];
+  packageName: Scalars["String"];
+  priceMultiplier: Scalars["String"];
+};
+
 export type UpdateChannelAllowNfcsInput = {
   allowNfcs?: InputMaybe<Scalars["Boolean"]>;
   id: Scalars["ID"];
@@ -1724,6 +1744,19 @@ export type GetUserBooPackageCooldownMappingQueryVariables = Exact<{
 export type GetUserBooPackageCooldownMappingQuery = {
   __typename?: "Query";
   getUserBooPackageCooldownMapping?: any | null;
+};
+
+export type GetBooPackagesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetBooPackagesQuery = {
+  __typename?: "Query";
+  getBooPackages: Array<{
+    __typename?: "BooPackage";
+    cooldownInSeconds: number;
+    priceMultiplier?: string | null;
+    packageName: string;
+    id: string;
+  }>;
 };
 
 export type GetLivepeerClipDataQueryVariables = Exact<{
@@ -3082,6 +3115,21 @@ export type UpdateUserBooPackageCooldownMappingMutation = {
   } | null;
 };
 
+export type UpdateBooPackageMutationVariables = Exact<{
+  data: UpdateBooPackageInput;
+}>;
+
+export type UpdateBooPackageMutation = {
+  __typename?: "Mutation";
+  updateBooPackage: {
+    __typename?: "BooPackage";
+    cooldownInSeconds: number;
+    priceMultiplier?: string | null;
+    packageName: string;
+    id: string;
+  };
+};
+
 export const GetUserDocument = gql`
   query GetUser($data: GetUserInput!) {
     getUser(data: $data) {
@@ -3319,6 +3367,66 @@ export type GetUserBooPackageCooldownMappingLazyQueryHookResult = ReturnType<
 export type GetUserBooPackageCooldownMappingQueryResult = Apollo.QueryResult<
   GetUserBooPackageCooldownMappingQuery,
   GetUserBooPackageCooldownMappingQueryVariables
+>;
+export const GetBooPackagesDocument = gql`
+  query GetBooPackages {
+    getBooPackages {
+      cooldownInSeconds
+      priceMultiplier
+      packageName
+      id
+    }
+  }
+`;
+
+/**
+ * __useGetBooPackagesQuery__
+ *
+ * To run a query within a React component, call `useGetBooPackagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBooPackagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBooPackagesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetBooPackagesQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetBooPackagesQuery,
+    GetBooPackagesQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetBooPackagesQuery, GetBooPackagesQueryVariables>(
+    GetBooPackagesDocument,
+    options
+  );
+}
+export function useGetBooPackagesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetBooPackagesQuery,
+    GetBooPackagesQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetBooPackagesQuery, GetBooPackagesQueryVariables>(
+    GetBooPackagesDocument,
+    options
+  );
+}
+export type GetBooPackagesQueryHookResult = ReturnType<
+  typeof useGetBooPackagesQuery
+>;
+export type GetBooPackagesLazyQueryHookResult = ReturnType<
+  typeof useGetBooPackagesLazyQuery
+>;
+export type GetBooPackagesQueryResult = Apollo.QueryResult<
+  GetBooPackagesQuery,
+  GetBooPackagesQueryVariables
 >;
 export const GetLivepeerClipDataDocument = gql`
   query GetLivepeerClipData($data: GetLivepeerClipDataInput) {
@@ -8150,3 +8258,56 @@ export type UpdateUserBooPackageCooldownMappingMutationOptions =
     UpdateUserBooPackageCooldownMappingMutation,
     UpdateUserBooPackageCooldownMappingMutationVariables
   >;
+export const UpdateBooPackageDocument = gql`
+  mutation UpdateBooPackage($data: UpdateBooPackageInput!) {
+    updateBooPackage(data: $data) {
+      cooldownInSeconds
+      priceMultiplier
+      packageName
+      id
+    }
+  }
+`;
+export type UpdateBooPackageMutationFn = Apollo.MutationFunction<
+  UpdateBooPackageMutation,
+  UpdateBooPackageMutationVariables
+>;
+
+/**
+ * __useUpdateBooPackageMutation__
+ *
+ * To run a mutation, you first call `useUpdateBooPackageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBooPackageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBooPackageMutation, { data, loading, error }] = useUpdateBooPackageMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateBooPackageMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateBooPackageMutation,
+    UpdateBooPackageMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateBooPackageMutation,
+    UpdateBooPackageMutationVariables
+  >(UpdateBooPackageDocument, options);
+}
+export type UpdateBooPackageMutationHookResult = ReturnType<
+  typeof useUpdateBooPackageMutation
+>;
+export type UpdateBooPackageMutationResult =
+  Apollo.MutationResult<UpdateBooPackageMutation>;
+export type UpdateBooPackageMutationOptions = Apollo.BaseMutationOptions<
+  UpdateBooPackageMutation,
+  UpdateBooPackageMutationVariables
+>;

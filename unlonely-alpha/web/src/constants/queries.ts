@@ -47,6 +47,17 @@ export const GET_USER_BOO_PACKAGE_COOLDOWN_MAPPING_QUERY = gql`
   }
 `;
 
+export const GET_BOO_PACKAGES_QUERY = gql`
+  query GetBooPackages {
+    getBooPackages {
+      cooldownInSeconds
+      priceMultiplier
+      packageName
+      id
+    }
+  }
+`;
+
 export const GET_LIVEPEER_CLIP_DATA_QUERY = gql`
   query GetLivepeerClipData($data: GetLivepeerClipDataInput) {
     getLivepeerClipData(data: $data) {

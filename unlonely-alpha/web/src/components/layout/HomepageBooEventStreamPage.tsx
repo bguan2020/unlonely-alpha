@@ -19,7 +19,10 @@ import LivepeerPlayer from "../stream/LivepeerPlayer";
 import { getSrc } from "@livepeer/react/external";
 import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import { GET_USER_BOO_PACKAGE_COOLDOWN_MAPPING_QUERY } from "../../constants/queries";
+import {
+  GET_BOO_PACKAGES_QUERY,
+  GET_USER_BOO_PACKAGE_COOLDOWN_MAPPING_QUERY,
+} from "../../constants/queries";
 import { useLazyQuery } from "@apollo/client";
 import { FaExpandArrowsAlt } from "react-icons/fa";
 import { RiSwapFill } from "react-icons/ri";
@@ -38,6 +41,7 @@ import useUpdateUserBooPackageCooldownMapping from "../../hooks/server/channel/u
 import { GetUserBooPackageCooldownMappingQuery } from "../../generated/graphql";
 import { BooCarePackages } from "./BooCarePackages";
 import { useDragRefs } from "../../hooks/internal/useDragRef";
+import { useUpdateBooPackage } from "../../hooks/server/useUpdateBooPackage";
 
 export const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 export const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
@@ -89,8 +93,9 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
 
   const [userBooPackageCooldowns, setUserBooPackageCooldowns] =
     useState<any>(undefined);
+  const [booPackages, setBooPackages] = useState<any>(undefined);
 
-  const [fetchUserBooPackageCooldownMapping] =
+  const [_fetchUserBooPackageCooldownMapping] =
     useLazyQuery<GetUserBooPackageCooldownMappingQuery>(
       GET_USER_BOO_PACKAGE_COOLDOWN_MAPPING_QUERY,
       {
@@ -98,21 +103,40 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
       }
     );
 
-  const fetchCooldownMapping = useCallback(async (userAddress: string) => {
-    const { data } = await fetchUserBooPackageCooldownMapping({
-      variables: {
-        data: { address: userAddress },
-      },
-    });
-    const cooldownMapping = data?.getUserBooPackageCooldownMapping;
-    if (cooldownMapping) {
-      setUserBooPackageCooldowns(cooldownMapping);
+  const [_fetchBooPackages] = useLazyQuery(GET_BOO_PACKAGES_QUERY, {
+    fetchPolicy: "network-only",
+  });
+
+  const fetchUserBooPackageCooldownMapping = useCallback(
+    async (userAddress: string) => {
+      const { data } = await _fetchUserBooPackageCooldownMapping({
+        variables: {
+          data: { address: userAddress },
+        },
+      });
+      const cooldownMapping = data?.getUserBooPackageCooldownMapping;
+      if (cooldownMapping) {
+        setUserBooPackageCooldowns(cooldownMapping);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (user) fetchUserBooPackageCooldownMapping(user?.address);
+  }, [user]);
+
+  const fetchBooPackages = useCallback(async () => {
+    const { data } = await _fetchBooPackages();
+    const packages = data?.getBooPackages;
+    if (packages) {
+      setBooPackages(packages);
     }
   }, []);
 
   useEffect(() => {
-    if (user) fetchCooldownMapping(user?.address);
-  }, [user]);
+    fetchBooPackages();
+  }, []);
 
   const [dateNow, setDateNow] = useState(Date.now());
 
@@ -131,6 +155,8 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const { publicKey, connected } = useWallet();
   const { updateUserBooPackageCooldownMapping } =
     useUpdateUserBooPackageCooldownMapping({});
+
+  const { updateBooPackage } = useUpdateBooPackage({});
 
   // const { quoteSwap } = useJupiterQuoteSwap();
 
@@ -368,11 +394,15 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                             </Flex>
                           </Flex>
                           <BooCarePackages
+                            booPackages={booPackages}
                             userBooPackageCooldowns={userBooPackageCooldowns}
                             updateUserBooPackageCooldownMapping={
                               updateUserBooPackageCooldownMapping
                             }
-                            fetchCooldownMapping={fetchCooldownMapping}
+                            updateBooPackage={updateBooPackage}
+                            fetchUserBooPackageCooldownMapping={
+                              fetchUserBooPackageCooldownMapping
+                            }
                             dateNow={dateNow}
                           />
                         </BooEventTile>
