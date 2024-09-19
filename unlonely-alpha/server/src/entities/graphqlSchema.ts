@@ -23,6 +23,8 @@ import { typeDef as baseLeaderboardTypeDef } from "./BaseLeaderboard/baseLeaderb
 import { typeDef as gamblableInteractionTypeDef } from "./GamblableInteraction/gamblableInteractionTypeDef";
 import { typeDef as vibesTypeDef } from "./Vibes/vibesTypeDef";
 import { typeDef as tempTokenTypeDef } from "./TempToken/tempTokenTypeDef";
+import { typeDef as booPackageTypeDef } from "./BooPackage/booPackageTypeDef";
+
 import { resolvers as likeResolvers } from "./Like/likeResolvers";
 import { resolvers as userResolvers } from "./User/userResolvers";
 import { resolvers as videoResolvers } from "./Video/videoResolvers";
@@ -40,6 +42,7 @@ import { resolvers as baseLeaderboardResolvers } from "./BaseLeaderboard/baseLea
 import { resolvers as gamblableInteractionResolvers } from "./GamblableInteraction/gamblableInteractionResolvers";
 import { resolvers as vibesResolvers } from "./Vibes/vibesResolvers";
 import { resolvers as tempTokenResolvers } from "./TempToken/tempTokenResolvers";
+import { resolvers as booPackageResolvers } from "./BooPackage/booPackageResolvers";
 
 const Query = gql`
   enum SortOrder {
@@ -87,6 +90,7 @@ export default makeExecutableSchema({
     gamblableInteractionTypeDef,
     vibesTypeDef,
     tempTokenTypeDef,
+    booPackageTypeDef,
   ],
   resolvers: merge(
     resolvers,
@@ -106,6 +110,7 @@ export default makeExecutableSchema({
     baseLeaderboardResolvers,
     gamblableInteractionResolvers,
     vibesResolvers,
-    tempTokenResolvers
+    tempTokenResolvers,
+    booPackageResolvers
   ),
 });

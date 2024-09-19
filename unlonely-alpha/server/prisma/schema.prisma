@@ -292,6 +292,13 @@ model BaseLeaderboard {
   updatedAt DateTime @updatedAt
 }
 
+model BooPackage {
+  id Int      @id @default(autoincrement())
+  packageName String
+  priceMultiplier    String
+  cooldownInSeconds Int @default(0)
+}
+
 // ------- DEPRECATED MODELS -------
 // DONT DELETE
 
