@@ -1,10 +1,15 @@
 import React, { useEffect } from "react";
 import { HomePageBooEventTokenCountdown } from "./HomepageBooEventCountdown";
 import { HomePageBooEventStreamPage } from "./HomepageBooEventStreamPage";
-import { ChannelProvider } from "../../hooks/context/useChannel";
+import {
+  ChannelProvider,
+  useChannelContext,
+} from "../../hooks/context/useChannel";
 import { SolanaProvider } from "../../hooks/context/useSolana";
 import { useUser } from "../../hooks/context/useUser";
 import { Box, useToast, Flex, Text, Button } from "@chakra-ui/react";
+import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
+import { useQuery } from "@apollo/client";
 
 export const eventStartTime = 1933548029;
 const slug = "danny";
@@ -12,15 +17,28 @@ const slug = "danny";
 const BooEventWrapper = () => {
   return (
     <SolanaProvider>
-      <BooEventWrapperWithSolana />
+      <ChannelProvider providedSlug={slug}>
+        <BooEventWrapperWithSolana />
+      </ChannelProvider>
     </SolanaProvider>
   );
 };
 
 const BooEventWrapperWithSolana = () => {
+  const { channel } = useChannelContext();
+  const { handleChannelStaticData } = channel;
   const { activeWallet, handleSolanaAddress, fetchAndSetUserData } = useUser();
 
   const toast = useToast();
+
+  const { data: channelStatic } = useQuery(CHANNEL_STATIC_QUERY, {
+    variables: { slug },
+    fetchPolicy: "network-only",
+  });
+
+  useEffect(() => {
+    if (channelStatic) handleChannelStaticData(channelStatic?.getChannelBySlug);
+  }, [channelStatic]);
 
   useEffect(() => {
     if (
@@ -90,9 +108,7 @@ const BooEventWrapperWithSolana = () => {
   return (
     <>
       {true ? (
-        <ChannelProvider providedSlug={slug}>
-          <HomePageBooEventStreamPage slug={slug} />
-        </ChannelProvider>
+        <HomePageBooEventStreamPage slug={slug} />
       ) : (
         <HomePageBooEventTokenCountdown />
       )}

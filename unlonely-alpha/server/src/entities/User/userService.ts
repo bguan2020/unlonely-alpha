@@ -120,7 +120,6 @@ export const getUserBooPackageCooldownMapping = async (
       booPackageCooldownMapping: true,
     },
   });
-
   if (!user) {
     throw new Error("User not found");
   }

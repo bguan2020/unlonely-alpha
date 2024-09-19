@@ -5,15 +5,7 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import {
-  Box,
-  Flex,
-  IconButton,
-  Text,
-  Image,
-  Tooltip,
-  Button,
-} from "@chakra-ui/react";
+import { Box, Flex, IconButton, Text, Image, Tooltip } from "@chakra-ui/react";
 import { useChat } from "../../hooks/chat/useChat";
 import { useLivepeerStreamData } from "../../hooks/internal/useLivepeerStreamData";
 import ChatComponent from "../chat/ChatComponent";
@@ -27,20 +19,12 @@ import LivepeerPlayer from "../stream/LivepeerPlayer";
 import { getSrc } from "@livepeer/react/external";
 import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import {
-  CHANNEL_STATIC_QUERY,
-  GET_USER_BOO_PACKAGE_COOLDOWN_MAPPING_QUERY,
-} from "../../constants/queries";
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { GET_USER_BOO_PACKAGE_COOLDOWN_MAPPING_QUERY } from "../../constants/queries";
+import { useLazyQuery } from "@apollo/client";
 import { FaExpandArrowsAlt } from "react-icons/fa";
 import { RiSwapFill } from "react-icons/ri";
 import { BooEventTile } from "./BooEventTile";
-import {
-  DndContext,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
+import { DndContext } from "@dnd-kit/core";
 import Draggable from "./Draggable";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { useSolanaTokenBalance } from "../../hooks/internal/solana/useSolanaTokenBalance";
@@ -52,21 +36,21 @@ import { SOLANA_RPC_URL, FIXED_SOLANA_MINT } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import useUpdateUserBooPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserBooPackageCooldownMapping";
 import { GetUserBooPackageCooldownMappingQuery } from "../../generated/graphql";
+import { BooCarePackages } from "./BooCarePackages";
+import { useDragRefs } from "../../hooks/internal/useDragRef";
 
-const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
-const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
-const TOKEN_VIEW_TILE_PIXEL_GAP = 5;
-const STREAM_VIEW_JUPITER_TERMINAL_PIXEL_HEIGHT = 340;
+export const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
+export const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
+export const TOKEN_VIEW_TILE_PIXEL_GAP = 5;
+export const STREAM_VIEW_JUPITER_TERMINAL_PIXEL_HEIGHT = 340;
 
-const TOKEN_VIEW_GRAPH_PERCENT_HEIGHT = 50;
-const STREAM_VIEW_JUPITER_TERMINAL_MIN_X_OFFSET = 30;
-const STREAM_VIEW_JUPITER_TERMINAL_MIN_Y_OFFSET = 30;
-
-const WATER_PACKAGE_COOLDOWN = 30; // seconds
+export const TOKEN_VIEW_GRAPH_PERCENT_HEIGHT = 50;
+export const STREAM_VIEW_JUPITER_TERMINAL_MIN_X_OFFSET = 30;
+export const STREAM_VIEW_JUPITER_TERMINAL_MIN_Y_OFFSET = 30;
 
 export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const { chat: c, channel } = useChannelContext();
-  const { channelQueryData, handleChannelStaticData } = channel;
+  const { channelQueryData } = channel;
   const { chatBot } = c;
   const chat = useChat({ chatBot });
   const { playbackInfo } = useLivepeerStreamData({
@@ -103,42 +87,38 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const watchAllFieldsBuy = watchBuy();
   const watchAllFieldsSell = watchSell();
 
-  const [userBooPackageCooldowns, setUserBooPackageCooldowns] = useState<
-    Record<string, number>
-  >({});
+  const [userBooPackageCooldowns, setUserBooPackageCooldowns] =
+    useState<any>(undefined);
+
+  const [fetchUserBooPackageCooldownMapping] =
+    useLazyQuery<GetUserBooPackageCooldownMappingQuery>(
+      GET_USER_BOO_PACKAGE_COOLDOWN_MAPPING_QUERY,
+      {
+        fetchPolicy: "network-only",
+      }
+    );
 
   const fetchCooldownMapping = useCallback(async (userAddress: string) => {
-    const { data: cooldownMapping } = await fetchUserBooPackageCooldownMapping({
+    const { data } = await fetchUserBooPackageCooldownMapping({
       variables: {
-        userAddress,
+        data: { address: userAddress },
       },
     });
-    if (cooldownMapping)
-      setUserBooPackageCooldowns(
-        cooldownMapping.getUserBooPackageCooldownMapping
-      );
+    const cooldownMapping = data?.getUserBooPackageCooldownMapping;
+    if (cooldownMapping) {
+      setUserBooPackageCooldowns(cooldownMapping);
+    }
   }, []);
 
   useEffect(() => {
     if (user) fetchCooldownMapping(user?.address);
   }, [user]);
 
-  // const { launchTerminal } = useBooTokenTerminal({
-  //   rpcUrl: SOLANA_RPC_URL,
-  //   ...watchAllFieldsBuy,
-  //   txCallback: (txid, swapResult) => {
-  //     console.log("txid", txid);
-  //     console.log("swapResult", swapResult);
-  //     getTransactionData(txid);
-  //     fetchTokenBalance();
-  //   },
-  // });
-
-  const [dateNow, setDateNow] = useState(Date.now() / 1000);
+  const [dateNow, setDateNow] = useState(Date.now());
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setDateNow(Date.now() / 1000);
+      setDateNow(Date.now());
     }, 1000);
     return () => clearInterval(interval);
   }, []);
@@ -148,24 +128,11 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const [viewState, setViewState] = useState<"stream" | "token">("stream");
   const [isGlowing, setIsGlowing] = useState(false);
 
-  const { data: channelStatic } = useQuery(CHANNEL_STATIC_QUERY, {
-    variables: { slug },
-    fetchPolicy: "network-only",
-  });
-
   const { publicKey, connected } = useWallet();
   const { updateUserBooPackageCooldownMapping } =
     useUpdateUserBooPackageCooldownMapping({});
 
-  const [fetchUserBooPackageCooldownMapping] =
-    useLazyQuery<GetUserBooPackageCooldownMappingQuery>(
-      GET_USER_BOO_PACKAGE_COOLDOWN_MAPPING_QUERY
-    );
   // const { quoteSwap } = useJupiterQuoteSwap();
-
-  useEffect(() => {
-    if (channelStatic) handleChannelStaticData(channelStatic?.getChannelBySlug);
-  }, [channelStatic]);
 
   const getTransactionData = async (transactionId: string) => {
     const details = await getTransactionDetails(
@@ -259,52 +226,13 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
     return () => window.removeEventListener("resize", calculateImageCount);
   }, []);
 
-  const [draggablePosition, setDraggablePosition] = useState({ x: 0, y: 0 });
-  const dragOriginRef = useRef({ x: 0, y: 0 });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 20,
-      },
-    })
-  );
-
-  const handleDragStart = () => {
-    dragOriginRef.current = { ...draggablePosition };
-  };
-
-  const handleDrag = (x: number, y: number) => {
-    if (viewState === "stream" && containerRef.current) {
-      const container = containerRef.current.getBoundingClientRect();
-      const terminalWidth = STREAM_VIEW_JUPITER_TERMINAL_PIXEL_HEIGHT;
-      const terminalHeight = STREAM_VIEW_JUPITER_TERMINAL_PIXEL_HEIGHT;
-
-      const maxX = container.width - terminalWidth;
-      const maxY = container.height - terminalHeight;
-
-      // Calculate new position based on drag origin and current drag offset
-      const newX = dragOriginRef.current.x + x;
-      const newY = dragOriginRef.current.y + y;
-
-      // Constrain the new position within the container boundaries
-      const constrainedX = Math.max(
-        STREAM_VIEW_JUPITER_TERMINAL_MIN_X_OFFSET * 3 - maxX,
-        Math.min(newX, 0)
-      );
-      const constrainedY = Math.max(
-        STREAM_VIEW_JUPITER_TERMINAL_MIN_Y_OFFSET * 2 - maxY,
-        Math.min(newY, 0)
-      );
-
-      setDraggablePosition({ x: constrainedX, y: constrainedY });
-    }
-  };
-
   const triggerGlowingEffect = () => {
     setIsGlowing(true);
     setTimeout(() => setIsGlowing(false), 3000); // Stop glowing after 3 seconds
   };
+
+  const { sensors, draggablePosition, handleDragStart, handleDrag } =
+    useDragRefs({ containerRef, viewState });
 
   return (
     <Flex
@@ -361,6 +289,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
               className={
                 isGlowing && viewState === "stream" ? "glowing-border" : ""
               }
+              cursor={viewState === "token" ? "default" : "move"}
             >
               {(!loggedInWithPrivy ||
                 (loggedInWithPrivy &&
@@ -417,8 +346,6 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                           <Flex
                             justifyContent="center"
                             alignItems={"flex-start"}
-                            width="100%"
-                            height="100%"
                             p={`${TOKEN_VIEW_TILE_PIXEL_GAP * 2}px`}
                           >
                             <Flex alignItems="center" gap="10px">
@@ -439,24 +366,15 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                                 alt="heart"
                               />
                             </Flex>
-                            <Flex flexWrap={"wrap"}>
-                              <Button
-                                onClick={async () => {
-                                  await updateUserBooPackageCooldownMapping({
-                                    userAddress: solanaAddress ?? "",
-                                    packageName: "water",
-                                  }).then(async () => {
-                                    await fetchCooldownMapping(
-                                      user?.address ?? ""
-                                    );
-                                  });
-                                }}
-                              >
-                                water
-                              </Button>
-                              <Button>flashlight</Button>
-                            </Flex>
                           </Flex>
+                          <BooCarePackages
+                            userBooPackageCooldowns={userBooPackageCooldowns}
+                            updateUserBooPackageCooldownMapping={
+                              updateUserBooPackageCooldownMapping
+                            }
+                            fetchCooldownMapping={fetchCooldownMapping}
+                            dateNow={dateNow}
+                          />
                         </BooEventTile>
                         <BooEventTile
                           color="#B52423"

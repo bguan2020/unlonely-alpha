@@ -31,6 +31,7 @@ export const BooEventTile = ({
         height={"calc(100% - 5px)"}
         bg={backgroundColor ?? "#161923"}
         border={`4px solid ${color}`}
+        direction={"column"}
       >
         {children}
       </Flex>
