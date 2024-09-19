@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { HomePageBooEventTokenCountdown } from "./HomepageBooEventCountdown";
 import { HomePageBooEventStreamPage } from "./HomepageBooEventStreamPage";
 import {
@@ -27,9 +27,19 @@ const BooEventWrapper = () => {
 const BooEventWrapperWithSolana = () => {
   const { channel } = useChannelContext();
   const { handleChannelStaticData } = channel;
-  const { activeWallet, handleSolanaAddress, fetchAndSetUserData } = useUser();
+  const {
+    activeWallet,
+    handleSolanaAddress,
+    fetchAndSetUserData,
+    ready,
+    authenticated,
+  } = useUser();
 
   const toast = useToast();
+
+  const loggedInWithPrivy = useMemo(() => {
+    return authenticated && ready;
+  }, [authenticated, ready]);
 
   const { data: channelStatic } = useQuery(CHANNEL_STATIC_QUERY, {
     variables: { slug },
@@ -44,7 +54,8 @@ const BooEventWrapperWithSolana = () => {
     if (
       activeWallet &&
       activeWallet.walletClientType === "phantom" &&
-      (window as any)?.solana
+      (window as any)?.solana &&
+      loggedInWithPrivy
     ) {
       const toastId = `solana-prompt-address-adoption-${activeWallet?.address}`;
       if (!toast.isActive(toastId)) {
@@ -103,7 +114,11 @@ const BooEventWrapperWithSolana = () => {
     } else {
       handleSolanaAddress(undefined);
     }
-  }, [activeWallet?.walletClientType, (window as any)?.solana]);
+  }, [
+    activeWallet?.walletClientType,
+    (window as any)?.solana,
+    loggedInWithPrivy,
+  ]);
 
   return (
     <>
