@@ -109,7 +109,7 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
           taskType: InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED,
           title,
           description: JSON.stringify({
-            address: user?.address,
+            address: user?.address ?? "",
             newThreshold: String(newThreshold),
           }),
         });

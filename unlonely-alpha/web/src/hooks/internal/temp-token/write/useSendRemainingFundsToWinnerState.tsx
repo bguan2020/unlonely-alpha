@@ -156,13 +156,10 @@ export const useSendRemainingFundsToWinnerState = (
           taskType:
             InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION,
           title,
-          // description: `${user?.address}:${winnerWallet}:${
-          //   tokenContractData.address
-          // }:${String(balance)}`,
           description: JSON.stringify({
-            userAddress: user?.address,
+            userAddress: user?.address ?? "",
             winnerWallet,
-            tokenContractAddress: tokenContractData.address,
+            tokenContractAddress: tokenContractData.address as `0x${string}`,
             balance: String(balance),
           }),
         });

@@ -186,7 +186,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
             taskType: InteractionType.BUY_VIBES,
             title,
             description: JSON.stringify({
-              userAddress: user?.address,
+              userAddress: user?.address ?? "",
               amount: Number(args.amount as bigint),
             }),
           });
@@ -302,7 +302,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           taskType: InteractionType.SELL_VIBES,
           title,
           description: JSON.stringify({
-            userAddress: user?.address,
+            userAddress: user?.address ?? "",
             amount: Number(args.amount as bigint),
           }),
         });

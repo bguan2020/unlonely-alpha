@@ -237,7 +237,7 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
             InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
           title,
           description: JSON.stringify({
-            userAddress: user?.address,
+            userAddress: user?.address ?? "",
             winnerTokenAddress,
             loserTokenAddress,
             transferredLiquidityInWei: String(transferredLiquidityInWei),

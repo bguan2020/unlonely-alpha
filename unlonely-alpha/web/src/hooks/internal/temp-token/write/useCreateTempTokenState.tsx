@@ -237,9 +237,9 @@ export const useCreateTempTokenState = ({
           taskType: InteractionType.CREATE_TEMP_TOKEN,
           title,
           description: JSON.stringify({
-            tokenAddress: args.tokenAddress,
-            symbol: args.symbol,
-            endTimestamp: args.endTimestamp,
+            tokenAddress: args.tokenAddress as string,
+            symbol: args.symbol as string,
+            endTimestamp: String(args.endTimestamp as bigint),
             creationBlockNumber: String(args.creationBlockNumber),
             totalSupplyThreshold: String(args.totalSupplyThreshold),
             preSaleEndTimestamp: String(args.preSaleEndTimestamp),

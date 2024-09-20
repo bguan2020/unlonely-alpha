@@ -194,10 +194,10 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
           taskType: InteractionType.BUY_BADGES,
           title,
           description: JSON.stringify({
-            trader: args.trade.trader,
-            badgeAmount: args.trade.badgeAmount,
-            newSupply,
-            eventByte: args.trade.eventByte,
+            trader: args.trade.trader as `0x${string}`,
+            badgeAmount: String(args.trade.badgeAmount as bigint),
+            newSupply: String(newSupply),
+            eventByte: String(args.trade.eventByte),
           }),
         });
         await postBadgeTrade({

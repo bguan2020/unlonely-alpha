@@ -143,7 +143,7 @@ export const PermamintModule = () => {
           taskType: InteractionType.VERSUS_WINNER_TOKENS_MINTED,
           title,
           description: JSON.stringify({
-            address: user?.address,
+            address: user?.address ?? "",
             amount: Number(args.amount as bigint),
             blockNumber: String(data.blockNumber),
             tokenType: _tokenType,
