@@ -16,6 +16,10 @@ import {
   WalletWithMetadata,
   ConnectedWallet,
 } from "@privy-io/react-auth";
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { useSolanaWallets } from "@privy-io/react-auth/solana";
 import {
   Box,
   Button,
@@ -40,6 +44,7 @@ import { useApolloContext } from "./useApollo";
 import { useAccount, useSignMessage } from "wagmi";
 import { useSetActiveWallet } from "@privy-io/wagmi";
 import usePostStreamInteraction from "../server/usePostStreamInteraction";
+import { isValidAddress } from "../../utils/validation/wallet";
 
 const FETCH_TRIES = 5;
 
@@ -155,6 +160,9 @@ export const UserProvider = ({
   const [solanaAddress, setSolanaAddress] = useState<string | undefined>(
     undefined
   );
+  const [localAddress, setLocalAddress] = useState<string | undefined>(
+    undefined
+  );
 
   const {
     address: wagmiAddress,
@@ -176,7 +184,40 @@ export const UserProvider = ({
     unlinkWallet,
     user: privyUser,
   } = usePrivy();
-  const { wallets } = useWallets();
+  const { wallets: evmWallets } = useWallets();
+  const { wallets: solanaWallets } = useSolanaWallets();
+
+  const wallets = useMemo(
+    () => [...evmWallets, ...solanaWallets],
+    [evmWallets, solanaWallets]
+  );
+
+  console.log("wallets", wallets, evmWallets, solanaWallets);
+
+  const latestVerifiedPrivyAccount = useMemo(() => {
+    if (privyUser?.linkedAccounts.length === 0) return undefined;
+    if (privyUser?.linkedAccounts.length === 1)
+      return privyUser?.linkedAccounts[0];
+    const accountWithLatestVerifiedAt = privyUser?.linkedAccounts
+      .filter((account) => account.latestVerifiedAt instanceof Date) // Filter accounts with a valid Date
+      .reduce((latest: any, current) => {
+        if (
+          !latest ||
+          (current.latestVerifiedAt &&
+            current.latestVerifiedAt > latest.latestVerifiedAt)
+        ) {
+          return current; // Return the account with the later date
+        }
+        return latest;
+      }, undefined); // Changed initial value to undefined
+    return accountWithLatestVerifiedAt;
+  }, [privyUser?.linkedAccounts]);
+
+  console.log(
+    "latestVerifiedPrivyAccount",
+    latestVerifiedPrivyAccount?.address,
+    wagmiAddress
+  );
 
   const toast = useToast();
   const { postStreamInteraction } = usePostStreamInteraction({});
@@ -200,96 +241,18 @@ export const UserProvider = ({
         ready,
         wallets
       );
-      // const foundWallet = wallets.find(
-      //   (w) => w.address === (loginAccount as WalletWithMetadata)?.address
-      // );
-      // if (foundWallet) {
-      //   setActiveWallet(foundWallet);
-      // }
     },
     onError: (error) => {
       console.error("login error", error);
-      // toast({
-      //   render: () => (
-      //     <Box as="button" borderRadius="md" bg="#b82929" p={4}>
-      //       <Flex direction="column">
-      //         <Text fontFamily={"LoRes15"} fontSize="20px">
-      //           login error
-      //         </Text>
-      //         <Text>please copy error log to help developer diagnose</Text>
-      //         <Button
-      //           color="#b82929"
-      //           width="100%"
-      //           bg="white"
-      //           onClick={() => {
-      //             copy(error.toString());
-      //             toast({
-      //               title: "copied to clipboard",
-      //               status: "success",
-      //               duration: 2000,
-      //               isClosable: true,
-      //             });
-      //           }}
-      //           _focus={{}}
-      //           _active={{}}
-      //           _hover={{ background: "#f44343", color: "white" }}
-      //         >
-      //           copy error
-      //         </Button>
-      //       </Flex>
-      //     </Box>
-      //   ),
-      //   duration: 12000,
-      //   isClosable: true,
-      //   position: "top",
-      // });
     },
   });
 
   const { connectWallet } = useConnectWallet({
     onSuccess: (wallet) => {
-      // const foundWallet = wallets.find((w) => w.address === wallet.address);
-      // if (foundWallet) {
-      //   console.log("ARC wallet connected", wallet, wallets);
-      //   setActiveWallet(foundWallet);
-      // }
+      return;
     },
     onError: (err) => {
       console.error("connect wallet error", err);
-      // toast({
-      //   render: () => (
-      //     <Box as="button" borderRadius="md" bg="#b82929" p={4}>
-      //       <Flex direction="column">
-      //         <Text fontFamily={"LoRes15"} fontSize="20px">
-      //           connect wallet error
-      //         </Text>
-      //         <Text>please copy error log to help developer diagnose</Text>
-      //         <Button
-      //           color="#b82929"
-      //           width="100%"
-      //           bg="white"
-      //           onClick={() => {
-      //             copy(err.toString());
-      //             toast({
-      //               title: "copied to clipboard",
-      //               status: "success",
-      //               duration: 2000,
-      //               isClosable: true,
-      //             });
-      //           }}
-      //           _focus={{}}
-      //           _active={{}}
-      //           _hover={{ background: "#f44343", color: "white" }}
-      //         >
-      //           copy error
-      //         </Button>
-      //       </Flex>
-      //     </Box>
-      //   ),
-      //   duration: 12000,
-      //   isClosable: true,
-      //   position: "top",
-      // });
     },
   });
 
@@ -301,6 +264,7 @@ export const UserProvider = ({
         address: undefined,
       });
       setSolanaAddress(undefined);
+      setLocalAddress(undefined);
     },
   });
 
@@ -330,6 +294,14 @@ export const UserProvider = ({
     setFetchingUser(true);
     handleLatestVerifiedAddress(_address);
     setDoesUserAddressMatch(undefined);
+    const addressType = isValidAddress(_address);
+    console.log("addressType", addressType, _address);
+    handleSolanaAddress(addressType === "solana" ? _address : undefined);
+    if (addressType === "ethereum") {
+      const foundEvmWallet = evmWallets.find((w) => w.address === _address);
+      if (foundEvmWallet) setActiveWallet(foundEvmWallet);
+    }
+    setLocalAddress(_address);
     for (let i = 0; i < FETCH_TRIES; i++) {
       let data;
       try {
@@ -359,14 +331,16 @@ export const UserProvider = ({
       } else {
         console.error("user not found in database", data); // todo: create error toast just in case
       }
+
       await new Promise((resolve) => setTimeout(resolve, 2000));
     }
     setFetchingUser(false);
   }, []);
 
   useEffect(() => {
-    if (wagmiAddress) fetchAndSetUserData(wagmiAddress);
-  }, [wagmiAddress]);
+    if (latestVerifiedPrivyAccount?.address)
+      fetchAndSetUserData(latestVerifiedPrivyAccount?.address);
+  }, [latestVerifiedPrivyAccount?.address]);
 
   useEffect(() => {
     if (injectedUserData && user) {
@@ -433,6 +407,8 @@ export const UserProvider = ({
     ]
   );
 
+  console.log("privyUser?.linkedAccounts", privyUser?.linkedAccounts);
+
   return (
     <UserContext.Provider value={value}>
       <TurnOnNotificationsModal
@@ -443,19 +419,16 @@ export const UserProvider = ({
         isOpen={isManagingWallets}
         handleClose={() => setIsManagingWallets(false)}
         isModalLoading={false}
-        size="sm"
+        size="md"
         hideFooter
       >
         <Flex direction={"column"} gap="5px">
-          <Flex justifyContent={"space-between"}>
-            <Text fontSize="10px">privy user id</Text>
-            <Text fontSize="10px" color="#acacac">
-              {privyUser?.id}
-            </Text>
-          </Flex>
           {privyUser?.linkedAccounts
             .filter((account) => account.type === "wallet")
             .map((account) => {
+              const foundWallet = wallets.find(
+                (w) => w.address === (account as WalletWithMetadata).address
+              );
               return (
                 <Flex
                   gap="5px"
@@ -466,10 +439,7 @@ export const UserProvider = ({
                   alignItems={"center"}
                 >
                   <Flex gap="5px" alignItems={"center"}>
-                    {wallets.find(
-                      (w) =>
-                        w.address === (account as WalletWithMetadata).address
-                    )?.meta.icon ? (
+                    {foundWallet?.meta.icon ? (
                       <Image
                         src={
                           wallets.find(
@@ -485,6 +455,26 @@ export const UserProvider = ({
                     ) : (
                       <GoUnlink />
                     )}
+                    {foundWallet?.type && (
+                      <>
+                        {foundWallet?.type === "ethereum" && (
+                          <Image
+                            src={"/images/eth-logo.png"}
+                            alt="chain image"
+                            width="20px"
+                            height="20px"
+                          />
+                        )}
+                        {foundWallet?.type === "solana" && (
+                          <Image
+                            src={"/images/sol-logo.png"}
+                            alt="chain image"
+                            width="20px"
+                            height="20px"
+                          />
+                        )}
+                      </>
+                    )}
                     <Text fontFamily={"LoRes15"}>
                       {centerEllipses(
                         (account as WalletWithMetadata).address,
@@ -493,25 +483,9 @@ export const UserProvider = ({
                     </Text>
                   </Flex>
                   <Flex gap="5px" alignItems={"end"}>
-                    {wagmiAddress ===
-                    (account as WalletWithMetadata).address ? (
+                    {localAddress?.toUpperCase() ===
+                    (account as WalletWithMetadata).address.toUpperCase() ? (
                       <Flex gap="5px">
-                        {/* {doesUserAddressMatch === false && (
-                          <Tooltip
-                            shouldWrapChildren
-                            label="not synced with unlonely server"
-                          >
-                            <Flex
-                              background="#ce3b1a"
-                              alignItems="center"
-                              borderRadius="5px"
-                              px="5px"
-                              height={"20px"}
-                            >
-                              <FaExclamationTriangle />
-                            </Flex>
-                          </Tooltip>
-                        )} */}
                         <Flex
                           background="#22b66e"
                           alignItems="center"
@@ -534,13 +508,8 @@ export const UserProvider = ({
                           bg: "rgba(255, 255, 255, 0.2)",
                         }}
                         onClick={() => {
-                          const foundWallet = wallets.find(
-                            (w) =>
-                              w.address ===
-                              (account as WalletWithMetadata).address
-                          );
                           if (foundWallet) {
-                            setActiveWallet(foundWallet);
+                            fetchAndSetUserData(foundWallet.address);
                           } else {
                             connectWallet({
                               suggestedAddress: (account as WalletWithMetadata)
@@ -561,38 +530,42 @@ export const UserProvider = ({
                           }
                         }}
                       >
-                        {wallets.find(
-                          (w) =>
-                            w.address ===
-                            (account as WalletWithMetadata).address
-                        )
-                          ? "set active"
-                          : "connect"}
+                        {foundWallet ? "set active" : "connect"}
                       </Button>
                     )}
-                    <Tooltip label="unlink wallet" shouldWrapChildren>
-                      <IconButton
-                        border="1px white solid"
-                        color="white"
-                        bg="transparent"
-                        _hover={{
-                          bg: "rgba(255, 255, 255, 0.2)",
-                        }}
-                        height={"20px"}
-                        icon={<RiSubtractFill />}
-                        aria-label="unlink wallet"
-                        onClick={async () => {
-                          const newPrivyUser = await unlinkWallet(
-                            (account as WalletWithMetadata).address
-                          );
-                          console.log("newPrivyUser", newPrivyUser);
-                        }}
-                      />
-                    </Tooltip>
+                    {privyUser?.linkedAccounts.filter(
+                      (account) => account.type === "wallet"
+                    ).length > 1 && (
+                      <Tooltip label="unlink wallet" shouldWrapChildren>
+                        <IconButton
+                          border="1px white solid"
+                          color="white"
+                          bg="transparent"
+                          _hover={{
+                            bg: "rgba(255, 255, 255, 0.2)",
+                          }}
+                          height={"20px"}
+                          icon={<RiSubtractFill />}
+                          aria-label="unlink wallet"
+                          onClick={async () => {
+                            const newPrivyUser = await unlinkWallet(
+                              (account as WalletWithMetadata).address
+                            );
+                            console.log("newPrivyUser", newPrivyUser);
+                          }}
+                        />
+                      </Tooltip>
+                    )}
                   </Flex>
                 </Flex>
               );
             })}
+          <Flex justifyContent={"space-between"}>
+            <Text fontSize="10px">privy user id</Text>
+            <Text fontSize="10px" color="#acacac">
+              {privyUser?.id}
+            </Text>
+          </Flex>
           <Button onClick={() => signMessage({ message: "hello world" })}>
             test sign message
           </Button>
