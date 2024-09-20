@@ -25,7 +25,7 @@ export const BooCarePackages = ({
         }
         userBooPackageCooldowns={userBooPackageCooldowns}
         dateNow={dateNow}
-        packageName={"water"}
+        packageInfo={{ name: "water", isCarePackage: true }}
         updateBooPackage={updatePrice}
         updateUserBooPackageCooldownMapping={updateForUser}
         fetchUserBooPackageCooldownMapping={fetchUserBooPackageCooldownMapping}
@@ -37,7 +37,7 @@ export const BooCarePackages = ({
         }
         userBooPackageCooldowns={userBooPackageCooldowns}
         dateNow={dateNow}
-        packageName={"flashlight"}
+        packageInfo={{ name: "flashlight", isCarePackage: true }}
         updateBooPackage={updatePrice}
         updateUserBooPackageCooldownMapping={updateForUser}
         fetchUserBooPackageCooldownMapping={fetchUserBooPackageCooldownMapping}

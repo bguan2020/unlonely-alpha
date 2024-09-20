@@ -15,6 +15,7 @@ import {
   useConnectWallet,
   WalletWithMetadata,
   ConnectedWallet,
+  ConnectedSolanaWallet,
 } from "@privy-io/react-auth";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -95,7 +96,7 @@ const UserContext = createContext<{
   isManagingWallets: boolean;
   fetchingUser: boolean;
   doesUserAddressMatch: boolean | undefined;
-  activeWallet: ConnectedWallet | undefined;
+  activeWallet: ConnectedWallet | ConnectedSolanaWallet | undefined;
   handleSolanaAddress: (address: string | undefined) => void;
   fetchUser: () => any;
   login: () => void;
@@ -170,7 +171,7 @@ export const UserProvider = ({
   const { wallets: solanaWallets } = useSolanaWallets();
 
   const wallets = useMemo(
-    () => [...evmWallets, ...solanaWallets],
+    () => [...evmWallets, ...(solanaWallets as ConnectedSolanaWallet[])],
     [evmWallets, solanaWallets]
   );
 
@@ -337,7 +338,9 @@ export const UserProvider = ({
       isManagingWallets,
       fetchingUser,
       doesUserAddressMatch,
-      activeWallet: wallets.find((w) => w.address === localAddress),
+      activeWallet: wallets.find((w) =>
+        areAddressesEqual(localAddress ?? "", w.address)
+      ),
       solanaAddress,
       fetchUser,
       login,
@@ -417,9 +420,9 @@ export const UserProvider = ({
                     ) : (
                       <GoUnlink />
                     )}
-                    {foundWallet?.type && (
+                    {(foundWallet as any)?.type && (
                       <>
-                        {foundWallet?.type === "ethereum" && (
+                        {(foundWallet as any)?.type === "ethereum" && (
                           <Image
                             src={"/images/eth-logo.png"}
                             alt="chain image"
@@ -427,7 +430,7 @@ export const UserProvider = ({
                             height="20px"
                           />
                         )}
-                        {foundWallet?.type === "solana" && (
+                        {(foundWallet as any)?.type === "solana" && (
                           <Image
                             src={"/images/sol-logo.png"}
                             alt="chain image"

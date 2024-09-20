@@ -2,16 +2,22 @@ import { InteractionType } from "../constants";
 import { ChatBotMessageBody } from "../constants/types/chat";
 import { jp } from "./validation/jsonParse";
 
-const eventTypes = [
+const deepBlueEventTypes = [
   InteractionType.EVENT_LIVE,
   InteractionType.EVENT_LOCK,
   InteractionType.EVENT_UNLOCK,
   InteractionType.EVENT_PAYOUT,
   InteractionType.PUBLISH_NFC,
   InteractionType.MINT_NFC_IN_CHAT,
+
 ];
 
-const adminTempTokenInteractionTypes = [
+const purpleEventTypes = [
+  InteractionType.USE_BOO_PACKAGE,
+  InteractionType.SEND_BOO_TTS,
+]
+
+const blueTempTokenInteractionTypes = [
   InteractionType.CREATE_TEMP_TOKEN,
   InteractionType.CREATE_MULTIPLE_TEMP_TOKENS,
   InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
@@ -23,7 +29,9 @@ const adminTempTokenInteractionTypes = [
   InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
 ];
 
-const greenTempTokenInteractionTypes = [InteractionType.BUY_TEMP_TOKENS];
+const greenTempTokenInteractionTypes = [InteractionType.BUY_TEMP_TOKENS, 
+  
+  InteractionType.BUY_BOO];
 
 const redTempTokenInteractionTypes = [
   InteractionType.SELL_TEMP_TOKENS,
@@ -37,7 +45,7 @@ export const messageStyle = (dataBody?: string) => {
   const jpData = jp(dataBody) as ChatBotMessageBody;
   if (
     dataBody &&
-    (eventTypes as string[]).includes(
+    (deepBlueEventTypes as string[]).includes(
       jpData.interactionType
     )
   ) {
@@ -46,7 +54,7 @@ export const messageStyle = (dataBody?: string) => {
     };
   } else if (
     dataBody &&
-    (adminTempTokenInteractionTypes as string[]).includes(
+    (blueTempTokenInteractionTypes as string[]).includes(
       jpData.interactionType
     )
   ) {
@@ -83,6 +91,17 @@ export const messageStyle = (dataBody?: string) => {
       fontWeight: "bold",
       showTimestamp: true,
     };
+  } else if (    dataBody &&
+    (purpleEventTypes as string[]).includes(
+      jpData.interactionType
+    )) {
+      return {
+        bg: "rgba(172, 166, 255, 0.26)",
+        textColor: "#d8d7fc",
+        fontStyle: "italic",
+        fontWeight: "bold",
+        showTimestamp: true,
+      };
   } else if (jpData.interactionType === InteractionType.CLIP) {
     return {
       bgGradient:

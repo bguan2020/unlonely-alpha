@@ -590,6 +590,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                         justifyContent={"center"}
                         alignItems={"center"}
                         width={"100%"}
+                        height="100%"
                         gap="16px"
                       >
                         <Image
