@@ -236,11 +236,14 @@ export const useSetWinningTokenTradeableAndTransferLiquidityState = (
           taskType:
             InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
           title,
-          description: `${
-            user?.address
-          }:${winnerTokenAddress}:${loserTokenAddress}:${String(
-            transferredLiquidityInWei
-          )}:${_tokenType}:${String(maxNumTokens)}`,
+          description: JSON.stringify({
+            userAddress: user?.address,
+            winnerTokenAddress,
+            loserTokenAddress,
+            transferredLiquidityInWei: String(transferredLiquidityInWei),
+            tokenType: _tokenType,
+            maxNumTokens: String(maxNumTokens),
+          }),
         });
         callbackOnTxSuccess?.();
       },

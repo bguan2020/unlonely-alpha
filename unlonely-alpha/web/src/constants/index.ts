@@ -41,6 +41,10 @@ export enum InteractionType {
 
   PUBLISH_NFC = "publish-nfc-interaction",
   MINT_NFC_IN_CHAT = "mint-nfc-in-chat-interaction",
+
+  USE_BOO_PACKAGE = "use-boo-package-interaction",
+  SEND_BOO_TTS = "send-tts-interaction",
+  BUY_BOO = "buy-boo-interaction",
 }
 
 export enum BaseChatCommand {

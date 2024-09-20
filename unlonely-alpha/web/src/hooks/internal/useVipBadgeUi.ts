@@ -12,6 +12,8 @@ import { useNetworkContext } from "../context/useNetwork";
 import { useUser } from "../context/useUser";
 import { ChatReturnType } from "../chat/useChat";
 import { isAddress, isAddressEqual } from "viem";
+import { jp } from "../../utils/validation/jsonParse";
+import { ChatBotMessageBody } from "../../constants/types/chat";
 
 export const useVipBadgeUi = (chat: ChatReturnType) => {
   const { user } = useUser();
@@ -20,6 +22,8 @@ export const useVipBadgeUi = (chat: ChatReturnType) => {
   const { localNetwork } = network;
   const { channelQueryData, handleTotalBadges } = channel;
   const { handleIsVip } = leaderboard;
+
+  const { receivedMessages } = chat;
 
   const tournamentContract = getContractFromNetwork(
     Contract.TOURNAMENT,
@@ -46,40 +50,40 @@ export const useVipBadgeUi = (chat: ChatReturnType) => {
 
   useEffect(() => {
     const init = async () => {
-      if (chat.receivedMessages.length === 0) return;
+      if (receivedMessages.length === 0) return;
       const latestMessage =
-        chat.receivedMessages[chat.receivedMessages.length - 1];
+        receivedMessages[receivedMessages.length - 1];
       if (
         latestMessage &&
         latestMessage.data.body &&
         latestMessage.name === CHAT_MESSAGE_EVENT &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
-        const body = latestMessage.data.body;
+        const body = jp(latestMessage.data.body) as ChatBotMessageBody;
         if (
-          body.split(":")[0] === InteractionType.BUY_BADGES &&
+          body.interactionType === InteractionType.BUY_BADGES &&
           Date.now() - latestMessage.timestamp < 12000
         ) {
-          if (body.split(":")[4] === generatedKey) {
+          if (body.eventByte === generatedKey) {
             if (
               isAddress(user?.address ?? "") &&
-              isAddress(body.split(":")[1]) &&
+              isAddress(body.trader) &&
               isAddressEqual(
-                body.split(":")[1] as `0x${string}`,
+                body.trader as `0x${string}`,
                 user?.address as `0x${string}`
               )
             ) {
               setVipBadgeBalance((prev) =>
-                String(Number(prev) + Number(body.split(":")[2]))
+                String(Number(prev) + Number(body.badgeAmount))
               );
             }
-            setVipBadgeSupply(BigInt(body.split(":")[3]));
+            setVipBadgeSupply(BigInt(body.newSupply));
           }
         }
       }
     };
     init();
-  }, [chat.receivedMessages]);
+  }, [receivedMessages]);
 
   useEffect(() => {
     if (Number(vipBadgeBalance) > 0) {

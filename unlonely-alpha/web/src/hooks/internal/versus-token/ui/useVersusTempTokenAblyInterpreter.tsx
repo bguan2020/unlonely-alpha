@@ -13,6 +13,8 @@ import {
   versusTokenDataInitial,
   VersusTokenDataType,
 } from "../../../../constants/types/token";
+import { ChatBotMessageBody } from "../../../../constants/types/chat";
+import { jp } from "../../../../utils/validation/jsonParse";
 
 export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   const { wagmiAddress } = useUser();
@@ -54,12 +56,13 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
     tempTokenTxs: tempTokenTxsB,
   } = tokenBTxs;
   const { onMintEvent, onBurnEvent } = callbacks;
+  const { receivedMessages, mounted } = chat;
 
   const blockNumberOfLastInAppTrade = useRef(BigInt(0));
 
   useEffect(() => {
-    if (chat.mounted) mountingMessages.current = false;
-  }, [chat.mounted]);
+    if (mounted) mountingMessages.current = false;
+  }, [mounted]);
 
   const [tempTokenTransactionBody, setTempTokenTransactionBody] = useState("");
 
@@ -82,9 +85,9 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   };
 
   const handleEvent = async (body: string) => {
-    const interactionType = body.split(":")[0];
-    const _userAddress = body.split(":")[1];
-    const txBlockNumber = BigInt(body.split(":")[3]);
+    const jpBody = jp(body) as ChatBotMessageBody;
+    const _userAddress = jpBody.address;
+    const txBlockNumber = jpBody.blockNumber;
     await Promise.all([
       getTempTokenEventsA(
         tokenA.contractData,
@@ -105,8 +108,10 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         txBlockNumber
       ),
     ]);
-    if (body.split(":")[0] === InteractionType.VERSUS_WINNER_TOKENS_MINTED) {
-      const tokenType = String(body.split(":")[4]);
+    if (
+      jpBody.interactionType === InteractionType.VERSUS_WINNER_TOKENS_MINTED
+    ) {
+      const tokenType = String(jpBody.tokenType);
       if (tokenType === "a") {
         await refetchUserTempTokenBalanceA?.();
       } else {
@@ -115,7 +120,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
       handleOwnerMustPermamint(false);
       blockNumberOfLastInAppTrade.current = txBlockNumber;
     } else {
-      const incomingTxTokenAddress = body.split(":")[4];
+      const incomingTxTokenAddress = jpBody.tokenAddress;
       const tokenType =
         isAddress(tokenB.address) &&
         isAddress(incomingTxTokenAddress) &&
@@ -137,14 +142,17 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           await refetchUserTempTokenBalanceB?.();
         }
       }
-      const totalSupply = BigInt(body.split(":")[5]);
-      const highestTotalSupply = body.split(":")[6];
+      const totalSupply = jpBody.totalSupply;
       blockNumberOfLastInAppTrade.current = txBlockNumber;
-      if (interactionType === InteractionType.BUY_TEMP_TOKENS) {
-        onMintEvent(BigInt(totalSupply), BigInt(highestTotalSupply), tokenType);
+      if (jpBody.interactionType === InteractionType.BUY_TEMP_TOKENS) {
+        onMintEvent(
+          BigInt(totalSupply),
+          BigInt(jpBody.highestTotalSupply),
+          tokenType
+        );
         emojiBlast(<Text fontSize={"30px"}>{"📈"}</Text>);
       }
-      if (interactionType === InteractionType.SELL_TEMP_TOKENS) {
+      if (jpBody.interactionType === InteractionType.SELL_TEMP_TOKENS) {
         onBurnEvent(BigInt(totalSupply), tokenType);
         emojiBlast(<Text fontSize={"30px"}>{"📉"}</Text>);
       }
@@ -161,9 +169,8 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   };
 
   useEffect(() => {
-    if (chat.receivedMessages.length === 0) return;
-    const latestMessage =
-      chat.receivedMessages[chat.receivedMessages.length - 1];
+    if (receivedMessages.length === 0) return;
+    const latestMessage = receivedMessages[receivedMessages.length - 1];
     if (
       latestMessage &&
       latestMessage.data.body &&
@@ -171,15 +178,19 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
       Date.now() - latestMessage.timestamp < 12000
     ) {
       const body = latestMessage.data.body;
-      if (body.split(":")[0] === InteractionType.CREATE_MULTIPLE_TEMP_TOKENS) {
-        const newEndTimestamp = BigInt(body.split(":")[1]);
-        const newTokenAddresses = JSON.parse(body.split(":")[2]);
-        const newTokenSymbols = JSON.parse(body.split(":")[3]);
-        const chainId = Number(body.split(":")[4]);
-        const newTokenCreationBlockNumber = BigInt(body.split(":")[5]);
-        const preSaleEndTimestamp = BigInt(body.split(":")[6]);
-        const factoryAddress = body.split(":")[7];
-        const minBaseTokenPrice = BigInt(body.split(":")[8]);
+      const jpBody = jp(body) as ChatBotMessageBody;
+
+      if (
+        jpBody.interactionType === InteractionType.CREATE_MULTIPLE_TEMP_TOKENS
+      ) {
+        const newEndTimestamp = jpBody.endTimestamp;
+        const newTokenAddresses = jpBody.tokenAddresses;
+        const newTokenSymbols = jpBody.tokenSymbols;
+        const chainId = jpBody.chainId;
+        const newTokenCreationBlockNumber = jpBody.creationBlockNumber;
+        const preSaleEndTimestamp = jpBody.preSaleEndTimestamp;
+        const factoryAddress = jpBody.factoryAddress;
+        const minBaseTokenPrice = jpBody.minBaseTokenPrice;
         handleRealTimeChannelDetails({
           isLive: true,
         });
@@ -233,23 +244,25 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         );
       }
       if (
-        body.split(":")[0] === InteractionType.BUY_TEMP_TOKENS ||
-        body.split(":")[0] === InteractionType.SELL_TEMP_TOKENS ||
-        body.split(":")[0] === InteractionType.VERSUS_WINNER_TOKENS_MINTED
+        jpBody.interactionType === InteractionType.BUY_TEMP_TOKENS ||
+        jpBody.interactionType === InteractionType.SELL_TEMP_TOKENS ||
+        jpBody.interactionType === InteractionType.VERSUS_WINNER_TOKENS_MINTED
       ) {
         setTempTokenTransactionBody(body);
       }
       if (
-        body.split(":")[0] ===
+        jpBody.interactionType ===
         InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY
       ) {
         console.log(
           "detected VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY",
           body
         );
-        const transferredLiquidityInWei = BigInt(body.split(":")[4]);
-        const winnerTokenType = body.split(":")[5];
-        const maxNumTokens = Number(body.split(":")[6]);
+        const transferredLiquidityInWei = BigInt(
+          jpBody.transferredLiquidityInWei
+        );
+        const winnerTokenType = jpBody.tokenType;
+        const maxNumTokens = Number(jpBody.maxNumTokens);
         const _winningToken = winnerTokenType === "a" ? tokenA : tokenB;
         const _losingToken = {
           ...((winnerTokenType === "a"
@@ -268,5 +281,5 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         handleOwnerMustPermamint(maxNumTokens);
       }
     }
-  }, [chat.receivedMessages]);
+  }, [receivedMessages]);
 };

@@ -268,15 +268,19 @@ export const useTradeTempTokenState = ({
             address: wagmiAddress ?? "",
             taskType: InteractionType.BUY_TEMP_TOKENS,
             title,
-            description: `${wagmiAddress}:${Number(
-              args.amount as bigint
-            )}:${String(data.blockNumber)}:${tokenAddress}:${String(
-              totalSupply
-            )}:${String(highestTotalSupply)}:${String(
-              hasTotalSupplyThresholdReachedEvent
-                ? hasHitTotalSupplyThreshold
-                : false
-            )}:${String(endTimestamp)}`,
+            description: JSON.stringify({
+              address: wagmiAddress,
+              amount: Number(args.amount as bigint),
+              blockNumber: String(data.blockNumber),
+              tokenAddress,
+              totalSupply: String(totalSupply),
+              highestTotalSupply: String(highestTotalSupply),
+              hasTotalSupplyThresholdReached:
+                hasTotalSupplyThresholdReachedEvent
+                  ? hasHitTotalSupplyThreshold
+                  : false,
+              endTimestamp: String(endTimestamp),
+            }),
           });
           const promises: any[] = [
             call_updateDb_highestTotalSupply({
@@ -436,11 +440,13 @@ export const useTradeTempTokenState = ({
             address: wagmiAddress ?? "",
             taskType: InteractionType.SELL_TEMP_TOKENS,
             title,
-            description: `${wagmiAddress}:${Number(
-              args.amount as bigint
-            )}:${String(data.blockNumber)}:${tokenAddress}:${String(
-              totalSupply
-            )}`,
+            description: JSON.stringify({
+              address: wagmiAddress,
+              amount: Number(args.amount as bigint),
+              blockNumber: String(data.blockNumber),
+              tokenAddress,
+              totalSupply: String(totalSupply),
+            }),
           });
           callbackOnBurnTxSuccess?.();
           canAddToChatbot_burn.current = false;
