@@ -24,7 +24,7 @@ import useUpdateUser from "../../hooks/server/useUpdateUser";
 import trailString from "../../utils/trailString";
 import { OwnedChannelsModal } from "../channels/OwnedChannelsModal";
 import copy from "copy-to-clipboard";
-const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
+const ConnectWalletDropdown = ({ hideBridge }: { hideBridge?: boolean }) => {
   const router = useRouter();
   const {
     user,
@@ -149,7 +149,7 @@ const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
   );
 };
 
-export default ConnectWallet;
+export default ConnectWalletDropdown;
 
 const ConnectedDisplay = () => {
   // const router = useRouter();

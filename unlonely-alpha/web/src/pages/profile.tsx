@@ -7,7 +7,7 @@ import { useUser } from "../hooks/context/useUser";
 import useUserAgent from "../hooks/internal/useUserAgent";
 import { anonUrl } from "../components/presence/AnonUrl";
 import centerEllipses from "../utils/centerEllipses";
-import ConnectWallet from "../components/navigation/ConnectWallet";
+import ConnectWalletDropdown from "../components/navigation/ConnectWallet";
 import useToggleSubscription from "../hooks/server/channel/useToggleSubscription";
 import { CHECK_SUBSCRIPTION } from "../constants/queries";
 import usePostSubscription from "../hooks/server/usePostSubscription";
@@ -171,7 +171,7 @@ const Profile = () => {
                   </Flex>
                 )}
               </Flex>
-              <ConnectWallet />
+              <ConnectWalletDropdown />
             </Flex>
             <Flex
               justifyContent={"space-evenly"}
