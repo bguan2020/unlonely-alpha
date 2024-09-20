@@ -44,7 +44,10 @@ import { useApolloContext } from "./useApollo";
 import { useAccount, useSignMessage } from "wagmi";
 import { useSetActiveWallet } from "@privy-io/wagmi";
 import usePostStreamInteraction from "../server/usePostStreamInteraction";
-import { isValidAddress } from "../../utils/validation/wallet";
+import {
+  areAddressesEqual,
+  isValidAddress,
+} from "../../utils/validation/wallet";
 
 const FETCH_TRIES = 5;
 
@@ -442,8 +445,10 @@ export const UserProvider = ({
                     </Text>
                   </Flex>
                   <Flex gap="5px" alignItems={"end"}>
-                    {localAddress?.toUpperCase() ===
-                    (account as WalletWithMetadata).address.toUpperCase() ? (
+                    {areAddressesEqual(
+                      localAddress ?? "",
+                      (account as WalletWithMetadata).address
+                    ) ? (
                       <Flex gap="5px">
                         <Flex
                           background="#22b66e"

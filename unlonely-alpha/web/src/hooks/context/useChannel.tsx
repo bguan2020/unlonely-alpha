@@ -36,6 +36,7 @@ import {
   useChannelWideModalsState,
 } from "../internal/modals/useChannelWideModalsState";
 import { useChatBotState } from "../chat/useChatBotState";
+import { areAddressesEqual } from "../../utils/validation/wallet";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -150,8 +151,8 @@ export const ChannelProvider = ({
   const isOwner = useMemo(() => {
     if (!user?.address || !channelDetails?.channelQueryData?.owner?.address)
       return false;
-    return (
-      user?.address.toUpperCase() ===
+    return areAddressesEqual(
+      user?.address,
       channelDetails?.channelQueryData?.owner?.address
     );
   }, [user?.address, channelDetails?.channelQueryData?.owner?.address]);

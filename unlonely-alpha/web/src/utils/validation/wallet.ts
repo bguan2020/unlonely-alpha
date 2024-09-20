@@ -1,4 +1,4 @@
-import { isAddress as isEthereumAddress } from "viem"; // Assuming "viem" is a library for Ethereum address validation
+import { isAddressEqual, isAddress as isEthereumAddress } from "viem"; // Assuming "viem" is a library for Ethereum address validation
 
 const BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
@@ -24,3 +24,11 @@ export const isValidAddress = (address: string): "ethereum" | "solana" | undefin
 
     return undefined;
 };
+
+export const areAddressesEqual = (a: string, b: string ) => {
+
+    // if both are ethereum addresses, compare using viem's compare function, 
+    // else treat them as solana addresses that are case sensitive
+    if (isEthereumAddress(a) && isEthereumAddress(b)) return isAddressEqual(a, b)
+    return a === b
+}

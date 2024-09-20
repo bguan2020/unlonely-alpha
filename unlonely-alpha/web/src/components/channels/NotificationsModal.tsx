@@ -19,6 +19,7 @@ import { useUser } from "../../hooks/context/useUser";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { PreviewNotification } from "../mobile/PreviewNotification";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
+import { areAddressesEqual } from "../../utils/validation/wallet";
 
 const BRIAN = "0xf6B640ED09927C90185D3a7aF4b186317Cc8df3e";
 
@@ -48,10 +49,10 @@ export default function NotificationsModal({
   const toast = useToast();
   const { isStandalone } = useUserAgent();
 
-  const isBrian = useMemo(
-    () => BRIAN.toUpperCase() === user?.address?.toUpperCase(),
-    [user?.address]
-  );
+  const isBrian = useMemo(() => {
+    if (!user?.address) return false;
+    return areAddressesEqual(BRIAN, user?.address);
+  }, [user?.address]);
 
   const titleLive = useMemo(() => {
     return `🔴 ${user?.channel?.[0]?.slug} is live!`;
