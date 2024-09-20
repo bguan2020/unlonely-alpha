@@ -12,7 +12,7 @@ export const useSolanaTokenBalance = (rpcUrl: string) => {
     const {solanaAddress, activeWallet} = useUser();
 
     useEffect(() => {
-      if (solanaAddress && activeWallet?.walletClientType === "phantom"){
+      if (solanaAddress){
         fetchTokenBalance();
       }
     }, [solanaAddress, activeWallet]);

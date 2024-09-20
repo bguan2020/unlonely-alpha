@@ -11,15 +11,7 @@ import { useEffect, useState, useCallback } from "react";
 
 import { filteredInput } from "../../../utils/validation/input";
 import { FIXED_SOLANA_MINT } from "../../../constants";
-
-const isValidSolanaAddress = (address: string): boolean => {
-  try {
-    new PublicKey(address); // Attempt to create a PublicKey object
-    return true; // If no error is thrown, the address is valid
-  } catch (error) {
-    return false; // If an error is thrown, the address is invalid
-  }
-};
+import { isValidAddress } from "../../../utils/validation/wallet";
 
 export const SolanaTokenTransfer = ({
   rpcUrl,
@@ -193,14 +185,14 @@ export const SolanaTokenTransfer = ({
         value={amount}
         onChange={(e) => setAmount(filteredInput(e.target.value, true))}
       />
-      {!connected && <Button onClick={connect}>Connect Phantom</Button>}
+      {!connected && <Button onClick={connect}>Connect Solana</Button>}
       <Text>Available THOTH Balance: {balance}</Text>
       <Button
         onClick={sendTokens}
         isDisabled={
           Number(amount) === 0 ||
           !connected ||
-          !isValidSolanaAddress(toAddress) ||
+          isValidAddress(toAddress) !== "solana" ||
           balance === null ||
           Number(amount) > balance
         }

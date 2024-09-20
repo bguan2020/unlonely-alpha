@@ -152,7 +152,7 @@ const ConnectWallet = ({ hideBridge }: { hideBridge?: boolean }) => {
 export default ConnectWallet;
 
 const ConnectedDisplay = () => {
-  const router = useRouter();
+  // const router = useRouter();
 
   const {
     activeWallet,
@@ -173,13 +173,13 @@ const ConnectedDisplay = () => {
 
   const { updateUser } = useUpdateUser({});
 
-  const redirectToBridge = useCallback(() => {
-    if (isStandalone) {
-      router.push("/bridge");
-    } else {
-      window.open(`${window.location.origin}/bridge`, "_blank");
-    }
-  }, [isStandalone, router]);
+  // const redirectToBridge = useCallback(() => {
+  //   if (isStandalone) {
+  //     router.push("/bridge");
+  //   } else {
+  //     window.open(`${window.location.origin}/bridge`, "_blank");
+  //   }
+  // }, [isStandalone, router]);
 
   const callLogout = useCallback(() => {
     logout();
@@ -361,7 +361,7 @@ const ConnectedDisplay = () => {
               <Text>update ENS/socials</Text>
             </MenuItem>
           )}
-          <MenuItem
+          {/* <MenuItem
             bg={"#131323"}
             _hover={{ bg: "#0056b1" }}
             _focus={{}}
@@ -370,7 +370,7 @@ const ConnectedDisplay = () => {
           >
             <Text>bridge ETH to base</Text>
             {!isStandalone && <ExternalLinkIcon />}
-          </MenuItem>
+          </MenuItem> */}
           {activeWallet?.walletClientType === "privy" && (
             <MenuItem
               bg={"#131323"}

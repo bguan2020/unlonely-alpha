@@ -13,7 +13,7 @@ export const useApolloContext = () => {
 };
 
 const ApolloContext = createContext<{
-  handleLatestVerifiedAddress: (address: string) => void;
+  handleLatestVerifiedAddress: (address: string | null) => void;
 }>({
   handleLatestVerifiedAddress: () => undefined,
 });
@@ -38,7 +38,7 @@ export const ApolloProvider = ({
     [pageProps, latestVerifiedAddress]
   );
 
-  const handleLatestVerifiedAddress = useCallback((address: string) => {
+  const handleLatestVerifiedAddress = useCallback((address: string | null) => {
     setLatestVerifiedAddress(address);
   }, []);
 

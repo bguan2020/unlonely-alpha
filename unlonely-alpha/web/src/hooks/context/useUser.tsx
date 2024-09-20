@@ -93,10 +93,6 @@ const UserContext = createContext<{
   fetchingUser: boolean;
   doesUserAddressMatch: boolean | undefined;
   activeWallet: ConnectedWallet | undefined;
-  injectedUserData: {
-    username: string | undefined;
-    address: string | undefined;
-  };
   handleSolanaAddress: (address: string | undefined) => void;
   fetchUser: () => any;
   login: () => void;
@@ -117,10 +113,6 @@ const UserContext = createContext<{
   fetchingUser: false,
   doesUserAddressMatch: undefined,
   activeWallet: undefined,
-  injectedUserData: {
-    username: undefined,
-    address: undefined,
-  },
   handleSolanaAddress: () => undefined,
   fetchUser: () => undefined,
   login: () => undefined,
@@ -149,14 +141,6 @@ export const UserProvider = ({
     boolean | undefined
   >(undefined);
 
-  const [injectedUserData, setInjectedUserData] = useState<{
-    username: string | undefined;
-    address: string | undefined;
-  }>({
-    username: undefined,
-    address: undefined,
-  });
-
   const [solanaAddress, setSolanaAddress] = useState<string | undefined>(
     undefined
   );
@@ -164,12 +148,7 @@ export const UserProvider = ({
     undefined
   );
 
-  const {
-    address: wagmiAddress,
-    isConnected,
-    isConnecting,
-    isDisconnected,
-  } = useAccount();
+  const { address: wagmiAddress } = useAccount();
 
   const { signMessage } = useSignMessage();
   const handleInitialNotificationsGranted = useCallback((granted: boolean) => {
@@ -249,7 +228,7 @@ export const UserProvider = ({
 
   const { connectWallet } = useConnectWallet({
     onSuccess: (wallet) => {
-      return;
+      fetchAndSetUserData(wallet.address);
     },
     onError: (err) => {
       console.error("connect wallet error", err);
@@ -259,12 +238,9 @@ export const UserProvider = ({
   const { logout } = useLogout({
     onSuccess: () => {
       setUser(undefined);
-      setInjectedUserData({
-        username: undefined,
-        address: undefined,
-      });
       setSolanaAddress(undefined);
       setLocalAddress(undefined);
+      handleLatestVerifiedAddress(null);
     },
   });
 
@@ -281,14 +257,12 @@ export const UserProvider = ({
   );
 
   useEffect(() => {
-    if (wallets.length > 0) {
-      debouncedSetActiveWallet(wallets[0]);
-    }
-
+    if (evmWallets.length > 0 && evmWallets[0])
+      debouncedSetActiveWallet(evmWallets[0]);
     return () => {
       debouncedSetActiveWallet.cancel();
     };
-  }, [wallets[0]?.address, debouncedSetActiveWallet]);
+  }, [evmWallets[0]?.address, debouncedSetActiveWallet]);
 
   const fetchAndSetUserData = useCallback(async (_address: string) => {
     setFetchingUser(true);
@@ -342,19 +316,6 @@ export const UserProvider = ({
       fetchAndSetUserData(latestVerifiedPrivyAccount?.address);
   }, [latestVerifiedPrivyAccount?.address]);
 
-  useEffect(() => {
-    if (injectedUserData && user) {
-      setUser((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          username: injectedUserData.username ?? prev.username,
-          address: injectedUserData.address ?? prev.address,
-        };
-      });
-    }
-  }, [injectedUserData]);
-
   const handleIsManagingWallets = useCallback((value: boolean) => {
     setIsManagingWallets(value);
   }, []);
@@ -373,8 +334,7 @@ export const UserProvider = ({
       isManagingWallets,
       fetchingUser,
       doesUserAddressMatch,
-      activeWallet: wallets.find((w) => w.address === wagmiAddress),
-      injectedUserData,
+      activeWallet: wallets.find((w) => w.address === localAddress),
       solanaAddress,
       fetchUser,
       login,
@@ -394,7 +354,6 @@ export const UserProvider = ({
       fetchingUser,
       doesUserAddressMatch,
       wagmiAddress,
-      injectedUserData,
       solanaAddress,
       fetchUser,
       login,
