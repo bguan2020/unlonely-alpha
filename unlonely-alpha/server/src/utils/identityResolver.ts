@@ -8,11 +8,6 @@ primaryDomain {
 domains {
   isPrimary
   name
-  tokenNft {
-    tokenId
-    address
-    blockchain
-  }
   lastUpdatedBlockTimestamp
   createdAtBlockNumber
   createdAtBlockTimestamp
@@ -33,27 +28,11 @@ farcasterSocials: socials(input: {filter: {dappName: {_eq: farcaster}}}) {
     }
   }
 }
-lensSocials: socials(input: {filter: {dappName: {_eq: lens}}}) {
-  isDefault
-  blockchain
-  profileName
-  profileHandle
-  profileImage
-  followerCount
-  followingCount
-  profileTokenId
-  profileTokenAddress
-  profileImageContentValue {
-    image {
-      small
-    }
-  }
-}
 `;
 
 const GET_SOCIAL = `
-  query GetSocial($identity: Identity!, $blockchain: TokenBlockchain!) {
-    Wallet(input: { identity: $identity, blockchain: $blockchain }) {
+  query GetSocial($identity: Identity!) {
+    Wallet(input: { identity: $identity }) {
       ${walletField}
     }
   }
@@ -70,8 +49,7 @@ export type SocialData = {
 };
 
 export const fetchSocial = async (
-  identity: string,
-  blockchain: string
+  identity: string
 ): Promise<{ socialData: SocialData, rawData: any, error: string }> => {
   try {
     if (!process.env.AIRSTACK_API_KEY) {
@@ -80,8 +58,8 @@ export const fetchSocial = async (
     init(String(process.env.AIRSTACK_API_KEY));
     const { data: res, error } = await fetchQuery(GET_SOCIAL, {
       identity,
-      blockchain,
     });
+    console.log("fetchSocial", identity, res, error);
     if (error) {
       console.log("airstack query error", identity, error);
       return { socialData: {}, rawData: {}, error: error.message };

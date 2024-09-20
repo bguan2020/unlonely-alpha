@@ -347,7 +347,7 @@ export interface IUpdateUserInput {
 }
 
 export const updateUser = async (data: IUpdateUserInput, ctx: Context) => {
-  const { socialData, rawData, error } = await fetchSocial(data.address, "ethereum");
+  const { socialData, rawData, error } = await fetchSocial(data.address);
   const res = await ctx.prisma.user.update({
     where: {
       address: data.address,
