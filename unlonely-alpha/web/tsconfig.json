@@ -16,6 +16,7 @@
     "downlevelIteration": true,
     "incremental": true,
     "typeRoots": ["./src/types", "./node_modules/@types"],
+    "allowImportingTsExtensions": true,
     "plugins": [
       {
         "name": "next"

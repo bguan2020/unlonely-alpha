@@ -25,6 +25,10 @@ import { TourProvider } from "@reactour/tour";
 import Link from "next/link";
 import { ApolloProvider } from "../hooks/context/useApollo";
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
+
 const queryClient = new QueryClient();
 
 export type Cookies = Record<string, string | undefined>;
@@ -141,6 +145,11 @@ function App({ Component, pageProps }: Props) {
     },
   });
 
+  const solanaConnectors = toSolanaWalletConnectors({
+    // By default, shouldAutoConnect is enabled
+    shouldAutoConnect: true,
+  });
+
   // useLogin from privy to detect user login and with what address, use this callback to update the user context on the backend
   return (
     <ChakraProvider theme={theme}>
@@ -158,11 +167,15 @@ function App({ Component, pageProps }: Props) {
             accentColor: "#6cff67",
             logo: "/icons/icon-192x192.png",
             showWalletLoginFirst: false,
+            walletChainType: "ethereum-and-solana",
           },
           // support for coinbase smart wallets, still in testing
           externalWallets: {
             coinbaseWallet: {
               connectionOptions: "all",
+            },
+            solana: {
+              connectors: solanaConnectors,
             },
           },
         }}
