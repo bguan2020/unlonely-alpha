@@ -108,7 +108,10 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
           address: user?.address ?? "",
           taskType: InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED,
           title,
-          description: `${user?.address}:${String(newThreshold)}`,
+          description: JSON.stringify({
+            address: user?.address ?? "",
+            newThreshold: String(newThreshold),
+          }),
         });
         onSuccess && onSuccess();
         toast({

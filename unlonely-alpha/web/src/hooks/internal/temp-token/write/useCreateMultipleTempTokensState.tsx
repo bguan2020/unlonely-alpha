@@ -283,22 +283,22 @@ export const useCreateMultipleTempTokensState = ({
         } created the $${newTokenSymbols[0]} and $${
           newTokenSymbols[1]
         } tokens!`;
-        const dataToSend = [
-          `${String(newEndTimestamp)}`,
-          `${JSON.stringify(newTokenAddresses)}`,
-          `${JSON.stringify(newTokenSymbols)}`,
-          `${String(localNetwork.config.chainId)}`,
-          `${String(newTokenCreationBlockNumber)}`,
-          `${String(preSaleEndTimestamp)}`,
-          `${String(factoryContract.address)}`,
-          `${String(returnedMinBaseTokenPrice)}`,
-        ];
+
         addToChatbotForTempToken({
           username: user?.username ?? "",
           address: user?.address ?? "",
           taskType: InteractionType.CREATE_MULTIPLE_TEMP_TOKENS,
           title,
-          description: dataToSend.join(":"),
+          description: JSON.stringify({
+            endTimestamp: String(newEndTimestamp),
+            tokenAddresses: newTokenAddresses,
+            tokenSymbols: newTokenSymbols,
+            chainId: String(localNetwork.config.chainId),
+            creationBlockNumber: String(newTokenCreationBlockNumber),
+            preSaleEndTimestamp: String(preSaleEndTimestamp),
+            factoryAddress: String(factoryContract.address),
+            minBaseTokenPrice: String(returnedMinBaseTokenPrice),
+          }),
         });
         toast({
           render: () => (

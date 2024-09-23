@@ -10,7 +10,6 @@ import {
   UseReadTempTokenTxsType,
   useReadTempTokenTxs,
 } from "../../../hooks/internal/temp-token/read/useReadTempTokenTxs";
-import { usePublicClient } from "wagmi";
 import {
   Flex,
   Text,
@@ -45,7 +44,7 @@ import {
 } from "../../../components/channels/temp/TempTokenChart";
 import { useInterfaceChartMarkers } from "../../../hooks/internal/temp-token/ui/useInterfaceChartMarkers";
 import { useCacheContext } from "../../../hooks/context/useCache";
-import { formatUnits } from "viem";
+import { createPublicClient, formatUnits, http } from "viem";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { useTradeTempTokenState } from "../../../hooks/internal/temp-token/write/useTradeTempTokenState";
 import { formatIncompleteNumber } from "../../../utils/validation/input";
@@ -57,6 +56,7 @@ import centerEllipses from "../../../utils/centerEllipses";
 import Header from "../../../components/navigation/Header";
 import { WavyText } from "../../../components/general/WavyText";
 import { bondingCurveBigInt } from "../../../utils/contract";
+import { base } from "viem/chains";
 
 const TokenTradePage = () => {
   const router = useRouter();
@@ -128,7 +128,20 @@ export default TokenTradePage;
 
 export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
   const { ethPriceInUsd } = useCacheContext();
-  const publicClient = usePublicClient();
+
+  const baseClient = useMemo(
+    () =>
+      createPublicClient({
+        chain: base,
+        transport: http(
+          `https://base-mainnet.g.alchemy.com/v2/${String(
+            process.env.NEXT_PUBLIC_ALCHEMY_BASE_API_KEY
+          )}`
+        ),
+      }),
+    []
+  );
+
   const [hasReachedTotalSupplyThreshold, setHasReachedTotalSupplyThreshold] =
     useState<boolean>(false);
   const [totalSupplyThreshold, setTotalSupplyThreshold] = useState<bigint>(
@@ -156,7 +169,7 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
 
   const readTempTokenTxs = useReadTempTokenTxs({
     tokenCreationBlockNumber: BigInt(tempToken.creationBlockNumber),
-    baseClient: publicClient,
+    baseClient: baseClient,
     tempTokenContract,
   });
 
@@ -201,20 +214,20 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
 
   useEffect(() => {
     const init = async () => {
-      if (!publicClient) return;
+      if (!baseClient) return;
       const [_totalSupplyThreshold, _hasHitTotalSupplyThreshold, _getIsActive] =
         await Promise.all([
-          publicClient.readContract({
+          baseClient.readContract({
             address: tempToken.tokenAddress as `0x${string}`,
             abi: TempTokenAbi,
             functionName: "totalSupplyThreshold",
           }),
-          publicClient.readContract({
+          baseClient.readContract({
             address: tempToken.tokenAddress as `0x${string}`,
             abi: TempTokenAbi,
             functionName: "hasHitTotalSupplyThreshold",
           }),
-          publicClient.readContract({
+          baseClient.readContract({
             address: tempToken.tokenAddress as `0x${string}`,
             abi: TempTokenAbi,
             functionName: "getIsActive",
@@ -538,7 +551,18 @@ const Exchange = ({
   tempTokenContract: ContractData;
   readTempTokenTxs: UseReadTempTokenTxsType;
 }) => {
-  const publicClient = usePublicClient();
+  const baseClient = useMemo(
+    () =>
+      createPublicClient({
+        chain: base,
+        transport: http(
+          `https://base-mainnet.g.alchemy.com/v2/${String(
+            process.env.NEXT_PUBLIC_ALCHEMY_BASE_API_KEY
+          )}`
+        ),
+      }),
+    []
+  );
 
   const {
     tradeAmount,
@@ -578,7 +602,7 @@ const Exchange = ({
       );
     }
   }, [
-    publicClient,
+    baseClient,
     tempTokenContract,
     readTempTokenTxs.tempTokenTxs.length,
     tempToken,

@@ -1,8 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { NULL_ADDRESS } from "../../../../constants";
 import { useNetworkContext } from "../../../context/useNetwork";
-import { isAddressEqual } from "viem";
-import { usePublicClient } from "wagmi";
+import { createPublicClient, http, isAddressEqual } from "viem";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 import { ContractData } from "../../../../constants/types";
 import {
@@ -16,6 +15,7 @@ import {
   useReadTempTokenGlobalStateInitial,
 } from "./useReadTempTokenGlobalState";
 import { useReadTempTokenOnMount } from "./useReadTempTokenOnMount";
+import { base } from "viem/chains";
 
 export type UseReadTempTokenContextStateType = {
   gameState: UseReadTempTokenGlobalStateType;
@@ -56,7 +56,20 @@ export const useReadTempTokenInitialState: UseReadTempTokenContextStateType = {
 export const useReadTempTokenContextState = () => {
   const { network } = useNetworkContext();
   const { localNetwork } = network;
-  const publicClient = usePublicClient();
+
+  const baseClient = useMemo(
+    () =>
+      createPublicClient({
+        chain: base,
+        transport: http(
+          `https://base-mainnet.g.alchemy.com/v2/${String(
+            process.env.NEXT_PUBLIC_ALCHEMY_BASE_API_KEY
+          )}`
+        ),
+      }),
+    []
+  );
+
   const globalState = useReadTempTokenGlobalState();
   const { loadingCurrentOnMount, loadingLastOnMount } = useReadTempTokenOnMount(
     { globalState }
@@ -155,7 +168,7 @@ export const useReadTempTokenContextState = () => {
 
   const readTempTokenTxs = useReadTempTokenTxs({
     tokenCreationBlockNumber: globalState.currentActiveTokenCreationBlockNumber,
-    baseClient: publicClient,
+    baseClient,
     tempTokenContract,
   });
 

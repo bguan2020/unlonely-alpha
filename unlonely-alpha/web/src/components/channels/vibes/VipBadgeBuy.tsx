@@ -27,12 +27,16 @@ import {
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { ChatReturnType } from "../../../hooks/chat/useChat";
+import { ChatBotMessageBody } from "../../../constants/types/chat";
+import { jp } from "../../../utils/validation/jsonParse";
 
 export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
   const { wagmiAddress, user, ready, authenticated } = useUser();
   const { channel, chat: c } = useChannelContext();
   const { channelQueryData } = channel;
   const { addToChatbot } = c;
+
+  const { receivedMessages, mounted } = chat;
 
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
@@ -189,7 +193,12 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
           address: user?.address ?? "",
           taskType: InteractionType.BUY_BADGES,
           title,
-          description: `${args.trade.trader}:${args.trade.badgeAmount}:${newSupply}:${args.trade.eventByte}`,
+          description: JSON.stringify({
+            trader: args.trade.trader as `0x${string}`,
+            badgeAmount: String(args.trade.badgeAmount as bigint),
+            newSupply: String(newSupply),
+            eventByte: String(args.trade.eventByte),
+          }),
         });
         await postBadgeTrade({
           channelId: channelQueryData?.id as string,
@@ -205,14 +214,13 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
   );
 
   useEffect(() => {
-    if (chat.mounted) mountingMessages.current = false;
-  }, [chat.mounted]);
+    if (mounted) mountingMessages.current = false;
+  }, [mounted]);
 
   useEffect(() => {
     const init = async () => {
-      if (chat.receivedMessages.length === 0) return;
-      const latestMessage =
-        chat.receivedMessages[chat.receivedMessages.length - 1];
+      if (receivedMessages.length === 0) return;
+      const latestMessage = receivedMessages[receivedMessages.length - 1];
       if (
         latestMessage &&
         latestMessage.data.body &&
@@ -220,7 +228,9 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
         Date.now() - latestMessage.timestamp < 12000
       ) {
         const body = latestMessage.data.body;
-        if (body.split(":")[0] === InteractionType.BUY_BADGES) {
+        const jpBody = jp(body) as ChatBotMessageBody;
+
+        if (jpBody.interactionType === InteractionType.BUY_BADGES) {
           try {
             await Promise.all([
               refetchBadgePrice(),
@@ -234,7 +244,7 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
       }
     };
     init();
-  }, [chat.receivedMessages]);
+  }, [receivedMessages]);
 
   useEffect(() => {
     if (!wagmiAddress || !loggedInWithPrivy || !user) {

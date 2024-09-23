@@ -1,16 +1,23 @@
 import { InteractionType } from "../constants";
+import { ChatBotMessageBody } from "../constants/types/chat";
 import { jp } from "./validation/jsonParse";
 
-const eventTypes = [
+const deepBlueEventTypes = [
   InteractionType.EVENT_LIVE,
   InteractionType.EVENT_LOCK,
   InteractionType.EVENT_UNLOCK,
   InteractionType.EVENT_PAYOUT,
   InteractionType.PUBLISH_NFC,
   InteractionType.MINT_NFC_IN_CHAT,
+
 ];
 
-const adminTempTokenInteractionTypes = [
+const purpleEventTypes = [
+  InteractionType.USE_BOO_PACKAGE,
+  InteractionType.SEND_BOO_TTS,
+]
+
+const blueTempTokenInteractionTypes = [
   InteractionType.CREATE_TEMP_TOKEN,
   InteractionType.CREATE_MULTIPLE_TEMP_TOKENS,
   InteractionType.TEMP_TOKEN_REACHED_THRESHOLD,
@@ -22,7 +29,9 @@ const adminTempTokenInteractionTypes = [
   InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
 ];
 
-const greenTempTokenInteractionTypes = [InteractionType.BUY_TEMP_TOKENS];
+const greenTempTokenInteractionTypes = [InteractionType.BUY_TEMP_TOKENS, 
+  
+  InteractionType.BUY_BOO];
 
 const redTempTokenInteractionTypes = [
   InteractionType.SELL_TEMP_TOKENS,
@@ -32,10 +41,12 @@ const redTempTokenInteractionTypes = [
 ];
 
 export const messageStyle = (dataBody?: string) => {
+  if (!dataBody) return {}
+  const jpData = jp(dataBody) as ChatBotMessageBody;
   if (
     dataBody &&
-    (eventTypes as string[]).includes(
-      jp(dataBody).interactionType ?? dataBody.split(":")[0]
+    (deepBlueEventTypes as string[]).includes(
+      jpData.interactionType
     )
   ) {
     return {
@@ -43,8 +54,8 @@ export const messageStyle = (dataBody?: string) => {
     };
   } else if (
     dataBody &&
-    (adminTempTokenInteractionTypes as string[]).includes(
-      jp(dataBody).interactionType ?? dataBody.split(":")[0]
+    (blueTempTokenInteractionTypes as string[]).includes(
+      jpData.interactionType
     )
   ) {
     return {
@@ -57,7 +68,7 @@ export const messageStyle = (dataBody?: string) => {
   } else if (
     dataBody &&
     (greenTempTokenInteractionTypes as string[]).includes(
-      jp(dataBody).interactionType ?? dataBody.split(":")[0]
+      jpData.interactionType
     )
   ) {
     return {
@@ -70,7 +81,7 @@ export const messageStyle = (dataBody?: string) => {
   } else if (
     dataBody &&
     (redTempTokenInteractionTypes as string[]).includes(
-      jp(dataBody).interactionType ?? dataBody.split(":")[0]
+      jpData.interactionType
     )
   ) {
     return {
@@ -80,28 +91,28 @@ export const messageStyle = (dataBody?: string) => {
       fontWeight: "bold",
       showTimestamp: true,
     };
-  } else if (dataBody && dataBody.split(":")[0] === InteractionType.CLIP) {
+  } else if (    dataBody &&
+    (purpleEventTypes as string[]).includes(
+      jpData.interactionType
+    )) {
+      return {
+        bg: "rgba(172, 166, 255, 0.26)",
+        textColor: "#d8d7fc",
+        fontStyle: "italic",
+        fontWeight: "bold",
+        showTimestamp: true,
+      };
+  } else if (jpData.interactionType === InteractionType.CLIP) {
     return {
       bgGradient:
         "linear-gradient(138deg, rgba(0,0,0,1) 10%, rgba(125,125,125,1) 11%, rgba(125,125,125,1) 20%, rgba(0,0,0,1) 21%, rgba(0,0,0,1) 30%, rgba(125,125,125,1) 31%, rgba(125,125,125,1) 40%, rgba(0,0,0,1) 41%, rgba(0,0,0,1) 50%, rgba(125,125,125,1) 51%, rgba(125,125,125,1) 60%, rgba(0,0,0,1) 61%, rgba(0,0,0,1) 70%, rgba(125,125,125,1) 71%, rgba(125,125,125,1) 80%, rgba(0,0,0,1) 81%, rgba(0,0,0,1) 90%, rgba(125,125,125,1) 91%)",
     };
-  } else if (dataBody && dataBody.split(":")[0] === InteractionType.BUY_VOTES) {
-    if (dataBody?.split(":")[3] === "yay") {
-      return {
-        bg: "#1B9C9C",
-      };
-    } else {
-      return {
-        bg: "#D343F7",
-      };
-    }
-  } else if (dataBody && dataBody.split(":")[0] === InteractionType.BUY_VIBES) {
+  } else if (jpData.interactionType === InteractionType.BUY_VIBES) {
     return {
       bg: "rgba(10, 179, 18, 1)",
     };
   } else if (
-    dataBody &&
-    dataBody.split(":")[0] === InteractionType.SELL_VIBES
+    jpData.interactionType === InteractionType.SELL_VIBES
   ) {
     return {
       bg: "rgba(218, 58, 19, 1)",

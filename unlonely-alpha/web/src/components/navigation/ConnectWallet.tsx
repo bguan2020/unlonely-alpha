@@ -31,6 +31,7 @@ const ConnectWalletDropdown = ({ hideBridge }: { hideBridge?: boolean }) => {
     ready,
     authenticated,
     fetchingUser,
+    activeWallet,
     login,
     connectWallet,
     logout,
@@ -115,7 +116,7 @@ const ConnectWalletDropdown = ({ hideBridge }: { hideBridge?: boolean }) => {
                 >
                   {loggedInWithPrivy ? "connect wallet" : "login"}
                 </MenuItem>
-                {!hideBridge && (
+                {!hideBridge && (activeWallet as any)?.type !== "solana" && (
                   <MenuItem
                     bg={"#131323"}
                     _hover={{ bg: "#1f1f3c" }}
@@ -271,7 +272,7 @@ const ConnectedDisplay = () => {
               <Image src={"/images/privy-orange.png"} height={"20px"} />
             </Flex>
           </MenuItem>
-          {user?.address && (
+          {user?.address && (activeWallet as any)?.type === "ethereum" && (
             <MenuItem
               bg={"#131323"}
               _hover={{ bg: "#1f1f3c" }}

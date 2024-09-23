@@ -8,9 +8,14 @@ import {
   NULL_ADDRESS,
 } from "../../constants";
 import { useScreenAnimationsContext } from "../context/useScreenAnimations";
-import { Message, SenderStatus } from "../../constants/types/chat";
+import {
+  ChatBotMessageBody,
+  Message,
+  SenderStatus,
+} from "../../constants/types/chat";
 import { useChatChannel } from "./useChatChannel";
 import { ChatBot } from "../../constants/types";
+import { jp } from "../../utils/validation/jsonParse";
 
 export type ChatReturnType = {
   channel: AblyChannelPromise;
@@ -66,15 +71,15 @@ export const useChat = ({
       latestMessage.name === CHAT_MESSAGE_EVENT &&
       Date.now() - latestMessage.timestamp < 12000
     ) {
-      const body = latestMessage.data.body;
+      const body = jp(latestMessage.data.body);
       if (
-        (body.split(":")[0] === InteractionType.BUY ||
-          body.split(":")[0] === InteractionType.TIP) &&
+        (body.interactionType === InteractionType.BUY ||
+          body.interactionType === InteractionType.TIP) &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
         fireworks();
       } else if (
-        body.split(":")[0] === InteractionType.BLAST &&
+        body.interactionType === InteractionType.BLAST &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
         if (latestMessage.data.isGif) {
@@ -85,30 +90,18 @@ export const useChat = ({
           );
         }
       } else if (
-        body.split(":")[0] === InteractionType.BUY_VOTES &&
+        body.interactionType === InteractionType.BUY_VIBES &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
-        const votedOption = body.split(":")[4];
-        emojiBlast(
-          <Text fontSize="40px">
-            {"🚀"}
-            {votedOption}
-            {"🚀"}
-          </Text>
-        );
-      } else if (
-        body.split(":")[0] === InteractionType.BUY_VIBES &&
-        Date.now() - latestMessage.timestamp < 12000
-      ) {
-        const amount = body.split(":")[2];
+        const amount = body.amount;
         if (Number(amount) < 2000) return;
         const m = determineValue(Number(amount));
         emojiBlast(<Text fontSize={"30px"}>{"📈"}</Text>);
       } else if (
-        body.split(":")[0] === InteractionType.SELL_VIBES &&
+        body.interactionType === InteractionType.SELL_VIBES &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
-        const amount = body.split(":")[2];
+        const amount = body.amount;
         if (Number(amount) < 2000) return;
         emojiBlast(<Text fontSize={"30px"}>{"📉"}</Text>);
       }
@@ -124,8 +117,12 @@ export const useChat = ({
           lastMessage.taskType as InteractionType
         )
       ) {
+        const newJsonData: ChatBotMessageBody = {
+          interactionType: lastMessage.taskType,
+          ...(lastMessage.description ? jp(lastMessage.description) : {}),
+        };
+        body = JSON.stringify(newJsonData);
         const messageText = lastMessage.title ?? lastMessage.taskType;
-        body = `${lastMessage.taskType}:${lastMessage.description ?? ""}`;
         publishChatBotMessage(messageText, body);
       }
     }

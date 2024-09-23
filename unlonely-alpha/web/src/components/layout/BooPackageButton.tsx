@@ -1,69 +1,85 @@
 import { Button, Flex } from "@chakra-ui/react";
 import { useUser } from "../../hooks/context/useUser";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import { InteractionType } from "../../constants";
+import centerEllipses from "../../utils/centerEllipses";
 
 export const BooPackageButton = ({
   cooldownInSeconds,
   userBooPackageCooldowns,
   dateNow,
-  packageName,
   updateUserBooPackageCooldownMapping,
   updateBooPackage,
   fetchUserBooPackageCooldownMapping,
+  packageInfo,
 }: {
   cooldownInSeconds: number;
   userBooPackageCooldowns: any;
   dateNow: number;
-  packageName: string;
   updateUserBooPackageCooldownMapping: any;
   updateBooPackage: any;
   fetchUserBooPackageCooldownMapping: any;
+  packageInfo: {
+    name: string;
+    isCarePackage: boolean;
+  };
 }) => {
-  const { channel } = useChannelContext();
+  const { channel, chat } = useChannelContext();
   const { isOwner } = channel;
-  const { user, solanaAddress } = useUser();
+  const { addToChatbot } = chat;
+  const { user } = useUser();
 
   return (
     <Flex direction="column">
       <Button
         isDisabled={
           userBooPackageCooldowns &&
-          userBooPackageCooldowns?.[packageName]?.lastUsedAt !== undefined &&
+          userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt !==
+            undefined &&
           dateNow - cooldownInSeconds * 1000 <
-            userBooPackageCooldowns?.[packageName]?.lastUsedAt
+            userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt
         }
         onClick={async () => {
           await updateUserBooPackageCooldownMapping({
-            userAddress: solanaAddress ?? "",
-            packageName: packageName,
+            userAddress: user?.address ?? "",
+            packageName: packageInfo.name,
           }).then(async () => {
             await fetchUserBooPackageCooldownMapping(user?.address ?? "");
+            addToChatbot({
+              username: user?.username ?? "",
+              address: user?.address ?? "",
+              taskType: InteractionType.USE_BOO_PACKAGE,
+              title: `${
+                user?.username ?? centerEllipses(user?.address, 15)
+              } used ${packageInfo.name}!`,
+              description: JSON.stringify(packageInfo),
+            });
           });
         }}
       >
         {userBooPackageCooldowns &&
-        userBooPackageCooldowns?.[packageName]?.lastUsedAt !== undefined &&
+        userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt !== undefined &&
         dateNow - cooldownInSeconds * 1000 <
-          userBooPackageCooldowns?.[packageName]?.lastUsedAt
+          userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt
           ? `${Math.ceil(
-              (userBooPackageCooldowns?.[packageName]?.lastUsedAt -
+              (userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt -
                 (dateNow - cooldownInSeconds * 1000)) /
                 1000
             )}s`
-          : packageName}
+          : packageInfo.name}
       </Button>
       {isOwner && (
         <Flex>
           <Button
             onClick={async () => {
               const { data: newPackage } = await updateBooPackage({
-                packageName: packageName,
+                packageName: packageInfo.name,
                 cooldownInSeconds: cooldownInSeconds + 10,
                 priceMultiplier: "1",
               });
             }}
           >
-            Update {packageName}
+            Update {packageInfo.name}
           </Button>
         </Flex>
       )}

@@ -3,18 +3,18 @@ import { Types } from "ably";
 import { useEffect, useState } from "react";
 
 import { useChannelContext } from "../context/useChannel";
-import { Message, SenderStatus } from "../../constants/types/chat";
+import { Message } from "../../constants/types/chat";
 import {
   CHANGE_CHANNEL_DETAILS_EVENT,
   CHANGE_USER_ROLE_EVENT,
   CHAT_MESSAGE_EVENT,
-  InteractionType,
+  // InteractionType,
   PINNED_CHAT_MESSAGES_EVENT,
   TOKEN_TRANSFER_EVENT,
   VIBES_TOKEN_PRICE_RANGE_EVENT,
 } from "../../constants";
 import { useUser } from "../context/useUser";
-import { SharesEventState } from "../../generated/graphql";
+// import { SharesEventState } from "../../generated/graphql";
 import { useVibesContext } from "../context/useVibes";
 import { isAddress, isAddressEqual } from "viem";
 import { Box, Flex, useToast, Text } from "@chakra-ui/react";
@@ -156,7 +156,6 @@ export function useChatChannel(fixedChatName?: string) {
     }
     if (message.name === CHANGE_CHANNEL_DETAILS_EVENT) {
       const body = jp(message.data.body);
-      console.log("body", body);
       handleRealTimeChannelDetails?.({
         channelName: body.channelName,
         channelDescription: body.channelDescription,
@@ -174,39 +173,6 @@ export function useChatChannel(fixedChatName?: string) {
       handlePinnedChatMessages?.(_pinnedMessages);
     }
     if (message.name === CHAT_MESSAGE_EVENT) {
-      if (message.data.senderStatus === SenderStatus.CHATBOT) {
-        const chatbotTaskType =
-          message?.data?.body?.split(":")[0] ||
-          jp(message?.data?.body).interactionType;
-        if (chatbotTaskType === InteractionType.EVENT_LIVE) {
-          const betId = message.data.body.split(":")[1];
-          const sharesSubjectQuestion = message.data.body.split(":")[2];
-          const sharesSubjectAddress = message.data.body.split(":")[3];
-          const optionA = message.data.body.split(":")[4];
-          const optionB = message.data.body.split(":")[5];
-          const chainId = message.data.body.split(":")[6];
-          const channelId = message.data.body.split(":")[7];
-          handleLatestBet?.({
-            id: betId as string,
-            sharesSubjectQuestion: sharesSubjectQuestion as string,
-            sharesSubjectAddress: sharesSubjectAddress as string,
-            options: [optionA as string, optionB as string],
-            chainId: Number(chainId as string),
-            channelId: channelId as string,
-            createdAt: new Date().toISOString(),
-            eventState: SharesEventState.Live,
-          });
-        }
-        if (chatbotTaskType === InteractionType.EVENT_LOCK) {
-          handleLocalSharesEventState?.(SharesEventState.Lock);
-        }
-        if (chatbotTaskType === InteractionType.EVENT_UNLOCK) {
-          handleLocalSharesEventState?.(SharesEventState.Live);
-        }
-        if (chatbotTaskType === InteractionType.EVENT_PAYOUT) {
-          handleLocalSharesEventState?.(SharesEventState.Payout);
-        }
-      }
       if (localBanList.length === 0) {
         setReceivedMessages([...messageHistory, message]);
       } else {

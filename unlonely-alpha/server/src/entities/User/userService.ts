@@ -86,7 +86,7 @@ export const getUser = async (data: IGetUserInput, ctx: Context) => {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new Error("getUser: User not found");
   }
 
   return user;
@@ -104,7 +104,7 @@ export const getUserChannelContract1155Mapping = async (
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new Error("getUserChannelContract1155Mapping: User not found");
   }
 
   return user.channelContract1155Mapping;
@@ -121,7 +121,7 @@ export const getUserBooPackageCooldownMapping = async (
     },
   });
   if (!user) {
-    throw new Error("User not found");
+    throw new Error("getUserBooPackageCooldownMapping: User not found");
   }
 
   return user.booPackageCooldownMapping;
@@ -144,7 +144,7 @@ export const updateUserChannelContract1155Mapping = async (
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new Error("updateUserChannelContract1155Mapping: User not found");
   }
 
   // Parse the current mapping
@@ -180,7 +180,7 @@ export const updateUserBooPackageCooldownMapping = async (
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new Error("updateUserBooPackageCooldownMapping, User not found");
   }
 
   // Parse the current mapping
@@ -462,8 +462,8 @@ export const getDoesUserAddressMatch = async (data: IGetDoesUserAddressMatchInpu
     },
   });
 
-  if (!user) throw new Error("User not found from address");
-  if (!ctx.user) throw new Error("User not found in context");
+  if (!user) throw new Error("getDoesUserAddressMatch: User not found from address");
+  if (!ctx.user) throw new Error("getDoesUserAddressMatch: User not found in context");
 
   const contextUser = ctx.user
 

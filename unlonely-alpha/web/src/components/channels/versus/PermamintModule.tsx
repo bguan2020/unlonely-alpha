@@ -142,9 +142,12 @@ export const PermamintModule = () => {
           address: user?.address ?? "",
           taskType: InteractionType.VERSUS_WINNER_TOKENS_MINTED,
           title,
-          description: `${user?.address}:${Number(
-            args.amount as bigint
-          )}:${String(data.blockNumber)}:${_tokenType}`,
+          description: JSON.stringify({
+            address: user?.address ?? "",
+            amount: Number(args.amount as bigint),
+            blockNumber: String(data.blockNumber),
+            tokenType: _tokenType,
+          }),
         });
       },
       onTxError: (error) => {

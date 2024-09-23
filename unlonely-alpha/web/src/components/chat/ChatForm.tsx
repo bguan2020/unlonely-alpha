@@ -133,7 +133,14 @@ const ChatForm = ({
     if (!blastMode) {
       sendChatMessage(gif, true, currSenderStatus);
     } else {
-      sendChatMessage(gif, true, currSenderStatus, `${InteractionType.BLAST}:`);
+      sendChatMessage(
+        gif,
+        true,
+        currSenderStatus,
+        JSON.stringify({
+          interactionType: InteractionType.BLAST,
+        })
+      );
       setBlastMode(false);
       setBlastDisabled(true);
       setTimeout(() => {
@@ -166,7 +173,9 @@ const ChatForm = ({
           messageText.replace(/^\s*\n|\n\s*$/g, ""),
           false,
           currSenderStatus,
-          `${InteractionType.BLAST}:`
+          JSON.stringify({
+            interactionType: InteractionType.BLAST,
+          })
         );
         setBlastMode(false);
         setBlastDisabled(true);
@@ -193,7 +202,9 @@ const ChatForm = ({
           messageText.replace(/^\s*\n|\n\s*$/g, ""),
           false,
           currSenderStatus,
-          `${InteractionType.BLAST}:`
+          JSON.stringify({
+            interactionType: InteractionType.BLAST,
+          })
         );
         setBlastMode(false);
         setBlastDisabled(true);

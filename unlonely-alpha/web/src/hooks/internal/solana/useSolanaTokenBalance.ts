@@ -14,6 +14,8 @@ export const useSolanaTokenBalance = (rpcUrl: string) => {
     useEffect(() => {
       if (solanaAddress){
         fetchTokenBalance();
+      } else {
+        setBalance(null);
       }
     }, [solanaAddress, activeWallet]);
   
