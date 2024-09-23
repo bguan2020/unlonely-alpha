@@ -1,24 +1,24 @@
 // import { AuthenticationError } from "apollo-server";
 
 import { Context } from "../../context";
-import * as booPackageService from "./booPackageService";
+import * as packageService from "./packageService";
 
 export const resolvers = {
     Query: {
-        getBooPackages: (_: any, __: any, ctx: any) => {
-            return booPackageService.getBooPackages(ctx);
+        getPackages: (_: any, __: any, ctx: any) => {
+            return packageService.getPackages(ctx);
         },
     },
     Mutation: {
-        updateBooPackage: (
+        updatePackage: (
             _: any,
-            { data }: { data: booPackageService.IUpdateBooPackageInput },
+            { data }: { data: packageService.IUpdatePackageInput },
             ctx: Context
         ) => {
             // if (!ctx.user) {
             //     throw new AuthenticationError("User is not authenticated");
             // }
-            return booPackageService.updateBooPackage(data, ctx);
+            return packageService.updatePackage(data, ctx);
         },
     },
 }

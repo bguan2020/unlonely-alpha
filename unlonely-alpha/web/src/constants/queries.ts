@@ -41,15 +41,15 @@ export const GET_USER_CHANNEL_CONTRACT_1155_MAPPING_QUERY = gql`
   }
 `;
 
-export const GET_USER_BOO_PACKAGE_COOLDOWN_MAPPING_QUERY = gql`
-  query GetUserBooPackageCooldownMapping($data: GetUserInput!) {
-    getUserBooPackageCooldownMapping(data: $data)
+export const GET_USER_PACKAGE_COOLDOWN_MAPPING_QUERY = gql`
+  query GetUserPackageCooldownMapping($data: GetUserInput!) {
+    getUserPackageCooldownMapping(data: $data)
   }
 `;
 
-export const GET_BOO_PACKAGES_QUERY = gql`
-  query GetBooPackages {
-    getBooPackages {
+export const GET_PACKAGES_QUERY = gql`
+  query GetPackages {
+    getPackages {
       cooldownInSeconds
       priceMultiplier
       packageName
@@ -116,6 +116,19 @@ export const GET_TOKEN_LEADERBOARD_QUERY = gql`
     }
   }
 `;
+
+export const GET_STREAM_INTERACTIONS_QUERY = gql`
+query GetStreamInteractions($data: GetStreamInteractionsInput) {
+  getStreamInteractions(data: $data) {
+    softDelete
+    updatedAt
+    createdAt
+    text
+    interactionType
+    id
+  }
+}
+`
 
 export const CHANNEL_DETAIL_QUERY = gql`
   query ChannelDetail($slug: String!) {

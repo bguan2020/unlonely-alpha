@@ -3,12 +3,12 @@ import { useRouter } from "next/router";
 import { gql } from "@apollo/client";
 import { GraphQLErrors } from "@apollo/client/errors";
 import { useAuthedMutation } from "../../apiClient/hooks";
-import { UpdateBooPackageInput, UpdateBooPackageMutation, UpdateBooPackageMutationVariables } from "../../generated/graphql";
+import { UpdatePackageInput, UpdatePackageMutation, UpdatePackageMutationVariables } from "../../generated/graphql";
 
 
 const MUTATION = gql`
-mutation UpdateBooPackage($data: UpdateBooPackageInput!) {
-  updateBooPackage(data: $data) {
+mutation UpdatePackage($data: UpdatePackageInput!) {
+  updatePackage(data: $data) {
     cooldownInSeconds
     priceMultiplier
     packageName
@@ -17,7 +17,7 @@ mutation UpdateBooPackage($data: UpdateBooPackageInput!) {
 }
 `
 
-export const useUpdateBooPackage = ({
+export const useUpdatePackage = ({
   onError,
 }: {
   onError?: (errors?: GraphQLErrors) => void;
@@ -25,12 +25,12 @@ export const useUpdateBooPackage = ({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<
-    UpdateBooPackageMutation,
-    UpdateBooPackageMutationVariables
+    UpdatePackageMutation,
+    UpdatePackageMutationVariables
   >(MUTATION);
 
-  const updateBooPackage = useCallback(
-    async (data: UpdateBooPackageInput) => {
+  const updatePackage = useCallback(
+    async (data: UpdatePackageInput) => {
       setLoading(true);
 
       const mutationResult = await mutate({ variables: { data } });
@@ -38,7 +38,7 @@ export const useUpdateBooPackage = ({
       if (
         mutationResult.errors ||
         !mutationResult.data ||
-        !mutationResult.data.updateBooPackage
+        !mutationResult.data.updatePackage
       ) {
         onError && onError(mutationResult.errors);
         setLoading(false);
@@ -50,5 +50,5 @@ export const useUpdateBooPackage = ({
     [mutate, onError, router]
   );
 
-  return { updateBooPackage, loading };
+  return { updatePackage, loading };
 };

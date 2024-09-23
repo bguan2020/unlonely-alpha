@@ -4,34 +4,34 @@ import { GraphQLErrors } from "@apollo/client/errors";
 
 import { useAuthedMutation } from "../../../apiClient/hooks";
 import {
-  UpdateUserBooPackageCooldownMappingInput,
-  UpdateUserBooPackageCooldownMappingMutation,
-  UpdateUserBooPackageCooldownMappingMutationVariables,
+  UpdateUserPackageCooldownMappingInput,
+  UpdateUserPackageCooldownMappingMutation,
+  UpdateUserPackageCooldownMappingMutationVariables,
 } from "../../../generated/graphql";
 
 const MUTATION = gql`
-  mutation UpdateUserBooPackageCooldownMapping($data: UpdateUserBooPackageCooldownMappingInput!) {
-  updateUserBooPackageCooldownMapping(data: $data) {
+  mutation UpdateUserPackageCooldownMapping($data: UpdateUserPackageCooldownMappingInput!) {
+  updateUserPackageCooldownMapping(data: $data) {
     address
     username
-    booPackageCooldownMapping
+    packageCooldownMapping
   }
 }
 `;
 
-const useUpdateUserBooPackageCooldownMapping = ({
+const useUpdateUserPackageCooldownMapping = ({
   onError,
 }: {
   onError?: (errors?: GraphQLErrors) => void;
 }) => {
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<
-    UpdateUserBooPackageCooldownMappingMutation,
-    UpdateUserBooPackageCooldownMappingMutationVariables
+    UpdateUserPackageCooldownMappingMutation,
+    UpdateUserPackageCooldownMappingMutationVariables
   >(MUTATION);
 
-  const updateUserBooPackageCooldownMapping = useCallback(
-    async (data: UpdateUserBooPackageCooldownMappingInput) => {
+  const updateUserPackageCooldownMapping = useCallback(
+    async (data: UpdateUserPackageCooldownMappingInput) => {
       setLoading(true);
 
       const mutationResult = await mutate({ variables: { data } });
@@ -39,7 +39,7 @@ const useUpdateUserBooPackageCooldownMapping = ({
       if (
         mutationResult.errors ||
         !mutationResult.data ||
-        !mutationResult.data.updateUserBooPackageCooldownMapping
+        !mutationResult.data.updateUserPackageCooldownMapping
       ) {
         onError && onError(mutationResult.errors);
         setLoading(false);
@@ -51,7 +51,7 @@ const useUpdateUserBooPackageCooldownMapping = ({
     [mutate, onError]
   );
 
-  return { updateUserBooPackageCooldownMapping, loading };
+  return { updateUserPackageCooldownMapping, loading };
 };
 
-export default useUpdateUserBooPackageCooldownMapping;
+export default useUpdateUserPackageCooldownMapping;

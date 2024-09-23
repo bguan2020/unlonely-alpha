@@ -20,8 +20,8 @@ import { getSrc } from "@livepeer/react/external";
 import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import {
-  GET_BOO_PACKAGES_QUERY,
-  GET_USER_BOO_PACKAGE_COOLDOWN_MAPPING_QUERY,
+  GET_PACKAGES_QUERY,
+  GET_USER_PACKAGE_COOLDOWN_MAPPING_QUERY,
 } from "../../constants/queries";
 import { useLazyQuery } from "@apollo/client";
 import { FaExpandArrowsAlt } from "react-icons/fa";
@@ -37,11 +37,11 @@ import { useWallet } from "@solana/wallet-adapter-react";
 // import { useBooTokenTerminal } from "../../hooks/internal/solana/useBooTokenTerminal";
 import { SOLANA_RPC_URL, FIXED_SOLANA_MINT } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
-import useUpdateUserBooPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserBooPackageCooldownMapping";
-import { GetUserBooPackageCooldownMappingQuery } from "../../generated/graphql";
+import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
+import { GetUserPackageCooldownMappingQuery } from "../../generated/graphql";
 import { BooCarePackages } from "./BooCarePackages";
 import { useDragRefs } from "../../hooks/internal/useDragRef";
-import { useUpdateBooPackage } from "../../hooks/server/useUpdateBooPackage";
+import { useUpdatePackage } from "../../hooks/server/useUpdatePackage";
 
 export const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 export const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
@@ -96,14 +96,14 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const [booPackages, setBooPackages] = useState<any>(undefined);
 
   const [_fetchUserBooPackageCooldownMapping] =
-    useLazyQuery<GetUserBooPackageCooldownMappingQuery>(
-      GET_USER_BOO_PACKAGE_COOLDOWN_MAPPING_QUERY,
+    useLazyQuery<GetUserPackageCooldownMappingQuery>(
+      GET_USER_PACKAGE_COOLDOWN_MAPPING_QUERY,
       {
         fetchPolicy: "network-only",
       }
     );
 
-  const [_fetchBooPackages] = useLazyQuery(GET_BOO_PACKAGES_QUERY, {
+  const [_fetchBooPackages] = useLazyQuery(GET_PACKAGES_QUERY, {
     fetchPolicy: "network-only",
   });
 
@@ -114,7 +114,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
           data: { address: userAddress },
         },
       });
-      const cooldownMapping = data?.getUserBooPackageCooldownMapping;
+      const cooldownMapping = data?.getUserPackageCooldownMapping;
       if (cooldownMapping) {
         setUserBooPackageCooldowns(cooldownMapping);
       }
@@ -128,7 +128,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
 
   const fetchBooPackages = useCallback(async () => {
     const { data } = await _fetchBooPackages();
-    const packages = data?.getBooPackages;
+    const packages = data?.getPackages;
     if (packages) {
       setBooPackages(packages);
     }
@@ -153,10 +153,11 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const [isGlowing, setIsGlowing] = useState(false);
 
   const { publicKey, connected } = useWallet();
-  const { updateUserBooPackageCooldownMapping } =
-    useUpdateUserBooPackageCooldownMapping({});
+  const {
+    updateUserPackageCooldownMapping: updateUserBooPackageCooldownMapping,
+  } = useUpdateUserPackageCooldownMapping({});
 
-  const { updateBooPackage } = useUpdateBooPackage({});
+  const { updatePackage: updateBooPackage } = useUpdatePackage({});
 
   // const { quoteSwap } = useJupiterQuoteSwap();
 

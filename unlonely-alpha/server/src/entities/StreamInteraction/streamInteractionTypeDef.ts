@@ -1,6 +1,10 @@
 import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
+  enum InteractionType {
+    tts_interaction
+  }
+
   type StreamInteraction {
     id: ID!
     interactionType: String!
@@ -9,6 +13,7 @@ export const typeDef = gql`
     channel: Channel!
     createdAt: DateTime!
     updatedAt: DateTime!
+    softDelete: Boolean!
   }
 
   input PostStreamInteractionInput {
@@ -17,17 +22,26 @@ export const typeDef = gql`
     channelId: ID!
   }
 
-  input GetRecentStreamInteractionsByChannelInput {
+  input UpdateStreamInteractionInput {
+    interactionId: ID!
+    softDeleted: Boolean!
+  }
+
+  input GetStreamInteractionsInput {
     channelId: ID!
+    interactionType: InteractionType
+    orderBy: SortOrder!
+    softDeleted: Boolean
   }
 
   extend type Mutation {
+    updateStreamInteraction(data: UpdateStreamInteractionInput!): StreamInteraction
     postStreamInteraction(data: PostStreamInteractionInput!): StreamInteraction
   }
 
   extend type Query {
-    getRecentStreamInteractionsByChannel(
-      data: GetRecentStreamInteractionsByChannelInput
+    getStreamInteractions(
+      data: GetStreamInteractionsInput
     ): [StreamInteraction]
   }
 `;

@@ -1,24 +1,24 @@
 import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
-    type BooPackage {
+    type Package {
         id: ID!
         packageName: String!
         priceMultiplier: String
         cooldownInSeconds: Int!
     }
     
-    input UpdateBooPackageInput {
+    input UpdatePackageInput {
         packageName: String!
         cooldownInSeconds: Int!
         priceMultiplier: String!
     }
     
     extend type Query {
-        getBooPackages: [BooPackage!]!
+        getPackages: [Package!]!
     }
     
     extend type Mutation {
-        updateBooPackage(data: UpdateBooPackageInput!): BooPackage!
+        updatePackage(data: UpdatePackageInput!): Package!
     }
     `;

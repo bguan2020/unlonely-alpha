@@ -246,7 +246,7 @@
             "deprecationReason": null
           },
           {
-            "name": "getUserBooPackageCooldownMapping",
+            "name": "getUserPackageCooldownMapping",
             "description": null,
             "args": [
               {
@@ -643,7 +643,7 @@
             "deprecationReason": null
           },
           {
-            "name": "getRecentStreamInteractionsByChannel",
+            "name": "getStreamInteractions",
             "description": null,
             "args": [
               {
@@ -651,7 +651,7 @@
                 "description": null,
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "GetRecentStreamInteractionsByChannelInput",
+                  "name": "GetStreamInteractionsInput",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -1524,7 +1524,7 @@
             "deprecationReason": null
           },
           {
-            "name": "getBooPackages",
+            "name": "getPackages",
             "description": null,
             "args": [],
             "type": {
@@ -1538,7 +1538,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "BooPackage",
+                    "name": "Package",
                     "ofType": null
                   }
                 }
@@ -1674,7 +1674,7 @@
             "deprecationReason": null
           },
           {
-            "name": "updateUserBooPackageCooldownMapping",
+            "name": "updateUserPackageCooldownMapping",
             "description": null,
             "args": [
               {
@@ -1685,7 +1685,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "UpdateUserBooPackageCooldownMappingInput",
+                    "name": "UpdateUserPackageCooldownMappingInput",
                     "ofType": null
                   }
                 },
@@ -2181,6 +2181,35 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "updateStreamInteraction",
+            "description": null,
+            "args": [
+              {
+                "name": "data",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "UpdateStreamInteractionInput",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "OBJECT",
+              "name": "StreamInteraction",
               "ofType": null
             },
             "isDeprecated": false,
@@ -3427,7 +3456,7 @@
             "deprecationReason": null
           },
           {
-            "name": "updateBooPackage",
+            "name": "updatePackage",
             "description": null,
             "args": [
               {
@@ -3438,7 +3467,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "UpdateBooPackageInput",
+                    "name": "UpdatePackageInput",
                     "ofType": null
                   }
                 },
@@ -3452,7 +3481,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "BooPackage",
+                "name": "Package",
                 "ofType": null
               }
             },
@@ -4248,7 +4277,7 @@
       },
       {
         "kind": "OBJECT",
-        "name": "BooPackageCooldownMapping",
+        "name": "PackageCooldownMapping",
         "description": null,
         "specifiedByUrl": null,
         "fields": [
@@ -4613,7 +4642,7 @@
             "deprecationReason": null
           },
           {
-            "name": "booPackageCooldownMapping",
+            "name": "packageCooldownMapping",
             "description": null,
             "args": [],
             "type": {
@@ -5004,7 +5033,7 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "UpdateUserBooPackageCooldownMappingInput",
+        "name": "UpdateUserPackageCooldownMappingInput",
         "description": null,
         "specifiedByUrl": null,
         "fields": null,
@@ -8469,6 +8498,24 @@
         "possibleTypes": null
       },
       {
+        "kind": "ENUM",
+        "name": "InteractionType",
+        "description": null,
+        "specifiedByUrl": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "tts_interaction",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "possibleTypes": null
+      },
+      {
         "kind": "OBJECT",
         "name": "StreamInteraction",
         "description": null,
@@ -8581,6 +8628,22 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "softDelete",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -8646,7 +8709,51 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "GetRecentStreamInteractionsByChannelInput",
+        "name": "UpdateStreamInteractionInput",
+        "description": null,
+        "specifiedByUrl": null,
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "interactionId",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "softDeleted",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "GetStreamInteractionsInput",
         "description": null,
         "specifiedByUrl": null,
         "fields": null,
@@ -8662,6 +8769,46 @@
                 "name": "ID",
                 "ofType": null
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "interactionType",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "InteractionType",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "orderBy",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "ENUM",
+                "name": "SortOrder",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "softDeleted",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -14502,7 +14649,7 @@
       },
       {
         "kind": "OBJECT",
-        "name": "BooPackage",
+        "name": "Package",
         "description": null,
         "specifiedByUrl": null,
         "fields": [
@@ -14574,7 +14721,7 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "UpdateBooPackageInput",
+        "name": "UpdatePackageInput",
         "description": null,
         "specifiedByUrl": null,
         "fields": null,
