@@ -76,6 +76,11 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
       const txBlockNumber = jpBody.blockNumber;
       const incomingTxTokenAddress = jpBody.tokenAddress;
       const totalSupply = jpBody.totalSupply;
+      console.log(
+        " processTempTokenEvents jpBody",
+        jpBody,
+        currentTempTokenContract
+      );
       if (
         currentTempTokenContract.address &&
         isAddress(incomingTxTokenAddress) &&
@@ -85,13 +90,18 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           currentTempTokenContract.address as `0x${string}`
         )
       ) {
+        console.log(
+          "fetching temp token events",
+          jpBody,
+          currentTempTokenContract
+        );
         await getTempTokenEvents(
           currentTempTokenContract,
           currentActiveTokenMinBaseTokenPrice,
           blockNumberOfLastInAppTrade === BigInt(0) && tempTokenTxs.length > 0
             ? BigInt(tempTokenTxs[tempTokenTxs.length - 1].blockNumber)
             : blockNumberOfLastInAppTrade,
-          txBlockNumber
+          BigInt(txBlockNumber)
         );
         if (
           user?.address &&
@@ -106,7 +116,6 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         }
         setBlockNumberOfLastInAppTrade(txBlockNumber);
         if (jpBody.interactionType === InteractionType.BUY_TEMP_TOKENS) {
-          const highestTotalSupply = jpBody.highestTotalSupply;
           const hasHitTotalSupplyThreshold =
             jpBody.hasTotalSupplyThresholdReached === "true";
           const newEndTimestampForToken = jpBody.endTimestamp;
@@ -129,12 +138,14 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   useEffect(() => {
     if (receivedMessages.length === 0) return;
     const latestMessage = receivedMessages[receivedMessages.length - 1];
+    console.log("useTempTokenAblyInterpreter latestMessage", latestMessage);
     if (
       latestMessage &&
       latestMessage.data.body &&
       latestMessage.name === CHAT_MESSAGE_EVENT &&
       Date.now() - latestMessage.timestamp < 12000
     ) {
+      console.log("useTempTokenAblyInterpreter latestMessage", latestMessage);
       const body = latestMessage.data.body;
       const jpBody = jp(body) as ChatBotMessageBody;
       if (
@@ -152,22 +163,29 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
 
         handleCurrentActiveTokenAddress(jpBody.tokenAddress);
         handleCurrentActiveTokenSymbol(jpBody.symbol);
-        handleCurrentActiveTokenEndTimestamp(jpBody.endTimestamp);
-        handleCurrentActiveTokenCreationBlockNumber(jpBody.creationBlockNumber);
-        handleCurrentActiveTokenTotalSupplyThreshold(
-          jpBody.totalSupplyThreshold
+        handleCurrentActiveTokenEndTimestamp(BigInt(jpBody.endTimestamp));
+        handleCurrentActiveTokenCreationBlockNumber(
+          BigInt(jpBody.creationBlockNumber)
         );
-        handleCurrentActiveTokenPreSaleEndTimestamp(jpBody.preSaleEndTimestamp);
+        handleCurrentActiveTokenTotalSupplyThreshold(
+          BigInt(jpBody.totalSupplyThreshold)
+        );
+        handleCurrentActiveTokenPreSaleEndTimestamp(
+          BigInt(jpBody.preSaleEndTimestamp)
+        );
         handleCurrentActiveTokenFactoryAddress(jpBody.factoryAddress);
         handleIsPreSaleOngoing(
           Number(jpBody.preSaleEndTimestamp) > Math.floor(Date.now() / 1000)
         );
-        handleCurrentActiveTokenMinBaseTokenPrice(jpBody.minBaseTokenPrice);
+        handleCurrentActiveTokenMinBaseTokenPrice(
+          BigInt(jpBody.minBaseTokenPrice)
+        );
       }
       if (
         jpBody.interactionType === InteractionType.BUY_TEMP_TOKENS ||
         jpBody.interactionType === InteractionType.SELL_TEMP_TOKENS
       ) {
+        console.log("useTempTokenAblyInterpreter setTxBody jpBody", jpBody);
         setTempTokenTransactionBody(body);
       }
       if (

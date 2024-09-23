@@ -88,6 +88,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
     const jpBody = jp(body) as ChatBotMessageBody;
     const _userAddress = jpBody.address;
     const txBlockNumber = jpBody.blockNumber;
+    console.log("fetching versus temp token events", jpBody);
     await Promise.all([
       getTempTokenEventsA(
         tokenA.contractData,
@@ -96,7 +97,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           tempTokenTxsA.length > 0
           ? BigInt(tempTokenTxsA[tempTokenTxsA.length - 1].blockNumber)
           : blockNumberOfLastInAppTrade.current,
-        txBlockNumber
+        BigInt(txBlockNumber)
       ),
       getTempTokenEventsB(
         tokenB.contractData,
@@ -105,7 +106,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           tempTokenTxsB.length > 0
           ? BigInt(tempTokenTxsB[tempTokenTxsB.length - 1].blockNumber)
           : blockNumberOfLastInAppTrade.current,
-        txBlockNumber
+        BigInt(txBlockNumber)
       ),
     ]);
     if (
@@ -171,6 +172,10 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   useEffect(() => {
     if (receivedMessages.length === 0) return;
     const latestMessage = receivedMessages[receivedMessages.length - 1];
+    console.log(
+      "useVersusTempTokenAblyInterpreter latestMessage",
+      latestMessage
+    );
     if (
       latestMessage &&
       latestMessage.data.body &&
@@ -183,14 +188,15 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
       if (
         jpBody.interactionType === InteractionType.CREATE_MULTIPLE_TEMP_TOKENS
       ) {
-        const newEndTimestamp = jpBody.endTimestamp;
-        const newTokenAddresses = jpBody.tokenAddresses;
-        const newTokenSymbols = jpBody.tokenSymbols;
-        const chainId = jpBody.chainId;
-        const newTokenCreationBlockNumber = jpBody.creationBlockNumber;
-        const preSaleEndTimestamp = jpBody.preSaleEndTimestamp;
-        const factoryAddress = jpBody.factoryAddress;
-        const minBaseTokenPrice = jpBody.minBaseTokenPrice;
+        const newEndTimestamp = jpBody.endTimestamp as string;
+        const newTokenAddresses = jpBody.tokenAddresses as string[];
+        const newTokenSymbols = jpBody.tokenSymbols as string[];
+        const chainId = jpBody.chainId as string;
+        const newTokenCreationBlockNumber =
+          jpBody.creationBlockNumber as string;
+        const preSaleEndTimestamp = jpBody.preSaleEndTimestamp as string;
+        const factoryAddress = jpBody.factoryAddress as string;
+        const minBaseTokenPrice = jpBody.minBaseTokenPrice as string;
         handleRealTimeChannelDetails({
           isLive: true,
         });
@@ -211,16 +217,16 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           address: newTokenAddresses[0],
           totalSupply: BigInt(0),
           isAlwaysTradeable: false,
-          preSaleEndTimestamp: preSaleEndTimestamp,
+          preSaleEndTimestamp: BigInt(preSaleEndTimestamp),
           contractData: {
-            address: newTokenAddresses[0],
-            chainId,
+            address: newTokenAddresses[0] as `0x${string}`,
+            chainId: Number(chainId),
             abi: TempTokenAbi,
           },
-          creationBlockNumber: newTokenCreationBlockNumber,
-          endTimestamp: newEndTimestamp,
+          creationBlockNumber: BigInt(newTokenCreationBlockNumber),
+          endTimestamp: BigInt(newEndTimestamp),
           factoryAddress,
-          minBaseTokenPrice,
+          minBaseTokenPrice: BigInt(minBaseTokenPrice),
         });
         setTokenB({
           transferredLiquidityOnExpiration: BigInt(0),
@@ -228,16 +234,16 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
           address: newTokenAddresses[1],
           totalSupply: BigInt(0),
           isAlwaysTradeable: false,
-          preSaleEndTimestamp: preSaleEndTimestamp,
+          preSaleEndTimestamp: BigInt(preSaleEndTimestamp),
           contractData: {
-            address: newTokenAddresses[1],
-            chainId,
+            address: newTokenAddresses[1] as `0x${string}`,
+            chainId: Number(chainId),
             abi: TempTokenAbi,
           },
-          creationBlockNumber: newTokenCreationBlockNumber,
-          endTimestamp: newEndTimestamp,
+          creationBlockNumber: BigInt(newTokenCreationBlockNumber),
+          endTimestamp: BigInt(newEndTimestamp),
           factoryAddress,
-          minBaseTokenPrice,
+          minBaseTokenPrice: BigInt(minBaseTokenPrice),
         });
         handleIsPreSaleOngoing(
           Number(preSaleEndTimestamp) > Math.floor(Date.now() / 1000)
@@ -248,16 +254,16 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         jpBody.interactionType === InteractionType.SELL_TEMP_TOKENS ||
         jpBody.interactionType === InteractionType.VERSUS_WINNER_TOKENS_MINTED
       ) {
+        console.log(
+          "useVersusTempTokenAblyInterpreter setTxBody jpBody",
+          jpBody
+        );
         setTempTokenTransactionBody(body);
       }
       if (
         jpBody.interactionType ===
         InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY
       ) {
-        console.log(
-          "detected VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY",
-          body
-        );
         const transferredLiquidityInWei = BigInt(
           jpBody.transferredLiquidityInWei
         );
