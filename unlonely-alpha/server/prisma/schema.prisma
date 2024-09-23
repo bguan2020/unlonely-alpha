@@ -339,6 +339,7 @@ model StreamInteraction {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  softDelete Boolean @default(false)
 }
 
 

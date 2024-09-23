@@ -93,6 +93,19 @@ export const GET_TOKEN_LEADERBOARD_QUERY = gql`
   }
 `;
 
+export const GET_STREAM_INTERACTIONS_QUERY = gql`
+query GetStreamInteractions($data: GetStreamInteractionsInput) {
+  getStreamInteractions(data: $data) {
+    softDelete
+    updatedAt
+    createdAt
+    text
+    interactionType
+    id
+  }
+}
+`
+
 export const CHANNEL_DETAIL_QUERY = gql`
   query ChannelDetail($slug: String!) {
     getChannelBySlug(slug: $slug) {
