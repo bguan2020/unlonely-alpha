@@ -49,7 +49,7 @@ model User {
   gamblableInteractions GamblableInteraction[]
   gamblableEventLeaderboardEntries GamblableEventLeaderboard[]
   channelContract1155Mapping Json @default("{}")
-  booPackageCooldownMapping Json @default("{}")
+  packageCooldownMapping Json @default("{}")
 }
 
 model Subscription {
@@ -292,7 +292,7 @@ model BaseLeaderboard {
   updatedAt DateTime @updatedAt
 }
 
-model BooPackage {
+model Package {
   id Int      @id @default(autoincrement())
   packageName String
   priceMultiplier    String

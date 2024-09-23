@@ -109,14 +109,14 @@ export const getUserChannelContract1155Mapping = async (
   return user.channelContract1155Mapping;
 };
 
-export const getUserBooPackageCooldownMapping = async (
+export const getUserPackageCooldownMapping = async (
   data: IGetUserInput,
   ctx: Context
 ) => {
   const user = await ctx.prisma.user.findUnique({
     where: { address: data.address },
     select: {
-      booPackageCooldownMapping: true,
+      packageCooldownMapping: true,
     },
   });
 
@@ -124,7 +124,7 @@ export const getUserBooPackageCooldownMapping = async (
     throw new Error("User not found");
   }
 
-  return user.booPackageCooldownMapping;
+  return user.packageCooldownMapping;
 }
 
 export interface IUpdateUserChannelContract1155MappingInput {
@@ -165,13 +165,13 @@ export const updateUserChannelContract1155Mapping = async (
   });
 };
 
-export interface IUpdateUserBooPackageCooldownMappingInput {
+export interface IUpdateUserPackageCooldownMappingInput {
   packageName: string;
   userAddress: string;
 }
 
-export const updateUserBooPackageCooldownMapping = async (
-  data: IUpdateUserBooPackageCooldownMappingInput,
+export const updateUserPackageCooldownMapping = async (
+  data: IUpdateUserPackageCooldownMappingInput,
   ctx: Context
 ) => {
   // Fetch the current user data to get the existing mapping
@@ -184,7 +184,7 @@ export const updateUserBooPackageCooldownMapping = async (
   }
 
   // Parse the current mapping
-  const currentMapping: any = user.booPackageCooldownMapping || {};
+  const currentMapping: any = user.packageCooldownMapping || {};
 
   // Update the mapping
   currentMapping[data.packageName] = {
@@ -195,7 +195,7 @@ export const updateUserBooPackageCooldownMapping = async (
   return ctx.prisma.user.update({
     where: { address: data.userAddress },
     data: {
-      booPackageCooldownMapping: currentMapping,
+      packageCooldownMapping: currentMapping,
     },
   });
 };

@@ -28,9 +28,9 @@ export const GET_USER_CHANNEL_CONTRACT_1155_MAPPING_QUERY = gql`
   }
 `;
 
-export const GET_USER_BOO_PACKAGE_COOLDOWN_MAPPING_QUERY = gql`
-  query GetUserBooPackageCooldownMapping($data: GetUserInput!) {
-    getUserBooPackageCooldownMapping(data: $data)
+export const GET_USER_PACKAGE_COOLDOWN_MAPPING_QUERY = gql`
+  query GetUserPackageCooldownMapping($data: GetUserInput!) {
+    getUserPackageCooldownMapping(data: $data)
   }
 `;
 

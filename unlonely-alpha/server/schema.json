@@ -246,7 +246,7 @@
             "deprecationReason": null
           },
           {
-            "name": "getUserBooPackageCooldownMapping",
+            "name": "getUserPackageCooldownMapping",
             "description": null,
             "args": [
               {
@@ -1495,7 +1495,7 @@
             "deprecationReason": null
           },
           {
-            "name": "getBooPackages",
+            "name": "getPackages",
             "description": null,
             "args": [],
             "type": {
@@ -1509,7 +1509,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "BooPackage",
+                    "name": "Package",
                     "ofType": null
                   }
                 }
@@ -1645,7 +1645,7 @@
             "deprecationReason": null
           },
           {
-            "name": "updateUserBooPackageCooldownMapping",
+            "name": "updateUserPackageCooldownMapping",
             "description": null,
             "args": [
               {
@@ -1656,7 +1656,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "UpdateUserBooPackageCooldownMappingInput",
+                    "name": "UpdateUserPackageCooldownMappingInput",
                     "ofType": null
                   }
                 },
@@ -3398,7 +3398,7 @@
             "deprecationReason": null
           },
           {
-            "name": "updateBooPackage",
+            "name": "updatePackage",
             "description": null,
             "args": [
               {
@@ -3409,7 +3409,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "INPUT_OBJECT",
-                    "name": "UpdateBooPackageInput",
+                    "name": "UpdatePackageInput",
                     "ofType": null
                   }
                 },
@@ -3423,7 +3423,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "BooPackage",
+                "name": "Package",
                 "ofType": null
               }
             },
@@ -4219,7 +4219,7 @@
       },
       {
         "kind": "OBJECT",
-        "name": "BooPackageCooldownMapping",
+        "name": "PackageCooldownMapping",
         "description": null,
         "specifiedByUrl": null,
         "fields": [
@@ -4584,7 +4584,7 @@
             "deprecationReason": null
           },
           {
-            "name": "booPackageCooldownMapping",
+            "name": "packageCooldownMapping",
             "description": null,
             "args": [],
             "type": {
@@ -4899,7 +4899,7 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "UpdateUserBooPackageCooldownMappingInput",
+        "name": "UpdateUserPackageCooldownMappingInput",
         "description": null,
         "specifiedByUrl": null,
         "fields": null,
@@ -14397,7 +14397,7 @@
       },
       {
         "kind": "OBJECT",
-        "name": "BooPackage",
+        "name": "Package",
         "description": null,
         "specifiedByUrl": null,
         "fields": [
@@ -14469,7 +14469,7 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "UpdateBooPackageInput",
+        "name": "UpdatePackageInput",
         "description": null,
         "specifiedByUrl": null,
         "fields": null,

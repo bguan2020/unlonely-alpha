@@ -47,12 +47,12 @@ export const resolvers = {
     ) => {
       return userService.getUserChannelContract1155Mapping(data, ctx);
     },
-    getUserBooPackageCooldownMapping: (
+    getUserPackageCooldownMapping: (
       _: any,
       { data }: { data: userService.IGetUserInput },
       ctx: Context
     ) => {
-      return userService.getUserBooPackageCooldownMapping(data, ctx);
+      return userService.getUserPackageCooldownMapping(data, ctx);
     },
     getAllUsers: (_: any, _args: any, ctx: Context) => {
       return userService.getAllUsers(ctx);
@@ -117,18 +117,18 @@ export const resolvers = {
 
       return userService.updateUserChannelContract1155Mapping(data, ctx);
     },
-    updateUserBooPackageCooldownMapping: (
+    updateUserPackageCooldownMapping: (
       _: any,
       {
         data,
-      }: { data: userService.IUpdateUserBooPackageCooldownMappingInput },
+      }: { data: userService.IUpdateUserPackageCooldownMappingInput },
       ctx: Context
     ) => {
       if (!ctx.user) {
         throw new AuthenticationError("Not authenticated");
       }
 
-      return userService.updateUserBooPackageCooldownMapping(data, ctx);
+      return userService.updateUserPackageCooldownMapping(data, ctx);
     }
   },
 };
