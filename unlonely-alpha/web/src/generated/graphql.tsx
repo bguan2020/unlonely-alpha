@@ -990,7 +990,7 @@ export type PostSharesEventInput = {
 
 export type PostStreamInteractionInput = {
   channelId: Scalars["ID"];
-  interactionType: Scalars["String"];
+  interactionType: InteractionType;
   text?: InputMaybe<Scalars["String"]>;
 };
 

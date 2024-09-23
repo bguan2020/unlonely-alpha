@@ -6,7 +6,7 @@ export enum InteractionType {
 }
 
 export interface IPostStreamInteractionInput {
-  interactionType: string;
+  interactionType: InteractionType;
   text?: string;
   channelId: string;
 }
