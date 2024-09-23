@@ -17,7 +17,7 @@ export const typeDef = gql`
   }
 
   input PostStreamInteractionInput {
-    interactionType: String!
+    interactionType: InteractionType!
     text: String
     channelId: ID!
   }
