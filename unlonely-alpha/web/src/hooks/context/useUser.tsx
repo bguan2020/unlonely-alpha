@@ -33,7 +33,6 @@ import {
 } from "@chakra-ui/react";
 import { RiSubtractFill } from "react-icons/ri";
 import { GoUnlink } from "react-icons/go";
-import debounce from "lodash/debounce";
 
 import { Channel, GetUserQuery, Maybe, Scalars } from "../../generated/graphql";
 import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
@@ -252,22 +251,6 @@ export const UserProvider = ({
     fetchPolicy: "network-only",
   });
 
-  const debouncedSetActiveWallet = useMemo(
-    () =>
-      debounce((wallet: any) => {
-        setActiveWallet(wallet);
-      }, 500),
-    [setActiveWallet]
-  );
-
-  useEffect(() => {
-    if (evmWallets.length > 0 && evmWallets[0])
-      debouncedSetActiveWallet(evmWallets[0]);
-    return () => {
-      debouncedSetActiveWallet.cancel();
-    };
-  }, [evmWallets[0]?.address, debouncedSetActiveWallet]);
-
   const fetchAndSetUserData = useCallback(async (_address: string) => {
     setFetchingUser(true);
     handleLatestVerifiedAddress(_address);
@@ -275,10 +258,6 @@ export const UserProvider = ({
     const addressType = isValidAddress(_address);
     console.log("addressType", addressType, _address);
     handleSolanaAddress(addressType === "solana" ? _address : undefined);
-    if (addressType === "ethereum") {
-      const foundEvmWallet = evmWallets.find((w) => w.address === _address);
-      if (foundEvmWallet) setActiveWallet(foundEvmWallet);
-    }
     setLocalAddress(_address);
     for (let i = 0; i < FETCH_TRIES; i++) {
       let data;
@@ -320,6 +299,15 @@ export const UserProvider = ({
       fetchAndSetUserData(latestVerifiedPrivyAccount?.address);
   }, [latestVerifiedPrivyAccount?.address]);
 
+  useEffect(() => {
+    if (!localAddress || evmWallets.length === 0) return;
+    const foundEvmWallet = evmWallets.find((w) =>
+      areAddressesEqual(w.address, localAddress)
+    );
+    console.log("foundEvmWallet", foundEvmWallet, evmWallets, localAddress);
+    if (foundEvmWallet) setActiveWallet(foundEvmWallet);
+  }, [localAddress, evmWallets, setActiveWallet]);
+
   const handleIsManagingWallets = useCallback((value: boolean) => {
     setIsManagingWallets(value);
   }, []);
@@ -327,6 +315,8 @@ export const UserProvider = ({
   const handleSolanaAddress = useCallback((address: string | undefined) => {
     setSolanaAddress(address);
   }, []);
+
+  // todo: make sure that setActiveWallet should update wagmiAddress to the latest address, not sure why it didn't change that one time
 
   const value = useMemo(
     () => ({
@@ -451,7 +441,15 @@ export const UserProvider = ({
                     {areAddressesEqual(
                       localAddress ?? "",
                       (account as WalletWithMetadata).address
-                    ) ? (
+                    ) &&
+                    (areAddressesEqual(
+                      wagmiAddress ?? "",
+                      localAddress ?? ""
+                    ) ||
+                      areAddressesEqual(
+                        solanaAddress ?? "",
+                        localAddress ?? ""
+                      )) ? (
                       <Flex gap="5px">
                         <Flex
                           background="#22b66e"

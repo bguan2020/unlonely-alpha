@@ -254,6 +254,8 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         jpBody.interactionType === InteractionType.SELL_TEMP_TOKENS ||
         jpBody.interactionType === InteractionType.VERSUS_WINNER_TOKENS_MINTED
       ) {
+        // todo: some buys and sells are not being processed, thus chart is not updating
+        // has been happening since switch to jpBody data object use
         console.log(
           "useVersusTempTokenAblyInterpreter setTxBody jpBody",
           jpBody

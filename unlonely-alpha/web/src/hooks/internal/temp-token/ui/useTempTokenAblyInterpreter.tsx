@@ -185,6 +185,8 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         jpBody.interactionType === InteractionType.BUY_TEMP_TOKENS ||
         jpBody.interactionType === InteractionType.SELL_TEMP_TOKENS
       ) {
+        // todo: some buys and sells are not being processed, thus chart is not updating
+        // has been happening since switch to jpBody data object use
         console.log("useTempTokenAblyInterpreter setTxBody jpBody", jpBody);
         setTempTokenTransactionBody(body);
       }
