@@ -42,6 +42,7 @@ import { GetUserPackageCooldownMappingQuery } from "../../generated/graphql";
 import { BooCarePackages } from "./BooCarePackages";
 import { useDragRefs } from "../../hooks/internal/useDragRef";
 import { useUpdatePackage } from "../../hooks/server/useUpdatePackage";
+import { BooEventTtsComponent } from "./BooEventTtsComponent";
 
 export const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 export const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
@@ -587,27 +588,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                         TOKEN_VIEW_TILE_PIXEL_GAP * 2
                       }px - ${TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT}px)`}
                     >
-                      <Flex
-                        justifyContent={"center"}
-                        alignItems={"center"}
-                        width={"100%"}
-                        height="100%"
-                        gap="16px"
-                      >
-                        <Image
-                          src="/images/megaphone.png"
-                          alt="megaphone"
-                          width="20px"
-                          height="20px"
-                        />
-                        <Text
-                          textAlign={"center"}
-                          fontFamily="LoRes15"
-                          fontSize="20px"
-                        >
-                          TTS BROADCAST MESSAGE
-                        </Text>
-                      </Flex>
+                      <BooEventTtsComponent />
                     </BooEventTile>
                   )}
                 </Flex>
