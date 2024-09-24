@@ -5,6 +5,9 @@ import AppLayout from "../components/layout/AppLayout";
 import { Button, Flex, Text } from "@chakra-ui/react";
 import useUpdateStreamInteraction from "../hooks/server/channel/useUpdateStreamInteraction";
 import { InteractionType as BackendInteractionType } from "../generated/graphql";
+import io from "socket.io-client";
+
+let socket;
 
 const Tts = () => {
   const [audioQueue, setAudioQueue] = useState<string[]>([]);
@@ -124,21 +127,31 @@ const AudioPlayer = ({
   setAudioQueue,
 }: {
   audioUrlQueue: string[];
-  setAudioQueue: (queue: string[]) => void;
+  setAudioQueue: React.Dispatch<React.SetStateAction<string[]>>;
 }) => {
   const [currentAudio, setCurrentAudio] = useState<string | null>(null);
 
-  // Play the next audio when the current one finishes
+  useEffect(() => {
+    if (!process.env.NEXT_PUBLIC_SOCKET_URL) return;
+    socket = io(process.env.NEXT_PUBLIC_SOCKET_URL);
+
+    // Listen for play-audio events from the server
+    socket.on("play-audio", (data) => {
+      const audio: string = data.audio;
+      setAudioQueue((prevQueue) => [...prevQueue, audio]); // Add the audio to the queue
+    });
+  }, [setAudioQueue]);
+
   useEffect(() => {
     if (!currentAudio && audioUrlQueue.length > 0) {
       const [nextAudio, ...remainingQueue] = audioUrlQueue;
-      setCurrentAudio(nextAudio); // Set next audio to be played
-      setAudioQueue(remainingQueue); // Update the queue, removing the played one
+      setCurrentAudio(nextAudio); // Set the next audio
+      setAudioQueue(remainingQueue); // Remove the played audio from the queue
     }
   }, [audioUrlQueue, currentAudio, setAudioQueue]);
 
   const handleAudioEnd = () => {
-    setCurrentAudio(null);
+    setCurrentAudio(null); // Reset the audio after it finishes
   };
 
   return currentAudio ? (
