@@ -38,7 +38,7 @@ import { AblyChannelPromise } from "../../../constants";
 import VibesTokenZoneModal from "./VibesTokenZoneModal";
 import useUserAgent from "../../../hooks/internal/useUserAgent";
 import { useWindowSize } from "../../../hooks/internal/useWindowSize";
-import ConnectWalletDropdown from "../../navigation/ConnectWallet";
+import { ConnectWallet } from "../../navigation/ConnectWallet";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import { FaPause } from "react-icons/fa";
 import {
@@ -631,7 +631,7 @@ const VibesTokenInterface = ({
                   ) : (
                     <Flex direction="column">
                       <Text>you must sign in to trade</Text>
-                      <ConnectWalletDropdown />
+                      <ConnectWallet />
                     </Flex>
                   )}
                 </Flex>
@@ -1202,7 +1202,7 @@ const VibesTokenInterface = ({
                   ) : (
                     <Flex direction="column">
                       <Text fontSize="12px">you must sign in to trade</Text>
-                      <ConnectWalletDropdown />
+                      <ConnectWallet />
                     </Flex>
                   )}
                 </>

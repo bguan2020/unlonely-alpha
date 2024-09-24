@@ -4388,17 +4388,17 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.5.tgz#db5a11bf66bdab39569719555b0f76e138d7bd64"
   integrity sha512-9X2obfABZuDVLCgPK9aX0a/x4jaOEweTTWE2+9sr0Qqqevj2Uv5XorvusThmc9XGYpS9yI+fhh8RTafBtGposw==
 
-"@privy-io/api-base@1.2.3", "@privy-io/api-base@^1.2.3":
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/@privy-io/api-base/-/api-base-1.2.3.tgz#0fe5e96514b859e9ddf75d3dbba10b25aa04582d"
-  integrity sha512-ycl6L+C/B5BRtJNaeD3nS12SpSh6dMDg95d76jKGT1SBZd5VjaOnZYaEMIiAndu0txqLgVszLwdfai+f028iew==
+"@privy-io/api-base@1.3.0", "@privy-io/api-base@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@privy-io/api-base/-/api-base-1.3.0.tgz#6f7aab88fa07131d8eb368d8d6f04e8a6fa7110c"
+  integrity sha512-giw6StXwPeqXXhBs9+Dq2uNxxzpq/JclZMLe1uDgrtYipOMrFdoIZ25PJ7Wgl7n4ku9pGq9wgG0Tb29u8++ZMQ==
   dependencies:
     zod "^3.21.4"
 
-"@privy-io/js-sdk-core@0.28.0":
-  version "0.28.0"
-  resolved "https://registry.yarnpkg.com/@privy-io/js-sdk-core/-/js-sdk-core-0.28.0.tgz#ab4a4678386937d23de00c469af043b49c5ac3f2"
-  integrity sha512-6yBN7cOA7G3/G1lH8KSfhUexg91GXat5il/RSNJ/eQguanQlM9pm0NtP+bl9XCDebxDsYGHyIJDo4XzCke5RDw==
+"@privy-io/js-sdk-core@0.28.1":
+  version "0.28.1"
+  resolved "https://registry.yarnpkg.com/@privy-io/js-sdk-core/-/js-sdk-core-0.28.1.tgz#20f8e955028378313edc425e8d4d4edb8714d1e6"
+  integrity sha512-bArBPqrg1KggGaafj6RwDa531yl/kkYbQx/Y8ZBOOa35qhmgQci5A/4gYPyCD4mvL0Z1GBPZAo99DaiBpu6qSw==
   dependencies:
     "@ethersproject/abstract-signer" "^5.7.0"
     "@ethersproject/bignumber" "^5.7.0"
@@ -4406,8 +4406,8 @@
     "@ethersproject/providers" "^5.7.2"
     "@ethersproject/transactions" "^5.7.0"
     "@ethersproject/units" "^5.7.0"
-    "@privy-io/api-base" "^1.2.3"
-    "@privy-io/public-api" "2.9.5"
+    "@privy-io/api-base" "^1.3.0"
+    "@privy-io/public-api" "2.10.0"
     eventemitter3 "^5.0.1"
     fetch-retry "^5.0.6"
     jose "^4.15.5"
@@ -4415,21 +4415,21 @@
     set-cookie-parser "^2.6.0"
     uuid ">=8 <10"
 
-"@privy-io/public-api@2.9.5":
-  version "2.9.5"
-  resolved "https://registry.yarnpkg.com/@privy-io/public-api/-/public-api-2.9.5.tgz#a997b4799a9273a779df0cd2d28d719af511011e"
-  integrity sha512-Rk70cYIYKBu+BDT/Xm7d7c+DvByfZExryIZEol9MtNQCQ7iN6reZ0UHp8ODC8wXwPx9YVAF5yw3G7RCYRg8V1A==
+"@privy-io/public-api@2.10.0":
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/@privy-io/public-api/-/public-api-2.10.0.tgz#4c806bc2a2c9ea10cf11137638cec8451e1a0ec0"
+  integrity sha512-ehV17n0oK0kCjPkrKPsaonPRU9H1sJ6JfWZSTX5U3PhAunPP/YKuoBNcl/EF2jBEihRPWiOIUJem5g4hTh0GUQ==
   dependencies:
-    "@privy-io/api-base" "1.2.3"
+    "@privy-io/api-base" "1.3.0"
     bs58 "^5.0.0"
     ethers "^5.7.2"
     libphonenumber-js "^1.10.31"
     zod "^3.22.4"
 
-"@privy-io/react-auth@1.85.0":
-  version "1.85.0"
-  resolved "https://registry.yarnpkg.com/@privy-io/react-auth/-/react-auth-1.85.0.tgz#45b582e1f3f074f9f7251702a7b1d482202e2940"
-  integrity sha512-JdZxpL/b9eOhzr0pPxdW7LuF82wYxCCD9V8fkJLCEIc4DmQPwDf1Oc7qqOg6lgEWE8vdOI2XWau2F0wMvO7Dvg==
+"@privy-io/react-auth@1.86.0":
+  version "1.86.0"
+  resolved "https://registry.yarnpkg.com/@privy-io/react-auth/-/react-auth-1.86.0.tgz#ea37f0386dd8d064397251818dfd79212ce8cc71"
+  integrity sha512-3asl6xD/X2QQX99xZCtvPyUZAEuG3Ad4KmkOjCQY0GOs8BET5XsFughVt1qb21SZDDa7edsNLovxkr5Cj8lGdw==
   dependencies:
     "@coinbase/wallet-sdk" "4.0.3"
     "@ethersproject/abstract-signer" "^5.7.0"
@@ -4447,7 +4447,7 @@
     "@heroicons/react" "^2.1.1"
     "@marsidev/react-turnstile" "^0.4.1"
     "@metamask/eth-sig-util" "^6.0.0"
-    "@privy-io/js-sdk-core" "0.28.0"
+    "@privy-io/js-sdk-core" "0.28.1"
     "@simplewebauthn/browser" "^9.0.1"
     "@solana/wallet-adapter-base" "^0.9.23"
     "@solana/wallet-standard-wallet-adapter-base" "^1.1.2"

@@ -1,4 +1,4 @@
-import { ChevronDownIcon, ExternalLinkIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
   Button,
   Flex,
@@ -10,10 +10,8 @@ import {
   Spinner,
   Text,
   Box,
-  Image,
 } from "@chakra-ui/react";
-import { useRouter } from "next/router";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { HiDotsVertical } from "react-icons/hi";
 
 import { useUser } from "../../hooks/context/useUser";
@@ -24,8 +22,8 @@ import useUpdateUser from "../../hooks/server/useUpdateUser";
 import trailString from "../../utils/trailString";
 import { OwnedChannelsModal } from "../channels/OwnedChannelsModal";
 import copy from "copy-to-clipboard";
-const ConnectWalletDropdown = ({ hideBridge }: { hideBridge?: boolean }) => {
-  const router = useRouter();
+
+export const ConnectWallet = () => {
   const {
     user,
     ready,
@@ -34,127 +32,51 @@ const ConnectWalletDropdown = ({ hideBridge }: { hideBridge?: boolean }) => {
     activeWallet,
     login,
     connectWallet,
+    handleIsManagingWallets,
     logout,
   } = useUser();
-  const { isStandalone } = useUserAgent();
-  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
 
-  const loggedInWithPrivy = authenticated && ready;
+  const loggedInWithPrivy = useMemo(
+    () => authenticated && ready,
+    [authenticated, ready]
+  );
 
-  const callLogout = useCallback(() => {
-    logout();
-    setIsCloseModalOpen(false);
-  }, []);
-
-  const redirectToBridge = useCallback(() => {
-    if (isStandalone) {
-      router.push("/bridge");
-    } else {
-      window.open(`${window.location.origin}/bridge`, "_blank");
-    }
-  }, [isStandalone, router]);
-
-  return (
-    <>
-      {ready && !fetchingUser ? (
-        <>
-          <TransactionModalTemplate
-            title="are you sure you want to log out?"
-            isOpen={isCloseModalOpen}
-            handleClose={() => setIsCloseModalOpen(false)}
-            hideFooter
-          >
-            <Button
-              color="white"
-              bg="#E09025"
-              _hover={{}}
-              _focus={{}}
-              _active={{}}
-              onClick={callLogout}
-              width="100%"
-              borderRadius="25px"
-            >
-              logout
-            </Button>
-          </TransactionModalTemplate>
-          {loggedInWithPrivy && user ? (
-            <ConnectedDisplay />
-          ) : (
-            <Menu>
-              <Flex
-                p="1px"
-                bg={
-                  "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-                }
-              >
-                <MenuButton
-                  color="white"
-                  width={"100%"}
-                  as={Button}
-                  borderRadius="0"
-                  _hover={{ bg: "#020202" }}
-                  _focus={{}}
-                  _active={{}}
-                  bg={"#131323"}
-                  px="10px"
-                  rightIcon={<ChevronDownIcon />}
-                >
-                  <Text fontFamily="LoRes15" fontSize="15px">
-                    {loggedInWithPrivy ? "Connect" : "Login"}
-                  </Text>
-                </MenuButton>
-              </Flex>
-              <MenuList zIndex={1801} bg={"#131323"} borderRadius="0">
-                <MenuItem
-                  bg={"#131323"}
-                  _hover={{ bg: "#1f1f3c" }}
-                  _focus={{}}
-                  _active={{}}
-                  onClick={() => {
-                    loggedInWithPrivy ? connectWallet() : login();
-                  }}
-                >
-                  {loggedInWithPrivy ? "connect wallet" : "login"}
-                </MenuItem>
-                {!hideBridge && (activeWallet as any)?.type !== "solana" && (
-                  <MenuItem
-                    bg={"#131323"}
-                    _hover={{ bg: "#1f1f3c" }}
-                    _focus={{}}
-                    _active={{}}
-                    onClick={redirectToBridge}
-                  >
-                    bridge ETH to base
-                    <ExternalLinkIcon />
-                  </MenuItem>
-                )}
-                {loggedInWithPrivy && (
-                  <MenuItem
-                    bg={"#131323"}
-                    _hover={{ bg: "#1f1f3c" }}
-                    _focus={{}}
-                    _active={{}}
-                    onClick={() => setIsCloseModalOpen(true)}
-                  >
-                    logout
-                  </MenuItem>
-                )}
-              </MenuList>
-            </Menu>
-          )}
-        </>
-      ) : (
-        <Spinner size="xl" />
-      )}
-    </>
+  return loggedInWithPrivy && user ? (
+    <ConnectedDisplay />
+  ) : (
+    <Flex
+      p="1px"
+      bg={
+        "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+      }
+    >
+      <Button
+        color="white"
+        width="100%"
+        borderRadius="0"
+        _hover={{ bg: "#020202" }}
+        _focus={{}}
+        _active={{}}
+        bg={"#131323"}
+        px="10px"
+        onClick={() => {
+          loggedInWithPrivy ? handleIsManagingWallets(true) : login();
+        }}
+        isDisabled={fetchingUser || !ready}
+      >
+        {fetchingUser || !ready ? (
+          <Spinner />
+        ) : (
+          <Text fontFamily="LoRes15" fontSize="15px">
+            {loggedInWithPrivy ? "Connect" : "Login"}
+          </Text>
+        )}
+      </Button>
+    </Flex>
   );
 };
 
-export default ConnectWalletDropdown;
-
 const ConnectedDisplay = () => {
-  // const router = useRouter();
-
   const {
     activeWallet,
     user,
@@ -219,19 +141,19 @@ const ConnectedDisplay = () => {
           bg={
             "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
           }
+          gap="1px"
         >
-          <MenuButton
+          <Button
             color="white"
-            width={"100%"}
-            as={Button}
             borderRadius="0"
             _focus={{}}
             _active={{}}
-            _hover={{}}
+            _hover={{
+              bg: "#020202",
+            }}
             px="10px"
             bg={"#131323"}
-            rightIcon={<ChevronDownIcon />}
-            position="relative"
+            onClick={() => handleIsManagingWallets(true)}
           >
             <Flex alignItems={"center"}>
               <Text fontFamily="LoRes15" fontSize="15px">
@@ -246,6 +168,21 @@ const ConnectedDisplay = () => {
                 )}{" "}
               </Text>
             </Flex>
+          </Button>
+          <MenuButton
+            color="white"
+            as={Button}
+            borderRadius="0"
+            _focus={{}}
+            _active={{}}
+            _hover={{
+              bg: "#020202",
+            }}
+            px="10px"
+            bg={"#131323"}
+            position="relative"
+          >
+            <ChevronDownIcon />
           </MenuButton>
         </Flex>
         <MenuList zIndex={1801} bg={"#131323"} borderRadius="0">
@@ -260,7 +197,7 @@ const ConnectedDisplay = () => {
               <Text>my channels</Text>
             </MenuItem>
           )}
-          <MenuItem
+          {/* <MenuItem
             bg={"#131323"}
             _hover={{ bg: "#1f1f3c" }}
             _focus={{}}
@@ -271,7 +208,7 @@ const ConnectedDisplay = () => {
               <Text>manage wallets</Text>
               <Image src={"/images/privy-orange.png"} height={"20px"} />
             </Flex>
-          </MenuItem>
+          </MenuItem> */}
           {user?.address && (activeWallet as any)?.type === "ethereum" && (
             <MenuItem
               bg={"#131323"}

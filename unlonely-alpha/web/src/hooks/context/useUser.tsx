@@ -479,18 +479,18 @@ export const UserProvider = ({
                             connectWallet({
                               suggestedAddress: (account as WalletWithMetadata)
                                 .address,
-                              walletList:
-                                (account as WalletWithMetadata)
-                                  .walletClientType &&
-                                isWalletListEntry(
-                                  (account as WalletWithMetadata)
-                                    .walletClientType
-                                )
-                                  ? ([
-                                      (account as WalletWithMetadata)
-                                        .walletClientType,
-                                    ] as WalletListEntry[])
-                                  : undefined,
+                              // walletList:
+                              //   (account as WalletWithMetadata)
+                              //     .walletClientType &&
+                              //   isWalletListEntry(
+                              //     (account as WalletWithMetadata)
+                              //       .walletClientType
+                              //   )
+                              //     ? ([
+                              //         (account as WalletWithMetadata)
+                              //           .walletClientType,
+                              //       ] as WalletListEntry[])
+                              //     : undefined,
                             });
                           }
                         }}
@@ -525,15 +525,16 @@ export const UserProvider = ({
                 </Flex>
               );
             })}
+          <Button onClick={linkWallet}>link new wallet</Button>
           <Flex justifyContent={"space-between"}>
             <Text fontSize="10px">privy user id</Text>
             <Text fontSize="10px" color="#acacac">
               {privyUser?.id}
             </Text>
           </Flex>
-          <Button onClick={() => signMessage({ message: "hello world" })}>
+          {/* <Button onClick={() => signMessage({ message: "hello world" })}>
             test sign message
-          </Button>
+          </Button> */}
           {/* <Button
             onClick={async () => {
               // const { data: getDoesUserAddressMatchData } = await client.query({
@@ -555,7 +556,17 @@ export const UserProvider = ({
           >
             test backend
           </Button> */}
-          <Button onClick={linkWallet}>link new wallet</Button>
+          <Button
+            color="white"
+            bg="#E09025"
+            _hover={{}}
+            _focus={{}}
+            _active={{}}
+            onClick={logout}
+            borderRadius="25px"
+          >
+            logout
+          </Button>
         </Flex>
       </TransactionModalTemplate>
       <TransactionModalTemplate

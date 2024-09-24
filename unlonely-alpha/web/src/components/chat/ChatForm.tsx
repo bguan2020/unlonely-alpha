@@ -31,7 +31,7 @@ import { EmojiType, SenderStatus } from "../../constants/types/chat";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import EmojiButton from "./emoji/EmojiButton";
-import ConnectWallet from "../navigation/ConnectWallet";
+import { ConnectWallet } from "../navigation/ConnectWallet";
 import { ChatClip } from "./ChatClip";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { streamerTourSteps } from "../../pages/_app";

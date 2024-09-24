@@ -147,7 +147,8 @@ function App({ Component, pageProps }: Props) {
 
   const solanaConnectors = toSolanaWalletConnectors({
     // By default, shouldAutoConnect is enabled
-    shouldAutoConnect: true,
+    // shouldAutoConnect: true,
+    shouldAutoConnect: false,
   });
 
   // useLogin from privy to detect user login and with what address, use this callback to update the user context on the backend
