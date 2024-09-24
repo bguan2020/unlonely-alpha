@@ -1,39 +1,20 @@
-import {
-  Flex,
-  Text,
-  Image,
-  Button,
-  Textarea,
-  FormControl,
-  FormErrorMessage,
-} from "@chakra-ui/react";
+import { Flex, Text, Image, Button, Textarea } from "@chakra-ui/react";
 import { useState } from "react";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
-import {
-  InteractionType as BackendInteractionType,
-  PostStreamInteractionInput,
-} from "../../generated/graphql";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
-import { postStreamInteractionTextSchema } from "../../utils/validation/validation";
+import { InteractionType as BackendInteractionType } from "../../generated/graphql";
+import { containsSwears } from "../../utils/validation/profanityFilter";
 
 export const BooEventTtsComponent = () => {
   const [isEnteringMessage, setIsEnteringMessage] = useState(false);
+  const [text, setText] = useState("");
 
   const { postStreamInteraction } = usePostStreamInteraction({});
 
-  const form = useForm<PostStreamInteractionInput>({
-    defaultValues: {},
-    resolver: yupResolver(postStreamInteractionTextSchema),
-  });
-
-  const { register, formState, handleSubmit, watch } = form;
-
-  const onSubmit = async (data: PostStreamInteractionInput) => {
+  const handlePost = async () => {
     await postStreamInteraction({
       channelId: "3",
       interactionType: BackendInteractionType.TtsInteraction,
-      text: data.text,
+      text,
     });
     setIsEnteringMessage(false);
   };
@@ -73,30 +54,34 @@ export const BooEventTtsComponent = () => {
           </Text>
         </Flex>
       ) : (
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Flex direction="column" gap="4px">
-            <FormControl isInvalid={!!formState.errors.text}>
-              <Textarea
-                id="text"
-                placeholder="Enter message to broadcast"
-                {...register("text")}
-              />
-              <FormErrorMessage>
-                {formState.errors.text?.message}
-              </FormErrorMessage>
-            </FormControl>
-            <Button
-              bg="#2562db"
-              color={"white"}
-              _hover={{
-                transform: "scale(1.1)",
-              }}
-              type="submit"
-            >
-              Send
-            </Button>
-          </Flex>
-        </form>
+        <Flex direction="column" gap="4px">
+          <Textarea
+            id="text"
+            placeholder="Enter message to broadcast"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+          <Button
+            bg="#2562db"
+            color={"white"}
+            _hover={{
+              transform: "scale(1.1)",
+            }}
+            onClick={() => handlePost()}
+            isDisabled={
+              text.length === 0 || text.length > 200 || containsSwears(text)
+            }
+          >
+            Send
+          </Button>
+          <Text h="20px" color={"red"} fontSize="10px">
+            {text.length > 200
+              ? "message must be 200 characters or under"
+              : containsSwears(text)
+              ? "message contains strong swear words"
+              : ""}
+          </Text>
+        </Flex>
       )}
     </Flex>
   );

@@ -132,6 +132,12 @@ interface InitialProps {
 
 type Props = AppProps & InitialProps;
 
+const solanaConnectors = toSolanaWalletConnectors({
+  // By default, shouldAutoConnect is enabled
+  // shouldAutoConnect: true,
+  shouldAutoConnect: false,
+});
+
 function App({ Component, pageProps }: Props) {
   const config = createConfig({
     chains: [Base, Mainnet],
@@ -143,12 +149,6 @@ function App({ Component, pageProps }: Props) {
         `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
       ),
     },
-  });
-
-  const solanaConnectors = toSolanaWalletConnectors({
-    // By default, shouldAutoConnect is enabled
-    // shouldAutoConnect: true,
-    shouldAutoConnect: false,
   });
 
   // useLogin from privy to detect user login and with what address, use this callback to update the user context on the backend

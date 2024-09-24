@@ -562,7 +562,10 @@ export const UserProvider = ({
             _hover={{}}
             _focus={{}}
             _active={{}}
-            onClick={logout}
+            onClick={() => {
+              logout();
+              setIsManagingWallets(false);
+            }}
             borderRadius="25px"
           >
             logout
