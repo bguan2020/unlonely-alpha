@@ -31,21 +31,26 @@ export const useUpdatePackage = ({
 
   const updatePackage = useCallback(
     async (data: UpdatePackageInput) => {
-      setLoading(true);
+      try {
 
-      const mutationResult = await mutate({ variables: { data } });
-
-      if (
-        mutationResult.errors ||
-        !mutationResult.data ||
-        !mutationResult.data.updatePackage
-      ) {
-        onError && onError(mutationResult.errors);
+        setLoading(true);
+        
+        const mutationResult = await mutate({ variables: { data } });
+        
+        const res = mutationResult?.data?.updatePackage;
+        
+        if (res) {
+          console.log("success");
+        } else {
+          onError && onError();
+        }
         setLoading(false);
-        return;
+        return {
+          res,
+        };
+      } catch (e) {
+        console.log("updatePackage", JSON.stringify(e, null, 2));
       }
-
-      setLoading(false);
     },
     [mutate, onError, router]
   );

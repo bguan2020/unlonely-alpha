@@ -134,8 +134,7 @@ type Props = AppProps & InitialProps;
 
 const solanaConnectors = toSolanaWalletConnectors({
   // By default, shouldAutoConnect is enabled
-  // shouldAutoConnect: true,
-  shouldAutoConnect: false,
+  shouldAutoConnect: true,
 });
 
 function App({ Component, pageProps }: Props) {

@@ -1,36 +1,49 @@
-import { Button, Flex } from "@chakra-ui/react";
+import { Button, Flex, Spinner } from "@chakra-ui/react";
 import { useUser } from "../../hooks/context/useUser";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import { InteractionType, SOLANA_RPC_URL } from "../../constants";
+import {
+  InteractionType,
+  PACKAGE_PRICE_CHANGE_EVENT,
+  SOLANA_RPC_URL,
+} from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
 import { useSolanaTransferTokens } from "../../hooks/internal/solana/useSolanaTransferTokens";
 import { useSolanaTokenBalance } from "../../hooks/internal/solana/useSolanaTokenBalance";
+import { useState } from "react";
+import { useUpdatePackage } from "../../hooks/server/useUpdatePackage";
+import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
+import { ChatReturnType } from "../../hooks/chat/useChat";
 
 export const BooPackageButton = ({
+  chat,
   cooldownInSeconds,
   userBooPackageCooldowns,
   dateNow,
-  updateUserBooPackageCooldownMapping,
-  updateBooPackage,
   fetchUserBooPackageCooldownMapping,
   packageInfo,
 }: {
+  chat: ChatReturnType;
   cooldownInSeconds: number;
   userBooPackageCooldowns: any;
   dateNow: number;
-  updateUserBooPackageCooldownMapping: any;
-  updateBooPackage: any;
   fetchUserBooPackageCooldownMapping: any;
   packageInfo: {
     name: string;
     isCarePackage: boolean;
   };
 }) => {
-  const { channel, chat } = useChannelContext();
+  const { channel, chat: c } = useChannelContext();
   const { isOwner } = channel;
-  const { addToChatbot } = chat;
-  const { user } = useUser();
+  const { addToChatbot } = c;
+  const { user, activeWallet } = useUser();
   const { fetchTokenBalance } = useSolanaTokenBalance(SOLANA_RPC_URL);
+
+  const [loading, setLoading] = useState(false);
+  const { updatePackage } = useUpdatePackage({});
+
+  const {
+    updateUserPackageCooldownMapping: updateUserBooPackageCooldownMapping,
+  } = useUpdateUserPackageCooldownMapping({});
 
   const { sendTokens } = useSolanaTransferTokens({
     rpcUrl: SOLANA_RPC_URL,
@@ -58,42 +71,62 @@ export const BooPackageButton = ({
   });
 
   return (
-    <Flex direction="column">
+    <Flex direction="column" gap="4px">
       <Button
         isDisabled={
-          userBooPackageCooldowns &&
+          (userBooPackageCooldowns &&
+            userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt !==
+              undefined &&
+            dateNow - cooldownInSeconds * 1000 <
+              userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt) ||
+          loading ||
+          !activeWallet
+        }
+        onClick={async () => {
+          setLoading(true);
+          await sendTokens(
+            "CGgvGycx44rLAifbdgWihPAeQtpakubUPksCtiFKqk9i",
+            "0.000001"
+          );
+          setLoading(false);
+        }}
+      >
+        {loading ? (
+          <Spinner />
+        ) : userBooPackageCooldowns &&
           userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt !==
             undefined &&
           dateNow - cooldownInSeconds * 1000 <
-            userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt
-        }
-        onClick={async () => {
-          sendTokens("CGgvGycx44rLAifbdgWihPAeQtpakubUPksCtiFKqk9i", "0.01");
-        }}
-      >
-        {userBooPackageCooldowns &&
-        userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt !== undefined &&
-        dateNow - cooldownInSeconds * 1000 <
-          userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt
-          ? `${Math.ceil(
-              (userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt -
-                (dateNow - cooldownInSeconds * 1000)) /
-                1000
-            )}s`
-          : packageInfo.name}
+            userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt ? (
+          `${Math.ceil(
+            (userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt -
+              (dateNow - cooldownInSeconds * 1000)) /
+              1000
+          )}s`
+        ) : (
+          packageInfo.name
+        )}
       </Button>
       {isOwner && (
         <Flex>
           <Button
             onClick={async () => {
-              const { data: newPackage } = await updateBooPackage({
+              const data = await updatePackage({
                 packageName: packageInfo.name,
                 cooldownInSeconds: cooldownInSeconds + 10,
                 priceMultiplier: "1",
               });
+              chat.channel?.publish({
+                name: PACKAGE_PRICE_CHANGE_EVENT,
+                data: {
+                  body: JSON.stringify({
+                    ...data?.res,
+                  }),
+                },
+              });
             }}
           >
-            Update {packageInfo.name}
+            Update price
           </Button>
         </Flex>
       )}

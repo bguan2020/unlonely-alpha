@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useState,
-  useRef,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { Box, Flex, IconButton, Text, Image, Tooltip } from "@chakra-ui/react";
 import { useChat } from "../../hooks/chat/useChat";
 import { useLivepeerStreamData } from "../../hooks/internal/useLivepeerStreamData";
@@ -19,11 +13,6 @@ import LivepeerPlayer from "../stream/LivepeerPlayer";
 import { getSrc } from "@livepeer/react/external";
 import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import {
-  GET_PACKAGES_QUERY,
-  GET_USER_PACKAGE_COOLDOWN_MAPPING_QUERY,
-} from "../../constants/queries";
-import { useLazyQuery } from "@apollo/client";
 import { FaExpandArrowsAlt } from "react-icons/fa";
 import { RiSwapFill } from "react-icons/ri";
 import { BooEventTile } from "./BooEventTile";
@@ -37,11 +26,8 @@ import { useWallet } from "@solana/wallet-adapter-react";
 // import { useBooTokenTerminal } from "../../hooks/internal/solana/useBooTokenTerminal";
 import { SOLANA_RPC_URL, FIXED_SOLANA_MINT } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
-import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
-import { GetUserPackageCooldownMappingQuery } from "../../generated/graphql";
 import { BooCarePackages } from "./BooCarePackages";
 import { useDragRefs } from "../../hooks/internal/useDragRef";
-import { useUpdatePackage } from "../../hooks/server/useUpdatePackage";
 import { BooEventTtsComponent } from "./BooEventTtsComponent";
 
 export const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
@@ -92,53 +78,6 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const watchAllFieldsBuy = watchBuy();
   const watchAllFieldsSell = watchSell();
 
-  const [userBooPackageCooldowns, setUserBooPackageCooldowns] =
-    useState<any>(undefined);
-  const [booPackages, setBooPackages] = useState<any>(undefined);
-
-  const [_fetchUserBooPackageCooldownMapping] =
-    useLazyQuery<GetUserPackageCooldownMappingQuery>(
-      GET_USER_PACKAGE_COOLDOWN_MAPPING_QUERY,
-      {
-        fetchPolicy: "network-only",
-      }
-    );
-
-  const [_fetchBooPackages] = useLazyQuery(GET_PACKAGES_QUERY, {
-    fetchPolicy: "network-only",
-  });
-
-  const fetchUserBooPackageCooldownMapping = useCallback(
-    async (userAddress: string) => {
-      const { data } = await _fetchUserBooPackageCooldownMapping({
-        variables: {
-          data: { address: userAddress },
-        },
-      });
-      const cooldownMapping = data?.getUserPackageCooldownMapping;
-      if (cooldownMapping) {
-        setUserBooPackageCooldowns(cooldownMapping);
-      }
-    },
-    []
-  );
-
-  useEffect(() => {
-    if (user) fetchUserBooPackageCooldownMapping(user?.address);
-  }, [user]);
-
-  const fetchBooPackages = useCallback(async () => {
-    const { data } = await _fetchBooPackages();
-    const packages = data?.getPackages;
-    if (packages) {
-      setBooPackages(packages);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchBooPackages();
-  }, []);
-
   const [dateNow, setDateNow] = useState(Date.now());
 
   useEffect(() => {
@@ -154,11 +93,6 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const [isGlowing, setIsGlowing] = useState(false);
 
   const { publicKey, connected } = useWallet();
-  const {
-    updateUserPackageCooldownMapping: updateUserBooPackageCooldownMapping,
-  } = useUpdateUserPackageCooldownMapping({});
-
-  const { updatePackage: updateBooPackage } = useUpdatePackage({});
 
   // const { quoteSwap } = useJupiterQuoteSwap();
 
@@ -395,18 +329,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                               />
                             </Flex>
                           </Flex>
-                          <BooCarePackages
-                            booPackages={booPackages}
-                            userBooPackageCooldowns={userBooPackageCooldowns}
-                            updateUserBooPackageCooldownMapping={
-                              updateUserBooPackageCooldownMapping
-                            }
-                            updateBooPackage={updateBooPackage}
-                            fetchUserBooPackageCooldownMapping={
-                              fetchUserBooPackageCooldownMapping
-                            }
-                            dateNow={dateNow}
-                          />
+                          <BooCarePackages dateNow={dateNow} chat={chat} />
                         </BooEventTile>
                         <BooEventTile
                           color="#B52423"
@@ -496,7 +419,6 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                           zIndex={51}
                           onClick={(e) => {
                             e.stopPropagation();
-                            console.log("clicked");
                             setViewState("token");
                           }}
                           className={isGlowing ? "glowing-background" : ""}
