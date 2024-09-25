@@ -3016,18 +3016,6 @@
             "deprecationReason": null
           },
           {
-            "name": "interactionType",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "InteractionType",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "orderBy",
             "description": null,
             "type": {
@@ -3049,6 +3037,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "streamInteractionType",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "StreamInteractionType",
               "ofType": null
             },
             "defaultValue": null,
@@ -3825,23 +3825,6 @@
         "inputFields": null,
         "interfaces": null,
         "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "ENUM",
-        "name": "InteractionType",
-        "description": null,
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
-        "enumValues": [
-          {
-            "name": "tts_interaction",
-            "description": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          }
-        ],
         "possibleTypes": null
       },
       {
@@ -8075,14 +8058,14 @@
             "deprecationReason": null
           },
           {
-            "name": "interactionType",
+            "name": "streamInteractionType",
             "description": null,
             "type": {
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
                 "kind": "ENUM",
-                "name": "InteractionType",
+                "name": "StreamInteractionType",
                 "ofType": null
               }
             },
@@ -10812,6 +10795,29 @@
         "inputFields": null,
         "interfaces": [],
         "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "ENUM",
+        "name": "StreamInteractionType",
+        "description": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "package_interaction",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "tts_interaction",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
         "possibleTypes": null
       },
       {
