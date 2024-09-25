@@ -56,7 +56,7 @@ export interface IUpdateStreamInteractionInput {
 
 export interface IGetStreamInteractionsInput {
   channelId: string;
-  streamInteractionType?: StreamInteractionType;
+  streamInteractionTypes?: StreamInteractionType[];
   orderBy: "asc" | "desc";
   softDeleted?: boolean;
 }
@@ -70,7 +70,11 @@ export const getStreamInteractions = (
     channel: {
       id: Number(data.channelId),
     },
-    ...(data.streamInteractionType && { interactionType: data.streamInteractionType }),
+    ...(data.streamInteractionTypes && { 
+      interactionType: {
+        in: data.streamInteractionTypes,
+      },
+    }),
     ...(data.softDeleted !== undefined && { softDelete: data.softDeleted }),
   };
 

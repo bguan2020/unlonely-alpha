@@ -30,7 +30,7 @@ export const typeDef = gql`
 
   input GetStreamInteractionsInput {
     channelId: ID!
-    streamInteractionType: StreamInteractionType
+    streamInteractionTypes: [StreamInteractionType!]
     orderBy: SortOrder!
     softDeleted: Boolean
   }

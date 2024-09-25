@@ -383,7 +383,7 @@ export type GetStreamInteractionsInput = {
   channelId: Scalars["ID"];
   orderBy: SortOrder;
   softDeleted?: InputMaybe<Scalars["Boolean"]>;
-  streamInteractionType?: InputMaybe<StreamInteractionType>;
+  streamInteractionTypes?: InputMaybe<Array<StreamInteractionType>>;
 };
 
 export type GetSubscriptionsByChannelIdInput = {

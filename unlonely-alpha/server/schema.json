@@ -8676,12 +8676,20 @@
             "deprecationReason": null
           },
           {
-            "name": "streamInteractionType",
+            "name": "streamInteractionTypes",
             "description": null,
             "type": {
-              "kind": "ENUM",
-              "name": "StreamInteractionType",
-              "ofType": null
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "StreamInteractionType",
+                  "ofType": null
+                }
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
