@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import AppLayout from "../components/layout/AppLayout";
 import { Button, Flex, Text } from "@chakra-ui/react";
 import useUpdateStreamInteraction from "../hooks/server/channel/useUpdateStreamInteraction";
-import { InteractionType as BackendInteractionType } from "../generated/graphql";
+import { StreamInteractionType } from "../generated/graphql";
 import axios from "axios";
 import { useUser } from "../hooks/context/useUser";
 import Header from "../components/navigation/Header";
@@ -47,7 +47,7 @@ const ModCenter = () => {
       variables: {
         data: {
           channelId: "3",
-          interactionType: BackendInteractionType.TtsInteraction,
+          interactionType: StreamInteractionType.TtsInteraction,
           orderBy: "desc",
           softDeleted: false,
         },
