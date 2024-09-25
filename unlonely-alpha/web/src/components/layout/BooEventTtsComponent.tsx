@@ -1,49 +1,22 @@
 import { Flex, Text, Image, Button, Textarea } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-// import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
-// import { InteractionType as BackendInteractionType } from "../../generated/graphql";
+import { useState } from "react";
+import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
+import { InteractionType as BackendInteractionType } from "../../generated/graphql";
 import { containsSwears } from "../../utils/validation/profanityFilter";
-import io from "socket.io-client";
-
-let socket: any;
 
 export const BooEventTtsComponent = () => {
   const [isEnteringMessage, setIsEnteringMessage] = useState(false);
   const [text, setText] = useState("");
 
-  // const { postStreamInteraction } = usePostStreamInteraction({});
+  const { postStreamInteraction } = usePostStreamInteraction({});
 
-  // const handlePost = async () => {
-  //   await postStreamInteraction({
-  //     channelId: "3",
-  //     interactionType: BackendInteractionType.TtsInteraction,
-  //     text,
-  //   });
-  //   setIsEnteringMessage(false);
-  // };
-
-  useEffect(() => {
-    if (process.env.NEXT_PUBLIC_SOCKET_URL)
-      socket = io(process.env.NEXT_PUBLIC_SOCKET_URL);
-  }, []);
-
-  const queueTts = async () => {
-    const response = await fetch("/api/tts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        paymentId: "test123",
-        userId: "userTest",
-        textToSpeak: text,
-      }),
+  const handlePost = async () => {
+    await postStreamInteraction({
+      channelId: "3",
+      interactionType: BackendInteractionType.TtsInteraction,
+      text,
     });
-
-    const data = await response.json();
-
-    if (data.success) {
-      const base64Audio = `data:audio/mp3;base64,${data.audio}`;
-      (socket as any).emit("play-audio", { audio: base64Audio }); // Emit event to all connected clients (OBS)
-    }
+    setIsEnteringMessage(false);
   };
 
   return (
@@ -94,7 +67,7 @@ export const BooEventTtsComponent = () => {
             _hover={{
               transform: "scale(1.1)",
             }}
-            onClick={queueTts}
+            onClick={handlePost}
             isDisabled={
               text.length === 0 || text.length > 200 || containsSwears(text)
             }
