@@ -49,36 +49,38 @@ export const BooPackageButton = ({
     updateUserPackageCooldownMapping: updateUserBooPackageCooldownMapping,
   } = useUpdateUserPackageCooldownMapping({});
 
-  const { sendTokens } = useSolanaTransferTokens({
-    rpcUrl: SOLANA_RPC_URL,
-    onTransferSuccess: async () => {
-      fetchTokenBalance();
-      await postStreamInteraction({
-        channelId: "3",
-        streamInteractionType: StreamInteractionType.TtsInteraction,
-        text: JSON.stringify({
-          user: user?.username ?? centerEllipses(user?.address, 15),
-          packageName: packageInfo.name,
-          isCarePackage: true,
-        }),
+  const onTransferSuccess = async () => {
+    fetchTokenBalance();
+    await postStreamInteraction({
+      channelId: "3",
+      streamInteractionType: StreamInteractionType.PackageInteraction,
+      text: JSON.stringify({
+        user: user?.username ?? centerEllipses(user?.address, 15),
+        packageName: packageInfo.name,
+        isCarePackage: packageInfo.isCarePackage,
+      }),
+    }).then(async () => {
+      await updateUserBooPackageCooldownMapping({
+        userAddress: user?.address ?? "",
+        packageName: packageInfo.name,
       }).then(async () => {
-        await updateUserBooPackageCooldownMapping({
-          userAddress: user?.address ?? "",
-          packageName: packageInfo.name,
-        }).then(async () => {
-          await fetchUserBooPackageCooldownMapping(user?.address ?? "");
-          addToChatbot({
-            username: user?.username ?? "",
-            address: user?.address ?? "",
-            taskType: InteractionType.USE_BOO_PACKAGE,
-            title: `${
-              user?.username ?? centerEllipses(user?.address, 15)
-            } used ${packageInfo.name}!`,
-            description: JSON.stringify(packageInfo),
-          });
+        await fetchUserBooPackageCooldownMapping(user?.address ?? "");
+        addToChatbot({
+          username: user?.username ?? "",
+          address: user?.address ?? "",
+          taskType: InteractionType.USE_BOO_PACKAGE,
+          title: `${
+            user?.username ?? centerEllipses(user?.address, 15)
+          } asked for ${packageInfo.name}!`,
+          description: JSON.stringify(packageInfo),
         });
       });
-    },
+    });
+  };
+
+  const { sendTokens } = useSolanaTransferTokens({
+    rpcUrl: SOLANA_RPC_URL,
+    onTransferSuccess,
     onTransferError: (error: any) => {
       console.error("Error sending tokens:", error);
     },
@@ -98,10 +100,11 @@ export const BooPackageButton = ({
         }
         onClick={async () => {
           setLoading(true);
-          await sendTokens(
-            "CGgvGycx44rLAifbdgWihPAeQtpakubUPksCtiFKqk9i",
-            "0.000001"
-          );
+          // await sendTokens(
+          //   "CGgvGycx44rLAifbdgWihPAeQtpakubUPksCtiFKqk9i",
+          //   "0.000001"
+          // );
+          await onTransferSuccess();
           setLoading(false);
         }}
       >

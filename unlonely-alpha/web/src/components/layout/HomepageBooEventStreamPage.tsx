@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import { Box, Flex, IconButton, Text, Image, Tooltip } from "@chakra-ui/react";
 import { useChat } from "../../hooks/chat/useChat";
 import { useLivepeerStreamData } from "../../hooks/internal/useLivepeerStreamData";
@@ -24,11 +30,23 @@ import { Connection } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
 // import { useJupiterQuoteSwap } from "../../hooks/internal/solana/useJupiterQuoteSwap";
 // import { useBooTokenTerminal } from "../../hooks/internal/solana/useBooTokenTerminal";
-import { SOLANA_RPC_URL, FIXED_SOLANA_MINT } from "../../constants";
+import {
+  SOLANA_RPC_URL,
+  FIXED_SOLANA_MINT,
+  PACKAGE_PRICE_CHANGE_EVENT,
+} from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import { BooCarePackages } from "./BooCarePackages";
 import { useDragRefs } from "../../hooks/internal/useDragRef";
 import { BooEventTtsComponent } from "./BooEventTtsComponent";
+import { useLazyQuery } from "@apollo/client";
+import {
+  GET_PACKAGES_QUERY,
+  GET_USER_PACKAGE_COOLDOWN_MAPPING_QUERY,
+} from "../../constants/queries";
+import { GetUserPackageCooldownMappingQuery } from "../../generated/graphql";
+import { jp } from "../../utils/validation/jsonParse";
+import { BooScarePackages } from "./BooScarePackages";
 
 export const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 export const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
@@ -44,6 +62,8 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const { channelQueryData } = channel;
   const { chatBot } = c;
   const chat = useChat({ chatBot });
+
+  const { allMessages } = chat;
   const { playbackInfo } = useLivepeerStreamData({
     livepeerPlaybackId: channelQueryData?.livepeerPlaybackId ?? undefined,
     livepeerStreamId: channelQueryData?.livepeerStreamId ?? undefined,
@@ -196,6 +216,88 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   const { sensors, draggablePosition, handleDragStart, handleDrag } =
     useDragRefs({ containerRef, viewState });
 
+  const [booPackageMap, setBooPackageMap] = useState<any>(undefined);
+
+  const [_fetchBooPackages] = useLazyQuery(GET_PACKAGES_QUERY, {
+    fetchPolicy: "network-only",
+  });
+
+  const fetchBooPackages = useCallback(async () => {
+    const { data } = await _fetchBooPackages();
+    const packages = data?.getPackages;
+    if (packages) {
+      const packageMap = packages.reduce((map: any, item: any) => {
+        map[item.packageName] = {
+          priceMultiplier: item.priceMultiplier,
+          cooldownInSeconds: item.cooldownInSeconds,
+          id: item.id,
+        };
+        return map;
+      }, {} as Record<string, { price: number; cooldown: number }>);
+      setBooPackageMap(packageMap);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchBooPackages();
+  }, []);
+
+  const [_fetchUserBooPackageCooldownMapping] =
+    useLazyQuery<GetUserPackageCooldownMappingQuery>(
+      GET_USER_PACKAGE_COOLDOWN_MAPPING_QUERY,
+      {
+        fetchPolicy: "network-only",
+      }
+    );
+
+  const [userBooPackageCooldowns, setUserBooPackageCooldowns] =
+    useState<any>(undefined);
+
+  const fetchUserBooPackageCooldownMapping = useCallback(
+    async (userAddress: string) => {
+      const { data } = await _fetchUserBooPackageCooldownMapping({
+        variables: {
+          data: { address: userAddress },
+        },
+      });
+      const cooldownMapping = data?.getUserPackageCooldownMapping;
+      if (cooldownMapping) {
+        setUserBooPackageCooldowns(cooldownMapping);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (user) fetchUserBooPackageCooldownMapping(user?.address);
+  }, [user]);
+
+  useEffect(() => {
+    const init = async () => {
+      if (allMessages.length === 0) return;
+      const latestMessage = allMessages[allMessages.length - 1];
+      if (
+        latestMessage &&
+        latestMessage.data.body &&
+        latestMessage.name === PACKAGE_PRICE_CHANGE_EVENT &&
+        Date.now() - latestMessage.timestamp < 12000
+      ) {
+        const body = latestMessage.data.body;
+        const jpBody = jp(body);
+        const newPackageMap = {
+          ...booPackageMap,
+          [jpBody.packageName]: {
+            priceMultiplier: jpBody.priceMultiplier,
+            cooldownInSeconds: jpBody.cooldownInSeconds,
+            id: jpBody.id,
+          },
+        };
+        setBooPackageMap(newPackageMap);
+      }
+    };
+    init();
+  }, [allMessages]);
+
   return (
     <Flex
       direction={["column", "column", "row"]}
@@ -329,7 +431,15 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                               />
                             </Flex>
                           </Flex>
-                          <BooCarePackages dateNow={dateNow} chat={chat} />
+                          <BooCarePackages
+                            dateNow={dateNow}
+                            chat={chat}
+                            booPackageMap={booPackageMap}
+                            userBooPackageCooldowns={userBooPackageCooldowns}
+                            fetchUserBooPackageCooldownMapping={
+                              fetchUserBooPackageCooldownMapping
+                            }
+                          />
                         </BooEventTile>
                         <BooEventTile
                           color="#B52423"
@@ -337,38 +447,35 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                           height="100%"
                         >
                           <Flex
+                            position="absolute"
+                            top="-10px"
+                            left="0"
+                            right="0"
+                            bottom="0"
+                            zIndex="1"
+                            flexWrap="wrap"
+                            overflow="hidden"
+                            ref={bloodContainerRef}
+                            pointerEvents="none"
+                          >
+                            {Array(bloodImageCount)
+                              .fill(0)
+                              .map((_, index) => (
+                                <Image
+                                  key={index}
+                                  src="/images/pixel-blood.png"
+                                  alt="blood"
+                                  width="20%"
+                                  height="10%"
+                                  objectFit="cover"
+                                />
+                              ))}
+                          </Flex>
+                          <Flex
                             justifyContent="center"
-                            width="100%"
-                            height="100%"
-                            position="relative"
                             p={`${TOKEN_VIEW_TILE_PIXEL_GAP * 2}px`}
                             alignItems={"flex-start"}
                           >
-                            <Flex
-                              position="absolute"
-                              top="-10px"
-                              left="0"
-                              right="0"
-                              bottom="0"
-                              zIndex="1"
-                              flexWrap="wrap"
-                              overflow="hidden"
-                              ref={bloodContainerRef}
-                              pointerEvents="none"
-                            >
-                              {Array(bloodImageCount)
-                                .fill(0)
-                                .map((_, index) => (
-                                  <Image
-                                    key={index}
-                                    src="/images/pixel-blood.png"
-                                    alt="blood"
-                                    width="20%"
-                                    height="10%"
-                                    objectFit="cover"
-                                  />
-                                ))}
-                            </Flex>
                             <Flex alignItems="center" gap="10px">
                               <Image
                                 src="/images/pixel-ghost.png"
@@ -388,6 +495,15 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                               />
                             </Flex>
                           </Flex>
+                          <BooScarePackages
+                            dateNow={dateNow}
+                            chat={chat}
+                            booPackageMap={booPackageMap}
+                            userBooPackageCooldowns={userBooPackageCooldowns}
+                            fetchUserBooPackageCooldownMapping={
+                              fetchUserBooPackageCooldownMapping
+                            }
+                          />
                         </BooEventTile>
                       </Flex>
                     </>
