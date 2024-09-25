@@ -1,14 +1,29 @@
 import { useLazyQuery } from "@apollo/client";
-import { GET_STREAM_INTERACTIONS_QUERY } from "../constants/queries";
+import {
+  GET_PACKAGES_QUERY,
+  GET_STREAM_INTERACTIONS_QUERY,
+} from "../constants/queries";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import AppLayout from "../components/layout/AppLayout";
-import { Button, Flex, Progress, Text } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  Input,
+  Progress,
+  Select,
+  SimpleGrid,
+  Text,
+  useToast,
+} from "@chakra-ui/react";
 import useUpdateStreamInteraction from "../hooks/server/channel/useUpdateStreamInteraction";
 import { StreamInteractionType } from "../generated/graphql";
 import axios from "axios";
 import { useUser } from "../hooks/context/useUser";
 import Header from "../components/navigation/Header";
 import { areAddressesEqual } from "../utils/validation/wallet";
+import { useAblyChannel } from "../hooks/chat/useChatChannel";
+import { useUpdatePackage } from "../hooks/server/useUpdatePackage";
+import { PACKAGE_PRICE_CHANGE_EVENT } from "../constants";
 const mods = process.env.NEXT_PUBLIC_MODS?.split(",");
 
 export default function ModCenterPage() {
@@ -25,8 +40,9 @@ export default function ModCenterPage() {
   return (
     <AppLayout isCustomHeader={false} noHeader>
       <Header />
-      {isMod && <ModCenter />}
-      {!isMod && <Text>You're not supposed to be here.</Text>}
+      {/* {isMod && <ModCenter />} */}
+      {/* {!isMod && <Text>You're not supposed to be here.</Text>} */}
+      <ModCenter />
     </AppLayout>
   );
 }
@@ -34,6 +50,32 @@ export default function ModCenterPage() {
 const ModCenter = () => {
   const [count, setCount] = useState(0);
   const [paused, setPaused] = useState(false);
+
+  const chatChannelName = "persistMessages:danny-chat-channel"; // todo: change this to actual channel's name
+
+  const [stagingPackage, setStagingPackage] = useState<{
+    name: string;
+    priceMultiplier: string;
+    cooldownInSeconds: string;
+  }>({
+    name: "",
+    priceMultiplier: "",
+    cooldownInSeconds: "",
+  });
+
+  const toast = useToast();
+
+  const handleUpdate = () => {
+    toast({
+      title: "update sent, please wait for next fetch",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
+  const [channel] = useAblyChannel(chatChannelName, async (message) => {
+    console.log("message received", message.data);
+  });
 
   useEffect(() => {
     if (paused) return;
@@ -64,6 +106,28 @@ const ModCenter = () => {
         isCarePackage: boolean;
       }[]
     >([]);
+
+  const [booPackageMap, setBooPackageMap] = useState<any>(undefined);
+
+  const [_fetchBooPackages] = useLazyQuery(GET_PACKAGES_QUERY, {
+    fetchPolicy: "network-only",
+  });
+
+  const fetchBooPackages = useCallback(async () => {
+    const { data } = await _fetchBooPackages();
+    const packages = data?.getPackages;
+    if (packages) {
+      const packageMap = packages.reduce((map: any, item: any) => {
+        map[item.packageName] = {
+          priceMultiplier: item.priceMultiplier,
+          cooldownInSeconds: item.cooldownInSeconds,
+          id: item.id,
+        };
+        return map;
+      }, {} as Record<string, { price: number; cooldown: number }>);
+      setBooPackageMap(packageMap);
+    }
+  }, []);
 
   const getStreamInteractions = useCallback(async () => {
     setPaused(true);
@@ -105,11 +169,17 @@ const ModCenter = () => {
 
   useEffect(() => {
     getStreamInteractions();
+    fetchBooPackages();
   }, []);
 
   useEffect(() => {
-    if (count === 100) getStreamInteractions();
+    if (count === 100) {
+      getStreamInteractions();
+      fetchBooPackages();
+    }
   }, [count]);
+
+  const { updatePackage } = useUpdatePackage({});
 
   const playAndRemoveTtsInteraction = async (
     interaction: {
@@ -157,7 +227,111 @@ const ModCenter = () => {
         <Text textAlign={"center"}>time until next fetch</Text>
         <Progress colorScheme={paused ? "yellow" : "green"} value={count} />
       </Flex>
-      <Flex justifyContent={"space-between"}>
+      <Flex justifyContent={"space-between"} gap="10px">
+        <Flex direction="column">
+          <Text>Package Prices</Text>
+          <Flex
+            gap="5px"
+            backgroundColor="#212e6f"
+            p="10px"
+            borderRadius="15px"
+          >
+            <Select
+              placeholder="Select option"
+              borderColor="white"
+              bg="#10bfcc"
+              style={{
+                color: "black",
+              }}
+              onChange={async (e) => {
+                setStagingPackage({
+                  ...stagingPackage,
+                  name: e.target.value,
+                });
+              }}
+            >
+              {booPackageMap &&
+                Object.entries(booPackageMap).map(
+                  ([packageName, packageInfo]) => (
+                    <option
+                      key={packageName}
+                      value={packageName}
+                      style={{
+                        backgroundColor: "#10bfcc",
+                      }}
+                    >
+                      {packageName}
+                    </option>
+                  )
+                )}
+            </Select>
+            <Input
+              placeholder="price multiplier"
+              value={stagingPackage.priceMultiplier}
+              onChange={(e) =>
+                setStagingPackage({
+                  ...stagingPackage,
+                  priceMultiplier: String(e.target.value),
+                })
+              }
+            />
+            <Input
+              placeholder="cooldown"
+              value={stagingPackage.cooldownInSeconds}
+              onChange={(e) =>
+                setStagingPackage({
+                  ...stagingPackage,
+                  cooldownInSeconds: String(e.target.value),
+                })
+              }
+            />
+            <Button
+              isDisabled={
+                !stagingPackage.name ||
+                !stagingPackage.priceMultiplier ||
+                !stagingPackage.cooldownInSeconds ||
+                (Number(
+                  booPackageMap?.[stagingPackage.name]?.priceMultiplier
+                ) === Number(stagingPackage.priceMultiplier) &&
+                  Number(
+                    booPackageMap?.[stagingPackage.name]?.cooldownInSeconds
+                  ) === Number(stagingPackage.cooldownInSeconds))
+              }
+              onClick={async () => {
+                const data = await updatePackage({
+                  packageName: stagingPackage.name,
+                  cooldownInSeconds: Number(stagingPackage.cooldownInSeconds),
+                  priceMultiplier: stagingPackage.priceMultiplier,
+                });
+                channel?.publish({
+                  name: PACKAGE_PRICE_CHANGE_EVENT,
+                  data: {
+                    body: JSON.stringify({
+                      ...data?.res,
+                    }),
+                  },
+                });
+                handleUpdate();
+              }}
+            >
+              Update
+            </Button>
+          </Flex>
+          <SimpleGrid columns={3} spacing={10}>
+            <Text>Package Name</Text>
+            <Text>Price Multiplier</Text>
+            <Text>Cooldown</Text>
+          </SimpleGrid>
+
+          {booPackageMap &&
+            Object.entries(booPackageMap).map(([packageName, packageInfo]) => (
+              <SimpleGrid columns={3} spacing={10}>
+                <Text>{packageName}</Text>
+                <Text>{(packageInfo as any)?.priceMultiplier}</Text>
+                <Text>{(packageInfo as any)?.cooldownInSeconds}</Text>
+              </SimpleGrid>
+            ))}
+        </Flex>
         <Flex direction="column" gap="4px">
           <Text>
             Care Packages (
@@ -172,7 +346,7 @@ const ModCenter = () => {
             .filter((interaction) => interaction.isCarePackage)
             .map((interaction) => (
               <Flex
-                key={interaction.user}
+                key={interaction.id}
                 backgroundColor="#212e6f"
                 p="10px"
                 borderRadius="15px"
@@ -219,7 +393,7 @@ const ModCenter = () => {
             .filter((interaction) => !interaction.isCarePackage)
             .map((interaction) => (
               <Flex
-                key={interaction.user}
+                key={interaction.id}
                 backgroundColor="#212e6f"
                 p="10px"
                 borderRadius="15px"

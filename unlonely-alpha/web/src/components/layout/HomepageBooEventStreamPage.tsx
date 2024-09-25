@@ -433,7 +433,6 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                           </Flex>
                           <BooCarePackages
                             dateNow={dateNow}
-                            chat={chat}
                             booPackageMap={booPackageMap}
                             userBooPackageCooldowns={userBooPackageCooldowns}
                             fetchUserBooPackageCooldownMapping={
@@ -497,7 +496,6 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                           </Flex>
                           <BooScarePackages
                             dateNow={dateNow}
-                            chat={chat}
                             booPackageMap={booPackageMap}
                             userBooPackageCooldowns={userBooPackageCooldowns}
                             fetchUserBooPackageCooldownMapping={
@@ -552,7 +550,7 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                           bg: "#354559",
                         }}
                         aria-label="swap token input"
-                        icon={<RiSwapFill />}
+                        icon={<RiSwapFill size={20} />}
                         zIndex={51}
                         onClick={() => {
                           setIsSell((prev) => !prev);
