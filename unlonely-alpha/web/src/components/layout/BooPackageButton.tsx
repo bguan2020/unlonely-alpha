@@ -13,6 +13,8 @@ import { useState } from "react";
 import { useUpdatePackage } from "../../hooks/server/useUpdatePackage";
 import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
 import { ChatReturnType } from "../../hooks/chat/useChat";
+import { InteractionType as BackendInteractionType } from "../../generated/graphql";
+import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 
 export const BooPackageButton = ({
   chat,
@@ -41,6 +43,8 @@ export const BooPackageButton = ({
   const [loading, setLoading] = useState(false);
   const { updatePackage } = useUpdatePackage({});
 
+  const { postStreamInteraction } = usePostStreamInteraction({});
+
   const {
     updateUserPackageCooldownMapping: updateUserBooPackageCooldownMapping,
   } = useUpdateUserPackageCooldownMapping({});
@@ -49,19 +53,29 @@ export const BooPackageButton = ({
     rpcUrl: SOLANA_RPC_URL,
     onTransferSuccess: async () => {
       fetchTokenBalance();
-      await updateUserBooPackageCooldownMapping({
-        userAddress: user?.address ?? "",
-        packageName: packageInfo.name,
+      await postStreamInteraction({
+        channelId: "3",
+        interactionType: BackendInteractionType.TtsInteraction,
+        text: JSON.stringify({
+          user: user?.username ?? centerEllipses(user?.address, 15),
+          packageName: packageInfo.name,
+          isCarePackage: true,
+        }),
       }).then(async () => {
-        await fetchUserBooPackageCooldownMapping(user?.address ?? "");
-        addToChatbot({
-          username: user?.username ?? "",
-          address: user?.address ?? "",
-          taskType: InteractionType.USE_BOO_PACKAGE,
-          title: `${user?.username ?? centerEllipses(user?.address, 15)} used ${
-            packageInfo.name
-          }!`,
-          description: JSON.stringify(packageInfo),
+        await updateUserBooPackageCooldownMapping({
+          userAddress: user?.address ?? "",
+          packageName: packageInfo.name,
+        }).then(async () => {
+          await fetchUserBooPackageCooldownMapping(user?.address ?? "");
+          addToChatbot({
+            username: user?.username ?? "",
+            address: user?.address ?? "",
+            taskType: InteractionType.USE_BOO_PACKAGE,
+            title: `${
+              user?.username ?? centerEllipses(user?.address, 15)
+            } used ${packageInfo.name}!`,
+            description: JSON.stringify(packageInfo),
+          });
         });
       });
     },
