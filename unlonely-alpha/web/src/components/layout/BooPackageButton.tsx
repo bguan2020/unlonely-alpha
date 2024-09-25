@@ -13,7 +13,7 @@ import { useState } from "react";
 import { useUpdatePackage } from "../../hooks/server/useUpdatePackage";
 import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
 import { ChatReturnType } from "../../hooks/chat/useChat";
-import { InteractionType as BackendInteractionType } from "../../generated/graphql";
+import { StreamInteractionType } from "../../generated/graphql";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 
 export const BooPackageButton = ({
@@ -55,7 +55,7 @@ export const BooPackageButton = ({
       fetchTokenBalance();
       await postStreamInteraction({
         channelId: "3",
-        interactionType: BackendInteractionType.TtsInteraction,
+        streamInteractionType: StreamInteractionType.TtsInteraction,
         text: JSON.stringify({
           user: user?.username ?? centerEllipses(user?.address, 15),
           packageName: packageInfo.name,

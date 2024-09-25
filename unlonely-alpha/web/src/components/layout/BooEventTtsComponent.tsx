@@ -1,7 +1,7 @@
 import { Flex, Text, Image, Button, Textarea } from "@chakra-ui/react";
 import { useState } from "react";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
-import { InteractionType as BackendInteractionType } from "../../generated/graphql";
+import { StreamInteractionType } from "../../generated/graphql";
 import { containsSwears } from "../../utils/validation/profanityFilter";
 
 export const BooEventTtsComponent = () => {
@@ -13,7 +13,7 @@ export const BooEventTtsComponent = () => {
   const handlePost = async () => {
     await postStreamInteraction({
       channelId: "3",
-      interactionType: BackendInteractionType.TtsInteraction,
+      streamInteractionType: StreamInteractionType.TtsInteraction,
       text,
     });
     setIsEnteringMessage(false);

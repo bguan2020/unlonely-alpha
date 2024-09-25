@@ -549,7 +549,7 @@ export const UserProvider = ({
               //   getDoesUserAddressMatchData?.getDoesUserAddressMatch
               // );
               postStreamInteraction({
-                interactionType: "test",
+                streamInteractionType: "test",
                 channelId: "1",
               });
             }}
