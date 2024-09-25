@@ -1,8 +1,9 @@
 import { gql } from "apollo-server-express";
 
 export const typeDef = gql`
-  enum InteractionType {
+  enum StreamInteractionType {
     tts_interaction
+    package_interaction
   }
 
   type StreamInteraction {
@@ -17,7 +18,7 @@ export const typeDef = gql`
   }
 
   input PostStreamInteractionInput {
-    interactionType: InteractionType!
+    streamInteractionType: StreamInteractionType!
     text: String
     channelId: ID!
   }
@@ -29,7 +30,7 @@ export const typeDef = gql`
 
   input GetStreamInteractionsInput {
     channelId: ID!
-    interactionType: InteractionType
+    streamInteractionType: StreamInteractionType
     orderBy: SortOrder!
     softDeleted: Boolean
   }

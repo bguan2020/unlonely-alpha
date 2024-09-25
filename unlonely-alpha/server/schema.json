@@ -8394,7 +8394,7 @@
       },
       {
         "kind": "ENUM",
-        "name": "InteractionType",
+        "name": "StreamInteractionType",
         "description": null,
         "specifiedByUrl": null,
         "fields": null,
@@ -8403,6 +8403,12 @@
         "enumValues": [
           {
             "name": "tts_interaction",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "package_interaction",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
@@ -8554,14 +8560,14 @@
         "fields": null,
         "inputFields": [
           {
-            "name": "interactionType",
+            "name": "streamInteractionType",
             "description": null,
             "type": {
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
                 "kind": "ENUM",
-                "name": "InteractionType",
+                "name": "StreamInteractionType",
                 "ofType": null
               }
             },
@@ -8670,11 +8676,11 @@
             "deprecationReason": null
           },
           {
-            "name": "interactionType",
+            "name": "streamInteractionType",
             "description": null,
             "type": {
               "kind": "ENUM",
-              "name": "InteractionType",
+              "name": "StreamInteractionType",
               "ofType": null
             },
             "defaultValue": null,

@@ -1,12 +1,13 @@
 import { User } from "@prisma/client";
 import { Context } from "../../context";
 
-export enum InteractionType {
+export enum StreamInteractionType {
   TTS_INTERACTION = "tts_interaction",
+  PACKAGE_INTERACTION = "package_interaction"
 }
 
 export interface IPostStreamInteractionInput {
-  interactionType: InteractionType;
+  streamInteractionType: StreamInteractionType;
   text?: string;
   channelId: string;
 }
@@ -18,7 +19,7 @@ export const postStreamInteraction = (
 ) => {
   return ctx.prisma.streamInteraction.create({
     data: {
-      interactionType: data.interactionType,
+      interactionType: data.streamInteractionType,
       text: data.text,
       owner: {
         connect: {
@@ -55,7 +56,7 @@ export interface IUpdateStreamInteractionInput {
 
 export interface IGetStreamInteractionsInput {
   channelId: string;
-  interactionType?: InteractionType;
+  streamInteractionType?: StreamInteractionType;
   orderBy: "asc" | "desc";
   softDeleted?: boolean;
 }
@@ -69,7 +70,7 @@ export const getStreamInteractions = (
     channel: {
       id: Number(data.channelId),
     },
-    ...(data.interactionType && { interactionType: data.interactionType }),
+    ...(data.streamInteractionType && { interactionType: data.streamInteractionType }),
     ...(data.softDeleted !== undefined && { softDelete: data.softDeleted }),
   };
 

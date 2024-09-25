@@ -381,9 +381,9 @@ export type GetPoapInput = {
 
 export type GetStreamInteractionsInput = {
   channelId: Scalars["ID"];
-  interactionType?: InputMaybe<InteractionType>;
   orderBy: SortOrder;
   softDeleted?: InputMaybe<Scalars["Boolean"]>;
+  streamInteractionType?: InputMaybe<StreamInteractionType>;
 };
 
 export type GetSubscriptionsByChannelIdInput = {
@@ -456,10 +456,6 @@ export type IGetLivepeerViewershipMetricsInput = {
   timeStep: Scalars["String"];
   toTimestampInMilliseconds: Scalars["String"];
 };
-
-export enum InteractionType {
-  TtsInteraction = "tts_interaction",
-}
 
 export type Likable = {
   disliked?: Maybe<Scalars["Boolean"]>;
@@ -990,7 +986,7 @@ export type PostSharesEventInput = {
 
 export type PostStreamInteractionInput = {
   channelId: Scalars["ID"];
-  interactionType: InteractionType;
+  streamInteractionType: StreamInteractionType;
   text?: InputMaybe<Scalars["String"]>;
 };
 
@@ -1336,6 +1332,11 @@ export type StreamInteraction = {
   text?: Maybe<Scalars["String"]>;
   updatedAt: Scalars["DateTime"];
 };
+
+export enum StreamInteractionType {
+  PackageInteraction = "package_interaction",
+  TtsInteraction = "tts_interaction",
+}
 
 export type Subscription = {
   __typename?: "Subscription";
