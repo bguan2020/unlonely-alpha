@@ -9,6 +9,7 @@ import {
   MenuList,
   Spinner,
   Text,
+  Image,
   Box,
 } from "@chakra-ui/react";
 import { useCallback, useMemo, useState } from "react";
@@ -143,32 +144,6 @@ const ConnectedDisplay = () => {
           }
           gap="1px"
         >
-          <Button
-            color="white"
-            borderRadius="0"
-            _focus={{}}
-            _active={{}}
-            _hover={{
-              bg: "#020202",
-            }}
-            px="10px"
-            bg={"#131323"}
-            onClick={() => handleIsManagingWallets(true)}
-          >
-            <Flex alignItems={"center"}>
-              <Text fontFamily="LoRes15" fontSize="15px">
-                {loading ? (
-                  <Spinner />
-                ) : isStandalone ? (
-                  <HiDotsVertical />
-                ) : user?.username ? (
-                  trailString(user?.username)
-                ) : (
-                  centerEllipses(user?.address, 13)
-                )}{" "}
-              </Text>
-            </Flex>
-          </Button>
           <MenuButton
             color="white"
             as={Button}
@@ -182,7 +157,20 @@ const ConnectedDisplay = () => {
             bg={"#131323"}
             position="relative"
           >
-            <ChevronDownIcon />
+            <Flex alignItems={"center"}>
+              <Text fontFamily="LoRes15" fontSize="15px">
+                {loading ? (
+                  <Spinner />
+                ) : isStandalone ? (
+                  <HiDotsVertical />
+                ) : user?.username ? (
+                  trailString(user?.username)
+                ) : (
+                  centerEllipses(user?.address, 13)
+                )}{" "}
+              </Text>
+              <ChevronDownIcon />
+            </Flex>
           </MenuButton>
         </Flex>
         <MenuList zIndex={1801} bg={"#131323"} borderRadius="0">
@@ -197,7 +185,7 @@ const ConnectedDisplay = () => {
               <Text>my channels</Text>
             </MenuItem>
           )}
-          {/* <MenuItem
+          <MenuItem
             bg={"#131323"}
             _hover={{ bg: "#1f1f3c" }}
             _focus={{}}
@@ -208,7 +196,7 @@ const ConnectedDisplay = () => {
               <Text>manage wallets</Text>
               <Image src={"/images/privy-orange.png"} height={"20px"} />
             </Flex>
-          </MenuItem> */}
+          </MenuItem>
           {user?.address && (activeWallet as any)?.type === "ethereum" && (
             <MenuItem
               bg={"#131323"}
