@@ -5,7 +5,7 @@ import usePostStreamInteraction from "../../hooks/server/usePostStreamInteractio
 import { containsSwears } from "../../utils/validation/profanityFilter";
 import { io, Socket } from "socket.io-client";
 
-export const WS_URL = "http://localhost:8000";
+export const WS_URL = "wss://sea-lion-app-j3rts.ondigitalocean.app";
 
 let socket: Socket | null;
 
