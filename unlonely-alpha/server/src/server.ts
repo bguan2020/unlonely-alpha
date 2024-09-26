@@ -103,6 +103,7 @@ const startServer = async () => {
     console.log("a user connected");
     
     socket.on("interaction", (data: any) => {
+      console.log("websocket interaction", data);
         io.emit("interaction", data);
     });
 
