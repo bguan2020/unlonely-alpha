@@ -1,6 +1,5 @@
 import { User } from "@prisma/client";
 import { Context } from "../../context";
-import axios from "axios";
 
 export enum StreamInteractionType {
   TTS_INTERACTION = "tts_interaction",
@@ -86,24 +85,6 @@ export const getStreamInteractions = (
     },
   });
 };
-
-export interface ISendTtsInput {
-  text: string;
-  userId: string;
-  paymentId: string;
-}
-
-export const sendTts = async (data: ISendTtsInput) => {
-  const response = await axios.post(
-    "https://overlay-five.vercel.app/api/payment-confirmation",
-    data,
-    {
-      headers: { "Content-Type": "application/json" },
-    }
-  );
-  console.log(response.data);
-  return JSON.stringify(response.data);
-}
 
 export const getOwner = (
   { ownerAddr }: { ownerAddr: string },

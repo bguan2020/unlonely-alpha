@@ -1113,7 +1113,6 @@ export type Query = {
   getVideo?: Maybe<Video>;
   getVideoFeed?: Maybe<Array<Maybe<Video>>>;
   sendAllNotifications?: Maybe<Scalars["Boolean"]>;
-  sendTts?: Maybe<Scalars["String"]>;
   updateAllUsers?: Maybe<Array<Maybe<User>>>;
 };
 
@@ -1277,10 +1276,6 @@ export type QuerySendAllNotificationsArgs = {
   data: SendAllNotificationsInput;
 };
 
-export type QuerySendTtsArgs = {
-  data: SendTtsInput;
-};
-
 export type RequestUploadFromLivepeerInput = {
   name: Scalars["String"];
 };
@@ -1298,12 +1293,6 @@ export type SendAllNotificationsInput = {
   channelId?: InputMaybe<Scalars["ID"]>;
   pathname?: InputMaybe<Scalars["String"]>;
   title: Scalars["String"];
-};
-
-export type SendTtsInput = {
-  paymentId?: InputMaybe<Scalars["String"]>;
-  text: Scalars["String"];
-  userId?: InputMaybe<Scalars["String"]>;
 };
 
 export type SharesEvent = {
@@ -1743,12 +1732,6 @@ export type GetUserQuery = {
     channel?: Array<{ __typename?: "Channel"; slug: string } | null> | null;
   } | null;
 };
-
-export type SendTtsQueryVariables = Exact<{
-  data: SendTtsInput;
-}>;
-
-export type SendTtsQuery = { __typename?: "Query"; sendTts?: string | null };
 
 export type GetDoesUserAddressMatchQueryVariables = Exact<{
   data: GetDoesUserAddressMatchInput;
@@ -3261,52 +3244,6 @@ export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
 export type GetUserQueryResult = Apollo.QueryResult<
   GetUserQuery,
   GetUserQueryVariables
->;
-export const SendTtsDocument = gql`
-  query SendTts($data: SendTtsInput!) {
-    sendTts(data: $data)
-  }
-`;
-
-/**
- * __useSendTtsQuery__
- *
- * To run a query within a React component, call `useSendTtsQuery` and pass it any options that fit your needs.
- * When your component renders, `useSendTtsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useSendTtsQuery({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useSendTtsQuery(
-  baseOptions: Apollo.QueryHookOptions<SendTtsQuery, SendTtsQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<SendTtsQuery, SendTtsQueryVariables>(
-    SendTtsDocument,
-    options
-  );
-}
-export function useSendTtsLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<SendTtsQuery, SendTtsQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<SendTtsQuery, SendTtsQueryVariables>(
-    SendTtsDocument,
-    options
-  );
-}
-export type SendTtsQueryHookResult = ReturnType<typeof useSendTtsQuery>;
-export type SendTtsLazyQueryHookResult = ReturnType<typeof useSendTtsLazyQuery>;
-export type SendTtsQueryResult = Apollo.QueryResult<
-  SendTtsQuery,
-  SendTtsQueryVariables
 >;
 export const GetDoesUserAddressMatchDocument = gql`
   query GetDoesUserAddressMatch($data: GetDoesUserAddressMatchInput!) {

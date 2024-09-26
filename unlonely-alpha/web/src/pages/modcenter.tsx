@@ -2,7 +2,6 @@ import { useLazyQuery } from "@apollo/client";
 import {
   GET_PACKAGES_QUERY,
   GET_STREAM_INTERACTIONS_QUERY,
-  SEND_TTS_QUERY,
 } from "../constants/queries";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import AppLayout from "../components/layout/AppLayout";
@@ -90,10 +89,6 @@ const ModCenter = () => {
   }, [paused]);
 
   const [call] = useLazyQuery(GET_STREAM_INTERACTIONS_QUERY, {
-    fetchPolicy: "network-only",
-  });
-
-  const [callTts] = useLazyQuery(SEND_TTS_QUERY, {
     fetchPolicy: "network-only",
   });
 
@@ -207,28 +202,19 @@ const ModCenter = () => {
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
           }
         );
-        // const response = await callTts({
-        //   variables: {
-        //     data: {
-        //       text: interaction.text,
-        //       userId: "mod",
-        //       paymentId: "mod",
-        //     },
-        //   },
-        // });
 
         console.log("response", response);
       }
 
-      // await updateStreamInteraction({
-      //   interactionId: interaction.id,
-      //   softDeleted: true,
-      // });
-      // setReceivedTtsInteractions((prevInteractions) =>
-      //   prevInteractions.filter(
-      //     (_interaction) => _interaction.id !== interaction.id
-      //   )
-      // );
+      await updateStreamInteraction({
+        interactionId: interaction.id,
+        softDeleted: true,
+      });
+      setReceivedTtsInteractions((prevInteractions) =>
+        prevInteractions.filter(
+          (_interaction) => _interaction.id !== interaction.id
+        )
+      );
     } catch (error) {
       console.error("Error sending POST request:", error);
     }
