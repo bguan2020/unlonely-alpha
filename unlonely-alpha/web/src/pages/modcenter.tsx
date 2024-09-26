@@ -196,15 +196,15 @@ const ModCenter = () => {
     setPaused(true);
     try {
       if (interaction.text && !doNotPlay) {
+        const params = new URLSearchParams();
+        params.append("paymentId", "test123");
+        params.append("userId", "userTest");
+        params.append("textToSpeak", interaction.text);
         const response = await axios.post(
           "https://overlay-five.vercel.app/api/payment-confirmation",
+          params,
           {
-            paymentId: "test123",
-            userId: "userTest",
-            textToSpeak: interaction.text,
-          },
-          {
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
           }
         );
         // const response = await callTts({
