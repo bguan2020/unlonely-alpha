@@ -3,6 +3,7 @@ import { useState } from "react";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 import { StreamInteractionType } from "../../generated/graphql";
 import { containsSwears } from "../../utils/validation/profanityFilter";
+import axios from "axios";
 
 export const BooEventTtsComponent = () => {
   const [isEnteringMessage, setIsEnteringMessage] = useState(false);
@@ -11,6 +12,18 @@ export const BooEventTtsComponent = () => {
   const { postStreamInteraction } = usePostStreamInteraction({});
 
   const handlePost = async () => {
+    const response = await axios.post(
+      "https://overlay-five.vercel.app/api/payment-confirmation",
+      {
+        paymentId: "test123",
+        userId: "userTest",
+        textToSpeak: text,
+      },
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    console.log(response.data);
     await postStreamInteraction({
       channelId: "3",
       streamInteractionType: StreamInteractionType.TtsInteraction,
