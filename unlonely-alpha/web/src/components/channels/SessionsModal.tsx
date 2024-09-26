@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useApolloClient } from "@apollo/client";
 import { GET_LIVEPEER_STREAM_SESSIONS_DATA_QUERY } from "../../constants/queries";
@@ -34,32 +34,44 @@ export const SessionsModal = ({
     return channelQueryData?.livepeerStreamId ?? undefined;
   }, [channelQueryData]);
 
-  const fetch = async (_page: number) => {
-    if (!livepeerStreamId || !isOpen) return;
-    setLoading(true);
-    const sessions = await client
-      .query({
-        query: GET_LIVEPEER_STREAM_SESSIONS_DATA_QUERY,
-        variables: {
-          data: {
-            streamId: livepeerStreamId,
-            limit: ITEMS_PER_PAGE,
-            skip: ITEMS_PER_PAGE * _page,
-          },
-        },
-      })
-      .then((res: any) => {
-        return res.data.getLivepeerStreamSessionsData;
-      });
-    setLoading(false);
-    setSessions((prev) => [...prev, ...sessions]);
-  };
+  const [error, setError] = useState<string>("");
+  const [hasMore, setHasMore] = useState(true);
+
+  const fetch = useCallback(
+    async (_page: number) => {
+      if (!livepeerStreamId || !isOpen) return;
+      setLoading(true);
+      setError("");
+      try {
+        const sessions = await client
+          .query({
+            query: GET_LIVEPEER_STREAM_SESSIONS_DATA_QUERY,
+            variables: {
+              data: {
+                streamId: livepeerStreamId,
+                limit: ITEMS_PER_PAGE,
+                skip: ITEMS_PER_PAGE * _page,
+              },
+            },
+          })
+          .then((res: any) => res.data.getLivepeerStreamSessionsData);
+        setLoading(false);
+        setSessions((prev) => [...prev, ...sessions]);
+        setHasMore(sessions.length === ITEMS_PER_PAGE);
+      } catch (err) {
+        setLoading(false);
+        setError("Failed to fetch sessions. Please try again.");
+        console.error("Error fetching sessions:", err);
+      }
+    },
+    [livepeerStreamId, client, isOpen]
+  );
 
   useEffect(() => {
     if (sessions.length === 0 && isOpen && livepeerStreamId) {
       fetch(0);
     }
-  }, [livepeerStreamId, isOpen, sessions]);
+  }, [livepeerStreamId, isOpen, sessions, fetch]);
 
   return (
     <TransactionModalTemplate
@@ -149,12 +161,13 @@ export const SessionsModal = ({
             );
           })}
           {sessions.length === 0 && !loading && <Text>No sessions found</Text>}
+          {error && <Text color="red.500">{error}</Text>}
         </Flex>
         {loading ? (
           <Flex justifyContent={"center"}>
             <Spinner />
           </Flex>
-        ) : sessions.length > 0 ? (
+        ) : sessions.length > 0 && hasMore ? (
           <Button
             _hover={{
               transform: "scale(1.05)",

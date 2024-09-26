@@ -49,6 +49,7 @@ model User {
   gamblableInteractions GamblableInteraction[]
   gamblableEventLeaderboardEntries GamblableEventLeaderboard[]
   channelContract1155Mapping Json @default("{}")
+  packageCooldownMapping Json @default("{}")
 }
 
 model Subscription {
@@ -291,6 +292,13 @@ model BaseLeaderboard {
   updatedAt DateTime @updatedAt
 }
 
+model Package {
+  id Int      @id @default(autoincrement())
+  packageName String
+  priceMultiplier    String
+  cooldownInSeconds Int @default(0)
+}
+
 // ------- DEPRECATED MODELS -------
 // DONT DELETE
 
@@ -331,6 +339,7 @@ model StreamInteraction {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  softDelete Boolean @default(false)
 }
 
 

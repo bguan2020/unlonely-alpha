@@ -379,8 +379,11 @@ export type GetPoapInput = {
   date: Scalars["String"];
 };
 
-export type GetRecentStreamInteractionsByChannelInput = {
+export type GetStreamInteractionsInput = {
   channelId: Scalars["ID"];
+  orderBy: SortOrder;
+  softDeleted?: InputMaybe<Scalars["Boolean"]>;
+  streamInteractionTypes?: InputMaybe<Array<StreamInteractionType>>;
 };
 
 export type GetSubscriptionsByChannelIdInput = {
@@ -570,8 +573,10 @@ export type Mutation = {
   updateLivepeerStreamData?: Maybe<LivepeerStreamData>;
   updateNFC?: Maybe<Nfc>;
   updateOpenseaLink?: Maybe<Nfc>;
+  updatePackage: Package;
   updatePinnedChatMessages?: Maybe<Channel>;
   updateSharesEvent?: Maybe<Channel>;
+  updateStreamInteraction?: Maybe<StreamInteraction>;
   updateTempTokenHasHitTotalSupplyThreshold: Scalars["Boolean"];
   updateTempTokenHasRemainingFundsForCreator?: Maybe<
     Array<Maybe<TempTokenWithBalance>>
@@ -583,6 +588,7 @@ export type Mutation = {
   updateUserChannelContract1155Mapping?: Maybe<User>;
   updateUserCreatorTokenQuantity: UserCreatorToken;
   updateUserNotifications?: Maybe<User>;
+  updateUserPackageCooldownMapping?: Maybe<User>;
   updateUsers?: Maybe<Array<Maybe<User>>>;
 };
 
@@ -770,12 +776,20 @@ export type MutationUpdateNfcArgs = {
   data: UpdateNfcInput;
 };
 
+export type MutationUpdatePackageArgs = {
+  data: UpdatePackageInput;
+};
+
 export type MutationUpdatePinnedChatMessagesArgs = {
   data: UpdatePinnedChatMessagesInput;
 };
 
 export type MutationUpdateSharesEventArgs = {
   data: UpdateSharesEventInput;
+};
+
+export type MutationUpdateStreamInteractionArgs = {
+  data: UpdateStreamInteractionInput;
 };
 
 export type MutationUpdateTempTokenHasHitTotalSupplyThresholdArgs = {
@@ -812,6 +826,10 @@ export type MutationUpdateUserCreatorTokenQuantityArgs = {
 
 export type MutationUpdateUserNotificationsArgs = {
   data: UpdateUserNotificationsInput;
+};
+
+export type MutationUpdateUserPackageCooldownMappingArgs = {
+  data: UpdateUserPackageCooldownMappingInput;
 };
 
 export type MutationUpdateUsersArgs = {
@@ -852,6 +870,19 @@ export type NumberOfHolders = {
   __typename?: "NumberOfHolders";
   channel: Channel;
   holders: Scalars["Int"];
+};
+
+export type Package = {
+  __typename?: "Package";
+  cooldownInSeconds: Scalars["Int"];
+  id: Scalars["ID"];
+  packageName: Scalars["String"];
+  priceMultiplier?: Maybe<Scalars["String"]>;
+};
+
+export type PackageCooldownMapping = {
+  __typename?: "PackageCooldownMapping";
+  lastUsedAt: Scalars["String"];
 };
 
 export type Poap = {
@@ -955,7 +986,7 @@ export type PostSharesEventInput = {
 
 export type PostStreamInteractionInput = {
   channelId: Scalars["ID"];
-  interactionType: Scalars["String"];
+  streamInteractionType: StreamInteractionType;
   text?: InputMaybe<Scalars["String"]>;
 };
 
@@ -1048,9 +1079,10 @@ export type Query = {
   getNFC?: Maybe<Nfc>;
   getNFCByTokenData?: Maybe<Nfc>;
   getNFCFeed?: Maybe<Array<Maybe<Nfc>>>;
+  getPackages: Array<Package>;
   getPoap?: Maybe<Poap>;
   getRecentChats?: Maybe<Array<Maybe<Chat>>>;
-  getRecentStreamInteractionsByChannel?: Maybe<Array<Maybe<StreamInteraction>>>;
+  getStreamInteractions?: Maybe<Array<Maybe<StreamInteraction>>>;
   getSubscriptionByEndpoint?: Maybe<Subscription>;
   getSubscriptionsByChannelId?: Maybe<Array<Maybe<Subscription>>>;
   getTaskFeed?: Maybe<Array<Maybe<Task>>>;
@@ -1063,6 +1095,7 @@ export type Query = {
   >;
   getUser?: Maybe<User>;
   getUserChannelContract1155Mapping?: Maybe<Scalars["JSON"]>;
+  getUserPackageCooldownMapping?: Maybe<Scalars["JSON"]>;
   getUserTokenHolding?: Maybe<Scalars["Int"]>;
   getVibesTransactions?: Maybe<Array<Maybe<VibesTransaction>>>;
   getVideo?: Maybe<Video>;
@@ -1163,8 +1196,8 @@ export type QueryGetRecentChatsArgs = {
   data: GetChatInput;
 };
 
-export type QueryGetRecentStreamInteractionsByChannelArgs = {
-  data?: InputMaybe<GetRecentStreamInteractionsByChannelInput>;
+export type QueryGetStreamInteractionsArgs = {
+  data?: InputMaybe<GetStreamInteractionsInput>;
 };
 
 export type QueryGetSubscriptionByEndpointArgs = {
@@ -1200,6 +1233,10 @@ export type QueryGetUserArgs = {
 };
 
 export type QueryGetUserChannelContract1155MappingArgs = {
+  data: GetUserInput;
+};
+
+export type QueryGetUserPackageCooldownMappingArgs = {
   data: GetUserInput;
 };
 
@@ -1291,9 +1328,15 @@ export type StreamInteraction = {
   id: Scalars["ID"];
   interactionType: Scalars["String"];
   owner: User;
+  softDelete: Scalars["Boolean"];
   text?: Maybe<Scalars["String"]>;
   updatedAt: Scalars["DateTime"];
 };
+
+export enum StreamInteractionType {
+  PackageInteraction = "package_interaction",
+  TtsInteraction = "tts_interaction",
+}
 
 export type Subscription = {
   __typename?: "Subscription";
@@ -1468,6 +1511,12 @@ export type UpdateNfcInput = {
   videoThumbnail: Scalars["String"];
 };
 
+export type UpdatePackageInput = {
+  cooldownInSeconds: Scalars["Int"];
+  packageName: Scalars["String"];
+  priceMultiplier: Scalars["String"];
+};
+
 export type UpdatePinnedChatMessagesInput = {
   id: Scalars["ID"];
   pinnedChatMessages: Array<InputMaybe<Scalars["String"]>>;
@@ -1479,6 +1528,11 @@ export type UpdateSharesEventInput = {
   resultIndex?: InputMaybe<Scalars["Int"]>;
   sharesSubjectAddress?: InputMaybe<Scalars["String"]>;
   sharesSubjectQuestion?: InputMaybe<Scalars["String"]>;
+};
+
+export type UpdateStreamInteractionInput = {
+  interactionId: Scalars["ID"];
+  softDeleted: Scalars["Boolean"];
 };
 
 export type UpdateTempTokenHasHitTotalSupplyThresholdInput = {
@@ -1534,6 +1588,11 @@ export type UpdateUserNotificationsInput = {
   notificationsTokens?: InputMaybe<Scalars["String"]>;
 };
 
+export type UpdateUserPackageCooldownMappingInput = {
+  packageName: Scalars["String"];
+  userAddress: Scalars["String"];
+};
+
 export type UpdateUserResponse = {
   __typename?: "UpdateUserResponse";
   error?: Maybe<Scalars["String"]>;
@@ -1565,6 +1624,7 @@ export type User = {
   notificationsLive?: Maybe<Scalars["Boolean"]>;
   notificationsNFCs?: Maybe<Scalars["Boolean"]>;
   notificationsTokens?: Maybe<Scalars["String"]>;
+  packageCooldownMapping?: Maybe<Scalars["JSON"]>;
   powerUserLvl: Scalars["Int"];
   reputation?: Maybe<Scalars["Int"]>;
   sigTimestamp?: Maybe<Scalars["BigInt"]>;
@@ -1666,6 +1726,15 @@ export type GetUserChannelContract1155MappingQuery = {
   getUserChannelContract1155Mapping?: any | null;
 };
 
+export type GetUserPackageCooldownMappingQueryVariables = Exact<{
+  data: GetUserInput;
+}>;
+
+export type GetUserPackageCooldownMappingQuery = {
+  __typename?: "Query";
+  getUserPackageCooldownMapping?: any | null;
+};
+
 export type GetLivepeerClipDataQueryVariables = Exact<{
   data?: InputMaybe<GetLivepeerClipDataInput>;
 }>;
@@ -1737,6 +1806,23 @@ export type GetTokenLeaderboardQuery = {
       owner: { __typename?: "User"; address: string; username?: string | null };
     };
   }>;
+};
+
+export type GetStreamInteractionsQueryVariables = Exact<{
+  data?: InputMaybe<GetStreamInteractionsInput>;
+}>;
+
+export type GetStreamInteractionsQuery = {
+  __typename?: "Query";
+  getStreamInteractions?: Array<{
+    __typename?: "StreamInteraction";
+    softDelete: boolean;
+    updatedAt: any;
+    createdAt: any;
+    text?: string | null;
+    interactionType: string;
+    id: string;
+  } | null> | null;
 };
 
 export type ChannelDetailQueryVariables = Exact<{
@@ -2610,6 +2696,20 @@ export type UpdateUserChannelContract1155MappingMutation = {
   } | null;
 };
 
+export type UpdateUserPackageCooldownMappingMutationVariables = Exact<{
+  data: UpdateUserPackageCooldownMappingInput;
+}>;
+
+export type UpdateUserPackageCooldownMappingMutation = {
+  __typename?: "Mutation";
+  updateUserPackageCooldownMapping?: {
+    __typename?: "User";
+    address: string;
+    username?: string | null;
+    packageCooldownMapping?: any | null;
+  } | null;
+};
+
 export type PostBadgeTradeMutationVariables = Exact<{
   data: PostBadgeTradeInput;
 }>;
@@ -3008,6 +3108,23 @@ export type FetchCurrentUserQuery = {
   } | null;
 };
 
+export type UpdateStreamInteractionMutationVariables = Exact<{
+  data: UpdateStreamInteractionInput;
+}>;
+
+export type UpdateStreamInteractionMutation = {
+  __typename?: "Mutation";
+  updateStreamInteraction?: {
+    __typename?: "StreamInteraction";
+    softDelete: boolean;
+    updatedAt: any;
+    createdAt: any;
+    text?: string | null;
+    interactionType: string;
+    id: string;
+  } | null;
+};
+
 export const GetUserDocument = gql`
   query GetUser($data: GetUserInput!) {
     getUser(data: $data) {
@@ -3125,6 +3242,62 @@ export type GetUserChannelContract1155MappingLazyQueryHookResult = ReturnType<
 export type GetUserChannelContract1155MappingQueryResult = Apollo.QueryResult<
   GetUserChannelContract1155MappingQuery,
   GetUserChannelContract1155MappingQueryVariables
+>;
+export const GetUserPackageCooldownMappingDocument = gql`
+  query GetUserPackageCooldownMapping($data: GetUserInput!) {
+    getUserPackageCooldownMapping(data: $data)
+  }
+`;
+
+/**
+ * __useGetUserPackageCooldownMappingQuery__
+ *
+ * To run a query within a React component, call `useGetUserPackageCooldownMappingQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserPackageCooldownMappingQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserPackageCooldownMappingQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetUserPackageCooldownMappingQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetUserPackageCooldownMappingQuery,
+    GetUserPackageCooldownMappingQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetUserPackageCooldownMappingQuery,
+    GetUserPackageCooldownMappingQueryVariables
+  >(GetUserPackageCooldownMappingDocument, options);
+}
+export function useGetUserPackageCooldownMappingLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetUserPackageCooldownMappingQuery,
+    GetUserPackageCooldownMappingQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetUserPackageCooldownMappingQuery,
+    GetUserPackageCooldownMappingQueryVariables
+  >(GetUserPackageCooldownMappingDocument, options);
+}
+export type GetUserPackageCooldownMappingQueryHookResult = ReturnType<
+  typeof useGetUserPackageCooldownMappingQuery
+>;
+export type GetUserPackageCooldownMappingLazyQueryHookResult = ReturnType<
+  typeof useGetUserPackageCooldownMappingLazyQuery
+>;
+export type GetUserPackageCooldownMappingQueryResult = Apollo.QueryResult<
+  GetUserPackageCooldownMappingQuery,
+  GetUserPackageCooldownMappingQueryVariables
 >;
 export const GetLivepeerClipDataDocument = gql`
   query GetLivepeerClipData($data: GetLivepeerClipDataInput) {
@@ -3433,6 +3606,69 @@ export type GetTokenLeaderboardLazyQueryHookResult = ReturnType<
 export type GetTokenLeaderboardQueryResult = Apollo.QueryResult<
   GetTokenLeaderboardQuery,
   GetTokenLeaderboardQueryVariables
+>;
+export const GetStreamInteractionsDocument = gql`
+  query GetStreamInteractions($data: GetStreamInteractionsInput) {
+    getStreamInteractions(data: $data) {
+      softDelete
+      updatedAt
+      createdAt
+      text
+      interactionType
+      id
+    }
+  }
+`;
+
+/**
+ * __useGetStreamInteractionsQuery__
+ *
+ * To run a query within a React component, call `useGetStreamInteractionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetStreamInteractionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetStreamInteractionsQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetStreamInteractionsQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetStreamInteractionsQuery,
+    GetStreamInteractionsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetStreamInteractionsQuery,
+    GetStreamInteractionsQueryVariables
+  >(GetStreamInteractionsDocument, options);
+}
+export function useGetStreamInteractionsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetStreamInteractionsQuery,
+    GetStreamInteractionsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetStreamInteractionsQuery,
+    GetStreamInteractionsQueryVariables
+  >(GetStreamInteractionsDocument, options);
+}
+export type GetStreamInteractionsQueryHookResult = ReturnType<
+  typeof useGetStreamInteractionsQuery
+>;
+export type GetStreamInteractionsLazyQueryHookResult = ReturnType<
+  typeof useGetStreamInteractionsLazyQuery
+>;
+export type GetStreamInteractionsQueryResult = Apollo.QueryResult<
+  GetStreamInteractionsQuery,
+  GetStreamInteractionsQueryVariables
 >;
 export const ChannelDetailDocument = gql`
   query ChannelDetail($slug: String!) {
@@ -6335,6 +6571,62 @@ export type UpdateUserChannelContract1155MappingMutationOptions =
     UpdateUserChannelContract1155MappingMutation,
     UpdateUserChannelContract1155MappingMutationVariables
   >;
+export const UpdateUserPackageCooldownMappingDocument = gql`
+  mutation UpdateUserPackageCooldownMapping(
+    $data: UpdateUserPackageCooldownMappingInput!
+  ) {
+    updateUserPackageCooldownMapping(data: $data) {
+      address
+      username
+      packageCooldownMapping
+    }
+  }
+`;
+export type UpdateUserPackageCooldownMappingMutationFn =
+  Apollo.MutationFunction<
+    UpdateUserPackageCooldownMappingMutation,
+    UpdateUserPackageCooldownMappingMutationVariables
+  >;
+
+/**
+ * __useUpdateUserPackageCooldownMappingMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserPackageCooldownMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserPackageCooldownMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserPackageCooldownMappingMutation, { data, loading, error }] = useUpdateUserPackageCooldownMappingMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateUserPackageCooldownMappingMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateUserPackageCooldownMappingMutation,
+    UpdateUserPackageCooldownMappingMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateUserPackageCooldownMappingMutation,
+    UpdateUserPackageCooldownMappingMutationVariables
+  >(UpdateUserPackageCooldownMappingDocument, options);
+}
+export type UpdateUserPackageCooldownMappingMutationHookResult = ReturnType<
+  typeof useUpdateUserPackageCooldownMappingMutation
+>;
+export type UpdateUserPackageCooldownMappingMutationResult =
+  Apollo.MutationResult<UpdateUserPackageCooldownMappingMutation>;
+export type UpdateUserPackageCooldownMappingMutationOptions =
+  Apollo.BaseMutationOptions<
+    UpdateUserPackageCooldownMappingMutation,
+    UpdateUserPackageCooldownMappingMutationVariables
+  >;
 export const PostBadgeTradeDocument = gql`
   mutation PostBadgeTrade($data: PostBadgeTradeInput!) {
     postBadgeTrade(data: $data) {
@@ -7899,4 +8191,59 @@ export type FetchCurrentUserLazyQueryHookResult = ReturnType<
 export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
+>;
+export const UpdateStreamInteractionDocument = gql`
+  mutation UpdateStreamInteraction($data: UpdateStreamInteractionInput!) {
+    updateStreamInteraction(data: $data) {
+      softDelete
+      updatedAt
+      createdAt
+      text
+      interactionType
+      id
+    }
+  }
+`;
+export type UpdateStreamInteractionMutationFn = Apollo.MutationFunction<
+  UpdateStreamInteractionMutation,
+  UpdateStreamInteractionMutationVariables
+>;
+
+/**
+ * __useUpdateStreamInteractionMutation__
+ *
+ * To run a mutation, you first call `useUpdateStreamInteractionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateStreamInteractionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateStreamInteractionMutation, { data, loading, error }] = useUpdateStreamInteractionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateStreamInteractionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateStreamInteractionMutation,
+    UpdateStreamInteractionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateStreamInteractionMutation,
+    UpdateStreamInteractionMutationVariables
+  >(UpdateStreamInteractionDocument, options);
+}
+export type UpdateStreamInteractionMutationHookResult = ReturnType<
+  typeof useUpdateStreamInteractionMutation
+>;
+export type UpdateStreamInteractionMutationResult =
+  Apollo.MutationResult<UpdateStreamInteractionMutation>;
+export type UpdateStreamInteractionMutationOptions = Apollo.BaseMutationOptions<
+  UpdateStreamInteractionMutation,
+  UpdateStreamInteractionMutationVariables
 >;

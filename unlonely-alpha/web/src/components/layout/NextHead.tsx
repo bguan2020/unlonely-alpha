@@ -62,6 +62,8 @@ const NextHead: React.FC<{
       <meta name="twitter:description" content={__description} />
       <meta name="twitter:creator" content="@bdguan" />
       <meta name="twitter:image" content={__image} />
+
+      <script src="https://terminal.jup.ag/main-v3.js" data-preload />
     </Head>
   );
 };

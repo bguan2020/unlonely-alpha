@@ -28,6 +28,12 @@ export const GET_USER_CHANNEL_CONTRACT_1155_MAPPING_QUERY = gql`
   }
 `;
 
+export const GET_USER_PACKAGE_COOLDOWN_MAPPING_QUERY = gql`
+  query GetUserPackageCooldownMapping($data: GetUserInput!) {
+    getUserPackageCooldownMapping(data: $data)
+  }
+`;
+
 export const GET_LIVEPEER_CLIP_DATA_QUERY = gql`
   query GetLivepeerClipData($data: GetLivepeerClipDataInput) {
     getLivepeerClipData(data: $data) {
@@ -86,6 +92,19 @@ export const GET_TOKEN_LEADERBOARD_QUERY = gql`
     }
   }
 `;
+
+export const GET_STREAM_INTERACTIONS_QUERY = gql`
+query GetStreamInteractions($data: GetStreamInteractionsInput) {
+  getStreamInteractions(data: $data) {
+    softDelete
+    updatedAt
+    createdAt
+    text
+    interactionType
+    id
+  }
+}
+`
 
 export const CHANNEL_DETAIL_QUERY = gql`
   query ChannelDetail($slug: String!) {

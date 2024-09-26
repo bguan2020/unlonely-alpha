@@ -5,16 +5,16 @@ import * as streamInteractionService from "./streamInteractionService";
 
 export const resolvers = {
   Query: {
-    getRecentStreamInteractionsByChannel: (
+    getStreamInteractions: (
       _: any,
       {
         data,
       }: {
-        data: streamInteractionService.IGetRecentStreamInteractionsByChannelInput;
+        data: streamInteractionService.IGetStreamInteractionsInput;
       },
       ctx: Context
     ) => {
-      return streamInteractionService.getRecentStreamInteractionsByChannel(
+      return streamInteractionService.getStreamInteractions(
         data,
         ctx
       );
@@ -36,6 +36,17 @@ export const resolvers = {
         ctx
       );
     },
+    updateStreamInteraction: (
+      _: any,
+      {
+        data,
+      }: {
+        data: streamInteractionService.IUpdateStreamInteractionInput;
+      },
+      ctx: Context
+    ) => {
+      return streamInteractionService.updateStreamInteraction(data, ctx);
+    }
   },
   StreamInteraction: {
     owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {

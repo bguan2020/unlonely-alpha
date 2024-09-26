@@ -47,6 +47,13 @@ export const resolvers = {
     ) => {
       return userService.getUserChannelContract1155Mapping(data, ctx);
     },
+    getUserPackageCooldownMapping: (
+      _: any,
+      { data }: { data: userService.IGetUserInput },
+      ctx: Context
+    ) => {
+      return userService.getUserPackageCooldownMapping(data, ctx);
+    },
     getAllUsers: (_: any, _args: any, ctx: Context) => {
       return userService.getAllUsers(ctx);
     },
@@ -110,5 +117,18 @@ export const resolvers = {
 
       return userService.updateUserChannelContract1155Mapping(data, ctx);
     },
+    updateUserPackageCooldownMapping: (
+      _: any,
+      {
+        data,
+      }: { data: userService.IUpdateUserPackageCooldownMappingInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user) {
+        throw new AuthenticationError("Not authenticated");
+      }
+
+      return userService.updateUserPackageCooldownMapping(data, ctx);
+    }
   },
 };

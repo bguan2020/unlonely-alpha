@@ -1,4 +1,4 @@
-import { Like, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import { noop } from "lodash";
 
 import { Context } from "../../context";
