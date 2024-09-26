@@ -19,6 +19,13 @@ export const resolvers = {
         ctx
       );
     },
+    sendTts: (
+      _: any,
+      { data }: { data: streamInteractionService.ISendTtsInput },
+      ctx: Context
+    ) => {
+      return streamInteractionService.sendTts(data);
+    },
   },
   Mutation: {
     postStreamInteraction: (

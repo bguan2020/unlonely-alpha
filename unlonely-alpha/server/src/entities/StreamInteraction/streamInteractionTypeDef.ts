@@ -35,6 +35,12 @@ export const typeDef = gql`
     softDeleted: Boolean
   }
 
+  input SendTtsInput {
+    text: String!
+    userId: String
+    paymentId: String
+  }
+
   extend type Mutation {
     updateStreamInteraction(data: UpdateStreamInteractionInput!): StreamInteraction
     postStreamInteraction(data: PostStreamInteractionInput!): StreamInteraction
@@ -44,5 +50,6 @@ export const typeDef = gql`
     getStreamInteractions(
       data: GetStreamInteractionsInput
     ): [StreamInteraction]
+    sendTts(data: SendTtsInput!): String
   }
 `;

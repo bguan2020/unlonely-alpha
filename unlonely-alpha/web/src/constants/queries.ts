@@ -22,6 +22,11 @@ export const GET_USER_QUERY = gql`
   }
 `;
 
+export const SEND_TTS_QUERY = gql`
+query SendTts($data: SendTtsInput!) {
+  sendTts(data: $data)
+}`
+
 export const GET_DOES_USER_ADDRESS_MATCH_QUERY = gql`
 query GetDoesUserAddressMatch($data: GetDoesUserAddressMatchInput!) {
   getDoesUserAddressMatch(data: $data) {

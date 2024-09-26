@@ -2,6 +2,7 @@ import { useLazyQuery } from "@apollo/client";
 import {
   GET_PACKAGES_QUERY,
   GET_STREAM_INTERACTIONS_QUERY,
+  SEND_TTS_QUERY,
 } from "../constants/queries";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import AppLayout from "../components/layout/AppLayout";
@@ -17,7 +18,6 @@ import {
 } from "@chakra-ui/react";
 import useUpdateStreamInteraction from "../hooks/server/channel/useUpdateStreamInteraction";
 import { StreamInteractionType } from "../generated/graphql";
-import axios from "axios";
 import { useUser } from "../hooks/context/useUser";
 import Header from "../components/navigation/Header";
 import { areAddressesEqual } from "../utils/validation/wallet";
@@ -89,6 +89,10 @@ const ModCenter = () => {
   }, [paused]);
 
   const [call] = useLazyQuery(GET_STREAM_INTERACTIONS_QUERY, {
+    fetchPolicy: "network-only",
+  });
+
+  const [callTts] = useLazyQuery(SEND_TTS_QUERY, {
     fetchPolicy: "network-only",
   });
 
@@ -191,30 +195,39 @@ const ModCenter = () => {
     setPaused(true);
     try {
       if (interaction.text && !doNotPlay) {
-        const response = await axios.post(
-          "https://overlay-five.vercel.app/api/payment-confirmation",
-          {
-            paymentId: "test123",
-            userId: "userTest",
-            textToSpeak: interaction.text,
+        // const response = await axios.post(
+        //   "https://overlay-five.vercel.app/api/payment-confirmation",
+        //   {
+        //     paymentId: "test123",
+        //     userId: "userTest",
+        //     textToSpeak: interaction.text,
+        //   },
+        //   {
+        //     headers: { "Content-Type": "application/json" },
+        //   }
+        // );
+        const response = await callTts({
+          variables: {
+            data: {
+              text: interaction.text,
+              userId: "mod",
+              paymentId: "mod",
+            },
           },
-          {
-            headers: { "Content-Type": "application/json" },
-          }
-        );
+        });
 
         console.log("response", response);
       }
 
-      await updateStreamInteraction({
-        interactionId: interaction.id,
-        softDeleted: true,
-      });
-      setReceivedTtsInteractions((prevInteractions) =>
-        prevInteractions.filter(
-          (_interaction) => _interaction.id !== interaction.id
-        )
-      );
+      // await updateStreamInteraction({
+      //   interactionId: interaction.id,
+      //   softDeleted: true,
+      // });
+      // setReceivedTtsInteractions((prevInteractions) =>
+      //   prevInteractions.filter(
+      //     (_interaction) => _interaction.id !== interaction.id
+      //   )
+      // );
     } catch (error) {
       console.error("Error sending POST request:", error);
     }
