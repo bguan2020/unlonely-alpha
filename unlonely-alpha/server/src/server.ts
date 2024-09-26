@@ -94,7 +94,10 @@ const startServer = async () => {
 
   const io = new Server(httpServer, {
     cors: {
-        origin: "*",
+        origin: ["https://unlonely-alpha-git-homepage-exp-unlonely-alpha.vercel.app",
+                 "https://unlonely-alpha-git-staging-unlonely-alpha.vercel.app",
+                 "https://www.unlonely.app"
+                ],
         methods: ["GET", "POST"]
     }
   });
