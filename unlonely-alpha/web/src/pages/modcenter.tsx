@@ -24,6 +24,7 @@ import { areAddressesEqual } from "../utils/validation/wallet";
 import { useAblyChannel } from "../hooks/chat/useChatChannel";
 import { useUpdatePackage } from "../hooks/server/useUpdatePackage";
 import { PACKAGE_PRICE_CHANGE_EVENT } from "../constants";
+import axios from "axios";
 const mods = process.env.NEXT_PUBLIC_MODS?.split(",");
 
 export default function ModCenterPage() {
@@ -195,26 +196,26 @@ const ModCenter = () => {
     setPaused(true);
     try {
       if (interaction.text && !doNotPlay) {
-        // const response = await axios.post(
-        //   "https://overlay-five.vercel.app/api/payment-confirmation",
-        //   {
-        //     paymentId: "test123",
-        //     userId: "userTest",
-        //     textToSpeak: interaction.text,
-        //   },
-        //   {
-        //     headers: { "Content-Type": "application/json" },
-        //   }
-        // );
-        const response = await callTts({
-          variables: {
-            data: {
-              text: interaction.text,
-              userId: "mod",
-              paymentId: "mod",
-            },
+        const response = await axios.post(
+          "https://overlay-five.vercel.app/api/payment-confirmation",
+          {
+            paymentId: "test123",
+            userId: "userTest",
+            textToSpeak: interaction.text,
           },
-        });
+          {
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        // const response = await callTts({
+        //   variables: {
+        //     data: {
+        //       text: interaction.text,
+        //       userId: "mod",
+        //       paymentId: "mod",
+        //     },
+        //   },
+        // });
 
         console.log("response", response);
       }
