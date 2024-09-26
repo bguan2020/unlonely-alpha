@@ -25,6 +25,7 @@ import { useUpdatePackage } from "../hooks/server/useUpdatePackage";
 import { PACKAGE_PRICE_CHANGE_EVENT } from "../constants";
 import axios from "axios";
 import { io, Socket } from "socket.io-client";
+import { WS_URL } from "../components/layout/BooEventTtsComponent";
 
 const mods = process.env.NEXT_PUBLIC_MODS?.split(",");
 
@@ -42,7 +43,7 @@ export default function ModCenterPage() {
   }, [user, mods]);
 
   useEffect(() => {
-    socket = io(process.env.NEXT_PUBLIC_SOCKET_URL);
+    socket = io(WS_URL);
 
     // Listen for play-audio events from the server
     socket.on("interaction", (data) => {

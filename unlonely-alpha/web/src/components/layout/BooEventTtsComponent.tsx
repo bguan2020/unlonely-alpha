@@ -1,9 +1,11 @@
 import { Flex, Text, Image, Button, Textarea } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
-import { StreamInteractionType } from "../../generated/graphql";
+// import { StreamInteractionType } from "../../generated/graphql";
 import { containsSwears } from "../../utils/validation/profanityFilter";
 import { io, Socket } from "socket.io-client";
+
+export const WS_URL = "http://localhost:8000";
 
 let socket: Socket | null;
 
@@ -14,7 +16,7 @@ export const BooEventTtsComponent = () => {
   const { postStreamInteraction } = usePostStreamInteraction({});
 
   useEffect(() => {
-    socket = io(process.env.NEXT_PUBLIC_SOCKET_URL);
+    socket = io(WS_URL);
 
     return () => {
       if (socket) {
@@ -24,11 +26,11 @@ export const BooEventTtsComponent = () => {
   }, []);
 
   const handlePost = async () => {
-    await postStreamInteraction({
-      channelId: "3",
-      streamInteractionType: StreamInteractionType.TtsInteraction,
-      text,
-    });
+    // await postStreamInteraction({
+    //   channelId: "3",
+    //   streamInteractionType: StreamInteractionType.TtsInteraction,
+    //   text,
+    // });
     socket?.emit("interaction", { text });
     setIsEnteringMessage(false);
   };
