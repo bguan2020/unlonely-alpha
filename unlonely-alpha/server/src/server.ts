@@ -100,17 +100,21 @@ const startServer = async () => {
   });
 
   io.on("connection", (socket: any) => {
-    console.log("a user connected");
-    
+    console.log(`A user connected: ${socket.id}`);
+  
+    // Listen for "interaction" events from the client
     socket.on("interaction", (data: any) => {
-      console.log("websocket interaction", data);
-        io.emit("interaction", data);
+      console.log("Received interaction:", data);
+  
+      // Send the message to all connected clients, including the sender
+      io.emit("interaction", data);
     });
-
+  
+    // Handle disconnection
     socket.on("disconnect", () => {
-        console.log("user disconnected");
+      console.log("User disconnected");
     });
-});
+  });
 
   httpServer.listen(process.env.PORT || 4000, () => {
     console.info(`Server started on port ${process.env.PORT || 4000}`);
