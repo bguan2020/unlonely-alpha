@@ -14,6 +14,7 @@ import { fetchForNewTokenSupplies } from "./utils/fetchForNewTokenSupplies";
 import { directCastFc } from "./utils/directcastfc";
 import { sendPWANotifications } from "./utils/sendPWANotifications";
 import { fetchZoraMints } from "./utils/fetchZoraMints";
+import { Server } from "socket.io";
 
 const app = express();
 app.use(cors());
@@ -90,6 +91,25 @@ const startServer = async () => {
 
   // Create an HTTP server using the Express app
   const httpServer = http.createServer(app);
+
+  const io = new Server(httpServer, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+  });
+
+  io.on("connection", (socket: any) => {
+    console.log("a user connected");
+    
+    socket.on("interaction", (data: any) => {
+        io.emit("interaction", data);
+    });
+
+    socket.on("disconnect", () => {
+        console.log("user disconnected");
+    });
+});
 
   httpServer.listen(process.env.PORT || 4000, () => {
     console.info(`Server started on port ${process.env.PORT || 4000}`);
