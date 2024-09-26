@@ -24,7 +24,11 @@ import { useAblyChannel } from "../hooks/chat/useChatChannel";
 import { useUpdatePackage } from "../hooks/server/useUpdatePackage";
 import { PACKAGE_PRICE_CHANGE_EVENT } from "../constants";
 import axios from "axios";
+import { io, Socket } from "socket.io-client";
+
 const mods = process.env.NEXT_PUBLIC_MODS?.split(",");
+
+let socket: Socket | null;
 
 export default function ModCenterPage() {
   const { user } = useUser();
@@ -36,6 +40,21 @@ export default function ModCenterPage() {
     }
     return false;
   }, [user, mods]);
+
+  useEffect(() => {
+    socket = io(process.env.NEXT_PUBLIC_SOCKET_URL);
+
+    // Listen for play-audio events from the server
+    socket.on("interaction", (data) => {
+      console.log("interaction", data);
+    });
+
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    };
+  }, []);
 
   return (
     <AppLayout isCustomHeader={false} noHeader>
