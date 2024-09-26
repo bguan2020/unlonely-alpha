@@ -29,7 +29,7 @@ export const BooEventTtsComponent = () => {
       streamInteractionType: StreamInteractionType.TtsInteraction,
       text,
     });
-    socket?.emit("interaction", { text: "hello!!" });
+    socket?.emit("interaction", { text });
     setIsEnteringMessage(false);
   };
 
