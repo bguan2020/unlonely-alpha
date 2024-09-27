@@ -3,7 +3,7 @@ import {
   GET_PACKAGES_QUERY,
   GET_STREAM_INTERACTIONS_QUERY,
 } from "../constants/queries";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
   Flex,
@@ -11,7 +11,6 @@ import {
   SimpleGrid,
   Spinner,
   Text,
-  useToast,
 } from "@chakra-ui/react";
 import useUpdateStreamInteraction from "../hooks/server/channel/useUpdateStreamInteraction";
 import { StreamInteractionType } from "../generated/graphql";
@@ -25,7 +24,6 @@ import {
   PACKAGE_PURCHASE_EVENT,
   SEND_TTS_EVENT,
 } from "../constants";
-import axios from "axios";
 import { io, Socket } from "socket.io-client";
 import { WS_URL } from "../components/layout/BooEventTtsComponent";
 
@@ -83,13 +81,59 @@ type StagingPackages = {
   [key: string]: PackageInfo;
 };
 
+type AudioData = {
+  interactionId: string;
+  text?: string;
+  audio: string;
+};
+
 const ModCenter = () => {
   const [paused, setPaused] = useState(false);
 
   const [stagingPackages, setStagingPackages] = useState<StagingPackages>({});
+  const audioQueueRef = useRef<AudioData[]>([]);
 
-  const toast = useToast();
+  const [audioQueue, setAudioQueue] = useState<AudioData[]>([]); // State to display the queue
+  const [currentAudio, setCurrentAudio] = useState<AudioData | null>(null); // State to display the current playing audio
 
+  const processQueue = async () => {
+    if (audioQueueRef.current.length === 0) return; // Exit if the queue is empty
+
+    const audioObj = audioQueueRef.current[0];
+    setCurrentAudio(audioObj); // Set the current audio being played for display
+    const audio = new Audio(audioObj.audio);
+
+    // Set up the event listener to handle when the audio finishes
+    audio.onended = async () => {
+      audioQueueRef.current.shift(); // Remove the finished audio from the queue
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setAudioQueue([...audioQueueRef.current]); // Update the displayed queue
+      setCurrentAudio(null); // Clear current audio when it ends
+      processQueue(); // Process the next audio in the queue
+    };
+
+    audio.play(); // Play the current audio
+  };
+
+  const pushAudio = (
+    audio: string,
+    interaction: {
+      id: string;
+      text?: string;
+    }
+  ) => {
+    audioQueueRef.current.push({
+      audio,
+      interactionId: interaction.id,
+      text: interaction.text,
+    }); // Add the audio to the queue
+    setAudioQueue([...audioQueueRef.current]); // Update the displayed queue
+
+    // If the queue length is 1, start processing (this ensures it only processes when there's audio in the queue)
+    if (audioQueueRef.current.length === 1) {
+      processQueue();
+    }
+  };
   const [interactionsChannel] = useAblyChannel(
     INTERACTIONS_CHANNEL,
     async (message) => {
@@ -240,19 +284,22 @@ const ModCenter = () => {
     setPaused(true);
     try {
       if (interaction.text && !doNotPlay) {
-        const response = await axios.post(
-          "https://overlay-five.vercel.app/api/payment-confirmation",
-          {
+        const response = await fetch("/api/tts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
             paymentId: "test123",
             userId: "userTest",
             textToSpeak: interaction.text,
-          },
-          {
-            headers: { "Content-Type": "application/json" },
-          }
-        );
+          }),
+        });
 
-        console.log("response", response);
+        const data = await response.json();
+
+        if (data.success) {
+          const base64Audio = `data:audio/mp3;base64,${data.audio}`;
+          pushAudio(base64Audio, interaction); // Play audio
+        }
       }
 
       await updateStreamInteraction({
@@ -464,6 +511,21 @@ const ModCenter = () => {
         </Flex>
         <Flex direction="column" height="70vh" width="30vw">
           <Text>Text to Speech ({receivedTtsInteractions.length})</Text>
+          {audioQueue.length > 0 ? (
+            audioQueue.map((audio) => (
+              <Flex
+                bg={
+                  currentAudio?.interactionId === audio.interactionId
+                    ? "green.500"
+                    : "#00b3bc"
+                }
+              >
+                <Text>{audio.text}</Text>
+              </Flex>
+            ))
+          ) : (
+            <Text>Nothing in queue, add some now</Text>
+          )}
           <Flex direction={"column"} gap="4px" overflowY={"scroll"}>
             {receivedTtsInteractions.map((interaction) => (
               <Flex
@@ -476,16 +538,16 @@ const ModCenter = () => {
                 direction="column"
               >
                 <Text>{interaction.text}</Text>
-                <Flex gap="4px">
+                <Flex justifyContent={"space-between"}>
                   <Button
-                    bg={"blue.500"}
+                    bg={"green.500"}
                     color="white"
-                    _hover={{ bg: "blue.600" }}
-                    onClick={() =>
-                      playAndRemoveTtsInteraction(interaction, false)
-                    }
+                    _hover={{}}
+                    onClick={() => {
+                      playAndRemoveTtsInteraction(interaction, false);
+                    }}
                   >
-                    Play and remove
+                    Add to play queue
                   </Button>
                   <Button
                     bg="red.500"
