@@ -47,6 +47,8 @@ import {
 import { GetUserPackageCooldownMappingQuery } from "../../generated/graphql";
 import { jp } from "../../utils/validation/jsonParse";
 import { BooScarePackages } from "./BooScarePackages";
+import { INTERACTIONS_CHANNEL } from "../../pages/modcenter";
+import { useAblyChannel } from "../../hooks/chat/useChatChannel";
 
 export const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 export const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
@@ -57,7 +59,7 @@ export const TOKEN_VIEW_GRAPH_PERCENT_HEIGHT = 50;
 export const STREAM_VIEW_JUPITER_TERMINAL_MIN_X_OFFSET = 30;
 export const STREAM_VIEW_JUPITER_TERMINAL_MIN_Y_OFFSET = 30;
 
-export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
+export const HomePageBooEventStreamPage = () => {
   const { chat: c, channel } = useChannelContext();
   const { channelQueryData } = channel;
   const { chatBot } = c;
@@ -149,6 +151,29 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
     };
     init();
   }, [connected]);
+
+  const [interactionsChannel] = useAblyChannel(
+    INTERACTIONS_CHANNEL,
+    async (message) => {
+      if (
+        message &&
+        message.data.body &&
+        message.name === PACKAGE_PRICE_CHANGE_EVENT
+      ) {
+        const body = message.data.body;
+        const jpBody = jp(body);
+        const newPackageMap = {
+          ...booPackageMap,
+          [jpBody.packageName]: {
+            priceMultiplier: jpBody.priceMultiplier,
+            cooldownInSeconds: jpBody.cooldownInSeconds,
+            id: jpBody.id,
+          },
+        };
+        setBooPackageMap(newPackageMap);
+      }
+    }
+  );
 
   const getTransactionDetails = async (
     transactionId: string,
@@ -271,32 +296,6 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
   useEffect(() => {
     if (user) fetchUserBooPackageCooldownMapping(user?.address);
   }, [user]);
-
-  useEffect(() => {
-    const init = async () => {
-      if (allMessages.length === 0) return;
-      const latestMessage = allMessages[allMessages.length - 1];
-      if (
-        latestMessage &&
-        latestMessage.data.body &&
-        latestMessage.name === PACKAGE_PRICE_CHANGE_EVENT &&
-        Date.now() - latestMessage.timestamp < 12000
-      ) {
-        const body = latestMessage.data.body;
-        const jpBody = jp(body);
-        const newPackageMap = {
-          ...booPackageMap,
-          [jpBody.packageName]: {
-            priceMultiplier: jpBody.priceMultiplier,
-            cooldownInSeconds: jpBody.cooldownInSeconds,
-            id: jpBody.id,
-          },
-        };
-        setBooPackageMap(newPackageMap);
-      }
-    };
-    init();
-  }, [allMessages]);
 
   return (
     <Flex
@@ -624,7 +623,9 @@ export const HomePageBooEventStreamPage = ({ slug }: { slug: string }) => {
                         TOKEN_VIEW_TILE_PIXEL_GAP * 2
                       }px - ${TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT}px)`}
                     >
-                      <BooEventTtsComponent />
+                      <BooEventTtsComponent
+                        interactionsAblyChannel={interactionsChannel}
+                      />
                     </BooEventTile>
                   )}
                 </Flex>

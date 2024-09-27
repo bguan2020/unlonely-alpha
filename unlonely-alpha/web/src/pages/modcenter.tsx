@@ -9,9 +9,9 @@ import {
   Button,
   Flex,
   Input,
-  Progress,
   Select,
   SimpleGrid,
+  Spinner,
   Text,
   useToast,
 } from "@chakra-ui/react";
@@ -22,7 +22,11 @@ import Header from "../components/navigation/Header";
 import { areAddressesEqual } from "../utils/validation/wallet";
 import { useAblyChannel } from "../hooks/chat/useChatChannel";
 import { useUpdatePackage } from "../hooks/server/useUpdatePackage";
-import { PACKAGE_PRICE_CHANGE_EVENT } from "../constants";
+import {
+  PACKAGE_PRICE_CHANGE_EVENT,
+  PACKAGE_PURCHASE_EVENT,
+  SEND_TTS_EVENT,
+} from "../constants";
 import axios from "axios";
 import { io, Socket } from "socket.io-client";
 import { WS_URL } from "../components/layout/BooEventTtsComponent";
@@ -70,7 +74,6 @@ export default function ModCenterPage() {
 }
 
 const ModCenter = () => {
-  const [count, setCount] = useState(0);
   const [paused, setPaused] = useState(false);
 
   const [stagingPackage, setStagingPackage] = useState<{
@@ -93,20 +96,53 @@ const ModCenter = () => {
       isClosable: true,
     });
   };
-  const [channel] = useAblyChannel(INTERACTIONS_CHANNEL, async (message) => {
-    console.log("message received", message.data);
-  });
 
-  useEffect(() => {
-    if (paused) return;
+  const [interactionsChatChannel] = useAblyChannel(
+    INTERACTIONS_CHANNEL,
+    async (message) => {
+      if (message.name === PACKAGE_PURCHASE_EVENT) {
+        const packageInfoBody: {
+          id: string;
+          user: string;
+          name: string;
+          isCarePackage: boolean;
+        } = JSON.parse(message.data.body);
+        setReceivedPackageInteractions((prevInteractions) => {
+          // Filter out any interactions with the same ID
+          const filteredInteractions = prevInteractions.filter(
+            (interaction) => interaction.id !== packageInfoBody.id
+          );
 
-    const interval = setInterval(() => {
-      setCount((prevCount) => (prevCount < 100 ? prevCount + 10 : 0));
-    }, 1000);
+          // Add the new interaction
+          return [
+            ...filteredInteractions,
+            {
+              id: packageInfoBody.id,
+              user: packageInfoBody.user,
+              packageName: packageInfoBody.name,
+              isCarePackage: packageInfoBody.isCarePackage,
+            },
+          ];
+        });
+      }
+      if (message.name === SEND_TTS_EVENT) {
+        const ttsBody: {
+          id: string;
+          text: string;
+        } = JSON.parse(message.data.body);
 
-    // Cleanup interval on component unmount
-    return () => clearInterval(interval);
-  }, [paused]);
+        setReceivedTtsInteractions((prevInteractions) => {
+          // Filter out any interactions with the same ID
+          const filteredInteractions = prevInteractions.filter(
+            (interaction) => interaction.id !== ttsBody.id
+          );
+
+          // Add the new interaction
+          return [...filteredInteractions, ttsBody];
+        });
+      }
+    }
+  );
 
   const [call] = useLazyQuery(GET_STREAM_INTERACTIONS_QUERY, {
     fetchPolicy: "network-only",
@@ -187,17 +223,16 @@ const ModCenter = () => {
     setPaused(false);
   }, []);
 
-  useEffect(() => {
-    getStreamInteractions();
-    fetchBooPackages();
+  const fetchAll = useCallback(async () => {
+    setPaused(true);
+    await fetchBooPackages();
+    await getStreamInteractions();
+    setPaused(false);
   }, []);
 
   useEffect(() => {
-    if (count === 100) {
-      getStreamInteractions();
-      fetchBooPackages();
-    }
-  }, [count]);
+    fetchAll();
+  }, []);
 
   const { updatePackage } = useUpdatePackage({});
 
@@ -244,8 +279,9 @@ const ModCenter = () => {
   return (
     <Flex direction="column" p="20px" gap="10px">
       <Flex direction="column" justifyContent={"center"}>
-        <Text textAlign={"center"}>time until next fetch</Text>
-        <Progress colorScheme={paused ? "yellow" : "green"} value={count} />
+        <Button onClick={fetchAll}>
+          {paused ? <Spinner /> : "refetch everything"}
+        </Button>
       </Flex>
       <Flex justifyContent={"space-between"} gap="10px">
         <Flex direction="column">
@@ -323,7 +359,7 @@ const ModCenter = () => {
                   cooldownInSeconds: Number(stagingPackage.cooldownInSeconds),
                   priceMultiplier: stagingPackage.priceMultiplier,
                 });
-                channel?.publish({
+                interactionsChatChannel?.publish({
                   name: PACKAGE_PRICE_CHANGE_EVENT,
                   data: {
                     body: JSON.stringify({

@@ -83,6 +83,8 @@ export const VIBES_TOKEN_PRICE_RANGE_EVENT = "vibes-token-price-range";
 export const TOKEN_TRANSFER_EVENT = "token-transfer";
 export const PINNED_CHAT_MESSAGES_EVENT = "pinned-chat-messages";
 export const PACKAGE_PRICE_CHANGE_EVENT = "package-price-change";
+export const PACKAGE_PURCHASE_EVENT = "package-purchase";
+export const SEND_TTS_EVENT = "send-tts";
 
 export type CommandData = {
   command: string;

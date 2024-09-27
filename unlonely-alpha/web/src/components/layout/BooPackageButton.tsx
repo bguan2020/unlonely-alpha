@@ -1,7 +1,12 @@
 import { Button, Flex, Spinner } from "@chakra-ui/react";
 import { useUser } from "../../hooks/context/useUser";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import { InteractionType, SOLANA_RPC_URL } from "../../constants";
+import {
+  AblyChannelPromise,
+  InteractionType,
+  PACKAGE_PURCHASE_EVENT,
+  SOLANA_RPC_URL,
+} from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
 import { useSolanaTransferTokens } from "../../hooks/internal/solana/useSolanaTransferTokens";
 import { useSolanaTokenBalance } from "../../hooks/internal/solana/useSolanaTokenBalance";
@@ -16,6 +21,7 @@ export const BooPackageButton = ({
   dateNow,
   fetchUserBooPackageCooldownMapping,
   packageInfo,
+  interactionsAblyChannel,
 }: {
   cooldownInSeconds: number;
   userBooPackageCooldowns: any;
@@ -25,6 +31,7 @@ export const BooPackageButton = ({
     name: string;
     isCarePackage: boolean;
   };
+  interactionsAblyChannel: AblyChannelPromise;
 }) => {
   const { chat: c } = useChannelContext();
   const { addToChatbot } = c;
@@ -49,7 +56,7 @@ export const BooPackageButton = ({
         packageName: packageInfo.name,
         isCarePackage: packageInfo.isCarePackage,
       }),
-    }).then(async () => {
+    }).then(async (res) => {
       await updateUserBooPackageCooldownMapping({
         userAddress: user?.address ?? "",
         packageName: packageInfo.name,
@@ -64,6 +71,16 @@ export const BooPackageButton = ({
           } asked for ${packageInfo.name}!`,
           description: JSON.stringify(packageInfo),
         });
+      });
+      await interactionsAblyChannel?.publish({
+        name: PACKAGE_PURCHASE_EVENT,
+        data: {
+          body: JSON.stringify({
+            id: res.res?.id ?? "0",
+            user: user?.username ?? centerEllipses(user?.address, 15),
+            ...packageInfo,
+          }),
+        },
       });
     });
   };

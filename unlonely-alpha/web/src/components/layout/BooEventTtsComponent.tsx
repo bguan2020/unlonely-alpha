@@ -4,13 +4,19 @@ import usePostStreamInteraction from "../../hooks/server/usePostStreamInteractio
 // import { StreamInteractionType } from "../../generated/graphql";
 import { containsSwears } from "../../utils/validation/profanityFilter";
 import { io, Socket } from "socket.io-client";
+import { AblyChannelPromise, SEND_TTS_EVENT } from "../../constants";
+import { StreamInteractionType } from "../../generated/graphql";
 
 // export const WS_URL = "wss://sea-lion-app-j3rts.ondigitalocean.app";
-export const WS_URL = "https://monkfish-app-zitp9.ondigitalocean.app";
+export const WS_URL = "https://monkfish-app-zitp9.ondigitalocean.app:8080";
 
 let socket: Socket | null;
 
-export const BooEventTtsComponent = () => {
+export const BooEventTtsComponent = ({
+  interactionsAblyChannel,
+}: {
+  interactionsAblyChannel: AblyChannelPromise;
+}) => {
   const [isEnteringMessage, setIsEnteringMessage] = useState(false);
   const [text, setText] = useState("");
 
@@ -27,12 +33,21 @@ export const BooEventTtsComponent = () => {
   }, []);
 
   const handlePost = async () => {
-    // await postStreamInteraction({
-    //   channelId: "3",
-    //   streamInteractionType: StreamInteractionType.TtsInteraction,
-    //   text,
-    // });
+    const res = await postStreamInteraction({
+      channelId: "3",
+      streamInteractionType: StreamInteractionType.TtsInteraction,
+      text,
+    });
     socket?.emit("interaction", { text });
+    interactionsAblyChannel?.publish({
+      name: SEND_TTS_EVENT,
+      data: {
+        body: JSON.stringify({
+          id: res?.res?.id ?? "0",
+          text,
+        }),
+      },
+    });
     setIsEnteringMessage(false);
   };
 
