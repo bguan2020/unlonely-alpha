@@ -84,7 +84,6 @@ type StagingPackages = {
 type AudioData = {
   interactionId: string;
   text?: string;
-  audio: string;
 };
 
 const ModCenter = () => {
@@ -101,7 +100,25 @@ const ModCenter = () => {
 
     const audioObj = audioQueueRef.current[0];
     setCurrentAudio(audioObj); // Set the current audio being played for display
-    const audio = new Audio(audioObj.audio);
+    const response = await fetch("/api/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        paymentId: "test123",
+        userId: "userTest",
+        textToSpeak: audioObj.text,
+      }),
+    });
+    const data = await response.json();
+    if (!data.success) {
+      audioQueueRef.current.shift(); // Remove the finished audio from the queue
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setAudioQueue([...audioQueueRef.current]); // Update the displayed queue
+      setCurrentAudio(null); // Clear current audio when it ends
+      processQueue(); // Process the next audio in the queue
+    }
+    const base64Audio = `data:audio/mp3;base64,${data.audio}`;
+    const audio = new Audio(base64Audio);
 
     // Set up the event listener to handle when the audio finishes
     audio.onended = async () => {
@@ -115,15 +132,8 @@ const ModCenter = () => {
     audio.play(); // Play the current audio
   };
 
-  const pushAudio = (
-    audio: string,
-    interaction: {
-      id: string;
-      text?: string;
-    }
-  ) => {
+  const pushAudio = (interaction: { id: string; text?: string }) => {
     audioQueueRef.current.push({
-      audio,
       interactionId: interaction.id,
       text: interaction.text,
     }); // Add the audio to the queue
@@ -134,6 +144,7 @@ const ModCenter = () => {
       processQueue();
     }
   };
+
   const [interactionsChannel] = useAblyChannel(
     INTERACTIONS_CHANNEL,
     async (message) => {
@@ -283,24 +294,7 @@ const ModCenter = () => {
   ) => {
     setPaused(true);
     try {
-      if (interaction.text && !doNotPlay) {
-        const response = await fetch("/api/tts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            paymentId: "test123",
-            userId: "userTest",
-            textToSpeak: interaction.text,
-          }),
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          const base64Audio = `data:audio/mp3;base64,${data.audio}`;
-          pushAudio(base64Audio, interaction); // Play audio
-        }
-      }
+      if (!doNotPlay) pushAudio(interaction);
 
       await updateStreamInteraction({
         interactionId: interaction.id,
@@ -330,238 +324,287 @@ const ModCenter = () => {
         height="100%"
         overflowY={"scroll"}
       >
-        <Flex direction="column">
+        <Flex
+          direction="column"
+          bg="rgba(255, 255, 255, 0.1)"
+          p="5px"
+          gap="5px"
+        >
           <SimpleGrid columns={4} spacing={10}>
             <Text>Package Name</Text>
             <Text>Price Multiplier</Text>
             <Text>Cooldown</Text>
           </SimpleGrid>
 
-          {booPackageMap &&
-            Object.entries(booPackageMap)
-              .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
-              .map(([packageName, packageInfo]) => (
-                <SimpleGrid
-                  columns={4}
-                  spacing={10}
-                  backgroundColor="#212e6f"
-                  p="10px"
-                >
-                  <Text>{packageName}</Text>
-                  <Input
-                    placeholder="price multiplier"
-                    value={stagingPackages[packageName].priceMultiplier}
-                    onChange={(e) =>
-                      setStagingPackages((prev) => ({
-                        ...prev,
-                        [packageName]: {
-                          ...stagingPackages[packageName],
-                          priceMultiplier: String(e.target.value),
-                        },
-                      }))
-                    }
-                  />
-                  <Input
-                    placeholder="cooldown"
-                    value={stagingPackages[packageName].cooldownInSeconds}
-                    onChange={(e) =>
-                      setStagingPackages((prev) => ({
-                        ...prev,
-                        [packageName]: {
-                          ...stagingPackages[packageName],
-                          cooldownInSeconds: String(e.target.value),
-                        },
-                      }))
-                    }
-                  />
-                  <Button
-                    isDisabled={
-                      !stagingPackages[packageName] ||
-                      !stagingPackages[packageName].priceMultiplier ||
-                      !stagingPackages[packageName].cooldownInSeconds ||
-                      (Number(booPackageMap?.[packageName]?.priceMultiplier) ===
-                        Number(stagingPackages[packageName].priceMultiplier) &&
-                        Number(
-                          booPackageMap?.[packageName]?.cooldownInSeconds
+          <Flex direction="column" overflowY={"scroll"} height="30vh">
+            {booPackageMap &&
+              Object.entries(booPackageMap)
+                .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+                .map(([packageName, packageInfo]) => (
+                  <SimpleGrid
+                    columns={4}
+                    spacing={10}
+                    backgroundColor="#212e6f"
+                    p="10px"
+                  >
+                    <Text>{packageName}</Text>
+                    <Input
+                      placeholder="price multiplier"
+                      value={stagingPackages[packageName].priceMultiplier}
+                      onChange={(e) =>
+                        setStagingPackages((prev) => ({
+                          ...prev,
+                          [packageName]: {
+                            ...stagingPackages[packageName],
+                            priceMultiplier: String(e.target.value),
+                          },
+                        }))
+                      }
+                    />
+                    <Input
+                      placeholder="cooldown"
+                      value={stagingPackages[packageName].cooldownInSeconds}
+                      onChange={(e) =>
+                        setStagingPackages((prev) => ({
+                          ...prev,
+                          [packageName]: {
+                            ...stagingPackages[packageName],
+                            cooldownInSeconds: String(e.target.value),
+                          },
+                        }))
+                      }
+                    />
+                    <Button
+                      isDisabled={
+                        !stagingPackages[packageName] ||
+                        !stagingPackages[packageName].priceMultiplier ||
+                        !stagingPackages[packageName].cooldownInSeconds ||
+                        (Number(
+                          booPackageMap?.[packageName]?.priceMultiplier
                         ) ===
                           Number(
+                            stagingPackages[packageName].priceMultiplier
+                          ) &&
+                          Number(
+                            booPackageMap?.[packageName]?.cooldownInSeconds
+                          ) ===
+                            Number(
+                              stagingPackages[packageName].cooldownInSeconds
+                            ))
+                      }
+                      onClick={async () => {
+                        const data = await updatePackage({
+                          packageName,
+                          cooldownInSeconds: Number(
                             stagingPackages[packageName].cooldownInSeconds
-                          ))
-                    }
-                    onClick={async () => {
-                      const data = await updatePackage({
-                        packageName,
-                        cooldownInSeconds: Number(
-                          stagingPackages[packageName].cooldownInSeconds
-                        ),
-                        priceMultiplier:
-                          stagingPackages[packageName].priceMultiplier,
-                      });
-                      interactionsChannel?.publish({
-                        name: PACKAGE_PRICE_CHANGE_EVENT,
-                        data: {
-                          body: JSON.stringify({
-                            ...data?.res,
-                          }),
-                        },
-                      });
-                      fetchBooPackages();
-                    }}
-                  >
-                    Update
-                  </Button>
-                </SimpleGrid>
-              ))}
-        </Flex>
-        <Flex direction="column" gap="4px" height="70vh">
-          <Text>
-            Care Packages (
-            {
-              receivedPackageInteractions.filter(
-                (interaction) => interaction.isCarePackage
-              ).length
-            }
-            )
-          </Text>
-          <Flex direction="column" gap="4px" height="100%" overflowY={"scroll"}>
-            {receivedPackageInteractions
-              .filter((interaction) => interaction.isCarePackage)
-              .map((interaction) => (
-                <Flex
-                  key={interaction.id}
-                  backgroundColor="#212e6f"
-                  p="10px"
-                  borderRadius="15px"
-                  justifyContent={"space-between"}
-                  gap="4px"
-                >
-                  <Text>
-                    {interaction.user} used {interaction.packageName}
-                  </Text>
-                  <Button
-                    bg="red.500"
-                    color="white"
-                    _hover={{ bg: "red.600" }}
-                    onClick={async () => {
-                      setPaused(true);
-                      await updateStreamInteraction({
-                        interactionId: interaction.id,
-                        softDeleted: true,
-                      });
-                      setReceivedPackageInteractions((prevInteractions) =>
-                        prevInteractions.filter(
-                          (_interaction) => _interaction.id !== interaction.id
-                        )
-                      );
-                      setPaused(false);
-                    }}
-                  >
-                    Remove
-                  </Button>
-                </Flex>
-              ))}
+                          ),
+                          priceMultiplier:
+                            stagingPackages[packageName].priceMultiplier,
+                        });
+                        interactionsChannel?.publish({
+                          name: PACKAGE_PRICE_CHANGE_EVENT,
+                          data: {
+                            body: JSON.stringify({
+                              ...data?.res,
+                            }),
+                          },
+                        });
+                        fetchBooPackages();
+                      }}
+                    >
+                      Update
+                    </Button>
+                  </SimpleGrid>
+                ))}
           </Flex>
-          <Text>
-            Scare Packages (
-            {
-              receivedPackageInteractions.filter(
-                (interaction) => !interaction.isCarePackage
-              ).length
-            }
-            )
-          </Text>
-          <Flex direction="column" gap="4px" height="100%" overflowY={"scroll"}>
-            {receivedPackageInteractions
-              .filter((interaction) => !interaction.isCarePackage)
-              .map((interaction) => (
-                <Flex
-                  key={interaction.id}
-                  backgroundColor="#212e6f"
-                  p="10px"
-                  borderRadius="15px"
-                  justifyContent={"space-between"}
-                  gap="4px"
-                >
-                  <Text>
-                    {interaction.user} used {interaction.packageName}
-                  </Text>
-                  <Button
-                    bg="red.500"
-                    color="white"
-                    _hover={{ bg: "red.600" }}
-                    onClick={async () => {
-                      setPaused(true);
-                      await updateStreamInteraction({
-                        interactionId: interaction.id,
-                        softDeleted: true,
-                      });
-                      setReceivedPackageInteractions((prevInteractions) =>
-                        prevInteractions.filter(
-                          (_interaction) => _interaction.id !== interaction.id
-                        )
-                      );
-                      setPaused(false);
-                    }}
-                  >
-                    Remove
-                  </Button>
-                </Flex>
-              ))}
-          </Flex>
-        </Flex>
-        <Flex direction="column" height="70vh" width="30vw">
-          <Text>Text to Speech ({receivedTtsInteractions.length})</Text>
-          {audioQueue.length > 0 ? (
-            audioQueue.map((audio) => (
-              <Flex
-                bg={
-                  currentAudio?.interactionId === audio.interactionId
-                    ? "green.500"
-                    : "#00b3bc"
+          <Flex width="100%" gap="5px">
+            <Flex direction="column" gap="4px" width="100%" height="40vh">
+              <Text>
+                Care Packages (
+                {
+                  receivedPackageInteractions.filter(
+                    (interaction) => interaction.isCarePackage
+                  ).length
                 }
-              >
-                <Text>{audio.text}</Text>
-              </Flex>
-            ))
-          ) : (
-            <Text>Nothing in queue, add some now</Text>
-          )}
-          <Flex direction={"column"} gap="4px" overflowY={"scroll"}>
-            {receivedTtsInteractions.map((interaction) => (
+                )
+              </Text>
               <Flex
-                key={interaction.id}
-                backgroundColor="#212e6f"
-                p="10px"
-                borderRadius="15px"
-                justifyContent={"space-between"}
-                gap="4px"
                 direction="column"
+                gap="4px"
+                height="100%"
+                overflowY={"scroll"}
               >
-                <Text>{interaction.text}</Text>
-                <Flex justifyContent={"space-between"}>
-                  <Button
-                    bg={"green.500"}
-                    color="white"
-                    _hover={{}}
-                    onClick={() => {
-                      playAndRemoveTtsInteraction(interaction, false);
-                    }}
-                  >
-                    Add to play queue
-                  </Button>
-                  <Button
-                    bg="red.500"
-                    color="white"
-                    _hover={{ bg: "red.600" }}
-                    onClick={() =>
-                      playAndRemoveTtsInteraction(interaction, true)
+                {receivedPackageInteractions
+                  .filter((interaction) => interaction.isCarePackage)
+                  .map((interaction) => (
+                    <Flex
+                      key={interaction.id}
+                      backgroundColor="#212e6f"
+                      p="10px"
+                      borderRadius="15px"
+                      justifyContent={"space-between"}
+                      gap="4px"
+                    >
+                      <Text>
+                        {interaction.user} used {interaction.packageName}
+                      </Text>
+                      <Button
+                        bg="red.500"
+                        color="white"
+                        _hover={{ bg: "red.600" }}
+                        onClick={async () => {
+                          setPaused(true);
+                          await updateStreamInteraction({
+                            interactionId: interaction.id,
+                            softDeleted: true,
+                          });
+                          setReceivedPackageInteractions((prevInteractions) =>
+                            prevInteractions.filter(
+                              (_interaction) =>
+                                _interaction.id !== interaction.id
+                            )
+                          );
+                          setPaused(false);
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </Flex>
+                  ))}
+              </Flex>
+            </Flex>
+            <Flex direction="column" gap="4px" width="100%" height="40vh">
+              <Text>
+                Scare Packages (
+                {
+                  receivedPackageInteractions.filter(
+                    (interaction) => !interaction.isCarePackage
+                  ).length
+                }
+                )
+              </Text>
+              <Flex
+                direction="column"
+                gap="4px"
+                height="100%"
+                overflowY={"scroll"}
+              >
+                {receivedPackageInteractions
+                  .filter((interaction) => !interaction.isCarePackage)
+                  .map((interaction) => (
+                    <Flex
+                      key={interaction.id}
+                      backgroundColor="#212e6f"
+                      p="10px"
+                      borderRadius="15px"
+                      justifyContent={"space-between"}
+                      gap="4px"
+                    >
+                      <Text>
+                        {interaction.user} used {interaction.packageName}
+                      </Text>
+                      <Button
+                        bg="red.500"
+                        color="white"
+                        _hover={{ bg: "red.600" }}
+                        onClick={async () => {
+                          setPaused(true);
+                          await updateStreamInteraction({
+                            interactionId: interaction.id,
+                            softDeleted: true,
+                          });
+                          setReceivedPackageInteractions((prevInteractions) =>
+                            prevInteractions.filter(
+                              (_interaction) =>
+                                _interaction.id !== interaction.id
+                            )
+                          );
+                          setPaused(false);
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </Flex>
+                  ))}
+              </Flex>
+            </Flex>
+          </Flex>
+        </Flex>
+
+        <Flex
+          direction="column"
+          bg="rgba(255, 255, 255, 0.1)"
+          p="5px"
+          gap="5px"
+        >
+          <Text>Text to Speech ({receivedTtsInteractions.length})</Text>
+          <Flex width="40vw" gap="5px">
+            <Flex
+              direction={"column"}
+              gap="4px"
+              overflowY={"scroll"}
+              width="50%"
+              height="70vh"
+            >
+              {receivedTtsInteractions.map((interaction) => (
+                <Flex
+                  key={interaction.id}
+                  backgroundColor="#212e6f"
+                  p="10px"
+                  borderRadius="15px"
+                  justifyContent={"space-between"}
+                  gap="4px"
+                  direction="column"
+                >
+                  <Text>{interaction.text}</Text>
+                  <Flex justifyContent={"space-between"} gap="4px">
+                    <Button
+                      bg={"green.500"}
+                      color="white"
+                      _hover={{}}
+                      onClick={() => {
+                        playAndRemoveTtsInteraction(interaction, false);
+                      }}
+                    >
+                      Add to play queue
+                    </Button>
+                    <Button
+                      bg="red.500"
+                      color="white"
+                      _hover={{ bg: "red.600" }}
+                      onClick={() => {
+                        playAndRemoveTtsInteraction(interaction, true);
+                      }}
+                    >
+                      Remove
+                    </Button>
+                  </Flex>
+                </Flex>
+              ))}
+            </Flex>
+            <Flex
+              direction="column"
+              gap="4px"
+              overflowY={"scroll"}
+              width="50%"
+              height="70vh"
+            >
+              {audioQueue.length > 0 ? (
+                audioQueue.map((audio) => (
+                  <Flex
+                    bg={
+                      currentAudio?.interactionId === audio.interactionId
+                        ? "green.500"
+                        : "#00b3bc"
                     }
                   >
-                    Remove
-                  </Button>
-                </Flex>
-              </Flex>
-            ))}
+                    <Text>{audio.text}</Text>
+                  </Flex>
+                ))
+              ) : (
+                <Text>No messages in queue, add some now</Text>
+              )}
+            </Flex>
           </Flex>
         </Flex>
       </Flex>
