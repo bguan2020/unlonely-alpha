@@ -1,4 +1,4 @@
-import { Flex } from "@chakra-ui/react";
+import { Flex, Image } from "@chakra-ui/react";
 import { BooPackageButton } from "./BooPackageButton";
 
 const carePackageNames = ["water", "flashlight"];
@@ -16,7 +16,7 @@ export const BooCarePackages = ({
 }) => {
   return (
     <Flex flexWrap={"wrap"} justifyContent={"space-evenly"}>
-      {carePackageNames.map((name) => (
+      {/* {carePackageNames.map((name) => (
         <BooPackageButton
           key={name}
           cooldownInSeconds={booPackageMap?.[name]?.cooldownInSeconds ?? 0}
@@ -27,7 +27,40 @@ export const BooCarePackages = ({
             fetchUserBooPackageCooldownMapping
           }
         />
-      ))}
+      ))} */}
+      {
+        <Image
+          src="/images/packages/light.png"
+          height="100px"
+          _hover={{
+            cursor: "pointer",
+            transform: "scale(1.1)",
+            transition: "transform 0.2s",
+          }}
+        />
+      }
+      {
+        <Image
+          src="/images/packages/food.png"
+          height="100px"
+          _hover={{
+            cursor: "pointer",
+            transform: "scale(1.1)",
+            transition: "transform 0.2s",
+          }}
+        />
+      }
+      {
+        <Image
+          src="/images/packages/water.png"
+          height="100px"
+          _hover={{
+            cursor: "pointer",
+            transform: "scale(1.1)",
+            transition: "transform 0.2s",
+          }}
+        />
+      }
     </Flex>
   );
 };
