@@ -431,6 +431,7 @@ export const HomePageBooEventStreamPage = () => {
                             </Flex>
                           </Flex>
                           <BooCarePackages
+                            interactionsAblyChannel={interactionsChannel}
                             dateNow={dateNow}
                             booPackageMap={booPackageMap}
                             userBooPackageCooldowns={userBooPackageCooldowns}
@@ -494,6 +495,7 @@ export const HomePageBooEventStreamPage = () => {
                             </Flex>
                           </Flex>
                           <BooScarePackages
+                            interactionsAblyChannel={interactionsChannel}
                             dateNow={dateNow}
                             booPackageMap={booPackageMap}
                             userBooPackageCooldowns={userBooPackageCooldowns}

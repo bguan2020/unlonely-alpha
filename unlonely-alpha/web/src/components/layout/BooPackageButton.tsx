@@ -1,4 +1,4 @@
-import { Button, Flex, Spinner } from "@chakra-ui/react";
+import { Button, Flex, IconButton, Spinner } from "@chakra-ui/react";
 import { useUser } from "../../hooks/context/useUser";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import {
@@ -10,12 +10,13 @@ import {
 import centerEllipses from "../../utils/centerEllipses";
 import { useSolanaTransferTokens } from "../../hooks/internal/solana/useSolanaTransferTokens";
 import { useSolanaTokenBalance } from "../../hooks/internal/solana/useSolanaTokenBalance";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
 import { StreamInteractionType } from "../../generated/graphql";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 
 export const BooPackageButton = ({
+  imageComponent,
   cooldownInSeconds,
   userBooPackageCooldowns,
   dateNow,
@@ -23,6 +24,7 @@ export const BooPackageButton = ({
   packageInfo,
   interactionsAblyChannel,
 }: {
+  imageComponent?: any;
   cooldownInSeconds: number;
   userBooPackageCooldowns: any;
   dateNow: number;
@@ -93,44 +95,57 @@ export const BooPackageButton = ({
     },
   });
 
+  const handleSendTokens = async () => {
+    setLoading(true);
+    // await sendTokens(
+    //   "CGgvGycx44rLAifbdgWihPAeQtpakubUPksCtiFKqk9i",
+    //   "0.000001"
+    // );
+    await onTransferSuccess();
+    setLoading(false);
+  };
+
+  const isInCooldown = useMemo(() => {
+    return (
+      userBooPackageCooldowns &&
+      userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt !== undefined &&
+      dateNow - cooldownInSeconds * 1000 <
+        userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt
+    );
+  }, [userBooPackageCooldowns, packageInfo, dateNow, cooldownInSeconds]);
+
+  const isDisabled = useMemo(() => {
+    return isInCooldown || loading || !activeWallet;
+  }, [isInCooldown, activeWallet, loading]);
+
   return (
     <Flex direction="column" gap="4px">
-      <Button
-        isDisabled={
-          (userBooPackageCooldowns &&
-            userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt !==
-              undefined &&
-            dateNow - cooldownInSeconds * 1000 <
-              userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt) ||
-          loading ||
-          !activeWallet
-        }
-        onClick={async () => {
-          setLoading(true);
-          // await sendTokens(
-          //   "CGgvGycx44rLAifbdgWihPAeQtpakubUPksCtiFKqk9i",
-          //   "0.000001"
-          // );
-          await onTransferSuccess();
-          setLoading(false);
-        }}
-      >
-        {loading ? (
-          <Spinner />
-        ) : userBooPackageCooldowns &&
-          userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt !==
-            undefined &&
-          dateNow - cooldownInSeconds * 1000 <
-            userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt ? (
-          `${Math.ceil(
-            (userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt -
-              (dateNow - cooldownInSeconds * 1000)) /
-              1000
-          )}s`
-        ) : (
-          packageInfo.name
-        )}
-      </Button>
+      {imageComponent ? (
+        <IconButton
+          bg="transparent"
+          _focus={{}}
+          _active={{}}
+          _hover={{}}
+          icon={imageComponent}
+          aria-label={`${packageInfo.name}-package`}
+          isDisabled={isDisabled}
+          onClick={handleSendTokens}
+        />
+      ) : (
+        <Button isDisabled={isDisabled} onClick={handleSendTokens}>
+          {loading ? (
+            <Spinner />
+          ) : isInCooldown ? (
+            `${Math.ceil(
+              (userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt -
+                (dateNow - cooldownInSeconds * 1000)) /
+                1000
+            )}s`
+          ) : (
+            packageInfo.name
+          )}
+        </Button>
+      )}
     </Flex>
   );
 };

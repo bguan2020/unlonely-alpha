@@ -4,12 +4,10 @@ import {
   GET_STREAM_INTERACTIONS_QUERY,
 } from "../constants/queries";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import AppLayout from "../components/layout/AppLayout";
 import {
   Button,
   Flex,
   Input,
-  Select,
   SimpleGrid,
   Spinner,
   Text,
@@ -64,40 +62,35 @@ export default function ModCenterPage() {
   }, []);
 
   return (
-    <AppLayout isCustomHeader={false} noHeader>
-      <Header />
-      {/* {isMod && <ModCenter />} */}
-      {/* {!isMod && <Text>You're not supposed to be here.</Text>} */}
-      <ModCenter />
-    </AppLayout>
+    <Flex h="100vh" bg="rgba(5, 0, 31, 1)" position={"relative"}>
+      <Flex direction="column">
+        <Header />
+        {/* {isMod && <ModCenter />} */}
+        {/* {!isMod && <Text>You're not supposed to be here.</Text>} */}
+        <ModCenter />
+      </Flex>
+    </Flex>
   );
 }
+
+interface PackageInfo {
+  id: string;
+  priceMultiplier: string;
+  cooldownInSeconds: string;
+}
+
+type StagingPackages = {
+  [key: string]: PackageInfo;
+};
 
 const ModCenter = () => {
   const [paused, setPaused] = useState(false);
 
-  const [stagingPackage, setStagingPackage] = useState<{
-    name: string;
-    priceMultiplier: string;
-    cooldownInSeconds: string;
-  }>({
-    name: "",
-    priceMultiplier: "",
-    cooldownInSeconds: "",
-  });
+  const [stagingPackages, setStagingPackages] = useState<StagingPackages>({});
 
   const toast = useToast();
 
-  const handleUpdate = () => {
-    toast({
-      title: "update sent, please wait for next fetch",
-      status: "success",
-      duration: 2000,
-      isClosable: true,
-    });
-  };
-
-  const [interactionsChatChannel] = useAblyChannel(
+  const [interactionsChannel] = useAblyChannel(
     INTERACTIONS_CHANNEL,
     async (message) => {
       if (message.name === PACKAGE_PURCHASE_EVENT) {
@@ -180,8 +173,9 @@ const ModCenter = () => {
           id: item.id,
         };
         return map;
-      }, {} as Record<string, { price: number; cooldown: number }>);
+      }, {} as Record<string, PackageInfo>);
       setBooPackageMap(packageMap);
+      setStagingPackages(packageMap);
     }
   }, []);
 
@@ -283,112 +277,96 @@ const ModCenter = () => {
           {paused ? <Spinner /> : "refetch everything"}
         </Button>
       </Flex>
-      <Flex justifyContent={"space-between"} gap="10px">
+      <Flex
+        justifyContent={"space-between"}
+        gap="20px"
+        height="100%"
+        overflowY={"scroll"}
+      >
         <Flex direction="column">
-          <Text>Package Prices</Text>
-          <Flex
-            gap="5px"
-            backgroundColor="#212e6f"
-            p="10px"
-            borderRadius="15px"
-          >
-            <Select
-              placeholder="Select option"
-              borderColor="white"
-              bg="#10bfcc"
-              style={{
-                color: "black",
-              }}
-              onChange={async (e) => {
-                setStagingPackage({
-                  ...stagingPackage,
-                  name: e.target.value,
-                });
-              }}
-            >
-              {booPackageMap &&
-                Object.entries(booPackageMap).map(
-                  ([packageName, packageInfo]) => (
-                    <option
-                      key={packageName}
-                      value={packageName}
-                      style={{
-                        backgroundColor: "#10bfcc",
-                      }}
-                    >
-                      {packageName}
-                    </option>
-                  )
-                )}
-            </Select>
-            <Input
-              placeholder="price multiplier"
-              value={stagingPackage.priceMultiplier}
-              onChange={(e) =>
-                setStagingPackage({
-                  ...stagingPackage,
-                  priceMultiplier: String(e.target.value),
-                })
-              }
-            />
-            <Input
-              placeholder="cooldown"
-              value={stagingPackage.cooldownInSeconds}
-              onChange={(e) =>
-                setStagingPackage({
-                  ...stagingPackage,
-                  cooldownInSeconds: String(e.target.value),
-                })
-              }
-            />
-            <Button
-              isDisabled={
-                !stagingPackage.name ||
-                !stagingPackage.priceMultiplier ||
-                !stagingPackage.cooldownInSeconds ||
-                (Number(
-                  booPackageMap?.[stagingPackage.name]?.priceMultiplier
-                ) === Number(stagingPackage.priceMultiplier) &&
-                  Number(
-                    booPackageMap?.[stagingPackage.name]?.cooldownInSeconds
-                  ) === Number(stagingPackage.cooldownInSeconds))
-              }
-              onClick={async () => {
-                const data = await updatePackage({
-                  packageName: stagingPackage.name,
-                  cooldownInSeconds: Number(stagingPackage.cooldownInSeconds),
-                  priceMultiplier: stagingPackage.priceMultiplier,
-                });
-                interactionsChatChannel?.publish({
-                  name: PACKAGE_PRICE_CHANGE_EVENT,
-                  data: {
-                    body: JSON.stringify({
-                      ...data?.res,
-                    }),
-                  },
-                });
-                handleUpdate();
-              }}
-            >
-              Update
-            </Button>
-          </Flex>
-          <SimpleGrid columns={3} spacing={10}>
+          <SimpleGrid columns={4} spacing={10}>
             <Text>Package Name</Text>
             <Text>Price Multiplier</Text>
             <Text>Cooldown</Text>
           </SimpleGrid>
 
           {booPackageMap &&
-            Object.entries(booPackageMap).map(([packageName, packageInfo]) => (
-              <SimpleGrid columns={3} spacing={10}>
-                <Text>{packageName}</Text>
-                <Text>{(packageInfo as any)?.priceMultiplier}</Text>
-                <Text>{(packageInfo as any)?.cooldownInSeconds}</Text>
-              </SimpleGrid>
-            ))}
+            Object.entries(booPackageMap)
+              .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+              .map(([packageName, packageInfo]) => (
+                <SimpleGrid
+                  columns={4}
+                  spacing={10}
+                  backgroundColor="#212e6f"
+                  p="10px"
+                >
+                  <Text>{packageName}</Text>
+                  <Input
+                    placeholder="price multiplier"
+                    value={stagingPackages[packageName].priceMultiplier}
+                    onChange={(e) =>
+                      setStagingPackages((prev) => ({
+                        ...prev,
+                        [packageName]: {
+                          ...stagingPackages[packageName],
+                          priceMultiplier: String(e.target.value),
+                        },
+                      }))
+                    }
+                  />
+                  <Input
+                    placeholder="cooldown"
+                    value={stagingPackages[packageName].cooldownInSeconds}
+                    onChange={(e) =>
+                      setStagingPackages((prev) => ({
+                        ...prev,
+                        [packageName]: {
+                          ...stagingPackages[packageName],
+                          cooldownInSeconds: String(e.target.value),
+                        },
+                      }))
+                    }
+                  />
+                  <Button
+                    isDisabled={
+                      !stagingPackages[packageName] ||
+                      !stagingPackages[packageName].priceMultiplier ||
+                      !stagingPackages[packageName].cooldownInSeconds ||
+                      (Number(booPackageMap?.[packageName]?.priceMultiplier) ===
+                        Number(stagingPackages[packageName].priceMultiplier) &&
+                        Number(
+                          booPackageMap?.[packageName]?.cooldownInSeconds
+                        ) ===
+                          Number(
+                            stagingPackages[packageName].cooldownInSeconds
+                          ))
+                    }
+                    onClick={async () => {
+                      const data = await updatePackage({
+                        packageName,
+                        cooldownInSeconds: Number(
+                          stagingPackages[packageName].cooldownInSeconds
+                        ),
+                        priceMultiplier:
+                          stagingPackages[packageName].priceMultiplier,
+                      });
+                      interactionsChannel?.publish({
+                        name: PACKAGE_PRICE_CHANGE_EVENT,
+                        data: {
+                          body: JSON.stringify({
+                            ...data?.res,
+                          }),
+                        },
+                      });
+                      fetchBooPackages();
+                    }}
+                  >
+                    Update
+                  </Button>
+                </SimpleGrid>
+              ))}
         </Flex>
-        <Flex direction="column" gap="4px">
+        <Flex direction="column" gap="4px" height="70vh">
           <Text>
             Care Packages (
             {
@@ -398,44 +376,44 @@ const ModCenter = () => {
             }
             )
           </Text>
-          {receivedPackageInteractions
-            .filter((interaction) => interaction.isCarePackage)
-            .map((interaction) => (
-              <Flex
-                key={interaction.id}
-                backgroundColor="#212e6f"
-                p="10px"
-                borderRadius="15px"
-                justifyContent={"space-between"}
-                gap="4px"
-              >
-                <Text>
-                  {interaction.user} used {interaction.packageName}
-                </Text>
-                <Button
-                  bg="red.500"
-                  color="white"
-                  _hover={{ bg: "red.600" }}
-                  onClick={async () => {
-                    setPaused(true);
-                    await updateStreamInteraction({
-                      interactionId: interaction.id,
-                      softDeleted: true,
-                    });
-                    setReceivedPackageInteractions((prevInteractions) =>
-                      prevInteractions.filter(
-                        (_interaction) => _interaction.id !== interaction.id
-                      )
-                    );
-                    setPaused(false);
-                  }}
+          <Flex direction="column" gap="4px" height="100%" overflowY={"scroll"}>
+            {receivedPackageInteractions
+              .filter((interaction) => interaction.isCarePackage)
+              .map((interaction) => (
+                <Flex
+                  key={interaction.id}
+                  backgroundColor="#212e6f"
+                  p="10px"
+                  borderRadius="15px"
+                  justifyContent={"space-between"}
+                  gap="4px"
                 >
-                  Remove
-                </Button>
-              </Flex>
-            ))}
-        </Flex>
-        <Flex direction="column" gap="4px">
+                  <Text>
+                    {interaction.user} used {interaction.packageName}
+                  </Text>
+                  <Button
+                    bg="red.500"
+                    color="white"
+                    _hover={{ bg: "red.600" }}
+                    onClick={async () => {
+                      setPaused(true);
+                      await updateStreamInteraction({
+                        interactionId: interaction.id,
+                        softDeleted: true,
+                      });
+                      setReceivedPackageInteractions((prevInteractions) =>
+                        prevInteractions.filter(
+                          (_interaction) => _interaction.id !== interaction.id
+                        )
+                      );
+                      setPaused(false);
+                    }}
+                  >
+                    Remove
+                  </Button>
+                </Flex>
+              ))}
+          </Flex>
           <Text>
             Scare Packages (
             {
@@ -445,9 +423,49 @@ const ModCenter = () => {
             }
             )
           </Text>
-          {receivedPackageInteractions
-            .filter((interaction) => !interaction.isCarePackage)
-            .map((interaction) => (
+          <Flex direction="column" gap="4px" height="100%" overflowY={"scroll"}>
+            {receivedPackageInteractions
+              .filter((interaction) => !interaction.isCarePackage)
+              .map((interaction) => (
+                <Flex
+                  key={interaction.id}
+                  backgroundColor="#212e6f"
+                  p="10px"
+                  borderRadius="15px"
+                  justifyContent={"space-between"}
+                  gap="4px"
+                >
+                  <Text>
+                    {interaction.user} used {interaction.packageName}
+                  </Text>
+                  <Button
+                    bg="red.500"
+                    color="white"
+                    _hover={{ bg: "red.600" }}
+                    onClick={async () => {
+                      setPaused(true);
+                      await updateStreamInteraction({
+                        interactionId: interaction.id,
+                        softDeleted: true,
+                      });
+                      setReceivedPackageInteractions((prevInteractions) =>
+                        prevInteractions.filter(
+                          (_interaction) => _interaction.id !== interaction.id
+                        )
+                      );
+                      setPaused(false);
+                    }}
+                  >
+                    Remove
+                  </Button>
+                </Flex>
+              ))}
+          </Flex>
+        </Flex>
+        <Flex direction="column" height="70vh" width="30vw">
+          <Text>Text to Speech ({receivedTtsInteractions.length})</Text>
+          <Flex direction={"column"} gap="4px" overflowY={"scroll"}>
+            {receivedTtsInteractions.map((interaction) => (
               <Flex
                 key={interaction.id}
                 backgroundColor="#212e6f"
@@ -455,68 +473,34 @@ const ModCenter = () => {
                 borderRadius="15px"
                 justifyContent={"space-between"}
                 gap="4px"
+                direction="column"
               >
-                <Text>
-                  {interaction.user} used {interaction.packageName}
-                </Text>
-                <Button
-                  bg="red.500"
-                  color="white"
-                  _hover={{ bg: "red.600" }}
-                  onClick={async () => {
-                    setPaused(true);
-                    await updateStreamInteraction({
-                      interactionId: interaction.id,
-                      softDeleted: true,
-                    });
-                    setReceivedPackageInteractions((prevInteractions) =>
-                      prevInteractions.filter(
-                        (_interaction) => _interaction.id !== interaction.id
-                      )
-                    );
-                    setPaused(false);
-                  }}
-                >
-                  Remove
-                </Button>
+                <Text>{interaction.text}</Text>
+                <Flex gap="4px">
+                  <Button
+                    bg={"blue.500"}
+                    color="white"
+                    _hover={{ bg: "blue.600" }}
+                    onClick={() =>
+                      playAndRemoveTtsInteraction(interaction, false)
+                    }
+                  >
+                    Play and remove
+                  </Button>
+                  <Button
+                    bg="red.500"
+                    color="white"
+                    _hover={{ bg: "red.600" }}
+                    onClick={() =>
+                      playAndRemoveTtsInteraction(interaction, true)
+                    }
+                  >
+                    Remove
+                  </Button>
+                </Flex>
               </Flex>
             ))}
-        </Flex>
-        <Flex direction={"column"} gap="4px" flexWrap="wrap">
-          <Text>Text to Speech ({receivedTtsInteractions.length})</Text>
-          {receivedTtsInteractions.map((interaction) => (
-            <Flex
-              key={interaction.id}
-              backgroundColor="#212e6f"
-              p="10px"
-              borderRadius="15px"
-              justifyContent={"space-between"}
-              gap="4px"
-              direction="column"
-            >
-              <Text>{interaction.text}</Text>
-              <Flex gap="4px">
-                <Button
-                  bg={"blue.500"}
-                  color="white"
-                  _hover={{ bg: "blue.600" }}
-                  onClick={() =>
-                    playAndRemoveTtsInteraction(interaction, false)
-                  }
-                >
-                  Play and remove
-                </Button>
-                <Button
-                  bg="red.500"
-                  color="white"
-                  _hover={{ bg: "red.600" }}
-                  onClick={() => playAndRemoveTtsInteraction(interaction, true)}
-                >
-                  Remove
-                </Button>
-              </Flex>
-            </Flex>
-          ))}
+          </Flex>
         </Flex>
       </Flex>
     </Flex>
