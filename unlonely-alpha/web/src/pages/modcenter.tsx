@@ -27,6 +27,8 @@ import axios from "axios";
 import { io, Socket } from "socket.io-client";
 import { WS_URL } from "../components/layout/BooEventTtsComponent";
 
+export const INTERACTIONS_CHANNEL = "persistMessages:interactions";
+
 const mods = process.env.NEXT_PUBLIC_MODS?.split(",");
 
 let socket: Socket | null;
@@ -71,8 +73,6 @@ const ModCenter = () => {
   const [count, setCount] = useState(0);
   const [paused, setPaused] = useState(false);
 
-  const chatChannelName = "persistMessages:danny-chat-channel"; // todo: change this to actual channel's name
-
   const [stagingPackage, setStagingPackage] = useState<{
     name: string;
     priceMultiplier: string;
@@ -93,7 +93,7 @@ const ModCenter = () => {
       isClosable: true,
     });
   };
-  const [channel] = useAblyChannel(chatChannelName, async (message) => {
+  const [channel] = useAblyChannel(INTERACTIONS_CHANNEL, async (message) => {
     console.log("message received", message.data);
   });
 

@@ -1,5 +1,5 @@
 import { Flex, Image } from "@chakra-ui/react";
-import { BooPackageButton } from "./BooPackageButton";
+// import { BooPackageButton } from "./BooPackageButton";
 
 const carePackageNames = ["water", "flashlight"];
 
