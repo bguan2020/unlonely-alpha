@@ -637,7 +637,7 @@ const ModCenter = () => {
                       <Button
                         bg="red.500"
                         color="white"
-                        _hover={{ bg: "#cd6b03" }}
+                        _hover={{ bg: "#893200" }}
                         onClick={() => {
                           handleQueuedTtsInteractions(interaction, true);
                         }}
