@@ -115,13 +115,13 @@ const ModCenter = () => {
 
           // Add the new interaction
           return [
-            ...filteredInteractions,
             {
               id: packageInfoBody.id,
               user: packageInfoBody.user,
               packageName: packageInfoBody.name,
               isCarePackage: packageInfoBody.isCarePackage,
             },
+            ...filteredInteractions,
           ];
         });
       }
@@ -138,7 +138,7 @@ const ModCenter = () => {
           );
 
           // Add the new interaction
-          return [...filteredInteractions, ttsBody];
+          return [ttsBody, ...filteredInteractions];
         });
       }
     }

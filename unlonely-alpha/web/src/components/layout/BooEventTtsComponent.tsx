@@ -8,7 +8,7 @@ import { AblyChannelPromise, SEND_TTS_EVENT } from "../../constants";
 import { StreamInteractionType } from "../../generated/graphql";
 
 // export const WS_URL = "wss://sea-lion-app-j3rts.ondigitalocean.app";
-export const WS_URL = "https://monkfish-app-zitp9.ondigitalocean.app:8080";
+export const WS_URL = "wss://monkfish-app-zitp9.ondigitalocean.app";
 
 let socket: Socket | null;
 
