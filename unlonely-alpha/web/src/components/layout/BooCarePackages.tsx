@@ -10,12 +10,17 @@ export const BooCarePackages = ({
   userBooPackageCooldowns,
   fetchUserBooPackageCooldownMapping,
   interactionsAblyChannel,
+  balanceData,
 }: {
   dateNow: number;
   booPackageMap: any;
   userBooPackageCooldowns: any;
   fetchUserBooPackageCooldownMapping: any;
   interactionsAblyChannel: AblyChannelPromise;
+  balanceData: {
+    balance: number | null;
+    fetchTokenBalance: () => void;
+  };
 }) => {
   return (
     <Flex flexWrap={"wrap"} justifyContent={"space-evenly"}>
@@ -42,6 +47,7 @@ export const BooCarePackages = ({
             fetchUserBooPackageCooldownMapping
           }
           interactionsAblyChannel={interactionsAblyChannel}
+          balanceData={balanceData}
         />
       ))}
     </Flex>

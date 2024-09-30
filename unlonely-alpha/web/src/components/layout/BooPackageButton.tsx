@@ -16,7 +16,6 @@ import {
 } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
 import { useSolanaTransferTokens } from "../../hooks/internal/solana/useSolanaTransferTokens";
-import { useSolanaTokenBalance } from "../../hooks/internal/solana/useSolanaTokenBalance";
 import { useMemo, useState } from "react";
 import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
 import { StreamInteractionType } from "../../generated/graphql";
@@ -32,6 +31,7 @@ export const BooPackageButton = ({
   packageInfo,
   interactionsAblyChannel,
   price,
+  balanceData,
 }: {
   imageComponent?: any;
   cooldownInSeconds: number;
@@ -44,11 +44,14 @@ export const BooPackageButton = ({
   };
   interactionsAblyChannel: AblyChannelPromise;
   price: string;
+  balanceData: {
+    balance: number | null;
+    fetchTokenBalance: () => void;
+  };
 }) => {
   const { chat: c } = useChannelContext();
   const { addToChatbot } = c;
   const { user } = useUser();
-  const { balance, fetchTokenBalance } = useSolanaTokenBalance(SOLANA_RPC_URL);
 
   const [loading, setLoading] = useState(false);
 
@@ -59,7 +62,7 @@ export const BooPackageButton = ({
   } = useUpdateUserPackageCooldownMapping({});
 
   const onTransferSuccess = async () => {
-    fetchTokenBalance();
+    balanceData.fetchTokenBalance();
     await postStreamInteraction({
       channelId: "3",
       streamInteractionType: StreamInteractionType.PackageInteraction,
@@ -116,9 +119,9 @@ export const BooPackageButton = ({
   };
 
   const notEnoughBalance = useMemo(() => {
-    if (!balance) return true;
-    return balance < Number(price);
-  }, [balance, price]);
+    if (!balanceData.balance) return true;
+    return balanceData.balance < Number(price);
+  }, [balanceData.balance, price]);
 
   const isInCooldown = useMemo(() => {
     return (
@@ -136,7 +139,7 @@ export const BooPackageButton = ({
       isValidAddress(user?.address) !== "solana" ||
       notEnoughBalance
     );
-  }, [isInCooldown, user, loading]);
+  }, [isInCooldown, user, loading, notEnoughBalance]);
 
   return (
     <Flex direction="column" gap="4px">

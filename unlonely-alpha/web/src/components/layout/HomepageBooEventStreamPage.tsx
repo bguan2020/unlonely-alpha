@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useState,
-  useRef,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Box, Flex, IconButton, Text, Image, Tooltip } from "@chakra-ui/react";
 import { useChat } from "../../hooks/chat/useChat";
 import { useLivepeerStreamData } from "../../hooks/internal/useLivepeerStreamData";
@@ -47,7 +41,7 @@ import {
 import { GetUserPackageCooldownMappingQuery } from "../../generated/graphql";
 import { jp } from "../../utils/validation/jsonParse";
 import { BooScarePackages } from "./BooScarePackages";
-import { INTERACTIONS_CHANNEL } from "../../pages/modcenter";
+import { INTERACTIONS_CHANNEL, PackageInfo } from "../../pages/modcenter";
 import { useAblyChannel } from "../../hooks/chat/useChatChannel";
 
 export const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
@@ -65,15 +59,15 @@ export const HomePageBooEventStreamPage = () => {
   const { chatBot } = c;
   const chat = useChat({ chatBot });
 
-  const { allMessages } = chat;
   const { playbackInfo } = useLivepeerStreamData({
     livepeerPlaybackId: channelQueryData?.livepeerPlaybackId ?? undefined,
     livepeerStreamId: channelQueryData?.livepeerStreamId ?? undefined,
   });
-  const { user, solanaAddress, authenticated, ready, handleIsManagingWallets } =
-    useUser();
+  const { user, solanaAddress, handleIsManagingWallets } = useUser();
   const [isSell, setIsSell] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const { balance, fetchTokenBalance } = useSolanaTokenBalance(SOLANA_RPC_URL);
 
   const { watch: watchBuy } = useForm<IFormConfigurator>({
     defaultValues: INITIAL_FORM_CONFIG,
@@ -90,13 +84,6 @@ export const HomePageBooEventStreamPage = () => {
     },
   });
 
-  const loggedInWithPrivy = authenticated && ready;
-
-  const userIsChannelOwner = useMemo(
-    () => user?.address === channelQueryData?.owner?.address,
-    [user, channelQueryData]
-  );
-
   const watchAllFieldsBuy = watchBuy();
   const watchAllFieldsSell = watchSell();
 
@@ -109,12 +96,14 @@ export const HomePageBooEventStreamPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const { balance, fetchTokenBalance } = useSolanaTokenBalance(SOLANA_RPC_URL);
-
   const [viewState, setViewState] = useState<"stream" | "token">("token");
   const [isGlowing, setIsGlowing] = useState(false);
 
   const { publicKey, connected } = useWallet();
+
+  const [booPackageMap, setBooPackageMap] = useState<
+    Record<string, PackageInfo>
+  >({});
 
   // const { quoteSwap } = useJupiterQuoteSwap();
 
@@ -240,8 +229,6 @@ export const HomePageBooEventStreamPage = () => {
 
   const { sensors, draggablePosition, handleDragStart, handleDrag } =
     useDragRefs({ containerRef, viewState });
-
-  const [booPackageMap, setBooPackageMap] = useState<any>(undefined);
 
   const [_fetchBooPackages] = useLazyQuery(GET_PACKAGES_QUERY, {
     fetchPolicy: "network-only",
@@ -438,6 +425,7 @@ export const HomePageBooEventStreamPage = () => {
                             fetchUserBooPackageCooldownMapping={
                               fetchUserBooPackageCooldownMapping
                             }
+                            balanceData={{ balance, fetchTokenBalance }}
                           />
                         </BooEventTile>
                         <BooEventTile
@@ -502,6 +490,7 @@ export const HomePageBooEventStreamPage = () => {
                             fetchUserBooPackageCooldownMapping={
                               fetchUserBooPackageCooldownMapping
                             }
+                            balanceData={{ balance, fetchTokenBalance }}
                           />
                         </BooEventTile>
                       </Flex>
@@ -627,6 +616,13 @@ export const HomePageBooEventStreamPage = () => {
                     >
                       <BooEventTtsComponent
                         interactionsAblyChannel={interactionsChannel}
+                        balanceData={{
+                          balance,
+                          fetchTokenBalance,
+                        }}
+                        booPackageMap={booPackageMap}
+                        dateNow={dateNow}
+                        userBooPackageCooldowns={userBooPackageCooldowns}
                       />
                     </BooEventTile>
                   )}

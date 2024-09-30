@@ -1,5 +1,5 @@
 import { Flex, Text, Image, Button, Textarea, Tooltip } from "@chakra-ui/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 // import { StreamInteractionType } from "../../generated/graphql";
 import { containsSwears } from "../../utils/validation/profanityFilter";
@@ -14,8 +14,19 @@ import { useUser } from "../../hooks/context/useUser";
 
 export const BooEventTtsComponent = ({
   interactionsAblyChannel,
+  balanceData,
+  dateNow,
+  booPackageMap,
+  userBooPackageCooldowns,
 }: {
   interactionsAblyChannel: AblyChannelPromise;
+  balanceData: {
+    balance: number | null;
+    fetchTokenBalance: () => void;
+  };
+  dateNow: number;
+  booPackageMap: any;
+  userBooPackageCooldowns: any;
 }) => {
   const { user } = useUser();
 
@@ -55,6 +66,30 @@ export const BooEventTtsComponent = ({
     setIsEnteringMessage(false);
   };
 
+  const notEnoughBalance = useMemo(() => {
+    if (!balanceData.balance) return true;
+    return (
+      balanceData.balance < Number(booPackageMap?.["tts"]?.priceMultiplier)
+    );
+  }, [balanceData.balance, booPackageMap]);
+
+  const isInCooldown = useMemo(() => {
+    return (
+      userBooPackageCooldowns &&
+      userBooPackageCooldowns?.["tts"]?.lastUsedAt !== undefined &&
+      dateNow - (booPackageMap?.["tts"]?.cooldownInSeconds ?? 0) * 1000 <
+        userBooPackageCooldowns?.["tts"]?.lastUsedAt
+    );
+  }, [userBooPackageCooldowns, dateNow, booPackageMap]);
+
+  const isDisabled = useMemo(() => {
+    return (
+      isInCooldown ||
+      isValidAddress(user?.address) !== "solana" ||
+      notEnoughBalance
+    );
+  }, [user, isInCooldown, notEnoughBalance]);
+
   return (
     <Flex
       width="100%"
@@ -62,14 +97,40 @@ export const BooEventTtsComponent = ({
       justifyContent={"center"}
       alignItems={"center"}
       onClick={() => {
-        if (!isEnteringMessage && isValidAddress(user?.address) === "solana")
-          setIsEnteringMessage(true);
+        if (!isEnteringMessage && !isDisabled) setIsEnteringMessage(true);
       }}
+      position={"relative"}
     >
+      {isInCooldown && (
+        <Flex
+          position="absolute"
+          top="0"
+          left="0"
+          right="0"
+          bottom="0"
+          bg="blackAlpha.500"
+          justifyContent="center"
+          alignItems="center"
+          borderRadius="15px"
+        >
+          {`${Math.ceil(
+            (userBooPackageCooldowns?.["tts"]?.lastUsedAt -
+              (dateNow -
+                (booPackageMap?.["tts"]?.cooldownInSeconds ?? 0) * 1000)) /
+              1000
+          )}s`}
+        </Flex>
+      )}
       {!isEnteringMessage ? (
         <Tooltip
-          label="log in with solana wallet first"
-          isDisabled={isValidAddress(user?.address) === "solana"}
+          label={
+            isValidAddress(user?.address) !== "solana"
+              ? "log in with solana wallet first"
+              : notEnoughBalance
+              ? "not enough $BOO"
+              : null
+          }
+          isDisabled={!isDisabled}
         >
           <Flex
             alignItems={"center"}

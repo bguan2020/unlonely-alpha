@@ -74,17 +74,17 @@ export default function ModCenterPage() {
   );
 }
 
-interface PackageInfo {
+export interface PackageInfo {
   id: string;
   priceMultiplier: string;
   cooldownInSeconds: string;
 }
 
-type StagingPackages = {
+export type StagingPackages = {
   [key: string]: PackageInfo;
 };
 
-type AudioData = {
+export type AudioData = {
   interactionId: string;
   text?: string;
 };
@@ -198,7 +198,9 @@ const ModCenter = () => {
       }[]
     >([]);
 
-  const [booPackageMap, setBooPackageMap] = useState<any>(undefined);
+  const [booPackageMap, setBooPackageMap] = useState<
+    Record<string, PackageInfo>
+  >({});
 
   const [_fetchBooPackages] = useLazyQuery(GET_PACKAGES_QUERY, {
     fetchPolicy: "network-only",
@@ -355,7 +357,7 @@ const ModCenter = () => {
           gap="5px"
         >
           <SimpleGrid columns={4} spacing={10}>
-            <Text>Package Name</Text>
+            <Text>Interaction</Text>
             <Text>Price Multiplier</Text>
             <Text>Cooldown</Text>
           </SimpleGrid>
@@ -363,7 +365,7 @@ const ModCenter = () => {
           <Flex direction="column" overflowY={"scroll"} height="30vh">
             {booPackageMap &&
               Object.entries(booPackageMap)
-                .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+                .sort((a, b) => Number(a[1].id) - Number(b[1].id))
                 .map(([packageName, packageInfo]) => (
                   <SimpleGrid
                     columns={4}
