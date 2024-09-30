@@ -378,7 +378,7 @@ export const HomePageBooEventStreamPage = () => {
                     height={`${TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}%`}
                     id="geckoterminal-embed"
                     title="GeckoTerminal Embed"
-                    src="https://www.geckoterminal.com/solana/pools/DtxxzR77SEsrVhPzSixCdM1dcuANwQsMiNsM5vSPdYL1?embed=1&info=0&swaps=0"
+                    src={`https://www.geckoterminal.com/solana/pools/${FIXED_SOLANA_MINT.poolAddress}?embed=1&info=0&swaps=0`}
                     allow="clipboard-write"
                     hidden={viewState !== "token"}
                   ></iframe>

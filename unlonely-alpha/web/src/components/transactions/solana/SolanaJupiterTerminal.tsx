@@ -73,7 +73,7 @@ const ModalTerminal = (props: { rpcUrl: string }) => {
           width="100%"
           id="geckoterminal-embed"
           title="GeckoTerminal Embed"
-          src="https://www.geckoterminal.com/solana/pools/DtxxzR77SEsrVhPzSixCdM1dcuANwQsMiNsM5vSPdYL1?embed=1&info=0&swaps=1"
+          src={`https://www.geckoterminal.com/solana/pools/${FIXED_SOLANA_MINT.poolAddress}?embed=1&info=0&swaps=0`}
           allow="clipboard-write"
         ></iframe>
       </div>

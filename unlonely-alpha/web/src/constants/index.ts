@@ -133,9 +133,10 @@ export const UNLONELY_LOGO_IPFS_URL =
 
 export const SOLANA_RPC_URL =
   "https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf";
-// export const FIXED_SOLANA_MINT = { address: "FuvamNkNTNjDcnQeWyiAReUCHZ91gJhg59xuNemZ4p9f", decimals: 9 };
+// export const FIXED_SOLANA_MINT = { address: "FuvamNkNTNjDcnQeWyiAReUCHZ91gJhg59xuNemZ4p9f", decimals: 9, poolAddress: "DtxxzR77SEsrVhPzSixCdM1dcuANwQsMiNsM5vSPdYL1" };
 export const FIXED_SOLANA_MINT = {
   address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  poolAddress: "3gSjs6MqyHFsp8DXvaKvVUJjV7qg5itf9qmUGuhnSaWH",
   decimals: 6
 };
 

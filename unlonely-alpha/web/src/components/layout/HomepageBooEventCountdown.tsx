@@ -8,7 +8,7 @@ import { getTimeFromMillis } from "../../utils/time";
 import { useForm } from "react-hook-form";
 import { eventStartTime } from "./BooEventWrapper";
 import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";
-import { SOLANA_RPC_URL } from "../../constants";
+import { FIXED_SOLANA_MINT, SOLANA_RPC_URL } from "../../constants";
 
 export const HomePageBooEventTokenCountdown = () => {
   const [timeLeft, setTimeLeft] = useState(0);
@@ -68,7 +68,7 @@ export const HomePageBooEventTokenCountdown = () => {
           width="100%"
           id="geckoterminal-embed"
           title="GeckoTerminal Embed"
-          src="https://www.geckoterminal.com/solana/pools/DtxxzR77SEsrVhPzSixCdM1dcuANwQsMiNsM5vSPdYL1?embed=1&info=0&swaps=0"
+          src={`https://www.geckoterminal.com/solana/pools/${FIXED_SOLANA_MINT.poolAddress}?embed=1&info=0&swaps=0`}
           allow="clipboard-write"
         ></iframe>
       </div>
