@@ -111,7 +111,7 @@ export const HomePageBooEventStreamPage = () => {
 
   const { balance, fetchTokenBalance } = useSolanaTokenBalance(SOLANA_RPC_URL);
 
-  const [viewState, setViewState] = useState<"stream" | "token">("stream");
+  const [viewState, setViewState] = useState<"stream" | "token">("token");
   const [isGlowing, setIsGlowing] = useState(false);
 
   const { publicKey, connected } = useWallet();
@@ -354,7 +354,7 @@ export const HomePageBooEventStreamPage = () => {
               }
               cursor={viewState === "token" ? "default" : "move"}
             >
-              {(!loggedInWithPrivy ||
+              {/* {(!loggedInWithPrivy ||
                 (loggedInWithPrivy &&
                   !solanaAddress &&
                   !userIsChannelOwner)) && (
@@ -373,7 +373,7 @@ export const HomePageBooEventStreamPage = () => {
                     to use this feature.
                   </Text>
                 </Flex>
-              )}
+              )} */}
               <Flex
                 width="100%"
                 gap={

@@ -46,7 +46,9 @@ export default function ModCenterPage() {
   }, [user, mods]);
 
   useEffect(() => {
-    socket = io(WS_URL);
+    socket = io(WS_URL, {
+      transports: ["websocket"],
+    });
 
     // Listen for play-audio events from the server
     socket.on("interaction", (data) => {
@@ -64,9 +66,9 @@ export default function ModCenterPage() {
     <Flex h="100vh" bg="rgba(5, 0, 31, 1)" position={"relative"}>
       <Flex direction="column">
         <Header />
-        {/* {isMod && <ModCenter />} */}
-        {/* {!isMod && <Text>You're not supposed to be here.</Text>} */}
-        <ModCenter />
+        {isMod && <ModCenter />}
+        {!isMod && <Text>You're not supposed to be here.</Text>}
+        {/* <ModCenter /> */}
       </Flex>
     </Flex>
   );

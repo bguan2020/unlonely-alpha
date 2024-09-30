@@ -1,7 +1,10 @@
 import { isAddressEqual, isAddress as isEthereumAddress } from "viem"; // Assuming "viem" is a library for Ethereum address validation
 import { PublicKey } from "@solana/web3.js";
 
-export const isValidAddress = (address: string): "ethereum" | "solana" | undefined => {
+export const isValidAddress = (address?: string): "ethereum" | "solana" | undefined => {
+    
+    if (!address) return undefined;
+    
     // Check if the address is a valid Ethereum address
     if (isEthereumAddress(address)) {
         return "ethereum";

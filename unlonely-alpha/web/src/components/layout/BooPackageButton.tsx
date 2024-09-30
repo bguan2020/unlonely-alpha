@@ -1,4 +1,4 @@
-import { Button, Flex, IconButton, Spinner } from "@chakra-ui/react";
+import { Button, Flex, IconButton, Spinner, Tooltip } from "@chakra-ui/react";
 import { useUser } from "../../hooks/context/useUser";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import {
@@ -14,6 +14,7 @@ import { useMemo, useState } from "react";
 import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
 import { StreamInteractionType } from "../../generated/graphql";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
+import { isValidAddress } from "../../utils/validation/wallet";
 
 export const BooPackageButton = ({
   imageComponent,
@@ -115,37 +116,67 @@ export const BooPackageButton = ({
   }, [userBooPackageCooldowns, packageInfo, dateNow, cooldownInSeconds]);
 
   const isDisabled = useMemo(() => {
-    return isInCooldown || loading || !activeWallet;
+    return (
+      isInCooldown ||
+      loading ||
+      isValidAddress(activeWallet?.address) !== "solana"
+    );
   }, [isInCooldown, activeWallet, loading]);
 
   return (
     <Flex direction="column" gap="4px">
-      {imageComponent ? (
-        <IconButton
-          bg="transparent"
-          _focus={{}}
-          _active={{}}
-          _hover={{}}
-          icon={imageComponent}
-          aria-label={`${packageInfo.name}-package`}
-          isDisabled={isDisabled}
-          onClick={handleSendTokens}
-        />
-      ) : (
-        <Button isDisabled={isDisabled} onClick={handleSendTokens}>
-          {loading ? (
-            <Spinner />
-          ) : isInCooldown ? (
-            `${Math.ceil(
-              (userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt -
-                (dateNow - cooldownInSeconds * 1000)) /
-                1000
-            )}s`
-          ) : (
-            packageInfo.name
-          )}
-        </Button>
-      )}
+      <Tooltip
+        label="log in with solana wallet first"
+        isDisabled={isValidAddress(activeWallet?.address) === "solana"}
+      >
+        {imageComponent ? (
+          <Flex position="relative">
+            <IconButton
+              bg="transparent"
+              _focus={{}}
+              _active={{}}
+              _hover={{}}
+              icon={imageComponent}
+              aria-label={`${packageInfo.name}-package`}
+              isDisabled={isDisabled}
+              onClick={handleSendTokens}
+            />
+            {isInCooldown && (
+              <Flex
+                position="absolute"
+                top="0"
+                left="0"
+                right="0"
+                bottom="0"
+                bg="blackAlpha.500"
+                justifyContent="center"
+                alignItems="center"
+                borderRadius="15px"
+              >
+                {`${Math.ceil(
+                  (userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt -
+                    (dateNow - cooldownInSeconds * 1000)) /
+                    1000
+                )}s`}
+              </Flex>
+            )}
+          </Flex>
+        ) : (
+          <Button isDisabled={isDisabled} onClick={handleSendTokens}>
+            {loading ? (
+              <Spinner />
+            ) : isInCooldown ? (
+              `${Math.ceil(
+                (userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt -
+                  (dateNow - cooldownInSeconds * 1000)) /
+                  1000
+              )}s`
+            ) : (
+              packageInfo.name
+            )}
+          </Button>
+        )}
+      </Tooltip>
     </Flex>
   );
 };
