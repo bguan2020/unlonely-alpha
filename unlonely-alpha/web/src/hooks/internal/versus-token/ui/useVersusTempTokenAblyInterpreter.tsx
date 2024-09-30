@@ -120,7 +120,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         await refetchUserTempTokenBalanceB?.();
       }
       handleOwnerMustPermamint(false);
-      blockNumberOfLastInAppTrade.current = txBlockNumber;
+      blockNumberOfLastInAppTrade.current = BigInt(txBlockNumber);
     } else {
       const incomingTxTokenAddress = jpBody.tokenAddress;
       const tokenType =
@@ -145,7 +145,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         }
       }
       const totalSupply = jpBody.totalSupply;
-      blockNumberOfLastInAppTrade.current = txBlockNumber;
+      blockNumberOfLastInAppTrade.current = BigInt(txBlockNumber);
       if (jpBody.interactionType === InteractionType.BUY_TEMP_TOKENS) {
         onMintEvent(
           BigInt(totalSupply),

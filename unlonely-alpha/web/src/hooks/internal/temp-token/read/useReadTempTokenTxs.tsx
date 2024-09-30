@@ -106,11 +106,15 @@ export const useReadTempTokenTxs = ({
       ]);
       console.log(
         `temp token mintLogs length from ${_tempTokenContract.address}`,
-        mintLogs.length
+        mintLogs.length,
+        fromBlock,
+        toBlock
       );
       console.log(
         `temp token burnLogs length from ${_tempTokenContract.address}`,
-        burnLogs.length
+        burnLogs.length,
+        fromBlock,
+        toBlock
       );
       const logs = [...mintLogs, ...burnLogs];
       if (logs.length === 0) return;

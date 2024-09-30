@@ -114,7 +114,7 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         ) {
           refetchUserTempTokenBalance?.();
         }
-        setBlockNumberOfLastInAppTrade(txBlockNumber);
+        setBlockNumberOfLastInAppTrade(BigInt(txBlockNumber));
         if (jpBody.interactionType === InteractionType.BUY_TEMP_TOKENS) {
           const hasHitTotalSupplyThreshold =
             jpBody.hasTotalSupplyThresholdReached === "true";
