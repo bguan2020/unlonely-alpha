@@ -33,6 +33,7 @@ export const BooCarePackages = ({
             />
           }
           key={name}
+          price={booPackageMap?.[name]?.priceMultiplier ?? 0}
           cooldownInSeconds={booPackageMap?.[name]?.cooldownInSeconds ?? 0}
           userBooPackageCooldowns={userBooPackageCooldowns}
           dateNow={dateNow}

@@ -24,15 +24,15 @@ import {
   PACKAGE_PURCHASE_EVENT,
   SEND_TTS_EVENT,
 } from "../constants";
-import { io, Socket } from "socket.io-client";
-import { WS_URL } from "../components/layout/BooEventTtsComponent";
+// import { io, Socket } from "socket.io-client";
+// import { WS_URL } from "../components/layout/BooEventTtsComponent";
 import { FaLongArrowAltRight, FaLongArrowAltLeft } from "react-icons/fa";
 
 export const INTERACTIONS_CHANNEL = "persistMessages:interactions";
 
 const mods = process.env.NEXT_PUBLIC_MODS?.split(",");
 
-let socket: Socket | null;
+// let socket: Socket | null;
 
 export default function ModCenterPage() {
   const { user } = useUser();
@@ -45,22 +45,22 @@ export default function ModCenterPage() {
     return false;
   }, [user, mods]);
 
-  useEffect(() => {
-    socket = io(WS_URL, {
-      transports: ["websocket"],
-    });
+  // useEffect(() => {
+  //   socket = io(WS_URL, {
+  //     transports: ["websocket"],
+  //   });
 
-    // Listen for play-audio events from the server
-    socket.on("interaction", (data) => {
-      console.log("interaction", data);
-    });
+  //   // Listen for play-audio events from the server
+  //   socket.on("interaction", (data) => {
+  //     console.log("interaction", data);
+  //   });
 
-    return () => {
-      if (socket) {
-        socket.disconnect();
-      }
-    };
-  }, []);
+  //   return () => {
+  //     if (socket) {
+  //       socket.disconnect();
+  //     }
+  //   };
+  // }, []);
 
   return (
     <Flex h="100vh" bg="rgba(5, 0, 31, 1)" position={"relative"}>

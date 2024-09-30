@@ -56,6 +56,7 @@ type Props = {
     ctaBuyTokens: () => void;
     gateMessage: string;
   };
+  noClipping?: boolean;
 };
 
 const ChatForm = ({
@@ -66,6 +67,7 @@ const ChatForm = ({
   channel,
   isVipChat,
   tokenGating,
+  noClipping,
 }: Props) => {
   const { user, ready, authenticated } = useUser();
   const { isStandalone } = useUserAgent();
@@ -463,7 +465,7 @@ const ChatForm = ({
                   )}
                 </Flex>
                 <Flex gap="0.75rem">
-                  {clipLoading ? (
+                  {noClipping ? null : clipLoading ? (
                     <Flex alignSelf="center" mr="8px">
                       <Spinner />
                     </Flex>

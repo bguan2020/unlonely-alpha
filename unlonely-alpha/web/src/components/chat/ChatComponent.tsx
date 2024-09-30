@@ -33,6 +33,7 @@ const ChatComponent = ({
   customHeight,
   noTabs,
   tokenGating,
+  noClipping,
 }: {
   chat: ChatReturnType;
   tokenForTransfer: "vibes" | "tempToken";
@@ -42,6 +43,7 @@ const ChatComponent = ({
     ctaBuyTokens: () => void;
     gateMessage: string;
   };
+  noClipping?: boolean;
 }) => {
   const { isStandalone } = useUserAgent();
   const [selectedTab, setSelectedTab] = useState<"chat" | "vip">("chat");
@@ -266,6 +268,7 @@ const ChatComponent = ({
                   chat={chat}
                   tokenForTransfer={tokenForTransfer}
                   tokenGating={tokenGating}
+                  noClipping={noClipping}
                 />
               )}
               {selectedTab === "vip" && (
@@ -274,6 +277,7 @@ const ChatComponent = ({
                   tokenForTransfer={tokenForTransfer}
                   isVipChat
                   tokenGating={tokenGating}
+                  noClipping={noClipping}
                 />
               )}
             </Flex>

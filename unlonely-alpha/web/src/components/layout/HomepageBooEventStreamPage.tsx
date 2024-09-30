@@ -253,9 +253,9 @@ export const HomePageBooEventStreamPage = () => {
     if (packages) {
       const packageMap = packages.reduce((map: any, item: any) => {
         map[item.packageName] = {
-          priceMultiplier: item.priceMultiplier,
-          cooldownInSeconds: item.cooldownInSeconds,
-          id: item.id,
+          priceMultiplier: item.priceMultiplier as string,
+          cooldownInSeconds: item.cooldownInSeconds as number,
+          id: item.id as string,
         };
         return map;
       }, {} as Record<string, { price: number; cooldown: number }>);
@@ -703,6 +703,7 @@ export const HomePageBooEventStreamPage = () => {
                   gateMessage: "SWITCH TO SOLANA",
                 }
           }
+          noClipping
         />
       </Flex>
     </Flex>

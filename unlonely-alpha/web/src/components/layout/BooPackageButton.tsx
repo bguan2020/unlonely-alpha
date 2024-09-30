@@ -1,4 +1,11 @@
-import { Button, Flex, IconButton, Spinner, Tooltip } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  IconButton,
+  Spinner,
+  Tooltip,
+  Text,
+} from "@chakra-ui/react";
 import { useUser } from "../../hooks/context/useUser";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import {
@@ -24,6 +31,7 @@ export const BooPackageButton = ({
   fetchUserBooPackageCooldownMapping,
   packageInfo,
   interactionsAblyChannel,
+  price,
 }: {
   imageComponent?: any;
   cooldownInSeconds: number;
@@ -35,11 +43,12 @@ export const BooPackageButton = ({
     isCarePackage: boolean;
   };
   interactionsAblyChannel: AblyChannelPromise;
+  price: string;
 }) => {
   const { chat: c } = useChannelContext();
   const { addToChatbot } = c;
-  const { user, activeWallet } = useUser();
-  const { fetchTokenBalance } = useSolanaTokenBalance(SOLANA_RPC_URL);
+  const { user } = useUser();
+  const { balance, fetchTokenBalance } = useSolanaTokenBalance(SOLANA_RPC_URL);
 
   const [loading, setLoading] = useState(false);
 
@@ -106,6 +115,11 @@ export const BooPackageButton = ({
     setLoading(false);
   };
 
+  const notEnoughBalance = useMemo(() => {
+    if (!balance) return true;
+    return balance < Number(price);
+  }, [balance, price]);
+
   const isInCooldown = useMemo(() => {
     return (
       userBooPackageCooldowns &&
@@ -119,18 +133,25 @@ export const BooPackageButton = ({
     return (
       isInCooldown ||
       loading ||
-      isValidAddress(activeWallet?.address) !== "solana"
+      isValidAddress(user?.address) !== "solana" ||
+      notEnoughBalance
     );
-  }, [isInCooldown, activeWallet, loading]);
+  }, [isInCooldown, user, loading]);
 
   return (
     <Flex direction="column" gap="4px">
       <Tooltip
-        label="log in with solana wallet first"
-        isDisabled={isValidAddress(activeWallet?.address) === "solana"}
+        label={
+          isValidAddress(user?.address) !== "solana"
+            ? "log in with solana wallet first"
+            : notEnoughBalance
+            ? "not enough $BOO"
+            : null
+        }
+        isDisabled={!isDisabled}
       >
         {imageComponent ? (
-          <Flex position="relative">
+          <Flex position="relative" justifyContent={"center"}>
             <IconButton
               bg="transparent"
               _focus={{}}
@@ -177,6 +198,10 @@ export const BooPackageButton = ({
           </Button>
         )}
       </Tooltip>
+      <Flex justifyContent="center" direction={"column"}>
+        <Text textAlign="center">{packageInfo.name}</Text>
+        <Text textAlign="center">{price} $BOO</Text>
+      </Flex>
     </Flex>
   );
 };

@@ -1,41 +1,40 @@
 import { Flex, Text, Image, Button, Textarea, Tooltip } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 // import { StreamInteractionType } from "../../generated/graphql";
 import { containsSwears } from "../../utils/validation/profanityFilter";
-import { io, Socket } from "socket.io-client";
 import { AblyChannelPromise, SEND_TTS_EVENT } from "../../constants";
 import { StreamInteractionType } from "../../generated/graphql";
 import { isValidAddress } from "../../utils/validation/wallet";
 import { useUser } from "../../hooks/context/useUser";
 
-export const WS_URL = "wss://sea-lion-app-j3rts.ondigitalocean.app/";
+// export const WS_URL = "wss://sea-lion-app-j3rts.ondigitalocean.app/";
 
-let socket: Socket | null;
+// let socket: Socket | null;
 
 export const BooEventTtsComponent = ({
   interactionsAblyChannel,
 }: {
   interactionsAblyChannel: AblyChannelPromise;
 }) => {
-  const { activeWallet } = useUser();
+  const { user } = useUser();
 
   const [isEnteringMessage, setIsEnteringMessage] = useState(false);
   const [text, setText] = useState("");
 
   const { postStreamInteraction } = usePostStreamInteraction({});
 
-  useEffect(() => {
-    socket = io(WS_URL, {
-      transports: ["websocket"],
-    });
+  // useEffect(() => {
+  //   socket = io(WS_URL, {
+  //     transports: ["websocket"],
+  //   });
 
-    return () => {
-      if (socket) {
-        socket.disconnect();
-      }
-    };
-  }, []);
+  //   return () => {
+  //     if (socket) {
+  //       socket.disconnect();
+  //     }
+  //   };
+  // }, []);
 
   const handlePost = async () => {
     const res = await postStreamInteraction({
@@ -43,7 +42,7 @@ export const BooEventTtsComponent = ({
       streamInteractionType: StreamInteractionType.TtsInteraction,
       text,
     });
-    socket?.emit("interaction", { text });
+    // socket?.emit("interaction", { text });
     interactionsAblyChannel?.publish({
       name: SEND_TTS_EVENT,
       data: {
@@ -63,17 +62,14 @@ export const BooEventTtsComponent = ({
       justifyContent={"center"}
       alignItems={"center"}
       onClick={() => {
-        if (
-          !isEnteringMessage &&
-          isValidAddress(activeWallet?.address) === "solana"
-        )
+        if (!isEnteringMessage && isValidAddress(user?.address) === "solana")
           setIsEnteringMessage(true);
       }}
     >
       {!isEnteringMessage ? (
         <Tooltip
           label="log in with solana wallet first"
-          isDisabled={isValidAddress(activeWallet?.address) === "solana"}
+          isDisabled={isValidAddress(user?.address) === "solana"}
         >
           <Flex
             alignItems={"center"}
@@ -109,7 +105,7 @@ export const BooEventTtsComponent = ({
           />
           <Tooltip
             label="log in with solana wallet first"
-            isDisabled={isValidAddress(activeWallet?.address) === "solana"}
+            isDisabled={isValidAddress(user?.address) === "solana"}
           >
             <Button
               bg="#2562db"
@@ -122,7 +118,7 @@ export const BooEventTtsComponent = ({
                 text.length === 0 ||
                 text.length > 200 ||
                 containsSwears(text) ||
-                isValidAddress(activeWallet?.address) !== "solana"
+                isValidAddress(user?.address) !== "solana"
               }
             >
               Send

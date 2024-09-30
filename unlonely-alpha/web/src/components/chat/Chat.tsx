@@ -14,6 +14,7 @@ export const Chat = ({
   tokenForTransfer,
   isVipChat,
   tokenGating,
+  noClipping,
 }: {
   chat: ChatReturnType;
   tokenForTransfer: "vibes" | "tempToken";
@@ -22,6 +23,7 @@ export const Chat = ({
     ctaBuyTokens: () => void;
     gateMessage: string;
   };
+  noClipping?: boolean;
 }) => {
   const { channel, leaderboard } = useChannelContext();
   const { channelQueryData, channelRoles } = channel;
@@ -125,6 +127,7 @@ export const Chat = ({
             channel={chat.channel}
             isVipChat={isVipChat}
             tokenGating={tokenGating}
+            noClipping={noClipping}
           />
         </Flex>
       )}
