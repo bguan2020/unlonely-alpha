@@ -123,6 +123,11 @@ const ModCenter = () => {
           (_interaction) => _interaction.id !== interaction.id
         )
       );
+      setReceivedTtsInteractions((prevInteractions) =>
+        prevInteractions.filter(
+          (_interaction) => _interaction.id !== interaction.id
+        )
+      );
       setCurrentAudio(null); // Clear current audio when it ends
     };
 
@@ -273,32 +278,6 @@ const ModCenter = () => {
   }, []);
 
   const { updatePackage } = useUpdatePackage({});
-
-  const playAndRemoveTtsInteraction = async (
-    interaction: {
-      id: string;
-      text?: string;
-    },
-    doNotPlay: boolean
-  ) => {
-    setPaused(true);
-    try {
-      if (!doNotPlay) pushAudio(interaction);
-
-      await updateStreamInteraction({
-        interactionId: interaction.id,
-        softDeleted: true,
-      });
-      setReceivedTtsInteractions((prevInteractions) =>
-        prevInteractions.filter(
-          (_interaction) => _interaction.id !== interaction.id
-        )
-      );
-    } catch (error) {
-      console.error("Error sending POST request:", error);
-    }
-    setPaused(false);
-  };
 
   const handleQueuedTtsInteractions = useCallback(
     async (interaction: { id: string; text?: string }, remove: boolean) => {
@@ -575,7 +554,11 @@ const ModCenter = () => {
               {receivedTtsInteractions.map((interaction) => (
                 <Flex
                   key={interaction.id}
-                  backgroundColor="#212e6f"
+                  bg={
+                    currentAudio?.interactionId === interaction.id
+                      ? "green.500"
+                      : "#212e6f"
+                  }
                   p="10px"
                   borderRadius="15px"
                   justifyContent={"space-between"}
@@ -589,11 +572,30 @@ const ModCenter = () => {
                       border={"1px solid #db4040"}
                       color="#db4040"
                       _hover={{ bg: "#db4040", color: "white" }}
-                      onClick={() => {
-                        playAndRemoveTtsInteraction(interaction, true);
+                      onClick={async () => {
+                        await updateStreamInteraction({
+                          interactionId: interaction.id,
+                          softDeleted: true,
+                        });
+                        setReceivedTtsInteractions((prevInteractions) =>
+                          prevInteractions.filter(
+                            (_interaction) => _interaction.id !== interaction.id
+                          )
+                        );
                       }}
                     >
                       Delete
+                    </Button>
+                    <Button
+                      bg={"green.500"}
+                      color="white"
+                      _hover={{}}
+                      isDisabled={currentAudio !== null}
+                      onClick={() => {
+                        pushAudio(interaction);
+                      }}
+                    >
+                      Play
                     </Button>
                     <Button
                       bg={"#0c98aaff"}
@@ -606,7 +608,7 @@ const ModCenter = () => {
                         handleQueuedTtsInteractions(interaction, false);
                       }}
                     >
-                      Add to queue
+                      Queue
                       <FaLongArrowAltRight />
                     </Button>
                   </Flex>
@@ -655,7 +657,7 @@ const ModCenter = () => {
                         _hover={{}}
                         isDisabled={currentAudio !== null}
                         onClick={() => {
-                          playAndRemoveTtsInteraction(interaction, false);
+                          pushAudio(interaction);
                         }}
                       >
                         Play
