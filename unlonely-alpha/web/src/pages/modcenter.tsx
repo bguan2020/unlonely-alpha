@@ -123,12 +123,16 @@ const ModCenter = () => {
           (_interaction) => _interaction.id !== interaction.id
         )
       );
+      setCurrentAudio(null); // Clear current audio when it ends
+      await updateStreamInteraction({
+        interactionId: interaction.id,
+        softDeleted: true,
+      });
       setReceivedTtsInteractions((prevInteractions) =>
         prevInteractions.filter(
           (_interaction) => _interaction.id !== interaction.id
         )
       );
-      setCurrentAudio(null); // Clear current audio when it ends
     };
 
     audio.play(); // Play the current audio
