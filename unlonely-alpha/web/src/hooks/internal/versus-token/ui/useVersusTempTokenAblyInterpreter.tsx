@@ -71,6 +71,7 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   useEffect(() => {
     if (!tempTokenTransactionBody) return;
     eventQueueRef.current.push(tempTokenTransactionBody);
+    console.log("eventQueueRef.current", eventQueueRef.current);
     if (eventQueueRef.current.length === 1) {
       processQueue();
     }

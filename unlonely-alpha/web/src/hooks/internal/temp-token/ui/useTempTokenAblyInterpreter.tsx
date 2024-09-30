@@ -77,7 +77,7 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
       const incomingTxTokenAddress = jpBody.tokenAddress;
       const totalSupply = jpBody.totalSupply;
       console.log(
-        " processTempTokenEvents jpBody",
+        "processTempTokenEvents jpBody",
         jpBody,
         currentTempTokenContract
       );
