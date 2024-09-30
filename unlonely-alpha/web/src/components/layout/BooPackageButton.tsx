@@ -21,6 +21,7 @@ import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useU
 import { StreamInteractionType } from "../../generated/graphql";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 import { isValidAddress } from "../../utils/validation/wallet";
+import { truncateValue } from "../../utils/tokenDisplayFormatting";
 
 export const BooPackageButton = ({
   imageComponent,
@@ -119,7 +120,7 @@ export const BooPackageButton = ({
   };
 
   const notEnoughBalance = useMemo(() => {
-    if (!balanceData.balance) return true;
+    if (balanceData.balance === null) return true;
     return balanceData.balance < Number(price);
   }, [balanceData.balance, price]);
 
@@ -148,7 +149,9 @@ export const BooPackageButton = ({
           isValidAddress(user?.address) !== "solana"
             ? "log in with solana wallet first"
             : notEnoughBalance
-            ? "not enough $BOO"
+            ? `need ~${truncateValue(
+                Number(price) - Number(balanceData.balance)
+              )} more $BOO`
             : null
         }
         isDisabled={!isDisabled}
@@ -178,7 +181,8 @@ export const BooPackageButton = ({
                 borderRadius="15px"
               >
                 {`${Math.ceil(
-                  (userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt -
+                  ((userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt ??
+                    0) -
                     (dateNow - cooldownInSeconds * 1000)) /
                     1000
                 )}s`}
@@ -191,7 +195,8 @@ export const BooPackageButton = ({
               <Spinner />
             ) : isInCooldown ? (
               `${Math.ceil(
-                (userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt -
+                ((userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt ??
+                  0) -
                   (dateNow - cooldownInSeconds * 1000)) /
                   1000
               )}s`

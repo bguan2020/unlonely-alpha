@@ -615,6 +615,9 @@ export const HomePageBooEventStreamPage = () => {
                       }px - ${TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT}px)`}
                     >
                       <BooEventTtsComponent
+                        fetchUserBooPackageCooldownMapping={
+                          fetchUserBooPackageCooldownMapping
+                        }
                         interactionsAblyChannel={interactionsChannel}
                         balanceData={{
                           balance,
