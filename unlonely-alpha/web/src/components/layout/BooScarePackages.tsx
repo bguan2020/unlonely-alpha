@@ -10,17 +10,17 @@ export const BooScarePackages = ({
   userBooPackageCooldowns,
   fetchUserBooPackageCooldownMapping,
   interactionsAblyChannel,
-  balanceData,
+  onPackageClick,
 }: {
   dateNow: number;
   booPackageMap: any;
   userBooPackageCooldowns: any;
   fetchUserBooPackageCooldownMapping: any;
   interactionsAblyChannel: AblyChannelPromise;
-  balanceData: {
-    balance: number | null;
-    fetchTokenBalance: () => void;
-  };
+  onPackageClick: (
+    packageName: string,
+    callback: (...args: any[]) => Promise<void>
+  ) => void;
 }) => {
   return (
     <Flex flexWrap={"wrap"} justifyContent={"space-evenly"}>
@@ -38,7 +38,6 @@ export const BooScarePackages = ({
             />
           }
           key={name}
-          price={booPackageMap?.[name]?.priceMultiplier ?? 0}
           cooldownInSeconds={booPackageMap?.[name]?.cooldownInSeconds ?? 0}
           userBooPackageCooldowns={userBooPackageCooldowns}
           dateNow={dateNow}
@@ -47,7 +46,7 @@ export const BooScarePackages = ({
             fetchUserBooPackageCooldownMapping
           }
           interactionsAblyChannel={interactionsAblyChannel}
-          balanceData={balanceData}
+          onClick={onPackageClick}
         />
       ))}
     </Flex>

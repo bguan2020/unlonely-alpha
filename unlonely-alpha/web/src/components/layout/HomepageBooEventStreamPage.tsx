@@ -43,6 +43,7 @@ import { jp } from "../../utils/validation/jsonParse";
 import { BooScarePackages } from "./BooScarePackages";
 import { INTERACTIONS_CHANNEL, PackageInfo } from "../../pages/modcenter";
 import { useAblyChannel } from "../../hooks/chat/useChatChannel";
+import { UseInteractionModal } from "../channels/UseInteractionModal";
 
 export const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 export const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
@@ -68,6 +69,23 @@ export const HomePageBooEventStreamPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { balance, fetchTokenBalance } = useSolanaTokenBalance(SOLANA_RPC_URL);
+  const [interactionState, setInteractionState] = useState<{
+    isOpen: boolean;
+    interactionData: {
+      name: string;
+      price: string;
+      handleInteraction: (...args: any[]) => Promise<void>;
+    };
+  }>({
+    isOpen: false,
+    interactionData: {
+      name: "",
+      price: "",
+      handleInteraction: async (...args: any[]) => {
+        return Promise.resolve();
+      },
+    },
+  });
 
   const { watch: watchBuy } = useForm<IFormConfigurator>({
     defaultValues: INITIAL_FORM_CONFIG,
@@ -297,6 +315,17 @@ export const HomePageBooEventStreamPage = () => {
         height="100%"
         position="relative"
       >
+        <UseInteractionModal
+          isOpen={interactionState.isOpen}
+          handleClose={() => {
+            setInteractionState((prev) => ({ ...prev, isOpen: false }));
+          }}
+          balanceData={{
+            balance,
+            fetchTokenBalance,
+          }}
+          interactionData={interactionState.interactionData}
+        />
         <DndContext sensors={sensors} onDragStart={handleDragStart}>
           <Draggable
             id="draggable-terminal"
@@ -341,26 +370,6 @@ export const HomePageBooEventStreamPage = () => {
               }
               cursor={viewState === "token" ? "default" : "move"}
             >
-              {/* {(!loggedInWithPrivy ||
-                (loggedInWithPrivy &&
-                  !solanaAddress &&
-                  !userIsChannelOwner)) && (
-                <Flex
-                  position="absolute"
-                  width="100%"
-                  height="100%"
-                  justifyContent="center"
-                  alignItems="center"
-                  bg="rgba(0, 0, 0, 0.9)"
-                  zIndex={100}
-                  p="20px"
-                >
-                  <Text textAlign="center">
-                    You must log into Unlonely with a Solana-compatible wallet
-                    to use this feature.
-                  </Text>
-                </Flex>
-              )} */}
               <Flex
                 width="100%"
                 gap={
@@ -425,7 +434,20 @@ export const HomePageBooEventStreamPage = () => {
                             fetchUserBooPackageCooldownMapping={
                               fetchUserBooPackageCooldownMapping
                             }
-                            balanceData={{ balance, fetchTokenBalance }}
+                            onPackageClick={(
+                              packageName: string,
+                              callback: (...args: any[]) => Promise<void>
+                            ) => {
+                              setInteractionState({
+                                isOpen: true,
+                                interactionData: {
+                                  name: packageName,
+                                  price:
+                                    booPackageMap[packageName].priceMultiplier,
+                                  handleInteraction: callback,
+                                },
+                              });
+                            }}
                           />
                         </BooEventTile>
                         <BooEventTile
@@ -490,7 +512,20 @@ export const HomePageBooEventStreamPage = () => {
                             fetchUserBooPackageCooldownMapping={
                               fetchUserBooPackageCooldownMapping
                             }
-                            balanceData={{ balance, fetchTokenBalance }}
+                            onPackageClick={(
+                              packageName: string,
+                              callback: (...args: any[]) => Promise<void>
+                            ) => {
+                              setInteractionState({
+                                isOpen: true,
+                                interactionData: {
+                                  name: packageName,
+                                  price:
+                                    booPackageMap[packageName].priceMultiplier,
+                                  handleInteraction: callback,
+                                },
+                              });
+                            }}
                           />
                         </BooEventTile>
                       </Flex>
@@ -619,13 +654,22 @@ export const HomePageBooEventStreamPage = () => {
                           fetchUserBooPackageCooldownMapping
                         }
                         interactionsAblyChannel={interactionsChannel}
-                        balanceData={{
-                          balance,
-                          fetchTokenBalance,
-                        }}
                         booPackageMap={booPackageMap}
                         dateNow={dateNow}
                         userBooPackageCooldowns={userBooPackageCooldowns}
+                        onTtsClick={(
+                          callback: (...args: any[]) => Promise<void>
+                        ) => {
+                          setInteractionState({
+                            isOpen: true,
+                            interactionData: {
+                              name: "text-to-speech",
+                              price:
+                                booPackageMap["text-to-speech"].priceMultiplier,
+                              handleInteraction: callback,
+                            },
+                          });
+                        }}
                       />
                     </BooEventTile>
                   )}

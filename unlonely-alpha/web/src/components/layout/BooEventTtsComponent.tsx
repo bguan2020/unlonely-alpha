@@ -1,14 +1,11 @@
-import { Flex, Text, Image, Button, Textarea, Tooltip } from "@chakra-ui/react";
-import { useMemo, useState } from "react";
+import { Flex, Text, Image, Tooltip } from "@chakra-ui/react";
+import { useMemo } from "react";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 // import { StreamInteractionType } from "../../generated/graphql";
-import { containsSwears } from "../../utils/validation/profanityFilter";
 import { AblyChannelPromise, SEND_TTS_EVENT } from "../../constants";
 import { StreamInteractionType } from "../../generated/graphql";
 import { isValidAddress } from "../../utils/validation/wallet";
 import { useUser } from "../../hooks/context/useUser";
-import { truncateValue } from "../../utils/tokenDisplayFormatting";
-import { useChannelContext } from "../../hooks/context/useChannel";
 import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
 
 // export const WS_URL = "wss://sea-lion-app-j3rts.ondigitalocean.app/";
@@ -17,28 +14,20 @@ import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useU
 
 export const BooEventTtsComponent = ({
   interactionsAblyChannel,
-  balanceData,
   fetchUserBooPackageCooldownMapping,
   dateNow,
   booPackageMap,
   userBooPackageCooldowns,
+  onTtsClick,
 }: {
   interactionsAblyChannel: AblyChannelPromise;
-  balanceData: {
-    balance: number | null;
-    fetchTokenBalance: () => void;
-  };
   fetchUserBooPackageCooldownMapping: any;
   dateNow: number;
   booPackageMap: any;
   userBooPackageCooldowns: any;
+  onTtsClick: (callback: (...args: any[]) => Promise<void>) => void;
 }) => {
   const { user } = useUser();
-  const { chat: c } = useChannelContext();
-  const { addToChatbot } = c;
-
-  const [isEnteringMessage, setIsEnteringMessage] = useState(false);
-  const [text, setText] = useState("");
 
   const { postStreamInteraction } = usePostStreamInteraction({});
 
@@ -58,7 +47,7 @@ export const BooEventTtsComponent = ({
   //   };
   // }, []);
 
-  const handlePost = async () => {
+  const handlePost = async (text: string) => {
     await postStreamInteraction({
       channelId: "3",
       streamInteractionType: StreamInteractionType.TtsInteraction,
@@ -69,15 +58,6 @@ export const BooEventTtsComponent = ({
         packageName: "text-to-speech",
       }).then(async () => {
         await fetchUserBooPackageCooldownMapping(user?.address ?? "");
-        // addToChatbot({
-        //   username: user?.username ?? "",
-        //   address: user?.address ?? "",
-        //   taskType: InteractionType.USE_BOO_PACKAGE,
-        //   title: `${
-        //     user?.username ?? centerEllipses(user?.address, 15)
-        //   } asked for ${packageInfo.name}!`,
-        //   description: JSON.stringify(packageInfo),
-        // });
       });
       await interactionsAblyChannel?.publish({
         name: SEND_TTS_EVENT,
@@ -90,17 +70,7 @@ export const BooEventTtsComponent = ({
       });
     });
     // socket?.emit("interaction", { text });
-    setText("");
-    setIsEnteringMessage(false);
   };
-
-  const notEnoughBalance = useMemo(() => {
-    if (balanceData.balance === null) return true;
-    return (
-      balanceData.balance <
-      Number(booPackageMap?.["text-to-speech"]?.priceMultiplier)
-    );
-  }, [balanceData.balance, booPackageMap]);
 
   const isInCooldown = useMemo(() => {
     return (
@@ -113,12 +83,8 @@ export const BooEventTtsComponent = ({
   }, [userBooPackageCooldowns, dateNow, booPackageMap]);
 
   const isDisabled = useMemo(() => {
-    return (
-      isInCooldown ||
-      isValidAddress(user?.address) !== "solana" ||
-      notEnoughBalance
-    );
-  }, [user, isInCooldown, notEnoughBalance]);
+    return isInCooldown || isValidAddress(user?.address) !== "solana";
+  }, [user, isInCooldown]);
 
   return (
     <Flex
@@ -127,106 +93,42 @@ export const BooEventTtsComponent = ({
       justifyContent={"center"}
       alignItems={"center"}
       onClick={() => {
-        if (!isEnteringMessage) setIsEnteringMessage(true);
+        onTtsClick(handlePost);
       }}
       position={"relative"}
     >
-      {!isEnteringMessage ? (
-        <Tooltip
-          label={
-            isValidAddress(user?.address) !== "solana"
-              ? "log in with solana wallet first"
-              : notEnoughBalance
-              ? `need ~${truncateValue(
-                  Number(booPackageMap?.["text-to-speech"]?.priceMultiplier) ??
-                    0 - Number(balanceData.balance)
-                )} more $BOO`
-              : null
-          }
-          isDisabled={!isDisabled}
+      <Tooltip
+        label={
+          isValidAddress(user?.address) !== "solana"
+            ? "log in with solana wallet first"
+            : null
+        }
+        isDisabled={!isDisabled}
+      >
+        <Flex
+          alignItems={"center"}
+          justifyContent={"center"}
+          gap="16px"
+          _hover={{
+            cursor: "pointer",
+            transform: "scale(1.1)",
+            transition: "transform 0.2s",
+          }}
+          border={"1px solid #b8b8b8"}
+          borderRadius={"10px"}
+          padding="10px"
         >
-          <Flex
-            alignItems={"center"}
-            justifyContent={"center"}
-            gap="16px"
-            _hover={{
-              cursor: "pointer",
-              transform: "scale(1.1)",
-              transition: "transform 0.2s",
-            }}
-            border={"1px solid #b8b8b8"}
-            borderRadius={"10px"}
-            padding="10px"
-          >
-            <Image
-              src="/images/megaphone.png"
-              alt="megaphone"
-              width="20px"
-              height="20px"
-            />
-            <Text textAlign={"center"} fontFamily="LoRes15" fontSize="20px">
-              TTS BROADCAST MESSAGE
-            </Text>
-          </Flex>
-        </Tooltip>
-      ) : (
-        <Flex direction="column" gap="4px">
-          <Textarea
-            id="text"
-            placeholder="Enter message to broadcast"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
+          <Image
+            src="/images/megaphone.png"
+            alt="megaphone"
+            width="20px"
+            height="20px"
           />
-          <Tooltip
-            label={
-              isValidAddress(user?.address) !== "solana"
-                ? "log in with solana wallet first"
-                : notEnoughBalance
-                ? `need ~${truncateValue(
-                    Number(
-                      booPackageMap?.["text-to-speech"]?.priceMultiplier
-                    ) ?? 0 - Number(balanceData.balance)
-                  )} more $BOO`
-                : null
-            }
-            isDisabled={!isDisabled}
-          >
-            <Button
-              bg="#2562db"
-              color={"white"}
-              _hover={{
-                transform: "scale(1.1)",
-              }}
-              onClick={handlePost}
-              isDisabled={
-                text.length === 0 ||
-                text.length > 200 ||
-                containsSwears(text) ||
-                isDisabled
-              }
-            >
-              {isInCooldown
-                ? `${Math.ceil(
-                    ((userBooPackageCooldowns?.["text-to-speech"]?.lastUsedAt ??
-                      0) -
-                      (dateNow -
-                        (booPackageMap?.["text-to-speech"]?.cooldownInSeconds ??
-                          0) *
-                          1000)) /
-                      1000
-                  )}s`
-                : "Send"}
-            </Button>
-          </Tooltip>
-          <Text h="20px" color={"red"} fontSize="10px">
-            {text.length > 200
-              ? "message must be 200 characters or under"
-              : containsSwears(text)
-              ? "message contains strong swear words"
-              : ""}
+          <Text textAlign={"center"} fontFamily="LoRes15" fontSize="20px">
+            TTS BROADCAST MESSAGE
           </Text>
         </Flex>
-      )}
+      </Tooltip>
     </Flex>
   );
 };

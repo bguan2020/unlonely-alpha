@@ -1,27 +1,17 @@
-import {
-  Button,
-  Flex,
-  IconButton,
-  Spinner,
-  Tooltip,
-  Text,
-} from "@chakra-ui/react";
+import { Button, Flex, IconButton, Spinner } from "@chakra-ui/react";
 import { useUser } from "../../hooks/context/useUser";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import {
   AblyChannelPromise,
   InteractionType,
   PACKAGE_PURCHASE_EVENT,
-  SOLANA_RPC_URL,
 } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
-import { useSolanaTransferTokens } from "../../hooks/internal/solana/useSolanaTransferTokens";
 import { useMemo, useState } from "react";
 import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
 import { StreamInteractionType } from "../../generated/graphql";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 import { isValidAddress } from "../../utils/validation/wallet";
-import { truncateValue } from "../../utils/tokenDisplayFormatting";
 
 export const BooPackageButton = ({
   imageComponent,
@@ -31,8 +21,7 @@ export const BooPackageButton = ({
   fetchUserBooPackageCooldownMapping,
   packageInfo,
   interactionsAblyChannel,
-  price,
-  balanceData,
+  onClick,
 }: {
   imageComponent?: any;
   cooldownInSeconds: number;
@@ -44,11 +33,10 @@ export const BooPackageButton = ({
     isCarePackage: boolean;
   };
   interactionsAblyChannel: AblyChannelPromise;
-  price: string;
-  balanceData: {
-    balance: number | null;
-    fetchTokenBalance: () => void;
-  };
+  onClick: (
+    packageName: string,
+    callback: (...args: any[]) => Promise<void>
+  ) => void;
 }) => {
   const { chat: c } = useChannelContext();
   const { addToChatbot } = c;
@@ -63,7 +51,6 @@ export const BooPackageButton = ({
   } = useUpdateUserPackageCooldownMapping({});
 
   const onTransferSuccess = async () => {
-    balanceData.fetchTokenBalance();
     await postStreamInteraction({
       channelId: "3",
       streamInteractionType: StreamInteractionType.PackageInteraction,
@@ -101,14 +88,6 @@ export const BooPackageButton = ({
     });
   };
 
-  const { sendTokens } = useSolanaTransferTokens({
-    rpcUrl: SOLANA_RPC_URL,
-    onTransferSuccess,
-    onTransferError: (error: any) => {
-      console.error("Error sending tokens:", error);
-    },
-  });
-
   const handleSendTokens = async () => {
     setLoading(true);
     // await sendTokens(
@@ -118,11 +97,6 @@ export const BooPackageButton = ({
     await onTransferSuccess();
     setLoading(false);
   };
-
-  const notEnoughBalance = useMemo(() => {
-    if (balanceData.balance === null) return true;
-    return balanceData.balance < Number(price);
-  }, [balanceData.balance, price]);
 
   const isInCooldown = useMemo(() => {
     return (
@@ -135,81 +109,67 @@ export const BooPackageButton = ({
 
   const isDisabled = useMemo(() => {
     return (
-      isInCooldown ||
-      loading ||
-      isValidAddress(user?.address) !== "solana" ||
-      notEnoughBalance
+      isInCooldown || loading || isValidAddress(user?.address) !== "solana"
     );
-  }, [isInCooldown, user, loading, notEnoughBalance]);
+  }, [isInCooldown, user, loading]);
 
   return (
     <Flex direction="column" gap="4px">
-      <Tooltip
-        label={
-          isValidAddress(user?.address) !== "solana"
-            ? "log in with solana wallet first"
-            : notEnoughBalance
-            ? `need ~${truncateValue(
-                Number(price) - Number(balanceData.balance)
-              )} more $BOO`
-            : null
-        }
-        isDisabled={!isDisabled}
-      >
-        {imageComponent ? (
-          <Flex position="relative" justifyContent={"center"}>
-            <IconButton
-              bg="transparent"
-              _focus={{}}
-              _active={{}}
-              _hover={{}}
-              icon={imageComponent}
-              aria-label={`${packageInfo.name}-package`}
-              isDisabled={isDisabled}
-              onClick={handleSendTokens}
-            />
-            {isInCooldown && (
-              <Flex
-                position="absolute"
-                top="0"
-                left="0"
-                right="0"
-                bottom="0"
-                bg="blackAlpha.500"
-                justifyContent="center"
-                alignItems="center"
-                borderRadius="15px"
-              >
-                {`${Math.ceil(
-                  ((userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt ??
-                    0) -
-                    (dateNow - cooldownInSeconds * 1000)) /
-                    1000
-                )}s`}
-              </Flex>
-            )}
-          </Flex>
-        ) : (
-          <Button isDisabled={isDisabled} onClick={handleSendTokens}>
-            {loading ? (
-              <Spinner />
-            ) : isInCooldown ? (
-              `${Math.ceil(
+      {imageComponent ? (
+        <Flex position="relative" justifyContent={"center"}>
+          <IconButton
+            bg="transparent"
+            _focus={{}}
+            _active={{}}
+            _hover={{}}
+            icon={imageComponent}
+            aria-label={`${packageInfo.name}-package`}
+            isDisabled={isDisabled}
+            onClick={() => {
+              onClick(packageInfo.name, handleSendTokens);
+            }}
+          />
+          {isInCooldown && (
+            <Flex
+              position="absolute"
+              top="0"
+              left="0"
+              right="0"
+              bottom="0"
+              bg="blackAlpha.500"
+              justifyContent="center"
+              alignItems="center"
+              borderRadius="15px"
+            >
+              {`${Math.ceil(
                 ((userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt ??
                   0) -
                   (dateNow - cooldownInSeconds * 1000)) /
                   1000
-              )}s`
-            ) : (
-              packageInfo.name
-            )}
-          </Button>
-        )}
-      </Tooltip>
-      <Flex justifyContent="center" direction={"column"}>
-        <Text textAlign="center">{packageInfo.name}</Text>
-        <Text textAlign="center">{price} $BOO</Text>
-      </Flex>
+              )}s`}
+            </Flex>
+          )}
+        </Flex>
+      ) : (
+        <Button
+          isDisabled={isDisabled}
+          onClick={() => {
+            onClick(packageInfo.name, handleSendTokens);
+          }}
+        >
+          {loading ? (
+            <Spinner />
+          ) : isInCooldown ? (
+            `${Math.ceil(
+              ((userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt ?? 0) -
+                (dateNow - cooldownInSeconds * 1000)) /
+                1000
+            )}s`
+          ) : (
+            packageInfo.name
+          )}
+        </Button>
+      )}
     </Flex>
   );
 };
