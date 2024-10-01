@@ -91,11 +91,22 @@ export const resolvers = {
       { data }: { data: userService.IUpdateUserInput },
       ctx: Context
     ) => {
-      // if (!ctx.user) {
-      //   throw new AuthenticationError("Not authenticated");
-      // }
+      if (!ctx.user) {
+        throw new AuthenticationError("Not authenticated");
+      }
 
       return userService.updateUser(data, ctx);
+    },
+    updateUsername: (
+      _: any,
+      { data }: { data: userService.IUpdateUsernameInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user) {
+        throw new AuthenticationError("Not authenticated");
+      }
+
+      return userService.updateUsername(data, ctx);
     },
     updateUsers: (
       _: any,
