@@ -93,7 +93,7 @@ export const BooEventTtsComponent = ({
       justifyContent={"center"}
       alignItems={"center"}
       onClick={() => {
-        onTtsClick(handlePost);
+        if (!isDisabled) onTtsClick(handlePost);
       }}
       position={"relative"}
     >
@@ -117,7 +117,31 @@ export const BooEventTtsComponent = ({
           border={"1px solid #b8b8b8"}
           borderRadius={"10px"}
           padding="10px"
+          position={"relative"}
         >
+          {isInCooldown && (
+            <Flex
+              position="absolute"
+              top="0"
+              left="0"
+              right="0"
+              bottom="0"
+              bg="blackAlpha.800"
+              justifyContent="center"
+              alignItems="center"
+              borderRadius="10px"
+            >
+              {`${Math.ceil(
+                ((userBooPackageCooldowns?.["text-to-speech"]?.lastUsedAt ??
+                  0) -
+                  (dateNow -
+                    (booPackageMap?.["text-to-speech"]?.cooldownInSeconds ??
+                      0) *
+                      1000)) /
+                  1000
+              )}s`}
+            </Flex>
+          )}
           <Image
             src="/images/megaphone.png"
             alt="megaphone"
