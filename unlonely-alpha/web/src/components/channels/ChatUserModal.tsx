@@ -254,7 +254,7 @@ export const ChatUserModal = ({
                     </>
                   )}
               </Flex>
-              {solanaAddress && !user?.username && (
+              {solanaAddress && !user?.username && user?.address && (
                 <Button onClick={() => setModalState("creatingUsername")}>
                   Create Username
                 </Button>

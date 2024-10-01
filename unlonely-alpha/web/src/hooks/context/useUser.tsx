@@ -104,6 +104,7 @@ const UserContext = createContext<{
   exportWallet: () => Promise<void>;
   handleIsManagingWallets: (value: boolean) => void;
   fetchAndSetUserData: (address: string) => void;
+  handleUser: (data: DatabaseUser | undefined) => void;
 }>({
   user: undefined,
   username: undefined,
@@ -124,6 +125,7 @@ const UserContext = createContext<{
   exportWallet: () => Promise.resolve(),
   handleIsManagingWallets: () => undefined,
   fetchAndSetUserData: () => undefined,
+  handleUser: () => undefined,
 });
 
 export const UserProvider = ({
@@ -294,6 +296,10 @@ export const UserProvider = ({
     setFetchingUser(false);
   }, []);
 
+  const handleUser = useCallback((data: DatabaseUser | undefined) => {
+    setUser(data);
+  }, []);
+
   useEffect(() => {
     if (latestVerifiedPrivyAccount?.address)
       fetchAndSetUserData(latestVerifiedPrivyAccount?.address);
@@ -340,6 +346,7 @@ export const UserProvider = ({
       handleIsManagingWallets,
       handleSolanaAddress,
       fetchAndSetUserData,
+      handleUser,
     }),
     [
       user,
@@ -359,6 +366,7 @@ export const UserProvider = ({
       handleIsManagingWallets,
       handleSolanaAddress,
       fetchAndSetUserData,
+      handleUser,
     ]
   );
 

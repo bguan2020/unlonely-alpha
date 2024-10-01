@@ -6,17 +6,26 @@ import {
   Text,
   Button,
   Spinner,
+  useToast,
 } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import { alphanumericInput } from "../../../utils/validation/input";
+import useUpdateUsername from "../../../hooks/server/useUpdateUsername";
+import { useUser } from "../../../hooks/context/useUser";
+
+const topLevelDomain = ".boo";
 
 export const CreateUsernameInterface = ({
   handleClose,
 }: {
   handleClose: () => void;
 }) => {
+  const { user, handleUser } = useUser();
   const [stagingUsername, setStagingUsername] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+
+  const { updateUsername } = useUpdateUsername({});
+  const toast = useToast();
 
   const errorMessage = useMemo(() => {
     if (stagingUsername.length === 0) {
@@ -31,21 +40,43 @@ export const CreateUsernameInterface = ({
     return "";
   }, [stagingUsername]);
 
+  const handleError = () => {
+    toast({
+      title: "error creating username",
+      status: "error",
+      duration: 4000,
+      isClosable: true,
+    });
+  };
+
   const handleCreateUsername = async () => {
     setLoading(true);
+    if (!user) return;
     try {
-      // await createUsername({ username: stagingUsername });
-      handleClose();
+      const res = await updateUsername({
+        username: stagingUsername.concat(topLevelDomain),
+        address: user?.address,
+      });
+      if (res) {
+        handleUser({
+          ...user,
+          username: res?.res?.username,
+        });
+        handleClose();
+      }
     } catch (error) {
       console.error(error);
+      handleError();
     }
     setLoading(false);
   };
 
   return (
-    <Flex direction="column" gap="10px" justifyContent={"center"}>
+    <Flex direction="column" gap="10px">
       {loading ? (
-        <Spinner />
+        <Flex justifyContent={"center"}>
+          <Spinner />
+        </Flex>
       ) : (
         <>
           <Text textAlign="center" color="#ff3b3b" fontWeight={"bold"}>
@@ -64,7 +95,7 @@ export const CreateUsernameInterface = ({
               bg="transparent"
               right="20px"
             >
-              .boo
+              {topLevelDomain}
             </InputRightElement>
           </InputGroup>
           {errorMessage && (
