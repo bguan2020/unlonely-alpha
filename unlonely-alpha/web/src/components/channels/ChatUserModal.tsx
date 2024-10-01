@@ -17,6 +17,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import Link from "next/link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { SelectedUser } from "../../constants/types/chat";
+import { CreateUsernameInterface } from "./layout/CreateUsernameInterface";
 
 export const ChatUserModal = ({
   isOpen,
@@ -29,16 +30,19 @@ export const ChatUserModal = ({
   handleClose: () => void;
   targetUser?: SelectedUser;
 }) => {
-  const { user } = useUser();
+  const { user, solanaAddress } = useUser();
   const { channel: c } = useChannelContext();
   const { channelQueryData, channelRoles } = c;
   const { network } = useNetworkContext();
   const { explorerUrl } = network;
 
-  const [isBanning, setIsBanning] = useState<boolean>(false);
-  const [isAppointing, setIsAppointing] = useState<boolean>(false);
-  const [isRemovingModerator, setIsRemovingModerator] =
-    useState<boolean>(false);
+  const [modalState, setModalState] = useState<
+    | "normal"
+    | "banning"
+    | "appointing"
+    | "removingModerator"
+    | "creatingUsername"
+  >("normal");
 
   const { postUserRoleForChannel, loading } = usePostUserRoleForChannel({
     onError: (error) => {
@@ -56,10 +60,6 @@ export const ChatUserModal = ({
       channelRoles?.some((m) => m?.address === user?.address && m?.role === 2),
     [user, channelRoles]
   );
-
-  const isNormalUi = useMemo(() => {
-    return !isBanning && !isAppointing && !isRemovingModerator;
-  }, [isBanning, isAppointing, isRemovingModerator]);
 
   const appoint = async () => {
     await postUserRoleForChannel({
@@ -119,11 +119,7 @@ export const ChatUserModal = ({
   };
 
   useEffect(() => {
-    if (!isOpen) {
-      setIsBanning(false);
-      setIsAppointing(false);
-      setIsRemovingModerator(false);
-    }
+    if (!isOpen) setModalState("normal");
   }, [isOpen]);
 
   return (
@@ -131,17 +127,18 @@ export const ChatUserModal = ({
       isCentered
       isOpen={isOpen && targetUser !== undefined}
       onClose={handleClose}
+      size="sm"
     >
-      <ModalOverlay backgroundColor="#282828e6" />
+      <ModalOverlay backgroundColor="#0e0332e6" />
       {targetUser !== undefined && (
         <ModalContent
           maxW="500px"
           boxShadow="0px 8px 28px #0a061c40"
           padding="12px"
           borderRadius="5px"
-          bg="#3A3A3A"
+          bg="#281b5a"
         >
-          {isNormalUi && (
+          {modalState === "normal" && (
             <Flex direction="column" gap="10px">
               <Text
                 _hover={{ cursor: "pointer" }}
@@ -198,15 +195,14 @@ export const ChatUserModal = ({
                   targetUser.address !== user?.address &&
                   !channelRoles.some(
                     (m) => m?.address === targetUser.address && m?.role === 2
-                  ) &&
-                  isNormalUi && (
+                  ) && (
                     <Button
                       color="white"
                       bg="#074a84"
                       _hover={{}}
                       _focus={{}}
                       _active={{}}
-                      onClick={() => setIsAppointing(true)}
+                      onClick={() => setModalState("appointing")}
                     >
                       appoint user as chat moderator
                     </Button>
@@ -215,23 +211,21 @@ export const ChatUserModal = ({
                   targetUser.address !== user?.address &&
                   channelRoles.some(
                     (m) => m?.address === targetUser.address && m?.role === 2
-                  ) &&
-                  isNormalUi && (
+                  ) && (
                     <Button
                       color="white"
                       bg="#dc5d0e"
                       _hover={{}}
                       _focus={{}}
                       _active={{}}
-                      onClick={() => setIsRemovingModerator(true)}
+                      onClick={() => setModalState("removingModerator")}
                     >
                       remove user as chat moderator
                     </Button>
                   )}
                 {(userIsChannelOwner || userIsModerator) &&
                   targetUser.address !== channelQueryData?.owner?.address &&
-                  targetUser.address !== user?.address &&
-                  isNormalUi && (
+                  targetUser.address !== user?.address && (
                     <>
                       {!channelRoles?.some(
                         (m) =>
@@ -243,7 +237,7 @@ export const ChatUserModal = ({
                           _hover={{}}
                           _focus={{}}
                           _active={{}}
-                          onClick={() => setIsBanning(true)}
+                          onClick={() => setModalState("banning")}
                         >
                           ban user from chat
                         </Button>
@@ -260,9 +254,14 @@ export const ChatUserModal = ({
                     </>
                   )}
               </Flex>
+              {solanaAddress && !user?.username && (
+                <Button onClick={() => setModalState("creatingUsername")}>
+                  Create Username
+                </Button>
+              )}
             </Flex>
           )}
-          {isBanning && (
+          {modalState === "banning" && (
             <>
               {!loading ? (
                 <Flex direction="column" gap="10px">
@@ -289,7 +288,7 @@ export const ChatUserModal = ({
                       _hover={{}}
                       _focus={{}}
                       _active={{}}
-                      onClick={() => setIsBanning(false)}
+                      onClick={() => setModalState("normal")}
                     >
                       maybe not...
                     </Button>
@@ -302,7 +301,7 @@ export const ChatUserModal = ({
               )}
             </>
           )}
-          {isAppointing && (
+          {modalState === "appointing" && (
             <>
               {!loading ? (
                 <Flex direction="column" gap="10px">
@@ -331,7 +330,7 @@ export const ChatUserModal = ({
                       _hover={{}}
                       _focus={{}}
                       _active={{}}
-                      onClick={() => setIsAppointing(false)}
+                      onClick={() => setModalState("normal")}
                     >
                       maybe not...
                     </Button>
@@ -344,7 +343,7 @@ export const ChatUserModal = ({
               )}
             </>
           )}
-          {isRemovingModerator && (
+          {modalState === "removingModerator" && (
             <>
               {!loading ? (
                 <Flex direction="column" gap="10px">
@@ -371,7 +370,7 @@ export const ChatUserModal = ({
                       _hover={{}}
                       _focus={{}}
                       _active={{}}
-                      onClick={() => setIsRemovingModerator(false)}
+                      onClick={() => setModalState("normal")}
                     >
                       maybe not...
                     </Button>
@@ -383,6 +382,9 @@ export const ChatUserModal = ({
                 </Flex>
               )}
             </>
+          )}
+          {modalState === "creatingUsername" && (
+            <CreateUsernameInterface handleClose={handleClose} />
           )}
         </ModalContent>
       )}
