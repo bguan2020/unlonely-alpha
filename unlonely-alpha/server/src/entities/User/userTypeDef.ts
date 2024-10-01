@@ -90,6 +90,11 @@ export const typeDef = gql`
     packageName: String!
   }
 
+  input UpdateUsernameInput {
+    address: String!
+    username: String!
+  }
+
   extend type Query {
     currentUser: User
     currentUserAuthMessage: String
@@ -114,6 +119,7 @@ export const typeDef = gql`
       data: UpdateUserPackageCooldownMappingInput!
     ): User
     updateUser(data: UpdateUserInput!): UpdateUserResponse
+    updateUsername(data: UpdateUsernameInput!): User
     updateUsers(data: UpdateUsersInput!): [User]
   }
 `;

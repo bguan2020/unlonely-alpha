@@ -363,6 +363,22 @@ export const updateUser = async (data: IUpdateUserInput, ctx: Context) => {
   }
 };
 
+export interface IUpdateUsernameInput {
+  address: string;
+  username: string;
+}
+
+export const updateUsername = async (data: IUpdateUsernameInput, ctx: Context) => {
+  return await ctx.prisma.user.update({
+    where: {
+      address: data.address,
+    },
+    data: {
+      username: data.username,
+    },
+  });
+}
+
 export interface IUpdateUsersInput {
   addresses: string[];
 }
