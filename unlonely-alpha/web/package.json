@@ -34,7 +34,6 @@
     "@privy-io/react-auth": "1.88.2",
     "@privy-io/wagmi": "^0.2.12",
     "@reactour/tour": "^3.6.1",
-    "@reduxjs/toolkit": "^1.8.5",
     "@solana/spl-token": "^0.4.8",
     "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/wallet-adapter-react": "^0.15.35",
