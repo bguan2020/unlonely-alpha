@@ -153,37 +153,37 @@ function App({ Component, pageProps }: Props) {
 
   // useLogin from privy to detect user login and with what address, use this callback to update the user context on the backend
   return (
-    <ChakraProvider theme={theme}>
-      <PrivyProvider
-        appId={String(process.env.NEXT_PUBLIC_PRIVY_APP_ID)}
-        config={{
-          defaultChain: Base,
-          loginMethods: ["email", "wallet"],
-          walletConnectCloudProjectId: "e16ffa60853050eaa9746f45acd2207a",
-          embeddedWallets: {
-            createOnLogin: "users-without-wallets",
+    <PrivyProvider
+      appId={String(process.env.NEXT_PUBLIC_PRIVY_APP_ID)}
+      config={{
+        defaultChain: Base,
+        loginMethods: ["email", "wallet"],
+        walletConnectCloudProjectId: "e16ffa60853050eaa9746f45acd2207a",
+        embeddedWallets: {
+          createOnLogin: "users-without-wallets",
+        },
+        appearance: {
+          theme: "#19162F",
+          accentColor: "#6cff67",
+          logo: "/icons/icon-192x192.png",
+          showWalletLoginFirst: false,
+          walletChainType: "ethereum-and-solana",
+        },
+        // support for coinbase smart wallets, still in testing
+        externalWallets: {
+          coinbaseWallet: {
+            connectionOptions: "all",
           },
-          appearance: {
-            theme: "#19162F",
-            accentColor: "#6cff67",
-            logo: "/icons/icon-192x192.png",
-            showWalletLoginFirst: false,
-            walletChainType: "ethereum-and-solana",
+          solana: {
+            connectors: solanaConnectors,
           },
-          // support for coinbase smart wallets, still in testing
-          externalWallets: {
-            coinbaseWallet: {
-              connectionOptions: "all",
-            },
-            solana: {
-              connectors: solanaConnectors,
-            },
-          },
-        }}
-      >
-        <QueryClientProvider client={queryClient}>
-          <WagmiProvider config={config}>
-            <ApolloProvider pageProps={pageProps}>
+        },
+      }}
+    >
+      <QueryClientProvider client={queryClient}>
+        <WagmiProvider config={config}>
+          <ApolloProvider pageProps={pageProps}>
+            <ChakraProvider theme={theme}>
               <TourProvider
                 steps={streamerTourSteps}
                 styles={tourStyles}
@@ -251,11 +251,11 @@ function App({ Component, pageProps }: Props) {
                   </ScreenAnimationsProvider>
                 </UserProvider>
               </TourProvider>
-            </ApolloProvider>
-          </WagmiProvider>
-        </QueryClientProvider>
-      </PrivyProvider>
-    </ChakraProvider>
+            </ChakraProvider>
+          </ApolloProvider>
+        </WagmiProvider>
+      </QueryClientProvider>
+    </PrivyProvider>
   );
 }
 
