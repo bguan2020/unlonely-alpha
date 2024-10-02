@@ -1,18 +1,22 @@
 import { GetServerSidePropsContext } from "next";
-import React, { useMemo } from "react";
+import React from // ,
+// {
+//   useMemo
+//  }
+"react";
 import { ApolloError } from "@apollo/client";
 
 import { initializeApollo } from "../../apiClient/client";
 import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
 import { ChannelStaticQuery } from "../../generated/graphql";
-import { ChannelProvider } from "../../hooks/context/useChannel";
-import useUserAgent from "../../hooks/internal/useUserAgent";
-import { MobilePage } from "../../components/channels/layout/MobilePage";
-import { TempTokenProvider } from "../../hooks/context/useTempToken";
-import { DesktopChannelPageTempToken } from "../../components/channels/layout/DesktopChannelPageTempToken";
-import { VersusTempTokenProvider } from "../../hooks/context/useVersusTempToken";
-import Head from "next/head";
-import { VibesProvider } from "../../hooks/context/useVibes";
+// import { ChannelProvider } from "../../hooks/context/useChannel";
+// import useUserAgent from "../../hooks/internal/useUserAgent";
+// import { MobilePage } from "../../components/channels/layout/MobilePage";
+// import { TempTokenProvider } from "../../hooks/context/useTempToken";
+// import { DesktopChannelPageTempToken } from "../../components/channels/layout/DesktopChannelPageTempToken";
+// import { VersusTempTokenProvider } from "../../hooks/context/useVersusTempToken";
+// import Head from "next/head";
+// import { VibesProvider } from "../../hooks/context/useVibes";
 
 const ChannelDetail = ({
   channelData,
@@ -27,28 +31,28 @@ const ChannelDetail = ({
   hostUrl: string;
   slug: string;
 }) => {
-  const { isStandalone } = useUserAgent();
+  // const { isStandalone } = useUserAgent();
 
-  const channelSSR = useMemo(
-    () => channelData?.getChannelBySlug,
-    [channelData]
-  );
+  // const channelSSR = useMemo(
+  //   () => channelData?.getChannelBySlug,
+  //   [channelData]
+  // );
 
-  const title = `${channelSSR?.name}`;
+  // const title = `${channelSSR?.name}`;
 
-  const imageParams = new URLSearchParams({
-    slug: String(slug),
-    hostUrl: String(hostUrl),
-    title: String(title),
-  });
+  // const imageParams = new URLSearchParams({
+  //   slug: String(slug),
+  //   hostUrl: String(hostUrl),
+  //   title: String(title),
+  // });
 
-  const frameImgUrl = `${hostUrl}/api/images/startSubscribing?${imageParams.toString()}`;
-  const subscribeTargetUrl = `${hostUrl}/api/channels/subscribe?channelId=${channelSSR?.id}&slug=${slug}`;
-  const unsubscribeTargetUrl = `${hostUrl}/api/channels/unsubscribe?channelId=${channelSSR?.id}&slug=${slug}`;
+  // const frameImgUrl = `${hostUrl}/api/images/startSubscribing?${imageParams.toString()}`;
+  // const subscribeTargetUrl = `${hostUrl}/api/channels/subscribe?channelId=${channelSSR?.id}&slug=${slug}`;
+  // const unsubscribeTargetUrl = `${hostUrl}/api/channels/unsubscribe?channelId=${channelSSR?.id}&slug=${slug}`;
 
   return (
     <>
-      <Head>
+      {/* <Head>
         <meta property="og:title" content={title} />
         <meta property="fc:frame" content="vNext" />
         <meta name="fc:frame:image" content={frameImgUrl} />
@@ -96,7 +100,7 @@ const ChannelDetail = ({
             </VersusTempTokenProvider>
           </TempTokenProvider>
         )}
-      </ChannelProvider>
+      </ChannelProvider> */}
     </>
   );
 };
