@@ -7,9 +7,7 @@ import Document, {
   DocumentContext,
 } from "next/document";
 import React from "react";
-import { ColorModeScript } from "@chakra-ui/react";
 
-import chakraTheme from "../styles/theme";
 import { GA_TRACKING_ID } from "../utils/gtag";
 
 // This Next.js document exists only for Chakra color mode:
@@ -53,9 +51,6 @@ export default class UnlonelyDocument extends Document {
           <script src="https://player.live-video.net/1.2.0/amazon-ivs-quality-plugin.min.js"></script> */}
         </Head>
         <body>
-          <ColorModeScript
-            initialColorMode={chakraTheme.config.initialColorMode}
-          />
           <Main />
           <NextScript />
         </body>
