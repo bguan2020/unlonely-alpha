@@ -1,6 +1,5 @@
 import { useToast } from "@chakra-ui/react";
 import { useRef, useState, useMemo, useCallback, useEffect } from "react";
-import { VirtuosoHandle } from "react-virtuoso";
 import {
   AblyChannelPromise,
   BaseChatCommand,
@@ -21,7 +20,7 @@ export const useChatBox = (
   channel: AblyChannelPromise,
   mobile?: boolean
 ) => {
-  const scrollRef = useRef<VirtuosoHandle>(null);
+  const scrollRef = useRef<any>(null);
   const [isAtBottom, setIsAtBottom] = useState(false);
 
   const toast = useToast();
