@@ -1,20 +1,9 @@
 import { usePublicClient } from "wagmi";
-import { Contract } from "../../../../constants";
 import { useCallback } from "react";
-import { getContractFromNetwork } from "../../../../utils/contract";
-import { useNetworkContext } from "../../../context/useNetwork";
 import { VersusTokenDataType } from "../../../../constants/types/token";
 
 export const useVersusGameStateTransitioner = () => {
   const publicClient = usePublicClient();
-
-  const { network } = useNetworkContext();
-  const { localNetwork } = network;
-
-  const factoryContract = getContractFromNetwork(
-    Contract.TEMP_TOKEN_FACTORY_V1,
-    localNetwork
-  );
 
   const transitionGameState = useCallback(
     async ({
@@ -32,7 +21,6 @@ export const useVersusGameStateTransitioner = () => {
       handleOwnerMustMakeWinningTokenTradeable: (value: boolean) => void;
       handleOwnerMustPermamint: (value: boolean | number) => void;
     }) => {
-      if (!factoryContract.address) return;
       let _winningToken: VersusTokenDataType | null = null;
       let _losingToken: VersusTokenDataType | null = null;
       if (!tokenA.isAlwaysTradeable && !tokenB.isAlwaysTradeable) {
@@ -89,24 +77,12 @@ export const useVersusGameStateTransitioner = () => {
          * if it has a balance, it means the permamint was successful,
          * else the user is redirected to the permamint phase
          */
-        const winningTokenBalanceForFactory = await publicClient?.readContract({
-          address: _winningToken.contractData.address as `0x${string}`,
-          abi: _winningToken.contractData.abi,
-          functionName: "balanceOf",
-          args: [factoryContract.address],
-        });
-
-        if (BigInt(String(winningTokenBalanceForFactory)) > BigInt(0)) {
-          handleOwnerMustMakeWinningTokenTradeable(false);
-          handleOwnerMustPermamint(false);
-          return;
-        }
 
         handleOwnerMustMakeWinningTokenTradeable(false);
         handleOwnerMustPermamint(true);
       }
     },
-    [factoryContract, publicClient]
+    [publicClient]
   );
 
   return transitionGameState;

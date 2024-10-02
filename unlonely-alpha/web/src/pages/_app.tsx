@@ -17,10 +17,7 @@ import { FaArrowLeft } from "react-icons/fa";
 
 import { Base, Mainnet } from "../constants/networks";
 import { UserProvider } from "../hooks/context/useUser";
-import { ScreenAnimationsProvider } from "../hooks/context/useScreenAnimations";
 import theme from "../styles/theme";
-import { NetworkProvider } from "../hooks/context/useNetwork";
-import { CacheProvider } from "../hooks/context/useCache";
 import { TourProvider } from "@reactour/tour";
 import Link from "next/link";
 import { ApolloProvider } from "../hooks/context/useApollo";
@@ -242,13 +239,7 @@ function App({ Component, pageProps }: Props) {
                 }}
               >
                 <UserProvider>
-                  <ScreenAnimationsProvider>
-                    <NetworkProvider>
-                      <CacheProvider>
-                        <Component {...pageProps} />
-                      </CacheProvider>
-                    </NetworkProvider>
-                  </ScreenAnimationsProvider>
+                  <Component {...pageProps} />
                 </UserProvider>
               </TourProvider>
             </ApolloProvider>

@@ -4,14 +4,9 @@ import { GET_TEMP_TOKENS_QUERY } from "../../../../constants/queries";
 import {
   GetTempTokensQuery,
   TempToken,
-  TempTokenType,
 } from "../../../../generated/graphql";
-import { useChannelContext } from "../../../context/useChannel";
-import { useNetworkContext } from "../../../context/useNetwork";
 import { usePublicClient } from "wagmi";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
-import { Contract } from "../../../../constants";
-import { getContractFromNetwork } from "../../../../utils/contract";
 import { useVersusGameStateTransitioner } from "../ui/useVersusGameStateTransitioner";
 import { UseReadVersusTempTokenGlobalStateType } from "./useReadVersusTempTokenGlobalState";
 import { VersusTokenDataType } from "../../../../constants/types/token";
@@ -21,17 +16,8 @@ export const useReadVersusTempTokenOnMount = ({
 }: {
   globalState: UseReadVersusTempTokenGlobalStateType;
 }) => {
-  const { channel } = useChannelContext();
-  const { channelQueryData } = channel;
-  const { network } = useNetworkContext();
-  const { localNetwork } = network;
 
   const [loadingOnMount, setLoadingOnMount] = useState(true);
-
-  const factoryContract = getContractFromNetwork(
-    Contract.TEMP_TOKEN_FACTORY_V1,
-    localNetwork
-  );
 
   const publicClient = usePublicClient();
   const transitionGameState = useVersusGameStateTransitioner();
@@ -48,23 +34,9 @@ export const useReadVersusTempTokenOnMount = ({
 
   useEffect(() => {
     const fetchVersusTempTokens = async () => {
-      if (!(Number(channelQueryData?.id ?? "0") > 0) || !publicClient) return;
+      if (!publicClient) return;
       try {
-        const getTempTokenQueryRes = await getTempTokensQuery({
-          variables: {
-            data: {
-              channelId: Number(channelQueryData?.id ?? "0"),
-              chainId: localNetwork.config.chainId,
-              tokenType: TempTokenType.VersusMode,
-              factoryAddress: factoryContract.address as `0x${string}`,
-              fulfillAllNotAnyConditions: true,
-            },
-          },
-        });
-        const listOfTokens = getTempTokenQueryRes.data?.getTempTokens;
-        const nonNullListOfTokens = listOfTokens?.filter(
-          (token): token is TempToken => token !== null
-        );
+        const nonNullListOfTokens = [] as TempToken[];
         const _tokenB = nonNullListOfTokens?.[0];
         const _tokenA = nonNullListOfTokens?.[1];
         if (_tokenA !== undefined && _tokenB !== undefined) {
@@ -131,7 +103,7 @@ export const useReadVersusTempTokenOnMount = ({
             preSaleEndTimestamp: BigInt(String(preSaleEndTimestampA)),
             contractData: {
               address: _tokenA.tokenAddress as `0x${string}`,
-              chainId: localNetwork.config.chainId,
+              chainId: 4,
               abi: TempTokenAbi,
             },
             creationBlockNumber: BigInt(_tokenA.creationBlockNumber),
@@ -151,7 +123,7 @@ export const useReadVersusTempTokenOnMount = ({
             preSaleEndTimestamp: BigInt(String(preSaleEndTimestampB)),
             contractData: {
               address: _tokenB.tokenAddress as `0x${string}`,
-              chainId: localNetwork.config.chainId,
+              chainId: 4,
               abi: TempTokenAbi,
             },
             creationBlockNumber: BigInt(_tokenB.creationBlockNumber),
@@ -196,7 +168,7 @@ export const useReadVersusTempTokenOnMount = ({
       setLoadingOnMount(false);
     };
     fetchVersusTempTokens();
-  }, [channelQueryData?.id, localNetwork.config.chainId]);
+  }, []);
 
   return { loadingOnMount };
 };

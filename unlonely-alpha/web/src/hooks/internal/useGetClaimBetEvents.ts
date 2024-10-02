@@ -1,13 +1,10 @@
 import { useLazyQuery } from "@apollo/client";
 import { useEffect, useRef, useState } from "react";
 import { createPublicClient, http } from "viem";
-import { Contract, EventTypeForContract } from "../../constants";
 import { NETWORKS } from "../../constants/networks";
 import { GET_UNCLAIMED_EVENTS_QUERY } from "../../constants/queries";
 import { GetUnclaimedEventsQuery, SharesEvent } from "../../generated/graphql";
 import { useUser } from "../context/useUser";
-import { getContractFromNetwork } from "../../utils/contract";
-import { useNetworkContext } from "../context/useNetwork";
 
 type UnclaimedBet = SharesEvent & {
   payout: bigint;
@@ -31,9 +28,6 @@ export const useGetClaimBetEvents = () => {
   const [counter, setCounter] = useState(0);
 
   const { user, wagmiAddress } = useUser();
-  const { network } = useNetworkContext();
-  const { localNetwork } = network;
-  const contractData = getContractFromNetwork(Contract.SHARES_V2, localNetwork);
 
   const [getUnclaimedEvents] = useLazyQuery<GetUnclaimedEventsQuery>(
     GET_UNCLAIMED_EVENTS_QUERY,
@@ -45,7 +39,6 @@ export const useGetClaimBetEvents = () => {
   useEffect(() => {
     const init = async () => {
       if (
-        !contractData.address ||
         isFetching.current ||
         !user?.address ||
         !wagmiAddress ||
@@ -56,21 +49,9 @@ export const useGetClaimBetEvents = () => {
       }
       setFetchingBets(true);
       isFetching.current = true;
-      let unclaimedBets: SharesEvent[] = [];
+      const unclaimedBets: any[] = [];
       try {
-        const data = await getUnclaimedEvents({
-          variables: {
-            data: {
-              userAddress: user?.address as `0x${string}`,
-              chainId: contractData.chainId,
-            },
-          },
-        });
-        unclaimedBets =
-          data?.data?.getUnclaimedEvents.filter(
-            (event): event is SharesEvent =>
-              event !== null && event?.chainId === contractData.chainId
-          ) || [];
+        
       } catch (err) {
         console.log(
           "claimpage fetching for unclaimed events failed, switching to fetching ongoing bets",
@@ -83,20 +64,6 @@ export const useGetClaimBetEvents = () => {
           chain: NETWORKS[0],
           transport: http(),
         });
-        const promises = unclaimedBets.map((event) =>
-          publicClient.readContract({
-            address: contractData.address,
-            abi: contractData.abi,
-            functionName: "getVotePayout",
-            args: [
-              event.sharesSubjectAddress as string,
-              event.id,
-              EventTypeForContract.YAY_NAY_VOTE,
-              user?.address as `0x${string}`,
-            ],
-          })
-        );
-        payouts = await Promise.all(promises);
       } catch (err) {
         console.log("claimpage getVotePayout", err);
         payouts = [];
@@ -116,7 +83,6 @@ export const useGetClaimBetEvents = () => {
     init();
   }, [
     user?.address,
-    contractData.address,
     wagmiAddress,
     counter,
   ]);

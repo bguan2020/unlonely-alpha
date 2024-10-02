@@ -6,7 +6,6 @@ import {
 import { useEffect, useCallback, useState } from "react";
 
 import { WriteCallbacks } from "../../constants/types";
-import { useCacheContext } from "../context/useCache";
 
 // Add this type guard function at the top of the file
 function isConnectorNotFoundError(error: unknown): error is Error {
@@ -44,7 +43,6 @@ export const useWrite = (
   callbacks?: WriteCallbacks,
   overrides?: { value?: bigint; gas?: bigint; enabled?: boolean }
 ) => {
-  const { addAppError, popAppError } = useCacheContext();
   const [isRefetching, setIsRefetching] = useState(false);
 
   const { data: simulateData, error: simulateError, refetch: simulateRefetch } = useSimulateContract(
@@ -62,8 +60,7 @@ export const useWrite = (
   useEffect(() => {
     if (simulateData) {
       if (callbacks?.onPrepareSuccess) callbacks.onPrepareSuccess(simulateData);
-      popAppError("ConnectorNotFoundError", "name");
-      popAppError(functionName, "functionName");
+
     }
   }, [simulateData, functionName]);
 
@@ -75,7 +72,6 @@ export const useWrite = (
       
       if (isConnectorNotFoundError(simulateError)) {
         console.log("ConnectorNotFoundError:", errorMessage);
-        addAppError(simulateError, functionName);
       } else if (isErrorWithName(simulateError)) {
         const namedError = simulateError as { name: string; message: string };
         if (namedError.name === "ContractFunctionExecutionError") {
@@ -83,14 +79,11 @@ export const useWrite = (
         } else {
           console.log("Other known error:", namedError.name, errorMessage);
         }
-        addAppError(namedError, functionName);
       } else {
         console.log("Unknown error:", errorMessage);
-        addAppError({ name: "UnknownError", message: errorMessage }, functionName);
       }
       
       if (!isConnectorNotFoundError(simulateError)) {
-        popAppError("ConnectorNotFoundError", "name");
       }
     }
   }, [simulateError, functionName]);

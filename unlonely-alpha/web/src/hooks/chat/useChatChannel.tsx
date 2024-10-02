@@ -2,7 +2,6 @@ import Ably from "ably/promises";
 import { Types } from "ably";
 import { useEffect, useState } from "react";
 
-import { useChannelContext } from "../context/useChannel";
 import { Message } from "../../constants/types/chat";
 import {
   CHANGE_CHANNEL_DETAILS_EVENT,
@@ -15,12 +14,6 @@ import {
 } from "../../constants";
 import { useUser } from "../context/useUser";
 // import { SharesEventState } from "../../generated/graphql";
-import { useVibesContext } from "../context/useVibes";
-import { isAddress, isAddressEqual } from "viem";
-import { Box, Flex, useToast, Text } from "@chakra-ui/react";
-import centerEllipses from "../../utils/centerEllipses";
-import { useTempTokenContext } from "../context/useTempToken";
-import { useVersusTempTokenContext } from "../context/useVersusTempToken";
 import { jp } from "../../utils/validation/jsonParse";
 
 const ably = new Ably.Realtime.Promise({ authUrl: "/api/createTokenRequest" });
@@ -56,33 +49,6 @@ export function useAblyChannel(
 
 export function useChatChannel(fixedChatName?: string) {
   const { user } = useUser();
-  const { channel: c, chat, ui } = useChannelContext();
-  const {
-    channelRoles,
-    handleChannelRoles,
-    handleLatestBet,
-    handleRealTimeChannelDetails,
-    handleChannelVibesTokenPriceRange,
-    handlePinnedChatMessages,
-  } = c;
-  const { chatChannel } = chat;
-  const { handleLocalSharesEventState } = ui;
-  const { refetchVibesBalance } = useVibesContext();
-  const { tempToken } = useTempTokenContext();
-  const { refetchUserTempTokenBalance } = tempToken;
-  const { gameState, tokenATxs, tokenBTxs } = useVersusTempTokenContext();
-  const { tokenA, tokenB } = gameState;
-  const { refetchUserTempTokenBalance: refetchUserVersusTokenBalanceA } =
-    tokenATxs;
-  const { refetchUserTempTokenBalance: refetchUserVersusTokenBalanceB } =
-    tokenBTxs;
-  const toast = useToast();
-
-  const channelName =
-    fixedChatName ??
-    (chatChannel
-      ? `persistMessages:${chatChannel}`
-      : "persistMessages:chat-demo");
 
   const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
   const [allMessages, setAllMessages] = useState<Message[]>([]);
@@ -92,7 +58,7 @@ export function useChatChannel(fixedChatName?: string) {
     undefined
   );
 
-  const [channel, ably] = useAblyChannel(channelName, async (message) => {
+  const [channel, ably] = useAblyChannel("", async (message) => {
     setHasMessagesLoaded(false);
     if (localBanList === undefined) {
       setHasMessagesLoaded(true);
@@ -109,97 +75,27 @@ export function useChatChannel(fixedChatName?: string) {
       const toAddress = body.to as string | undefined;
       const amount = body.amount as number;
       const symbol = body.symbol as string;
-      const includesUser =
-        toAddress &&
-        isAddress(toAddress) &&
-        fromAddress &&
-        isAddress(fromAddress) &&
-        isAddress(user?.address ?? "") &&
-        (isAddressEqual(fromAddress, user?.address as `0x${string}`) ||
-          isAddressEqual(toAddress, user?.address as `0x${string}`));
-      if (includesUser) {
-        if (symbol === "vibes") {
-          refetchVibesBalance?.();
-        } else if (symbol === tokenA.symbol) {
-          refetchUserVersusTokenBalanceA?.();
-        } else if (symbol === tokenB.symbol) {
-          refetchUserVersusTokenBalanceB?.();
-        } else {
-          refetchUserTempTokenBalance?.();
-        }
-      }
-      if (
-        toAddress &&
-        isAddress(toAddress) &&
-        isAddress(user?.address ?? "") &&
-        isAddressEqual(toAddress, user?.address as `0x${string}`)
-      ) {
-        toast({
-          duration: 5000,
-          isClosable: true,
-          render: () => (
-            <Box borderRadius="md" bg="#8e64dd" px={4} h={8}>
-              <Flex justifyContent="center" alignItems="center">
-                <Text fontSize="16px" color="white">
-                  {centerEllipses(fromAddress, 13)} sent you {amount} ${symbol}!
-                  🎉
-                </Text>
-              </Flex>
-            </Box>
-          ),
-        });
-      }
     }
     if (message.name === CHANGE_USER_ROLE_EVENT) {
       const body = jp(message.data.body);
-      handleChannelRoles?.(body.address, body.role, body.isAdding);
     }
     if (message.name === CHANGE_CHANNEL_DETAILS_EVENT) {
       const body = jp(message.data.body);
-      handleRealTimeChannelDetails?.({
-        channelName: body.channelName,
-        channelDescription: body.channelDescription,
-        chatCommands: body.chatCommands,
-        allowNfcs: body.allowNfcs,
-        isLive: body.isLive,
-      });
     }
     if (message.name === VIBES_TOKEN_PRICE_RANGE_EVENT) {
       const newSliderValue = jp(message.data.body);
-      handleChannelVibesTokenPriceRange?.(newSliderValue);
     }
     if (message.name === PINNED_CHAT_MESSAGES_EVENT) {
       const _pinnedMessages = jp(message.data.body);
-      handlePinnedChatMessages?.(_pinnedMessages);
     }
     if (message.name === CHAT_MESSAGE_EVENT) {
       if (localBanList.length === 0) {
         setReceivedMessages([...messageHistory, message]);
       } else {
-        if (user?.address && localBanList.includes(user?.address)) {
-          // Current user is banned, they see all messages
-          setReceivedMessages([...messageHistory, message]);
-        } else {
-          // Current user is not banned, they only see messages from non-banned users
-          if (!localBanList.includes(message.data.address)) {
-            setReceivedMessages([...messageHistory, message]);
-          }
-        }
       }
     }
     setHasMessagesLoaded(true);
   });
-
-  useEffect(() => {
-    if (!channelRoles) {
-      setLocalBanList(undefined);
-      return;
-    }
-    const filteredUsersToBan = (channelRoles ?? [])
-      .filter((user) => user?.role === 1)
-      .map((user) => user?.address) as string[];
-    setLocalBanList(filteredUsersToBan);
-  }, [channelRoles]);
 
   useEffect(() => {
     async function getMessages() {
@@ -213,11 +109,6 @@ export function useChatChannel(fixedChatName?: string) {
 
           const senderIsBanned = localBanList.includes(message.data.address);
 
-          // For non-banned users or users without a user?.address
-          if (!user?.address || !localBanList.includes(user?.address)) {
-            return !senderIsBanned;
-          }
-
           // For banned users
           return true; // See all messages
         });
@@ -227,7 +118,7 @@ export function useChatChannel(fixedChatName?: string) {
       setMounted(true);
     }
     getMessages();
-  }, [channel, user?.address, localBanList]);
+  }, [channel, localBanList]);
 
   return {
     ably,

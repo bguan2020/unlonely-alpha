@@ -1,8 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { NULL_ADDRESS } from "../../../../constants";
-import { useNetworkContext } from "../../../context/useNetwork";
 import { createPublicClient, http, isAddressEqual } from "viem";
-import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 import { ContractData } from "../../../../constants/types";
 import {
   UseReadTempTokenTxsType,
@@ -54,9 +52,6 @@ export const useReadTempTokenInitialState: UseReadTempTokenContextStateType = {
 };
 
 export const useReadTempTokenContextState = () => {
-  const { network } = useNetworkContext();
-  const { localNetwork } = network;
-
   const baseClient = useMemo(
     () =>
       createPublicClient({
@@ -74,36 +69,6 @@ export const useReadTempTokenContextState = () => {
   const { loadingCurrentOnMount, loadingLastOnMount } = useReadTempTokenOnMount(
     { globalState }
   );
-
-  const tempTokenContract: ContractData = useMemo(() => {
-    if (globalState.currentActiveTokenAddress === NULL_ADDRESS) {
-      return {
-        address: NULL_ADDRESS,
-        abi: undefined,
-        chainId: localNetwork.config.chainId,
-      };
-    }
-    return {
-      address: globalState.currentActiveTokenAddress as `0x${string}`,
-      abi: TempTokenAbi,
-      chainId: localNetwork.config.chainId,
-    };
-  }, [globalState.currentActiveTokenAddress, localNetwork.config.chainId]);
-
-  const lastInactiveTempTokenContract: ContractData = useMemo(() => {
-    if (globalState.lastInactiveTokenAddress === NULL_ADDRESS) {
-      return {
-        address: NULL_ADDRESS,
-        abi: undefined,
-        chainId: localNetwork.config.chainId,
-      };
-    }
-    return {
-      address: globalState.lastInactiveTokenAddress as `0x${string}`,
-      abi: TempTokenAbi,
-      chainId: localNetwork.config.chainId,
-    };
-  }, [globalState.lastInactiveTokenAddress, localNetwork.config.chainId]);
 
   /**
    * functions to run when specific events are detected, not exposed outside of this hook,
@@ -169,13 +134,17 @@ export const useReadTempTokenContextState = () => {
   const readTempTokenTxs = useReadTempTokenTxs({
     tokenCreationBlockNumber: globalState.currentActiveTokenCreationBlockNumber,
     baseClient,
-    tempTokenContract,
+    tempTokenContract: {
+      address: "0xddd",
+      abi: undefined,
+      chainId: 3,
+    },
   });
 
   return {
     gameState: globalState,
-    currentTempTokenContract: tempTokenContract,
-    lastInactiveTempTokenContract: lastInactiveTempTokenContract,
+    currentTempTokenContract: undefined,
+    lastInactiveTempTokenContract: undefined,
     onMintEvent,
     onBurnEvent,
     onReachThresholdEvent,

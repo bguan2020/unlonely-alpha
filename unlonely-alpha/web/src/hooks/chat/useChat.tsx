@@ -1,4 +1,3 @@
-import { Image, Text } from "@chakra-ui/react";
 import { useEffect, useRef } from "react";
 
 import {
@@ -7,7 +6,6 @@ import {
   InteractionType,
   NULL_ADDRESS,
 } from "../../constants";
-import { useScreenAnimationsContext } from "../context/useScreenAnimations";
 import {
   ChatBotMessageBody,
   Message,
@@ -39,7 +37,6 @@ export const useChat = ({
   } = useChatChannel();
 
   const mountingMessages = useRef(true);
-  const { emojiBlast, fireworks } = useScreenAnimationsContext();
 
   const publishChatBotMessage = async (messageText: string, body?: string) => {
     await channel.publish({
@@ -77,18 +74,10 @@ export const useChat = ({
           body.interactionType === InteractionType.TIP) &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
-        fireworks();
       } else if (
         body.interactionType === InteractionType.BLAST &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
-        if (latestMessage.data.isGif) {
-          emojiBlast(<Image src={latestMessage.data.messageText} h="80px" />);
-        } else {
-          emojiBlast(
-            <Text fontSize="40px">{latestMessage.data.messageText}</Text>
-          );
-        }
       } else if (
         body.interactionType === InteractionType.BUY_VIBES &&
         Date.now() - latestMessage.timestamp < 12000
@@ -96,14 +85,12 @@ export const useChat = ({
         const amount = body.amount;
         if (Number(amount) < 2000) return;
         const m = determineValue(Number(amount));
-        emojiBlast(<Text fontSize={"30px"}>{"📈"}</Text>);
       } else if (
         body.interactionType === InteractionType.SELL_VIBES &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
         const amount = body.amount;
         if (Number(amount) < 2000) return;
-        emojiBlast(<Text fontSize={"30px"}>{"📉"}</Text>);
       }
     }
   }, [receivedMessages]);

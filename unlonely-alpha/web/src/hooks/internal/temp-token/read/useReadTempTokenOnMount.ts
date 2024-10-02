@@ -9,10 +9,6 @@ import {
   TempTokenWithBalance,
 } from "../../../../generated/graphql";
 import useUpdateTempTokenHasRemainingFundsForCreator from "../../../server/temp-token/useUpdateTempTokenHasRemainingFundsForCreator";
-import { useChannelContext } from "../../../context/useChannel";
-import { Contract } from "../../../../constants";
-import { getContractFromNetwork } from "../../../../utils/contract";
-import { useNetworkContext } from "../../../context/useNetwork";
 import TempTokenAbi from "../../../../constants/abi/TempTokenV1.json";
 import { UseReadTempTokenGlobalStateType } from "./useReadTempTokenGlobalState";
 
@@ -21,18 +17,9 @@ export const useReadTempTokenOnMount = ({
 }: {
   globalState: UseReadTempTokenGlobalStateType;
 }) => {
-  const { channel } = useChannelContext();
-  const { channelQueryData, isOwner } = channel;
-  const { network } = useNetworkContext();
-  const { localNetwork } = network;
   const publicClient = usePublicClient();
   const [loadingCurrentOnMount, setLoadingCurrentOnMount] = useState(true);
   const [loadingLastOnMount, setLoadingLastOnMount] = useState(true);
-
-  const factoryContract = getContractFromNetwork(
-    Contract.TEMP_TOKEN_FACTORY_V1,
-    localNetwork
-  );
 
   /**
    * read for channel's temp token data on mount
@@ -49,15 +36,15 @@ export const useReadTempTokenOnMount = ({
 
   useEffect(() => {
     const init = async () => {
-      if (!(Number(channelQueryData?.id ?? "0") > 0) || !publicClient) return;
+      if (!(Number("0") > 0) || !publicClient) return;
       try {
         const getTempTokenQueryRes = await getTempTokensQuery({
           variables: {
             data: {
-              channelId: Number(channelQueryData?.id ?? "0"),
-              chainId: localNetwork.config.chainId,
+              channelId: Number("0"),
+              chainId: 4,
               tokenType: TempTokenType.SingleMode,
-              factoryAddress: factoryContract.address as `0x${string}`,
+              factoryAddress: "0xddd",
               fulfillAllNotAnyConditions: true,
             },
           },
@@ -151,16 +138,16 @@ export const useReadTempTokenOnMount = ({
       setLoadingCurrentOnMount(false);
     };
     init();
-  }, [channelQueryData?.id, localNetwork.config.chainId]);
+  }, []);
 
   useEffect(() => {
     const init = async () => {
-      if (Number(channelQueryData?.id ?? "0") > 0 && isOwner) {
+      if (Number("0") > 0) {
         const res = await updateTempTokenHasRemainingFundsForCreator({
-          channelId: Number(channelQueryData?.id ?? "0"),
-          chainId: localNetwork.config.chainId,
+          channelId: Number("0"),
+          chainId: 4,
           tokenType: TempTokenType.SingleMode,
-          factoryAddress: factoryContract.address as `0x${string}`,
+          factoryAddress: "0xddd",
         });
         const tempTokensWithNonZeroBalances = res?.res;
 
@@ -171,7 +158,6 @@ export const useReadTempTokenOnMount = ({
         if (
           nonNullListOfTokensWithNonZeroBalances &&
           nonNullListOfTokensWithNonZeroBalances.length > 0 &&
-          isOwner &&
           publicClient
         ) {
           const lastInactiveTokenWithBalance =
@@ -200,7 +186,7 @@ export const useReadTempTokenOnMount = ({
       }
     };
     init();
-  }, [channelQueryData?.id, localNetwork.config.chainId, isOwner]);
+  }, []);
 
   return {
     loadingCurrentOnMount,
