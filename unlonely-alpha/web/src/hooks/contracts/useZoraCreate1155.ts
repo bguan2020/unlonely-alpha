@@ -1,4 +1,3 @@
-import { ContractType, createCreatorClient } from "@zoralabs/protocol-sdk";
 import { useState, useEffect, useCallback } from "react";
 import { SimulateContractParameters } from "viem";
 import { usePublicClient } from "wagmi";
@@ -9,7 +8,7 @@ import { useWrite } from "./useWrite";
 import { createCallbackHandler } from "../../utils/contract";
 
 export const useZoraCreate1155 = (
-  contractObject?: ContractType,
+  contractObject?: any,
   callbacks?: WriteCallbacks
 ) => {
   const { user } = useUser();
@@ -22,10 +21,7 @@ export const useZoraCreate1155 = (
   >(undefined);
   const [parametersReady, setParametersReady] = useState<boolean>(false);
 
-  const creatorClient = publicClient ? createCreatorClient({
-    chainId: localNetwork.config.chainId,
-    publicClient,
-  }) : undefined;
+  const creatorClient: any = undefined;
 
   const initParameters = useCallback(async () => {
     if (!user?.address || !contractObject || !creatorClient) return;
