@@ -31,7 +31,7 @@
     "@hookform/resolvers": "^2.9.5",
     "@jup-ag/wallet-adapter": "0.2.0",
     "@livepeer/react": "4.2.1",
-    "@privy-io/react-auth": "1.87.0",
+    "@privy-io/react-auth": "1.86.0",
     "@privy-io/wagmi": "^0.2.12",
     "@reactour/tour": "^3.6.1",
     "@solana/spl-token": "^0.4.8",
