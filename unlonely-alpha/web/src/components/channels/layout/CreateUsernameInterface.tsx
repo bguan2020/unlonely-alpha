@@ -80,35 +80,42 @@ export const CreateUsernameInterface = ({
       ) : (
         <>
           <Text textAlign="center" color="#ff3b3b" fontWeight={"bold"}>
-            Heads up! You can't change your username once you've created it!
+            heads up - you won’t be able to change your username once you’ve
+            created one!
           </Text>
-          <InputGroup size="sm" variant="glow">
-            <Input
-              placeholder="enter username"
-              value={stagingUsername}
-              onChange={(e) =>
-                setStagingUsername(alphanumericInput(e.target.value))
-              }
-            />
-            <InputRightElement
-              pointerEvents="none"
-              bg="transparent"
-              right="20px"
-            >
-              {topLevelDomain}
-            </InputRightElement>
-          </InputGroup>
+          <Flex justifyContent={"center"}>
+            <InputGroup variant="glow" width="250px">
+              <Input
+                placeholder="enter username"
+                value={stagingUsername}
+                onChange={(e) =>
+                  setStagingUsername(alphanumericInput(e.target.value))
+                }
+              />
+              <InputRightElement
+                pointerEvents="none"
+                bg="transparent"
+                right="20px"
+              >
+                {topLevelDomain}
+              </InputRightElement>
+            </InputGroup>
+          </Flex>
+
           {errorMessage && (
             <Text textAlign="center" color="#ff3b3b" fontSize="15px">
               {errorMessage}
             </Text>
           )}
-          <Button
-            isDisabled={errorMessage !== "" || stagingUsername.length === 0}
-            onClick={handleCreateUsername}
-          >
-            create
-          </Button>
+          <Flex justifyContent={"center"}>
+            <Button
+              width="250px"
+              isDisabled={errorMessage !== "" || stagingUsername.length === 0}
+              onClick={handleCreateUsername}
+            >
+              create
+            </Button>
+          </Flex>
         </>
       )}
     </Flex>

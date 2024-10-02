@@ -18,6 +18,7 @@ import Link from "next/link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { SelectedUser } from "../../constants/types/chat";
 import { CreateUsernameInterface } from "./layout/CreateUsernameInterface";
+import { areAddressesEqual } from "../../utils/validation/wallet";
 
 export const ChatUserModal = ({
   isOpen,
@@ -254,11 +255,16 @@ export const ChatUserModal = ({
                     </>
                   )}
               </Flex>
-              {solanaAddress && !user?.username && user?.address && (
-                <Button onClick={() => setModalState("creatingUsername")}>
-                  Create Username
-                </Button>
-              )}
+              {solanaAddress &&
+                !user?.username &&
+                areAddressesEqual(
+                  user?.address ?? "",
+                  targetUser.address ?? ""
+                ) && (
+                  <Button onClick={() => setModalState("creatingUsername")}>
+                    Create Username
+                  </Button>
+                )}
             </Flex>
           )}
           {modalState === "banning" && (
