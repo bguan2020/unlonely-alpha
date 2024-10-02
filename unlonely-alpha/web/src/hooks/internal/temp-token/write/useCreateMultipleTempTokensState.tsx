@@ -17,7 +17,6 @@ import { useChannelContext } from "../../../context/useChannel";
 import usePostTempToken from "../../../server/temp-token/usePostTempToken";
 import centerEllipses from "../../../../utils/centerEllipses";
 import { useUser } from "../../../context/useUser";
-import { verifyTempTokenV1OnBase } from "../../../../utils/contract-verification/tempToken";
 import {
   QuerySendAllNotificationsArgs,
   TempTokenType,
@@ -391,10 +390,6 @@ export const useCreateMultipleTempTokensState = ({
             args.creationBlockNumber as bigint,
             args.preSaleEndTimestamp as bigint,
           ]
-        );
-        await verifyTempTokenV1OnBase(
-          newTokenAddresses[0] as `0x${string}`,
-          encoded
         );
         console.log("createMultipleTempTokens encoded", encoded);
         canAddToChatbot_create.current = false;

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { encodeAbiParameters } from "viem";
 import { useNetworkContext } from "../../../context/useNetwork";
 import { useCreateTempToken } from "../../../contracts/useTempTokenFactoryV1";
-import { verifyTempTokenV1OnBase } from "../../../../utils/contract-verification/tempToken";
 import usePostTempToken from "../../../server/temp-token/usePostTempToken";
 import {
   CHAKRA_UI_TX_TOAST_DURATION,
@@ -335,10 +334,6 @@ export const useCreateTempTokenState = ({
             args.creationBlockNumber as bigint,
             args.preSaleEndTimestamp as bigint,
           ]
-        );
-        await verifyTempTokenV1OnBase(
-          args.tokenAddress as `0x${string}`,
-          encoded
         );
         console.log("createTempToken encoded", encoded);
         canAddToChatbot_create.current = false;
