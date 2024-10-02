@@ -35,11 +35,11 @@ import { RiSubtractFill } from "react-icons/ri";
 import { GoUnlink } from "react-icons/go";
 
 import { Channel, GetUserQuery, Maybe, Scalars } from "../../generated/graphql";
-import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
+// import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
 import { GET_USER_QUERY } from "../../constants/queries";
 import centerEllipses from "../../utils/centerEllipses";
-import { Tos } from "../../components/general/Tos";
-import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
+// import { Tos } from "../../components/general/Tos";
+// import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
 import { useApolloContext } from "./useApollo";
 import { useAccount, useSignMessage } from "wagmi";
 import { useSetActiveWallet } from "@privy-io/wagmi";
@@ -374,176 +374,162 @@ export const UserProvider = ({
 
   return (
     <UserContext.Provider value={value}>
-      <TurnOnNotificationsModal
-        handleInitialNotificationsGranted={handleInitialNotificationsGranted}
-      />
-      <TransactionModalTemplate
-        title="manage your wallets"
-        isOpen={isManagingWallets}
-        handleClose={() => setIsManagingWallets(false)}
-        isModalLoading={false}
-        size="md"
-        hideFooter
-      >
-        <Flex direction={"column"} gap="5px">
-          {privyUser?.linkedAccounts
-            .filter((account) => account.type === "wallet")
-            .map((account) => {
-              const foundWallet = wallets.find(
-                (w) => w.address === (account as WalletWithMetadata).address
-              );
-              return (
-                <Flex
-                  gap="5px"
-                  background="rgba(0, 0, 0, 0.5)"
-                  borderRadius="5px"
-                  p="5px"
-                  justifyContent={"space-between"}
-                  alignItems={"center"}
-                >
-                  <Flex gap="5px" alignItems={"center"}>
-                    {foundWallet?.meta.icon ? (
-                      <Image
-                        src={
-                          wallets.find(
-                            (w) =>
-                              w.address ===
-                              (account as WalletWithMetadata).address
-                          )?.meta.icon
-                        }
-                        alt="wallet image"
-                        width="20px"
-                        height="20px"
-                      />
-                    ) : (
-                      <GoUnlink />
-                    )}
-                    {(foundWallet as any)?.type && (
-                      <>
-                        {(foundWallet as any)?.type === "ethereum" && (
-                          <Image
-                            src={"/images/eth-logo.png"}
-                            alt="chain image"
-                            width="20px"
-                            height="20px"
-                          />
-                        )}
-                        {(foundWallet as any)?.type === "solana" && (
-                          <Image
-                            src={"/images/sol-logo.png"}
-                            alt="chain image"
-                            width="20px"
-                            height="20px"
-                          />
-                        )}
-                      </>
-                    )}
-                    <Text fontFamily={"LoRes15"}>
-                      {centerEllipses(
-                        (account as WalletWithMetadata).address,
-                        13
+      <Flex direction={"column"} gap="5px">
+        {privyUser?.linkedAccounts
+          .filter((account) => account.type === "wallet")
+          .map((account) => {
+            const foundWallet = wallets.find(
+              (w) => w.address === (account as WalletWithMetadata).address
+            );
+            return (
+              <Flex
+                gap="5px"
+                background="rgba(0, 0, 0, 0.5)"
+                borderRadius="5px"
+                p="5px"
+                justifyContent={"space-between"}
+                alignItems={"center"}
+              >
+                <Flex gap="5px" alignItems={"center"}>
+                  {foundWallet?.meta.icon ? (
+                    <Image
+                      src={
+                        wallets.find(
+                          (w) =>
+                            w.address ===
+                            (account as WalletWithMetadata).address
+                        )?.meta.icon
+                      }
+                      alt="wallet image"
+                      width="20px"
+                      height="20px"
+                    />
+                  ) : (
+                    <GoUnlink />
+                  )}
+                  {(foundWallet as any)?.type && (
+                    <>
+                      {(foundWallet as any)?.type === "ethereum" && (
+                        <Image
+                          src={"/images/eth-logo.png"}
+                          alt="chain image"
+                          width="20px"
+                          height="20px"
+                        />
                       )}
-                    </Text>
-                  </Flex>
-                  <Flex gap="5px" alignItems={"end"}>
-                    {areAddressesEqual(
-                      localAddress ?? "",
-                      (account as WalletWithMetadata).address
-                    ) &&
-                    (areAddressesEqual(
-                      wagmiAddress ?? "",
+                      {(foundWallet as any)?.type === "solana" && (
+                        <Image
+                          src={"/images/sol-logo.png"}
+                          alt="chain image"
+                          width="20px"
+                          height="20px"
+                        />
+                      )}
+                    </>
+                  )}
+                  <Text fontFamily={"LoRes15"}>
+                    {centerEllipses(
+                      (account as WalletWithMetadata).address,
+                      13
+                    )}
+                  </Text>
+                </Flex>
+                <Flex gap="5px" alignItems={"end"}>
+                  {areAddressesEqual(
+                    localAddress ?? "",
+                    (account as WalletWithMetadata).address
+                  ) &&
+                  (areAddressesEqual(wagmiAddress ?? "", localAddress ?? "") ||
+                    areAddressesEqual(
+                      solanaAddress ?? "",
                       localAddress ?? ""
-                    ) ||
-                      areAddressesEqual(
-                        solanaAddress ?? "",
-                        localAddress ?? ""
-                      )) ? (
-                      <Flex gap="5px">
-                        <Flex
-                          background="#22b66e"
-                          alignItems="center"
-                          borderRadius="5px"
-                          px="5px"
-                          height={"20px"}
-                          fontSize="15px"
-                        >
-                          <Text>Active</Text>
-                        </Flex>
-                      </Flex>
-                    ) : (
-                      <Button
-                        border="1px white solid"
+                    )) ? (
+                    <Flex gap="5px">
+                      <Flex
+                        background="#22b66e"
+                        alignItems="center"
+                        borderRadius="5px"
+                        px="5px"
                         height={"20px"}
                         fontSize="15px"
-                        bg="transparent"
+                      >
+                        <Text>Active</Text>
+                      </Flex>
+                    </Flex>
+                  ) : (
+                    <Button
+                      border="1px white solid"
+                      height={"20px"}
+                      fontSize="15px"
+                      bg="transparent"
+                      color="white"
+                      _hover={{
+                        bg: "rgba(255, 255, 255, 0.2)",
+                      }}
+                      onClick={() => {
+                        if (foundWallet) {
+                          fetchAndSetUserData(foundWallet.address);
+                        } else {
+                          connectWallet({
+                            suggestedAddress: (account as WalletWithMetadata)
+                              .address,
+                            // walletList:
+                            //   (account as WalletWithMetadata)
+                            //     .walletClientType &&
+                            //   isWalletListEntry(
+                            //     (account as WalletWithMetadata)
+                            //       .walletClientType
+                            //   )
+                            //     ? ([
+                            //         (account as WalletWithMetadata)
+                            //           .walletClientType,
+                            //       ] as WalletListEntry[])
+                            //     : undefined,
+                          });
+                        }
+                      }}
+                    >
+                      {foundWallet ? "set active" : "connect"}
+                    </Button>
+                  )}
+                  {privyUser?.linkedAccounts.filter(
+                    (account) => account.type === "wallet"
+                  ).length > 1 && (
+                    <Tooltip label="unlink wallet" shouldWrapChildren>
+                      <IconButton
+                        border="1px white solid"
                         color="white"
+                        bg="transparent"
                         _hover={{
                           bg: "rgba(255, 255, 255, 0.2)",
                         }}
-                        onClick={() => {
-                          if (foundWallet) {
-                            fetchAndSetUserData(foundWallet.address);
-                          } else {
-                            connectWallet({
-                              suggestedAddress: (account as WalletWithMetadata)
-                                .address,
-                              // walletList:
-                              //   (account as WalletWithMetadata)
-                              //     .walletClientType &&
-                              //   isWalletListEntry(
-                              //     (account as WalletWithMetadata)
-                              //       .walletClientType
-                              //   )
-                              //     ? ([
-                              //         (account as WalletWithMetadata)
-                              //           .walletClientType,
-                              //       ] as WalletListEntry[])
-                              //     : undefined,
-                            });
-                          }
+                        height={"20px"}
+                        icon={<RiSubtractFill />}
+                        aria-label="unlink wallet"
+                        onClick={async () => {
+                          const newPrivyUser = await unlinkWallet(
+                            (account as WalletWithMetadata).address
+                          );
+                          console.log("newPrivyUser", newPrivyUser);
                         }}
-                      >
-                        {foundWallet ? "set active" : "connect"}
-                      </Button>
-                    )}
-                    {privyUser?.linkedAccounts.filter(
-                      (account) => account.type === "wallet"
-                    ).length > 1 && (
-                      <Tooltip label="unlink wallet" shouldWrapChildren>
-                        <IconButton
-                          border="1px white solid"
-                          color="white"
-                          bg="transparent"
-                          _hover={{
-                            bg: "rgba(255, 255, 255, 0.2)",
-                          }}
-                          height={"20px"}
-                          icon={<RiSubtractFill />}
-                          aria-label="unlink wallet"
-                          onClick={async () => {
-                            const newPrivyUser = await unlinkWallet(
-                              (account as WalletWithMetadata).address
-                            );
-                            console.log("newPrivyUser", newPrivyUser);
-                          }}
-                        />
-                      </Tooltip>
-                    )}
-                  </Flex>
+                      />
+                    </Tooltip>
+                  )}
                 </Flex>
-              );
-            })}
-          <Button onClick={linkWallet}>link new wallet</Button>
-          <Flex justifyContent={"space-between"}>
-            <Text fontSize="10px">privy user id</Text>
-            <Text fontSize="10px" color="#acacac">
-              {privyUser?.id}
-            </Text>
-          </Flex>
-          {/* <Button onClick={() => signMessage({ message: "hello world" })}>
+              </Flex>
+            );
+          })}
+        <Button onClick={linkWallet}>link new wallet</Button>
+        <Flex justifyContent={"space-between"}>
+          <Text fontSize="10px">privy user id</Text>
+          <Text fontSize="10px" color="#acacac">
+            {privyUser?.id}
+          </Text>
+        </Flex>
+        {/* <Button onClick={() => signMessage({ message: "hello world" })}>
             test sign message
           </Button> */}
-          {/* <Button
+        {/* <Button
             onClick={async () => {
               // const { data: getDoesUserAddressMatchData } = await client.query({
               //   query: GET_DOES_USER_ADDRESS_MATCH_QUERY,
@@ -564,58 +550,45 @@ export const UserProvider = ({
           >
             test backend
           </Button> */}
-          <Button
-            color="white"
-            bg="#E09025"
-            _hover={{}}
-            _focus={{}}
-            _active={{}}
-            onClick={() => {
-              logout();
-              setIsManagingWallets(false);
-            }}
-            borderRadius="25px"
-          >
-            logout
-          </Button>
-        </Flex>
-      </TransactionModalTemplate>
-      <TransactionModalTemplate
-        confirmButton="logout"
-        title="did you change wallet accounts?"
-        isOpen={differentWallet}
-        handleClose={() => setDifferentWallet(false)}
-        canSend={true}
-        onSend={logout}
-        isModalLoading={false}
-        size="sm"
-        blur
-      >
-        <Flex direction={"column"} gap="5px">
-          <Text textAlign={"center"} fontSize="13px" color="#BABABA">
-            our app thinks you're using two different wallet addresses, this can
-            occur when you change wallet accounts while logged in
+        <Button
+          color="white"
+          bg="#E09025"
+          _hover={{}}
+          _focus={{}}
+          _active={{}}
+          onClick={() => {
+            logout();
+            setIsManagingWallets(false);
+          }}
+          borderRadius="25px"
+        >
+          logout
+        </Button>
+      </Flex>
+
+      <Flex direction={"column"} gap="5px">
+        <Text textAlign={"center"} fontSize="13px" color="#BABABA">
+          our app thinks you're using two different wallet addresses, this can
+          occur when you change wallet accounts while logged in
+        </Text>
+        <Box
+          borderColor="#909090"
+          borderWidth="1px"
+          borderStyle="solid"
+          p="5px"
+          borderRadius="5px"
+        >
+          <Text textAlign={"center"} fontSize={"12px"} color="#22b66e">
+            logged in as {user?.address}
           </Text>
-          <Box
-            borderColor="#909090"
-            borderWidth="1px"
-            borderStyle="solid"
-            p="5px"
-            borderRadius="5px"
-          >
-            <Text textAlign={"center"} fontSize={"12px"} color="#22b66e">
-              logged in as {user?.address}
-            </Text>
-            <Text textAlign={"center"} fontSize={"12px"} color="#85c71b">
-              connected {wallets[0]?.address}
-            </Text>
-          </Box>
-          <Text textAlign={"center"} fontSize="15px">
-            to resolve, switch back to the original wallet account or logout
+          <Text textAlign={"center"} fontSize={"12px"} color="#85c71b">
+            connected {wallets[0]?.address}
           </Text>
-        </Flex>
-      </TransactionModalTemplate>
-      <Tos />
+        </Box>
+        <Text textAlign={"center"} fontSize="15px">
+          to resolve, switch back to the original wallet account or logout
+        </Text>
+      </Flex>
       {children}
     </UserContext.Provider>
   );

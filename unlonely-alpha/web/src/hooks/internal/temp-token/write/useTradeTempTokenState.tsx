@@ -25,10 +25,6 @@ import { Flex, Box, useToast, Text } from "@chakra-ui/react";
 import Link from "next/link";
 import centerEllipses from "../../../../utils/centerEllipses";
 import {
-  burnErrors,
-  mintErrors,
-} from "../../../../components/channels/vibes/VibesTokenExchange";
-import {
   filteredInput,
   formatIncompleteNumber,
 } from "../../../../utils/validation/input";
@@ -328,13 +324,9 @@ export const useTradeTempTokenState = ({
       },
       onTxError: (error) => {
         console.log("mint error", error);
-        let message =
+        const message =
           "Unknown error, please check the explorer for more details";
-        Object.keys(mintErrors).forEach((key) => {
-          if (String(error).includes(key)) {
-            message = mintErrors[key];
-          }
-        });
+
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#b82929" p={2}>
@@ -455,13 +447,9 @@ export const useTradeTempTokenState = ({
       },
       onTxError: (error) => {
         console.log("burn error", error);
-        let message =
+        const message =
           "Unknown error, please check the explorer for more details";
-        Object.keys(burnErrors).forEach((key) => {
-          if (String(error).includes(key)) {
-            message = burnErrors[key];
-          }
-        });
+
         toast({
           render: () => (
             <Box as="button" borderRadius="md" bg="#b82929" p={2}>

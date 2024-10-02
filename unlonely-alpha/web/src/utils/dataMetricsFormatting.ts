@@ -1,10 +1,10 @@
 import { LivepeerViewershipMetrics } from "../generated/graphql";
-import { MergedMetrics } from "../pages/metrics";
+// import { MergedMetrics } from "../pages/metrics";
 
 export const mergeMetrics = (data: LivepeerViewershipMetrics[]) => {
   const allTimestamps = new Set<number>();
-  const viewCountsResult: MergedMetrics[] = [];
-  const playtimeMinsResult: MergedMetrics[] = [];
+  const viewCountsResult: any[] = [];
+  const playtimeMinsResult: any[] = [];
 
   const playbackIdToViewCountTotal: Record<string, number> = {};
   const playbackIdToPlaytimeMinsTotal: Record<string, number> = {};
@@ -47,8 +47,8 @@ export const mergeMetrics = (data: LivepeerViewershipMetrics[]) => {
   });
 
   sortedTimestamps.forEach((timestamp) => {
-    const viewCountEntry: MergedMetrics = { timestamp };
-    const playtimeMinsEntry: MergedMetrics = { timestamp };
+    const viewCountEntry: any = { timestamp };
+    const playtimeMinsEntry: any = { timestamp };
 
     data.forEach((metric) => {
       if (

@@ -7,7 +7,7 @@ import {
   protocolRewardsABI,
   protocolRewardsAddress,
 } from "@zoralabs/protocol-deployments";
-import { Aggregate3ValueCall, multicall3Address } from "../../pages/clip";
+// import { Aggregate3ValueCall, multicall3Address } from "../../pages/clip";
 import { multicall3Abi } from "../../constants/abi/multicall3";
 import { useCallback } from "react";
 
@@ -27,7 +27,7 @@ export const useZoraCollect1155 = () => {
         return undefined;
       }
 
-      const agregate3Calls: Aggregate3ValueCall[] = [];
+      const agregate3Calls: any[] = [];
 
       const collectorClient = createCollectorClient({ chainId, publicClient });
 
@@ -104,7 +104,7 @@ export const useZoraCollect1155 = () => {
       const { request } = await publicClient.simulateContract({
         abi: multicall3Abi,
         functionName: "aggregate3Value",
-        address: multicall3Address,
+        address: "0x1Ee38d535d541c55C9DA5C4f2e3fDf9aDfCf9f9E",
         args: [agregate3Calls],
         account: walletClient?.account.address as Address,
         value: parameters.value || BigInt(0),

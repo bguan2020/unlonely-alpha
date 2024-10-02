@@ -1,13 +1,13 @@
 import {
   createContext,
-  useCallback,
+  // useCallback,
   useContext,
   useMemo,
   useRef,
   useState,
 } from "react";
 
-import { BlastRain } from "../../components/chat/emoji/BlastRain";
+// import { BlastRain } from "../../components/chat/emoji/BlastRain";
 
 export const useScreenAnimationsContext = () => {
   return useContext(ScreenAnimationsContext);
@@ -53,17 +53,17 @@ export const ScreenAnimationsProvider = ({
     setEmojiQueue((prev) => [...prev, { emoji, uid: Date.now().toString() }]);
   };
 
-  const removeEmoji = useCallback((uid: string) => {
-    setEmojiQueue((prev) => prev.filter((e) => e.uid !== uid));
-  }, []);
+  // const removeEmoji = useCallback((uid: string) => {
+  //   setEmojiQueue((prev) => prev.filter((e) => e.uid !== uid));
+  // }, []);
 
-  const emojiRainComponents = useMemo(
-    () =>
-      emojiQueue.map(({ emoji, uid }) => (
-        <BlastRain key={uid} emoji={emoji} uid={uid} remove={removeEmoji} />
-      )),
-    [emojiQueue, removeEmoji]
-  );
+  // const emojiRainComponents = useMemo(
+  //   () =>
+  //     emojiQueue.map(({ emoji, uid }) => (
+  //       <BlastRain key={uid} emoji={emoji} uid={uid} remove={removeEmoji} />
+  //     )),
+  //   [emojiQueue, removeEmoji]
+  // );
 
   const value = useMemo(
     () => ({
@@ -88,7 +88,7 @@ export const ScreenAnimationsProvider = ({
           <div className="after"></div>
         </div>
       )}
-      {emojiRainComponents}
+      {/* {emojiRainComponents} */}
       {/* <BlastRain
         emoji={<span>testing🎉</span>}
         uid="test"
