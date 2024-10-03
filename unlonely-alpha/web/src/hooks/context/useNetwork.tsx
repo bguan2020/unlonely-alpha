@@ -17,7 +17,6 @@ import {
   Image,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { TbWorldExclamation } from "react-icons/tb";
 
 import { NETWORKS } from "../../constants/networks";
 import { Network } from "../../constants/types";
@@ -93,7 +92,7 @@ export const NetworkProvider = ({
               <Flex justifyContent={"space-between"} alignItems="center">
                 <Text textAlign="center" fontSize="18px">
                   <Flex alignItems={"center"} gap="10px">
-                    <TbWorldExclamation /> wrong network
+                    wrong network
                   </Flex>
                 </Text>
                 <IconButton

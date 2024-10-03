@@ -16,7 +16,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import copy from "copy-to-clipboard";
-import { GiTalk } from "react-icons/gi";
+import { IoMdText } from "react-icons/io";
 import { IoIosHelpCircle } from "react-icons/io";
 import { FaFileDownload } from "react-icons/fa";
 
@@ -331,7 +331,7 @@ const ChatForm = ({
                       <PopoverTrigger>
                         <IconButton
                           color="white"
-                          icon={<GiTalk size={20} />}
+                          icon={<IoMdText size={20} />}
                           bg="transparent"
                           aria-label="command"
                           _focus={{}}
