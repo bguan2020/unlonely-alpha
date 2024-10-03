@@ -7,17 +7,17 @@ import {
   useState,
 } from "react";
 // import { useLazyQuery } from "@apollo/client";
-// import {
-//   usePrivy,
-//   useWallets,
-//   useLogin,
-//   useLogout,
-//   useConnectWallet,
-//   // WalletWithMetadata,
-//   ConnectedWallet,
-//   ConnectedSolanaWallet,
-//   WalletWithMetadata,
-// } from "@privy-io/react-auth";
+import {
+  usePrivy,
+  //   useWallets,
+  //   useLogin,
+  //   useLogout,
+  //   useConnectWallet,
+  // WalletWithMetadata,
+  //   ConnectedWallet,
+  //   ConnectedSolanaWallet,
+  //   WalletWithMetadata,
+} from "@privy-io/react-auth";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -125,14 +125,14 @@ export const UserProvider = ({
 
   // const { signMessage } = useSignMessage();
 
-  // const {
-  //   authenticated,
-  //   ready,
-  //   exportWallet,
-  //   linkWallet,
-  //   unlinkWallet,
-  //   user: privyUser,
-  // } = usePrivy();
+  const {
+    authenticated,
+    ready,
+    exportWallet,
+    linkWallet,
+    unlinkWallet,
+    user: privyUser,
+  } = usePrivy();
   // const { wallets: evmWallets } = useWallets();
   // const { wallets: solanaWallets } = useSolanaWallets();
 
@@ -143,30 +143,30 @@ export const UserProvider = ({
 
   // console.log("wallets", wallets, evmWallets, solanaWallets);
 
-  // const latestVerifiedPrivyAccount = useMemo(() => {
-  //   if (privyUser?.linkedAccounts.length === 0) return undefined;
-  //   if (privyUser?.linkedAccounts.length === 1)
-  //     return privyUser?.linkedAccounts[0];
-  //   const accountWithLatestVerifiedAt = privyUser?.linkedAccounts
-  //     .filter((account) => account.latestVerifiedAt instanceof Date) // Filter accounts with a valid Date
-  //     .reduce((latest: any, current) => {
-  //       if (
-  //         !latest ||
-  //         (current.latestVerifiedAt &&
-  //           current.latestVerifiedAt > latest.latestVerifiedAt)
-  //       ) {
-  //         return current; // Return the account with the later date
-  //       }
-  //       return latest;
-  //     }, undefined); // Changed initial value to undefined
-  //   return accountWithLatestVerifiedAt;
-  // }, [privyUser?.linkedAccounts]);
+  const latestVerifiedPrivyAccount = useMemo(() => {
+    if (privyUser?.linkedAccounts.length === 0) return undefined;
+    if (privyUser?.linkedAccounts.length === 1)
+      return privyUser?.linkedAccounts[0];
+    const accountWithLatestVerifiedAt = privyUser?.linkedAccounts
+      .filter((account) => account.latestVerifiedAt instanceof Date) // Filter accounts with a valid Date
+      .reduce((latest: any, current) => {
+        if (
+          !latest ||
+          (current.latestVerifiedAt &&
+            current.latestVerifiedAt > latest.latestVerifiedAt)
+        ) {
+          return current; // Return the account with the later date
+        }
+        return latest;
+      }, undefined); // Changed initial value to undefined
+    return accountWithLatestVerifiedAt;
+  }, [privyUser?.linkedAccounts]);
 
-  // console.log(
-  //   "latestVerifiedPrivyAccount",
-  //   latestVerifiedPrivyAccount?.address,
-  //   wagmiAddress
-  // );
+  //   console.log(
+  //     "latestVerifiedPrivyAccount",
+  //     latestVerifiedPrivyAccount?.address,
+  //     wagmiAddress
+  //   );
 
   //   const toast = useToast();
   //   const { postStreamInteraction } = usePostStreamInteraction({});
@@ -287,8 +287,8 @@ export const UserProvider = ({
     () => ({
       user,
       wagmiAddress: undefined,
-      ready: false,
-      authenticated: false,
+      ready,
+      authenticated,
       isManagingWallets,
       fetchingUser,
       doesUserAddressMatch,
