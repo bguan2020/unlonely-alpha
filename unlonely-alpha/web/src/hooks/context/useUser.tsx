@@ -13,7 +13,7 @@ import {
   useLogin,
   useLogout,
   useConnectWallet,
-  WalletWithMetadata,
+  // WalletWithMetadata,
   ConnectedWallet,
   ConnectedSolanaWallet,
 } from "@privy-io/react-auth";
@@ -21,23 +21,23 @@ import {
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { useSolanaWallets } from "@privy-io/react-auth/solana";
-import {
-  Box,
-  Button,
-  Flex,
-  // IconButton,
-  Text,
-  Image,
-  // Tooltip,
-  useToast,
-} from "@chakra-ui/react";
+// import {
+//   Box,
+//   Button,
+//   Flex,
+//   IconButton,
+//   Text,
+//   Image,
+//   Tooltip,
+//   useToast,
+// } from "@chakra-ui/react";
 // import { RiSubtractFill } from "react-icons/ri";
 // import { GoUnlink } from "react-icons/go";
 
 import { Channel, GetUserQuery, Maybe, Scalars } from "../../generated/graphql";
 // import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
 import { GET_USER_QUERY } from "../../constants/queries";
-import centerEllipses from "../../utils/centerEllipses";
+// import centerEllipses from "../../utils/centerEllipses";
 // import { Tos } from "../../components/general/Tos";
 // import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
 import { useApolloContext } from "./useApollo";
@@ -203,7 +203,7 @@ export const UserProvider = ({
     wagmiAddress
   );
 
-  const toast = useToast();
+  // const toast = useToast();
   const { postStreamInteraction } = usePostStreamInteraction({});
   const { login } = useLogin({
     onComplete: (
@@ -374,7 +374,7 @@ export const UserProvider = ({
 
   return (
     <UserContext.Provider value={value}>
-      <Flex direction={"column"} gap="5px">
+      {/* <Flex direction={"column"} gap="5px">
         {privyUser?.linkedAccounts
           .filter((account) => account.type === "wallet")
           .map((account) => {
@@ -491,7 +491,7 @@ export const UserProvider = ({
                       {foundWallet ? "set active" : "connect"}
                     </Button>
                   )}
-                  {/* {privyUser?.linkedAccounts.filter(
+                  {privyUser?.linkedAccounts.filter(
                     (account) => account.type === "wallet"
                   ).length > 1 && (
                     <Tooltip label="unlink wallet" shouldWrapChildren>
@@ -513,7 +513,7 @@ export const UserProvider = ({
                         }}
                       />
                     </Tooltip>
-                  )} */}
+                  )}
                 </Flex>
               </Flex>
             );
@@ -525,22 +525,22 @@ export const UserProvider = ({
             {privyUser?.id}
           </Text>
         </Flex>
-        {/* <Button onClick={() => signMessage({ message: "hello world" })}>
+        <Button onClick={() => signMessage({ message: "hello world" })}>
             test sign message
-          </Button> */}
-        {/* <Button
+          </Button>
+        <Button
             onClick={async () => {
-              // const { data: getDoesUserAddressMatchData } = await client.query({
-              //   query: GET_DOES_USER_ADDRESS_MATCH_QUERY,
-              //   variables: { data: { address: wagmiAddress } },
-              // });
-              // console.log(
-              //   "ARC verified manual getDoesUserAddressMatchData",
-              //   getDoesUserAddressMatchData
-              // );
-              // setDoesUserAddressMatch(
-              //   getDoesUserAddressMatchData?.getDoesUserAddressMatch
-              // );
+              const { data: getDoesUserAddressMatchData } = await client.query({
+                query: GET_DOES_USER_ADDRESS_MATCH_QUERY,
+                variables: { data: { address: wagmiAddress } },
+              });
+              console.log(
+                "ARC verified manual getDoesUserAddressMatchData",
+                getDoesUserAddressMatchData
+              );
+              setDoesUserAddressMatch(
+                getDoesUserAddressMatchData?.getDoesUserAddressMatch
+              );
               postStreamInteraction({
                 streamInteractionType: "test",
                 channelId: "1",
@@ -548,7 +548,7 @@ export const UserProvider = ({
             }}
           >
             test backend
-          </Button> */}
+          </Button>
         <Button
           color="white"
           bg="#E09025"
@@ -587,7 +587,7 @@ export const UserProvider = ({
         <Text textAlign={"center"} fontSize="15px">
           to resolve, switch back to the original wallet account or logout
         </Text>
-      </Flex>
+      </Flex> */}
       {children}
     </UserContext.Provider>
   );
