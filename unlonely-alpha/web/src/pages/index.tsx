@@ -1,3 +1,3 @@
 export default function Page() {
-  return <>hello</>;
+  return <p style={{ color: "black" }}>hello privy</p>;
 }
