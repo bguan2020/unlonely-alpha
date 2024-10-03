@@ -5,7 +5,6 @@ import {
   NormalizedCacheObject,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
-import { getAccessToken } from "@privy-io/react-auth";
 import { useMemo } from "react";
 
 export interface Context {
@@ -27,24 +26,22 @@ let apolloClient: ApolloClient<NormalizedCacheObject>;
 const server = String(process.env.NEXT_PUBLIC_DIGITAL_OCEAN_SERVER_URL);
 
 const authLink = setContext(async (_, { headers }) => {
-  const token = await getAccessToken();
   const latestVerifiedAddress = headers["latest-verified-address"];
   return {
     headers: {
       ...headers,
-      authorization: token ? `Bearer ${token}` : "",
+      authorization: "",
       "latest-verified-address": latestVerifiedAddress || "",
     },
   };
 });
 
 const createAuthLink = (latestVerifiedAddress: string | null) => setContext(async (_, { headers }) => {
-  const token = await getAccessToken();
   console.log("Setting latest-verified-address header:", latestVerifiedAddress);
   return {
     headers: {
       ...headers,
-      authorization: token ? `Bearer ${token}` : "",
+      authorization: "",
       "latest-verified-address": latestVerifiedAddress || "",
     },
   };

@@ -8,7 +8,7 @@ import { http } from "wagmi";
 import { AppProps } from "next/app";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
-import { PrivyProvider } from "@privy-io/react-auth";
+// import { PrivyProvider } from "@privy-io/react-auth";
 import { createConfig } from "@privy-io/wagmi";
 // import { QueryClient } from "@tanstack/react-query";
 
@@ -17,7 +17,7 @@ import theme from "../styles/theme";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
+// import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
 import { UserProvider } from "../hooks/context/useUser";
 
 // const queryClient = new QueryClient();
@@ -30,11 +30,11 @@ interface InitialProps {
 
 type Props = AppProps & InitialProps;
 
-const solanaConnectors = toSolanaWalletConnectors({
-  // By default, shouldAutoConnect is enabled
-  // shouldAutoConnect: true,
-  shouldAutoConnect: false,
-});
+// const solanaConnectors = toSolanaWalletConnectors({
+//   // By default, shouldAutoConnect is enabled
+//   // shouldAutoConnect: true,
+//   shouldAutoConnect: false,
+// });
 
 function App({ Component, pageProps }: Props) {
   const config = createConfig({
@@ -52,7 +52,7 @@ function App({ Component, pageProps }: Props) {
   // useLogin from privy to detect user login and with what address, use this callback to update the user context on the backend
   return (
     <ChakraProvider theme={theme}>
-      <PrivyProvider
+      {/* <PrivyProvider
         appId={String(process.env.NEXT_PUBLIC_PRIVY_APP_ID)}
         config={{
           defaultChain: Base,
@@ -78,11 +78,11 @@ function App({ Component, pageProps }: Props) {
             },
           },
         }}
-      >
-        <UserProvider>
-          <Component {...pageProps} />
-        </UserProvider>
-      </PrivyProvider>
+      > */}
+      <UserProvider>
+        <Component {...pageProps} />
+      </UserProvider>
+      {/* </PrivyProvider> */}
     </ChakraProvider>
   );
 }
