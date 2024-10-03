@@ -21,7 +21,7 @@ import {
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { useSolanaWallets } from "@privy-io/react-auth/solana";
+// import { useSolanaWallets } from "@privy-io/react-auth/solana";
 
 // import { RiSubtractFill } from "react-icons/ri";
 // import { GoUnlink } from "react-icons/go";
@@ -36,11 +36,11 @@ import {
 // import { Tos } from "../../components/general/Tos";
 // import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
 // import { useApolloContext } from "./useApollo";
-import { useAccount, useSignMessage } from "wagmi";
-import { useSetActiveWallet } from "@privy-io/wagmi";
+// import { useAccount, useSignMessage } from "wagmi";
+// import { useSetActiveWallet } from "@privy-io/wagmi";
 // import usePostStreamInteraction from "../server/usePostStreamInteraction";
 import {
-  areAddressesEqual,
+  // areAddressesEqual,
   isValidAddress,
 } from "../../utils/validation/wallet";
 import centerEllipses from "../../utils/centerEllipses";
@@ -131,11 +131,11 @@ export const UserProvider = ({
   children: JSX.Element[] | JSX.Element;
 }) => {
   //   const { handleLatestVerifiedAddress } = useApolloContext();
-  const { setActiveWallet } = useSetActiveWallet();
+  // const { setActiveWallet } = useSetActiveWallet();
   const [user, setUser] = useState<DatabaseUser | undefined>(undefined);
   const [isManagingWallets, setIsManagingWallets] = useState(false);
 
-  const [differentWallet, setDifferentWallet] = useState(false);
+  // const [differentWallet, setDifferentWallet] = useState(false);
   const [initialNotificationsGranted, setInitialNotificationsGranted] =
     useState(false);
   const [fetchingUser, setFetchingUser] = useState(false);
@@ -150,9 +150,9 @@ export const UserProvider = ({
     undefined
   );
 
-  const { address: wagmiAddress } = useAccount();
+  // const { address: wagmiAddress } = useAccount();
 
-  const { signMessage } = useSignMessage();
+  // const { signMessage } = useSignMessage();
   const handleInitialNotificationsGranted = useCallback((granted: boolean) => {
     setInitialNotificationsGranted(granted);
   }, []);
@@ -166,14 +166,14 @@ export const UserProvider = ({
     user: privyUser,
   } = usePrivy();
   const { wallets: evmWallets } = useWallets();
-  const { wallets: solanaWallets } = useSolanaWallets();
+  // const { wallets: solanaWallets } = useSolanaWallets();
 
-  const wallets = useMemo(
-    () => [...evmWallets, ...(solanaWallets as ConnectedSolanaWallet[])],
-    [evmWallets, solanaWallets]
-  );
+  // const wallets = useMemo(
+  //   () => [...evmWallets, ...(solanaWallets as ConnectedSolanaWallet[])],
+  //   [evmWallets, solanaWallets]
+  // );
 
-  console.log("wallets", wallets, evmWallets, solanaWallets);
+  // console.log("wallets", wallets, evmWallets, solanaWallets);
 
   const latestVerifiedPrivyAccount = useMemo(() => {
     if (privyUser?.linkedAccounts.length === 0) return undefined;
@@ -194,11 +194,11 @@ export const UserProvider = ({
     return accountWithLatestVerifiedAt;
   }, [privyUser?.linkedAccounts]);
 
-  console.log(
-    "latestVerifiedPrivyAccount",
-    latestVerifiedPrivyAccount?.address,
-    wagmiAddress
-  );
+  // console.log(
+  //   "latestVerifiedPrivyAccount",
+  //   latestVerifiedPrivyAccount?.address,
+  //   wagmiAddress
+  // );
 
   //   const toast = useToast();
   //   const { postStreamInteraction } = usePostStreamInteraction({});
@@ -219,8 +219,8 @@ export const UserProvider = ({
         loginAccount,
         authenticated,
         user,
-        ready,
-        wallets
+        ready
+        // wallets: []
       );
     },
     onError: (error) => {
@@ -302,14 +302,14 @@ export const UserProvider = ({
       fetchAndSetUserData(latestVerifiedPrivyAccount?.address);
   }, [latestVerifiedPrivyAccount?.address]);
 
-  useEffect(() => {
-    if (!localAddress || evmWallets.length === 0) return;
-    const foundEvmWallet = evmWallets.find((w) =>
-      areAddressesEqual(w.address, localAddress)
-    );
-    console.log("foundEvmWallet", foundEvmWallet, evmWallets, localAddress);
-    if (foundEvmWallet) setActiveWallet(foundEvmWallet);
-  }, [localAddress, evmWallets, setActiveWallet]);
+  // useEffect(() => {
+  //   if (!localAddress || evmWallets.length === 0) return;
+  //   const foundEvmWallet = evmWallets.find((w) =>
+  //     areAddressesEqual(w.address, localAddress)
+  //   );
+  //   console.log("foundEvmWallet", foundEvmWallet, evmWallets, localAddress);
+  //   if (foundEvmWallet) setActiveWallet(foundEvmWallet);
+  // }, [localAddress, evmWallets, setActiveWallet]);
 
   const handleIsManagingWallets = useCallback((value: boolean) => {
     setIsManagingWallets(value);
@@ -325,15 +325,13 @@ export const UserProvider = ({
     () => ({
       user,
       initialNotificationsGranted,
-      wagmiAddress,
+      wagmiAddress: undefined,
       ready,
       authenticated,
       isManagingWallets,
       fetchingUser,
       doesUserAddressMatch,
-      activeWallet: wallets.find((w) =>
-        areAddressesEqual(localAddress ?? "", w.address)
-      ),
+      activeWallet: undefined,
       solanaAddress,
       fetchUser,
       login,
@@ -353,7 +351,7 @@ export const UserProvider = ({
       isManagingWallets,
       fetchingUser,
       doesUserAddressMatch,
-      wagmiAddress,
+      // wagmiAddress,
       solanaAddress,
       fetchUser,
       login,
@@ -375,9 +373,7 @@ export const UserProvider = ({
         {privyUser?.linkedAccounts
           .filter((account) => account.type === "wallet")
           .map((account) => {
-            const foundWallet = wallets.find(
-              (w) => w.address === (account as WalletWithMetadata).address
-            );
+            const foundWallet = undefined;
             return (
               <Flex
                 style={{ gap: "5px" }}
