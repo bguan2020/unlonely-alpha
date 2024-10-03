@@ -18,6 +18,7 @@ import theme from "../styles/theme";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
+import { UserProvider } from "../hooks/context/useUser";
 
 // const queryClient = new QueryClient();
 
@@ -80,11 +81,11 @@ function App({ Component, pageProps }: Props) {
       >
         {/* <QueryClientProvider client={queryClient}>
           <WagmiProvider config={config}>
-            <ApolloProvider pageProps={pageProps}>
-              <UserProvider> */}
-        <Component {...pageProps} />
-        {/* </UserProvider>
-            </ApolloProvider>
+            <ApolloProvider pageProps={pageProps}> */}
+        <UserProvider>
+          <Component {...pageProps} />
+        </UserProvider>
+        {/* </ApolloProvider>
           </WagmiProvider>
         </QueryClientProvider> */}
       </PrivyProvider>
