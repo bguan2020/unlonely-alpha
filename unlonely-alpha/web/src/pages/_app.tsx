@@ -4,15 +4,15 @@ import "../styles/bell.css";
 import "../styles/imageScroller.css";
 
 import { ChakraProvider } from "@chakra-ui/react";
-import { http } from "wagmi";
+// import { http } from "wagmi";
 import { AppProps } from "next/app";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
 // import { PrivyProvider } from "@privy-io/react-auth";
-import { createConfig } from "@privy-io/wagmi";
+// import { createConfig } from "@privy-io/wagmi";
 // import { QueryClient } from "@tanstack/react-query";
 
-import { Base, Mainnet } from "../constants/networks";
+// import { Base, Mainnet } from "../constants/networks";
 import theme from "../styles/theme";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -37,17 +37,17 @@ type Props = AppProps & InitialProps;
 // });
 
 function App({ Component, pageProps }: Props) {
-  const config = createConfig({
-    chains: [Base, Mainnet],
-    transports: {
-      [Base.id]: http(
-        `https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_BASE_API_KEY}`
-      ),
-      [Mainnet.id]: http(
-        `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
-      ),
-    },
-  });
+  // const config = createConfig({
+  //   chains: [Base, Mainnet],
+  //   transports: {
+  //     [Base.id]: http(
+  //       `https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_BASE_API_KEY}`
+  //     ),
+  //     [Mainnet.id]: http(
+  //       `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
+  //     ),
+  //   },
+  // });
 
   // useLogin from privy to detect user login and with what address, use this callback to update the user context on the backend
   return (
