@@ -54,23 +54,23 @@ import {
 
 // const FETCH_TRIES = 5;
 
-type WalletListEntry =
-  | "metamask"
-  | "phantom"
-  | "rainbow"
-  | "rabby_wallet"
-  | "coinbase_wallet"
-  | "zerion"
-  | "cryptocom"
-  | "uniswap"
-  | "okx_wallet"
-  | "detected_wallets"
-  | "wallet_connect"
-  | "safe";
+// type WalletListEntry =
+//   | "metamask"
+//   | "phantom"
+//   | "rainbow"
+//   | "rabby_wallet"
+//   | "coinbase_wallet"
+//   | "zerion"
+//   | "cryptocom"
+//   | "uniswap"
+//   | "okx_wallet"
+//   | "detected_wallets"
+//   | "wallet_connect"
+//   | "safe";
 
-const isWalletListEntry = (value: unknown): value is WalletListEntry => {
-  return typeof value === "string" && (value as WalletListEntry) === value;
-};
+// const isWalletListEntry = (value: unknown): value is WalletListEntry => {
+//   return typeof value === "string" && (value as WalletListEntry) === value;
+// };
 
 export const useUser = () => {
   return useContext(UserContext);

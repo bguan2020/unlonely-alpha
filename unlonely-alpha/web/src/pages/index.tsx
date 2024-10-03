@@ -1,3 +1,321 @@
+import {
+  usePrivy,
+  useWallets,
+  useSolanaWallets,
+  ConnectedSolanaWallet,
+  useLogin,
+  useConnectWallet,
+  useLogout,
+  WalletWithMetadata,
+} from "@privy-io/react-auth";
+import { useSetActiveWallet } from "@privy-io/wagmi";
+import { useState, useCallback, useMemo, useEffect } from "react";
+import { isValidAddress, areAddressesEqual } from "../utils/validation/wallet";
+
 export default function Page() {
-  return <p style={{ color: "black" }}>hello privy</p>;
+  const { setActiveWallet } = useSetActiveWallet();
+  const [user, setUser] = useState<any | undefined>(undefined);
+  const [isManagingWallets, setIsManagingWallets] = useState(false);
+
+  const [differentWallet, setDifferentWallet] = useState(false);
+  const [initialNotificationsGranted, setInitialNotificationsGranted] =
+    useState(false);
+  const [fetchingUser, setFetchingUser] = useState(false);
+  const [doesUserAddressMatch, setDoesUserAddressMatch] = useState<
+    boolean | undefined
+  >(undefined);
+
+  const [solanaAddress, setSolanaAddress] = useState<string | undefined>(
+    undefined
+  );
+  const [localAddress, setLocalAddress] = useState<string | undefined>(
+    undefined
+  );
+
+  //   const { address: wagmiAddress } = useAccount();
+
+  //   const { signMessage } = useSignMessage();
+  const handleInitialNotificationsGranted = useCallback((granted: boolean) => {
+    setInitialNotificationsGranted(granted);
+  }, []);
+
+  const {
+    authenticated,
+    ready,
+    exportWallet,
+    linkWallet,
+    unlinkWallet,
+    user: privyUser,
+  } = usePrivy();
+  const { wallets: evmWallets } = useWallets();
+  const { wallets: solanaWallets } = useSolanaWallets();
+
+  const wallets = useMemo(
+    () => [...evmWallets, ...(solanaWallets as ConnectedSolanaWallet[])],
+    [evmWallets, solanaWallets]
+  );
+
+  console.log("wallets", wallets, evmWallets, solanaWallets);
+
+  const latestVerifiedPrivyAccount = useMemo(() => {
+    if (privyUser?.linkedAccounts.length === 0) return undefined;
+    if (privyUser?.linkedAccounts.length === 1)
+      return privyUser?.linkedAccounts[0];
+    const accountWithLatestVerifiedAt = privyUser?.linkedAccounts
+      .filter((account) => account.latestVerifiedAt instanceof Date) // Filter accounts with a valid Date
+      .reduce((latest: any, current) => {
+        if (
+          !latest ||
+          (current.latestVerifiedAt &&
+            current.latestVerifiedAt > latest.latestVerifiedAt)
+        ) {
+          return current; // Return the account with the later date
+        }
+        return latest;
+      }, undefined); // Changed initial value to undefined
+    return accountWithLatestVerifiedAt;
+  }, [privyUser?.linkedAccounts]);
+
+  console.log(
+    "latestVerifiedPrivyAccount",
+    latestVerifiedPrivyAccount?.address
+    // wagmiAddress
+  );
+
+  //   const toast = useToast();
+  //   const { postStreamInteraction } = usePostStreamInteraction({});
+  const { login } = useLogin({
+    onComplete: (
+      _user,
+      isNewUser,
+      wasAlreadyAuthenticated,
+      loginMethod,
+      loginAccount
+    ) => {
+      console.log(
+        "login complete",
+        _user,
+        isNewUser,
+        wasAlreadyAuthenticated,
+        loginMethod,
+        loginAccount,
+        authenticated,
+        user,
+        ready
+        // wallets
+      );
+    },
+    onError: (error) => {
+      console.error("login error", error);
+    },
+  });
+
+  const { connectWallet } = useConnectWallet({
+    onSuccess: (wallet) => {
+      fetchAndSetUserData(wallet.address);
+    },
+    onError: (err) => {
+      console.error("connect wallet error", err);
+    },
+  });
+
+  const { logout } = useLogout({
+    onSuccess: () => {
+      setUser(undefined);
+      setSolanaAddress(undefined);
+      setLocalAddress(undefined);
+      //   handleLatestVerifiedAddress(null);
+    },
+  });
+
+  //   const [fetchUser] = useLazyQuery<GetUserQuery>(GET_USER_QUERY, {
+  //     fetchPolicy: "network-only",
+  //   });
+
+  const fetchAndSetUserData = useCallback(async (_address: string) => {
+    setFetchingUser(true);
+    // handleLatestVerifiedAddress(_address);
+    setDoesUserAddressMatch(undefined);
+    const addressType = isValidAddress(_address);
+    console.log("addressType", addressType, _address);
+    handleSolanaAddress(addressType === "solana" ? _address : undefined);
+    setLocalAddress(_address);
+    // for (let i = 0; i < FETCH_TRIES; i++) {
+    //   let data;
+    //   try {
+    //     data = await fetchUser({
+    //       variables: {
+    //         data: {
+    //           address: _address,
+    //         },
+    //       },
+    //     });
+    //   } catch (e) {
+    //     console.error("fetching user data error", e);
+    //   }
+    //   if (data?.data?.getUser) {
+    //     console.log("user found in database", data);
+    //     setUser({
+    //       address: data?.data?.getUser?.address,
+    //       channel: data?.data?.getUser?.channel as DatabaseUser["channel"],
+    //       username: data?.data?.getUser?.username,
+    //       FCImageUrl: data?.data?.getUser?.FCImageUrl,
+    //       FCHandle: data?.data?.getUser?.FCHandle,
+    //       lensHandle: data?.data?.getUser?.lensHandle,
+    //       lensImageUrl: data?.data?.getUser?.lensImageUrl,
+    //       powerUserLvl: data?.data?.getUser?.powerUserLvl,
+    //     });
+    //     break;
+    //   } else {
+    //     console.error("user not found in database", data); // todo: create error toast just in case
+    //   }
+
+    //   await new Promise((resolve) => setTimeout(resolve, 2000));
+    // }
+    setFetchingUser(false);
+  }, []);
+
+  const handleUser = useCallback((data: any | undefined) => {
+    setUser(data);
+  }, []);
+
+  useEffect(() => {
+    if (latestVerifiedPrivyAccount?.address)
+      fetchAndSetUserData(latestVerifiedPrivyAccount?.address);
+  }, [latestVerifiedPrivyAccount?.address]);
+
+  useEffect(() => {
+    if (!localAddress || evmWallets.length === 0) return;
+    const foundEvmWallet = evmWallets.find((w) =>
+      areAddressesEqual(w.address, localAddress)
+    );
+    console.log("foundEvmWallet", foundEvmWallet, evmWallets, localAddress);
+    if (foundEvmWallet) setActiveWallet(foundEvmWallet);
+  }, [localAddress, evmWallets, setActiveWallet]);
+
+  const handleIsManagingWallets = useCallback((value: boolean) => {
+    setIsManagingWallets(value);
+  }, []);
+
+  const handleSolanaAddress = useCallback((address: string | undefined) => {
+    setSolanaAddress(address);
+  }, []);
+
+  return (
+    <>
+      <div>
+        {privyUser?.linkedAccounts
+          .filter((account) => account.type === "wallet")
+          .map((account) => {
+            const foundWallet = undefined;
+            return (
+              <div>
+                <div>
+                  {areAddressesEqual(
+                    localAddress ?? "",
+                    (account as WalletWithMetadata).address
+                  ) &&
+                  (areAddressesEqual("", localAddress ?? "") ||
+                    areAddressesEqual(
+                      solanaAddress ?? "",
+                      localAddress ?? ""
+                    )) ? (
+                    <div>
+                      <div>Active</div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        if (foundWallet) {
+                          connectWallet({
+                            suggestedAddress: (account as WalletWithMetadata)
+                              .address,
+                            // walletList:
+                            //   (account as WalletWithMetadata)
+                            //     .walletClientType &&
+                            //   isWalletListEntry(
+                            //     (account as WalletWithMetadata)
+                            //       .walletClientType
+                            //   )
+                            //     ? ([
+                            //         (account as WalletWithMetadata)
+                            //           .walletClientType,
+                            //       ] as WalletListEntry[])
+                            //     : undefined,
+                          });
+                        }
+                      }}
+                    >
+                      {foundWallet ? "set active" : "connect"}
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        <button onClick={linkWallet}>link new wallet</button>
+        <div>
+          <p>privy user id</p>
+          <p color="#acacac">{privyUser?.id}</p>
+        </div>
+        {/* <Button onClick={() => signMessage({ message: "hello world" })}>
+        test sign message
+      </Button> */}
+        {/* <Button
+        onClick={async () => {
+          // const { data: getDoesUserAddressMatchData } = await client.query({
+          //   query: GET_DOES_USER_ADDRESS_MATCH_QUERY,
+          //   variables: { data: { address: wagmiAddress } },
+          // });
+          // console.log(
+          //   "ARC verified manual getDoesUserAddressMatchData",
+          //   getDoesUserAddressMatchData
+          // );
+          // setDoesUserAddressMatch(
+          //   getDoesUserAddressMatchData?.getDoesUserAddressMatch
+          // );
+          postStreamInteraction({
+            streamInteractionType: "test",
+            channelId: "1",
+          });
+        }}
+      >
+        test backend
+      </Button> */}
+        <button
+          onClick={() => {
+            logout();
+            setIsManagingWallets(false);
+          }}
+        >
+          logout
+        </button>
+      </div>
+      {/* </TransactionModalTemplate> */}
+      {/* <TransactionModalTemplate
+  confirmButton="logout"
+  title="did you change wallet accounts?"
+  isOpen={differentWallet}
+  handleClose={() => setDifferentWallet(false)}
+  canSend={true}
+  onSend={logout}
+  isModalLoading={false}
+  size="sm"
+  blur
+> */}
+      <div>
+        <p>
+          our app thinks you're using two different wallet addresses, this can
+          occur when you change wallet accounts while logged in
+        </p>
+        <div>
+          <p>logged in as {user?.address}</p>
+          {/* <Text textAlign={"center"} fontSize={"12px"} color="#85c71b">
+        connected {wallets[0]?.address}
+      </Text> */}
+        </div>
+        <p>to resolve, switch back to the original wallet account or logout</p>
+      </div>
+    </>
+  );
 }

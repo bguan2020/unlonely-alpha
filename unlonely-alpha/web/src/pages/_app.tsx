@@ -20,7 +20,7 @@ import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
 // import { TourProvider } from "@reactour/tour";
 // import { http } from "viem";
 import { Base, Mainnet } from "../constants/networks";
-import { UserProvider } from "../hooks/context/useUser";
+// import { UserProvider } from "../hooks/context/useUser";
 
 const queryClient = new QueryClient();
 
@@ -176,9 +176,9 @@ function App({ Component, pageProps }: Props) {
       <QueryClientProvider client={queryClient}>
         <WagmiProvider config={config}>
           {/* <ApolloProvider pageProps={pageProps}> */}
-          <UserProvider>
-            <Component {...pageProps} />
-          </UserProvider>
+          {/* <UserProvider> */}
+          <Component {...pageProps} />
+          {/* </UserProvider> */}
           {/* </ApolloProvider> */}
         </WagmiProvider>
       </QueryClientProvider>
