@@ -19,6 +19,7 @@ import theme from "../styles/theme";
 // @ts-ignore
 // import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
 import { UserProvider } from "../hooks/context/useUser";
+import { ApolloProvider } from "../hooks/context/useApollo";
 
 // const queryClient = new QueryClient();
 
@@ -79,9 +80,11 @@ function App({ Component, pageProps }: Props) {
           },
         }}
       > */}
-      <UserProvider>
-        <Component {...pageProps} />
-      </UserProvider>
+      <ApolloProvider pageProps={pageProps}>
+        <UserProvider>
+          <Component {...pageProps} />
+        </UserProvider>
+      </ApolloProvider>
       {/* </PrivyProvider> */}
     </ChakraProvider>
   );
