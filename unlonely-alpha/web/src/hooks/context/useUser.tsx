@@ -2,7 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
+  // useEffect,
   useMemo,
   useState,
 } from "react";
@@ -21,7 +21,7 @@ import { useLazyQuery } from "@apollo/client";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { useSolanaWallets } from "@privy-io/react-auth/solana";
+// import { useSolanaWallets } from "@privy-io/react-auth/solana";
 
 // import { RiSubtractFill } from "react-icons/ri";
 // import { GoUnlink } from "react-icons/go";
@@ -158,7 +158,7 @@ export const UserProvider = ({
   //   user: privyUser,
   // } = usePrivy();
   // const { wallets: evmWallets } = useWallets();
-  const { wallets: solanaWallets } = useSolanaWallets();
+  // const { wallets: solanaWallets } = useSolanaWallets();
 
   // const wallets = useMemo(
   //   () => [...evmWallets, ...(solanaWallets as ConnectedSolanaWallet[])],
@@ -294,9 +294,9 @@ export const UserProvider = ({
   //     fetchAndSetUserData(latestVerifiedPrivyAccount?.address);
   // }, [latestVerifiedPrivyAccount?.address]);
 
-  useEffect(() => {
-    setActiveWallet(solanaWallets[0]);
-  }, [solanaWallets, setActiveWallet]);
+  // useEffect(() => {
+  //   setActiveWallet(solanaWallets[0]);
+  // }, [solanaWallets, setActiveWallet]);
 
   const handleIsManagingWallets = useCallback((value: boolean) => {
     setIsManagingWallets(value);
