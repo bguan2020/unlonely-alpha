@@ -3,6 +3,9 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 });
 
 module.exports = withBundleAnalyzer({
+  experimental: {
+    optimizePackageImports: ["@chakra-ui/react"],
+  },
   async redirects() {
     return [
       {
