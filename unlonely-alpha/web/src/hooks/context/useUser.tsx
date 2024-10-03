@@ -2,7 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
+  // useEffect,
   useMemo,
   useState,
 } from "react";
@@ -32,12 +32,12 @@ import { useSolanaWallets } from "@privy-io/react-auth/solana";
 // } from "@chakra-ui/react";
 // import { RiSubtractFill } from "react-icons/ri";
 
-// import {
-//   Channel,
-//   GetUserQuery,
-//   Maybe,
-//   Scalars,
-// } from "../../generated/graphql";
+import {
+  Channel,
+  // GetUserQuery,
+  Maybe,
+  Scalars,
+} from "../../generated/graphql";
 // import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
 // import { GET_USER_QUERY } from "../../constants/queries";
 // import centerEllipses from "../../utils/centerEllipses";
@@ -45,50 +45,47 @@ import { useSolanaWallets } from "@privy-io/react-auth/solana";
 // import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
 // import { useApolloContext } from "./useApollo";
 // import { useAccount, useSignMessage } from "wagmi";
-import { useSetActiveWallet } from "@privy-io/wagmi";
+// import { useSetActiveWallet } from "@privy-io/wagmi";
 // import usePostStreamInteraction from "../server/usePostStreamInteraction";
-import {
-  areAddressesEqual,
-  isValidAddress,
-} from "../../utils/validation/wallet";
+import { areAddressesEqual } from "../../utils/validation/wallet";
 
 // const FETCH_TRIES = 5;
 
-// type WalletListEntry =
-//   | "metamask"
-//   | "phantom"
-//   | "rainbow"
-//   | "rabby_wallet"
-//   | "coinbase_wallet"
-//   | "zerion"
-//   | "cryptocom"
-//   | "uniswap"
-//   | "okx_wallet"
-//   | "detected_wallets"
-//   | "wallet_connect"
-//   | "safe";
+type WalletListEntry =
+  | "metamask"
+  | "phantom"
+  | "rainbow"
+  | "rabby_wallet"
+  | "coinbase_wallet"
+  | "zerion"
+  | "cryptocom"
+  | "uniswap"
+  | "okx_wallet"
+  | "detected_wallets"
+  | "wallet_connect"
+  | "safe";
 
-// const isWalletListEntry = (value: unknown): value is WalletListEntry => {
-//   return typeof value === "string" && (value as WalletListEntry) === value;
-// };
+const isWalletListEntry = (value: unknown): value is WalletListEntry => {
+  return typeof value === "string" && (value as WalletListEntry) === value;
+};
 
 export const useUser = () => {
   return useContext(UserContext);
 };
 
-// type DatabaseUser = {
-//   address: Scalars["String"];
-//   channel?: Maybe<Array<Maybe<Partial<Channel>>>>;
-//   username?: Maybe<Scalars["String"]>;
-//   FCImageUrl?: Maybe<Scalars["String"]>;
-//   FCHandle?: Maybe<Scalars["String"]>;
-//   lensHandle?: Maybe<Scalars["String"]>;
-//   lensImageUrl?: Maybe<Scalars["String"]>;
-//   powerUserLvl: Scalars["Int"];
-// };
+type DatabaseUser = {
+  address: Scalars["String"];
+  channel?: Maybe<Array<Maybe<Partial<Channel>>>>;
+  username?: Maybe<Scalars["String"]>;
+  FCImageUrl?: Maybe<Scalars["String"]>;
+  FCHandle?: Maybe<Scalars["String"]>;
+  lensHandle?: Maybe<Scalars["String"]>;
+  lensImageUrl?: Maybe<Scalars["String"]>;
+  powerUserLvl: Scalars["Int"];
+};
 
 const UserContext = createContext<{
-  user?: any;
+  user?: DatabaseUser;
   username?: string;
   initialNotificationsGranted: boolean;
   wagmiAddress?: `0x${string}`;
@@ -106,8 +103,7 @@ const UserContext = createContext<{
   logout: () => void;
   exportWallet: () => Promise<void>;
   handleIsManagingWallets: (value: boolean) => void;
-  fetchAndSetUserData: (address: string) => void;
-  handleUser: (data: any | undefined) => void;
+  handleUser: (data: DatabaseUser | undefined) => void;
 }>({
   user: undefined,
   username: undefined,
@@ -127,7 +123,6 @@ const UserContext = createContext<{
   logout: () => undefined,
   exportWallet: () => Promise.resolve(),
   handleIsManagingWallets: () => undefined,
-  fetchAndSetUserData: () => undefined,
   handleUser: () => undefined,
 });
 
@@ -137,8 +132,8 @@ export const UserProvider = ({
   children: JSX.Element[] | JSX.Element;
 }) => {
   //   const { handleLatestVerifiedAddress } = useApolloContext();
-  const { setActiveWallet } = useSetActiveWallet();
-  const [user, setUser] = useState<any | undefined>(undefined);
+  // const { setActiveWallet } = useSetActiveWallet();
+  const [user, setUser] = useState<DatabaseUser | undefined>(undefined);
   const [isManagingWallets, setIsManagingWallets] = useState(false);
 
   const [differentWallet, setDifferentWallet] = useState(false);
@@ -235,9 +230,6 @@ export const UserProvider = ({
   });
 
   const { connectWallet } = useConnectWallet({
-    onSuccess: (wallet) => {
-      fetchAndSetUserData(wallet.address);
-    },
     onError: (err) => {
       console.error("connect wallet error", err);
     },
@@ -256,66 +248,18 @@ export const UserProvider = ({
   //     fetchPolicy: "network-only",
   //   });
 
-  const fetchAndSetUserData = useCallback(async (_address: string) => {
-    setFetchingUser(true);
-    // handleLatestVerifiedAddress(_address);
-    setDoesUserAddressMatch(undefined);
-    const addressType = isValidAddress(_address);
-    console.log("addressType", addressType, _address);
-    handleSolanaAddress(addressType === "solana" ? _address : undefined);
-    setLocalAddress(_address);
-    // for (let i = 0; i < FETCH_TRIES; i++) {
-    //   let data;
-    //   try {
-    //     data = await fetchUser({
-    //       variables: {
-    //         data: {
-    //           address: _address,
-    //         },
-    //       },
-    //     });
-    //   } catch (e) {
-    //     console.error("fetching user data error", e);
-    //   }
-    //   if (data?.data?.getUser) {
-    //     console.log("user found in database", data);
-    //     setUser({
-    //       address: data?.data?.getUser?.address,
-    //       channel: data?.data?.getUser?.channel as DatabaseUser["channel"],
-    //       username: data?.data?.getUser?.username,
-    //       FCImageUrl: data?.data?.getUser?.FCImageUrl,
-    //       FCHandle: data?.data?.getUser?.FCHandle,
-    //       lensHandle: data?.data?.getUser?.lensHandle,
-    //       lensImageUrl: data?.data?.getUser?.lensImageUrl,
-    //       powerUserLvl: data?.data?.getUser?.powerUserLvl,
-    //     });
-    //     break;
-    //   } else {
-    //     console.error("user not found in database", data); // todo: create error toast just in case
-    //   }
-
-    //   await new Promise((resolve) => setTimeout(resolve, 2000));
-    // }
-    setFetchingUser(false);
-  }, []);
-
-  const handleUser = useCallback((data: any | undefined) => {
+  const handleUser = useCallback((data: DatabaseUser | undefined) => {
     setUser(data);
   }, []);
 
-  useEffect(() => {
-    if (latestVerifiedPrivyAccount?.address)
-      fetchAndSetUserData(latestVerifiedPrivyAccount?.address);
-  }, [latestVerifiedPrivyAccount?.address]);
-
-  useEffect(() => {
-    if (!localAddress || evmWallets.length === 0) return;
-    const foundEvmWallet = evmWallets.find((w) =>
-      areAddressesEqual(w.address, localAddress)
-    );
-    console.log("foundEvmWallet", foundEvmWallet, evmWallets, localAddress);
-    if (foundEvmWallet) setActiveWallet(foundEvmWallet);
-  }, [localAddress, evmWallets, setActiveWallet]);
+  // useEffect(() => {
+  //   if (!localAddress || evmWallets.length === 0) return;
+  //   const foundEvmWallet = evmWallets.find((w) =>
+  //     areAddressesEqual(w.address, localAddress)
+  //   );
+  //   console.log("foundEvmWallet", foundEvmWallet, evmWallets, localAddress);
+  //   if (foundEvmWallet) setActiveWallet(foundEvmWallet);
+  // }, [localAddress, evmWallets, setActiveWallet]);
 
   const handleIsManagingWallets = useCallback((value: boolean) => {
     setIsManagingWallets(value);
@@ -346,7 +290,6 @@ export const UserProvider = ({
       exportWallet,
       handleIsManagingWallets,
       handleSolanaAddress,
-      fetchAndSetUserData,
       handleUser,
     }),
     [
@@ -366,26 +309,12 @@ export const UserProvider = ({
       exportWallet,
       handleIsManagingWallets,
       handleSolanaAddress,
-      fetchAndSetUserData,
       handleUser,
     ]
   );
 
-  console.log("privyUser?.linkedAccounts", privyUser?.linkedAccounts);
-
   return (
     <UserContext.Provider value={value}>
-      {/* <TurnOnNotificationsModal
-        handleInitialNotificationsGranted={handleInitialNotificationsGranted}
-      /> */}
-      {/* <TransactionModalTemplate
-        title="manage your wallets"
-        isOpen={isManagingWallets}
-        handleClose={() => setIsManagingWallets(false)}
-        isModalLoading={false}
-        size="md"
-        hideFooter
-      > */}
       <div>
         {privyUser?.linkedAccounts
           .filter((account) => account.type === "wallet")
@@ -413,18 +342,6 @@ export const UserProvider = ({
                           connectWallet({
                             suggestedAddress: (account as WalletWithMetadata)
                               .address,
-                            // walletList:
-                            //   (account as WalletWithMetadata)
-                            //     .walletClientType &&
-                            //   isWalletListEntry(
-                            //     (account as WalletWithMetadata)
-                            //       .walletClientType
-                            //   )
-                            //     ? ([
-                            //         (account as WalletWithMetadata)
-                            //           .walletClientType,
-                            //       ] as WalletListEntry[])
-                            //     : undefined,
                           });
                         }
                       }}
@@ -437,34 +354,12 @@ export const UserProvider = ({
             );
           })}
         <button onClick={linkWallet}>link new wallet</button>
+        <button onClick={login}>login</button>
+        <button onClick={exportWallet}>export wallet</button>
         <div>
           <p>privy user id</p>
           <p color="#acacac">{privyUser?.id}</p>
         </div>
-        {/* <Button onClick={() => signMessage({ message: "hello world" })}>
-              test sign message
-            </Button> */}
-        {/* <Button
-              onClick={async () => {
-                // const { data: getDoesUserAddressMatchData } = await client.query({
-                //   query: GET_DOES_USER_ADDRESS_MATCH_QUERY,
-                //   variables: { data: { address: wagmiAddress } },
-                // });
-                // console.log(
-                //   "ARC verified manual getDoesUserAddressMatchData",
-                //   getDoesUserAddressMatchData
-                // );
-                // setDoesUserAddressMatch(
-                //   getDoesUserAddressMatchData?.getDoesUserAddressMatch
-                // );
-                postStreamInteraction({
-                  streamInteractionType: "test",
-                  channelId: "1",
-                });
-              }}
-            >
-              test backend
-            </Button> */}
         <button
           onClick={() => {
             logout();
@@ -474,18 +369,6 @@ export const UserProvider = ({
           logout
         </button>
       </div>
-      {/* </TransactionModalTemplate> */}
-      {/* <TransactionModalTemplate
-        confirmButton="logout"
-        title="did you change wallet accounts?"
-        isOpen={differentWallet}
-        handleClose={() => setDifferentWallet(false)}
-        canSend={true}
-        onSend={logout}
-        isModalLoading={false}
-        size="sm"
-        blur
-      > */}
       <div>
         <p>
           our app thinks you're using two different wallet addresses, this can
@@ -493,9 +376,6 @@ export const UserProvider = ({
         </p>
         <div>
           <p>logged in as {user?.address}</p>
-          {/* <Text textAlign={"center"} fontSize={"12px"} color="#85c71b">
-              connected {wallets[0]?.address}
-            </Text> */}
         </div>
         <p>to resolve, switch back to the original wallet account or logout</p>
       </div>

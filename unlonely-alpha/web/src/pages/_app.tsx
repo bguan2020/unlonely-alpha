@@ -1,15 +1,19 @@
 // import { ChakraProvider, Flex, IconButton, Text } from "@chakra-ui/react";
-import { http } from "wagmi";
+// import { http } from "wagmi";
 import { AppProps } from "next/app";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
 import { PrivyProvider } from "@privy-io/react-auth";
-import { createConfig, WagmiProvider } from "@privy-io/wagmi";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+// import {
+//   createConfig,
+//   WagmiProvider
+// } from "@privy-io/wagmi";
+// import { QueryClient } from "@tanstack/react-query";
 
 // import { FaArrowRight } from "react-icons/fa";
 // import { FaArrowLeft } from "react-icons/fa";
 
+// import { Base, Mainnet } from "../constants/networks";
 // import theme from "../styles/theme";
 // import Link from "next/link";
 
@@ -19,10 +23,14 @@ import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
 // import { ApolloProvider } from "../hooks/context/useApollo";
 // import { TourProvider } from "@reactour/tour";
 // import { http } from "viem";
-import { Base, Mainnet } from "../constants/networks";
-// import { UserProvider } from "../hooks/context/useUser";
+import {
+  Base,
+  //  Mainnet
+} from "../constants/networks";
+import { UserProvider } from "../hooks/context/useUser";
+// import { QueryClientProvider } from "@tanstack/react-query";
 
-const queryClient = new QueryClient();
+// const queryClient = new QueryClient();
 
 export type Cookies = Record<string, string | undefined>;
 
@@ -132,17 +140,17 @@ const solanaConnectors = toSolanaWalletConnectors({
 });
 
 function App({ Component, pageProps }: Props) {
-  const config = createConfig({
-    chains: [Base, Mainnet],
-    transports: {
-      [Base.id]: http(
-        `https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_BASE_API_KEY}`
-      ),
-      [Mainnet.id]: http(
-        `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
-      ),
-    },
-  });
+  // const config = createConfig({
+  //   chains: [Base, Mainnet],
+  //   transports: {
+  //     [Base.id]: http(
+  //       `https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_BASE_API_KEY}`
+  //     ),
+  //     [Mainnet.id]: http(
+  //       `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
+  //     ),
+  //   },
+  // });
 
   // useLogin from privy to detect user login and with what address, use this callback to update the user context on the backend
   return (
@@ -173,15 +181,15 @@ function App({ Component, pageProps }: Props) {
         },
       }}
     >
-      <QueryClientProvider client={queryClient}>
+      {/* <QueryClientProvider client={queryClient}>
         <WagmiProvider config={config}>
-          {/* <ApolloProvider pageProps={pageProps}> */}
-          {/* <UserProvider> */}
-          <Component {...pageProps} />
-          {/* </UserProvider> */}
-          {/* </ApolloProvider> */}
+          <ApolloProvider pageProps={pageProps}> */}
+      <UserProvider>
+        <Component {...pageProps} />
+      </UserProvider>
+      {/* </ApolloProvider>
         </WagmiProvider>
-      </QueryClientProvider>
+      </QueryClientProvider> */}
     </PrivyProvider>
   );
 }
