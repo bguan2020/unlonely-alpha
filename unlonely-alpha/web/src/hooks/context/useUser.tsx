@@ -20,7 +20,7 @@ import {
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-// import { useSolanaWallets } from "@privy-io/react-auth/solana";
+import { useSolanaWallets } from "@privy-io/react-auth/solana";
 // import {
 //   Box,
 //   Button,
@@ -45,7 +45,7 @@ import {
 // import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
 // import { useApolloContext } from "./useApollo";
 // import { useAccount, useSignMessage } from "wagmi";
-// import { useSetActiveWallet } from "@privy-io/wagmi";
+import { useSetActiveWallet } from "@privy-io/wagmi";
 // import usePostStreamInteraction from "../server/usePostStreamInteraction";
 import {
   areAddressesEqual,
@@ -137,7 +137,7 @@ export const UserProvider = ({
   children: JSX.Element[] | JSX.Element;
 }) => {
   //   const { handleLatestVerifiedAddress } = useApolloContext();
-  //   const { setActiveWallet } = useSetActiveWallet();
+  const { setActiveWallet } = useSetActiveWallet();
   const [user, setUser] = useState<DatabaseUser | undefined>(undefined);
   const [isManagingWallets, setIsManagingWallets] = useState(false);
 
@@ -172,14 +172,14 @@ export const UserProvider = ({
     user: privyUser,
   } = usePrivy();
   const { wallets: evmWallets } = useWallets();
-  //   const { wallets: solanaWallets } = useSolanaWallets();
+  const { wallets: solanaWallets } = useSolanaWallets();
 
-  //   const wallets = useMemo(
-  //     () => [...evmWallets, ...(solanaWallets as ConnectedSolanaWallet[])],
-  //     [evmWallets, solanaWallets]
-  //   );
+  const wallets = useMemo(
+    () => [...evmWallets, ...(solanaWallets as ConnectedSolanaWallet[])],
+    [evmWallets, solanaWallets]
+  );
 
-  //   console.log("wallets", wallets, evmWallets, solanaWallets);
+  console.log("wallets", wallets, evmWallets, solanaWallets);
 
   const latestVerifiedPrivyAccount = useMemo(() => {
     if (privyUser?.linkedAccounts.length === 0) return undefined;
@@ -308,14 +308,14 @@ export const UserProvider = ({
       fetchAndSetUserData(latestVerifiedPrivyAccount?.address);
   }, [latestVerifiedPrivyAccount?.address]);
 
-  //   useEffect(() => {
-  //     if (!localAddress || evmWallets.length === 0) return;
-  //     const foundEvmWallet = evmWallets.find((w) =>
-  //       areAddressesEqual(w.address, localAddress)
-  //     );
-  //     console.log("foundEvmWallet", foundEvmWallet, evmWallets, localAddress);
-  //     if (foundEvmWallet) setActiveWallet(foundEvmWallet);
-  //   }, [localAddress, evmWallets, setActiveWallet]);
+  useEffect(() => {
+    if (!localAddress || evmWallets.length === 0) return;
+    const foundEvmWallet = evmWallets.find((w) =>
+      areAddressesEqual(w.address, localAddress)
+    );
+    console.log("foundEvmWallet", foundEvmWallet, evmWallets, localAddress);
+    if (foundEvmWallet) setActiveWallet(foundEvmWallet);
+  }, [localAddress, evmWallets, setActiveWallet]);
 
   const handleIsManagingWallets = useCallback((value: boolean) => {
     setIsManagingWallets(value);
