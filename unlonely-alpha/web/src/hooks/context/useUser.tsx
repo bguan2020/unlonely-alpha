@@ -44,11 +44,7 @@ import {
   isValidAddress,
 } from "../../utils/validation/wallet";
 import centerEllipses from "../../utils/centerEllipses";
-import Flex from "@chakra-ui/core/dist/Flex";
-import Text from "@chakra-ui/core/dist/Text";
-import Image from "@chakra-ui/core/dist/Image";
-import Box from "@chakra-ui/core/dist/Box";
-import Button from "@chakra-ui/core/dist/Button";
+import { Flex, Button, Text } from "@chakra-ui/react";
 
 const FETCH_TRIES = 5;
 
@@ -392,138 +388,12 @@ export const UserProvider = ({
                 alignItems={"center"}
               >
                 <Flex style={{ gap: "5px" }} alignItems={"center"}>
-                  {foundWallet?.meta.icon ? (
-                    <Image
-                      src={
-                        wallets.find(
-                          (w) =>
-                            w.address ===
-                            (account as WalletWithMetadata).address
-                        )?.meta.icon
-                      }
-                      alt="wallet image"
-                      width="20px"
-                      height="20px"
-                    />
-                  ) : // <GoUnlink />
-                  null}
-                  {(foundWallet as any)?.type && (
-                    <>
-                      {(foundWallet as any)?.type === "ethereum" && (
-                        <Image
-                          src={"/images/eth-logo.png"}
-                          alt="chain image"
-                          width="20px"
-                          height="20px"
-                        />
-                      )}
-                      {(foundWallet as any)?.type === "solana" && (
-                        <Image
-                          src={"/images/sol-logo.png"}
-                          alt="chain image"
-                          width="20px"
-                          height="20px"
-                        />
-                      )}
-                    </>
-                  )}
                   <Text fontFamily={"LoRes15"}>
                     {centerEllipses(
                       (account as WalletWithMetadata).address,
                       13
                     )}
                   </Text>
-                </Flex>
-                <Flex
-                  alignItems={"end"}
-                  style={{
-                    gap: "5px",
-                  }}
-                >
-                  {areAddressesEqual(
-                    localAddress ?? "",
-                    (account as WalletWithMetadata).address
-                  ) &&
-                  (areAddressesEqual(wagmiAddress ?? "", localAddress ?? "") ||
-                    areAddressesEqual(
-                      solanaAddress ?? "",
-                      localAddress ?? ""
-                    )) ? (
-                    <Flex
-                      style={{
-                        gap: "5px",
-                      }}
-                    >
-                      <Flex
-                        background="#22b66e"
-                        alignItems="center"
-                        borderRadius="5px"
-                        px="5px"
-                        height={"20px"}
-                        fontSize="15px"
-                      >
-                        <Text>Active</Text>
-                      </Flex>
-                    </Flex>
-                  ) : (
-                    <Button
-                      border="1px white solid"
-                      height={"20px"}
-                      fontSize="15px"
-                      bg="transparent"
-                      color="white"
-                      _hover={{
-                        bg: "rgba(255, 255, 255, 0.2)",
-                      }}
-                      onClick={() => {
-                        if (foundWallet) {
-                          fetchAndSetUserData(foundWallet.address);
-                        } else {
-                          connectWallet({
-                            suggestedAddress: (account as WalletWithMetadata)
-                              .address,
-                            // walletList:
-                            //   (account as WalletWithMetadata)
-                            //     .walletClientType &&
-                            //   isWalletListEntry(
-                            //     (account as WalletWithMetadata)
-                            //       .walletClientType
-                            //   )
-                            //     ? ([
-                            //         (account as WalletWithMetadata)
-                            //           .walletClientType,
-                            //       ] as WalletListEntry[])
-                            //     : undefined,
-                          });
-                        }
-                      }}
-                    >
-                      {foundWallet ? "set active" : "connect"}
-                    </Button>
-                  )}
-                  {/* {privyUser?.linkedAccounts.filter(
-                      (account) => account.type === "wallet"
-                    ).length > 1 && (
-                      <Tooltip label="unlink wallet" shouldWrapChildren>
-                        <IconButton
-                          border="1px white solid"
-                          color="white"
-                          bg="transparent"
-                          _hover={{
-                            bg: "rgba(255, 255, 255, 0.2)",
-                          }}
-                          height={"20px"}
-                          icon={<RiSubtractFill />}
-                          aria-label="unlink wallet"
-                          onClick={async () => {
-                            const newPrivyUser = await unlinkWallet(
-                              (account as WalletWithMetadata).address
-                            );
-                            console.log("newPrivyUser", newPrivyUser);
-                          }}
-                        />
-                      </Tooltip>
-                    )} */}
                 </Flex>
               </Flex>
             );
@@ -535,30 +405,6 @@ export const UserProvider = ({
             {privyUser?.id}
           </Text>
         </Flex>
-        <Button onClick={() => signMessage({ message: "hello world" })}>
-          test sign message
-        </Button>
-        {/* <Button
-          onClick={async () => {
-            const { data: getDoesUserAddressMatchData } = await client.query({
-              query: GET_DOES_USER_ADDRESS_MATCH_QUERY,
-              variables: { data: { address: wagmiAddress } },
-            });
-            console.log(
-              "ARC verified manual getDoesUserAddressMatchData",
-              getDoesUserAddressMatchData
-            );
-            setDoesUserAddressMatch(
-              getDoesUserAddressMatchData?.getDoesUserAddressMatch
-            );
-            postStreamInteraction({
-              streamInteractionType: "test",
-              channelId: "1",
-            });
-          }}
-        >
-          test backend
-        </Button> */}
         <Button
           color="white"
           bg="#E09025"
@@ -573,35 +419,6 @@ export const UserProvider = ({
         >
           logout
         </Button>
-      </Flex>
-
-      <Flex
-        direction={"column"}
-        style={{
-          gap: "5px",
-        }}
-      >
-        <Text textAlign={"center"} fontSize="13px" color="#BABABA">
-          our app thinks you're using two different wallet addresses, this can
-          occur when you change wallet accounts while logged in
-        </Text>
-        <Box
-          borderColor="#909090"
-          borderWidth="1px"
-          borderStyle="solid"
-          p="5px"
-          borderRadius="5px"
-        >
-          <Text textAlign={"center"} fontSize={"12px"} color="#22b66e">
-            logged in as {user?.address}
-          </Text>
-          <Text textAlign={"center"} fontSize={"12px"} color="#85c71b">
-            connected {wallets[0]?.address}
-          </Text>
-        </Box>
-        <Text textAlign={"center"} fontSize="15px">
-          to resolve, switch back to the original wallet account or logout
-        </Text>
       </Flex>
       {children}
     </UserContext.Provider>
