@@ -4,13 +4,13 @@ import "../styles/bell.css";
 import "../styles/imageScroller.css";
 
 import { ChakraProvider } from "@chakra-ui/react";
-import { http } from "wagmi";
+import { http, WagmiProvider } from "wagmi";
 import { AppProps } from "next/app";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { createConfig } from "@privy-io/wagmi";
-// import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { Base, Mainnet } from "../constants/networks";
 import theme from "../styles/theme";
@@ -18,9 +18,9 @@ import theme from "../styles/theme";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
-import { UserProvider } from "../hooks/context/useUser";
+import { ApolloProvider } from "../hooks/context/useApollo";
 
-// const queryClient = new QueryClient();
+const queryClient = new QueryClient();
 
 export type Cookies = Record<string, string | undefined>;
 
@@ -79,15 +79,13 @@ function App({ Component, pageProps }: Props) {
           },
         }}
       >
-        {/* <QueryClientProvider client={queryClient}>
+        <QueryClientProvider client={queryClient}>
           <WagmiProvider config={config}>
-            <ApolloProvider pageProps={pageProps}> */}
-        <UserProvider>
-          <Component {...pageProps} />
-        </UserProvider>
-        {/* </ApolloProvider>
+            <ApolloProvider pageProps={pageProps}>
+              <Component {...pageProps} />
+            </ApolloProvider>
           </WagmiProvider>
-        </QueryClientProvider> */}
+        </QueryClientProvider>
       </PrivyProvider>
     </ChakraProvider>
   );
