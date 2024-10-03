@@ -7,21 +7,21 @@ import {
   useState,
 } from "react";
 import { useLazyQuery } from "@apollo/client";
-import {
-  usePrivy,
-  useWallets,
-  useLogin,
-  useLogout,
-  useConnectWallet,
-  // WalletWithMetadata,
-  ConnectedWallet,
-  ConnectedSolanaWallet,
-  WalletWithMetadata,
-} from "@privy-io/react-auth";
+// import {
+//   usePrivy,
+//   useWallets,
+//   useLogin,
+//   useLogout,
+//   useConnectWallet,
+//   // WalletWithMetadata,
+//   ConnectedWallet,
+//   ConnectedSolanaWallet,
+//   WalletWithMetadata,
+// } from "@privy-io/react-auth";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-// import { useSolanaWallets } from "@privy-io/react-auth/solana";
+import { useSolanaWallets } from "@privy-io/react-auth/solana";
 
 // import { RiSubtractFill } from "react-icons/ri";
 // import { GoUnlink } from "react-icons/go";
@@ -36,14 +36,14 @@ import {
 // import { Tos } from "../../components/general/Tos";
 // import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
 // import { useApolloContext } from "./useApollo";
-// import { useAccount, useSignMessage } from "wagmi";
-// import { useSetActiveWallet } from "@privy-io/wagmi";
+import { useAccount, useSignMessage } from "wagmi";
+import { useSetActiveWallet } from "@privy-io/wagmi";
 // import usePostStreamInteraction from "../server/usePostStreamInteraction";
 import {
   // areAddressesEqual,
   isValidAddress,
 } from "../../utils/validation/wallet";
-import centerEllipses from "../../utils/centerEllipses";
+// import centerEllipses from "../../utils/centerEllipses";
 import { Flex, Button, Text } from "@chakra-ui/react";
 
 const FETCH_TRIES = 5;
@@ -92,13 +92,9 @@ const UserContext = createContext<{
   isManagingWallets: boolean;
   fetchingUser: boolean;
   doesUserAddressMatch: boolean | undefined;
-  activeWallet: ConnectedWallet | ConnectedSolanaWallet | undefined;
+  activeWallet: undefined;
   handleSolanaAddress: (address: string | undefined) => void;
   fetchUser: () => any;
-  login: () => void;
-  connectWallet: () => void;
-  logout: () => void;
-  exportWallet: () => Promise<void>;
   handleIsManagingWallets: (value: boolean) => void;
   fetchAndSetUserData: (address: string) => void;
   handleUser: (data: DatabaseUser | undefined) => void;
@@ -116,10 +112,6 @@ const UserContext = createContext<{
   activeWallet: undefined,
   handleSolanaAddress: () => undefined,
   fetchUser: () => undefined,
-  login: () => undefined,
-  connectWallet: () => undefined,
-  logout: () => undefined,
-  exportWallet: () => Promise.resolve(),
   handleIsManagingWallets: () => undefined,
   fetchAndSetUserData: () => undefined,
   handleUser: () => undefined,
@@ -131,7 +123,7 @@ export const UserProvider = ({
   children: JSX.Element[] | JSX.Element;
 }) => {
   //   const { handleLatestVerifiedAddress } = useApolloContext();
-  // const { setActiveWallet } = useSetActiveWallet();
+  const { setActiveWallet } = useSetActiveWallet();
   const [user, setUser] = useState<DatabaseUser | undefined>(undefined);
   const [isManagingWallets, setIsManagingWallets] = useState(false);
 
@@ -150,23 +142,23 @@ export const UserProvider = ({
     undefined
   );
 
-  // const { address: wagmiAddress } = useAccount();
+  const { address: wagmiAddress } = useAccount();
 
-  // const { signMessage } = useSignMessage();
+  const { signMessage } = useSignMessage();
   const handleInitialNotificationsGranted = useCallback((granted: boolean) => {
     setInitialNotificationsGranted(granted);
   }, []);
 
-  const {
-    authenticated,
-    ready,
-    exportWallet,
-    linkWallet,
-    unlinkWallet,
-    user: privyUser,
-  } = usePrivy();
-  const { wallets: evmWallets } = useWallets();
-  // const { wallets: solanaWallets } = useSolanaWallets();
+  // const {
+  //   authenticated,
+  //   ready,
+  //   exportWallet,
+  //   linkWallet,
+  //   unlinkWallet,
+  //   user: privyUser,
+  // } = usePrivy();
+  // const { wallets: evmWallets } = useWallets();
+  const { wallets: solanaWallets } = useSolanaWallets();
 
   // const wallets = useMemo(
   //   () => [...evmWallets, ...(solanaWallets as ConnectedSolanaWallet[])],
@@ -175,24 +167,24 @@ export const UserProvider = ({
 
   // console.log("wallets", wallets, evmWallets, solanaWallets);
 
-  const latestVerifiedPrivyAccount = useMemo(() => {
-    if (privyUser?.linkedAccounts.length === 0) return undefined;
-    if (privyUser?.linkedAccounts.length === 1)
-      return privyUser?.linkedAccounts[0];
-    const accountWithLatestVerifiedAt = privyUser?.linkedAccounts
-      .filter((account) => account.latestVerifiedAt instanceof Date) // Filter accounts with a valid Date
-      .reduce((latest: any, current) => {
-        if (
-          !latest ||
-          (current.latestVerifiedAt &&
-            current.latestVerifiedAt > latest.latestVerifiedAt)
-        ) {
-          return current; // Return the account with the later date
-        }
-        return latest;
-      }, undefined); // Changed initial value to undefined
-    return accountWithLatestVerifiedAt;
-  }, [privyUser?.linkedAccounts]);
+  // const latestVerifiedPrivyAccount = useMemo(() => {
+  //   if (privyUser?.linkedAccounts.length === 0) return undefined;
+  //   if (privyUser?.linkedAccounts.length === 1)
+  //     return privyUser?.linkedAccounts[0];
+  //   const accountWithLatestVerifiedAt = privyUser?.linkedAccounts
+  //     .filter((account) => account.latestVerifiedAt instanceof Date) // Filter accounts with a valid Date
+  //     .reduce((latest: any, current) => {
+  //       if (
+  //         !latest ||
+  //         (current.latestVerifiedAt &&
+  //           current.latestVerifiedAt > latest.latestVerifiedAt)
+  //       ) {
+  //         return current; // Return the account with the later date
+  //       }
+  //       return latest;
+  //     }, undefined); // Changed initial value to undefined
+  //   return accountWithLatestVerifiedAt;
+  // }, [privyUser?.linkedAccounts]);
 
   // console.log(
   //   "latestVerifiedPrivyAccount",
@@ -202,49 +194,49 @@ export const UserProvider = ({
 
   //   const toast = useToast();
   //   const { postStreamInteraction } = usePostStreamInteraction({});
-  const { login } = useLogin({
-    onComplete: (
-      _user,
-      isNewUser,
-      wasAlreadyAuthenticated,
-      loginMethod,
-      loginAccount
-    ) => {
-      console.log(
-        "login complete",
-        _user,
-        isNewUser,
-        wasAlreadyAuthenticated,
-        loginMethod,
-        loginAccount,
-        authenticated,
-        user,
-        ready
-        // wallets: []
-      );
-    },
-    onError: (error) => {
-      console.error("login error", error);
-    },
-  });
+  // const { login } = useLogin({
+  //   onComplete: (
+  //     _user,
+  //     isNewUser,
+  //     wasAlreadyAuthenticated,
+  //     loginMethod,
+  //     loginAccount
+  //   ) => {
+  //     console.log(
+  //       "login complete",
+  //       _user,
+  //       isNewUser,
+  //       wasAlreadyAuthenticated,
+  //       loginMethod,
+  //       loginAccount,
+  //       authenticated,
+  //       user,
+  //       ready
+  //       // wallets: []
+  //     );
+  //   },
+  //   onError: (error) => {
+  //     console.error("login error", error);
+  //   },
+  // });
 
-  const { connectWallet } = useConnectWallet({
-    onSuccess: (wallet) => {
-      fetchAndSetUserData(wallet.address);
-    },
-    onError: (err) => {
-      console.error("connect wallet error", err);
-    },
-  });
+  // const { connectWallet } = useConnectWallet({
+  //   onSuccess: (wallet) => {
+  //     fetchAndSetUserData(wallet.address);
+  //   },
+  //   onError: (err) => {
+  //     console.error("connect wallet error", err);
+  //   },
+  // });
 
-  const { logout } = useLogout({
-    onSuccess: () => {
-      setUser(undefined);
-      setSolanaAddress(undefined);
-      setLocalAddress(undefined);
-      //   handleLatestVerifiedAddress(null);
-    },
-  });
+  // const { logout } = useLogout({
+  //   onSuccess: () => {
+  //     setUser(undefined);
+  //     setSolanaAddress(undefined);
+  //     setLocalAddress(undefined);
+  //     //   handleLatestVerifiedAddress(null);
+  //   },
+  // });
 
   const [fetchUser] = useLazyQuery<GetUserQuery>(GET_USER_QUERY, {
     fetchPolicy: "network-only",
@@ -297,19 +289,14 @@ export const UserProvider = ({
     setUser(data);
   }, []);
 
-  useEffect(() => {
-    if (latestVerifiedPrivyAccount?.address)
-      fetchAndSetUserData(latestVerifiedPrivyAccount?.address);
-  }, [latestVerifiedPrivyAccount?.address]);
-
   // useEffect(() => {
-  //   if (!localAddress || evmWallets.length === 0) return;
-  //   const foundEvmWallet = evmWallets.find((w) =>
-  //     areAddressesEqual(w.address, localAddress)
-  //   );
-  //   console.log("foundEvmWallet", foundEvmWallet, evmWallets, localAddress);
-  //   if (foundEvmWallet) setActiveWallet(foundEvmWallet);
-  // }, [localAddress, evmWallets, setActiveWallet]);
+  //   if (latestVerifiedPrivyAccount?.address)
+  //     fetchAndSetUserData(latestVerifiedPrivyAccount?.address);
+  // }, [latestVerifiedPrivyAccount?.address]);
+
+  useEffect(() => {
+    setActiveWallet(solanaWallets[0]);
+  }, [solanaWallets, setActiveWallet]);
 
   const handleIsManagingWallets = useCallback((value: boolean) => {
     setIsManagingWallets(value);
@@ -325,19 +312,15 @@ export const UserProvider = ({
     () => ({
       user,
       initialNotificationsGranted,
-      wagmiAddress: undefined,
-      ready,
-      authenticated,
+      wagmiAddress,
+      ready: false,
+      authenticated: false,
       isManagingWallets,
       fetchingUser,
       doesUserAddressMatch,
       activeWallet: undefined,
       solanaAddress,
       fetchUser,
-      login,
-      connectWallet,
-      logout,
-      exportWallet,
       handleIsManagingWallets,
       handleSolanaAddress,
       fetchAndSetUserData,
@@ -346,18 +329,13 @@ export const UserProvider = ({
     [
       user,
       initialNotificationsGranted,
-      ready,
-      authenticated,
+
       isManagingWallets,
       fetchingUser,
       doesUserAddressMatch,
       // wagmiAddress,
       solanaAddress,
       fetchUser,
-      login,
-      connectWallet,
-      logout,
-      exportWallet,
       handleIsManagingWallets,
       handleSolanaAddress,
       fetchAndSetUserData,
@@ -365,40 +343,14 @@ export const UserProvider = ({
     ]
   );
 
-  console.log("privyUser?.linkedAccounts", privyUser?.linkedAccounts);
-
   return (
     <UserContext.Provider value={value}>
       <Flex direction={"column"} style={{ gap: "5px" }}>
-        {privyUser?.linkedAccounts
-          .filter((account) => account.type === "wallet")
-          .map((account) => {
-            const foundWallet = undefined;
-            return (
-              <Flex
-                style={{ gap: "5px" }}
-                background="rgba(0, 0, 0, 0.5)"
-                borderRadius="5px"
-                p="5px"
-                justifyContent={"space-between"}
-                alignItems={"center"}
-              >
-                <Flex style={{ gap: "5px" }} alignItems={"center"}>
-                  <Text fontFamily={"LoRes15"}>
-                    {centerEllipses(
-                      (account as WalletWithMetadata).address,
-                      13
-                    )}
-                  </Text>
-                </Flex>
-              </Flex>
-            );
-          })}
-        <Button onClick={linkWallet}>link new wallet</Button>
+        <Button>link new wallet</Button>
         <Flex justifyContent={"space-between"}>
           <Text fontSize="10px">privy user id</Text>
           <Text fontSize="10px" color="#acacac">
-            {privyUser?.id}
+            sss
           </Text>
         </Flex>
         <Button
@@ -407,11 +359,21 @@ export const UserProvider = ({
           _hover={{}}
           _focus={{}}
           _active={{}}
-          onClick={() => {
-            logout();
-            setIsManagingWallets(false);
-          }}
           borderRadius="25px"
+          onClick={() => {
+            signMessage({
+              message: "hello",
+              //   chainId: 1,
+              //   from: "0x",
+              //   to: "0x",
+              //   value: "0x",
+              //   data: "0x",
+              //   nonce: "0x",
+              //   gasPrice: "0x",
+              //   gasLimit: "0x",
+              //   accessList: [],
+            });
+          }}
         >
           logout
         </Button>
