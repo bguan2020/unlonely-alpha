@@ -32,12 +32,12 @@ import { useSolanaWallets } from "@privy-io/react-auth/solana";
 // } from "@chakra-ui/react";
 // import { RiSubtractFill } from "react-icons/ri";
 
-import {
-  Channel,
-  // GetUserQuery,
-  Maybe,
-  Scalars,
-} from "../../generated/graphql";
+// import {
+//   Channel,
+//   GetUserQuery,
+//   Maybe,
+//   Scalars,
+// } from "../../generated/graphql";
 // import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
 // import { GET_USER_QUERY } from "../../constants/queries";
 // import centerEllipses from "../../utils/centerEllipses";
@@ -76,19 +76,19 @@ export const useUser = () => {
   return useContext(UserContext);
 };
 
-type DatabaseUser = {
-  address: Scalars["String"];
-  channel?: Maybe<Array<Maybe<Partial<Channel>>>>;
-  username?: Maybe<Scalars["String"]>;
-  FCImageUrl?: Maybe<Scalars["String"]>;
-  FCHandle?: Maybe<Scalars["String"]>;
-  lensHandle?: Maybe<Scalars["String"]>;
-  lensImageUrl?: Maybe<Scalars["String"]>;
-  powerUserLvl: Scalars["Int"];
-};
+// type DatabaseUser = {
+//   address: Scalars["String"];
+//   channel?: Maybe<Array<Maybe<Partial<Channel>>>>;
+//   username?: Maybe<Scalars["String"]>;
+//   FCImageUrl?: Maybe<Scalars["String"]>;
+//   FCHandle?: Maybe<Scalars["String"]>;
+//   lensHandle?: Maybe<Scalars["String"]>;
+//   lensImageUrl?: Maybe<Scalars["String"]>;
+//   powerUserLvl: Scalars["Int"];
+// };
 
 const UserContext = createContext<{
-  user?: DatabaseUser;
+  user?: any;
   username?: string;
   initialNotificationsGranted: boolean;
   wagmiAddress?: `0x${string}`;
@@ -107,7 +107,7 @@ const UserContext = createContext<{
   exportWallet: () => Promise<void>;
   handleIsManagingWallets: (value: boolean) => void;
   fetchAndSetUserData: (address: string) => void;
-  handleUser: (data: DatabaseUser | undefined) => void;
+  handleUser: (data: any | undefined) => void;
 }>({
   user: undefined,
   username: undefined,
@@ -138,7 +138,7 @@ export const UserProvider = ({
 }) => {
   //   const { handleLatestVerifiedAddress } = useApolloContext();
   const { setActiveWallet } = useSetActiveWallet();
-  const [user, setUser] = useState<DatabaseUser | undefined>(undefined);
+  const [user, setUser] = useState<any | undefined>(undefined);
   const [isManagingWallets, setIsManagingWallets] = useState(false);
 
   const [differentWallet, setDifferentWallet] = useState(false);
@@ -299,7 +299,7 @@ export const UserProvider = ({
     setFetchingUser(false);
   }, []);
 
-  const handleUser = useCallback((data: DatabaseUser | undefined) => {
+  const handleUser = useCallback((data: any | undefined) => {
     setUser(data);
   }, []);
 
