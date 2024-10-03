@@ -37,7 +37,7 @@ import {
 // import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
 // import { useApolloContext } from "./useApollo";
 import { useAccount, useSignMessage } from "wagmi";
-import { useSetActiveWallet } from "@privy-io/wagmi";
+// import { useSetActiveWallet } from "@privy-io/wagmi";
 // import usePostStreamInteraction from "../server/usePostStreamInteraction";
 import {
   // areAddressesEqual,
@@ -123,7 +123,7 @@ export const UserProvider = ({
   children: JSX.Element[] | JSX.Element;
 }) => {
   //   const { handleLatestVerifiedAddress } = useApolloContext();
-  const { setActiveWallet } = useSetActiveWallet();
+  // const { setActiveWallet } = useSetActiveWallet();
   const [user, setUser] = useState<DatabaseUser | undefined>(undefined);
   const [isManagingWallets, setIsManagingWallets] = useState(false);
 
