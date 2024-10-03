@@ -21,16 +21,16 @@ import {
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 // import { useSolanaWallets } from "@privy-io/react-auth/solana";
-import {
-  Box,
-  Button,
-  Flex,
-  IconButton,
-  Text,
-  Tooltip,
-  useToast,
-} from "@chakra-ui/react";
-import { RiSubtractFill } from "react-icons/ri";
+// import {
+//   Box,
+//   Button,
+//   div,
+//   IconButton,
+//   Text,
+//   Tooltip,
+//   useToast,
+// } from "@chakra-ui/react";
+// import { RiSubtractFill } from "react-icons/ri";
 
 import {
   Channel,
@@ -52,7 +52,7 @@ import {
   isValidAddress,
 } from "../../utils/validation/wallet";
 
-const FETCH_TRIES = 5;
+// const FETCH_TRIES = 5;
 
 type WalletListEntry =
   | "metamask"
@@ -206,7 +206,7 @@ export const UserProvider = ({
     // wagmiAddress
   );
 
-  const toast = useToast();
+  //   const toast = useToast();
   //   const { postStreamInteraction } = usePostStreamInteraction({});
   const { login } = useLogin({
     onComplete: (
@@ -386,21 +386,14 @@ export const UserProvider = ({
         size="md"
         hideFooter
       > */}
-      <Flex direction={"column"} gap="5px">
+      <div>
         {privyUser?.linkedAccounts
           .filter((account) => account.type === "wallet")
           .map((account) => {
             const foundWallet = undefined;
             return (
-              <Flex
-                gap="5px"
-                background="rgba(0, 0, 0, 0.5)"
-                borderRadius="5px"
-                p="5px"
-                justifyContent={"space-between"}
-                alignItems={"center"}
-              >
-                <Flex gap="5px" alignItems={"end"}>
+              <div>
+                <div>
                   {areAddressesEqual(
                     localAddress ?? "",
                     (account as WalletWithMetadata).address
@@ -410,28 +403,11 @@ export const UserProvider = ({
                       solanaAddress ?? "",
                       localAddress ?? ""
                     )) ? (
-                    <Flex gap="5px">
-                      <Flex
-                        background="#22b66e"
-                        alignItems="center"
-                        borderRadius="5px"
-                        px="5px"
-                        height={"20px"}
-                        fontSize="15px"
-                      >
-                        <Text>Active</Text>
-                      </Flex>
-                    </Flex>
+                    <div>
+                      <div>Active</div>
+                    </div>
                   ) : (
-                    <Button
-                      border="1px white solid"
-                      height={"20px"}
-                      fontSize="15px"
-                      bg="transparent"
-                      color="white"
-                      _hover={{
-                        bg: "rgba(255, 255, 255, 0.2)",
-                      }}
+                    <button
                       onClick={() => {
                         if (foundWallet) {
                           connectWallet({
@@ -454,42 +430,17 @@ export const UserProvider = ({
                       }}
                     >
                       {foundWallet ? "set active" : "connect"}
-                    </Button>
+                    </button>
                   )}
-                  {privyUser?.linkedAccounts.filter(
-                    (account) => account.type === "wallet"
-                  ).length > 1 && (
-                    <Tooltip label="unlink wallet" shouldWrapChildren>
-                      <IconButton
-                        border="1px white solid"
-                        color="white"
-                        bg="transparent"
-                        _hover={{
-                          bg: "rgba(255, 255, 255, 0.2)",
-                        }}
-                        height={"20px"}
-                        icon={<RiSubtractFill />}
-                        aria-label="unlink wallet"
-                        onClick={async () => {
-                          const newPrivyUser = await unlinkWallet(
-                            (account as WalletWithMetadata).address
-                          );
-                          console.log("newPrivyUser", newPrivyUser);
-                        }}
-                      />
-                    </Tooltip>
-                  )}
-                </Flex>
-              </Flex>
+                </div>
+              </div>
             );
           })}
-        <Button onClick={linkWallet}>link new wallet</Button>
-        <Flex justifyContent={"space-between"}>
-          <Text fontSize="10px">privy user id</Text>
-          <Text fontSize="10px" color="#acacac">
-            {privyUser?.id}
-          </Text>
-        </Flex>
+        <button onClick={linkWallet}>link new wallet</button>
+        <div>
+          <p>privy user id</p>
+          <p color="#acacac">{privyUser?.id}</p>
+        </div>
         {/* <Button onClick={() => signMessage({ message: "hello world" })}>
               test sign message
             </Button> */}
@@ -514,21 +465,15 @@ export const UserProvider = ({
             >
               test backend
             </Button> */}
-        <Button
-          color="white"
-          bg="#E09025"
-          _hover={{}}
-          _focus={{}}
-          _active={{}}
+        <button
           onClick={() => {
             logout();
             setIsManagingWallets(false);
           }}
-          borderRadius="25px"
         >
           logout
-        </Button>
-      </Flex>
+        </button>
+      </div>
       {/* </TransactionModalTemplate> */}
       {/* <TransactionModalTemplate
         confirmButton="logout"
@@ -541,29 +486,19 @@ export const UserProvider = ({
         size="sm"
         blur
       > */}
-      <Flex direction={"column"} gap="5px">
-        <Text textAlign={"center"} fontSize="13px" color="#BABABA">
+      <div>
+        <p>
           our app thinks you're using two different wallet addresses, this can
           occur when you change wallet accounts while logged in
-        </Text>
-        <Box
-          borderColor="#909090"
-          borderWidth="1px"
-          borderStyle="solid"
-          p="5px"
-          borderRadius="5px"
-        >
-          <Text textAlign={"center"} fontSize={"12px"} color="#22b66e">
-            logged in as {user?.address}
-          </Text>
+        </p>
+        <div>
+          <p>logged in as {user?.address}</p>
           {/* <Text textAlign={"center"} fontSize={"12px"} color="#85c71b">
               connected {wallets[0]?.address}
             </Text> */}
-        </Box>
-        <Text textAlign={"center"} fontSize="15px">
-          to resolve, switch back to the original wallet account or logout
-        </Text>
-      </Flex>
+        </div>
+        <p>to resolve, switch back to the original wallet account or logout</p>
+      </div>
       {/* </TransactionModalTemplate>
       <Tos /> */}
       {children}
