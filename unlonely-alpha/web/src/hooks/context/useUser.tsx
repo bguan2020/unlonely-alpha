@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   // useEffect,
   useMemo,
   useState,
@@ -45,7 +46,7 @@ import {
 // import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
 // import { useApolloContext } from "./useApollo";
 // import { useAccount, useSignMessage } from "wagmi";
-// import { useSetActiveWallet } from "@privy-io/wagmi";
+import { useSetActiveWallet } from "@privy-io/wagmi";
 // import usePostStreamInteraction from "../server/usePostStreamInteraction";
 import { areAddressesEqual } from "../../utils/validation/wallet";
 
@@ -132,7 +133,7 @@ export const UserProvider = ({
   children: JSX.Element[] | JSX.Element;
 }) => {
   //   const { handleLatestVerifiedAddress } = useApolloContext();
-  // const { setActiveWallet } = useSetActiveWallet();
+  const { setActiveWallet } = useSetActiveWallet();
   const [user, setUser] = useState<DatabaseUser | undefined>(undefined);
   const [isManagingWallets, setIsManagingWallets] = useState(false);
 
@@ -252,14 +253,14 @@ export const UserProvider = ({
     setUser(data);
   }, []);
 
-  // useEffect(() => {
-  //   if (!localAddress || evmWallets.length === 0) return;
-  //   const foundEvmWallet = evmWallets.find((w) =>
-  //     areAddressesEqual(w.address, localAddress)
-  //   );
-  //   console.log("foundEvmWallet", foundEvmWallet, evmWallets, localAddress);
-  //   if (foundEvmWallet) setActiveWallet(foundEvmWallet);
-  // }, [localAddress, evmWallets, setActiveWallet]);
+  useEffect(() => {
+    if (!localAddress || evmWallets.length === 0) return;
+    const foundEvmWallet = evmWallets.find((w) =>
+      areAddressesEqual(w.address, localAddress)
+    );
+    console.log("foundEvmWallet", foundEvmWallet, evmWallets, localAddress);
+    if (foundEvmWallet) setActiveWallet(foundEvmWallet);
+  }, [localAddress, evmWallets, setActiveWallet]);
 
   const handleIsManagingWallets = useCallback((value: boolean) => {
     setIsManagingWallets(value);
