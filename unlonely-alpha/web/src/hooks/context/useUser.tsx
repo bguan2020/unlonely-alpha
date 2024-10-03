@@ -36,7 +36,7 @@ import {
 // import { Tos } from "../../components/general/Tos";
 // import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
 // import { useApolloContext } from "./useApollo";
-import { useAccount, useSignMessage } from "wagmi";
+// import { useAccount, useSignMessage } from "wagmi";
 // import { useSetActiveWallet } from "@privy-io/wagmi";
 // import usePostStreamInteraction from "../server/usePostStreamInteraction";
 import {
@@ -142,9 +142,9 @@ export const UserProvider = ({
     undefined
   );
 
-  const { address: wagmiAddress } = useAccount();
+  // const { address: wagmiAddress } = useAccount();
 
-  const { signMessage } = useSignMessage();
+  // const { signMessage } = useSignMessage();
   const handleInitialNotificationsGranted = useCallback((granted: boolean) => {
     setInitialNotificationsGranted(granted);
   }, []);
@@ -312,7 +312,7 @@ export const UserProvider = ({
     () => ({
       user,
       initialNotificationsGranted,
-      wagmiAddress,
+      wagmiAddress: undefined,
       ready: false,
       authenticated: false,
       isManagingWallets,
@@ -360,20 +360,6 @@ export const UserProvider = ({
           _focus={{}}
           _active={{}}
           borderRadius="25px"
-          onClick={() => {
-            signMessage({
-              message: "hello",
-              //   chainId: 1,
-              //   from: "0x",
-              //   to: "0x",
-              //   value: "0x",
-              //   data: "0x",
-              //   nonce: "0x",
-              //   gasPrice: "0x",
-              //   gasLimit: "0x",
-              //   accessList: [],
-            });
-          }}
         >
           logout
         </Button>

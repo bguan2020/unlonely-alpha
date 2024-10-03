@@ -1,5 +1,5 @@
 import { gql, useLazyQuery } from "@apollo/client";
-import { useAccount, useSignMessage } from "wagmi";
+// import { useAccount, useSignMessage } from "wagmi";
 import { useCallback } from "react";
 
 import {
@@ -28,15 +28,15 @@ export const useAuthData = (): {
     | { signedMessage: undefined; error: any }
   >;
 } => {
-  const data = useAccount();
-  const address = data?.address;
+  // const data = useAccount();
+  const address = "0x22";
   const [getUser] = useLazyQuery<FetchCurrentUserQuery>(
     FETCH_CURRENT_USER_QUERY
   );
   const [getAuthMessage] = useLazyQuery<FetchAuthMessageQuery>(
     FETCH_AUTH_MESSAGE_QUERY
   );
-  const { signMessageAsync, error } = useSignMessage();
+  // const { signMessageAsync, error } = useSignMessage();
 
   const getAuthData = useCallback(() => {
     const fetchAndSignMessage = async () => {
@@ -66,22 +66,22 @@ export const useAuthData = (): {
       const message = gqlResponse.data.currentUserAuthMessage;
 
       // // 2. Sign the message
-      const signerResponse = await signMessageAsync({ message });
+      // const signerResponse = await signMessageAsync({ message });
 
-      if (error) {
-        return { error: { message: "Failed to sign message" } };
-      }
+      // if (error) {
+      //   return { error: { message: "Failed to sign message" } };
+      // }
 
-      const signedMessage = signerResponse;
+      // const signedMessage = signerResponse;
 
       // 3. Return the data needed
       return {
-        signedMessage,
+        signedMessage: message,
       };
     };
 
     return fetchAndSignMessage();
-  }, [address, getAuthMessage, signMessageAsync]);
+  }, [address, getAuthMessage]);
 
   return { getAuthData };
 };
