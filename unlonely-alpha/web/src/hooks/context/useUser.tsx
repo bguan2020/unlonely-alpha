@@ -44,7 +44,7 @@ import {
   isValidAddress,
 } from "../../utils/validation/wallet";
 // import centerEllipses from "../../utils/centerEllipses";
-import { Flex, Button, Text } from "@chakra-ui/react";
+// import { Flex, Button, Text } from "@chakra-ui/react";
 
 const FETCH_TRIES = 5;
 
@@ -345,7 +345,7 @@ export const UserProvider = ({
 
   return (
     <UserContext.Provider value={value}>
-      <Flex direction={"column"} style={{ gap: "5px" }}>
+      {/* <Flex direction={"column"} style={{ gap: "5px" }}>
         <Button>link new wallet</Button>
         <Flex justifyContent={"space-between"}>
           <Text fontSize="10px">privy user id</Text>
@@ -363,7 +363,7 @@ export const UserProvider = ({
         >
           logout
         </Button>
-      </Flex>
+      </Flex> */}
       {children}
     </UserContext.Provider>
   );
