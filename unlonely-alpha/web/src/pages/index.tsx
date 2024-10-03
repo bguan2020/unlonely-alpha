@@ -282,6 +282,7 @@ export default function Page() {
       >
         test backend
       </Button> */}
+        <button onClick={login}>login</button>
         <button
           onClick={() => {
             logout();
