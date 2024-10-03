@@ -23,6 +23,7 @@
     "@chakra-ui/react": "2.8.2",
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
+    "@next/bundle-analyzer": "^14.2.14",
     "@privy-io/react-auth": "1.87.0",
     "@privy-io/wagmi": "^0.2.12",
     "@solana/spl-token": "^0.4.8",

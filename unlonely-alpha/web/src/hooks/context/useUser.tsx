@@ -25,14 +25,14 @@ import {
   Box,
   Button,
   Flex,
-  IconButton,
+  // IconButton,
   Text,
   Image,
-  Tooltip,
+  // Tooltip,
   useToast,
 } from "@chakra-ui/react";
-import { RiSubtractFill } from "react-icons/ri";
-import { GoUnlink } from "react-icons/go";
+// import { RiSubtractFill } from "react-icons/ri";
+// import { GoUnlink } from "react-icons/go";
 
 import { Channel, GetUserQuery, Maybe, Scalars } from "../../generated/graphql";
 // import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
@@ -404,9 +404,8 @@ export const UserProvider = ({
                       width="20px"
                       height="20px"
                     />
-                  ) : (
-                    <GoUnlink />
-                  )}
+                  ) : // <GoUnlink />
+                  null}
                   {(foundWallet as any)?.type && (
                     <>
                       {(foundWallet as any)?.type === "ethereum" && (
@@ -492,7 +491,7 @@ export const UserProvider = ({
                       {foundWallet ? "set active" : "connect"}
                     </Button>
                   )}
-                  {privyUser?.linkedAccounts.filter(
+                  {/* {privyUser?.linkedAccounts.filter(
                     (account) => account.type === "wallet"
                   ).length > 1 && (
                     <Tooltip label="unlink wallet" shouldWrapChildren>
@@ -514,7 +513,7 @@ export const UserProvider = ({
                         }}
                       />
                     </Tooltip>
-                  )}
+                  )} */}
                 </Flex>
               </Flex>
             );
