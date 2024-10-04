@@ -596,7 +596,7 @@ export const HomePageBooEventStreamPage = () => {
                           zIndex={51}
                           onClick={() => {
                             window.open(
-                              `https://raydium.io/swap/?inputMint=${FIXED_SOLANA_MINT.address}&outputMint=sol`,
+                              `https://app.meteora.ag/pools/${FIXED_SOLANA_MINT.poolAddress}`,
                               "_blank"
                             );
                           }}
