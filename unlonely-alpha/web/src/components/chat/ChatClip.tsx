@@ -1,21 +1,8 @@
-import {
-  Button,
-  Flex,
-  FormControl,
-  FormErrorMessage,
-  Text,
-  Input,
-  IconButton,
-  Image,
-} from "@chakra-ui/react";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { Button, Flex, Text, Input, IconButton, Image } from "@chakra-ui/react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
 import copy from "copy-to-clipboard";
 
-import { PostNfcInput } from "../../generated/graphql";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import { postNfcSchema } from "../../utils/validation/validation";
 import { InteractionType } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
 import { useUser } from "../../hooks/context/useUser";
@@ -34,12 +21,6 @@ export const ChatClip = () => {
     clipUrl,
     addToChatbot,
   } = chat;
-
-  const form = useForm<PostNfcInput>({
-    defaultValues: {},
-    resolver: yupResolver(postNfcSchema),
-  });
-  const { register, formState, handleSubmit } = form;
 
   const [title, setTitle] = useState<string>("");
   const [finalUrl, setFinalUrl] = useState<string>("");
@@ -75,6 +56,8 @@ export const ChatClip = () => {
     });
     if (url) setFinalUrl(url);
   };
+
+  // todo: add error message handling here for user
 
   return (
     <>
@@ -205,63 +188,52 @@ export const ChatClip = () => {
                     />
                   </Flex>
                 </Flex>
-                <form onSubmit={handleSubmit(_submitClip)}>
-                  <Text
-                    textAlign="center"
-                    fontSize="16px"
-                    mb="10px"
-                    color="#d0ff00"
+                <Text
+                  textAlign="center"
+                  fontSize="16px"
+                  mb="10px"
+                  color="#d0ff00"
+                >
+                  create a 30-second highlight from this stream!
+                </Text>
+                <Input
+                  id="title"
+                  placeholder="title your clip"
+                  lineHeight="1.5"
+                  variant="glow"
+                  color={"white"}
+                  borderRadius="10px"
+                  minHeight="2rem"
+                  fontWeight="medium"
+                  w="100%"
+                  padding="auto"
+                  fontSize={isStandalone ? "16px" : "unset"}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+                <Text textAlign="center" fontSize="13px" mb="5px">
+                  if you stay and wait, you'll have the option to share the clip
+                  link later
+                </Text>
+                <Flex width="100%" justifyContent={"center"}>
+                  <Button
+                    color="white"
+                    bg="#2262d8"
+                    py={6}
+                    _hover={{ transform: "scale(1.05)" }}
+                    _active={{
+                      transform: "scale(1)",
+                      background: "green",
+                    }}
+                    borderRadius="10px"
+                    _focus={{}}
+                    width="100%"
+                    type="submit"
+                    loadingText="uploading..."
+                    isDisabled={title.length === 0}
                   >
-                    create a 30-second highlight from this stream!
-                  </Text>
-                  <FormControl
-                    isInvalid={!!formState.errors.title}
-                    marginBottom={["20px", "20px"]}
-                  >
-                    <Input
-                      id="title"
-                      placeholder="title your clip"
-                      lineHeight="1.5"
-                      variant="glow"
-                      color={"white"}
-                      borderRadius="10px"
-                      minHeight="2rem"
-                      fontWeight="medium"
-                      w="100%"
-                      padding="auto"
-                      fontSize={isStandalone ? "16px" : "unset"}
-                      {...register("title")}
-                      onChange={(e) => setTitle(e.target.value)}
-                    />
-                    <FormErrorMessage>
-                      {formState.errors.title?.message}
-                    </FormErrorMessage>
-                  </FormControl>
-                  <Text textAlign="center" fontSize="13px" mb="5px">
-                    if you stay and wait, you'll have the option to share the
-                    clip link later
-                  </Text>
-                  <Flex width="100%" justifyContent={"center"}>
-                    <Button
-                      color="white"
-                      bg="#2262d8"
-                      py={6}
-                      _hover={{ transform: "scale(1.05)" }}
-                      _active={{
-                        transform: "scale(1)",
-                        background: "green",
-                      }}
-                      borderRadius="10px"
-                      _focus={{}}
-                      width="100%"
-                      type="submit"
-                      loadingText="uploading..."
-                      isDisabled={title.length === 0}
-                    >
-                      <Text fontSize="20px">clip</Text>
-                    </Button>
-                  </Flex>
-                </form>
+                    <Text fontSize="20px">clip</Text>
+                  </Button>
+                </Flex>
               </>
             )}
           </Flex>

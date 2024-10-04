@@ -4,6 +4,10 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 
 
 module.exports = withBundleAnalyzer({
+  experimental: {
+    optimizePackageImports: ["@chakra-ui/react"],
+  },
+  transpilePackages: ["@privy-io/react-auth"],
   async redirects() {
     return [
       {
