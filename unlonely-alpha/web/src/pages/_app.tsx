@@ -13,8 +13,6 @@ import { Base, Mainnet } from "../constants/networks";
 // import theme from "../styles/theme";
 // import Link from "next/link";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
 import { ApolloProvider } from "../hooks/context/useApollo";
 // import { TourProvider } from "@reactour/tour";

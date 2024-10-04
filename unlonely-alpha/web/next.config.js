@@ -6,7 +6,7 @@ module.exports = withBundleAnalyzer({
   experimental: {
     optimizePackageImports: ["@chakra-ui/react"],
   },
-  // transpilePackages: ["@privy-io/react-auth"],
+  transpilePackages: ["@privy-io/react-auth"],
   async redirects() {
     return [
       {
