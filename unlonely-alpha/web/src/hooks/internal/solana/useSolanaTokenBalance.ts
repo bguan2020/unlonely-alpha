@@ -29,7 +29,7 @@ export const useSolanaTokenBalance = (rpcUrl: string) => {
   
       try {
         const connection = new Connection(rpcUrl, "confirmed");
-        const tokenMint = new PublicKey(FIXED_SOLANA_MINT.address);
+        const tokenMint = new PublicKey(FIXED_SOLANA_MINT.mintAddress);
   
         const tokenAccountAddress = await getAssociatedTokenAddress(
           tokenMint,
@@ -43,7 +43,7 @@ export const useSolanaTokenBalance = (rpcUrl: string) => {
         const decimals = FIXED_SOLANA_MINT.decimals;
         const balance = amount.div(new Decimal(10).pow(decimals)).toString();
   
-        console.log(`Token balance of ${FIXED_SOLANA_MINT.address} for ${solanaAddress} on Solana:`, balance);
+        console.log(`Token balance of ${FIXED_SOLANA_MINT.mintAddress} for ${solanaAddress} on Solana:`, balance);
         setBalance(Number(balance));
       } catch (error) {
         console.error("Error fetching token balance:", error);

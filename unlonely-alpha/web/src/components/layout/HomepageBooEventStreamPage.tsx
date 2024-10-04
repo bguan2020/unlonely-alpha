@@ -20,8 +20,7 @@ import { DndContext } from "@dnd-kit/core";
 import Draggable from "./Draggable";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { useSolanaTokenBalance } from "../../hooks/internal/solana/useSolanaTokenBalance";
-import { Connection } from "@solana/web3.js";
-import { useWallet } from "@solana/wallet-adapter-react";
+// import { useWallet } from "@solana/wallet-adapter-react";
 // import { useJupiterQuoteSwap } from "../../hooks/internal/solana/useJupiterQuoteSwap";
 // import { useBooTokenTerminal } from "../../hooks/internal/solana/useBooTokenTerminal";
 import {
@@ -44,6 +43,7 @@ import { BooScarePackages } from "./BooScarePackages";
 import { INTERACTIONS_CHANNEL, PackageInfo } from "../../pages/modcenter";
 import { useAblyChannel } from "../../hooks/chat/useChatChannel";
 import { UseInteractionModal } from "../channels/UseInteractionModal";
+import { areAddressesEqual } from "../../utils/validation/wallet";
 
 export const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 export const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
@@ -96,7 +96,7 @@ export const HomePageBooEventStreamPage = () => {
       ...INITIAL_FORM_CONFIG,
       formProps: {
         ...INITIAL_FORM_CONFIG.formProps,
-        initialInputMint: FIXED_SOLANA_MINT.address,
+        initialInputMint: FIXED_SOLANA_MINT.mintAddress,
         initialOutputMint: WRAPPED_SOL_MINT.toString(),
       },
     },
@@ -117,7 +117,7 @@ export const HomePageBooEventStreamPage = () => {
   const [viewState, setViewState] = useState<"stream" | "token">("token");
   const [isGlowing, setIsGlowing] = useState(false);
 
-  const { publicKey, connected } = useWallet();
+  // const { publicKey, connected } = useWallet();
 
   const [booPackageMap, setBooPackageMap] = useState<
     Record<string, PackageInfo>
@@ -125,39 +125,39 @@ export const HomePageBooEventStreamPage = () => {
 
   // const { quoteSwap } = useJupiterQuoteSwap();
 
-  const getTransactionData = async (transactionId: string) => {
-    const details = await getTransactionDetails(
-      transactionId,
-      new Connection(SOLANA_RPC_URL)
-    );
-    if (!details) return;
-    const { preTokenBalances, postTokenBalances } = details;
-    console.log("preTokenBalances", preTokenBalances);
-    console.log("postTokenBalances", postTokenBalances);
+  // const getTransactionData = async (transactionId: string) => {
+  //   const details = await getTransactionDetails(
+  //     transactionId,
+  //     new Connection(SOLANA_RPC_URL)
+  //   );
+  //   if (!details) return;
+  //   const { preTokenBalances, postTokenBalances } = details;
+  //   console.log("preTokenBalances", preTokenBalances);
+  //   console.log("postTokenBalances", postTokenBalances);
 
-    const preBalance =
-      preTokenBalances?.find(
-        (balance) => balance.owner === publicKey?.toString()
-      )?.uiTokenAmount.uiAmount || 0;
-    const postBalance =
-      postTokenBalances?.find(
-        (balance) => balance.owner === publicKey?.toString()
-      )?.uiTokenAmount.uiAmount || 0;
+  //   const preBalance =
+  //     preTokenBalances?.find(
+  //       (balance) => balance.owner === publicKey?.toString()
+  //     )?.uiTokenAmount.uiAmount || 0;
+  //   const postBalance =
+  //     postTokenBalances?.find(
+  //       (balance) => balance.owner === publicKey?.toString()
+  //     )?.uiTokenAmount.uiAmount || 0;
 
-    const balanceDifference = Math.abs(postBalance - preBalance);
-    console.log(`Balance difference: ${balanceDifference}`);
-  };
+  //   const balanceDifference = Math.abs(postBalance - preBalance);
+  //   console.log(`Balance difference: ${balanceDifference}`);
+  // };
 
-  useEffect(() => {
-    const init = async () => {
-      if (!connected) return;
-      // quoteSwap(1);
-      // await getTransactionData(
-      //   "DqdkgqkvhjtWJmCJXxrWeTpr5ezbLPSuKkeJNko7KfnJC5fQamqPE4moVmYLCEdkD59wXabh9oQK8UXKo22ppyy"
-      // );
-    };
-    init();
-  }, [connected]);
+  // useEffect(() => {
+  //   const init = async () => {
+  //     // if (!connected) return;
+  //     // quoteSwap(1);
+  //     await getTransactionData(
+  //       "hXdP699Ko29osW1vtY5CwxnDpvfvg2xYUN5aqkiS9kA3im3XCFrFcrzJ65PGNxJ1NyYvGpeaGTRHRafy3D71TXs"
+  //     );
+  //   };
+  //   init();
+  // }, [connected]);
 
   const [interactionsChannel] = useAblyChannel(
     INTERACTIONS_CHANNEL,
@@ -182,42 +182,47 @@ export const HomePageBooEventStreamPage = () => {
     }
   );
 
-  const getTransactionDetails = async (
-    transactionId: string,
-    connection: Connection
-  ) => {
-    try {
-      const transaction = await connection.getParsedTransaction(transactionId, {
-        maxSupportedTransactionVersion: 0,
-      });
+  // const getTransactionDetails = async (
+  //   transactionId: string,
+  //   connection: Connection
+  // ) => {
+  //   try {
+  //     const transaction = await connection.getParsedTransaction(transactionId, {
+  //       maxSupportedTransactionVersion: 0,
+  //     });
+  //     console.log(
+  //       "getTransactionDetails: transaction details for",
+  //       transactionId,
+  //       transaction
+  //     );
 
-      if (!transaction) {
-        console.log("Transaction not found");
-        return null;
-      }
+  //     if (!transaction) {
+  //       console.log("Transaction not found");
+  //       return null;
+  //     }
 
-      const { meta } = transaction;
-      if (!meta) {
-        console.log("Transaction metadata not available");
-        return null;
-      }
+  //     const { meta } = transaction;
+  //     if (!meta) {
+  //       console.log("Transaction metadata not available");
+  //       return null;
+  //     }
 
-      const { preTokenBalances, postTokenBalances } = meta;
+  //     const { preTokenBalances, postTokenBalances } = meta;
 
-      const swapDetails = {
-        fee: meta.fee,
-        innerInstructions: meta.innerInstructions,
-        preTokenBalances,
-        postTokenBalances,
-        // Add more relevant fields as needed
-      };
+  //     const swapDetails = {
+  //       fee: meta.fee,
+  //       innerInstructions: meta.innerInstructions,
+  //       preTokenBalances,
+  //       postTokenBalances,
+  //       // Add more relevant fields as needed
+  //     };
 
-      return swapDetails;
-    } catch (error) {
-      console.error("Error fetching transaction details:", error);
-      return null;
-    }
-  };
+  //     return swapDetails;
+  //   } catch (error) {
+  //     console.error("Error fetching transaction details:", error);
+  //     return null;
+  //   }
+  // };
 
   const [bloodImageCount, setBloodImageCount] = useState(0);
   const bloodContainerRef = useRef<HTMLDivElement>(null);
@@ -633,8 +638,40 @@ export const HomePageBooEventStreamPage = () => {
                         : watchAllFieldsBuy.defaultExplorer
                     }
                     useUserSlippage={false}
-                    txCallback={(txid, swapResult) => {
-                      getTransactionData(txid);
+                    txCallback={async (txid, swapResult) => {
+                      const tokenAccountA = base58Encode(
+                        convertWordsToBigInt(swapResult.inputAddress._bn.words)
+                      );
+                      const tokenAccountB = base58Encode(
+                        convertWordsToBigInt(swapResult.outputAddress._bn.words)
+                      );
+                      if (
+                        areAddressesEqual(
+                          tokenAccountA,
+                          FIXED_SOLANA_MINT.tokenAccount
+                        )
+                      ) {
+                        // this is a sell
+                        console.log(
+                          "sold",
+                          swapResult.inputAmount /
+                            10 ** FIXED_SOLANA_MINT.decimals
+                        );
+                      }
+                      if (
+                        areAddressesEqual(
+                          tokenAccountB,
+                          FIXED_SOLANA_MINT.tokenAccount
+                        )
+                      ) {
+                        // this is a buy
+                        console.log(
+                          "bought",
+                          swapResult.outputAmount /
+                            10 ** FIXED_SOLANA_MINT.decimals
+                        );
+                      }
+                      // getTransactionData(txid);
                       fetchTokenBalance();
                     }}
                     interfaceStyle={{
@@ -752,3 +789,25 @@ export const HomePageBooEventStreamPage = () => {
     </Flex>
   );
 };
+
+// Helper function to convert the words array to BigInt
+function convertWordsToBigInt(words: any[]) {
+  let bigIntValue = BigInt(0);
+  for (let i = 0; i < words.length; i++) {
+    bigIntValue += BigInt(words[i]) << BigInt(26 * i); // Each word represents 26 bits
+  }
+  return bigIntValue;
+}
+
+// Base58 encoding function without using a third-party library
+const ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+
+function base58Encode(bigIntValue: bigint) {
+  let encoded = "";
+  while (bigIntValue > BigInt(0)) {
+    const remainder = Number(bigIntValue % BigInt(58));
+    bigIntValue = bigIntValue / BigInt(58);
+    encoded = ALPHABET[remainder] + encoded;
+  }
+  return encoded;
+}

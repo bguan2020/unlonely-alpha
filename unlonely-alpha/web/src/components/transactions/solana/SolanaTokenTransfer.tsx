@@ -36,7 +36,7 @@ export const SolanaTokenTransfer = ({
         new Connection(rpcUrl),
         publicKey,
         new PublicKey(toAddress),
-        new PublicKey(FIXED_SOLANA_MINT.address),
+        new PublicKey(FIXED_SOLANA_MINT.mintAddress),
         Number(amount)
       );
     } catch (error) {

@@ -133,9 +133,9 @@ export const UNLONELY_LOGO_IPFS_URL =
 
 export const SOLANA_RPC_URL =
   "https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf";
-// export const FIXED_SOLANA_MINT = { address: "FuvamNkNTNjDcnQeWyiAReUCHZ91gJhg59xuNemZ4p9f", decimals: 9, poolAddress: "DtxxzR77SEsrVhPzSixCdM1dcuANwQsMiNsM5vSPdYL1" };
 export const FIXED_SOLANA_MINT = {
-  address: "8d5CdSJnxwyh2XjSWqE7HpEFSkvgoDaXwW6gTLfZm8v9",
+  mintAddress: "8d5CdSJnxwyh2XjSWqE7HpEFSkvgoDaXwW6gTLfZm8v9",
+  tokenAccount: "3GPNYL255Zdpv4jMjq1XhiZRHDLYZ6mV3cd9q6T6ybDW",
   poolAddress: "3Ehz9oTK2pULee65s5ftiv798mKjek9s8xdRWGMXChw7",
   decimals: 6
 };
