@@ -1,11 +1,10 @@
 // import { ChakraProvider, Flex, IconButton, Text } from "@chakra-ui/react";
 import { http } from "wagmi";
-import { AppProps } from "next/app";
-import { NextPageContext } from "next";
+// import { AppProps } from "next/app";
+// import { NextPageContext } from "next";
 import cookies from "next-cookies";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { createConfig, WagmiProvider } from "@privy-io/wagmi";
-import { QueryClient } from "@tanstack/react-query";
 
 // import { FaArrowRight } from "react-icons/fa";
 // import { FaArrowLeft } from "react-icons/fa";
@@ -20,7 +19,9 @@ import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
 import { ApolloProvider } from "../hooks/context/useApollo";
 // import { TourProvider } from "@reactour/tour";
 import { UserProvider } from "../hooks/context/useUser";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { NextPageContext } from "next/dist/shared/lib/utils";
+import { AppProps } from "next/dist/shared/lib/router/router";
 
 const queryClient = new QueryClient();
 

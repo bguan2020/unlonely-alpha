@@ -5,8 +5,9 @@ import {
   useMemo,
   useState,
 } from "react";
-import { ApolloProvider as ApolloClientProvider } from "@apollo/client";
+// import { ApolloProvider } from "@apollo/client";
 import { useApollo } from "../../apiClient/client";
+import { ApolloProvider as ApolloClientProvider } from "@apollo/client/react/context/ApolloProvider";
 
 export const useApolloContext = () => {
   return useContext(ApolloContext);

@@ -1,10 +1,14 @@
-import {
-    ApolloClient,
-    HttpLink,
-    InMemoryCache,
-    NormalizedCacheObject,
-  } from "@apollo/client";
-  import { setContext } from "@apollo/client/link/context";
+// import {
+//     ApolloClient,
+//     HttpLink,
+//     InMemoryCache,
+//     NormalizedCacheObject,
+//   } from "@apollo/client";
+  import { InMemoryCache } from "@apollo/client/cache/inmemory/inMemoryCache";
+import { NormalizedCacheObject } from "@apollo/client/cache/inmemory/types";
+import { ApolloClient } from "@apollo/client/core/ApolloClient";
+import { setContext } from "@apollo/client/link/context";
+import { HttpLink } from "@apollo/client/link/http/HttpLink";
   import { getAccessToken } from "@privy-io/react-auth";
   import { useMemo } from "react";
   
