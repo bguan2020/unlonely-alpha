@@ -156,7 +156,17 @@ function App({ Component, pageProps }: Props) {
         appId={String(process.env.NEXT_PUBLIC_PRIVY_APP_ID)}
         config={{
           defaultChain: Base,
-          loginMethods: ["email", "wallet"],
+          // loginMethods: ["email", "wallet"],
+          loginMethodsAndOrder: {
+            primary: ["detected_solana_wallets", "email"],
+            overflow: [
+              "detected_ethereum_wallets",
+              "metamask",
+              "coinbase_wallet",
+              "rainbow",
+              "wallet_connect",
+            ],
+          },
           walletConnectCloudProjectId: "e16ffa60853050eaa9746f45acd2207a",
           embeddedWallets: {
             createOnLogin: "users-without-wallets",
