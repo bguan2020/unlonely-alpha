@@ -4,12 +4,12 @@ import "../styles/bell.css";
 import "../styles/imageScroller.css";
 
 import { ChakraProvider, Flex, IconButton, Text } from "@chakra-ui/react";
-import { createConfig, http } from "wagmi";
+import { http } from "wagmi";
 import { AppProps } from "next/app";
 import { NextPageContext } from "next";
 import cookies from "next-cookies";
 import { PrivyProvider } from "@privy-io/react-auth";
-import { WagmiProvider } from "@privy-io/wagmi";
+import { WagmiProvider, createConfig } from "@privy-io/wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { FaArrowRight } from "react-icons/fa";
@@ -24,6 +24,8 @@ import { CacheProvider } from "../hooks/context/useCache";
 import { TourProvider } from "@reactour/tour";
 import Link from "next/link";
 import { ApolloProvider } from "../hooks/context/useApollo";
+
+import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
 
 const queryClient = new QueryClient();
 
@@ -128,6 +130,12 @@ interface InitialProps {
 
 type Props = AppProps & InitialProps;
 
+const solanaConnectors = toSolanaWalletConnectors({
+  // By default, shouldAutoConnect is enabled
+  // shouldAutoConnect: true,
+  shouldAutoConnect: false,
+});
+
 function App({ Component, pageProps }: Props) {
   const config = createConfig({
     chains: [Base, Mainnet],
@@ -148,7 +156,17 @@ function App({ Component, pageProps }: Props) {
         appId={String(process.env.NEXT_PUBLIC_PRIVY_APP_ID)}
         config={{
           defaultChain: Base,
-          loginMethods: ["email", "wallet"],
+          // loginMethods: ["email", "wallet"],
+          loginMethodsAndOrder: {
+            primary: ["detected_solana_wallets", "email"],
+            overflow: [
+              "detected_ethereum_wallets",
+              "metamask",
+              "coinbase_wallet",
+              "rainbow",
+              "wallet_connect",
+            ],
+          },
           walletConnectCloudProjectId: "e16ffa60853050eaa9746f45acd2207a",
           embeddedWallets: {
             createOnLogin: "users-without-wallets",
@@ -158,11 +176,15 @@ function App({ Component, pageProps }: Props) {
             accentColor: "#6cff67",
             logo: "/icons/icon-192x192.png",
             showWalletLoginFirst: false,
+            walletChainType: "ethereum-and-solana",
           },
           // support for coinbase smart wallets, still in testing
           externalWallets: {
             coinbaseWallet: {
               connectionOptions: "all",
+            },
+            solana: {
+              connectors: solanaConnectors,
             },
           },
         }}

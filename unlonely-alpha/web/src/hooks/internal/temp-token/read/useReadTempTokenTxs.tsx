@@ -57,7 +57,7 @@ export const useReadTempTokenTxs = ({
   baseClient: any;
   tempTokenContract: ContractData;
 }): UseReadTempTokenTxsType => {
-  const { userAddress } = useUser();
+  const { user } = useUser();
   const [tempTokenTxs, setTempTokenTxs] = useState<TradeableTokenTx[]>([]);
   const [initialTempTokenLoading, setInitialTempTokenLoading] = useState(true);
 
@@ -76,7 +76,7 @@ export const useReadTempTokenTxs = ({
   const {
     balance: userTempTokenBalance,
     refetch: refetchUserTempTokenBalance,
-  } = useGetUserBalance(userAddress as `0x${string}`, tempTokenContract);
+  } = useGetUserBalance(user?.address as `0x${string}`, tempTokenContract);
 
   const getTempTokenEvents = useCallback(
     async (
@@ -106,11 +106,15 @@ export const useReadTempTokenTxs = ({
       ]);
       console.log(
         `temp token mintLogs length from ${_tempTokenContract.address}`,
-        mintLogs.length
+        mintLogs.length,
+        fromBlock,
+        toBlock
       );
       console.log(
         `temp token burnLogs length from ${_tempTokenContract.address}`,
-        burnLogs.length
+        burnLogs.length,
+        fromBlock,
+        toBlock
       );
       const logs = [...mintLogs, ...burnLogs];
       if (logs.length === 0) return;

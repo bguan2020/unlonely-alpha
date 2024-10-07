@@ -9,17 +9,9 @@ import {
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useEffect, useState, useCallback } from "react";
 
-import { filteredInput } from "../../utils/validation/input";
-import { FIXED_SOLANA_MINT } from "./SolanaJupiterTerminal";
-
-const isValidSolanaAddress = (address: string): boolean => {
-  try {
-    new PublicKey(address); // Attempt to create a PublicKey object
-    return true; // If no error is thrown, the address is valid
-  } catch (error) {
-    return false; // If an error is thrown, the address is invalid
-  }
-};
+import { filteredInput } from "../../../utils/validation/input";
+import { FIXED_SOLANA_MINT } from "../../../constants";
+import { isValidAddress } from "../../../utils/validation/wallet";
 
 export const SolanaTokenTransfer = ({
   rpcUrl,
@@ -44,7 +36,7 @@ export const SolanaTokenTransfer = ({
         new Connection(rpcUrl),
         publicKey,
         new PublicKey(toAddress),
-        new PublicKey(FIXED_SOLANA_MINT),
+        new PublicKey(FIXED_SOLANA_MINT.mintAddress),
         Number(amount)
       );
     } catch (error) {
@@ -127,6 +119,8 @@ export const SolanaTokenTransfer = ({
         if (status.value?.confirmationStatus === "confirmed") {
           console.log(`Transaction confirmed with signature: ${signature}`);
           await fetchTokenBalance();
+          const logs = await getTransactionLogs(signature, connection);
+          console.log("Transaction logs:", logs);
         } else {
           console.warn("Transaction is not finalized yet:", status);
         }
@@ -138,6 +132,27 @@ export const SolanaTokenTransfer = ({
       }
     } catch (error) {
       console.error("Error during token transfer:", error);
+    }
+  };
+
+  const getTransactionLogs = async (
+    transactionId: string,
+    connection: Connection
+  ) => {
+    try {
+      const transaction = await connection.getTransaction(transactionId, {
+        maxSupportedTransactionVersion: 0,
+      });
+
+      if (transaction && transaction.meta) {
+        return transaction.meta.logMessages;
+      } else {
+        console.log("Transaction not found or logs are unavailable.");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching transaction logs:", error);
+      return null;
     }
   };
 
@@ -170,14 +185,14 @@ export const SolanaTokenTransfer = ({
         value={amount}
         onChange={(e) => setAmount(filteredInput(e.target.value, true))}
       />
-      {!connected && <Button onClick={connect}>Connect Phantom</Button>}
+      {!connected && <Button onClick={connect}>Connect Solana</Button>}
       <Text>Available THOTH Balance: {balance}</Text>
       <Button
         onClick={sendTokens}
         isDisabled={
           Number(amount) === 0 ||
           !connected ||
-          !isValidSolanaAddress(toAddress) ||
+          isValidAddress(toAddress) !== "solana" ||
           balance === null ||
           Number(amount) > balance
         }

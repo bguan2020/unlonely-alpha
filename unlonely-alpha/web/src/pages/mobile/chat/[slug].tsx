@@ -28,7 +28,7 @@ const MobileChatComponent = () => {
   const { slug } = router.query;
 
   const { chat, channel } = useChannelContext();
-  const { chatChannel } = chat;
+  const { chatChannel, chatBot } = chat;
   const { handleChannelStaticData } = channel;
   const { data: channelStatic } = useQuery<ChannelStaticQuery>(
     CHANNEL_STATIC_QUERY,
@@ -48,7 +48,7 @@ const MobileChatComponent = () => {
   return (
     <>
       {chatChannel ? (
-        <PopOutChatComponent />
+        <PopOutChatComponent chatBot={chatBot} />
       ) : (
         <Container>
           <Flex

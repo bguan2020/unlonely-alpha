@@ -16,7 +16,7 @@ import { returnDecodedTopics } from "../../../../utils/contract";
 export const useOwnerUpdateTotalSupplyThresholdState = (
   onSuccess?: () => void
 ) => {
-  const { userAddress, user } = useUser();
+  const { user } = useUser();
 
   const { tempToken } = useTempTokenContext();
   const { gameState, currentTempTokenContract } = tempToken;
@@ -105,10 +105,13 @@ export const useOwnerUpdateTotalSupplyThresholdState = (
         const title = `The $${currentActiveTokenSymbol} token's price goal is increased!`;
         addToChatbot({
           username: user?.username ?? "",
-          address: userAddress ?? "",
+          address: user?.address ?? "",
           taskType: InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED,
           title,
-          description: `${userAddress}:${String(newThreshold)}`,
+          description: JSON.stringify({
+            address: user?.address ?? "",
+            newThreshold: String(newThreshold),
+          }),
         });
         onSuccess && onSuccess();
         toast({

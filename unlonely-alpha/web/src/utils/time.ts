@@ -39,7 +39,8 @@ export const getTimesFromMillis = (millis: number) => {
 export const getTimeFromMillis = (
   millis: number,
   showSeconds?: boolean,
-  format?: boolean
+  format?: boolean,
+  formatPlusLabel?: boolean
 ): string => {
   if (millis === 0) return "0";
 
@@ -49,7 +50,15 @@ export const getTimeFromMillis = (
     const paddedMinutes = minutes.toString().padStart(2, "0");
     const paddedSeconds = seconds.toString().padStart(2, "0");
 
-    if (showSeconds) return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
+    if (showSeconds) {
+      if (formatPlusLabel) {
+        return `${paddedHours}H : ${paddedMinutes}M : ${paddedSeconds}S`
+      }
+      return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`
+    };
+    if (formatPlusLabel) {
+      return `${paddedHours}H : ${paddedMinutes}M`
+    }
     return `${paddedHours}:${paddedMinutes}`;
   }
 

@@ -73,6 +73,13 @@ export const resolvers = {
     ) => {
       return userService.getUserTokenHolding(data, ctx);
     },
+    getDoesUserAddressMatch: (
+      _: any,
+      { data }: { data: userService.IGetDoesUserAddressMatchInput },
+      ctx: Context
+    ) => {
+      return userService.getDoesUserAddressMatch(data, ctx);
+    },
   },
   Mutation: {
     updateUserNotifications: (

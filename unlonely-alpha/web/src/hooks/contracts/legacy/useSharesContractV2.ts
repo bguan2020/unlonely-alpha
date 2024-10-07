@@ -224,7 +224,7 @@ export const useUserPayout = (
   eventId: number,
   contract: ContractData
 ) => {
-  const { userAddress } = useUser();
+  const { user } = useUser();
   const publicClient = usePublicClient();
 
   const [userPayout, setUserPayout] = useState<bigint>(BigInt(0));
@@ -234,7 +234,7 @@ export const useUserPayout = (
       !contract.address ||
       !contract.abi ||
       !publicClient ||
-      !userAddress ||
+      !user?.address ||
       !isAddress(eventAddress)
     ) {
       setUserPayout(BigInt(0));
@@ -248,11 +248,11 @@ export const useUserPayout = (
         eventAddress,
         eventId,
         EventTypeForContract.YAY_NAY_VOTE,
-        userAddress,
+        user?.address as `0x${string}`,
       ],
     });
     setUserPayout(BigInt(String(userPayout)));
-  }, [contract.address, publicClient, userAddress, eventAddress, eventId]);
+  }, [contract.address, publicClient, user?.address, eventAddress, eventId]);
 
   useEffect(() => {
     getData();
@@ -265,13 +265,13 @@ export const useUserPayout = (
 };
 
 export const useIsVerifier = (contract: ContractData) => {
-  const { userAddress } = useUser();
+  const { user } = useUser();
   const publicClient = usePublicClient();
 
   const [isVerifier, setIsVerifier] = useState<boolean>(false);
 
   const getData = useCallback(async () => {
-    if (!contract.address || !contract.abi || !publicClient || !userAddress) {
+    if (!contract.address || !contract.abi || !publicClient || !user?.address) {
       setIsVerifier(false);
       return;
     }
@@ -279,10 +279,10 @@ export const useIsVerifier = (contract: ContractData) => {
       address: contract.address,
       abi: contract.abi,
       functionName: "isVerifier",
-      args: [userAddress],
+      args: [user?.address],
     });
     setIsVerifier(Boolean(isVerifier));
-  }, [contract.address, publicClient, userAddress]);
+  }, [contract.address, publicClient, user?.address]);
 
   useEffect(() => {
     getData();

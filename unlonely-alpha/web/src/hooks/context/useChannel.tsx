@@ -35,7 +35,8 @@ import {
   useChannelWideModalsInitialState,
   useChannelWideModalsState,
 } from "../internal/modals/useChannelWideModalsState";
-import { isAddressEqual } from "viem";
+import { useChatBotState } from "../chat/useChatBotState";
+import { areAddressesEqual } from "../../utils/validation/wallet";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -116,12 +117,14 @@ const ChannelContext = createContext<{
 
 export const ChannelProvider = ({
   children,
+  providedSlug,
 }: {
   children: React.ReactNode;
+  providedSlug?: string;
 }) => {
   const { network } = useNetworkContext();
   const { localNetwork } = network;
-  const { user, userAddress } = useUser();
+  const { user } = useUser();
   const router = useRouter();
   const { slug } = router.query;
 
@@ -133,8 +136,6 @@ export const ChannelProvider = ({
   >(undefined);
   const [isVip, setIsVip] = useState<boolean>(false);
 
-  const [chatBot, setChatBot] = useState<ChatBot[]>([]);
-
   const [selectedUserInChat, setSelectedUserInChat] = useState<
     SelectedUser | undefined
   >(undefined);
@@ -142,24 +143,25 @@ export const ChannelProvider = ({
   const [totalBadges, setTotalBadges] = useState<string>("0");
   const [vipPool, setVipPool] = useState<string>("0");
   const [tradeLoading, setTradeLoading] = useState<boolean>(false);
-  const channelDetails = useChannelDetails(slug);
+  const channelDetails = useChannelDetails(providedSlug ?? slug);
   const [latestBet, setLatestBet] = useState<SharesEvent | undefined>(
     undefined
   );
 
   const isOwner = useMemo(() => {
-    if (!userAddress || !channelDetails?.channelQueryData?.owner?.address)
+    if (!user?.address || !channelDetails?.channelQueryData?.owner?.address)
       return false;
-    return isAddressEqual(
-      userAddress,
-      channelDetails?.channelQueryData?.owner.address as `0x${string}`
+    return areAddressesEqual(
+      user?.address,
+      channelDetails?.channelQueryData?.owner?.address
     );
-  }, [userAddress, channelDetails?.channelQueryData?.owner.address]);
+  }, [user?.address, channelDetails?.channelQueryData?.owner?.address]);
 
   const welcomeTour = useWelcomeTourState(isOwner);
 
   const clip = useClip(channelDetails.channelQueryData);
   const channelWideModalsState = useChannelWideModalsState();
+  const { chatBot, addToChatbot } = useChatBotState();
 
   const ongoingBets = useMemo(
     () =>
@@ -204,10 +206,6 @@ export const ChannelProvider = ({
     const latestBet = ongoingBets[0];
     setLatestBet(latestBet);
   }, [ongoingBets]);
-
-  const addToChatbot = useCallback((chatBotMessageToAdd: ChatBot) => {
-    setChatBot((prev) => [...prev, chatBotMessageToAdd]);
-  }, []);
 
   const handleIsVip = useCallback((value: boolean) => {
     setIsVip(value);

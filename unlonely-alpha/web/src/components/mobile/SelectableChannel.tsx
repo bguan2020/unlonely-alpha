@@ -99,10 +99,10 @@ export const SelectableChannel = ({
           <Flex width="100%" overflow="hidden" justifyContent={"space-between"}>
             <Flex gap="15px">
               <Avatar
-                name={channel?.owner.username ?? channel?.owner.address}
+                name={channel?.owner.username ?? channel?.owner?.address}
                 src={ipfsUrl}
                 bg={getColorFromString(
-                  channel?.owner.username ?? channel?.owner.address
+                  channel?.owner.username ?? channel?.owner?.address
                 )}
                 size="md"
               />
@@ -110,7 +110,7 @@ export const SelectableChannel = ({
                 <Text fontFamily="LoRes15">{channel.name}</Text>
                 <Text fontFamily="LoRes15" color="#9d9d9d">
                   {channel?.owner.username ??
-                    centerEllipses(channel?.owner.address, 13)}
+                    centerEllipses(channel?.owner?.address, 13)}
                 </Text>
               </Flex>
             </Flex>
@@ -170,10 +170,10 @@ export const SelectableChannel = ({
             >
               <Flex gap="10px">
                 <Avatar
-                  name={channel?.owner.username ?? channel?.owner.address}
+                  name={channel?.owner.username ?? channel?.owner?.address}
                   src={ipfsUrl}
                   bg={getColorFromString(
-                    channel?.owner.username ?? channel?.owner.address
+                    channel?.owner.username ?? channel?.owner?.address
                   )}
                   size="md"
                 />
@@ -183,7 +183,7 @@ export const SelectableChannel = ({
                   </Text>
                   <Text fontFamily="LoRes15" color="#9d9d9d">
                     {channel?.owner.username ??
-                      centerEllipses(channel?.owner.address, 13)}
+                      centerEllipses(channel?.owner?.address, 13)}
                   </Text>
                 </Flex>
               </Flex>

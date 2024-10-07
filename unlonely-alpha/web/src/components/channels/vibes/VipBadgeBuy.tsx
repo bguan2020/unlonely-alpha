@@ -1,5 +1,5 @@
 import { Button, Text, Box, useToast, Flex } from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import Link from "next/link";
 import { formatUnits } from "viem";
 import { useBalance } from "wagmi";
@@ -27,12 +27,16 @@ import {
 import { useChannelContext } from "../../../hooks/context/useChannel";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { ChatReturnType } from "../../../hooks/chat/useChat";
+import { ChatBotMessageBody } from "../../../constants/types/chat";
+import { jp } from "../../../utils/validation/jsonParse";
 
 export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
-  const { userAddress, walletIsConnected, user } = useUser();
+  const { wagmiAddress, user, ready, authenticated } = useUser();
   const { channel, chat: c } = useChannelContext();
   const { channelQueryData } = channel;
   const { addToChatbot } = c;
+
+  const { receivedMessages, mounted } = chat;
 
   const { network } = useNetworkContext();
   const { matchingChain, localNetwork, explorerUrl } = network;
@@ -41,9 +45,14 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
   const canAddToChatbot = useRef(false);
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
-    address: userAddress as `0x${string}`,
+    address: wagmiAddress as `0x${string}`,
   });
   const mountingMessages = useRef(true);
+
+  const loggedInWithPrivy = useMemo(
+    () => ready && authenticated,
+    [ready, authenticated]
+  );
 
   const getCallbackHandlers = (
     name: string,
@@ -176,19 +185,24 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
         const args: any = topics.args;
         console.log("VipBadgeBuy", args);
         const newSupply = args.trade.supply as bigint;
-        const title = `${user?.username ?? centerEllipses(userAddress, 15)} ${
+        const title = `${user?.username ?? centerEllipses(user?.address, 15)} ${
           args.trade.isBuy ? "bought" : "sold"
         } ${args.trade.badgeAmount} badges!`;
         addToChatbot({
           username: user?.username ?? "",
-          address: userAddress ?? "",
+          address: user?.address ?? "",
           taskType: InteractionType.BUY_BADGES,
           title,
-          description: `${args.trade.trader}:${args.trade.badgeAmount}:${newSupply}:${args.trade.eventByte}`,
+          description: JSON.stringify({
+            trader: args.trade.trader as `0x${string}`,
+            badgeAmount: String(args.trade.badgeAmount as bigint),
+            newSupply: String(newSupply),
+            eventByte: String(args.trade.eventByte),
+          }),
         });
         await postBadgeTrade({
           channelId: channelQueryData?.id as string,
-          userAddress: userAddress as `0x${string}`,
+          userAddress: user?.address as `0x${string}`,
           isBuying: true,
           eventId: 0,
           chainId: localNetwork.config.chainId,
@@ -200,14 +214,13 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
   );
 
   useEffect(() => {
-    if (chat.mounted) mountingMessages.current = false;
-  }, [chat.mounted]);
+    if (mounted) mountingMessages.current = false;
+  }, [mounted]);
 
   useEffect(() => {
     const init = async () => {
-      if (chat.receivedMessages.length === 0) return;
-      const latestMessage =
-        chat.receivedMessages[chat.receivedMessages.length - 1];
+      if (receivedMessages.length === 0) return;
+      const latestMessage = receivedMessages[receivedMessages.length - 1];
       if (
         latestMessage &&
         latestMessage.data.body &&
@@ -215,7 +228,9 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
         Date.now() - latestMessage.timestamp < 12000
       ) {
         const body = latestMessage.data.body;
-        if (body.split(":")[0] === InteractionType.BUY_BADGES) {
+        const jpBody = jp(body) as ChatBotMessageBody;
+
+        if (jpBody.interactionType === InteractionType.BUY_BADGES) {
           try {
             await Promise.all([
               refetchBadgePrice(),
@@ -229,10 +244,10 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
       }
     };
     init();
-  }, [chat.receivedMessages]);
+  }, [receivedMessages]);
 
   useEffect(() => {
-    if (!walletIsConnected) {
+    if (!wagmiAddress || !loggedInWithPrivy || !user) {
       setErrorMessage("connect wallet first");
     } else if (!matchingChain) {
       setErrorMessage("wrong network");
@@ -241,7 +256,14 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
     } else {
       setErrorMessage("");
     }
-  }, [walletIsConnected, matchingChain, badgePrice, userEthBalance]);
+  }, [
+    wagmiAddress,
+    matchingChain,
+    badgePrice,
+    userEthBalance,
+    user,
+    loggedInWithPrivy,
+  ]);
 
   return (
     <Flex direction="column" p="0.5rem">
@@ -259,7 +281,11 @@ export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
         _active={{}}
         borderRadius="0px"
         onClick={() => buyVipBadge?.()}
-        isDisabled={!buyVipBadge || generatedKey === NULL_ADDRESS_BYTES32}
+        isDisabled={
+          !buyVipBadge ||
+          generatedKey === NULL_ADDRESS_BYTES32 ||
+          errorMessage.length > 0
+        }
       >
         <Text fontSize="20px">
           {generatedKey === NULL_ADDRESS_BYTES32

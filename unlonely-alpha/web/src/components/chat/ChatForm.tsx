@@ -12,10 +12,11 @@ import {
   PopoverContent,
   PopoverArrow,
   Input,
+  Box,
 } from "@chakra-ui/react";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import copy from "copy-to-clipboard";
-import { GiTalk } from "react-icons/gi";
+import { IoMdText } from "react-icons/io";
 import { IoIosHelpCircle } from "react-icons/io";
 import { FaFileDownload } from "react-icons/fa";
 
@@ -30,12 +31,11 @@ import { EmojiType, SenderStatus } from "../../constants/types/chat";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import EmojiButton from "./emoji/EmojiButton";
-import ConnectWallet from "../navigation/ConnectWallet";
+import { ConnectWallet } from "../navigation/ConnectWallet";
 import { ChatClip } from "./ChatClip";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { streamerTourSteps } from "../../pages/_app";
 
-import { isAddress, isAddressEqual } from "viem";
 import { NULL_ADDRESS } from "../../constants";
 import { Message } from "../../constants/types/chat";
 
@@ -52,6 +52,11 @@ type Props = {
   additionalChatCommands?: CommandData[];
   allowPopout?: boolean;
   channel?: AblyChannelPromise;
+  tokenGating?: {
+    ctaBuyTokens: () => void;
+    gateMessage: string;
+  };
+  noClipping?: boolean;
 };
 
 const ChatForm = ({
@@ -61,10 +66,19 @@ const ChatForm = ({
   allowPopout,
   channel,
   isVipChat,
+  tokenGating,
+  noClipping,
 }: Props) => {
-  const { user, walletIsConnected, userAddress: address } = useUser();
+  const { user, ready, authenticated } = useUser();
   const { isStandalone } = useUserAgent();
+  const [isHovered, setIsHovered] = useState(false);
+
   // const { setIsOpen: setIsTourOpen, setSteps: setTourSteps } = useTour();
+
+  const loggedInWithPrivy = useMemo(
+    () => ready && authenticated,
+    [ready, authenticated]
+  );
 
   const toast = useToast();
   const {
@@ -121,7 +135,14 @@ const ChatForm = ({
     if (!blastMode) {
       sendChatMessage(gif, true, currSenderStatus);
     } else {
-      sendChatMessage(gif, true, currSenderStatus, `${InteractionType.BLAST}:`);
+      sendChatMessage(
+        gif,
+        true,
+        currSenderStatus,
+        JSON.stringify({
+          interactionType: InteractionType.BLAST,
+        })
+      );
       setBlastMode(false);
       setBlastDisabled(true);
       setTimeout(() => {
@@ -154,7 +175,9 @@ const ChatForm = ({
           messageText.replace(/^\s*\n|\n\s*$/g, ""),
           false,
           currSenderStatus,
-          `${InteractionType.BLAST}:`
+          JSON.stringify({
+            interactionType: InteractionType.BLAST,
+          })
         );
         setBlastMode(false);
         setBlastDisabled(true);
@@ -181,7 +204,9 @@ const ChatForm = ({
           messageText.replace(/^\s*\n|\n\s*$/g, ""),
           false,
           currSenderStatus,
-          `${InteractionType.BLAST}:`
+          JSON.stringify({
+            interactionType: InteractionType.BLAST,
+          })
         );
         setBlastMode(false);
         setBlastDisabled(true);
@@ -227,7 +252,7 @@ const ChatForm = ({
         }}
       >
         <Stack direction={"row"} spacing={"10px"}>
-          {!walletIsConnected || !user ? (
+          {!user || !loggedInWithPrivy ? (
             <Flex
               justifyContent={"center"}
               direction="column"
@@ -306,7 +331,7 @@ const ChatForm = ({
                       <PopoverTrigger>
                         <IconButton
                           color="white"
-                          icon={<GiTalk size={20} />}
+                          icon={<IoMdText size={20} />}
                           bg="transparent"
                           aria-label="command"
                           _focus={{}}
@@ -440,7 +465,7 @@ const ChatForm = ({
                   )}
                 </Flex>
                 <Flex gap="0.75rem">
-                  {clipLoading ? (
+                  {noClipping ? null : clipLoading ? (
                     <Flex alignSelf="center" mr="8px">
                       <Spinner />
                     </Flex>
@@ -518,7 +543,13 @@ const ChatForm = ({
                 p="5px"
                 background={blastMode ? "rgba(255, 108, 108, 0.35)" : "#131225"}
               >
-                <Flex alignItems="center" gap="5px">
+                <Flex
+                  alignItems="center"
+                  gap="5px"
+                  position="relative"
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                >
                   <Input
                     ref={inputRef}
                     fontSize={isStandalone ? "16px" : "unset"}
@@ -563,6 +594,33 @@ const ChatForm = ({
                     _hover={{ transform: "scale(1.15)" }}
                     _active={{ transform: "scale(1.3)" }}
                   />
+                  {isHovered && tokenGating && (
+                    <Box
+                      position="absolute"
+                      top="0"
+                      left="0"
+                      right="0"
+                      bottom="0"
+                      bg="rgba(0, 0, 0, 0.9)"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      zIndex={1}
+                    >
+                      <Button
+                        onClick={tokenGating.ctaBuyTokens}
+                        bg="transparent"
+                        _hover={{}}
+                        _active={{}}
+                        _focus={{}}
+                        width="100%"
+                      >
+                        <Text color="red" fontWeight="bold" fontSize="20px">
+                          {tokenGating.gateMessage}
+                        </Text>
+                      </Button>
+                    </Box>
+                  )}
                 </Flex>
                 <Flex
                   position="absolute"
@@ -610,9 +668,7 @@ const compileParticipantsInfo = (messages: Message[]) => {
   let numberOfParticipants = 0;
 
   messages
-    .filter(
-      (m) => !isAddressEqual(NULL_ADDRESS, m.data.address as `0x${string}`)
-    )
+    .filter((m) => m.data.address !== NULL_ADDRESS)
     .forEach((message) => {
       const usernameOrAddress = message.data.username || message.data.address;
       if (!participants.has(usernameOrAddress)) {
@@ -627,8 +683,7 @@ const compileParticipantsInfo = (messages: Message[]) => {
   let participantsWithoutUsernames = "";
   participants.forEach((address, username) => {
     const isUsernameEqualToAddress =
-      isAddress(username) &&
-      isAddressEqual(username as `0x${string}`, address as `0x${string}`);
+      username.toUpperCase() === address.toUpperCase();
     if (isUsernameEqualToAddress) {
       participantsWithoutUsernames += `Address: ${address}\n`;
     } else {
@@ -644,9 +699,7 @@ const formatChatHistory = (messages: Message[]) => {
   let chatHistory = "Chat History:\n";
 
   messages
-    .filter(
-      (m) => !isAddressEqual(NULL_ADDRESS, m.data.address as `0x${string}`)
-    )
+    .filter((m) => NULL_ADDRESS !== m.data.address)
     .forEach((message) => {
       const date = new Date(message.timestamp).toLocaleString();
       const usernameOrAddress = message.data.username || message.data.address;

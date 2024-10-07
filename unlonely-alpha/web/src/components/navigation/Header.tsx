@@ -12,7 +12,7 @@ import {
 import NextLink from "next/link";
 import NextImage from "next/image";
 
-import ConnectWallet from "./ConnectWallet";
+import { ConnectWallet } from "./ConnectWallet";
 
 const Header: React.FC = () => {
   const logo = useBreakpointValue({

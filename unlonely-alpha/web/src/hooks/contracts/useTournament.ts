@@ -158,7 +158,7 @@ export const useSupply = (key: string, contract: ContractData) => {
 };
 
 export const useReadMappings = (key: string, contract: ContractData) => {
-  const { userAddress } = useUser();
+  const { user } = useUser();
   const publicClient = usePublicClient();
 
   const [vipBadgeSupply, setVipBadgeSupply] = useState<bigint>(BigInt(0));
@@ -166,7 +166,7 @@ export const useReadMappings = (key: string, contract: ContractData) => {
     useState<boolean>(false);
 
   const getData = useCallback(async () => {
-    if (!contract.address || !contract.abi || !publicClient || !userAddress) {
+    if (!contract.address || !contract.abi || !publicClient || !user?.address) {
       setVipBadgeSupply(BigInt(0));
       setIsTournamentCreator(false);
       return;
@@ -182,12 +182,12 @@ export const useReadMappings = (key: string, contract: ContractData) => {
         address: contract.address,
         abi: contract.abi,
         functionName: "isTournamentCreator",
-        args: [userAddress],
+        args: [user?.address as `0x${string}`],
       }),
     ]);
     setVipBadgeSupply(BigInt(String(vipBadgeSupply)));
     setIsTournamentCreator(Boolean(isTournamentCreator));
-  }, [contract.address, publicClient, userAddress, key]);
+  }, [contract.address, publicClient, user?.address, key]);
 
   useEffect(() => {
     getData();

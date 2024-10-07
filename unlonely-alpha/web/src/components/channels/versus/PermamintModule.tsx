@@ -19,7 +19,7 @@ import { useUser } from "../../../hooks/context/useUser";
 import { useChannelContext } from "../../../hooks/context/useChannel";
 
 export const PermamintModule = () => {
-  const { userAddress, user } = useUser();
+  const { user } = useUser();
 
   const { gameState } = useVersusTempTokenContext();
   const {
@@ -139,12 +139,15 @@ export const PermamintModule = () => {
 
         addToChatbot({
           username: user?.username ?? "",
-          address: userAddress ?? "",
+          address: user?.address ?? "",
           taskType: InteractionType.VERSUS_WINNER_TOKENS_MINTED,
           title,
-          description: `${userAddress}:${Number(
-            args.amount as bigint
-          )}:${String(data.blockNumber)}:${_tokenType}`,
+          description: JSON.stringify({
+            address: user?.address ?? "",
+            amount: Number(args.amount as bigint),
+            blockNumber: String(data.blockNumber),
+            tokenType: _tokenType,
+          }),
         });
       },
       onTxError: (error) => {

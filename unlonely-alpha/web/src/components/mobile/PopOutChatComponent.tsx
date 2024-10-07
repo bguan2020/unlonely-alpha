@@ -3,6 +3,7 @@ import { Box, Flex } from "@chakra-ui/react";
 import NextHead from "../layout/NextHead";
 import { useChat } from "../../hooks/chat/useChat";
 import { TabsComponent } from "./TabsComponent";
+import { ChatBot } from "../../constants/types";
 
 const styles = `
   html, body {
@@ -19,8 +20,8 @@ const styles = `
   }
 `;
 
-const PopOutChatComponent = () => {
-  const chat = useChat();
+const PopOutChatComponent = ({ chatBot }: { chatBot: ChatBot[] }) => {
+  const chat = useChat({ chatBot });
 
   return (
     <Box flexDirection="column" height="100dvh" flexWrap="nowrap">

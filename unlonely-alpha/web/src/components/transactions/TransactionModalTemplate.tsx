@@ -64,7 +64,7 @@ export const TransactionModalTemplate = ({
     | "6xl"
     | "full";
 }) => {
-  const { user, userAddress } = useUser();
+  const { user, wagmiAddress } = useUser();
 
   return (
     <Modal
@@ -140,8 +140,8 @@ export const TransactionModalTemplate = ({
                     isDisabled={
                       !canSend ||
                       !user ||
-                      !userAddress ||
-                      !isAddress(userAddress)
+                      !wagmiAddress ||
+                      !isAddress(wagmiAddress)
                     }
                     borderRadius="25px"
                   >

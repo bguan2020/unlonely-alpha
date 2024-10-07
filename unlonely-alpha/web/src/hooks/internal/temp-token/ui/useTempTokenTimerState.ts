@@ -21,7 +21,7 @@ export const useTempTokenTimerState = ({
     presaleOverMessage: string;
   };
 }) => {
-  const { userAddress, user } = useUser();
+  const { user } = useUser();
   const { channel, chat } = useChannelContext();
   const { isOwner: isChannelOwner } = channel;
   const { addToChatbot: addToChatbotForTempToken } = chat;
@@ -80,13 +80,13 @@ export const useTempTokenTimerState = ({
     (message: string) => {
       addToChatbotForTempToken({
         username: user?.username ?? "",
-        address: userAddress ?? "",
+        address: user?.address ?? "",
         taskType: InteractionType.TEMP_TOKEN_EXPIRATION_WARNING,
         title: message,
         description: "",
       });
     },
-    [user, userAddress]
+    [user]
   );
 
   useEffect(() => {
@@ -122,7 +122,7 @@ export const useTempTokenTimerState = ({
         const title = chatbotMessages.presaleOverMessage;
         addToChatbotForTempToken({
           username: user?.username ?? "",
-          address: userAddress ?? "",
+          address: user?.address ?? "",
           taskType: InteractionType.PRESALE_OVER,
           title,
           description: "",

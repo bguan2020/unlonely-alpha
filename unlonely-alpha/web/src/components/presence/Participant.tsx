@@ -17,6 +17,7 @@ import { CustomUser } from "../../constants/types";
 import { useGetBadges } from "../../hooks/internal/useGetBadges";
 import { getColorFromString } from "../../styles/Colors";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import trailString from "../../utils/trailString";
 
 type Props = {
   user?: CustomUser;
@@ -71,7 +72,7 @@ const Participant = ({ user }: Props) => {
                 <Flex gap="5px">
                   <Text fontSize="12px" textAlign={"center"}>
                     {user.username
-                      ? user.username
+                      ? trailString(user.username, 13)
                       : centerEllipses(user.address, 8)}
                   </Text>
                 </Flex>
@@ -79,7 +80,7 @@ const Participant = ({ user }: Props) => {
                   {rankUrl && (
                     <Image src={rankUrl} width="20px" height="20px" mr="5px" />
                   )}
-                  {user.isFCUser && (
+                  {user.FCHandle && (
                     <Image
                       src="/images/farcaster_logo.png"
                       width="20px"

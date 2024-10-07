@@ -4,6 +4,7 @@ import { Virtuoso } from "react-virtuoso";
 
 import MessageBody from "./MessageBody";
 import {
+  ChatBotMessageBody,
   Message,
   SelectedUser,
   SenderStatus,
@@ -21,6 +22,7 @@ import useUpdatePinnedChatMessages from "../../hooks/server/channel/useUpdatePin
 import PinnedMessageBody from "./PinnedMessageBody";
 import { useZoraCollect1155 } from "../../hooks/contracts/useZoraCollect1155";
 import { TransactionReceipt } from "viem";
+import { jp } from "../../utils/validation/jsonParse";
 
 type MessageListProps = {
   messages: Message[];
@@ -131,7 +133,7 @@ const MessageList = memo(
           const isChatbotWithAcceptableInteractionType =
             m.data.senderStatus === SenderStatus.CHATBOT &&
             !excludedChatbotInteractionTypesInVipChat.includes(
-              m?.data?.body?.split(":")[0] as any
+              (jp(m.data.body ?? "") as ChatBotMessageBody)?.interactionType
             );
           return (
             isChatMessageEvent &&

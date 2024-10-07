@@ -30,7 +30,7 @@ export const useGetClaimBetEvents = () => {
   const [claimableBets, setClaimableBets] = useState<UnclaimedBet[]>([]);
   const [counter, setCounter] = useState(0);
 
-  const { userAddress, activeWallet, walletIsConnected } = useUser();
+  const { user, wagmiAddress } = useUser();
   const { network } = useNetworkContext();
   const { localNetwork } = network;
   const contractData = getContractFromNetwork(Contract.SHARES_V2, localNetwork);
@@ -44,17 +44,11 @@ export const useGetClaimBetEvents = () => {
 
   useEffect(() => {
     const init = async () => {
-      const chainId = activeWallet?.chainId?.split(":")[1];
-      const _network = NETWORKS.find(
-        (network) => network.config.chainId === Number(chainId)
-      );
       if (
-        !_network ||
         !contractData.address ||
         isFetching.current ||
-        !userAddress ||
-        !walletIsConnected ||
-        !activeWallet ||
+        !user?.address ||
+        !wagmiAddress ||
         window.location.pathname !== "/claim"
       ) {
         setFetchingBets(false);
@@ -67,7 +61,7 @@ export const useGetClaimBetEvents = () => {
         const data = await getUnclaimedEvents({
           variables: {
             data: {
-              userAddress: userAddress as `0x${string}`,
+              userAddress: user?.address as `0x${string}`,
               chainId: contractData.chainId,
             },
           },
@@ -86,7 +80,7 @@ export const useGetClaimBetEvents = () => {
       let payouts: any[] = [];
       try {
         const publicClient = createPublicClient({
-          chain: _network,
+          chain: NETWORKS[0],
           transport: http(),
         });
         const promises = unclaimedBets.map((event) =>
@@ -98,7 +92,7 @@ export const useGetClaimBetEvents = () => {
               event.sharesSubjectAddress as string,
               event.id,
               EventTypeForContract.YAY_NAY_VOTE,
-              userAddress,
+              user?.address as `0x${string}`,
             ],
           })
         );
@@ -121,10 +115,9 @@ export const useGetClaimBetEvents = () => {
     };
     init();
   }, [
-    userAddress,
+    user?.address,
     contractData.address,
-    activeWallet,
-    walletIsConnected,
+    wagmiAddress,
     counter,
   ]);
 

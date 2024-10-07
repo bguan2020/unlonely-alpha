@@ -12,7 +12,7 @@
     "node": "16.20.2"
   },
   "dependencies": {
-    "@airstack/node": "^0.0.5",
+    "@airstack/node": "0.0.7",
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@prisma/client": "3.15.2",
     "@privy-io/server-auth": "^1.7.2",

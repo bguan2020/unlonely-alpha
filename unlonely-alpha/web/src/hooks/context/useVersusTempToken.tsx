@@ -22,7 +22,9 @@ import { useChannelContext } from "./useChannel";
 import { useUser } from "./useUser";
 import { useRouter } from "next/router";
 import { InteractionType } from "../../constants";
-import { usePublicClient } from "wagmi";
+import { http } from "wagmi";
+import { createPublicClient } from "viem";
+import { base } from "viem/chains";
 
 export const useVersusTempTokenContext = () => {
   return useContext(VersusTempTokenContext);
@@ -69,7 +71,7 @@ export const VersusTempTokenProvider = ({
   const { channel, chat } = useChannelContext();
   const { isOwner } = channel;
   const { addToChatbot: addToChatbotForTempToken } = chat;
-  const { user, userAddress } = useUser();
+  const { user } = useUser();
   const globalState = useReadVersusTempTokenGlobalState();
   const transitionGameState = useVersusGameStateTransitioner();
   const { loadingOnMount } = useReadVersusTempTokenOnMount({
@@ -77,19 +79,29 @@ export const VersusTempTokenProvider = ({
   });
   const router = useRouter();
 
-  const publicClient = usePublicClient();
-
+  const baseClient = useMemo(
+    () =>
+      createPublicClient({
+        chain: base,
+        transport: http(
+          `https://base-mainnet.g.alchemy.com/v2/${String(
+            process.env.NEXT_PUBLIC_ALCHEMY_BASE_API_KEY
+          )}`
+        ),
+      }),
+    []
+  );
   const readTempTokenTxs_a = useReadTempTokenTxs({
     tokenCreationBlockNumber:
       globalState.tokenA?.creationBlockNumber ?? BigInt(0),
-    baseClient: publicClient,
+    baseClient,
     tempTokenContract: globalState.tokenA.contractData,
   });
 
   const readTempTokenTxs_b = useReadTempTokenTxs({
     tokenCreationBlockNumber:
       globalState.tokenB?.creationBlockNumber ?? BigInt(0),
-    baseClient: publicClient,
+    baseClient,
     tempTokenContract: globalState.tokenB.contractData,
   });
 
@@ -167,7 +179,7 @@ export const VersusTempTokenProvider = ({
    */
   useEffect(() => {
     const onGameFinish = async () => {
-      if (!globalState.isGameFinished || !publicClient) return;
+      if (!globalState.isGameFinished || !baseClient) return;
       console.log("game finished");
       globalState.handleIsGameOngoing(false);
       if (
@@ -180,7 +192,7 @@ export const VersusTempTokenProvider = ({
       if (isOwner && router.pathname.startsWith("/channels")) {
         addToChatbotForTempToken({
           username: user?.username ?? "",
-          address: userAddress ?? "",
+          address: user?.address ?? "",
           taskType: InteractionType.TEMP_TOKEN_EXPIRED,
           title: "Game finished! Both tokens are now expired!",
           description: "",
@@ -203,7 +215,7 @@ export const VersusTempTokenProvider = ({
     globalState.isGameFinished,
     globalState.tokenA,
     globalState.tokenB,
-    publicClient,
+    baseClient,
     router,
     isOwner,
   ]);

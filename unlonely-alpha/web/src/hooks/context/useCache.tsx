@@ -53,7 +53,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const [appErrors, setAppErrors] = useState<SourcedError[]>([]);
   const toast = useToast();
 
-  const { walletIsConnected } = useUser();
+  const { wagmiAddress } = useUser();
   const { isStandalone } = useUserAgent();
   const toastIdRef = useRef<ToastId | undefined>();
 
@@ -103,7 +103,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (
-      walletIsConnected &&
+      wagmiAddress &&
       appErrors.filter((err) => err.name?.includes("ConnectorNotFoundError"))
         .length > 0 &&
       !toast.isActive("no-connector") &&
@@ -141,7 +141,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
         toast.close(toastIdRef.current);
       }
     }
-  }, [appErrors, walletIsConnected]);
+  }, [appErrors, wagmiAddress]);
 
   const value = useMemo(() => {
     return {

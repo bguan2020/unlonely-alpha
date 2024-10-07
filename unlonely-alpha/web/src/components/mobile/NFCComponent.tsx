@@ -9,7 +9,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import { LikedIcon, LikeIcon } from "../icons/LikeIcon";
 
 export const NFCComponent = ({ nfc }: { nfc?: any }) => {
-  const { user, walletIsConnected } = useUser();
+  const { user } = useUser();
 
   const videoRef = useRef<HTMLVideoElement>(null); // Ref for the video element
 
@@ -72,8 +72,6 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
     }
   };
 
-  console.log("nfc", nfc);
-
   return (
     <Flex
       scrollSnapAlign={"start"}
@@ -108,7 +106,8 @@ export const NFCComponent = ({ nfc }: { nfc?: any }) => {
           fontFamily="LoRes15"
           color="#9d9d9d"
         >
-          owner: {nfc?.owner.username ?? centerEllipses(nfc?.owner.address, 13)}
+          owner:{" "}
+          {nfc?.owner.username ?? centerEllipses(nfc?.owner?.address, 13)}
         </Text>
       </Flex>
       <Box

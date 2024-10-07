@@ -14,7 +14,7 @@ import NextHead from "./NextHead";
 import Header from "../navigation/Header";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { Navbar } from "../mobile/Navbar";
-import AddToHomeScreen from "../general/mobile-prompts/AddToHomeScreen";
+// import AddToHomeScreen from "../general/mobile-prompts/AddToHomeScreen";
 
 type Props = {
   loading?: boolean;
@@ -65,7 +65,7 @@ const AppLayout: React.FC<Props> = ({
           {!isStandalone ? (
             <>
               {!noHeader && <Header />}
-              {!router.pathname.startsWith("/nfc") && <AddToHomeScreen />}
+              {/* {!router.pathname.startsWith("/nfc") && <AddToHomeScreen />} */}
               <Box
                 minW="100%"
                 as="main"

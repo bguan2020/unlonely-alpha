@@ -23,7 +23,7 @@ export const findOrCreateUser = async ({ address }: { address: string }) => {
     }
 
     // Otherwise, create a new user and store the promise in the map
-    const { socialData } = await fetchSocial(address, "ethereum").catch(async (e) => {
+    const { socialData } = await fetchSocial(address).catch(async (e) => {
       console.log("error fetching socials, switching to getEnsName", e);
       const username = await getEnsName(address);
       return { socialData: { username } };

@@ -23,7 +23,7 @@ const PinnedMessageBody = ({ messageText, handlePinCallback }: Props) => {
   );
 
   const userIsChannelOwner = useMemo(
-    () => user?.address === channelQueryData?.owner.address,
+    () => user?.address === channelQueryData?.owner?.address,
     [user, channelQueryData]
   );
 

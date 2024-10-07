@@ -77,9 +77,9 @@ const FullTempTokenChart = ({
   channelStaticError?: any;
   channelStaticLoading?: boolean;
 }) => {
-  const chat = useChat();
-  const { channel } = useChannelContext();
+  const { channel, chat: c } = useChannelContext();
   const { isOwner } = channel;
+  const chat = useChat({ chatBot: c.chatBot });
 
   const { tempToken } = useTempTokenContext();
   const { gameState } = tempToken;

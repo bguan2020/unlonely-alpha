@@ -21,14 +21,14 @@ const MUTATION = gql`
   }
 `;
 
-const useUpdateUser = ({ onError }: Props) => {
+const useUpdateUsername = ({ onError }: Props) => {
   const [loading, setLoading] = useState(false);
   const [mutate] = useAuthedMutation<
     UpdateUsernameMutation,
     UpdateUsernameMutationVariables
   >(MUTATION);
 
-  const updateUser = useCallback(
+  const updateUsername = useCallback(
     async (data) => {
       try {
         setLoading(true);
@@ -56,7 +56,7 @@ const useUpdateUser = ({ onError }: Props) => {
     [mutate, onError]
   );
 
-  return { updateUser, loading };
+  return { updateUsername, loading };
 };
 
-export default useUpdateUser;
+export default useUpdateUsername;
