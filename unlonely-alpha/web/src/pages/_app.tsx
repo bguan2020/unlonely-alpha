@@ -168,7 +168,7 @@ function App({ Component, pageProps }: Props) {
             accentColor: "#6cff67",
             logo: "/icons/icon-192x192.png",
             showWalletLoginFirst: false,
-            walletChainType: "solana-only",
+            walletChainType: "ethereum-and-solana",
           },
           // support for coinbase smart wallets, still in testing
           externalWallets: {
