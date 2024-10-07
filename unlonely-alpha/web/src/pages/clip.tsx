@@ -302,69 +302,77 @@ const Clip = () => {
         return;
       }
       setPageState("clipping");
+      let res: any;
+      const start = Date.now();
       try {
-        const { res } = await createClip({
-          title: `rough-clip-${Date.now()}`,
+        const { res: data } = await createClip({
+          title: `rough-clip-${start}`,
           channelId: getChannelByIdData.getChannelById?.id,
           livepeerPlaybackId:
             getChannelByIdData.getChannelById?.livepeerPlaybackId,
           noDatabasePush: true,
         });
-        const roughUrl = res?.url;
-        if (res?.errorMessage) {
-          console.log(
-            "Error creating rough clip, got error from createClip,",
-            res.errorMessage
-          );
-          setPageState("error");
-          setErrorMessage(
-            `Error creating rough clip, got error from createClip, ${res.errorMessage}`
-          );
-          return;
-        }
-        if (roughUrl) {
-          const videoBlob = await fetch(roughUrl).then((res) => res.blob());
-          const videoFile = new File([videoBlob], "rough.mp4", {
-            type: "video/mp4",
-          });
-          ffmpeg.FS(
-            "writeFile",
-            "rough.mp4",
-            await (window as any).FFmpeg.fetchFile(videoFile)
-          );
-
-          let durationString = "";
-
-          ffmpeg.setLogger(({ type, message }: { type: any; message: any }) => {
-            if (type === "fferr" && message.includes("Duration")) {
-              const match = message.match(/Duration: (\d+:\d+:\d+\.\d+)/);
-              if (match) {
-                durationString = match[1];
-              }
-            }
-          });
-
-          await ffmpeg.run("-i", "rough.mp4");
-
-          if (!durationString) {
-            throw new Error("Unable to retrieve video duration.");
-          }
-
-          setRoughClipUrl(roughUrl);
-        } else {
-          console.log("Error creating rough clip, no error but url is missing");
-          setPageState("error");
-          setErrorMessage(
-            "Error creating rough clip, no error but url is missing"
-          );
-          return;
-        }
-        setPageState("selecting");
+        res = data;
       } catch (e) {
         console.log("createClip error", e);
         setPageState("error");
-        setErrorMessage(`Error creating rough clip, catch block caught ${e}`);
+        setErrorMessage(
+          `Error creating rough clip, unable to execute function correctly, took ${
+            (Date.now() - start) / 1000
+          }s`
+        );
+        return;
       }
+      const roughUrl = res?.url;
+      if (res?.errorMessage) {
+        console.log(
+          "Error creating rough clip, got error from createClip,",
+          res.errorMessage
+        );
+        setPageState("error");
+        setErrorMessage(
+          `Error creating rough clip, got error from createClip, ${res.errorMessage}`
+        );
+        return;
+      }
+      if (roughUrl) {
+        const videoBlob = await fetch(roughUrl).then((res) => res.blob());
+        const videoFile = new File([videoBlob], "rough.mp4", {
+          type: "video/mp4",
+        });
+        ffmpeg.FS(
+          "writeFile",
+          "rough.mp4",
+          await (window as any).FFmpeg.fetchFile(videoFile)
+        );
+
+        let durationString = "";
+
+        ffmpeg.setLogger(({ type, message }: { type: any; message: any }) => {
+          if (type === "fferr" && message.includes("Duration")) {
+            const match = message.match(/Duration: (\d+:\d+:\d+\.\d+)/);
+            if (match) {
+              durationString = match[1];
+            }
+          }
+        });
+
+        await ffmpeg.run("-i", "rough.mp4");
+
+        if (!durationString) {
+          throw new Error("Unable to retrieve video duration.");
+        }
+
+        setRoughClipUrl(roughUrl);
+      } else {
+        console.log("Error creating rough clip, no error but url is missing");
+        setPageState("error");
+        setErrorMessage(
+          "Error creating rough clip, no error but url is missing"
+        );
+        return;
+      }
+      setPageState("selecting");
     };
     init();
   }, [getChannelByIdData, user]);
