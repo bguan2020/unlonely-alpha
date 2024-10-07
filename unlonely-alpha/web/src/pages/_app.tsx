@@ -25,8 +25,6 @@ import { TourProvider } from "@reactour/tour";
 import Link from "next/link";
 import { ApolloProvider } from "../hooks/context/useApollo";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
 
 const queryClient = new QueryClient();

@@ -18,8 +18,6 @@ import {
   ConnectedSolanaWallet,
 } from "@privy-io/react-auth";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { useSolanaWallets } from "@privy-io/react-auth/solana";
 import {
   Box,
@@ -29,7 +27,6 @@ import {
   Text,
   Image,
   Tooltip,
-  useToast,
 } from "@chakra-ui/react";
 import { RiSubtractFill } from "react-icons/ri";
 import { GoUnlink } from "react-icons/go";
@@ -41,33 +38,14 @@ import centerEllipses from "../../utils/centerEllipses";
 import { Tos } from "../../components/general/Tos";
 import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
 import { useApolloContext } from "./useApollo";
-import { useAccount, useSignMessage } from "wagmi";
+import { useAccount } from "wagmi";
 import { useSetActiveWallet } from "@privy-io/wagmi";
-import usePostStreamInteraction from "../server/usePostStreamInteraction";
 import {
   areAddressesEqual,
   isValidAddress,
 } from "../../utils/validation/wallet";
 
 const FETCH_TRIES = 5;
-
-type WalletListEntry =
-  | "metamask"
-  | "phantom"
-  | "rainbow"
-  | "rabby_wallet"
-  | "coinbase_wallet"
-  | "zerion"
-  | "cryptocom"
-  | "uniswap"
-  | "okx_wallet"
-  | "detected_wallets"
-  | "wallet_connect"
-  | "safe";
-
-const isWalletListEntry = (value: unknown): value is WalletListEntry => {
-  return typeof value === "string" && (value as WalletListEntry) === value;
-};
 
 export const useUser = () => {
   return useContext(UserContext);
@@ -155,7 +133,6 @@ export const UserProvider = ({
 
   const { address: wagmiAddress } = useAccount();
 
-  const { signMessage } = useSignMessage();
   const handleInitialNotificationsGranted = useCallback((granted: boolean) => {
     setInitialNotificationsGranted(granted);
   }, []);
@@ -176,8 +153,6 @@ export const UserProvider = ({
     [evmWallets, solanaWallets]
   );
 
-  console.log("wallets", wallets, evmWallets, solanaWallets);
-
   const latestVerifiedPrivyAccount = useMemo(() => {
     if (privyUser?.linkedAccounts.length === 0) return undefined;
     if (privyUser?.linkedAccounts.length === 1)
@@ -197,14 +172,6 @@ export const UserProvider = ({
     return accountWithLatestVerifiedAt;
   }, [privyUser?.linkedAccounts]);
 
-  console.log(
-    "latestVerifiedPrivyAccount",
-    latestVerifiedPrivyAccount?.address,
-    wagmiAddress
-  );
-
-  const toast = useToast();
-  const { postStreamInteraction } = usePostStreamInteraction({});
   const { login } = useLogin({
     onComplete: (
       _user,
@@ -312,7 +279,7 @@ export const UserProvider = ({
     );
     console.log("foundEvmWallet", foundEvmWallet, evmWallets, localAddress);
     if (foundEvmWallet) setActiveWallet(foundEvmWallet);
-  }, [localAddress, evmWallets, setActiveWallet]);
+  }, [localAddress, evmWallets]);
 
   const handleIsManagingWallets = useCallback((value: boolean) => {
     setIsManagingWallets(value);
@@ -371,6 +338,13 @@ export const UserProvider = ({
   );
 
   console.log("privyUser?.linkedAccounts", privyUser?.linkedAccounts);
+  console.log(
+    "latestVerifiedPrivyAccount",
+    latestVerifiedPrivyAccount?.address,
+    "wagmiAddress",
+    wagmiAddress
+  );
+  console.log("wallets", wallets, evmWallets, solanaWallets);
 
   return (
     <UserContext.Provider value={value}>
