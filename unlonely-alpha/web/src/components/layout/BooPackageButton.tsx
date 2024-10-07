@@ -50,7 +50,7 @@ export const BooPackageButton = ({
     updateUserPackageCooldownMapping: updateUserBooPackageCooldownMapping,
   } = useUpdateUserPackageCooldownMapping({});
 
-  const onTransferSuccess = async () => {
+  const onTransferSuccess = async (text: string) => {
     await postStreamInteraction({
       channelId: "3",
       streamInteractionType: StreamInteractionType.PackageInteraction,
@@ -69,10 +69,13 @@ export const BooPackageButton = ({
           username: user?.username ?? "",
           address: user?.address ?? "",
           taskType: InteractionType.USE_BOO_PACKAGE,
-          title: `${
-            user?.username ?? centerEllipses(user?.address, 15)
-          } asked for ${packageInfo.name}!`,
-          description: JSON.stringify(packageInfo),
+          title: text,
+          description: JSON.stringify({
+            ...packageInfo,
+            message: `${
+              user?.username ?? centerEllipses(user?.address, 15)
+            } sent ${packageInfo.name}!`,
+          }),
         });
       });
       await interactionsAblyChannel?.publish({
@@ -88,13 +91,9 @@ export const BooPackageButton = ({
     });
   };
 
-  const handleSendTokens = async () => {
+  const handleSendTokens = async (text: string) => {
     setLoading(true);
-    // await sendTokens(
-    //   "CGgvGycx44rLAifbdgWihPAeQtpakubUPksCtiFKqk9i",
-    //   "0.000001"
-    // );
-    await onTransferSuccess();
+    await onTransferSuccess(text);
     setLoading(false);
   };
 

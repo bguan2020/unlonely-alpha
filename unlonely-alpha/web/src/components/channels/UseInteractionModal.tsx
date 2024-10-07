@@ -78,56 +78,43 @@ export const UseInteractionModal = ({
           ) : (
             <Flex direction="column" gap="10px">
               <Text textAlign="center">disclaimer</Text>
-              {isTts ? (
-                <>
-                  <Textarea
-                    id="text"
-                    placeholder="Enter message to broadcast"
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                  />
+              <Textarea
+                id="text"
+                placeholder={
+                  isTts ? "Enter message to broadcast" : "Enter message"
+                }
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+              />
 
-                  <Button
-                    bg="#2562db"
-                    color={"white"}
-                    _hover={{
-                      bg: "#4683fd",
-                    }}
-                    onClick={async () => {
-                      setLoadingText("Sending message...");
-                      await interactionData.handleInteraction(text);
-                      setText("");
-                      setLoadingText(null);
-                      handleClose();
-                    }}
-                    isDisabled={
-                      text.length === 0 ||
-                      text.length > 200 ||
-                      containsSwears(text)
-                    }
-                  >
-                    Send
-                  </Button>
-                  <Text h="20px" color={"red"} fontSize="10px">
-                    {text.length > 200
-                      ? "message must be 200 characters or under"
-                      : containsSwears(text)
-                      ? "message contains strong swear words"
-                      : ""}
-                  </Text>
-                </>
-              ) : (
-                <Button
-                  onClick={async () => {
-                    setLoadingText("Using package...");
-                    await interactionData.handleInteraction();
-                    setLoadingText(null);
-                    handleClose();
-                  }}
-                >
-                  Send
-                </Button>
-              )}
+              <Button
+                bg="#2562db"
+                color={"white"}
+                _hover={{
+                  bg: "#4683fd",
+                }}
+                onClick={async () => {
+                  setLoadingText(
+                    isTts ? "Sending message..." : "Using package..."
+                  );
+                  await interactionData.handleInteraction(text);
+                  setText("");
+                  setLoadingText(null);
+                  handleClose();
+                }}
+                isDisabled={
+                  text.length === 0 || text.length > 200 || containsSwears(text)
+                }
+              >
+                Send
+              </Button>
+              <Text h="20px" color={"red"} fontSize="10px">
+                {text.length > 200
+                  ? "message must be 200 characters or under"
+                  : containsSwears(text)
+                  ? "message contains strong swear words"
+                  : ""}
+              </Text>
             </Flex>
           )}
         </Flex>

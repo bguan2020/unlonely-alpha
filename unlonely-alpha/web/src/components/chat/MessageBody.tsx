@@ -69,7 +69,15 @@ const MessageBody = ({
         jp(message.data.body).interactionType ===
           InteractionType.MINT_NFC_IN_CHAT)
     );
-    return false;
+  }, [message.data.body]);
+
+  const isPackageRelated = useMemo(() => {
+    return (
+      message.data.body &&
+      (jp(message.data.body).interactionType ===
+        InteractionType.USE_BOO_PACKAGE ||
+        jp(message.data.body).interactionType === InteractionType.SEND_BOO_TTS)
+    );
   }, [message.data.body]);
 
   const normalUserReceivesVipMessages = useMemo(
@@ -282,6 +290,12 @@ const MessageBody = ({
                         h="40px"
                         p="5px"
                       />
+                    </>
+                  )}
+                  {isPackageRelated && message.data.body && (
+                    <>
+                      <Text as="span">{jp(message.data.body).message}</Text>
+                      <br />
                     </>
                   )}
                   {!message.data.isGif && linkArray && (
