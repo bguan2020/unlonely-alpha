@@ -37,7 +37,7 @@ const BooEventWrapperWithSolana = () => {
 
   return (
     <>
-      {false ? (
+      {true ? (
         <HomePageBooEventStreamPage />
       ) : (
         <HomePageBooEventTokenCountdown />
