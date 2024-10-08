@@ -23,11 +23,7 @@ import { useSolanaTokenBalance } from "../../hooks/internal/solana/useSolanaToke
 // import { useWallet } from "@solana/wallet-adapter-react";
 // import { useJupiterQuoteSwap } from "../../hooks/internal/solana/useJupiterQuoteSwap";
 // import { useBooTokenTerminal } from "../../hooks/internal/solana/useBooTokenTerminal";
-import {
-  SOLANA_RPC_URL,
-  FIXED_SOLANA_MINT,
-  PACKAGE_PRICE_CHANGE_EVENT,
-} from "../../constants";
+import { FIXED_SOLANA_MINT, PACKAGE_PRICE_CHANGE_EVENT } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import { BooCarePackages } from "./BooCarePackages";
 import { useDragRefs } from "../../hooks/internal/useDragRef";
@@ -68,7 +64,7 @@ export const HomePageBooEventStreamPage = () => {
   const [isSell, setIsSell] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { balance, fetchTokenBalance } = useSolanaTokenBalance(SOLANA_RPC_URL);
+  const { balance, fetchTokenBalance } = useSolanaTokenBalance();
   const [interactionState, setInteractionState] = useState<{
     isOpen: boolean;
     interactionData: {
@@ -123,42 +119,6 @@ export const HomePageBooEventStreamPage = () => {
     Record<string, PackageInfo>
   >({});
 
-  // const { quoteSwap } = useJupiterQuoteSwap();
-
-  // const getTransactionData = async (transactionId: string) => {
-  //   const details = await getTransactionDetails(
-  //     transactionId,
-  //     new Connection(SOLANA_RPC_URL)
-  //   );
-  //   if (!details) return;
-  //   const { preTokenBalances, postTokenBalances } = details;
-  //   console.log("preTokenBalances", preTokenBalances);
-  //   console.log("postTokenBalances", postTokenBalances);
-
-  //   const preBalance =
-  //     preTokenBalances?.find(
-  //       (balance) => balance.owner === publicKey?.toString()
-  //     )?.uiTokenAmount.uiAmount || 0;
-  //   const postBalance =
-  //     postTokenBalances?.find(
-  //       (balance) => balance.owner === publicKey?.toString()
-  //     )?.uiTokenAmount.uiAmount || 0;
-
-  //   const balanceDifference = Math.abs(postBalance - preBalance);
-  //   console.log(`Balance difference: ${balanceDifference}`);
-  // };
-
-  // useEffect(() => {
-  //   const init = async () => {
-  //     // if (!connected) return;
-  //     // quoteSwap(1);
-  //     await getTransactionData(
-  //       "hXdP699Ko29osW1vtY5CwxnDpvfvg2xYUN5aqkiS9kA3im3XCFrFcrzJ65PGNxJ1NyYvGpeaGTRHRafy3D71TXs"
-  //     );
-  //   };
-  //   init();
-  // }, [connected]);
-
   const [interactionsChannel] = useAblyChannel(
     INTERACTIONS_CHANNEL,
     async (message) => {
@@ -181,48 +141,6 @@ export const HomePageBooEventStreamPage = () => {
       }
     }
   );
-
-  // const getTransactionDetails = async (
-  //   transactionId: string,
-  //   connection: Connection
-  // ) => {
-  //   try {
-  //     const transaction = await connection.getParsedTransaction(transactionId, {
-  //       maxSupportedTransactionVersion: 0,
-  //     });
-  //     console.log(
-  //       "getTransactionDetails: transaction details for",
-  //       transactionId,
-  //       transaction
-  //     );
-
-  //     if (!transaction) {
-  //       console.log("Transaction not found");
-  //       return null;
-  //     }
-
-  //     const { meta } = transaction;
-  //     if (!meta) {
-  //       console.log("Transaction metadata not available");
-  //       return null;
-  //     }
-
-  //     const { preTokenBalances, postTokenBalances } = meta;
-
-  //     const swapDetails = {
-  //       fee: meta.fee,
-  //       innerInstructions: meta.innerInstructions,
-  //       preTokenBalances,
-  //       postTokenBalances,
-  //       // Add more relevant fields as needed
-  //     };
-
-  //     return swapDetails;
-  //   } catch (error) {
-  //     console.error("Error fetching transaction details:", error);
-  //     return null;
-  //   }
-  // };
 
   const [bloodImageCount, setBloodImageCount] = useState(0);
   const bloodContainerRef = useRef<HTMLDivElement>(null);
@@ -616,7 +534,6 @@ export const HomePageBooEventStreamPage = () => {
                         ? `${TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}%`
                         : `${TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH}px`
                     }
-                    rpcUrl={SOLANA_RPC_URL}
                     formProps={
                       isSell
                         ? watchAllFieldsSell.formProps

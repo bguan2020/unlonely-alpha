@@ -8,7 +8,7 @@ import { getTimeFromMillis } from "../../utils/time";
 import { useForm } from "react-hook-form";
 import { eventStartTime } from "./BooEventWrapper";
 import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";
-import { FIXED_SOLANA_MINT, SOLANA_RPC_URL } from "../../constants";
+import { FIXED_SOLANA_MINT } from "../../constants";
 
 export const HomePageBooEventTokenCountdown = () => {
   const [timeLeft, setTimeLeft] = useState(0);
@@ -67,7 +67,6 @@ export const HomePageBooEventTokenCountdown = () => {
       </div>
       <Flex justifyContent={"center"} position="relative">
         <IntegratedTerminal
-          rpcUrl={SOLANA_RPC_URL}
           formProps={watchAllFields.formProps}
           simulateWalletPassthrough={watchAllFields.simulateWalletPassthrough}
           strictTokenList={watchAllFields.strictTokenList}

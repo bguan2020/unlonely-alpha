@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState, memo } from "react";
 import { useUnifiedWalletContext, useWallet } from "@jup-ag/wallet-adapter";
 import { FormProps } from "../transactions/solana/SolanaJupiterTerminal";
+import { SOLANA_RPC_URL } from "../../constants";
 
 interface IntegratedTerminalProps {
-  rpcUrl: string;
   formProps: FormProps;
   simulateWalletPassthrough: boolean;
   strictTokenList: boolean;
@@ -21,7 +21,6 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
   const {
     height,
     width,
-    rpcUrl,
     formProps,
     simulateWalletPassthrough,
     strictTokenList,
@@ -40,7 +39,7 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
       (window as any)?.Jupiter.init({
         displayMode: "integrated",
         integratedTargetId: "integrated-terminal",
-        endpoint: rpcUrl,
+        endpoint: SOLANA_RPC_URL,
         formProps,
         enableWalletPassthrough: simulateWalletPassthrough,
         passthroughWalletContextState: simulateWalletPassthrough
@@ -60,7 +59,6 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
     defaultExplorer,
     formProps,
     passthroughWalletContextState,
-    rpcUrl,
     setShowModal,
     simulateWalletPassthrough,
     strictTokenList,

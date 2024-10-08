@@ -2,10 +2,10 @@ import { getAssociatedTokenAddress, getAccount } from "@solana/spl-token";
 import Decimal from "decimal.js";
 import { PublicKey, Connection } from "@solana/web3.js";
 import { useState, useEffect } from "react";
-import { FIXED_SOLANA_MINT } from "../../../constants";
+import { FIXED_SOLANA_MINT, SOLANA_RPC_URL } from "../../../constants";
 import { useUser } from "../../context/useUser";
 
-export const useSolanaTokenBalance = (rpcUrl: string) => {
+export const useSolanaTokenBalance = () => {
     const [balance, setBalance] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
     
@@ -20,15 +20,16 @@ export const useSolanaTokenBalance = (rpcUrl: string) => {
     }, [solanaAddress, activeWallet]);
   
     const fetchTokenBalance = async () => {
-      if (!solanaAddress) {
-        console.error("No address");
+      if (!solanaAddress || loading) {
         return;
       }
+
+      console.log("Fetching token balance for:", solanaAddress);
   
       setLoading(true);
   
       try {
-        const connection = new Connection(rpcUrl, "confirmed");
+        const connection = new Connection(SOLANA_RPC_URL, "confirmed");
         const tokenMint = new PublicKey(FIXED_SOLANA_MINT.mintAddress);
   
         const tokenAccountAddress = await getAssociatedTokenAddress(
