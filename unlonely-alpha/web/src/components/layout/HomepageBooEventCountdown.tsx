@@ -48,18 +48,11 @@ export const HomePageBooEventTokenCountdown = () => {
           textAlign="center"
           width="100%"
           pointerEvents="none"
-          opacity={0.5}
         >
-          <Text
-            fontFamily={"DigitalDisplay"}
-            fontSize={["20px", "30px", "50px", "50px"]}
-          >
+          <Text fontFamily={"DigitalDisplay"} fontSize={"4vw"} color="#ff6e25">
             AN UNMISSABLE HALLOWEEN SPECIAL IS ARRIVING IN
           </Text>
-          <Text
-            fontFamily={"DigitalDisplay"}
-            fontSize={["25px", "35px", "60px", "60px"]}
-          >
+          <Text fontFamily={"DigitalDisplay"} fontSize={"6vw"} color="#ffab25">
             {getTimeFromMillis(timeLeft * 1000, true, true, true)}
           </Text>
         </Flex>
