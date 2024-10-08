@@ -213,24 +213,6 @@ export const CHANNEL_STATIC_QUERY = gql`
   }
 `;
 
-export const CHANNEL_INTERACTABLE_QUERY = gql`
-  query ChannelInteractable($slug: String!) {
-    getChannelBySlug(slug: $slug) {
-      sharesEvent {
-        sharesSubjectQuestion
-        sharesSubjectAddress
-        options
-        chainId
-        channelId
-        eventState
-        createdAt
-        id
-        resultIndex
-      }
-    }
-  }
-`;
-
 export const GET_TOKEN_HOLDERS_BY_CHANNEL_QUERY = gql`
   query GetTokenHoldersByChannel($data: GetTokenHoldersInput) {
     getTokenHoldersByChannel(data: $data) {

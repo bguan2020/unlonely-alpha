@@ -22,6 +22,8 @@ import {
 } from "../internal/useGetClaimBetEvents";
 import useUserAgent from "../internal/useUserAgent";
 
+const pathnamesAcceptedForFetchingChannelFeed = ["/claim"];
+
 export const useCacheContext = () => {
   return useContext(CacheContext);
 };
@@ -94,12 +96,21 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const getChannelFeedData = async () => {
-      const pathnameAccepted =
-        router.pathname.startsWith("/claim") || router.pathname === "/";
+      if (!dataChannels && isStandalone) {
+        getChannelFeed();
+        return;
+      }
+      let pathnameAccepted = false;
+      for (const pathname of pathnamesAcceptedForFetchingChannelFeed) {
+        if (router.pathname.startsWith(pathname)) {
+          pathnameAccepted = true;
+          break;
+        }
+      }
       if (!dataChannels && pathnameAccepted) getChannelFeed();
     };
     getChannelFeedData();
-  }, [router]);
+  }, [router, isStandalone]);
 
   useEffect(() => {
     if (

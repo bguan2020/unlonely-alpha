@@ -7,11 +7,12 @@ import {
   useState,
   useCallback,
 } from "react";
-import { ApolloError, useQuery } from "@apollo/client";
+import { ApolloError, useLazyQuery } from "@apollo/client";
 
 import { GET_GAMBLABLE_EVENT_USER_RANK_QUERY } from "../../constants/queries";
 import {
   GetGamblableEventLeaderboardByChannelIdQuery,
+  GetGamblableEventUserRankQuery,
   SharesEvent,
   SharesEventState,
 } from "../../generated/graphql";
@@ -172,20 +173,42 @@ export const ChannelProvider = ({
     [channelDetails.channelQueryData?.sharesEvent, localNetwork.config.chainId]
   );
 
-  const { data: userRankData } = useQuery(GET_GAMBLABLE_EVENT_USER_RANK_QUERY, {
-    variables: {
-      data: {
-        channelId: channelDetails.channelQueryData?.id,
-        userAddress: user?.address,
-        chainId: localNetwork.config.chainId,
-      },
-    },
-  });
-
-  const userRank = useMemo(
-    () => userRankData?.getGamblableEventUserRank,
-    [userRankData]
+  // const { data: userRankData } = useQuery(GET_GAMBLABLE_EVENT_USER_RANK_QUERY, {
+  //   variables: {
+  //     data: {
+  //       channelId: channelDetails.channelQueryData?.id,
+  //       userAddress: user?.address,
+  //       chainId: localNetwork.config.chainId,
+  //     },
+  //   },
+  // });
+  const [getUserRankData] = useLazyQuery<GetGamblableEventUserRankQuery>(
+    GET_GAMBLABLE_EVENT_USER_RANK_QUERY,
+    {
+      fetchPolicy: "network-only",
+    }
   );
+
+  const [userRank, setUserRank] = useState<number>(-1);
+
+  useEffect(() => {
+    const init = async () => {
+      if (router.pathname.startsWith("/channels")) {
+        const { data } = await getUserRankData({
+          variables: {
+            data: {
+              channelId: channelDetails.channelQueryData?.id,
+              userAddress: user?.address,
+              chainId: localNetwork.config.chainId,
+            },
+          },
+        });
+        const rank = data?.getGamblableEventUserRank;
+        setUserRank(rank ?? -1);
+      }
+    };
+    init();
+  }, [router.pathname]);
 
   useEffect(() => {
     if (
@@ -290,7 +313,6 @@ export const ChannelProvider = ({
       ablyPresenceChannel,
       userRank,
       clip,
-      userRank,
       isVip,
       handleIsVip,
       addToChatbot,

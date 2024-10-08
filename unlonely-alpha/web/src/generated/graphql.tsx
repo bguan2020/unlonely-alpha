@@ -1976,29 +1976,6 @@ export type ChannelStaticQuery = {
   } | null;
 };
 
-export type ChannelInteractableQueryVariables = Exact<{
-  slug: Scalars["String"];
-}>;
-
-export type ChannelInteractableQuery = {
-  __typename?: "Query";
-  getChannelBySlug?: {
-    __typename?: "Channel";
-    sharesEvent?: Array<{
-      __typename?: "SharesEvent";
-      sharesSubjectQuestion?: string | null;
-      sharesSubjectAddress?: string | null;
-      options?: Array<string | null> | null;
-      chainId?: number | null;
-      channelId?: string | null;
-      eventState?: SharesEventState | null;
-      createdAt: any;
-      id: string;
-      resultIndex?: number | null;
-    } | null> | null;
-  } | null;
-};
-
 export type GetTokenHoldersByChannelQueryVariables = Exact<{
   data?: InputMaybe<GetTokenHoldersInput>;
 }>;
@@ -2400,6 +2377,29 @@ export type GetChannelsByNumberOfBadgeHoldersQuery = {
       } | null;
     };
   } | null>;
+};
+
+export type ChannelInteractableQueryVariables = Exact<{
+  slug: Scalars["String"];
+}>;
+
+export type ChannelInteractableQuery = {
+  __typename?: "Query";
+  getChannelBySlug?: {
+    __typename?: "Channel";
+    sharesEvent?: Array<{
+      __typename?: "SharesEvent";
+      sharesSubjectQuestion?: string | null;
+      sharesSubjectAddress?: string | null;
+      options?: Array<string | null> | null;
+      chainId?: number | null;
+      channelId?: string | null;
+      eventState?: SharesEventState | null;
+      createdAt: any;
+      id: string;
+      resultIndex?: number | null;
+    } | null> | null;
+  } | null;
 };
 
 export type CreateCreatorTokenMutationVariables = Exact<{
@@ -4056,74 +4056,6 @@ export type ChannelStaticQueryResult = Apollo.QueryResult<
   ChannelStaticQuery,
   ChannelStaticQueryVariables
 >;
-export const ChannelInteractableDocument = gql`
-  query ChannelInteractable($slug: String!) {
-    getChannelBySlug(slug: $slug) {
-      sharesEvent {
-        sharesSubjectQuestion
-        sharesSubjectAddress
-        options
-        chainId
-        channelId
-        eventState
-        createdAt
-        id
-        resultIndex
-      }
-    }
-  }
-`;
-
-/**
- * __useChannelInteractableQuery__
- *
- * To run a query within a React component, call `useChannelInteractableQuery` and pass it any options that fit your needs.
- * When your component renders, `useChannelInteractableQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useChannelInteractableQuery({
- *   variables: {
- *      slug: // value for 'slug'
- *   },
- * });
- */
-export function useChannelInteractableQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    ChannelInteractableQuery,
-    ChannelInteractableQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<
-    ChannelInteractableQuery,
-    ChannelInteractableQueryVariables
-  >(ChannelInteractableDocument, options);
-}
-export function useChannelInteractableLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    ChannelInteractableQuery,
-    ChannelInteractableQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<
-    ChannelInteractableQuery,
-    ChannelInteractableQueryVariables
-  >(ChannelInteractableDocument, options);
-}
-export type ChannelInteractableQueryHookResult = ReturnType<
-  typeof useChannelInteractableQuery
->;
-export type ChannelInteractableLazyQueryHookResult = ReturnType<
-  typeof useChannelInteractableLazyQuery
->;
-export type ChannelInteractableQueryResult = Apollo.QueryResult<
-  ChannelInteractableQuery,
-  ChannelInteractableQueryVariables
->;
 export const GetTokenHoldersByChannelDocument = gql`
   query GetTokenHoldersByChannel($data: GetTokenHoldersInput) {
     getTokenHoldersByChannel(data: $data) {
@@ -5442,6 +5374,74 @@ export type GetChannelsByNumberOfBadgeHoldersLazyQueryHookResult = ReturnType<
 export type GetChannelsByNumberOfBadgeHoldersQueryResult = Apollo.QueryResult<
   GetChannelsByNumberOfBadgeHoldersQuery,
   GetChannelsByNumberOfBadgeHoldersQueryVariables
+>;
+export const ChannelInteractableDocument = gql`
+  query ChannelInteractable($slug: String!) {
+    getChannelBySlug(slug: $slug) {
+      sharesEvent {
+        sharesSubjectQuestion
+        sharesSubjectAddress
+        options
+        chainId
+        channelId
+        eventState
+        createdAt
+        id
+        resultIndex
+      }
+    }
+  }
+`;
+
+/**
+ * __useChannelInteractableQuery__
+ *
+ * To run a query within a React component, call `useChannelInteractableQuery` and pass it any options that fit your needs.
+ * When your component renders, `useChannelInteractableQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useChannelInteractableQuery({
+ *   variables: {
+ *      slug: // value for 'slug'
+ *   },
+ * });
+ */
+export function useChannelInteractableQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    ChannelInteractableQuery,
+    ChannelInteractableQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    ChannelInteractableQuery,
+    ChannelInteractableQueryVariables
+  >(ChannelInteractableDocument, options);
+}
+export function useChannelInteractableLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    ChannelInteractableQuery,
+    ChannelInteractableQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    ChannelInteractableQuery,
+    ChannelInteractableQueryVariables
+  >(ChannelInteractableDocument, options);
+}
+export type ChannelInteractableQueryHookResult = ReturnType<
+  typeof useChannelInteractableQuery
+>;
+export type ChannelInteractableLazyQueryHookResult = ReturnType<
+  typeof useChannelInteractableLazyQuery
+>;
+export type ChannelInteractableQueryResult = Apollo.QueryResult<
+  ChannelInteractableQuery,
+  ChannelInteractableQueryVariables
 >;
 export const CreateCreatorTokenDocument = gql`
   mutation CreateCreatorToken($data: CreateCreatorTokenInput!) {

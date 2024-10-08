@@ -1,13 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CommandData } from "../../constants";
-import { CHANNEL_INTERACTABLE_QUERY } from "../../constants/queries";
 import {
   ChannelDetailQuery,
-  ChannelInteractableQuery,
   ChannelStaticQuery,
 } from "../../generated/graphql";
-import { ApolloError, useQuery } from "@apollo/client";
-import { merge } from "lodash";
 import { Role } from "../../constants/types";
 
 export type UseChannelDetailsType = {
@@ -28,13 +24,10 @@ export type UseChannelDetailsType = {
   channelRoles: Role[];
   channelVibesTokenPriceRange: string[];
   pinnedChatMessages: string[];
-  loading: boolean;
-  error?: ApolloError;
   channelQueryData: ChannelDetailQuery["getChannelBySlug"];
   handleChannelStaticData: (
     value: ChannelDetailQuery["getChannelBySlug"]
   ) => void;
-  refetchChannel: () => Promise<any>;
   handleChannelVibesTokenPriceRange: (value: string[]) => void;
   handlePinnedChatMessages: (value: string[]) => void;
   handleChannelRoles: (
@@ -59,8 +52,6 @@ export const useChannelDetailsInitial: UseChannelDetailsType = {
   channelRoles: [],
   channelVibesTokenPriceRange: [],
   pinnedChatMessages: [],
-  loading: false,
-  error: undefined,
   channelQueryData: {
     awsId: "",
     id: "-1",
@@ -70,23 +61,12 @@ export const useChannelDetailsInitial: UseChannelDetailsType = {
     },
   },
   handleChannelStaticData: () => undefined,
-  refetchChannel: () => Promise.resolve(undefined),
   handleChannelVibesTokenPriceRange: () => undefined,
   handlePinnedChatMessages: () => undefined,
   handleChannelRoles: () => undefined,
 };
 
 export const useChannelDetails = (slug: string | string[] | undefined) => {
-  const {
-    loading: channelInteractableLoading,
-    error: channelInteractableError,
-    data: channelInteractable,
-    refetch: refetchChannelInteractable,
-  } = useQuery<ChannelInteractableQuery>(CHANNEL_INTERACTABLE_QUERY, {
-    variables: { slug },
-    fetchPolicy: "network-only",
-  });
-
   const [channelStatic, setChannelStatic] = useState<
     ChannelStaticQuery["getChannelBySlug"]
   >({
@@ -100,8 +80,8 @@ export const useChannelDetails = (slug: string | string[] | undefined) => {
 
   const channelQueryData: ChannelDetailQuery["getChannelBySlug"] =
     useMemo(() => {
-      return merge({}, channelInteractable?.getChannelBySlug, channelStatic);
-    }, [channelStatic, channelInteractable]);
+      return channelStatic;
+    }, [channelStatic]);
 
   const [realTimeChannelDetails, setRealTimeChannelDetails] =
     useState<ChannelDetailsOnlyType>(
@@ -222,11 +202,8 @@ export const useChannelDetails = (slug: string | string[] | undefined) => {
     channelRoles,
     channelVibesTokenPriceRange,
     pinnedChatMessages,
-    loading: channelInteractableLoading || channelStatic?.id === "-1",
-    error: channelInteractableError,
     handleRealTimeChannelDetails,
     handleChannelStaticData,
-    refetchChannel: refetchChannelInteractable,
     handleChannelVibesTokenPriceRange,
     handlePinnedChatMessages,
     handleChannelRoles,
