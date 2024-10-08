@@ -53,7 +53,6 @@ export const DesktopChannelPageTempToken = ({
 }) => {
   const { channel, chat: c } = useChannelContext();
   const {
-    loading: channelDataLoading,
     error: channelDataError,
     handleChannelStaticData,
     isOwner,
@@ -107,18 +106,8 @@ export const DesktopChannelPageTempToken = ({
   }, [channelSSR]);
 
   const canShowInterface = useMemo(() => {
-    return (
-      !channelDataLoading &&
-      !channelDataError &&
-      !channelSSRDataError &&
-      !channelSSRDataLoading
-    );
-  }, [
-    channelDataLoading,
-    channelDataError,
-    channelSSRDataError,
-    channelSSRDataLoading,
-  ]);
+    return !channelDataError && !channelSSRDataError && !channelSSRDataLoading;
+  }, [channelDataError, channelSSRDataError, channelSSRDataLoading]);
 
   useEffect(() => {
     const init = async () => {
