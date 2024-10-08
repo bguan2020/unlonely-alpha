@@ -2,13 +2,15 @@ import React, { useCallback, useEffect, useState, memo } from "react";
 import { useUnifiedWalletContext, useWallet } from "@jup-ag/wallet-adapter";
 
 import {
-  FormProps,
+  FIXED_SOLANA_MINT,
   INITIAL_FORM_CONFIG,
   SOLANA_RPC_URL,
+  SwapMode,
+  WRAPPED_SOL_MINT,
 } from "../../constants";
 
 interface IntegratedTerminalProps {
-  formProps: FormProps;
+  isBuy: boolean;
   height?: string;
   width?: string;
   txCallback?: (txid: string, swapResult: any) => void;
@@ -18,7 +20,7 @@ interface IntegratedTerminalProps {
 }
 
 export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
-  const { height, width, formProps, txCallback, interfaceStyle } = props;
+  const { height, width, isBuy, txCallback, interfaceStyle } = props;
   const [isLoaded, setIsLoaded] = useState(false);
 
   const passthroughWalletContextState = useWallet();
@@ -30,10 +32,22 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
         displayMode: "integrated",
         integratedTargetId: "integrated-terminal",
         endpoint: SOLANA_RPC_URL,
-        formProps,
+        formProps: {
+          fixedInputMint: true,
+          fixedOutputMint: true,
+          swapMode: SwapMode.ExactInOrOut,
+          fixedAmount: false,
+          initialAmount: "",
+          initialInputMint: isBuy
+            ? WRAPPED_SOL_MINT.toString()
+            : FIXED_SOLANA_MINT.mintAddress,
+          initialOutputMint: isBuy
+            ? FIXED_SOLANA_MINT.mintAddress
+            : WRAPPED_SOL_MINT.toString(),
+        },
         enableWalletPassthrough: INITIAL_FORM_CONFIG.simulateWalletPassthrough,
         passthroughWalletContextState: undefined,
-        onRequestConnectWallet: () => setShowModal(true),
+        onRequestConnectWallet: () => setShowModal?.(true),
         strictTokenList: INITIAL_FORM_CONFIG.strictTokenList,
         defaultExplorer: INITIAL_FORM_CONFIG.defaultExplorer,
         useUserSlippage: INITIAL_FORM_CONFIG.useUserSlippage,
@@ -43,7 +57,7 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
         },
       });
     }
-  }, [formProps, setShowModal]);
+  }, [isBuy]);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout | undefined = undefined;

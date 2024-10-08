@@ -3,7 +3,6 @@ import { Box, Flex, IconButton, Text, Image, Tooltip } from "@chakra-ui/react";
 import { useChat } from "../../hooks/chat/useChat";
 import { useLivepeerStreamData } from "../../hooks/internal/useLivepeerStreamData";
 import ChatComponent from "../chat/ChatComponent";
-import { useForm } from "react-hook-form";
 import LivepeerPlayer from "../stream/LivepeerPlayer";
 import { getSrc } from "@livepeer/react/external";
 import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";
@@ -15,16 +14,7 @@ import { DndContext } from "@dnd-kit/core";
 import Draggable from "./Draggable";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { useSolanaTokenBalance } from "../../hooks/internal/solana/useSolanaTokenBalance";
-// import { useWallet } from "@solana/wallet-adapter-react";
-// import { useJupiterQuoteSwap } from "../../hooks/internal/solana/useJupiterQuoteSwap";
-// import { useBooTokenTerminal } from "../../hooks/internal/solana/useBooTokenTerminal";
-import {
-  FIXED_SOLANA_MINT,
-  PACKAGE_PRICE_CHANGE_EVENT,
-  IFormConfigurator,
-  INITIAL_FORM_CONFIG,
-  WRAPPED_SOL_MINT,
-} from "../../constants";
+import { FIXED_SOLANA_MINT, PACKAGE_PRICE_CHANGE_EVENT } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import { BooCarePackages } from "./BooCarePackages";
 import { useDragRefs } from "../../hooks/internal/useDragRef";
@@ -83,24 +73,6 @@ export const HomePageBooEventStreamPage = () => {
       },
     },
   });
-
-  const { watch: watchBuy } = useForm<IFormConfigurator>({
-    defaultValues: INITIAL_FORM_CONFIG,
-  });
-
-  const { watch: watchSell } = useForm<IFormConfigurator>({
-    defaultValues: {
-      ...INITIAL_FORM_CONFIG,
-      formProps: {
-        ...INITIAL_FORM_CONFIG.formProps,
-        initialInputMint: FIXED_SOLANA_MINT.mintAddress,
-        initialOutputMint: WRAPPED_SOL_MINT.toString(),
-      },
-    },
-  });
-
-  const watchAllFieldsBuy = watchBuy();
-  const watchAllFieldsSell = watchSell();
 
   const [dateNow, setDateNow] = useState(Date.now());
 
@@ -535,11 +507,7 @@ export const HomePageBooEventStreamPage = () => {
                         ? `${TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}%`
                         : `${TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH}px`
                     }
-                    formProps={
-                      isSell
-                        ? watchAllFieldsSell.formProps
-                        : watchAllFieldsBuy.formProps
-                    }
+                    isBuy={!isSell}
                     txCallback={async (txid, swapResult) => {
                       const tokenAccountA = base58Encode(
                         convertWordsToBigInt(swapResult.inputAddress._bn.words)
