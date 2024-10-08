@@ -539,22 +539,6 @@ export const HomePageBooEventStreamPage = () => {
                         ? watchAllFieldsSell.formProps
                         : watchAllFieldsBuy.formProps
                     }
-                    simulateWalletPassthrough={
-                      isSell
-                        ? watchAllFieldsSell.simulateWalletPassthrough
-                        : watchAllFieldsBuy.simulateWalletPassthrough
-                    }
-                    strictTokenList={
-                      isSell
-                        ? watchAllFieldsSell.strictTokenList
-                        : watchAllFieldsBuy.strictTokenList
-                    }
-                    defaultExplorer={
-                      isSell
-                        ? watchAllFieldsSell.defaultExplorer
-                        : watchAllFieldsBuy.defaultExplorer
-                    }
-                    useUserSlippage={false}
                     txCallback={async (txid, swapResult) => {
                       const tokenAccountA = base58Encode(
                         convertWordsToBigInt(swapResult.inputAddress._bn.words)

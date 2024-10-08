@@ -1,14 +1,13 @@
 import React, { useCallback, useEffect, useState, memo } from "react";
 import { useUnifiedWalletContext, useWallet } from "@jup-ag/wallet-adapter";
-import { FormProps } from "../transactions/solana/SolanaJupiterTerminal";
+import {
+  FormProps,
+  INITIAL_FORM_CONFIG,
+} from "../transactions/solana/SolanaJupiterTerminal";
 import { SOLANA_RPC_URL } from "../../constants";
 
 interface IntegratedTerminalProps {
   formProps: FormProps;
-  simulateWalletPassthrough: boolean;
-  strictTokenList: boolean;
-  defaultExplorer: "Solana Explorer" | "Solscan" | "Solana Beach" | "SolanaFM";
-  useUserSlippage: boolean;
   height?: string;
   width?: string;
   txCallback?: (txid: string, swapResult: any) => void;
@@ -18,17 +17,7 @@ interface IntegratedTerminalProps {
 }
 
 export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
-  const {
-    height,
-    width,
-    formProps,
-    simulateWalletPassthrough,
-    strictTokenList,
-    defaultExplorer,
-    useUserSlippage,
-    txCallback,
-    interfaceStyle,
-  } = props;
+  const { height, width, formProps, txCallback, interfaceStyle } = props;
   const [isLoaded, setIsLoaded] = useState(false);
 
   const passthroughWalletContextState = useWallet();
@@ -41,29 +30,19 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
         integratedTargetId: "integrated-terminal",
         endpoint: SOLANA_RPC_URL,
         formProps,
-        enableWalletPassthrough: simulateWalletPassthrough,
-        passthroughWalletContextState: simulateWalletPassthrough
-          ? passthroughWalletContextState
-          : undefined,
+        enableWalletPassthrough: INITIAL_FORM_CONFIG.simulateWalletPassthrough,
+        passthroughWalletContextState: undefined,
         onRequestConnectWallet: () => setShowModal(true),
-        strictTokenList,
-        defaultExplorer,
-        useUserSlippage,
+        strictTokenList: INITIAL_FORM_CONFIG.strictTokenList,
+        defaultExplorer: INITIAL_FORM_CONFIG.defaultExplorer,
+        useUserSlippage: INITIAL_FORM_CONFIG.useUserSlippage,
         onSuccess: ({ txid, swapResult }: { txid: any; swapResult: any }) => {
           console.log({ txid, swapResult });
           txCallback?.(txid, swapResult);
         },
       });
     }
-  }, [
-    defaultExplorer,
-    formProps,
-    passthroughWalletContextState,
-    setShowModal,
-    simulateWalletPassthrough,
-    strictTokenList,
-    useUserSlippage,
-  ]);
+  }, [formProps, setShowModal]);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout | undefined = undefined;

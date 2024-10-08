@@ -68,10 +68,6 @@ export const HomePageBooEventTokenCountdown = () => {
       <Flex justifyContent={"center"} position="relative">
         <IntegratedTerminal
           formProps={watchAllFields.formProps}
-          simulateWalletPassthrough={watchAllFields.simulateWalletPassthrough}
-          strictTokenList={watchAllFields.strictTokenList}
-          defaultExplorer={watchAllFields.defaultExplorer}
-          useUserSlippage={false}
           height="calc(100vh - 64px)"
         />
       </Flex>
