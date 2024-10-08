@@ -66,10 +66,7 @@ export const HomePageBooEventTokenCountdown = () => {
         ></iframe>
       </div>
       <Flex justifyContent={"center"} position="relative">
-        <IntegratedTerminal
-          formProps={watchAllFields.formProps}
-          height="calc(100vh - 64px)"
-        />
+        <IntegratedTerminal isBuy={true} height="calc(100vh - 64px)" />
       </Flex>
     </Flex>
   );
