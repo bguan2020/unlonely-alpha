@@ -4,11 +4,6 @@ import { useChat } from "../../hooks/chat/useChat";
 import { useLivepeerStreamData } from "../../hooks/internal/useLivepeerStreamData";
 import ChatComponent from "../chat/ChatComponent";
 import { useForm } from "react-hook-form";
-import {
-  IFormConfigurator,
-  INITIAL_FORM_CONFIG,
-  WRAPPED_SOL_MINT,
-} from "../transactions/solana/SolanaJupiterTerminal";
 import LivepeerPlayer from "../stream/LivepeerPlayer";
 import { getSrc } from "@livepeer/react/external";
 import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";
@@ -23,7 +18,13 @@ import { useSolanaTokenBalance } from "../../hooks/internal/solana/useSolanaToke
 // import { useWallet } from "@solana/wallet-adapter-react";
 // import { useJupiterQuoteSwap } from "../../hooks/internal/solana/useJupiterQuoteSwap";
 // import { useBooTokenTerminal } from "../../hooks/internal/solana/useBooTokenTerminal";
-import { FIXED_SOLANA_MINT, PACKAGE_PRICE_CHANGE_EVENT } from "../../constants";
+import {
+  FIXED_SOLANA_MINT,
+  PACKAGE_PRICE_CHANGE_EVENT,
+  IFormConfigurator,
+  INITIAL_FORM_CONFIG,
+  WRAPPED_SOL_MINT,
+} from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import { BooCarePackages } from "./BooCarePackages";
 import { useDragRefs } from "../../hooks/internal/useDragRef";

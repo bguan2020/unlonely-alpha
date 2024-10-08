@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Flex, Text } from "@chakra-ui/react";
-import {
-  IFormConfigurator,
-  INITIAL_FORM_CONFIG,
-} from "../transactions/solana/SolanaJupiterTerminal";
 import { getTimeFromMillis } from "../../utils/time";
 import { useForm } from "react-hook-form";
 import { eventStartTime } from "./BooEventWrapper";
 import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";
-import { FIXED_SOLANA_MINT } from "../../constants";
+import {
+  FIXED_SOLANA_MINT,
+  IFormConfigurator,
+  INITIAL_FORM_CONFIG,
+} from "../../constants";
 
 export const HomePageBooEventTokenCountdown = () => {
   const [timeLeft, setTimeLeft] = useState(0);

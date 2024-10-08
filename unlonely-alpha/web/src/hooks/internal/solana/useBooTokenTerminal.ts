@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useUnifiedWalletContext, useUnifiedWallet } from "@jup-ag/wallet-adapter";
-import { FormProps, WRAPPED_SOL_MINT } from "../../../components/transactions/solana/SolanaJupiterTerminal";
-import { FIXED_SOLANA_MINT } from "../../../constants";
+import { FIXED_SOLANA_MINT, FormProps, WRAPPED_SOL_MINT } from "../../../constants";
 export const useBooTokenTerminal = (props: {
   rpcUrl: string;
   formProps: FormProps;

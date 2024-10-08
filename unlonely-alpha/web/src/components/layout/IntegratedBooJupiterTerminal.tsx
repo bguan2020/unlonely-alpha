@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState, memo } from "react";
 import { useUnifiedWalletContext, useWallet } from "@jup-ag/wallet-adapter";
+
 import {
   FormProps,
   INITIAL_FORM_CONFIG,
-} from "../transactions/solana/SolanaJupiterTerminal";
-import { SOLANA_RPC_URL } from "../../constants";
+  SOLANA_RPC_URL,
+} from "../../constants";
 
 interface IntegratedTerminalProps {
   formProps: FormProps;

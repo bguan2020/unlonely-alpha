@@ -34,7 +34,6 @@ export const DesktopPage = ({
   const { channel, ui, chat: c } = useChannelContext();
   const chat = useChat({ chatBot: c.chatBot });
   const {
-    loading: channelDataLoading,
     error: channelDataError,
     handleChannelStaticData,
     isOwner,
@@ -144,10 +143,7 @@ export const DesktopPage = ({
         description={channelSSR?.description}
         isCustomHeader={true}
       >
-        {!channelDataLoading &&
-        !channelDataError &&
-        !channelSSRDataError &&
-        !channelSSRDataLoading ? (
+        {!channelDataError && !channelSSRDataError && !channelSSRDataLoading ? (
           <>
             <Stack
               mx={[0, 8, 4]}

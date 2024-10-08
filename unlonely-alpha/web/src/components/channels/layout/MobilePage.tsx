@@ -30,7 +30,6 @@ export const MobilePage = ({
 }) => {
   const { channel, chat: c } = useChannelContext();
   const {
-    loading: channelDataLoading,
     error: channelDataError,
     isOwner,
     handleChannelStaticData,
@@ -70,10 +69,7 @@ export const MobilePage = ({
         description={channelSSR?.description}
         isCustomHeader={true}
       >
-        {!channelDataLoading &&
-        !channelDataError &&
-        !channelSSRDataError &&
-        !channelSSRDataLoading ? (
+        {!channelDataError && !channelSSRDataError && !channelSSRDataLoading ? (
           <>
             {isOwner ? (
               <>
