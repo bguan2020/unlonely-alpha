@@ -54,10 +54,12 @@ export const MobileHomePageBooEventStreamPage = () => {
           height={80}
         />
       </Flex>
-      {playbackInfo && (
+      {playbackInfo ? (
         <Box width={"100%"} height={"30vh"} transition="all 0.3s">
           <LivepeerPlayer src={getSrc(playbackInfo)} cannotOpenClipDrawer />
         </Box>
+      ) : (
+        <Box width={"100%"} height={"30vh"} bg={"black"}></Box>
       )}
       <Flex
         flexWrap={"wrap"}

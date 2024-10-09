@@ -23,7 +23,10 @@ import copy from "copy-to-clipboard";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useChannelContext } from "../../hooks/context/useChannel";
 
-const unacceptedErrors = ["Failed to connect to peer."];
+const unacceptedErrors = [
+  "Failed to connect to peer.",
+  "Timeout reached for canPlay - triggering playback error.",
+];
 
 const LivepeerPlayer = memo(
   ({
