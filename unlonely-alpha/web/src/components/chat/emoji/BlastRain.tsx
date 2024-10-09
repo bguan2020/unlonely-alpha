@@ -10,6 +10,8 @@ export type RainAnimationConfig = {
   notFixed?: boolean;
   durationInMillis?: number;
   downward?: boolean;
+  vertSpeedRange?: [number, number];
+  horizSpeedRange?: [number, number];
 };
 
 export const BlastRain = React.memo(

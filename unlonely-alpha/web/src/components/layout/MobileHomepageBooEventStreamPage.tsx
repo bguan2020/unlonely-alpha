@@ -17,8 +17,8 @@ import { useState } from "react";
 import { ContinuousRain } from "../chat/emoji/BlastRain";
 
 enum ButtonOptionNames {
-  "pixel-heart" = "pixel-heart",
-  "pixel-ghost" = "pixel-ghost",
+  "heart-black-border" = "heart-black-border",
+  "ghost-clear" = "ghost-clear",
   "boolloon" = "boolloon",
   "megaphone-color" = "megaphone-color",
 }
@@ -39,7 +39,7 @@ export const MobileHomePageBooEventStreamPage = () => {
   });
 
   return (
-    <Flex direction="column" h="100vh">
+    <Flex direction="column" h="100vh" overflow="hidden">
       <WantToUnlockModal
         modalState={modalState}
         handleClose={() => setModalState(undefined)}
@@ -66,17 +66,12 @@ export const MobileHomePageBooEventStreamPage = () => {
         justifyContent={"space-evenly"}
         height={"calc(100vh - 30vh - 30px)"}
       >
-        <Flex
-          direction="column"
-          justifyContent={"center"}
-          alignContent={"center"}
-          gap="20px"
-        >
-          <SimpleGrid columns={2} spacing={5} mx="auto">
+        <Flex direction="column" gap="20px">
+          <SimpleGrid columns={2} spacing={5} mx="auto" my="20px">
             {buttonOptionNames.map((name) => (
               <Box
-                width="100px"
-                height="100px"
+                width="140px"
+                height="140px"
                 bg="#FF7B00"
                 borderRadius="100%"
                 key={name}
@@ -93,7 +88,7 @@ export const MobileHomePageBooEventStreamPage = () => {
                 justifyContent="center"
                 boxShadow="5px 5px 10px #37FF8B"
               >
-                <Image src={`/images/${name}.png`} height="60px" alt={name} />
+                <Image src={`/images/${name}.png`} height="80px" alt={name} />
               </Box>
             ))}
           </SimpleGrid>
@@ -147,8 +142,8 @@ const WantToUnlockModal = ({
             }
             uid="modalState"
             config={{
-              numParticles: 4,
-              vertSpeed: 1,
+              numParticles: 6,
+              vertSpeedRange: [1, 3],
             }}
           />
         )}
@@ -173,7 +168,7 @@ const WantToUnlockModal = ({
               CARE PACKAGES?
             </Text>
           </Flex>
-          {modalState === ButtonOptionNames["pixel-heart"] && (
+          {modalState === ButtonOptionNames["heart-black-border"] && (
             <>
               <Text textAlign="left" textDecoration="underline" fontSize="15px">
                 on desktop you can:
@@ -193,7 +188,7 @@ const WantToUnlockModal = ({
               </Box>
             </>
           )}
-          {modalState === ButtonOptionNames["pixel-ghost"] && (
+          {modalState === ButtonOptionNames["ghost-clear"] && (
             <>
               <Text textAlign="left" textDecoration="underline" fontSize="15px">
                 on desktop you can:
