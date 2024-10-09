@@ -8,6 +8,8 @@ import {
 import { SolanaProvider } from "../../hooks/context/useSolana";
 import { CHANNEL_STATIC_QUERY } from "../../constants/queries";
 import { useQuery } from "@apollo/client";
+import useUserAgent from "../../hooks/internal/useUserAgent";
+import { MobileHomePageBooEventStreamPage } from "./MobileHomepageBooEventStreamPage";
 
 export const eventStartTime = 1933548029;
 const slug = "danny";
@@ -25,6 +27,7 @@ const BooEventWrapper = () => {
 const BooEventWrapperWithSolana = () => {
   const { channel } = useChannelContext();
   const { handleChannelStaticData } = channel;
+  const { isMobile } = useUserAgent();
 
   const { data: channelStatic } = useQuery(CHANNEL_STATIC_QUERY, {
     variables: { slug },
@@ -38,7 +41,13 @@ const BooEventWrapperWithSolana = () => {
   return (
     <>
       {true ? (
-        <HomePageBooEventStreamPage />
+        <>
+          {false ? (
+            <MobileHomePageBooEventStreamPage />
+          ) : (
+            <HomePageBooEventStreamPage />
+          )}
+        </>
       ) : (
         <HomePageBooEventTokenCountdown />
       )}

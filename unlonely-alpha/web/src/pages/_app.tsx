@@ -136,18 +136,22 @@ const solanaConnectors = toSolanaWalletConnectors({
   shouldAutoConnect: false,
 });
 
+console.log("solanaConnectors outside", solanaConnectors.get());
+
+const config = createConfig({
+  chains: [Base, Mainnet],
+  transports: {
+    [Base.id]: http(
+      `https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_BASE_API_KEY}`
+    ),
+    [Mainnet.id]: http(
+      `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
+    ),
+  },
+});
+
 function App({ Component, pageProps }: Props) {
-  const config = createConfig({
-    chains: [Base, Mainnet],
-    transports: {
-      [Base.id]: http(
-        `https://base-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_BASE_API_KEY}`
-      ),
-      [Mainnet.id]: http(
-        `https://eth-mainnet.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`
-      ),
-    },
-  });
+  console.log("inside component");
 
   // useLogin from privy to detect user login and with what address, use this callback to update the user context on the backend
   return (

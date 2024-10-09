@@ -17,6 +17,7 @@ import {
   Spinner,
   IconButton,
   Input,
+  // useBreakpointValue,
 } from "@chakra-ui/react";
 // import Link from "next/link";
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
@@ -127,6 +128,7 @@ function DesktopHomePage({
   loading: boolean;
   error?: ApolloError;
 }) {
+  const { isMobile } = useUserAgent();
   // const { isOpen, onOpen, onClose } = useDisclosure();
   // const btnRef = useRef<HTMLButtonElement>(null);
 
@@ -150,6 +152,7 @@ function DesktopHomePage({
         direction="column"
         overflowY={"hidden"}
       >
+        {/* {!isMobile && <Header />} */}
         <Header />
         <BooEventWrapper />
       </Flex>
