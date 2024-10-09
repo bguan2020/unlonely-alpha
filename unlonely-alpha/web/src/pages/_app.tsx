@@ -153,7 +153,7 @@ const config = createConfig({
 console.log("solanaConnectors inside", solanaConnectors.get());
 
 function App({ Component, pageProps }: Props) {
-  console.log("inside component");
+  console.log("inside component", solanaConnectors.get());
 
   // useLogin from privy to detect user login and with what address, use this callback to update the user context on the backend
   return (
