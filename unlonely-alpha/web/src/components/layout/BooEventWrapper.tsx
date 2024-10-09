@@ -42,7 +42,7 @@ const BooEventWrapperWithSolana = () => {
     <>
       {true ? (
         <>
-          {false ? (
+          {isMobile ? (
             <MobileHomePageBooEventStreamPage />
           ) : (
             <HomePageBooEventStreamPage />

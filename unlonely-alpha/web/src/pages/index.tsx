@@ -152,8 +152,7 @@ function DesktopHomePage({
         direction="column"
         overflowY={"hidden"}
       >
-        {/* {!isMobile && <Header />} */}
-        <Header />
+        {!isMobile && <Header />}
         <BooEventWrapper />
       </Flex>
       {/* {!directingToChannel ? (
