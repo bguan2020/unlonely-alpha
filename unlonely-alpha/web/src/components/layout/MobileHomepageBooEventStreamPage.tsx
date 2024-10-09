@@ -39,12 +39,11 @@ export const MobileHomePageBooEventStreamPage = () => {
   });
 
   return (
-    <Flex direction="column" h="100vh" overflow="hidden">
+    <Flex direction="column" h="100vh" overflowY="hidden">
       <WantToUnlockModal
         modalState={modalState}
         handleClose={() => setModalState(undefined)}
       />
-
       <Flex h="30px" p="5px" alignContent={"center"}>
         <NextImage
           src="/svg/unlonely-green.svg"
@@ -95,7 +94,6 @@ export const MobileHomePageBooEventStreamPage = () => {
           <Flex justifyContent={"center"}>
             <Text
               textAlign="center"
-              width="190px"
               fontFamily="LoRes15"
               color="#37FF8B"
               fontSize="15px"

@@ -150,6 +150,8 @@ const config = createConfig({
   },
 });
 
+console.log("solanaConnectors inside", solanaConnectors.get());
+
 function App({ Component, pageProps }: Props) {
   console.log("inside component");
 
