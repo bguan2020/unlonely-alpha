@@ -882,7 +882,7 @@ export type Package = {
   cooldownInSeconds: Scalars["Int"];
   id: Scalars["ID"];
   packageName: Scalars["String"];
-  priceMultiplier?: Maybe<Scalars["String"]>;
+  tokenHoldingPrice?: Maybe<Scalars["String"]>;
 };
 
 export type PackageCooldownMapping = {
@@ -1519,7 +1519,7 @@ export type UpdateNfcInput = {
 export type UpdatePackageInput = {
   cooldownInSeconds: Scalars["Int"];
   packageName: Scalars["String"];
-  priceMultiplier: Scalars["String"];
+  tokenHoldingPrice: Scalars["String"];
 };
 
 export type UpdatePinnedChatMessagesInput = {

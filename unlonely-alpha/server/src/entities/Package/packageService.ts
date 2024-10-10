@@ -3,7 +3,7 @@ import { Context } from "../../context";
 export interface IUpdatePackageInput {
     packageName: string;
     cooldownInSeconds: number;
-    priceMultiplier: string;
+    tokenHoldingPrice: string;
 }
 
 export const updatePackage = async (
@@ -26,7 +26,7 @@ export const updatePackage = async (
         },
         data: {
             cooldownInSeconds: data.cooldownInSeconds,
-            priceMultiplier: data.priceMultiplier,
+            tokenHoldingPrice: data.tokenHoldingPrice,
         },
     });
 };
