@@ -40,7 +40,7 @@ const AppLayout: React.FC<Props> = ({
   noHeader,
   customBgColor,
 }) => {
-  const { isStandalone, ready } = useUserAgent();
+  const { isStandalone, ready, isMobile } = useUserAgent();
   const router = useRouter();
 
   const smallestDevice = useBreakpointValue({
@@ -51,7 +51,14 @@ const AppLayout: React.FC<Props> = ({
   });
 
   return (
-    <Box background={customBgColor ?? "rgba(0, 0, 0, 0.65)"}>
+    <Box
+      background={customBgColor ?? "rgba(0, 0, 0, 0.65)"}
+      overflowY={
+        router.pathname === "/" && isMobile && !isStandalone
+          ? "hidden"
+          : "scroll"
+      }
+    >
       {isCustomHeader === false && (
         <NextHead
           title={title ? title : ""}
