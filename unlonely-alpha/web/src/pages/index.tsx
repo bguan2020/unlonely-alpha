@@ -146,7 +146,7 @@ function DesktopHomePage({
   return (
     <AppLayout isCustomHeader={false} noHeader>
       <Flex
-        h="100vh"
+        h="100dvh"
         bg="rgba(5, 0, 31, 1)"
         position={"relative"}
         direction="column"
