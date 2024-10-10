@@ -79,6 +79,11 @@ const AppLayout: React.FC<Props> = ({
                 minH={
                   smallestDevice ? "calc(100vh - 25px)" : "calc(100vh - 48px)"
                 }
+                overflowY={
+                  router.pathname === "/" && isMobile && !isStandalone
+                    ? "hidden"
+                    : "scroll"
+                }
               >
                 {error && (
                   <Alert status="error">
@@ -91,6 +96,11 @@ const AppLayout: React.FC<Props> = ({
                   isLoaded={!loading}
                   overflowX="hidden"
                   pb={noHeader ? "0px" : "20px"}
+                  overflowY={
+                    router.pathname === "/" && isMobile && !isStandalone
+                      ? "hidden"
+                      : "scroll"
+                  }
                 >
                   {children}
                 </Skeleton>
