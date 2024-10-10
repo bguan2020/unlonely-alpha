@@ -38,7 +38,7 @@ import { useUser } from "../hooks/context/useUser";
 import { sortChannels } from "../utils/channelSort";
 import { useCacheContext } from "../hooks/context/useCache";
 // import NfcLeaderboard from "../components/leaderboards/NfcLeaderboard";
-import BooEventWrapper from "../components/layout/BooEventWrapper";
+// import BooEventWrapper from "../components/layout/BooEventWrapper";
 import Header from "../components/navigation/Header";
 
 // const FixedComponent = ({
@@ -153,7 +153,7 @@ function DesktopHomePage({
         overflowY={"hidden"}
       >
         {!isMobile && <Header />}
-        <BooEventWrapper />
+        {/* <BooEventWrapper /> */}
       </Flex>
       {/* {!directingToChannel ? (
         <Flex

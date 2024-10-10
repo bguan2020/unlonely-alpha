@@ -39,7 +39,11 @@ export const MobileHomePageBooEventStreamPage = () => {
   });
 
   return (
-    <Flex direction="column" h="100dvh" overflowY="hidden">
+    <Flex
+      direction="column"
+      //  h="100dvh"
+      overflowY="hidden"
+    >
       <WantToUnlockModal
         modalState={modalState}
         handleClose={() => setModalState(undefined)}
@@ -63,7 +67,7 @@ export const MobileHomePageBooEventStreamPage = () => {
       <Flex
         flexWrap={"wrap"}
         justifyContent={"space-evenly"}
-        height={"calc(100dvh - 30vh - 30px)"}
+        // height={"calc(100dvh - 30vh - 30px)"}
       >
         <Flex direction="column" gap="20px">
           <SimpleGrid columns={2} spacing={5} mx="auto" my="20px">
