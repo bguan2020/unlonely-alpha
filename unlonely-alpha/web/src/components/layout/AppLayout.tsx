@@ -56,7 +56,7 @@ const AppLayout: React.FC<Props> = ({
       overflowY={
         router.pathname === "/" && isMobile && !isStandalone
           ? "hidden"
-          : "scroll"
+          : "unset"
       }
       h={
         router.pathname === "/" && isMobile && !isStandalone
@@ -87,7 +87,7 @@ const AppLayout: React.FC<Props> = ({
                 overflowY={
                   router.pathname === "/" && isMobile && !isStandalone
                     ? "hidden"
-                    : "scroll"
+                    : "unset"
                 }
               >
                 {error && (
@@ -104,7 +104,7 @@ const AppLayout: React.FC<Props> = ({
                   overflowY={
                     router.pathname === "/" && isMobile && !isStandalone
                       ? "hidden"
-                      : "scroll"
+                      : "unset"
                   }
                 >
                   {children}

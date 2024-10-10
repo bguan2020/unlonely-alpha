@@ -31,7 +31,7 @@
     "@jup-ag/wallet-adapter": "0.2.0",
     "@livepeer/react": "4.2.1",
     "@next/bundle-analyzer": "^14.2.14",
-    "@privy-io/react-auth": "1.88.3",
+    "@privy-io/react-auth": "1.89.1-beta-20241010170842",
     "@privy-io/wagmi": "^0.2.12",
     "@reactour/tour": "^3.6.1",
     "@solana/spl-token": "^0.4.8",
