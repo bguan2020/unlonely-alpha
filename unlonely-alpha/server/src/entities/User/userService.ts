@@ -168,6 +168,7 @@ export const updateUserChannelContract1155Mapping = async (
 export interface IUpdateUserPackageCooldownMappingInput {
   packageName: string;
   userAddress: string;
+  lastUsedAt: string;
 }
 
 export const updateUserPackageCooldownMapping = async (
@@ -188,7 +189,7 @@ export const updateUserPackageCooldownMapping = async (
 
   // Update the mapping
   currentMapping[data.packageName] = {
-    lastUsedAt: String(Date.now())
+    lastUsedAt: data.lastUsedAt,
   }
 
   // Update the user with the new mapping
