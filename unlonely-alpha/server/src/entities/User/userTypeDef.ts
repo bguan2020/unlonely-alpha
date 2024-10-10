@@ -78,6 +78,7 @@ export const typeDef = gql`
   input UpdateUserPackageCooldownMappingInput {
     userAddress: String!
     packageName: String!
+    lastUsedAt: String!
   }
 
   input UpdateUsernameInput {

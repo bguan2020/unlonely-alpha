@@ -1594,6 +1594,7 @@ export type UpdateUserNotificationsInput = {
 };
 
 export type UpdateUserPackageCooldownMappingInput = {
+  lastUsedAt: Scalars["String"];
   packageName: Scalars["String"];
   userAddress: Scalars["String"];
 };
