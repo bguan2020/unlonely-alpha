@@ -64,6 +64,7 @@ export const BooPackageButton = ({
       await updateUserBooPackageCooldownMapping({
         userAddress: user?.address ?? "",
         packageName: packageInfo.name,
+        lastUsedAt: String(Date.now()),
       }).then(async () => {
         await fetchUserBooPackageCooldownMapping(user?.address ?? "");
         addToChatbot({

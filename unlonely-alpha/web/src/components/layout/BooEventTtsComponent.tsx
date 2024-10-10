@@ -57,6 +57,7 @@ export const BooEventTtsComponent = ({
       await updateUserBooPackageCooldownMapping({
         userAddress: user?.address ?? "",
         packageName: "text-to-speech",
+        lastUsedAt: String(Date.now()),
       }).then(async () => {
         await fetchUserBooPackageCooldownMapping(user?.address ?? "");
       });
