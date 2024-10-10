@@ -51,7 +51,7 @@ export const GET_PACKAGES_QUERY = gql`
   query GetPackages {
     getPackages {
       cooldownInSeconds
-      priceMultiplier
+      tokenHoldingPrice
       packageName
       id
     }

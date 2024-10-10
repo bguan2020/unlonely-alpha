@@ -105,7 +105,7 @@ export const HomePageBooEventStreamPage = () => {
         const newPackageMap = {
           ...booPackageMap,
           [jpBody.packageName]: {
-            priceMultiplier: jpBody.priceMultiplier,
+            tokenHoldingPrice: jpBody.tokenHoldingPrice,
             cooldownInSeconds: jpBody.cooldownInSeconds,
             id: jpBody.id,
           },
@@ -154,7 +154,7 @@ export const HomePageBooEventStreamPage = () => {
     if (packages) {
       const packageMap = packages.reduce((map: any, item: any) => {
         map[item.packageName] = {
-          priceMultiplier: item.priceMultiplier as string,
+          tokenHoldingPrice: item.tokenHoldingPrice as string,
           cooldownInSeconds: item.cooldownInSeconds as number,
           id: item.id as string,
         };
@@ -339,7 +339,8 @@ export const HomePageBooEventStreamPage = () => {
                                 interactionData: {
                                   name: packageName,
                                   price:
-                                    booPackageMap[packageName].priceMultiplier,
+                                    booPackageMap[packageName]
+                                      .tokenHoldingPrice,
                                   handleInteraction: callback,
                                 },
                               });
@@ -417,7 +418,8 @@ export const HomePageBooEventStreamPage = () => {
                                 interactionData: {
                                   name: packageName,
                                   price:
-                                    booPackageMap[packageName].priceMultiplier,
+                                    booPackageMap[packageName]
+                                      .tokenHoldingPrice,
                                   handleInteraction: callback,
                                 },
                               });
@@ -572,7 +574,8 @@ export const HomePageBooEventStreamPage = () => {
                             interactionData: {
                               name: "text-to-speech",
                               price:
-                                booPackageMap["text-to-speech"].priceMultiplier,
+                                booPackageMap["text-to-speech"]
+                                  .tokenHoldingPrice,
                               handleInteraction: callback,
                             },
                           });

@@ -76,7 +76,7 @@ export default function ModCenterPage() {
 
 export interface PackageInfo {
   id: string;
-  priceMultiplier: string;
+  tokenHoldingPrice: string;
   cooldownInSeconds: string;
 }
 
@@ -221,7 +221,7 @@ const ModCenter = () => {
     if (packages) {
       const packageMap = packages.reduce((map: any, item: any) => {
         map[item.packageName] = {
-          priceMultiplier: item.priceMultiplier,
+          tokenHoldingPrice: item.tokenHoldingPrice,
           cooldownInSeconds: item.cooldownInSeconds,
           id: item.id,
         };
@@ -341,7 +341,7 @@ const ModCenter = () => {
         >
           <SimpleGrid columns={4} spacing={10}>
             <Text>Interaction</Text>
-            <Text>Price Multiplier</Text>
+            <Text>Price</Text>
             <Text>Cooldown</Text>
           </SimpleGrid>
 
@@ -358,14 +358,14 @@ const ModCenter = () => {
                   >
                     <Text>{packageName}</Text>
                     <Input
-                      placeholder="price multiplier"
-                      value={stagingPackages[packageName].priceMultiplier}
+                      placeholder="price"
+                      value={stagingPackages[packageName].tokenHoldingPrice}
                       onChange={(e) =>
                         setStagingPackages((prev) => ({
                           ...prev,
                           [packageName]: {
                             ...stagingPackages[packageName],
-                            priceMultiplier: String(e.target.value),
+                            tokenHoldingPrice: String(e.target.value),
                           },
                         }))
                       }
@@ -386,13 +386,13 @@ const ModCenter = () => {
                     <Button
                       isDisabled={
                         !stagingPackages[packageName] ||
-                        !stagingPackages[packageName].priceMultiplier ||
+                        !stagingPackages[packageName].tokenHoldingPrice ||
                         !stagingPackages[packageName].cooldownInSeconds ||
                         (Number(
-                          booPackageMap?.[packageName]?.priceMultiplier
+                          booPackageMap?.[packageName]?.tokenHoldingPrice
                         ) ===
                           Number(
-                            stagingPackages[packageName].priceMultiplier
+                            stagingPackages[packageName].tokenHoldingPrice
                           ) &&
                           Number(
                             booPackageMap?.[packageName]?.cooldownInSeconds
@@ -407,8 +407,8 @@ const ModCenter = () => {
                           cooldownInSeconds: Number(
                             stagingPackages[packageName].cooldownInSeconds
                           ),
-                          priceMultiplier:
-                            stagingPackages[packageName].priceMultiplier,
+                          tokenHoldingPrice:
+                            stagingPackages[packageName].tokenHoldingPrice,
                         });
                         interactionsChannel?.publish({
                           name: PACKAGE_PRICE_CHANGE_EVENT,

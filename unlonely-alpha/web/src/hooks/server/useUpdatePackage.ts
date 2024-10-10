@@ -10,7 +10,7 @@ const MUTATION = gql`
 mutation UpdatePackage($data: UpdatePackageInput!) {
   updatePackage(data: $data) {
     cooldownInSeconds
-    priceMultiplier
+    tokenHoldingPrice
     packageName
     id
   }
