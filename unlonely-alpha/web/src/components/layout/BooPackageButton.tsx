@@ -39,7 +39,8 @@ export const BooPackageButton = ({
     callback: (...args: any[]) => Promise<void>
   ) => void;
 }) => {
-  const { chat: c } = useChannelContext();
+  const { chat: c, channel } = useChannelContext();
+  const { channelQueryData } = channel;
   const { addToChatbot } = c;
   const { user } = useUser();
 
@@ -53,12 +54,13 @@ export const BooPackageButton = ({
 
   const onTransferSuccess = async (text: string) => {
     await postStreamInteraction({
-      channelId: "3",
+      channelId: String(channelQueryData?.id),
       streamInteractionType: StreamInteractionType.PackageInteraction,
       text: JSON.stringify({
         user: user?.username ?? centerEllipses(user?.address, 15),
         packageName: packageInfo.name,
         isCarePackage: packageInfo.isCarePackage,
+        text,
       }),
     }).then(async (res) => {
       await updateUserBooPackageCooldownMapping({
@@ -87,6 +89,7 @@ export const BooPackageButton = ({
             id: res.res?.id ?? "0",
             user: user?.username ?? centerEllipses(user?.address, 15),
             ...packageInfo,
+            text,
           }),
         },
       });

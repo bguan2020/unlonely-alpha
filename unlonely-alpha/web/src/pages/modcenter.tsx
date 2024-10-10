@@ -27,6 +27,7 @@ import {
 // import { io, Socket } from "socket.io-client";
 // import { WS_URL } from "../components/layout/BooEventTtsComponent";
 import { FaLongArrowAltRight, FaLongArrowAltLeft } from "react-icons/fa";
+import { CHANNEL_ID_TO_USE } from "../components/layout/BooEventWrapper";
 
 export const INTERACTIONS_CHANNEL = "persistMessages:interactions";
 
@@ -147,6 +148,7 @@ const ModCenter = () => {
           user: string;
           name: string;
           isCarePackage: boolean;
+          text: string;
         } = JSON.parse(message.data.body);
         setReceivedPackageInteractions((prevInteractions) => {
           // Filter out any interactions with the same ID
@@ -161,6 +163,7 @@ const ModCenter = () => {
               user: packageInfoBody.user,
               packageName: packageInfoBody.name,
               isCarePackage: packageInfoBody.isCarePackage,
+              text: packageInfoBody.text,
             },
             ...filteredInteractions,
           ];
@@ -204,6 +207,7 @@ const ModCenter = () => {
         user: string;
         packageName: string;
         isCarePackage: boolean;
+        text: string;
       }[]
     >([]);
 
@@ -237,7 +241,7 @@ const ModCenter = () => {
     const { data: interactions } = await call({
       variables: {
         data: {
-          channelId: "3",
+          channelId: String(CHANNEL_ID_TO_USE),
           streamInteractionTypes: [
             StreamInteractionType.TtsInteraction,
             StreamInteractionType.PackageInteraction,
@@ -454,9 +458,21 @@ const ModCenter = () => {
                       justifyContent={"space-between"}
                       gap="4px"
                     >
-                      <Text>
-                        {interaction.user} used {interaction.packageName}
-                      </Text>
+                      <Flex direction={"column"}>
+                        <Text>
+                          {interaction.user} used {interaction.packageName}
+                        </Text>
+                        {interaction.text && (
+                          <Text
+                            fontSize="13px"
+                            color={"#a1c5ff"}
+                            fontStyle={"italic"}
+                            fontWeight={"bold"}
+                          >
+                            {interaction.text}
+                          </Text>
+                        )}
+                      </Flex>
                       <Button
                         bg="red.500"
                         color="white"
@@ -509,9 +525,21 @@ const ModCenter = () => {
                       justifyContent={"space-between"}
                       gap="4px"
                     >
-                      <Text>
-                        {interaction.user} used {interaction.packageName}
-                      </Text>
+                      <Flex direction={"column"}>
+                        <Text>
+                          {interaction.user} used {interaction.packageName}
+                        </Text>
+                        {interaction.text && (
+                          <Text
+                            fontSize="13px"
+                            color={"#a1c5ff"}
+                            fontStyle={"italic"}
+                            fontWeight={"bold"}
+                          >
+                            {interaction.text}
+                          </Text>
+                        )}{" "}
+                      </Flex>
                       <Button
                         bg="red.500"
                         color="white"

@@ -13,6 +13,7 @@ import { MobileHomePageBooEventStreamPage } from "./MobileHomepageBooEventStream
 
 export const eventStartTime = 1933548029;
 const slug = "danny";
+export const CHANNEL_ID_TO_USE = 29;
 
 const BooEventWrapper = () => {
   return (

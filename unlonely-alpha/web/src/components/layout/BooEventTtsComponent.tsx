@@ -8,6 +8,7 @@ import { isValidAddress } from "../../utils/validation/wallet";
 import { useUser } from "../../hooks/context/useUser";
 import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
 import { convertToHHMMSS } from "../../utils/time";
+import { useChannelContext } from "../../hooks/context/useChannel";
 
 // export const WS_URL = "wss://sea-lion-app-j3rts.ondigitalocean.app/";
 
@@ -29,6 +30,8 @@ export const BooEventTtsComponent = ({
   onTtsClick: (callback: (...args: any[]) => Promise<void>) => void;
 }) => {
   const { user } = useUser();
+  const { channel } = useChannelContext();
+  const { channelQueryData } = channel;
 
   const { postStreamInteraction } = usePostStreamInteraction({});
 
@@ -50,7 +53,7 @@ export const BooEventTtsComponent = ({
 
   const handlePost = async (text: string) => {
     await postStreamInteraction({
-      channelId: "3",
+      channelId: String(channelQueryData?.id),
       streamInteractionType: StreamInteractionType.TtsInteraction,
       text,
     }).then(async (res) => {
