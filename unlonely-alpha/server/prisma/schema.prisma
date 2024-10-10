@@ -299,6 +299,25 @@ model Package {
   cooldownInSeconds Int @default(0)
 }
 
+
+model StreamInteraction {
+  id           Int     @id @default(autoincrement())
+
+  interactionType String
+  text String?
+
+  ownerAddr String
+  owner User @relation(fields: [ownerAddr], references: [address])
+
+
+  channelId Int
+  channel Channel @relation(fields: [channelId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  softDelete Boolean @default(false)
+}
+
 // ------- DEPRECATED MODELS -------
 // DONT DELETE
 
@@ -323,25 +342,6 @@ model CreatorToken {
   channelId Int      @unique
   users     UserCreatorToken[]
 }
-
-model StreamInteraction {
-  id           Int     @id @default(autoincrement())
-
-  interactionType String
-  text String?
-
-  ownerAddr String
-  owner User @relation(fields: [ownerAddr], references: [address])
-
-
-  channelId Int
-  channel Channel @relation(fields: [channelId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  softDelete Boolean @default(false)
-}
-
 
 enum VibesTransactionType {
   BUY
