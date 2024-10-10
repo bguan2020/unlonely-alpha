@@ -169,6 +169,7 @@ export interface IUpdateUserPackageCooldownMappingInput {
   packageName: string;
   userAddress: string;
   lastUsedAt: string;
+  emptyOtherCooldowns: boolean;
 }
 
 export const updateUserPackageCooldownMapping = async (
@@ -185,7 +186,7 @@ export const updateUserPackageCooldownMapping = async (
   }
 
   // Parse the current mapping
-  const currentMapping: any = user.packageCooldownMapping || {};
+  const currentMapping: any = data.emptyOtherCooldowns ? {} : (user.packageCooldownMapping || {});
 
   // Update the mapping
   currentMapping[data.packageName] = {
