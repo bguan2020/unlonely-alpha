@@ -1,5 +1,13 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Box, Flex, IconButton, Text, Image, Tooltip } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  IconButton,
+  Text,
+  Image,
+  Tooltip,
+  Button,
+} from "@chakra-ui/react";
 import { useChat } from "../../hooks/chat/useChat";
 import { useLivepeerStreamData } from "../../hooks/internal/useLivepeerStreamData";
 import ChatComponent from "../chat/ChatComponent";
@@ -581,6 +589,7 @@ export const HomePageBooEventStreamPage = () => {
                           });
                         }}
                       />
+                      <Button>reset</Button>
                     </BooEventTile>
                   )}
                 </Flex>
