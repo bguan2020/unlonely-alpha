@@ -58,6 +58,11 @@ const AppLayout: React.FC<Props> = ({
           ? "hidden"
           : "scroll"
       }
+      h={
+        router.pathname === "/" && isMobile && !isStandalone
+          ? "100dvh"
+          : "unset"
+      }
     >
       {isCustomHeader === false && (
         <NextHead
