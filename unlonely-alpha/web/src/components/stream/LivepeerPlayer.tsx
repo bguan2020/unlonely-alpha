@@ -44,7 +44,7 @@ const LivepeerPlayer = memo(
   }) => {
     const { ui } = useChannelContext();
     const { showClipDrawer, handleClipDrawer } = ui;
-    const { isStandalone } = useUserAgent();
+    const { isStandalone, isMobile } = useUserAgent();
     const [opacity, setOpacity] = useState(0);
     const toast = useToast();
 
@@ -204,35 +204,45 @@ const LivepeerPlayer = memo(
                 >
                   {error ? (
                     <>
-                      <Text
-                        textAlign="center"
-                        fontSize={
-                          isPreview
-                            ? ["1rem", "1rem", "2rem", "2rem"]
-                            : !isStandalone
-                            ? "3rem"
-                            : "1rem"
-                        }
-                        fontFamily={"LoRes15"}
-                      >
-                        Error detected while playing video
-                      </Text>
-                      <Text textAlign="center">
-                        {JSON.parse(error).message}
-                      </Text>
-                      <Button
-                        color="white"
-                        width="100%"
-                        bg="#b82929"
-                        onClick={() => {
-                          copy(error);
-                          handleCopy();
-                        }}
-                        _focus={{}}
-                        _hover={{ background: "#f25719" }}
-                      >
-                        copy error
-                      </Button>
+                      {isMobile || isStandalone ? (
+                        <Flex justifyContent={"center"} direction="column">
+                          <Text textAlign="center">
+                            {JSON.parse(error).message}
+                          </Text>
+                        </Flex>
+                      ) : (
+                        <>
+                          <Text
+                            textAlign="center"
+                            fontSize={
+                              isPreview
+                                ? ["1rem", "1rem", "2rem", "2rem"]
+                                : !isStandalone
+                                ? "3rem"
+                                : "1rem"
+                            }
+                            fontFamily={"LoRes15"}
+                          >
+                            Error detected while playing video
+                          </Text>
+                          <Text textAlign="center">
+                            {JSON.parse(error).message}
+                          </Text>
+                          <Button
+                            color="white"
+                            width="100%"
+                            bg="#b82929"
+                            onClick={() => {
+                              copy(error);
+                              handleCopy();
+                            }}
+                            _focus={{}}
+                            _hover={{ background: "#f25719" }}
+                          >
+                            copy error
+                          </Button>
+                        </>
+                      )}
                     </>
                   ) : (
                     <>
