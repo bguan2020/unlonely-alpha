@@ -14789,7 +14789,7 @@
             "deprecationReason": null
           },
           {
-            "name": "priceMultiplier",
+            "name": "tokenHoldingPrice",
             "description": null,
             "args": [],
             "type": {
@@ -14862,7 +14862,7 @@
             "deprecationReason": null
           },
           {
-            "name": "priceMultiplier",
+            "name": "tokenHoldingPrice",
             "description": null,
             "type": {
               "kind": "NON_NULL",

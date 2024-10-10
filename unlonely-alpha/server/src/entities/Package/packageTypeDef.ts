@@ -4,14 +4,14 @@ export const typeDef = gql`
     type Package {
         id: ID!
         packageName: String!
-        priceMultiplier: String
+        tokenHoldingPrice: String
         cooldownInSeconds: Int!
     }
     
     input UpdatePackageInput {
         packageName: String!
         cooldownInSeconds: Int!
-        priceMultiplier: String!
+        tokenHoldingPrice: String!
     }
     
     extend type Query {

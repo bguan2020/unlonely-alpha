@@ -295,7 +295,7 @@ model BaseLeaderboard {
 model Package {
   id Int      @id @default(autoincrement())
   packageName String
-  priceMultiplier    String
+  tokenHoldingPrice    String
   cooldownInSeconds Int @default(0)
 }
 
