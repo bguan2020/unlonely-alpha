@@ -7,6 +7,7 @@ import { StreamInteractionType } from "../../generated/graphql";
 import { isValidAddress } from "../../utils/validation/wallet";
 import { useUser } from "../../hooks/context/useUser";
 import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
+import { convertToHHMMSS } from "../../utils/time";
 
 // export const WS_URL = "wss://sea-lion-app-j3rts.ondigitalocean.app/";
 
@@ -131,15 +132,20 @@ export const BooEventTtsComponent = ({
               alignItems="center"
               borderRadius="10px"
             >
-              {`${Math.ceil(
-                ((userBooPackageCooldowns?.["text-to-speech"]?.lastUsedAt ??
-                  0) -
-                  (dateNow -
-                    (booPackageMap?.["text-to-speech"]?.cooldownInSeconds ??
-                      0) *
-                      1000)) /
-                  1000
-              )}s`}
+              {convertToHHMMSS(
+                String(
+                  Math.ceil(
+                    ((userBooPackageCooldowns?.["text-to-speech"]?.lastUsedAt ??
+                      0) -
+                      (dateNow -
+                        (booPackageMap?.["text-to-speech"]?.cooldownInSeconds ??
+                          0) *
+                          1000)) /
+                      1000
+                  )
+                ),
+                true
+              )}
             </Flex>
           )}
           <Image

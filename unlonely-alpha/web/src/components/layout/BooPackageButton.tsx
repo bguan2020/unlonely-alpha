@@ -12,6 +12,7 @@ import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useU
 import { StreamInteractionType } from "../../generated/graphql";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 import { isValidAddress } from "../../utils/validation/wallet";
+import { convertToHHMMSS } from "../../utils/time";
 
 export const BooPackageButton = ({
   imageComponent,
@@ -159,11 +160,17 @@ export const BooPackageButton = ({
           {loading ? (
             <Spinner />
           ) : isInCooldown ? (
-            `${Math.ceil(
-              ((userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt ?? 0) -
-                (dateNow - cooldownInSeconds * 1000)) /
-                1000
-            )}s`
+            convertToHHMMSS(
+              String(
+                Math.ceil(
+                  ((userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt ??
+                    0) -
+                    (dateNow - (cooldownInSeconds ?? 0) * 1000)) /
+                    1000
+                )
+              ),
+              true
+            )
           ) : (
             packageInfo.name
           )}
