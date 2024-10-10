@@ -89,6 +89,7 @@ export const typeDef = gql`
     userAddress: String!
     packageName: String!
     lastUsedAt: String!
+    emptyOtherCooldowns: Boolean!
   }
 
   input UpdateUsernameInput {
