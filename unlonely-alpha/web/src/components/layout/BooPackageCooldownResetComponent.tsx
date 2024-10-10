@@ -8,13 +8,15 @@ import { convertToHHMMSS } from "../../utils/time";
 export const BooPackageCooldownResetComponent = ({
   dateNow,
   booPackageMap,
-  handleBooPackageMap,
   userBooPackageCooldowns,
+  handleUserBooPackageCooldowns,
+  onClick,
 }: {
   dateNow: number;
   booPackageMap: any;
-  handleBooPackageMap: (mapping: any) => void;
   userBooPackageCooldowns: any;
+  handleUserBooPackageCooldowns: (mapping: any) => void;
+  onClick: (callback: (...args: any[]) => Promise<void>) => void;
 }) => {
   const { user } = useUser();
 
@@ -32,18 +34,36 @@ export const BooPackageCooldownResetComponent = ({
     );
   }, [userBooPackageCooldowns, dateNow, booPackageMap]);
 
+  const hasOtherCooldowns = useMemo(() => {
+    const iterable = Object.entries(userBooPackageCooldowns ?? {});
+    for (const [key, value] of iterable) {
+      if (
+        dateNow - (booPackageMap?.[key]?.cooldownInSeconds ?? 0) * 1000 <
+        (value as any)?.lastUsedAt
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }, [dateNow, userBooPackageCooldowns, booPackageMap]);
+
   const isDisabled = useMemo(() => {
-    return isInCooldown || isValidAddress(user?.address) !== "solana";
-  }, [user, isInCooldown]);
+    return (
+      isInCooldown ||
+      isValidAddress(user?.address) !== "solana" ||
+      !hasOtherCooldowns
+    );
+  }, [user, isInCooldown, hasOtherCooldowns]);
 
   const handleReset = async () => {
     const { res } = await updateUserBooPackageCooldownMapping({
       userAddress: user?.address ?? "",
       packageName: "reset-cooldowns",
       lastUsedAt: String(Date.now()),
+      emptyOtherCooldowns: true,
     });
     const newMapping = res?.packageCooldownMapping;
-    handleBooPackageMap(newMapping);
+    handleUserBooPackageCooldowns(newMapping);
   };
 
   return (
@@ -53,7 +73,7 @@ export const BooPackageCooldownResetComponent = ({
       justifyContent={"center"}
       alignItems={"center"}
       onClick={() => {
-        if (!isDisabled) handleReset();
+        if (!isDisabled) onClick(handleReset);
       }}
       position={"relative"}
     >

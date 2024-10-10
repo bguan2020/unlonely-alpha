@@ -1,13 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import {
-  Box,
-  Flex,
-  IconButton,
-  Text,
-  Image,
-  Tooltip,
-  Button,
-} from "@chakra-ui/react";
+import { Box, Flex, IconButton, Text, Image, Tooltip } from "@chakra-ui/react";
 import { useChat } from "../../hooks/chat/useChat";
 import { useLivepeerStreamData } from "../../hooks/internal/useLivepeerStreamData";
 import ChatComponent from "../chat/ChatComponent";
@@ -39,6 +31,7 @@ import { INTERACTIONS_CHANNEL, PackageInfo } from "../../pages/modcenter";
 import { useAblyChannel } from "../../hooks/chat/useChatChannel";
 import { UseInteractionModal } from "../channels/UseInteractionModal";
 import { areAddressesEqual } from "../../utils/validation/wallet";
+import { BooPackageCooldownResetComponent } from "./BooPackageCooldownResetComponent";
 
 export const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 export const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
@@ -201,6 +194,10 @@ export const HomePageBooEventStreamPage = () => {
     },
     []
   );
+
+  const handleUserBooPackageCooldowns = useCallback((mapping: any) => {
+    setUserBooPackageCooldowns(mapping);
+  }, []);
 
   useEffect(() => {
     if (user) fetchUserBooPackageCooldownMapping(user?.address);
@@ -589,7 +586,28 @@ export const HomePageBooEventStreamPage = () => {
                           });
                         }}
                       />
-                      <Button>reset</Button>
+                      <BooPackageCooldownResetComponent
+                        dateNow={dateNow}
+                        booPackageMap={booPackageMap}
+                        userBooPackageCooldowns={userBooPackageCooldowns}
+                        handleUserBooPackageCooldowns={
+                          handleUserBooPackageCooldowns
+                        }
+                        onClick={(
+                          callback: (...args: any[]) => Promise<void>
+                        ) => {
+                          setInteractionState({
+                            isOpen: true,
+                            interactionData: {
+                              name: "reset-cooldowns",
+                              price:
+                                booPackageMap["reset-cooldowns"]
+                                  .tokenHoldingPrice,
+                              handleInteraction: callback,
+                            },
+                          });
+                        }}
+                      />
                     </BooEventTile>
                   )}
                 </Flex>

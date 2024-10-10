@@ -13488,6 +13488,22 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "emptyOtherCooldowns",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "lastUsedAt",
             "description": null,
             "type": {

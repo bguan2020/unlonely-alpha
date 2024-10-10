@@ -78,14 +78,16 @@ export const UseInteractionModal = ({
           ) : (
             <Flex direction="column" gap="10px">
               <Text textAlign="center">disclaimer</Text>
-              <Textarea
-                id="text"
-                placeholder={
-                  isTts ? "Enter message to broadcast" : "Enter message"
-                }
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-              />
+              {interactionData.name !== "reset-cooldowns" && (
+                <Textarea
+                  id="text"
+                  placeholder={
+                    isTts ? "Enter message to broadcast" : "Enter message"
+                  }
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                />
+              )}
 
               <Button
                 bg="#2562db"
@@ -95,7 +97,11 @@ export const UseInteractionModal = ({
                 }}
                 onClick={async () => {
                   setLoadingText(
-                    isTts ? "Sending message..." : "Using package..."
+                    interactionData.name === "reset-cooldowns"
+                      ? "resetting..."
+                      : isTts
+                      ? "sending message..."
+                      : "using package..."
                   );
                   await interactionData.handleInteraction(text);
                   setText("");
@@ -103,18 +109,23 @@ export const UseInteractionModal = ({
                   handleClose();
                 }}
                 isDisabled={
-                  text.length === 0 || text.length > 200 || containsSwears(text)
+                  (text.length === 0 ||
+                    text.length > 200 ||
+                    containsSwears(text)) &&
+                  interactionData.name !== "reset-cooldowns"
                 }
               >
                 Send
               </Button>
-              <Text h="20px" color={"red"} fontSize="10px">
-                {text.length > 200
-                  ? "message must be 200 characters or under"
-                  : containsSwears(text)
-                  ? "message contains strong swear words"
-                  : ""}
-              </Text>
+              {interactionData.name !== "reset-cooldowns" && (
+                <Text h="20px" color={"red"} fontSize="10px">
+                  {text.length > 200
+                    ? "message must be 200 characters or under"
+                    : containsSwears(text)
+                    ? "message contains strong swear words"
+                    : ""}
+                </Text>
+              )}
             </Flex>
           )}
         </Flex>
