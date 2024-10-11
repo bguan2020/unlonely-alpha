@@ -6,8 +6,15 @@ export const typeDef = gql`
     contract1155ChainId: Int!
   }
 
+  input PackageCooldownChange {
+    name: String!
+    lastUsedAt: String!
+    usableAt: String!
+  }
+
   type PackageCooldownMapping {
     lastUsedAt: String!
+    usableAt: String!
   }
 
   type User {
@@ -87,9 +94,7 @@ export const typeDef = gql`
 
   input UpdateUserPackageCooldownMappingInput {
     userAddress: String!
-    packageName: String!
-    lastUsedAt: String!
-    emptyOtherCooldowns: Boolean!
+    newPackageCooldownChanges: [PackageCooldownChange]
   }
 
   input UpdateUsernameInput {

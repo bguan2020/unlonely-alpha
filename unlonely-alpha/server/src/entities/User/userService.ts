@@ -24,6 +24,14 @@ export interface IGetUserTokenHoldingInput {
   userAddress: string;
 }
 
+type PackageCooldownChange = {
+  name: string;
+  lastUsedAt: string; // the timestamp when the package was last used
+  usableAt: string;   // the timestamp after which the package can be used
+};
+
+type PackageCooldownChangeMapping = { [key: string]: { lastUsedAt: string; usableAt: string } };
+
 export const getUserTokenHolding = async (
   data: IGetUserTokenHoldingInput,
   ctx: Context
@@ -166,10 +174,8 @@ export const updateUserChannelContract1155Mapping = async (
 };
 
 export interface IUpdateUserPackageCooldownMappingInput {
-  packageName: string;
   userAddress: string;
-  lastUsedAt: string;
-  emptyOtherCooldowns: boolean;
+  newPackageCooldownChanges: PackageCooldownChange[]
 }
 
 export const updateUserPackageCooldownMapping = async (
@@ -186,18 +192,24 @@ export const updateUserPackageCooldownMapping = async (
   }
 
   // Parse the current mapping
-  const currentMapping: any = data.emptyOtherCooldowns ? {} : (user.packageCooldownMapping || {});
+  const currentMapping: any = user.packageCooldownMapping || {};
+
+  const newChangesMapping = data.newPackageCooldownChanges.reduce((acc, item) => {
+    acc[item.name] = { lastUsedAt: item.lastUsedAt, usableAt: item.usableAt };
+    return acc;
+  }, {} as PackageCooldownChangeMapping)
 
   // Update the mapping
-  currentMapping[data.packageName] = {
-    lastUsedAt: data.lastUsedAt,
+  const newMapping = {
+    ...currentMapping,
+    ...newChangesMapping,
   }
 
   // Update the user with the new mapping
   return ctx.prisma.user.update({
     where: { address: data.userAddress },
     data: {
-      packageCooldownMapping: currentMapping,
+      packageCooldownMapping: newMapping,
     },
   });
 };
