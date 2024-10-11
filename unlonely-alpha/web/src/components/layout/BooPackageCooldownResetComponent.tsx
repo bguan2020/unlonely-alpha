@@ -4,6 +4,7 @@ import { isValidAddress } from "../../utils/validation/wallet";
 import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
 import { useUser } from "../../hooks/context/useUser";
 import { convertToHHMMSS } from "../../utils/time";
+import { createPackageCooldownArray } from "../../utils/packageCooldownHandler";
 
 export const BooPackageCooldownResetComponent = ({
   dateNow,
@@ -58,9 +59,11 @@ export const BooPackageCooldownResetComponent = ({
   const handleReset = async () => {
     const { res } = await updateUserBooPackageCooldownMapping({
       userAddress: user?.address ?? "",
-      packageName: "reset-cooldowns",
-      lastUsedAt: String(Date.now()),
-      emptyOtherCooldowns: true,
+      newPackageCooldownChanges: createPackageCooldownArray(
+        booPackageMap,
+        userBooPackageCooldowns,
+        "reset-cooldowns"
+      ),
     });
     const newMapping = res?.packageCooldownMapping;
     handleUserBooPackageCooldowns(newMapping);

@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Flex, Text } from "@chakra-ui/react";
 import { getTimeFromMillis } from "../../utils/time";
-import { useForm } from "react-hook-form";
 import { eventStartTime } from "./BooEventWrapper";
 import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";
-import {
-  FIXED_SOLANA_MINT,
-  IFormConfigurator,
-  INITIAL_FORM_CONFIG,
-} from "../../constants";
+import { FIXED_SOLANA_MINT } from "../../constants";
 
 export const HomePageBooEventTokenCountdown = () => {
   const [timeLeft, setTimeLeft] = useState(0);
@@ -22,12 +17,6 @@ export const HomePageBooEventTokenCountdown = () => {
 
     return () => clearInterval(timer);
   }, [eventStartTime]);
-
-  const { watch } = useForm<IFormConfigurator>({
-    defaultValues: INITIAL_FORM_CONFIG,
-  });
-
-  const watchAllFields = watch();
 
   return (
     <Flex mt={4} direction={"row"} width="100%" height="calc(100vh - 64px)">

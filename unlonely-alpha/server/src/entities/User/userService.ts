@@ -26,8 +26,8 @@ export interface IGetUserTokenHoldingInput {
 
 type PackageCooldownChange = {
   name: string;
-  lastUsedAt: string; // the timestamp when the package was last used
-  usableAt: string;   // the timestamp after which the package can be used
+  lastUsedAt: string; // the timestamp in milliseconds when the package was last used
+  usableAt: string;   // the timestamp in milliseconds after which the package can be used, used independently of a package's cooldown
 };
 
 type PackageCooldownChangeMapping = { [key: string]: { lastUsedAt: string; usableAt: string } };

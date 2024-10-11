@@ -13,6 +13,7 @@ import { StreamInteractionType } from "../../generated/graphql";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 import { isValidAddress } from "../../utils/validation/wallet";
 import { convertToHHMMSS } from "../../utils/time";
+import { createPackageCooldownArray } from "../../utils/packageCooldownHandler";
 
 export const BooPackageButton = ({
   imageComponent,
@@ -22,6 +23,7 @@ export const BooPackageButton = ({
   fetchUserBooPackageCooldownMapping,
   packageInfo,
   interactionsAblyChannel,
+  booPackageMap,
   onClick,
 }: {
   imageComponent?: any;
@@ -34,6 +36,7 @@ export const BooPackageButton = ({
     isCarePackage: boolean;
   };
   interactionsAblyChannel: AblyChannelPromise;
+  booPackageMap: any;
   onClick: (
     packageName: string,
     callback: (...args: any[]) => Promise<void>
@@ -65,9 +68,11 @@ export const BooPackageButton = ({
     }).then(async (res) => {
       await updateUserBooPackageCooldownMapping({
         userAddress: user?.address ?? "",
-        packageName: packageInfo.name,
-        lastUsedAt: String(Date.now()),
-        emptyOtherCooldowns: false,
+        newPackageCooldownChanges: createPackageCooldownArray(
+          booPackageMap,
+          userBooPackageCooldowns,
+          packageInfo.name
+        ),
       }).then(async () => {
         await fetchUserBooPackageCooldownMapping(user?.address ?? "");
         addToChatbot({

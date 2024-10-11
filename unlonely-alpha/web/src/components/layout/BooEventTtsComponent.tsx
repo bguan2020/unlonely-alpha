@@ -9,6 +9,7 @@ import { useUser } from "../../hooks/context/useUser";
 import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
 import { convertToHHMMSS } from "../../utils/time";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import { createPackageCooldownArray } from "../../utils/packageCooldownHandler";
 
 // export const WS_URL = "wss://sea-lion-app-j3rts.ondigitalocean.app/";
 
@@ -59,9 +60,11 @@ export const BooEventTtsComponent = ({
     }).then(async (res) => {
       await updateUserBooPackageCooldownMapping({
         userAddress: user?.address ?? "",
-        packageName: "text-to-speech",
-        lastUsedAt: String(Date.now()),
-        emptyOtherCooldowns: false,
+        newPackageCooldownChanges: createPackageCooldownArray(
+          booPackageMap,
+          userBooPackageCooldowns,
+          "text-to-speech"
+        ),
       }).then(async () => {
         await fetchUserBooPackageCooldownMapping(user?.address ?? "");
       });
