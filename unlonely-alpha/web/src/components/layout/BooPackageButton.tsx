@@ -54,7 +54,18 @@ export const BooPackageButton = ({
     updateUserPackageCooldownMapping: updateUserBooPackageCooldownMapping,
   } = useUpdateUserPackageCooldownMapping({});
 
-  const onTransferSuccess = async (text: string) => {
+  const handleSendPackage = async (text: string) => {
+    console.log(
+      "handleSendPackage",
+      String(channelQueryData?.id),
+      StreamInteractionType.PackageInteraction,
+      JSON.stringify({
+        user: user?.username ?? centerEllipses(user?.address, 15),
+        packageName: packageInfo.name,
+        isCarePackage: packageInfo.isCarePackage,
+        text,
+      })
+    );
     await postStreamInteraction({
       channelId: String(channelQueryData?.id),
       streamInteractionType: StreamInteractionType.PackageInteraction,
@@ -104,7 +115,7 @@ export const BooPackageButton = ({
 
   const handleSendTokens = async (text: string) => {
     setLoading(true);
-    await onTransferSuccess(text);
+    await handleSendPackage(text);
     setLoading(false);
   };
 
