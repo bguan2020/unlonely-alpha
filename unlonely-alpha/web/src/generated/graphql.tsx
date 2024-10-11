@@ -1604,6 +1604,7 @@ export type UpdateUserPackageCooldownMappingInput = {
   newPackageCooldownChanges?: InputMaybe<
     Array<InputMaybe<PackageCooldownChange>>
   >;
+  replaceExisting: Scalars["Boolean"];
   userAddress: Scalars["String"];
 };
 
