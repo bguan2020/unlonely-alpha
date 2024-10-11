@@ -885,9 +885,16 @@ export type Package = {
   tokenHoldingPrice?: Maybe<Scalars["String"]>;
 };
 
+export type PackageCooldownChange = {
+  lastUsedAt: Scalars["String"];
+  name: Scalars["String"];
+  usableAt: Scalars["String"];
+};
+
 export type PackageCooldownMapping = {
   __typename?: "PackageCooldownMapping";
   lastUsedAt: Scalars["String"];
+  usableAt: Scalars["String"];
 };
 
 export type Poap = {
@@ -1594,8 +1601,9 @@ export type UpdateUserNotificationsInput = {
 };
 
 export type UpdateUserPackageCooldownMappingInput = {
-  lastUsedAt: Scalars["String"];
-  packageName: Scalars["String"];
+  newPackageCooldownChanges?: InputMaybe<
+    Array<InputMaybe<PackageCooldownChange>>
+  >;
   userAddress: Scalars["String"];
 };
 
