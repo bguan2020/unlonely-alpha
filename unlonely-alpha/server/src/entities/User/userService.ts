@@ -176,6 +176,7 @@ export const updateUserChannelContract1155Mapping = async (
 export interface IUpdateUserPackageCooldownMappingInput {
   userAddress: string;
   newPackageCooldownChanges: PackageCooldownChange[]
+  replaceExisting: boolean // if false, the new changes will be merged with the existing mapping, else the existing mapping will be replaced
 }
 
 export const updateUserPackageCooldownMapping = async (
@@ -192,17 +193,23 @@ export const updateUserPackageCooldownMapping = async (
   }
 
   // Parse the current mapping
+  let newMapping: PackageCooldownChangeMapping = {} as PackageCooldownChangeMapping;
+
   const currentMapping: any = user.packageCooldownMapping || {};
 
   const newChangesMapping = data.newPackageCooldownChanges.reduce((acc, item) => {
     acc[item.name] = { lastUsedAt: item.lastUsedAt, usableAt: item.usableAt };
     return acc;
   }, {} as PackageCooldownChangeMapping)
-
+  
   // Update the mapping
-  const newMapping = {
-    ...currentMapping,
-    ...newChangesMapping,
+  if (!data.replaceExisting){ 
+    newMapping = {
+      ...currentMapping,
+      ...newChangesMapping,
+    }
+  } else {
+    newMapping = newChangesMapping
   }
 
   // Update the user with the new mapping
