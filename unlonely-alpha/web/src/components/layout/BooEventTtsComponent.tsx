@@ -93,11 +93,18 @@ export const BooEventTtsComponent = ({
       ((userBooPackageCooldowns?.["text-to-speech"]?.usableAt ?? 0) - dateNow) /
         1000
     );
-    return Math.max(lastUsedCooldown, secondaryCooldown);
+    return {
+      lastUsedCooldown,
+      secondaryCooldown,
+      displayCooldown: Math.max(lastUsedCooldown, secondaryCooldown),
+    };
   }, [userBooPackageCooldowns, dateNow, booPackageMap]);
 
   const isDisabled = useMemo(() => {
-    return cooldownCountdown > 0 || isValidAddress(user?.address) !== "solana";
+    return (
+      cooldownCountdown.displayCooldown > 0 ||
+      isValidAddress(user?.address) !== "solana"
+    );
   }, [user, cooldownCountdown]);
 
   return (
@@ -133,7 +140,7 @@ export const BooEventTtsComponent = ({
           padding="10px"
           position={"relative"}
         >
-          {cooldownCountdown > 0 && (
+          {cooldownCountdown.displayCooldown > 0 && (
             <Flex
               position="absolute"
               top="0"
@@ -144,8 +151,14 @@ export const BooEventTtsComponent = ({
               justifyContent="center"
               alignItems="center"
               borderRadius="10px"
+              color={
+                cooldownCountdown.secondaryCooldown >
+                cooldownCountdown.lastUsedCooldown
+                  ? "red"
+                  : "unset"
+              }
             >
-              {convertToHHMMSS(String(cooldownCountdown), true)}
+              {convertToHHMMSS(String(cooldownCountdown.displayCooldown), true)}
             </Flex>
           )}
           <Image

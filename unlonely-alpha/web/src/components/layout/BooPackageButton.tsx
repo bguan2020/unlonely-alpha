@@ -118,12 +118,16 @@ export const BooPackageButton = ({
       ((userBooPackageCooldowns?.[packageInfo.name]?.usableAt ?? 0) - dateNow) /
         1000
     );
-    return Math.max(lastUsedCooldown, secondaryCooldown);
+    return {
+      lastUsedCooldown,
+      secondaryCooldown,
+      displayCooldown: Math.max(lastUsedCooldown, secondaryCooldown),
+    };
   }, [userBooPackageCooldowns, packageInfo, dateNow, cooldownInSeconds]);
 
   const isDisabled = useMemo(() => {
     return (
-      cooldownCountdown > 0 ||
+      cooldownCountdown.displayCooldown > 0 ||
       loading ||
       isValidAddress(user?.address) !== "solana"
     );
@@ -144,7 +148,7 @@ export const BooPackageButton = ({
             onClick(packageInfo.name, handleSendTokens);
           }}
         />
-        {cooldownCountdown > 0 && (
+        {cooldownCountdown.displayCooldown > 0 && (
           <Flex
             position="absolute"
             top="0"
@@ -155,8 +159,14 @@ export const BooPackageButton = ({
             justifyContent="center"
             alignItems="center"
             borderRadius="15px"
+            color={
+              cooldownCountdown.secondaryCooldown >
+              cooldownCountdown.lastUsedCooldown
+                ? "red"
+                : "unset"
+            }
           >
-            {`${cooldownCountdown}s`}
+            {`${cooldownCountdown.displayCooldown}s`}
           </Flex>
         )}
       </Flex>
