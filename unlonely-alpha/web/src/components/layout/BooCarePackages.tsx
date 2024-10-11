@@ -26,6 +26,7 @@ export const BooCarePackages = ({
     <Flex flexWrap={"wrap"} justifyContent={"space-evenly"}>
       {carePackageNames.map((name) => (
         <BooPackageButton
+          booPackageMap={booPackageMap}
           imageComponent={
             <Image
               src={`/images/packages/${name}.png`}

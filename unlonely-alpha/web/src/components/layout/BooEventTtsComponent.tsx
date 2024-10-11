@@ -65,6 +65,7 @@ export const BooEventTtsComponent = ({
           userBooPackageCooldowns,
           "text-to-speech"
         ),
+        replaceExisting: false,
       }).then(async () => {
         await fetchUserBooPackageCooldownMapping(user?.address ?? "");
       });
@@ -81,19 +82,23 @@ export const BooEventTtsComponent = ({
     // socket?.emit("interaction", { text });
   };
 
-  const isInCooldown = useMemo(() => {
-    return (
-      userBooPackageCooldowns &&
-      userBooPackageCooldowns?.["text-to-speech"]?.lastUsedAt !== undefined &&
-      dateNow -
-        (booPackageMap?.["text-to-speech"]?.cooldownInSeconds ?? 0) * 1000 <
-        userBooPackageCooldowns?.["text-to-speech"]?.lastUsedAt
+  const cooldownCountdown = useMemo(() => {
+    const lastUsedCooldown = Math.ceil(
+      ((userBooPackageCooldowns?.["text-to-speech"]?.lastUsedAt ?? 0) -
+        (dateNow -
+          (booPackageMap?.["text-to-speech"]?.cooldownInSeconds ?? 0) * 1000)) /
+        1000
     );
+    const secondaryCooldown = Math.ceil(
+      ((userBooPackageCooldowns?.["text-to-speech"]?.usableAt ?? 0) - dateNow) /
+        1000
+    );
+    return Math.max(lastUsedCooldown, secondaryCooldown);
   }, [userBooPackageCooldowns, dateNow, booPackageMap]);
 
   const isDisabled = useMemo(() => {
-    return isInCooldown || isValidAddress(user?.address) !== "solana";
-  }, [user, isInCooldown]);
+    return cooldownCountdown > 0 || isValidAddress(user?.address) !== "solana";
+  }, [user, cooldownCountdown]);
 
   return (
     <Flex
@@ -128,7 +133,7 @@ export const BooEventTtsComponent = ({
           padding="10px"
           position={"relative"}
         >
-          {isInCooldown && (
+          {cooldownCountdown > 0 && (
             <Flex
               position="absolute"
               top="0"
@@ -140,20 +145,7 @@ export const BooEventTtsComponent = ({
               alignItems="center"
               borderRadius="10px"
             >
-              {convertToHHMMSS(
-                String(
-                  Math.ceil(
-                    ((userBooPackageCooldowns?.["text-to-speech"]?.lastUsedAt ??
-                      0) -
-                      (dateNow -
-                        (booPackageMap?.["text-to-speech"]?.cooldownInSeconds ??
-                          0) *
-                          1000)) /
-                      1000
-                  )
-                ),
-                true
-              )}
+              {convertToHHMMSS(String(cooldownCountdown), true)}
             </Flex>
           )}
           <Image

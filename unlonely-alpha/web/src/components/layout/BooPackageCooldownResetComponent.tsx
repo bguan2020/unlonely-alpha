@@ -4,7 +4,6 @@ import { isValidAddress } from "../../utils/validation/wallet";
 import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
 import { useUser } from "../../hooks/context/useUser";
 import { convertToHHMMSS } from "../../utils/time";
-import { createPackageCooldownArray } from "../../utils/packageCooldownHandler";
 
 export const BooPackageCooldownResetComponent = ({
   dateNow,
@@ -25,13 +24,13 @@ export const BooPackageCooldownResetComponent = ({
     updateUserPackageCooldownMapping: updateUserBooPackageCooldownMapping,
   } = useUpdateUserPackageCooldownMapping({});
 
-  const isInCooldown = useMemo(() => {
-    return (
-      userBooPackageCooldowns &&
-      userBooPackageCooldowns?.["reset-cooldowns"]?.lastUsedAt !== undefined &&
-      dateNow -
-        (booPackageMap?.["reset-cooldowns"]?.cooldownInSeconds ?? 0) * 1000 <
-        userBooPackageCooldowns?.["reset-cooldowns"]?.lastUsedAt
+  const cooldownCountdown = useMemo(() => {
+    return Math.ceil(
+      ((userBooPackageCooldowns?.["reset-cooldowns"]?.lastUsedAt ?? 0) -
+        (dateNow -
+          (booPackageMap?.["reset-cooldowns"]?.cooldownInSeconds ?? 0) *
+            1000)) /
+        1000
     );
   }, [userBooPackageCooldowns, dateNow, booPackageMap]);
 
@@ -40,7 +39,8 @@ export const BooPackageCooldownResetComponent = ({
     for (const [key, value] of iterable) {
       if (
         dateNow - (booPackageMap?.[key]?.cooldownInSeconds ?? 0) * 1000 <
-        (value as any)?.lastUsedAt
+          (value as any)?.lastUsedAt ||
+        ((value as any)?.usableAt ?? 0) > dateNow
       ) {
         return true;
       }
@@ -50,20 +50,23 @@ export const BooPackageCooldownResetComponent = ({
 
   const isDisabled = useMemo(() => {
     return (
-      isInCooldown ||
+      cooldownCountdown > 0 ||
       isValidAddress(user?.address) !== "solana" ||
       !hasOtherCooldowns
     );
-  }, [user, isInCooldown, hasOtherCooldowns]);
+  }, [user, cooldownCountdown, hasOtherCooldowns]);
 
   const handleReset = async () => {
     const { res } = await updateUserBooPackageCooldownMapping({
       userAddress: user?.address ?? "",
-      newPackageCooldownChanges: createPackageCooldownArray(
-        booPackageMap,
-        userBooPackageCooldowns,
-        "reset-cooldowns"
-      ),
+      newPackageCooldownChanges: [
+        {
+          name: "reset-cooldowns",
+          lastUsedAt: String(dateNow),
+          usableAt: "0",
+        },
+      ],
+      replaceExisting: true,
     });
     const newMapping = res?.packageCooldownMapping;
     handleUserBooPackageCooldowns(newMapping);
@@ -102,7 +105,7 @@ export const BooPackageCooldownResetComponent = ({
           padding="10px"
           position={"relative"}
         >
-          {isInCooldown && (
+          {cooldownCountdown > 0 && (
             <Flex
               position="absolute"
               top="0"
@@ -114,20 +117,7 @@ export const BooPackageCooldownResetComponent = ({
               alignItems="center"
               borderRadius="10px"
             >
-              {convertToHHMMSS(
-                String(
-                  Math.ceil(
-                    ((userBooPackageCooldowns?.["reset-cooldowns"]
-                      ?.lastUsedAt ?? 0) -
-                      (dateNow -
-                        (booPackageMap?.["reset-cooldowns"]
-                          ?.cooldownInSeconds ?? 0) *
-                          1000)) /
-                      1000
-                  )
-                ),
-                true
-              )}
+              {convertToHHMMSS(String(cooldownCountdown), true)}
             </Flex>
           )}
           <Text textAlign={"center"} fontFamily="LoRes15" fontSize="20px">

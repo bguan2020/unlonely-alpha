@@ -1,4 +1,4 @@
-import { Button, Flex, IconButton, Spinner } from "@chakra-ui/react";
+import { Flex, IconButton } from "@chakra-ui/react";
 import { useUser } from "../../hooks/context/useUser";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import {
@@ -12,7 +12,6 @@ import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useU
 import { StreamInteractionType } from "../../generated/graphql";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 import { isValidAddress } from "../../utils/validation/wallet";
-import { convertToHHMMSS } from "../../utils/time";
 import { createPackageCooldownArray } from "../../utils/packageCooldownHandler";
 
 export const BooPackageButton = ({
@@ -26,7 +25,7 @@ export const BooPackageButton = ({
   booPackageMap,
   onClick,
 }: {
-  imageComponent?: any;
+  imageComponent: any;
   cooldownInSeconds: number;
   userBooPackageCooldowns: any;
   dateNow: number;
@@ -73,6 +72,7 @@ export const BooPackageButton = ({
           userBooPackageCooldowns,
           packageInfo.name
         ),
+        replaceExisting: false,
       }).then(async () => {
         await fetchUserBooPackageCooldownMapping(user?.address ?? "");
         addToChatbot({
@@ -108,84 +108,58 @@ export const BooPackageButton = ({
     setLoading(false);
   };
 
-  const isInCooldown = useMemo(() => {
-    return (
-      userBooPackageCooldowns &&
-      userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt !== undefined &&
-      dateNow - cooldownInSeconds * 1000 <
-        userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt
+  const cooldownCountdown = useMemo(() => {
+    const lastUsedCooldown = Math.ceil(
+      ((userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt ?? 0) -
+        (dateNow - (cooldownInSeconds ?? 0) * 1000)) /
+        1000
     );
+    const secondaryCooldown = Math.ceil(
+      ((userBooPackageCooldowns?.[packageInfo.name]?.usableAt ?? 0) - dateNow) /
+        1000
+    );
+    return Math.max(lastUsedCooldown, secondaryCooldown);
   }, [userBooPackageCooldowns, packageInfo, dateNow, cooldownInSeconds]);
 
   const isDisabled = useMemo(() => {
     return (
-      isInCooldown || loading || isValidAddress(user?.address) !== "solana"
+      cooldownCountdown > 0 ||
+      loading ||
+      isValidAddress(user?.address) !== "solana"
     );
-  }, [isInCooldown, user, loading]);
+  }, [cooldownCountdown, user, loading]);
 
   return (
     <Flex direction="column" gap="4px">
-      {imageComponent ? (
-        <Flex position="relative" justifyContent={"center"}>
-          <IconButton
-            bg="transparent"
-            _focus={{}}
-            _active={{}}
-            _hover={{}}
-            icon={imageComponent}
-            aria-label={`${packageInfo.name}-package`}
-            isDisabled={isDisabled}
-            onClick={() => {
-              onClick(packageInfo.name, handleSendTokens);
-            }}
-          />
-          {isInCooldown && (
-            <Flex
-              position="absolute"
-              top="0"
-              left="0"
-              right="0"
-              bottom="0"
-              bg="blackAlpha.500"
-              justifyContent="center"
-              alignItems="center"
-              borderRadius="15px"
-            >
-              {`${Math.ceil(
-                ((userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt ??
-                  0) -
-                  (dateNow - cooldownInSeconds * 1000)) /
-                  1000
-              )}s`}
-            </Flex>
-          )}
-        </Flex>
-      ) : (
-        <Button
+      <Flex position="relative" justifyContent={"center"}>
+        <IconButton
+          bg="transparent"
+          _focus={{}}
+          _active={{}}
+          _hover={{}}
+          icon={imageComponent}
+          aria-label={`${packageInfo.name}-package`}
           isDisabled={isDisabled}
           onClick={() => {
             onClick(packageInfo.name, handleSendTokens);
           }}
-        >
-          {loading ? (
-            <Spinner />
-          ) : isInCooldown ? (
-            convertToHHMMSS(
-              String(
-                Math.ceil(
-                  ((userBooPackageCooldowns?.[packageInfo.name]?.lastUsedAt ??
-                    0) -
-                    (dateNow - (cooldownInSeconds ?? 0) * 1000)) /
-                    1000
-                )
-              ),
-              true
-            )
-          ) : (
-            packageInfo.name
-          )}
-        </Button>
-      )}
+        />
+        {cooldownCountdown > 0 && (
+          <Flex
+            position="absolute"
+            top="0"
+            left="0"
+            right="0"
+            bottom="0"
+            bg="blackAlpha.500"
+            justifyContent="center"
+            alignItems="center"
+            borderRadius="15px"
+          >
+            {`${cooldownCountdown}s`}
+          </Flex>
+        )}
+      </Flex>
     </Flex>
   );
 };
