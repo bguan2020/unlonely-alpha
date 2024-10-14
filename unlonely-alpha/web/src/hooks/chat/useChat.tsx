@@ -27,8 +27,10 @@ export type ChatReturnType = {
 
 export const useChat = ({
   chatBot,
+  fixedChannelName,
 }: {
   chatBot: ChatBot[];
+  fixedChannelName?: string;
 }): ChatReturnType => {
   const {
     ablyChannel: channel,
@@ -36,7 +38,7 @@ export const useChat = ({
     receivedMessages,
     allMessages,
     mounted,
-  } = useChatChannel("homepage");
+  } = useChatChannel(fixedChannelName);
 
   const mountingMessages = useRef(true);
   const { emojiBlast, fireworks } = useScreenAnimationsContext();

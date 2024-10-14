@@ -14,7 +14,7 @@ import Link from "next/link";
 export const HomePageBooEventStreamPage = () => {
   const { chat: c } = useChannelContext();
   const { chatBot } = c;
-  const chat = useChat({ chatBot });
+  const chat = useChat({ chatBot, fixedChannelName: "homepage-chat" });
 
   const { solanaAddress, handleIsManagingWallets } = useUser();
 
@@ -102,7 +102,7 @@ export const HomePageBooEventStreamPage = () => {
             <Text fontFamily="LoRes15">terms</Text>
           </Link>
           <Link href="https://bit.ly/unlonelyFAQs" passHref target="_blank">
-            <Text fontFamily="LoRes15">about</Text>
+            <Text fontFamily="LoRes15">faq</Text>
           </Link>
           <Link href="https://t.me/+IE_BA-tyLIA5MzZh" passHref target="_blank">
             <Text fontFamily="LoRes15">telegram</Text>
