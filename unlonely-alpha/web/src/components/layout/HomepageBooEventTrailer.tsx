@@ -3,9 +3,9 @@ export const HomepageBooEventTrailer = () => {
     <iframe
       width="100%"
       height="100%"
-      src="https://www.youtube.com/embed/PB-8r_gDxDM?si=LHPzqPxL-hTnaxQM?&autoplay=1&mute=1"
+      src="https://www.youtube.com/embed/PB-8r_gDxDM?si=LHPzqPxL-hTnaxQM?&autoplay=1&mute=1&loop=1&playlist=PB-8r_gDxDM"
       title="YouTube video player"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allow="autoplay; encrypted-media"
       referrerPolicy="strict-origin-when-cross-origin"
     ></iframe>
   );
