@@ -18,7 +18,7 @@ export const useScreenAnimationsContext = () => {
 
 type ScreenAnimationsContextType = {
   isFireworksPlaying: boolean;
-  emojiBlast: (emoji: JSX.Element) => void;
+  emojiBlast: (emoji: JSX.Element, config?: RainAnimationConfig) => void;
   fireworks: () => void;
 };
 
@@ -52,8 +52,11 @@ export const ScreenAnimationsProvider = ({
     fireworksTimerRef.current = newTimer;
   };
 
-  const emojiBlast = (emoji: JSX.Element) => {
-    setEmojiQueue((prev) => [...prev, { emoji, uid: Date.now().toString() }]);
+  const emojiBlast = (emoji: JSX.Element, config?: RainAnimationConfig) => {
+    setEmojiQueue((prev) => [
+      ...prev,
+      { emoji, uid: Date.now().toString(), config },
+    ]);
   };
 
   const removeEmoji = useCallback((uid: string) => {

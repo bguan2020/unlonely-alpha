@@ -1,233 +1,136 @@
-import {
-  Box,
-  Flex,
-  ListItem,
-  SimpleGrid,
-  Text,
-  UnorderedList,
-} from "@chakra-ui/layout";
-import { Image } from "@chakra-ui/image";
-import LivepeerPlayer from "../stream/LivepeerPlayer";
-import { getSrc } from "@livepeer/react/external";
-import { useChannelContext } from "../../hooks/context/useChannel";
-import { useLivepeerStreamData } from "../../hooks/internal/useLivepeerStreamData";
+import { useEffect, useMemo, useState } from "react";
+import { eventStartTime } from "./BooEventWrapper";
+import { MobileHomepageBooEventStream } from "./MobileHomepageBooEventStream";
+import { getTimesFromMillis } from "../../utils/time";
+import { Flex, Text, Image } from "@chakra-ui/react";
 import NextImage from "next/image";
-import { Modal, ModalContent, ModalOverlay } from "@chakra-ui/react";
-import { useState } from "react";
-import { ContinuousRain } from "../chat/emoji/BlastRain";
-
-enum ButtonOptionNames {
-  "heart-black-border" = "heart-black-border",
-  "ghost-clear" = "ghost-clear",
-  "boolloon" = "boolloon",
-  "megaphone-color" = "megaphone-color",
-}
-
-const buttonOptionNames = Object.values(ButtonOptionNames);
+import { HomepageBooEventTrailer } from "./HomepageBooEventTrailer";
+import { useScreenAnimationsContext } from "../../hooks/context/useScreenAnimations";
 
 export const MobileHomePageBooEventStreamPage = () => {
-  const { channel } = useChannelContext();
-  const { channelQueryData } = channel;
+  const [dateNow, setDateNow] = useState(Date.now());
 
-  const [modalState, setModalState] = useState<ButtonOptionNames | undefined>(
-    undefined
-  );
+  const { emojiBlast } = useScreenAnimationsContext();
 
-  const { playbackInfo } = useLivepeerStreamData({
-    livepeerPlaybackId: channelQueryData?.livepeerPlaybackId ?? undefined,
-    livepeerStreamId: channelQueryData?.livepeerStreamId ?? undefined,
-  });
+  const timeLeftInMillis = useMemo(() => {
+    const now = dateNow;
+    const remaining = eventStartTime - now;
+    return remaining > 0 ? remaining : 0;
+  }, [dateNow]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDateNow(Date.now());
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      emojiBlast(
+        <Image
+          src={"https://i.imgur.com/he6L5cp.gif"}
+          display="inline"
+          verticalAlign={"middle"}
+          h="80px"
+          p="5px"
+          transform="rotate(180deg)"
+        />,
+        {
+          durationInMillis: 9000,
+          horizSpeedRange: [3, 4],
+          vertSpeedRange: [4, 9],
+          downward: true,
+          numParticles: 18,
+        }
+      );
+    }, 3000);
+  }, []);
 
   return (
-    <Flex
-      direction="column"
-      //  h="100dvh"
-      overflowY="hidden"
-    >
-      <WantToUnlockModal
-        modalState={modalState}
-        handleClose={() => setModalState(undefined)}
-      />
-      <Flex h="30px" p="5px" alignContent={"center"}>
-        <NextImage
-          src="/svg/unlonely-green.svg"
-          priority
-          alt="unlonely"
-          width={80}
-          height={80}
-        />
-      </Flex>
-      {playbackInfo ? (
-        <Box width={"100%"} height={"30vh"} transition="all 0.3s">
-          <LivepeerPlayer src={getSrc(playbackInfo)} cannotOpenClipDrawer />
-        </Box>
-      ) : (
-        <Box width={"100%"} height={"30vh"} bg={"black"}></Box>
-      )}
-      <Flex
-        flexWrap={"wrap"}
-        justifyContent={"space-evenly"}
-        // height={"calc(100dvh - 30vh - 30px)"}
-      >
-        <Flex direction="column" gap="20px">
-          <SimpleGrid columns={2} spacing={5} mx="auto" my="20px">
-            {buttonOptionNames.map((name) => (
-              <Box
-                width="140px"
-                height="140px"
-                bg="#FF7B00"
-                borderRadius="100%"
-                key={name}
+    <>
+      {timeLeftInMillis > 0 ? (
+        <Flex direction="column" height={"100%"}>
+          <Flex p="5px">
+            <NextImage
+              src="/svg/unlonely-green.svg"
+              priority
+              alt="unlonely"
+              width={80}
+              height={80}
+            />
+          </Flex>
+          <Flex display={"inline-block"} transform={"translateX(-2%)"}>
+            <Text
+              lineHeight={"1"}
+              fontStyle={"italic"}
+              fontFamily={"DigitalDisplay"}
+              textAlign={"center"}
+              fontSize={[
+                "calc(1vw + 1vh + 70px)",
+                "calc(2vw + 2vh + 140px)",
+                "calc(3vw + 3vh + 210px)",
+                "calc(4vw + 4vh + 280px)",
+              ]}
+            >
+              {getTimesFromMillis(timeLeftInMillis, true)
+                .days.toString()
+                .padStart(2, "0")}{" "}
+              DAYS
+            </Text>
+          </Flex>
+          <Flex justifyContent={"center"} width="100%" px="10px">
+            <Image src="/svg/fud-text.svg" width={"80%"} />
+          </Flex>
+          <Flex justifyContent={"center"} height="100%" bg="black">
+            <HomepageBooEventTrailer />
+          </Flex>
+          <Flex
+            direction="column"
+            justifyContent={"space-around"}
+            flex="1"
+            p="20px"
+            gap="30px"
+          >
+            <Flex justifyContent={"center"}>
+              <Flex
+                border="1px white solid"
+                backgroundImage="url('/images/gradient.png')"
+                backgroundSize="cover" // Stretches the image to fill the box
+                backgroundPosition="100% 100%" // Keeps the image centered
+                justifyContent={"center"}
+                width={[
+                  "calc(1vw + 1vh + 200px)",
+                  "calc(2vw + 2vh + 250px)",
+                  "calc(3vw + 3vh + 120px)",
+                  "calc(4vw + 4vh + 160px)",
+                ]}
                 onClick={() => {
-                  setModalState(name as ButtonOptionNames);
+                  window.open("https://lu.ma/coz1gn0t", "_blank");
                 }}
-                _hover={{
-                  cursor: "pointer",
-                  transform: "scale(1.1)",
-                  transition: "transform 0.2s",
-                }}
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                boxShadow="5px 5px 10px #37FF8B"
               >
-                <Image src={`/images/${name}.png`} height="80px" alt={name} />
-              </Box>
-            ))}
-          </SimpleGrid>
-          <Flex justifyContent={"center"}>
-            <Text
-              textAlign="center"
-              fontFamily="LoRes15"
-              color="#37FF8B"
-              fontSize="15px"
-            >
-              join on desktop for the full experience
-            </Text>
+                <Text
+                  fontFamily={"DigitalDisplay"}
+                  fontSize={[
+                    "calc(1vw + 1vh + 40px)",
+                    "calc(2vw + 2vh + 80px)",
+                    "calc(3vw + 3vh + 120px)",
+                    "calc(4vw + 4vh + 160px)",
+                  ]}
+                  noOfLines={1}
+                >
+                  RSVP NOW
+                </Text>
+              </Flex>
+            </Flex>
+            <Flex justifyContent={"center"} width="100%" px="10px">
+              <Image src="/svg/join-desktop-text.svg" width={"80%"} />
+            </Flex>
           </Flex>
         </Flex>
-      </Flex>
-    </Flex>
-  );
-};
-
-const WantToUnlockModal = ({
-  modalState,
-  handleClose,
-}: {
-  modalState: ButtonOptionNames | undefined;
-  handleClose: () => void;
-}) => {
-  return (
-    <Modal
-      isCentered
-      isOpen={modalState !== undefined}
-      onClose={handleClose}
-      size={"sm"}
-    >
-      <ModalOverlay backgroundColor="#282828e6" />
-      <ModalContent
-        padding="50px 20px"
-        borderRadius="20px"
-        width="300px"
-        bg="#FF7B00"
-        color="black"
-      >
-        {modalState !== undefined && (
-          <ContinuousRain
-            emoji={
-              <Image
-                src={`/images/${modalState}.png`}
-                height="60px"
-                alt={modalState}
-              />
-            }
-            uid="modalState"
-            config={{
-              numParticles: 6,
-              vertSpeedRange: [1, 3],
-            }}
-          />
-        )}
-        <Flex direction="column">
-          <Flex direction="column" mb="30px">
-            <Text
-              textAlign="center"
-              fontFamily="LoRes15"
-              fontSize="25px"
-              color="white"
-              textShadow="1px 1px 0 black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black"
-            >
-              want to unlock
-            </Text>
-            <Text
-              textAlign="center"
-              fontFamily="LoRes15"
-              fontSize="35px"
-              color="white"
-              textShadow="1px 1px 0 black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black"
-            >
-              CARE PACKAGES?
-            </Text>
-          </Flex>
-          {modalState === ButtonOptionNames["heart-black-border"] && (
-            <>
-              <Text textAlign="left" textDecoration="underline" fontSize="15px">
-                on desktop you can:
-              </Text>
-              <Box mt="10px">
-                <UnorderedList spacing={2} fontSize="15px" color="black">
-                  <ListItem>
-                    send participants <b>water and food</b> in real time
-                  </ListItem>
-                  <ListItem>
-                    send a <b>mad lads backpack</b> with surprise goodies
-                  </ListItem>
-                  <ListItem>
-                    hurry, <b>the show ends in XXX hours!</b>
-                  </ListItem>
-                </UnorderedList>
-              </Box>
-            </>
-          )}
-          {modalState === ButtonOptionNames["ghost-clear"] && (
-            <>
-              <Text textAlign="left" textDecoration="underline" fontSize="15px">
-                on desktop you can:
-              </Text>
-              <Box mt="10px">
-                <UnorderedList spacing={2} fontSize="15px" color="black">
-                  <ListItem>
-                    <b>send in a ghost</b> to chase the contestants
-                  </ListItem>
-                  <ListItem>
-                    turn on <b>high frequency sound</b>
-                  </ListItem>
-                  <ListItem>
-                    flicker the <b>lights</b>
-                  </ListItem>
-                  <ListItem>
-                    turn the <b>fog machine</b> on
-                  </ListItem>
-                </UnorderedList>
-              </Box>
-            </>
-          )}
-          {modalState === ButtonOptionNames["megaphone-color"] && (
-            <Text textAlign="left" fontSize="15px">
-              only on desktop, you can send a{" "}
-              <b>custom TTS (text-to-speech) broadcast message</b> to the
-              contestants
-            </Text>
-          )}
-          {modalState === ButtonOptionNames["boolloon"] && (
-            <Text textAlign="left" fontSize="15px">
-              only on desktop, you can <b>participate in live chat</b> with the
-              rest of the viewers
-            </Text>
-          )}
-        </Flex>
-      </ModalContent>
-    </Modal>
+      ) : (
+        <MobileHomepageBooEventStream />
+      )}
+    </>
   );
 };

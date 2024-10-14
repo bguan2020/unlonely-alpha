@@ -64,12 +64,6 @@ export const HomePageBooEventTokenCountdown = ({
             fontFamily={"DigitalDisplay"}
             fontSize={["20px", "20px", "30px", "40px"]}
           >
-            NO FOMO?
-          </Text>
-          <Text
-            fontFamily={"DigitalDisplay"}
-            fontSize={["20px", "20px", "30px", "40px"]}
-          >
             RSVP NOW
           </Text>
         </Flex>
