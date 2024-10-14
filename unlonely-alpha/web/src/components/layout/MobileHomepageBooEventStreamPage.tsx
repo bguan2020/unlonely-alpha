@@ -105,6 +105,7 @@ export const MobileHomePageBooEventStreamPage = () => {
                   "calc(3vw + 3vh + 120px)",
                   "calc(4vw + 4vh + 160px)",
                 ]}
+                alignItems={"center"}
                 onClick={() => {
                   window.open("https://lu.ma/coz1gn0t", "_blank");
                 }}
@@ -113,7 +114,7 @@ export const MobileHomePageBooEventStreamPage = () => {
                   fontFamily={"DigitalDisplay"}
                   fontSize={[
                     "calc(1vw + 1vh + 40px)",
-                    "calc(2vw + 2vh + 80px)",
+                    "calc(2vw + 2vh + 40px)",
                     "calc(3vw + 3vh + 120px)",
                     "calc(4vw + 4vh + 160px)",
                   ]}
