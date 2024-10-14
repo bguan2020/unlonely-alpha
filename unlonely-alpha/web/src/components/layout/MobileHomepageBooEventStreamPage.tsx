@@ -50,7 +50,7 @@ export const MobileHomePageBooEventStreamPage = () => {
   return (
     <>
       {timeLeftInMillis > 0 ? (
-        <Flex direction="column" height={"100%"}>
+        <Flex direction="column" height={"100%"} overflowY="hidden">
           <Flex p="5px">
             <NextImage
               src="/svg/unlonely-green.svg"

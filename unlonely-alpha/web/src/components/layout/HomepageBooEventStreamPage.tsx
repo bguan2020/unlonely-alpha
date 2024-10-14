@@ -15,7 +15,7 @@ import Header from "../navigation/Header";
 export const HomePageBooEventStreamPage = () => {
   const { chat: c } = useChannelContext();
   const { chatBot } = c;
-  const chat = useChat({ chatBot, fixedChannelName: "homepage-chat" });
+  const chat = useChat({ chatBot });
 
   const { solanaAddress, handleIsManagingWallets } = useUser();
 
