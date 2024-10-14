@@ -3,11 +3,11 @@ import {
   Spacer,
   useBreakpointValue,
   Text,
-  Button,
-  PopoverContent,
-  Popover,
-  PopoverTrigger,
-  PopoverArrow,
+  // Button,
+  // PopoverContent,
+  // Popover,
+  // PopoverTrigger,
+  // PopoverArrow,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import NextImage from "next/image";
@@ -70,7 +70,7 @@ const Header: React.FC = () => {
             margin="auto"
             width="100%"
           >
-            <Popover trigger="hover" placement="left" openDelay={300}>
+            {/* <Popover trigger="hover" placement="left" openDelay={300}>
               <PopoverTrigger>
                 <Button
                   border="1px solid white"
@@ -94,7 +94,7 @@ const Header: React.FC = () => {
                   create new channel
                 </Text>
               </PopoverContent>
-            </Popover>
+            </Popover> */}
             <ConnectWallet />
           </Flex>
         </Spacer>

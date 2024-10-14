@@ -26,38 +26,57 @@ export const dateConverter = (date: string) => {
   return date_time;
 };
 
-export const getTimesFromMillis = (millis: number) => {
+export const getTimesFromMillis = (millis: number, showDays?: boolean) => {
   let seconds = parseInt((millis / 1000).toString());
+  let days = 0;
+  if (showDays) {
+    days = showDays ? parseInt((seconds / 86400).toString()) : 0; // 86400 seconds in a day
+    seconds = seconds % 86400;
+  }
   const hours = parseInt((seconds / 3600).toString());
   seconds = seconds % 3600;
   const minutes = parseInt((seconds / 60).toString());
   seconds = seconds % 60;
 
-  return { hours, minutes, seconds };
+  return { days, hours, minutes, seconds };
 };
 
 export const getTimeFromMillis = (
   millis: number,
   showSeconds?: boolean,
+  showDays?: boolean,
   format?: boolean,
   formatPlusLabel?: boolean
 ): string => {
   if (millis === 0) return "0";
 
-  const { hours, minutes, seconds } = getTimesFromMillis(millis);
+  const { days, hours, minutes, seconds } = getTimesFromMillis(millis, showDays);
   if (format) {
+    const paddedDays = days.toString().padStart(2, "0");
     const paddedHours = hours.toString().padStart(2, "0");
     const paddedMinutes = minutes.toString().padStart(2, "0");
     const paddedSeconds = seconds.toString().padStart(2, "0");
 
     if (showSeconds) {
       if (formatPlusLabel) {
+        if (showDays) {
+          return `${paddedDays}D : ${paddedHours}H : ${paddedMinutes}M : ${paddedSeconds}S`
+        }
         return `${paddedHours}H : ${paddedMinutes}M : ${paddedSeconds}S`
+      }
+      if (showDays) {
+        return `${paddedDays}:${paddedHours}:${paddedMinutes}:${paddedSeconds}`
       }
       return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`
     };
     if (formatPlusLabel) {
+      if (showDays) {
+        return `${paddedDays}D : ${paddedHours}H : ${paddedMinutes}M`
+      }
       return `${paddedHours}H : ${paddedMinutes}M`
+    }
+    if (showDays) {
+      return `${paddedDays}:${paddedHours}:${paddedMinutes}`
     }
     return `${paddedHours}:${paddedMinutes}`;
   }
@@ -71,11 +90,12 @@ export const getTimeFromMillis = (
 
 export const getConvertedDateFromMillis = (millis: number): string => {
   const time = new Date(millis);
+  const days = time.getDay().toString().padStart(2, "0");
   const hours = time.getHours().toString().padStart(2, "0");
   const minutes = time.getMinutes().toString().padStart(2, "0");
   const seconds = time.getSeconds().toString().padStart(2, "0");
 
-  const timeString = `${hours}:${minutes}:${seconds}`;
+  const timeString = `${days}:${hours}:${minutes}:${seconds}`;
   return timeString;
 };
 

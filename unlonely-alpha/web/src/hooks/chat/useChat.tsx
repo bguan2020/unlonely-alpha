@@ -36,7 +36,7 @@ export const useChat = ({
     receivedMessages,
     allMessages,
     mounted,
-  } = useChatChannel();
+  } = useChatChannel("homepage");
 
   const mountingMessages = useRef(true);
   const { emojiBlast, fireworks } = useScreenAnimationsContext();

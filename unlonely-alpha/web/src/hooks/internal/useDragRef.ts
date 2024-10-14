@@ -1,6 +1,6 @@
 import { useSensors, useSensor, PointerSensor } from "@dnd-kit/core";
 import { MutableRefObject, useRef, useState } from "react";
-import { STREAM_VIEW_JUPITER_TERMINAL_PIXEL_HEIGHT, STREAM_VIEW_JUPITER_TERMINAL_MIN_X_OFFSET, STREAM_VIEW_JUPITER_TERMINAL_MIN_Y_OFFSET } from "../../components/layout/HomepageBooEventStreamPage";
+import { STREAM_VIEW_JUPITER_TERMINAL_PIXEL_HEIGHT, STREAM_VIEW_JUPITER_TERMINAL_MIN_X_OFFSET, STREAM_VIEW_JUPITER_TERMINAL_MIN_Y_OFFSET } from "../../components/layout/HomepageBooEventStream";
 
 export const useDragRefs = ({
     containerRef,

@@ -1,7 +1,7 @@
 import { getAssociatedTokenAddress, getAccount } from "@solana/spl-token";
 import Decimal from "decimal.js";
 import { PublicKey, Connection } from "@solana/web3.js";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { FIXED_SOLANA_MINT, SOLANA_RPC_URL } from "../../../constants";
 import { useUser } from "../../context/useUser";
 
@@ -19,7 +19,7 @@ export const useSolanaTokenBalance = () => {
       }
     }, [solanaAddress, activeWallet]);
   
-    const fetchTokenBalance = async () => {
+    const fetchTokenBalance = useCallback(async () => {
       if (!solanaAddress || loading) {
         return;
       }
@@ -51,7 +51,7 @@ export const useSolanaTokenBalance = () => {
       } finally {
         setLoading(false);
       }
-    };
+    }, [solanaAddress, loading])
 
     return {
         balance,

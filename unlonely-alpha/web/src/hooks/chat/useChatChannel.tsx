@@ -56,17 +56,15 @@ export function useAblyChannel(
 
 export function useChatChannel(fixedChatName?: string) {
   const { user } = useUser();
-  const { channel: c, chat, ui } = useChannelContext();
+  const { channel: c, chat } = useChannelContext();
   const {
     channelRoles,
     handleChannelRoles,
-    handleLatestBet,
     handleRealTimeChannelDetails,
     handleChannelVibesTokenPriceRange,
     handlePinnedChatMessages,
   } = c;
   const { chatChannel } = chat;
-  const { handleLocalSharesEventState } = ui;
   const { refetchVibesBalance } = useVibesContext();
   const { tempToken } = useTempTokenContext();
   const { refetchUserTempTokenBalance } = tempToken;

@@ -1,62 +1,55 @@
-import React, { useState, useEffect } from "react";
-import { Flex, Text } from "@chakra-ui/react";
+import React from "react";
+import { Button, Flex, Text } from "@chakra-ui/react";
 import { getTimeFromMillis } from "../../utils/time";
-import { eventStartTime } from "./BooEventWrapper";
-import { IntegratedTerminal } from "./IntegratedBooJupiterTerminal";
-import { FIXED_SOLANA_MINT } from "../../constants";
 
-export const HomePageBooEventTokenCountdown = () => {
-  const [timeLeft, setTimeLeft] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = Math.floor(Date.now() / 1000);
-      const remaining = eventStartTime - now;
-      setTimeLeft(remaining > 0 ? remaining : 0);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [eventStartTime]);
-
+export const HomePageBooEventTokenCountdown = ({
+  timeLeftInMillis,
+}: {
+  timeLeftInMillis: number;
+}) => {
   return (
-    <Flex mt={4} direction={"row"} width="100%" height="calc(100vh - 64px)">
-      <div
-        style={{
-          position: "relative" as const,
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+    <Flex
+      alignItems="center"
+      justifyContent={"space-between"}
+      h="15vh"
+      py="20px"
+      px="5vw"
+      backgroundImage="url('/svg/gradient.svg')"
+      backgroundSize="cover" // Adjust as needed
+      backgroundPosition="bottom" // Adjusted to show the bottom part of the image
+    >
+      <Text fontFamily={"DigitalDisplay"} fontSize="5vh" width="220px">
+        "THE FUD" STARTS IN
+      </Text>
+      <Text
+        fontFamily={"DigitalDisplay"}
+        fontSize={"7vw"}
+        color="white"
+        fontStyle={"italic"}
+        whiteSpace="nowrap" // Prevent text from wrapping
+      >
+        {getTimeFromMillis(timeLeftInMillis, true, true, true, true)}
+      </Text>
+      <Button
+        h="100%"
+        borderRadius="0px"
+        border="1px white solid"
+        bg="#131323"
+        _hover={{ bg: "#2d2d6b" }}
+        color="white"
+        onClick={() => {
+          window.open("https://lu.ma/coz1gn0t", "_blank");
         }}
       >
-        <Flex
-          position="absolute"
-          direction="column"
-          gap={4}
-          alignItems="center"
-          textAlign="center"
-          width="100%"
-          pointerEvents="none"
-        >
-          <Text fontFamily={"DigitalDisplay"} fontSize={"4vw"} color="#ff6e25">
-            AN UNMISSABLE HALLOWEEN SPECIAL IS ARRIVING IN
+        <Flex direction="column">
+          <Text fontFamily={"DigitalDisplay"} fontSize="4vh">
+            NO FOMO?
           </Text>
-          <Text fontFamily={"DigitalDisplay"} fontSize={"6vw"} color="#ffab25">
-            {getTimeFromMillis(timeLeft * 1000, true, true, true)}
+          <Text fontFamily={"DigitalDisplay"} fontSize="4vh">
+            RSVP NOW
           </Text>
         </Flex>
-        <iframe
-          height="100%"
-          width="100%"
-          id="geckoterminal-embed"
-          title="GeckoTerminal Embed"
-          src={`https://www.geckoterminal.com/solana/pools/${FIXED_SOLANA_MINT.poolAddress}?embed=1&info=0&swaps=0`}
-          allow="clipboard-write"
-        ></iframe>
-      </div>
-      <Flex justifyContent={"center"} position="relative">
-        <IntegratedTerminal isBuy={true} height="calc(100vh - 64px)" />
-      </Flex>
+      </Button>
     </Flex>
   );
 };

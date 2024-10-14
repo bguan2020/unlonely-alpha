@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { HomePageBooEventTokenCountdown } from "./HomepageBooEventCountdown";
 import { HomePageBooEventStreamPage } from "./HomepageBooEventStreamPage";
 import {
   ChannelProvider,
@@ -11,7 +10,7 @@ import { useQuery } from "@apollo/client";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { MobileHomePageBooEventStreamPage } from "./MobileHomepageBooEventStreamPage";
 
-export const eventStartTime = 1933548029;
+export const eventStartTime = 1730333783000;
 const slug = "danny";
 export const CHANNEL_ID_TO_USE = 29;
 
@@ -41,16 +40,10 @@ const BooEventWrapperWithSolana = () => {
 
   return (
     <>
-      {true ? (
-        <>
-          {isMobile ? (
-            <MobileHomePageBooEventStreamPage />
-          ) : (
-            <HomePageBooEventStreamPage />
-          )}
-        </>
+      {isMobile ? (
+        <MobileHomePageBooEventStreamPage />
       ) : (
-        <HomePageBooEventTokenCountdown />
+        <HomePageBooEventStreamPage />
       )}
     </>
   );
