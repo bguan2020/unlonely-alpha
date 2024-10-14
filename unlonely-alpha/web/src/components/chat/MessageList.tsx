@@ -229,8 +229,8 @@ const MessageList = memo(
           />
         ) : (
           <>
-            <Flex flexDirection="row" flex="1">
-              <Text color="white" textAlign={"center"}>
+            <Flex flexDirection="row" flex="1" justifyContent={"center"}>
+              <Text color="white">
                 {"No messages to show. Messages delete every 48 hrs."}
               </Text>
             </Flex>

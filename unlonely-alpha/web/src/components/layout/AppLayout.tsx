@@ -55,7 +55,7 @@ const AppLayout: React.FC<Props> = ({
       background={customBgColor ?? "rgba(0, 0, 0, 0.65)"}
       overflowY={
         router.pathname === "/" && isMobile && !isStandalone
-          ? "hidden"
+          ? ["unset", "hidden", "hidden", "hidden"]
           : "unset"
       }
       h={
@@ -86,7 +86,7 @@ const AppLayout: React.FC<Props> = ({
                 }
                 overflowY={
                   router.pathname === "/" && isMobile && !isStandalone
-                    ? "hidden"
+                    ? ["unset", "hidden", "hidden", "hidden"]
                     : "unset"
                 }
               >

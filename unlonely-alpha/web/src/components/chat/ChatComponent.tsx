@@ -30,6 +30,7 @@ import {
 const ChatComponent = ({
   chat,
   tokenForTransfer,
+  customWidth,
   customHeight,
   noTabs,
   tokenGating,
@@ -37,6 +38,7 @@ const ChatComponent = ({
 }: {
   chat: ChatReturnType;
   tokenForTransfer: "vibes" | "tempToken";
+  customWidth?: string;
   customHeight?: string;
   noTabs?: boolean;
   tokenGating?: {
@@ -56,6 +58,7 @@ const ChatComponent = ({
 
   return (
     <Flex
+      width={customWidth ?? "100%"}
       height={!isStandalone ? { base: `${customHeight ?? "60vh"}` } : "100%"}
       position={"relative"}
     >

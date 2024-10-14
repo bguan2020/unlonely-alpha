@@ -1,6 +1,6 @@
 import Ably from "ably/promises";
 import { Types } from "ably";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useChannelContext } from "../context/useChannel";
 import { Message } from "../../constants/types/chat";
@@ -76,11 +76,15 @@ export function useChatChannel(fixedChatName?: string) {
     tokenBTxs;
   const toast = useToast();
 
-  const channelName =
-    fixedChatName ??
-    (chatChannel
+  const channelName = useMemo(() => {
+    return fixedChatName
+      ? `persistMessages:${fixedChatName}`
+      : chatChannel
       ? `persistMessages:${chatChannel}`
-      : "persistMessages:chat-demo");
+      : "persistMessages:chat-demo";
+  }, [chatChannel, fixedChatName]);
+
+  console.log("ablyChannelName", channelName);
 
   const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
   const [allMessages, setAllMessages] = useState<Message[]>([]);

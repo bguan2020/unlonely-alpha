@@ -11,25 +11,41 @@ export const HomePageBooEventTokenCountdown = ({
     <Flex
       alignItems="center"
       justifyContent={"space-between"}
-      h="15vh"
-      py="20px"
+      h={["85px", "115px", "115px", "115px"]}
+      py="10px"
       px="5vw"
       backgroundImage="url('/svg/gradient.svg')"
       backgroundSize="cover" // Adjust as needed
       backgroundPosition="bottom" // Adjusted to show the bottom part of the image
+      gap="4px"
     >
-      <Text fontFamily={"DigitalDisplay"} fontSize="5vh" width="220px">
-        "THE FUD" STARTS IN
-      </Text>
-      <Text
-        fontFamily={"DigitalDisplay"}
-        fontSize={"7vw"}
-        color="white"
-        fontStyle={"italic"}
-        whiteSpace="nowrap" // Prevent text from wrapping
-      >
-        {getTimeFromMillis(timeLeftInMillis, true, true, true, true)}
-      </Text>
+      <Flex direction="column" width="unset !important">
+        <Text
+          fontFamily={"DigitalDisplay"}
+          fontSize={["15px", "20px", "30px", "40px"]}
+          noOfLines={1}
+        >
+          THE "FUD"
+        </Text>
+        <Text
+          fontFamily={"DigitalDisplay"}
+          fontSize={["15px", "20px", "30px", "40px"]}
+          noOfLines={1}
+        >
+          STARTS IN
+        </Text>
+      </Flex>
+      <Flex display={"inline-block"} transform={"translateX(-2%)"}>
+        <Text
+          fontFamily={"DigitalDisplay"}
+          fontSize={["35px", "50px", "70px", "100px"]}
+          color="white"
+          fontStyle={"italic"}
+          whiteSpace="nowrap" // Prevent text from wrapping
+        >
+          {getTimeFromMillis(timeLeftInMillis, true, true, true, true)}
+        </Text>
+      </Flex>
       <Button
         h="100%"
         borderRadius="0px"
@@ -42,10 +58,16 @@ export const HomePageBooEventTokenCountdown = ({
         }}
       >
         <Flex direction="column">
-          <Text fontFamily={"DigitalDisplay"} fontSize="4vh">
+          <Text
+            fontFamily={"DigitalDisplay"}
+            fontSize={["20px", "20px", "30px", "40px"]}
+          >
             NO FOMO?
           </Text>
-          <Text fontFamily={"DigitalDisplay"} fontSize="4vh">
+          <Text
+            fontFamily={"DigitalDisplay"}
+            fontSize={["20px", "20px", "30px", "40px"]}
+          >
             RSVP NOW
           </Text>
         </Flex>

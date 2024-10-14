@@ -35,7 +35,7 @@ import { Channel, GetUserQuery, Maybe, Scalars } from "../../generated/graphql";
 import { TransactionModalTemplate } from "../../components/transactions/TransactionModalTemplate";
 import { GET_USER_QUERY } from "../../constants/queries";
 import centerEllipses from "../../utils/centerEllipses";
-import { Tos } from "../../components/general/Tos";
+// import { Tos } from "../../components/general/Tos";
 import { TurnOnNotificationsModal } from "../../components/mobile/TurnOnNotificationsModal";
 import { useApolloContext } from "./useApollo";
 import { useAccount } from "wagmi";
@@ -589,7 +589,7 @@ export const UserProvider = ({
           </Text>
         </Flex>
       </TransactionModalTemplate>
-      <Tos />
+      {/* <Tos /> */}
       {children}
     </UserContext.Provider>
   );

@@ -2,7 +2,7 @@ import {
   Flex,
   Spacer,
   useBreakpointValue,
-  Text,
+  // Text,
   // Button,
   // PopoverContent,
   // Popover,
@@ -22,9 +22,9 @@ const Header: React.FC = () => {
     xl: true,
   });
 
-  const redirectToNewChannelPage = () => {
-    window.open(`${window.location.origin}/onboard`, "_self");
-  };
+  // const redirectToNewChannelPage = () => {
+  //   window.open(`${window.location.origin}/onboard`, "_self");
+  // };
 
   return (
     <Flex
@@ -52,13 +52,13 @@ const Header: React.FC = () => {
                 width={120}
                 height={120}
               />
-              <Text
+              {/* <Text
                 fontSize={"10px"}
                 className="gradient-text"
                 textAlign="center"
               >
                 your cozy space on the internet
-              </Text>
+              </Text> */}
             </Flex>
           </NextLink>
         )}

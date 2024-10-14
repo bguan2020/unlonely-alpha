@@ -10,6 +10,7 @@ import { eventStartTime } from "./BooEventWrapper";
 import { HomePageBooEventTokenCountdown } from "./HomepageBooEventCountdown";
 import { HomepageBooEventTrailer } from "./HomepageBooEventTrailer";
 import Link from "next/link";
+import Header from "../navigation/Header";
 
 export const HomePageBooEventStreamPage = () => {
   const { chat: c } = useChannelContext();
@@ -42,11 +43,18 @@ export const HomePageBooEventStreamPage = () => {
   }, []);
 
   return (
-    <Flex direction="column" height="calc(100vh - 64px)">
+    <Flex direction="column" height="100vh">
+      <Header />
       {timeLeftInMillis > 0 && (
         <HomePageBooEventTokenCountdown timeLeftInMillis={timeLeftInMillis} />
       )}
-      <Flex direction={["column", "column", "row"]} width="100%" flex="1">
+      <Flex
+        direction={["column", "column", "row"]}
+        width="100%"
+        height={
+          timeLeftInMillis > 0 ? "calc(100vh - 115px - 24px - 70px)" : "unset"
+        }
+      >
         {timeLeftInMillis > 0 ? (
           <HomepageBooEventTrailer />
         ) : (
@@ -56,7 +64,15 @@ export const HomePageBooEventStreamPage = () => {
             balanceData={{ balance, fetchTokenBalance }}
           />
         )}
-        <Flex direction="column" width={["100%", "100%", "20%"]} height="100%">
+        <Flex
+          direction="column"
+          width={
+            timeLeftInMillis > 0
+              ? ["100%", "100%", "60%"]
+              : ["100%", "100%", "20%"]
+          }
+          height="100%"
+        >
           <ChatComponent
             chat={chat}
             customHeight="100%"
@@ -83,6 +99,7 @@ export const HomePageBooEventStreamPage = () => {
         <Flex
           justifyContent={"space-between"}
           px="10px"
+          h="24px"
           backgroundImage="url('/svg/gradient.svg')"
           backgroundSize="cover" // Adjust as needed
           backgroundPosition="bottom" // Adjusted to show the bottom part of the image
