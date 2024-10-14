@@ -54,6 +54,7 @@ export const HomePageBooEventStreamPage = () => {
         height={
           timeLeftInMillis > 0 ? "calc(100vh - 115px - 24px - 70px)" : "unset"
         }
+        bg="black"
       >
         {timeLeftInMillis > 0 ? (
           <HomepageBooEventTrailer />
@@ -68,7 +69,7 @@ export const HomePageBooEventStreamPage = () => {
           direction="column"
           width={
             timeLeftInMillis > 0
-              ? ["100%", "100%", "60%"]
+              ? ["100%", "100%", "40%"]
               : ["100%", "100%", "20%"]
           }
           height="100%"
