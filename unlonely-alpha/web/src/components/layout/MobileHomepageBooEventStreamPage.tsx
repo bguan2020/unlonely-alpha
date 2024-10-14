@@ -5,12 +5,9 @@ import { getTimesFromMillis } from "../../utils/time";
 import { Flex, Text, Image } from "@chakra-ui/react";
 import NextImage from "next/image";
 import { HomepageBooEventTrailer } from "./HomepageBooEventTrailer";
-import { useScreenAnimationsContext } from "../../hooks/context/useScreenAnimations";
 
 export const MobileHomePageBooEventStreamPage = () => {
   const [dateNow, setDateNow] = useState(Date.now());
-
-  const { emojiBlast } = useScreenAnimationsContext();
 
   const timeLeftInMillis = useMemo(() => {
     const now = dateNow;
@@ -23,28 +20,6 @@ export const MobileHomePageBooEventStreamPage = () => {
       setDateNow(Date.now());
     }, 30000);
     return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    setTimeout(() => {
-      emojiBlast(
-        <Image
-          src={"https://i.imgur.com/he6L5cp.gif"}
-          display="inline"
-          verticalAlign={"middle"}
-          h="80px"
-          p="5px"
-          transform="rotate(180deg)"
-        />,
-        {
-          durationInMillis: 9000,
-          horizSpeedRange: [3, 4],
-          vertSpeedRange: [4, 9],
-          downward: true,
-          numParticles: 18,
-        }
-      );
-    }, 3000);
   }, []);
 
   return (
