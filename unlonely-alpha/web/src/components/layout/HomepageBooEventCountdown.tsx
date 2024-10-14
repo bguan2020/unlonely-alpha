@@ -24,6 +24,7 @@ export const HomePageBooEventTokenCountdown = ({
           fontFamily={"DigitalDisplay"}
           fontSize={["15px", "20px", "30px", "40px"]}
           noOfLines={1}
+          lineHeight="1.1"
         >
           THE "FUD"
         </Text>
@@ -31,6 +32,7 @@ export const HomePageBooEventTokenCountdown = ({
           fontFamily={"DigitalDisplay"}
           fontSize={["15px", "20px", "30px", "40px"]}
           noOfLines={1}
+          lineHeight="1.1"
         >
           STARTS IN
         </Text>
