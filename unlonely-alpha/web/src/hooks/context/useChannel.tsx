@@ -7,11 +7,12 @@ import {
   useState,
   useCallback,
 } from "react";
-import { ApolloError, useQuery } from "@apollo/client";
+import { ApolloError, useLazyQuery } from "@apollo/client";
 
 import { GET_GAMBLABLE_EVENT_USER_RANK_QUERY } from "../../constants/queries";
 import {
   GetGamblableEventLeaderboardByChannelIdQuery,
+  GetGamblableEventUserRankQuery,
   SharesEvent,
   SharesEventState,
 } from "../../generated/graphql";
@@ -35,7 +36,8 @@ import {
   useChannelWideModalsInitialState,
   useChannelWideModalsState,
 } from "../internal/modals/useChannelWideModalsState";
-import { isAddressEqual } from "viem";
+import { useChatBotState } from "../chat/useChatBotState";
+import { areAddressesEqual } from "../../utils/validation/wallet";
 
 export const useChannelContext = () => {
   return useContext(ChannelContext);
@@ -116,12 +118,14 @@ const ChannelContext = createContext<{
 
 export const ChannelProvider = ({
   children,
+  providedSlug,
 }: {
   children: React.ReactNode;
+  providedSlug?: string;
 }) => {
   const { network } = useNetworkContext();
   const { localNetwork } = network;
-  const { user, userAddress } = useUser();
+  const { user } = useUser();
   const router = useRouter();
   const { slug } = router.query;
 
@@ -133,8 +137,6 @@ export const ChannelProvider = ({
   >(undefined);
   const [isVip, setIsVip] = useState<boolean>(false);
 
-  const [chatBot, setChatBot] = useState<ChatBot[]>([]);
-
   const [selectedUserInChat, setSelectedUserInChat] = useState<
     SelectedUser | undefined
   >(undefined);
@@ -142,24 +144,25 @@ export const ChannelProvider = ({
   const [totalBadges, setTotalBadges] = useState<string>("0");
   const [vipPool, setVipPool] = useState<string>("0");
   const [tradeLoading, setTradeLoading] = useState<boolean>(false);
-  const channelDetails = useChannelDetails(slug);
+  const channelDetails = useChannelDetails(providedSlug ?? slug);
   const [latestBet, setLatestBet] = useState<SharesEvent | undefined>(
     undefined
   );
 
   const isOwner = useMemo(() => {
-    if (!userAddress || !channelDetails?.channelQueryData?.owner?.address)
+    if (!user?.address || !channelDetails?.channelQueryData?.owner?.address)
       return false;
-    return isAddressEqual(
-      userAddress,
-      channelDetails?.channelQueryData?.owner.address as `0x${string}`
+    return areAddressesEqual(
+      user?.address,
+      channelDetails?.channelQueryData?.owner?.address
     );
-  }, [userAddress, channelDetails?.channelQueryData?.owner.address]);
+  }, [user?.address, channelDetails?.channelQueryData?.owner?.address]);
 
   const welcomeTour = useWelcomeTourState(isOwner);
 
   const clip = useClip(channelDetails.channelQueryData);
   const channelWideModalsState = useChannelWideModalsState();
+  const { chatBot, addToChatbot } = useChatBotState();
 
   const ongoingBets = useMemo(
     () =>
@@ -170,20 +173,42 @@ export const ChannelProvider = ({
     [channelDetails.channelQueryData?.sharesEvent, localNetwork.config.chainId]
   );
 
-  const { data: userRankData } = useQuery(GET_GAMBLABLE_EVENT_USER_RANK_QUERY, {
-    variables: {
-      data: {
-        channelId: channelDetails.channelQueryData?.id,
-        userAddress: user?.address,
-        chainId: localNetwork.config.chainId,
-      },
-    },
-  });
-
-  const userRank = useMemo(
-    () => userRankData?.getGamblableEventUserRank,
-    [userRankData]
+  // const { data: userRankData } = useQuery(GET_GAMBLABLE_EVENT_USER_RANK_QUERY, {
+  //   variables: {
+  //     data: {
+  //       channelId: channelDetails.channelQueryData?.id,
+  //       userAddress: user?.address,
+  //       chainId: localNetwork.config.chainId,
+  //     },
+  //   },
+  // });
+  const [getUserRankData] = useLazyQuery<GetGamblableEventUserRankQuery>(
+    GET_GAMBLABLE_EVENT_USER_RANK_QUERY,
+    {
+      fetchPolicy: "network-only",
+    }
   );
+
+  const [userRank, setUserRank] = useState<number>(-1);
+
+  useEffect(() => {
+    const init = async () => {
+      if (router.pathname.startsWith("/channels")) {
+        const { data } = await getUserRankData({
+          variables: {
+            data: {
+              channelId: channelDetails.channelQueryData?.id,
+              userAddress: user?.address,
+              chainId: localNetwork.config.chainId,
+            },
+          },
+        });
+        const rank = data?.getGamblableEventUserRank;
+        setUserRank(rank ?? -1);
+      }
+    };
+    init();
+  }, [router.pathname]);
 
   useEffect(() => {
     if (
@@ -204,10 +229,6 @@ export const ChannelProvider = ({
     const latestBet = ongoingBets[0];
     setLatestBet(latestBet);
   }, [ongoingBets]);
-
-  const addToChatbot = useCallback((chatBotMessageToAdd: ChatBot) => {
-    setChatBot((prev) => [...prev, chatBotMessageToAdd]);
-  }, []);
 
   const handleIsVip = useCallback((value: boolean) => {
     setIsVip(value);
@@ -292,7 +313,6 @@ export const ChannelProvider = ({
       ablyPresenceChannel,
       userRank,
       clip,
-      userRank,
       isVip,
       handleIsVip,
       addToChatbot,

@@ -36,17 +36,17 @@ const useUpdateUserPackageCooldownMapping = ({
 
       const mutationResult = await mutate({ variables: { data } });
 
-      if (
-        mutationResult.errors ||
-        !mutationResult.data ||
-        !mutationResult.data.updateUserPackageCooldownMapping
-      ) {
-        onError && onError(mutationResult.errors);
-        setLoading(false);
-        return;
-      }
+      const res = mutationResult?.data?.updateUserPackageCooldownMapping;
 
+      if (res) {
+        console.log("updateUserPackageCooldownMapping success");
+      } else {
+        onError && onError();
+      }
       setLoading(false);
+      return {
+        res,
+      };
     },
     [mutate, onError]
   );

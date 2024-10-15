@@ -82,6 +82,16 @@ export const typeDef = gql`
     userAddress: String!
   }
 
+  input GetDoesUserAddressMatchInput {
+    address: String!
+  }
+
+  type GetDoesUserAddressMatchResponse {
+    doesMatch: Boolean
+    user: User
+    contextUser: User
+  }
+
   input UpdateUserPackageCooldownMappingInput {
     userAddress: String!
     newPackageCooldownChanges: [PackageCooldownChange]
@@ -105,6 +115,7 @@ export const typeDef = gql`
     getUserChannelContract1155Mapping(data: GetUserInput!): JSON
     getUserPackageCooldownMapping(data: GetUserInput!): JSON
     getUserTokenHolding(data: GetUserTokenHoldingInput!): Int
+    getDoesUserAddressMatch(data: GetDoesUserAddressMatchInput!): GetDoesUserAddressMatchResponse
   }
 
   extend type Mutation {

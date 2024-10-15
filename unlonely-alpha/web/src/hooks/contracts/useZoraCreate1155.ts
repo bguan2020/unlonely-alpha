@@ -12,7 +12,7 @@ export const useZoraCreate1155 = (
   contractObject?: ContractType,
   callbacks?: WriteCallbacks
 ) => {
-  const { userAddress } = useUser();
+  const { user } = useUser();
   const { network } = useNetworkContext();
   const { localNetwork } = network;
   const publicClient = usePublicClient();
@@ -28,19 +28,19 @@ export const useZoraCreate1155 = (
   }) : undefined;
 
   const initParameters = useCallback(async () => {
-    if (!userAddress || !contractObject || !creatorClient) return;
+    if (!user?.address || !contractObject || !creatorClient) return;
     setParametersReady(false);
     const { parameters } = await creatorClient.create1155({
       contract: contractObject,
       token: {
         tokenMetadataURI: "ipfs://DUMMY/token.json",
       },
-      account: userAddress,
+      account: user?.address as `0x${string}`,
     });
     // Cast the parameters to the expected type
     setParameters(parameters as SimulateContractParameters);
     setParametersReady(true);
-  }, [userAddress, contractObject, creatorClient]);
+  }, [user?.address, contractObject, creatorClient]);
 
   useEffect(() => {
     initParameters();

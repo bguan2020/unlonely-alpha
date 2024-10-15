@@ -22,6 +22,19 @@ export const GET_USER_QUERY = gql`
   }
 `;
 
+export const GET_DOES_USER_ADDRESS_MATCH_QUERY = gql`
+query GetDoesUserAddressMatch($data: GetDoesUserAddressMatchInput!) {
+  getDoesUserAddressMatch(data: $data) {
+    user {
+      address
+    }
+    contextUser {
+      address
+    }
+    doesMatch
+  }
+}`
+
 export const GET_USER_CHANNEL_CONTRACT_1155_MAPPING_QUERY = gql`
   query GetUserChannelContract1155Mapping($data: GetUserInput!) {
     getUserChannelContract1155Mapping(data: $data)
@@ -31,6 +44,17 @@ export const GET_USER_CHANNEL_CONTRACT_1155_MAPPING_QUERY = gql`
 export const GET_USER_PACKAGE_COOLDOWN_MAPPING_QUERY = gql`
   query GetUserPackageCooldownMapping($data: GetUserInput!) {
     getUserPackageCooldownMapping(data: $data)
+  }
+`;
+
+export const GET_PACKAGES_QUERY = gql`
+  query GetPackages {
+    getPackages {
+      cooldownInSeconds
+      tokenHoldingPrice
+      packageName
+      id
+    }
   }
 `;
 
@@ -184,24 +208,6 @@ export const CHANNEL_STATIC_QUERY = gql`
         id
         userAddress
         role
-      }
-    }
-  }
-`;
-
-export const CHANNEL_INTERACTABLE_QUERY = gql`
-  query ChannelInteractable($slug: String!) {
-    getChannelBySlug(slug: $slug) {
-      sharesEvent {
-        sharesSubjectQuestion
-        sharesSubjectAddress
-        options
-        chainId
-        channelId
-        eventState
-        createdAt
-        id
-        resultIndex
       }
     }
   }

@@ -21,7 +21,7 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { OuterBorder, BorderType } from "../general/OuterBorder";
 import Participants from "../presence/Participants";
-import Chat from "./Chat";
+import { Chat } from "./Chat";
 import {
   CHANNEL_IDS_NO_VIP,
   CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS,
@@ -30,11 +30,22 @@ import {
 const ChatComponent = ({
   chat,
   tokenForTransfer,
+  customWidth,
   customHeight,
+  noTabs,
+  tokenGating,
+  noClipping,
 }: {
   chat: ChatReturnType;
   tokenForTransfer: "vibes" | "tempToken";
+  customWidth?: string;
   customHeight?: string;
+  noTabs?: boolean;
+  tokenGating?: {
+    ctaBuyTokens: () => void;
+    gateMessage: string;
+  };
+  noClipping?: boolean;
 }) => {
   const { isStandalone } = useUserAgent();
   const [selectedTab, setSelectedTab] = useState<"chat" | "vip">("chat");
@@ -47,85 +58,92 @@ const ChatComponent = ({
 
   return (
     <Flex
+      width={customWidth ?? "100%"}
       height={!isStandalone ? { base: `${customHeight ?? "60vh"}` } : "100%"}
       position={"relative"}
     >
       <OuterBorder type={BorderType.OCEAN} p={"0"}>
         <Container centerContent maxW="100%" h="100%" alignSelf="end" p="0">
-          <Flex width="100%">
-            {channelQueryData?.id &&
-              !CHANNEL_IDS_NO_VIP.includes(Number(channelQueryData?.id)) && (
-                <>
-                  <OuterBorder
-                    cursor={"pointer"}
-                    type={BorderType.OCEAN}
-                    zIndex={selectedTab === "chat" ? 4 : 2}
-                    onClick={() => setSelectedTab("chat")}
-                    noborder
-                    pb={selectedTab === "chat" ? "0px" : undefined}
-                  >
-                    <Flex
-                      bg={
-                        selectedTab === "chat"
-                          ? "#1b9d9d"
-                          : "rgba(19, 18, 37, 1)"
-                      }
-                      width="100%"
-                      justifyContent={"center"}
+          {!noTabs && (
+            <Flex width="100%">
+              {channelQueryData?.id &&
+                !CHANNEL_IDS_NO_VIP.includes(Number(channelQueryData?.id)) && (
+                  <>
+                    <OuterBorder
+                      cursor={"pointer"}
+                      type={BorderType.OCEAN}
+                      zIndex={selectedTab === "chat" ? 4 : 2}
+                      onClick={() => setSelectedTab("chat")}
+                      noborder
+                      pb={selectedTab === "chat" ? "0px" : undefined}
                     >
-                      <Text
-                        fontFamily="LoRes15"
-                        fontSize="20px"
-                        fontWeight={"bold"}
+                      <Flex
+                        bg={
+                          selectedTab === "chat"
+                            ? "#1b9d9d"
+                            : "rgba(19, 18, 37, 1)"
+                        }
+                        width="100%"
+                        justifyContent={"center"}
                       >
-                        chat
-                      </Text>
-                    </Flex>
-                  </OuterBorder>
-                  <OuterBorder
-                    cursor={"pointer"}
-                    type={BorderType.OCEAN}
-                    zIndex={selectedTab === "vip" ? 4 : 2}
-                    onClick={() => setSelectedTab("vip")}
-                    noborder
-                    pb={selectedTab === "vip" ? "0px" : undefined}
-                  >
-                    <Flex
-                      bg={
-                        selectedTab === "vip"
-                          ? "#1b9d9d"
-                          : "linear-gradient(163deg, rgba(255,255,255,1) 1%, rgba(255,227,143,1) 13%, rgba(255,213,86,1) 14%, rgba(246,190,45,1) 16%, rgba(249,163,32,1) 27%, rgba(231,143,0,1) 28%, #2e1405 30%, #603208 100%)"
-                      }
-                      width="100%"
-                      justifyContent={"center"}
-                      alignItems={"center"}
-                      gap="5px"
+                        <Text
+                          fontFamily="LoRes15"
+                          fontSize="20px"
+                          fontWeight={"bold"}
+                        >
+                          chat
+                        </Text>
+                      </Flex>
+                    </OuterBorder>
+                    <OuterBorder
+                      cursor={"pointer"}
+                      type={BorderType.OCEAN}
+                      zIndex={selectedTab === "vip" ? 4 : 2}
+                      onClick={() => setSelectedTab("vip")}
+                      noborder
+                      pb={selectedTab === "vip" ? "0px" : undefined}
                     >
-                      <Text
-                        fontFamily="LoRes15"
-                        fontSize="20px"
-                        fontWeight={"bold"}
+                      <Flex
+                        bg={
+                          selectedTab === "vip"
+                            ? "#1b9d9d"
+                            : "linear-gradient(163deg, rgba(255,255,255,1) 1%, rgba(255,227,143,1) 13%, rgba(255,213,86,1) 14%, rgba(246,190,45,1) 16%, rgba(249,163,32,1) 27%, rgba(231,143,0,1) 28%, #2e1405 30%, #603208 100%)"
+                        }
+                        width="100%"
+                        justifyContent={"center"}
+                        alignItems={"center"}
+                        gap="5px"
                       >
-                        vip
-                      </Text>
-                      <Tooltip
-                        label="buy a vip badge to get access to the VIP chat!"
-                        shouldWrapChildren
-                      >
-                        <Image src="/svg/info.svg" width="16px" height="16px" />
-                      </Tooltip>
-                    </Flex>
-                  </OuterBorder>
-                </>
-              )}
-          </Flex>
+                        <Text
+                          fontFamily="LoRes15"
+                          fontSize="20px"
+                          fontWeight={"bold"}
+                        >
+                          vip
+                        </Text>
+                        <Tooltip
+                          label="buy a vip badge to get access to the VIP chat!"
+                          shouldWrapChildren
+                        >
+                          <Image
+                            src="/svg/info.svg"
+                            width="16px"
+                            height="16px"
+                          />
+                        </Tooltip>
+                      </Flex>
+                    </OuterBorder>
+                  </>
+                )}
+            </Flex>
+          )}
           <OuterBorder
             type={BorderType.OCEAN}
             width={"100%"}
             zIndex={3}
             alignSelf="flex-end"
             noborder
-            pt="0px"
+            pt={!noTabs ? "0px" : undefined}
           >
             <Flex bg="rgba(24, 22, 47, 1)" width={"100%"} direction="column">
               <Flex position="relative" justifyContent={"center"}>
@@ -249,13 +267,20 @@ const ChatComponent = ({
                 )}
               </Flex>
               {selectedTab === "chat" && (
-                <Chat chat={chat} tokenForTransfer={tokenForTransfer} />
+                <Chat
+                  chat={chat}
+                  tokenForTransfer={tokenForTransfer}
+                  tokenGating={tokenGating}
+                  noClipping={noClipping}
+                />
               )}
               {selectedTab === "vip" && (
                 <Chat
                   chat={chat}
                   tokenForTransfer={tokenForTransfer}
                   isVipChat
+                  tokenGating={tokenGating}
+                  noClipping={noClipping}
                 />
               )}
             </Flex>

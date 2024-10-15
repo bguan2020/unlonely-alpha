@@ -5,7 +5,6 @@ import { useEffect } from "react";
 import { ChannelStaticQuery } from "../../../generated/graphql";
 import { useChat } from "../../../hooks/chat/useChat";
 import { useChannelContext } from "../../../hooks/context/useChannel";
-import { useUser } from "../../../hooks/context/useUser";
 import { streamerTourSteps } from "../../../pages/_app";
 import ChatComponent from "../../chat/ChatComponent";
 import VibesTokenInterface from "../vibes/VibesTokenInterface";
@@ -32,14 +31,13 @@ export const DesktopPage = ({
   channelSSRDataLoading: boolean;
   channelSSRDataError?: ApolloError;
 }) => {
-  const { walletIsConnected } = useUser();
-  const { channel, ui } = useChannelContext();
-  const chat = useChat();
+  const { channel, ui, chat: c } = useChannelContext();
+  const chat = useChat({ chatBot: c.chatBot });
   const {
-    loading: channelDataLoading,
     error: channelDataError,
     handleChannelStaticData,
     isOwner,
+    channelQueryData,
   } = channel;
   const {
     welcomeStreamerModal,
@@ -50,7 +48,10 @@ export const DesktopPage = ({
   } = ui;
   const toast = useToast();
   const { livepeerData, playbackInfo, checkedForLivepeerPlaybackInfo } =
-    useLivepeerStreamData();
+    useLivepeerStreamData({
+      livepeerStreamId: channelQueryData?.livepeerStreamId ?? undefined,
+      livepeerPlaybackId: channelQueryData?.livepeerPlaybackId ?? undefined,
+    });
   useVipBadgeUi(chat);
 
   useEffect(() => {
@@ -142,10 +143,7 @@ export const DesktopPage = ({
         description={channelSSR?.description}
         isCustomHeader={true}
       >
-        {!channelDataLoading &&
-        !channelDataError &&
-        !channelSSRDataError &&
-        !channelSSRDataLoading ? (
+        {!channelDataError && !channelSSRDataError && !channelSSRDataLoading ? (
           <>
             <Stack
               mx={[0, 8, 4]}
@@ -154,7 +152,7 @@ export const DesktopPage = ({
               direction={["column", "column", "row", "row"]}
             >
               <Stack direction="column" width={"100%"}>
-                {isOwner && walletIsConnected ? (
+                {isOwner ? (
                   <>
                     <ChannelWideModals ablyChannel={chat.channel} />
                     {checkedForLivepeerPlaybackInfo && (

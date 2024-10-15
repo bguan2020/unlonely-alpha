@@ -22,6 +22,8 @@ import {
 } from "../internal/useGetClaimBetEvents";
 import useUserAgent from "../internal/useUserAgent";
 
+const pathnamesAcceptedForFetchingChannelFeed = ["/claim"];
+
 export const useCacheContext = () => {
   return useContext(CacheContext);
 };
@@ -53,7 +55,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const [appErrors, setAppErrors] = useState<SourcedError[]>([]);
   const toast = useToast();
 
-  const { walletIsConnected } = useUser();
+  const { wagmiAddress } = useUser();
   const { isStandalone } = useUserAgent();
   const toastIdRef = useRef<ToastId | undefined>();
 
@@ -94,16 +96,25 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const getChannelFeedData = async () => {
-      const pathnameAccepted =
-        router.pathname.startsWith("/claim") || router.pathname === "/";
+      if (!dataChannels && isStandalone) {
+        getChannelFeed();
+        return;
+      }
+      let pathnameAccepted = false;
+      for (const pathname of pathnamesAcceptedForFetchingChannelFeed) {
+        if (router.pathname.startsWith(pathname)) {
+          pathnameAccepted = true;
+          break;
+        }
+      }
       if (!dataChannels && pathnameAccepted) getChannelFeed();
     };
     getChannelFeedData();
-  }, [router]);
+  }, [router, isStandalone]);
 
   useEffect(() => {
     if (
-      walletIsConnected &&
+      wagmiAddress &&
       appErrors.filter((err) => err.name?.includes("ConnectorNotFoundError"))
         .length > 0 &&
       !toast.isActive("no-connector") &&
@@ -141,7 +152,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
         toast.close(toastIdRef.current);
       }
     }
-  }, [appErrors, walletIsConnected]);
+  }, [appErrors, wagmiAddress]);
 
   const value = useMemo(() => {
     return {

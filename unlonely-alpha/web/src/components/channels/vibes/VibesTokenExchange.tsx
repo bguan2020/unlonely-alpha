@@ -21,6 +21,7 @@ import {
   Contract,
   DEFAULT_TOKEN_TRADE_AMOUNT,
   InteractionType,
+  NULL_ADDRESS,
 } from "../../../constants";
 import {
   useGetMintCostAfterFees,
@@ -59,7 +60,7 @@ export const burnErrors: { [key: string]: string } = {
 
 const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   const { isStandalone } = useUserAgent();
-  const { walletIsConnected, userAddress, user } = useUser();
+  const { wagmiAddress, user } = useUser();
   const { vibesTokenTxs, userVibesBalance } = useVibesContext();
   const toast = useToast();
   const { network } = useNetworkContext();
@@ -91,7 +92,9 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   } = useGetMintCostAfterFees(amount_votes_bigint, contract);
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
-    address: userAddress as `0x${string}`,
+    address: isAddress(user?.address as `0x${string}`)
+      ? (user?.address as `0x${string}`)
+      : NULL_ADDRESS,
   });
 
   const { protocolFeeDestination, refetch: refetchDest } =
@@ -182,10 +185,13 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
           } bought ${Number(args.amount as bigint)} $VIBES!`;
           addToChatbot({
             username: user?.username ?? "",
-            address: userAddress ?? "",
+            address: user?.address ?? "",
             taskType: InteractionType.BUY_VIBES,
             title,
-            description: `${userAddress}:${Number(args.amount as bigint)}`,
+            description: JSON.stringify({
+              userAddress: user?.address ?? "",
+              amount: Number(args.amount as bigint),
+            }),
           });
         }
         canAddToChatbot_mint.current = false;
@@ -295,10 +301,13 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         } sold ${Number(args.amount as bigint)} $VIBES!`;
         addToChatbot({
           username: user?.username ?? "",
-          address: userAddress ?? "",
+          address: user?.address ?? "",
           taskType: InteractionType.SELL_VIBES,
           title,
-          description: `${userAddress}:${Number(args.amount as bigint)}`,
+          description: JSON.stringify({
+            userAddress: user?.address ?? "",
+            amount: Number(args.amount as bigint),
+          }),
         });
         canAddToChatbot_burn.current = false;
         setAmountOfVibes(String(DEFAULT_TOKEN_TRADE_AMOUNT));
@@ -337,13 +346,12 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   };
 
   useEffect(() => {
-    console.log("vibesTokenInterface, tx length change detected");
     if (
       vibesTokenTxs.length === 0 ||
       isFetching.current ||
       !contract.address ||
-      !userAddress ||
-      !walletIsConnected
+      !user?.address ||
+      !wagmiAddress
     )
       return;
     const fetch = async () => {

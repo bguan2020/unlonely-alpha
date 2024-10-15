@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, Flex, Image, Button } from "@chakra-ui/react";
-import { TbShare2 } from "react-icons/tb";
+import { FaShareAltSquare } from "react-icons/fa";
 
 interface Props {
   closePrompt: () => void;
@@ -17,7 +17,7 @@ export default function AddToIosSafari(props: Props) {
           add to home screen
         </Text>
         <Flex alignItems={"center"} gap="5px" color="black">
-          <p>1. click </p> <TbShare2 />
+          <p>1. click </p> <FaShareAltSquare />
         </Flex>
         <Flex direction="column" justifyContent={"center"}>
           <Text textAlign={"center"} color="black">

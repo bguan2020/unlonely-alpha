@@ -2,17 +2,17 @@ import {
   Flex,
   Spacer,
   useBreakpointValue,
-  Text,
-  Button,
-  PopoverContent,
-  Popover,
-  PopoverTrigger,
-  PopoverArrow,
+  // Text,
+  // Button,
+  // PopoverContent,
+  // Popover,
+  // PopoverTrigger,
+  // PopoverArrow,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import NextImage from "next/image";
 
-import ConnectWallet from "./ConnectWallet";
+import { ConnectWallet } from "./ConnectWallet";
 
 const Header: React.FC = () => {
   const logo = useBreakpointValue({
@@ -22,9 +22,9 @@ const Header: React.FC = () => {
     xl: true,
   });
 
-  const redirectToNewChannelPage = () => {
-    window.open(`${window.location.origin}/onboard`, "_self");
-  };
+  // const redirectToNewChannelPage = () => {
+  //   window.open(`${window.location.origin}/onboard`, "_self");
+  // };
 
   return (
     <Flex
@@ -52,13 +52,13 @@ const Header: React.FC = () => {
                 width={120}
                 height={120}
               />
-              <Text
+              {/* <Text
                 fontSize={"10px"}
                 className="gradient-text"
                 textAlign="center"
               >
                 your cozy space on the internet
-              </Text>
+              </Text> */}
             </Flex>
           </NextLink>
         )}
@@ -70,7 +70,7 @@ const Header: React.FC = () => {
             margin="auto"
             width="100%"
           >
-            <Popover trigger="hover" placement="left" openDelay={300}>
+            {/* <Popover trigger="hover" placement="left" openDelay={300}>
               <PopoverTrigger>
                 <Button
                   border="1px solid white"
@@ -94,7 +94,7 @@ const Header: React.FC = () => {
                   create new channel
                 </Text>
               </PopoverContent>
-            </Popover>
+            </Popover> */}
             <ConnectWallet />
           </Flex>
         </Spacer>

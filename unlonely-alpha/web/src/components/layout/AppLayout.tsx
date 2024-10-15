@@ -14,7 +14,7 @@ import NextHead from "./NextHead";
 import Header from "../navigation/Header";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { Navbar } from "../mobile/Navbar";
-import AddToHomeScreen from "../general/mobile-prompts/AddToHomeScreen";
+// import AddToHomeScreen from "../general/mobile-prompts/AddToHomeScreen";
 
 type Props = {
   loading?: boolean;
@@ -40,7 +40,7 @@ const AppLayout: React.FC<Props> = ({
   noHeader,
   customBgColor,
 }) => {
-  const { isStandalone, ready } = useUserAgent();
+  const { isStandalone, ready, isMobile } = useUserAgent();
   const router = useRouter();
 
   const smallestDevice = useBreakpointValue({
@@ -51,7 +51,19 @@ const AppLayout: React.FC<Props> = ({
   });
 
   return (
-    <Box background={customBgColor ?? "rgba(0, 0, 0, 0.65)"}>
+    <Box
+      background={customBgColor ?? "rgba(0, 0, 0, 0.65)"}
+      overflowY={
+        router.pathname === "/" && isMobile && !isStandalone
+          ? "hidden"
+          : "unset"
+      }
+      h={
+        router.pathname === "/" && isMobile && !isStandalone
+          ? "100dvh"
+          : "unset"
+      }
+    >
       {isCustomHeader === false && (
         <NextHead
           title={title ? title : ""}
@@ -65,12 +77,17 @@ const AppLayout: React.FC<Props> = ({
           {!isStandalone ? (
             <>
               {!noHeader && <Header />}
-              {!router.pathname.startsWith("/nfc") && <AddToHomeScreen />}
+              {/* {!router.pathname.startsWith("/nfc") && <AddToHomeScreen />} */}
               <Box
                 minW="100%"
                 as="main"
                 minH={
                   smallestDevice ? "calc(100vh - 25px)" : "calc(100vh - 48px)"
+                }
+                overflowY={
+                  router.pathname === "/" && isMobile && !isStandalone
+                    ? "hidden"
+                    : "unset"
                 }
               >
                 {error && (
@@ -84,6 +101,11 @@ const AppLayout: React.FC<Props> = ({
                   isLoaded={!loading}
                   overflowX="hidden"
                   pb={noHeader ? "0px" : "20px"}
+                  overflowY={
+                    router.pathname === "/" && isMobile && !isStandalone
+                      ? "hidden"
+                      : "unset"
+                  }
                 >
                   {children}
                 </Skeleton>

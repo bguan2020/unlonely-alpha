@@ -15,6 +15,7 @@ import {
   CHANNEL_IDS_NO_VIP,
   CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS,
 } from "../../constants";
+import { areAddressesEqual } from "../../utils/validation/wallet";
 
 export const TabsComponent = ({ chat }: { chat: ChatReturnType }) => {
   const { chat: chatContext, channel } = useChannelContext();
@@ -151,7 +152,11 @@ const ChatTab = ({
   const { isVip } = leaderboard;
 
   const userIsChannelOwner = useMemo(
-    () => user?.address === channelQueryData?.owner.address,
+    () =>
+      areAddressesEqual(
+        user?.address ?? "",
+        channelQueryData?.owner?.address ?? ""
+      ),
     [user, channelQueryData]
   );
 

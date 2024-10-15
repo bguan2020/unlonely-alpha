@@ -1,4 +1,5 @@
 import Ably from "ably/promises";
+import { PublicKey } from "@solana/web3.js";
 
 import { COLORS } from "../styles/Colors";
 
@@ -41,6 +42,10 @@ export enum InteractionType {
 
   PUBLISH_NFC = "publish-nfc-interaction",
   MINT_NFC_IN_CHAT = "mint-nfc-in-chat-interaction",
+
+  USE_BOO_PACKAGE = "use-boo-package-interaction",
+  SEND_BOO_TTS = "send-tts-interaction",
+  BUY_BOO = "buy-boo-interaction",
 }
 
 export enum BaseChatCommand {
@@ -78,6 +83,9 @@ export const CHANGE_CHANNEL_DETAILS_EVENT = "change-channel-details";
 export const VIBES_TOKEN_PRICE_RANGE_EVENT = "vibes-token-price-range";
 export const TOKEN_TRANSFER_EVENT = "token-transfer";
 export const PINNED_CHAT_MESSAGES_EVENT = "pinned-chat-messages";
+export const PACKAGE_PRICE_CHANGE_EVENT = "package-price-change";
+export const PACKAGE_PURCHASE_EVENT = "package-purchase";
+export const SEND_TTS_EVENT = "send-tts";
 
 export type CommandData = {
   command: string;
@@ -123,3 +131,66 @@ export const CHANNEL_IDS_NO_VIP = [4];
 export const CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS = ["loveonleverage"];
 export const UNLONELY_LOGO_IPFS_URL =
   "ipfs://QmWsm34cghYfsrrkzzRzgPEktqFXuVtYde3bv9Yup2bYhF";
+
+export const SOLANA_RPC_URL =
+  "https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf";
+export const FIXED_SOLANA_MINT = {
+  mintAddress: "8d5CdSJnxwyh2XjSWqE7HpEFSkvgoDaXwW6gTLfZm8v9",
+  tokenAccount: "3GPNYL255Zdpv4jMjq1XhiZRHDLYZ6mV3cd9q6T6ybDW",
+  poolAddress: "3Ehz9oTK2pULee65s5ftiv798mKjek9s8xdRWGMXChw7",
+  decimals: 6
+};
+
+export enum SwapMode {
+  ExactInOrOut = "ExactInOrOut",
+  ExactIn = "ExactIn",
+  ExactOut = "ExactOut",
+}
+
+export interface FormProps {
+  /** Default to `ExactInOrOut`. ExactOut can be used to get an exact output of a token (e.g. for Payments) */
+  swapMode?: SwapMode;
+  /** Initial amount to swap */
+  initialAmount?: string;
+  /** When true, user cannot change the amount (e.g. for Payments) */
+  fixedAmount?: boolean;
+  /** Initial input token to swap */
+  initialInputMint?: string;
+  /** When true, user cannot change the input token */
+  fixedInputMint?: boolean;
+  /** Initial output token to swap */
+  initialOutputMint?: string;
+  /** When true, user cannot change the output token (e.g. to buy your project's token) */
+  fixedOutputMint?: boolean;
+  /** Initial slippage to swap */
+  initialSlippageBps?: number;
+}
+
+
+export const WRAPPED_SOL_MINT = new PublicKey(
+  "So11111111111111111111111111111111111111112"
+);
+
+export interface IFormConfigurator {
+  simulateWalletPassthrough: boolean;
+  strictTokenList: boolean;
+  defaultExplorer: "Solana Explorer" | "Solscan" | "Solana Beach" | "SolanaFM";
+  formProps: FormProps;
+  useUserSlippage: boolean;
+}
+
+export const INITIAL_FORM_CONFIG: IFormConfigurator = Object.freeze({
+  simulateWalletPassthrough: false,
+  strictTokenList: true,
+  defaultExplorer: "Solana Explorer",
+  formProps: {
+    fixedInputMint: true,
+    fixedOutputMint: true,
+    swapMode: SwapMode.ExactInOrOut,
+    fixedAmount: false,
+    initialAmount: "",
+    initialInputMint: WRAPPED_SOL_MINT.toString(),
+    initialOutputMint: FIXED_SOLANA_MINT.mintAddress,
+  },
+  useUserSlippage: true,
+});

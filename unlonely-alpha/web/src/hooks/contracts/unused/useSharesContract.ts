@@ -198,7 +198,7 @@ export const useReadSharesSubject = (
   sharesSubject: `0x${string}`,
   contract: ContractData
 ) => {
-  const { userAddress } = useUser();
+  const { user } = useUser();
   const publicClient = usePublicClient();
 
   const [yaySharesSupply, setYaySharesSupply] = useState<bigint>(BigInt(0));
@@ -212,7 +212,7 @@ export const useReadSharesSubject = (
   const [userPayout, setUserPayout] = useState<bigint>(BigInt(0));
 
   const getData = useCallback(async () => {
-    if (!contract.address || !contract.abi || !publicClient || !userAddress) {
+    if (!contract.address || !contract.abi || !publicClient || !user?.address) {
       setPooledEth(BigInt(0));
       setYaySharesSupply(BigInt(0));
       setNaySharesSupply(BigInt(0));
@@ -259,7 +259,7 @@ export const useReadSharesSubject = (
         address: contract.address,
         abi: contract.abi,
         functionName: "isVerifier",
-        args: [userAddress],
+        args: [user?.address],
       }),
       publicClient.readContract({
         address: contract.address,
@@ -271,7 +271,7 @@ export const useReadSharesSubject = (
         address: contract.address,
         abi: contract.abi,
         functionName: "getPayout",
-        args: [sharesSubject, userAddress],
+        args: [sharesSubject, user?.address],
       }),
     ]);
     setPooledEth(BigInt(String(pooledEth)));
@@ -281,7 +281,7 @@ export const useReadSharesSubject = (
     setEventResult(Boolean(eventResult));
     setIsVerifier(Boolean(isVerifier));
     setUserPayout(BigInt(String(userPayout)));
-  }, [contract.address, publicClient, userAddress]);
+  }, [contract.address, publicClient, user?.address]);
 
   useEffect(() => {
     getData();

@@ -1,3 +1,5 @@
+import { InteractionType } from "..";
+
 export type EmojiType = {
   type: "unicode";
   name: string;
@@ -47,3 +49,8 @@ export type Message = {
     timeserial: string;
   };
 };
+
+export type ChatBotMessageBody = {
+  interactionType: InteractionType;
+  [key: string]: any;
+}

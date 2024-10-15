@@ -22,6 +22,8 @@ import { MessageItemProps } from "./MessageList";
 import { messageStyle } from "../../utils/messageStyle";
 import { jp } from "../../utils/validation/jsonParse";
 import { NfcClipMintInterface } from "../general/NfcClipMintInterface";
+import trailString from "../../utils/trailString";
+import { areAddressesEqual } from "../../utils/validation/wallet";
 
 type Props = MessageItemProps & {
   messageText: string;
@@ -51,7 +53,11 @@ const MessageBody = ({
   const [nfcExpanded, setNfcExpanded] = useState(false);
 
   const userIsChannelOwner = useMemo(
-    () => user?.address === channelQueryData?.owner.address,
+    () =>
+      areAddressesEqual(
+        user?.address ?? "",
+        channelQueryData?.owner?.address ?? ""
+      ),
     [user, channelQueryData]
   );
 
@@ -68,7 +74,15 @@ const MessageBody = ({
         jp(message.data.body).interactionType ===
           InteractionType.MINT_NFC_IN_CHAT)
     );
-    return false;
+  }, [message.data.body]);
+
+  const isPackageRelated = useMemo(() => {
+    return (
+      message.data.body &&
+      (jp(message.data.body).interactionType ===
+        InteractionType.USE_BOO_PACKAGE ||
+        jp(message.data.body).interactionType === InteractionType.SEND_BOO_TTS)
+    );
   }, [message.data.body]);
 
   const normalUserReceivesVipMessages = useMemo(
@@ -254,7 +268,7 @@ const MessageBody = ({
                     fontWeight="bold"
                   >
                     {message.data.username
-                      ? message.data.username
+                      ? trailString(message.data.username)
                       : centerEllipses(message.data.address, 10)}
                   </Text>
                   {message.data.username !== "🤖" ? ":" : ""}{" "}
@@ -281,6 +295,12 @@ const MessageBody = ({
                         h="40px"
                         p="5px"
                       />
+                    </>
+                  )}
+                  {isPackageRelated && message.data.body && (
+                    <>
+                      <Text as="span">{jp(message.data.body).message}</Text>
+                      <br />
                     </>
                   )}
                   {!message.data.isGif && linkArray && (

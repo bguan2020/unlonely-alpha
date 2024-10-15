@@ -26,7 +26,7 @@ export const MobileVersusTempTokensInterface = ({
 }: {
   customHeight?: string;
 }) => {
-  const { walletIsConnected, privyUser, login, connectWallet, user } =
+  const { wagmiAddress, authenticated, ready, login, connectWallet, user } =
     useUser();
   const { gameState } = useVersusTempTokenContext();
 
@@ -40,6 +40,8 @@ export const MobileVersusTempTokensInterface = ({
     handleFocusedTokenToTrade,
     isGameOngoing,
   } = gameState;
+
+  const loggedInWithPrivy = authenticated && ready;
 
   useEffect(() => {
     if (ownerMustMakeWinningTokenTradeable)
@@ -132,7 +134,7 @@ export const MobileVersusTempTokensInterface = ({
             </Stepper>
           ) : (
             <>
-              {walletIsConnected && user?.address ? (
+              {wagmiAddress && user && loggedInWithPrivy ? (
                 <MobileVersusTokenExchange />
               ) : (
                 <Flex direction="column">
@@ -146,10 +148,10 @@ export const MobileVersusTempTokensInterface = ({
                     _focus={{}}
                     _active={{}}
                     onClick={() => {
-                      privyUser ? connectWallet() : login();
+                      loggedInWithPrivy ? connectWallet() : login();
                     }}
                   >
-                    {privyUser ? "Connect" : "Sign in"}
+                    {loggedInWithPrivy ? "Connect" : "Sign in"}
                   </Button>
                 </Flex>
               )}

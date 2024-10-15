@@ -8,15 +8,23 @@ import MessageList from "./MessageList";
 import { useUser } from "../../hooks/context/useUser";
 import { VipBadgeBuy } from "../channels/vibes/VipBadgeBuy";
 import { useChatBox } from "../../hooks/chat/useChatBox";
+import { areAddressesEqual } from "../../utils/validation/wallet";
 
-const Chat = ({
+export const Chat = ({
   chat,
   tokenForTransfer,
   isVipChat,
+  tokenGating,
+  noClipping,
 }: {
   chat: ChatReturnType;
   tokenForTransfer: "vibes" | "tempToken";
   isVipChat?: boolean;
+  tokenGating?: {
+    ctaBuyTokens: () => void;
+    gateMessage: string;
+  };
+  noClipping?: boolean;
 }) => {
   const { channel, leaderboard } = useChannelContext();
   const { channelQueryData, channelRoles } = channel;
@@ -24,7 +32,11 @@ const Chat = ({
   const { user } = useUser();
 
   const userIsChannelOwner = useMemo(
-    () => user?.address === channelQueryData?.owner.address,
+    () =>
+      areAddressesEqual(
+        user?.address ?? "",
+        channelQueryData?.owner?.address ?? ""
+      ),
     [user, channelQueryData]
   );
 
@@ -119,11 +131,11 @@ const Chat = ({
             allowPopout
             channel={chat.channel}
             isVipChat={isVipChat}
+            tokenGating={tokenGating}
+            noClipping={noClipping}
           />
         </Flex>
       )}
     </Flex>
   );
 };
-
-export default Chat;

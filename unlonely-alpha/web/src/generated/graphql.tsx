@@ -350,6 +350,17 @@ export type GetDeviceByTokenInput = {
   token: Scalars["String"];
 };
 
+export type GetDoesUserAddressMatchInput = {
+  address: Scalars["String"];
+};
+
+export type GetDoesUserAddressMatchResponse = {
+  __typename?: "GetDoesUserAddressMatchResponse";
+  contextUser?: Maybe<User>;
+  doesMatch?: Maybe<Scalars["Boolean"]>;
+  user?: Maybe<User>;
+};
+
 export type GetGamblableEventLeaderboardByChannelIdInput = {
   chainId: Scalars["Int"];
   channelId: Scalars["ID"];
@@ -1079,6 +1090,7 @@ export type Query = {
   getChannelsByNumberOfBadgeHolders: Array<Maybe<NumberOfHolders>>;
   getChannelsByOwnerAddress?: Maybe<Array<Maybe<Channel>>>;
   getDeviceByToken?: Maybe<DeviceToken>;
+  getDoesUserAddressMatch?: Maybe<GetDoesUserAddressMatchResponse>;
   getGamblableEventLeaderboardByChannelId: Array<GamblableEventLeaderboard>;
   getGamblableEventUserRank: Scalars["Int"];
   getLeaderboard?: Maybe<Array<Maybe<User>>>;
@@ -1162,6 +1174,10 @@ export type QueryGetChannelsByOwnerAddressArgs = {
 
 export type QueryGetDeviceByTokenArgs = {
   data: GetDeviceByTokenInput;
+};
+
+export type QueryGetDoesUserAddressMatchArgs = {
+  data: GetDoesUserAddressMatchInput;
 };
 
 export type QueryGetGamblableEventLeaderboardByChannelIdArgs = {
@@ -1737,6 +1753,20 @@ export type GetUserQuery = {
   } | null;
 };
 
+export type GetDoesUserAddressMatchQueryVariables = Exact<{
+  data: GetDoesUserAddressMatchInput;
+}>;
+
+export type GetDoesUserAddressMatchQuery = {
+  __typename?: "Query";
+  getDoesUserAddressMatch?: {
+    __typename?: "GetDoesUserAddressMatchResponse";
+    doesMatch?: boolean | null;
+    user?: { __typename?: "User"; address: string } | null;
+    contextUser?: { __typename?: "User"; address: string } | null;
+  } | null;
+};
+
 export type GetUserChannelContract1155MappingQueryVariables = Exact<{
   data: GetUserInput;
 }>;
@@ -1753,6 +1783,19 @@ export type GetUserPackageCooldownMappingQueryVariables = Exact<{
 export type GetUserPackageCooldownMappingQuery = {
   __typename?: "Query";
   getUserPackageCooldownMapping?: any | null;
+};
+
+export type GetPackagesQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetPackagesQuery = {
+  __typename?: "Query";
+  getPackages: Array<{
+    __typename?: "Package";
+    cooldownInSeconds: number;
+    tokenHoldingPrice?: string | null;
+    packageName: string;
+    id: string;
+  }>;
 };
 
 export type GetLivepeerClipDataQueryVariables = Exact<{
@@ -1939,29 +1982,6 @@ export type ChannelStaticQuery = {
       id: number;
       userAddress: string;
       role: number;
-    } | null> | null;
-  } | null;
-};
-
-export type ChannelInteractableQueryVariables = Exact<{
-  slug: Scalars["String"];
-}>;
-
-export type ChannelInteractableQuery = {
-  __typename?: "Query";
-  getChannelBySlug?: {
-    __typename?: "Channel";
-    sharesEvent?: Array<{
-      __typename?: "SharesEvent";
-      sharesSubjectQuestion?: string | null;
-      sharesSubjectAddress?: string | null;
-      options?: Array<string | null> | null;
-      chainId?: number | null;
-      channelId?: string | null;
-      eventState?: SharesEventState | null;
-      createdAt: any;
-      id: string;
-      resultIndex?: number | null;
     } | null> | null;
   } | null;
 };
@@ -2702,6 +2722,23 @@ export type UpdateSharesEventMutation = {
   updateSharesEvent?: { __typename?: "Channel"; id: string } | null;
 };
 
+export type UpdateStreamInteractionMutationVariables = Exact<{
+  data: UpdateStreamInteractionInput;
+}>;
+
+export type UpdateStreamInteractionMutation = {
+  __typename?: "Mutation";
+  updateStreamInteraction?: {
+    __typename?: "StreamInteraction";
+    softDelete: boolean;
+    updatedAt: any;
+    createdAt: any;
+    text?: string | null;
+    interactionType: string;
+    id: string;
+  } | null;
+};
+
 export type UpdateUserChannelContract1155MappingMutationVariables = Exact<{
   data: UpdateUserChannelContract1155MappingInput;
 }>;
@@ -3013,6 +3050,21 @@ export type UpdateNfcMutation = {
   updateNFC?: { __typename?: "NFC"; id: string } | null;
 };
 
+export type UpdatePackageMutationVariables = Exact<{
+  data: UpdatePackageInput;
+}>;
+
+export type UpdatePackageMutation = {
+  __typename?: "Mutation";
+  updatePackage: {
+    __typename?: "Package";
+    cooldownInSeconds: number;
+    tokenHoldingPrice?: string | null;
+    packageName: string;
+    id: string;
+  };
+};
+
 export type UpdateUserMutationVariables = Exact<{
   data: UpdateUserInput;
 }>;
@@ -3045,6 +3097,19 @@ export type UpdateUserNotificationsMutation = {
     notificationsTokens?: string | null;
     notificationsLive?: boolean | null;
     notificationsNFCs?: boolean | null;
+  } | null;
+};
+
+export type UpdateUsernameMutationVariables = Exact<{
+  data: UpdateUsernameInput;
+}>;
+
+export type UpdateUsernameMutation = {
+  __typename?: "Mutation";
+  updateUsername?: {
+    __typename?: "User";
+    username?: string | null;
+    address: string;
   } | null;
 };
 
@@ -3128,36 +3193,6 @@ export type FetchCurrentUserQuery = {
   } | null;
 };
 
-export type UpdateStreamInteractionMutationVariables = Exact<{
-  data: UpdateStreamInteractionInput;
-}>;
-
-export type UpdateStreamInteractionMutation = {
-  __typename?: "Mutation";
-  updateStreamInteraction?: {
-    __typename?: "StreamInteraction";
-    softDelete: boolean;
-    updatedAt: any;
-    createdAt: any;
-    text?: string | null;
-    interactionType: string;
-    id: string;
-  } | null;
-};
-
-export type UpdateUsernameMutationVariables = Exact<{
-  data: UpdateUsernameInput;
-}>;
-
-export type UpdateUsernameMutation = {
-  __typename?: "Mutation";
-  updateUsername?: {
-    __typename?: "User";
-    username?: string | null;
-    address: string;
-  } | null;
-};
-
 export const GetUserDocument = gql`
   query GetUser($data: GetUserInput!) {
     getUser(data: $data) {
@@ -3219,6 +3254,70 @@ export type GetUserLazyQueryHookResult = ReturnType<typeof useGetUserLazyQuery>;
 export type GetUserQueryResult = Apollo.QueryResult<
   GetUserQuery,
   GetUserQueryVariables
+>;
+export const GetDoesUserAddressMatchDocument = gql`
+  query GetDoesUserAddressMatch($data: GetDoesUserAddressMatchInput!) {
+    getDoesUserAddressMatch(data: $data) {
+      user {
+        address
+      }
+      contextUser {
+        address
+      }
+      doesMatch
+    }
+  }
+`;
+
+/**
+ * __useGetDoesUserAddressMatchQuery__
+ *
+ * To run a query within a React component, call `useGetDoesUserAddressMatchQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetDoesUserAddressMatchQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetDoesUserAddressMatchQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useGetDoesUserAddressMatchQuery(
+  baseOptions: Apollo.QueryHookOptions<
+    GetDoesUserAddressMatchQuery,
+    GetDoesUserAddressMatchQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<
+    GetDoesUserAddressMatchQuery,
+    GetDoesUserAddressMatchQueryVariables
+  >(GetDoesUserAddressMatchDocument, options);
+}
+export function useGetDoesUserAddressMatchLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetDoesUserAddressMatchQuery,
+    GetDoesUserAddressMatchQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<
+    GetDoesUserAddressMatchQuery,
+    GetDoesUserAddressMatchQueryVariables
+  >(GetDoesUserAddressMatchDocument, options);
+}
+export type GetDoesUserAddressMatchQueryHookResult = ReturnType<
+  typeof useGetDoesUserAddressMatchQuery
+>;
+export type GetDoesUserAddressMatchLazyQueryHookResult = ReturnType<
+  typeof useGetDoesUserAddressMatchLazyQuery
+>;
+export type GetDoesUserAddressMatchQueryResult = Apollo.QueryResult<
+  GetDoesUserAddressMatchQuery,
+  GetDoesUserAddressMatchQueryVariables
 >;
 export const GetUserChannelContract1155MappingDocument = gql`
   query GetUserChannelContract1155Mapping($data: GetUserInput!) {
@@ -3331,6 +3430,64 @@ export type GetUserPackageCooldownMappingLazyQueryHookResult = ReturnType<
 export type GetUserPackageCooldownMappingQueryResult = Apollo.QueryResult<
   GetUserPackageCooldownMappingQuery,
   GetUserPackageCooldownMappingQueryVariables
+>;
+export const GetPackagesDocument = gql`
+  query GetPackages {
+    getPackages {
+      cooldownInSeconds
+      tokenHoldingPrice
+      packageName
+      id
+    }
+  }
+`;
+
+/**
+ * __useGetPackagesQuery__
+ *
+ * To run a query within a React component, call `useGetPackagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPackagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPackagesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPackagesQuery(
+  baseOptions?: Apollo.QueryHookOptions<
+    GetPackagesQuery,
+    GetPackagesQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetPackagesQuery, GetPackagesQueryVariables>(
+    GetPackagesDocument,
+    options
+  );
+}
+export function useGetPackagesLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetPackagesQuery,
+    GetPackagesQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetPackagesQuery, GetPackagesQueryVariables>(
+    GetPackagesDocument,
+    options
+  );
+}
+export type GetPackagesQueryHookResult = ReturnType<typeof useGetPackagesQuery>;
+export type GetPackagesLazyQueryHookResult = ReturnType<
+  typeof useGetPackagesLazyQuery
+>;
+export type GetPackagesQueryResult = Apollo.QueryResult<
+  GetPackagesQuery,
+  GetPackagesQueryVariables
 >;
 export const GetLivepeerClipDataDocument = gql`
   query GetLivepeerClipData($data: GetLivepeerClipDataInput) {
@@ -3885,74 +4042,6 @@ export type ChannelStaticLazyQueryHookResult = ReturnType<
 export type ChannelStaticQueryResult = Apollo.QueryResult<
   ChannelStaticQuery,
   ChannelStaticQueryVariables
->;
-export const ChannelInteractableDocument = gql`
-  query ChannelInteractable($slug: String!) {
-    getChannelBySlug(slug: $slug) {
-      sharesEvent {
-        sharesSubjectQuestion
-        sharesSubjectAddress
-        options
-        chainId
-        channelId
-        eventState
-        createdAt
-        id
-        resultIndex
-      }
-    }
-  }
-`;
-
-/**
- * __useChannelInteractableQuery__
- *
- * To run a query within a React component, call `useChannelInteractableQuery` and pass it any options that fit your needs.
- * When your component renders, `useChannelInteractableQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useChannelInteractableQuery({
- *   variables: {
- *      slug: // value for 'slug'
- *   },
- * });
- */
-export function useChannelInteractableQuery(
-  baseOptions: Apollo.QueryHookOptions<
-    ChannelInteractableQuery,
-    ChannelInteractableQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<
-    ChannelInteractableQuery,
-    ChannelInteractableQueryVariables
-  >(ChannelInteractableDocument, options);
-}
-export function useChannelInteractableLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<
-    ChannelInteractableQuery,
-    ChannelInteractableQueryVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<
-    ChannelInteractableQuery,
-    ChannelInteractableQueryVariables
-  >(ChannelInteractableDocument, options);
-}
-export type ChannelInteractableQueryHookResult = ReturnType<
-  typeof useChannelInteractableQuery
->;
-export type ChannelInteractableLazyQueryHookResult = ReturnType<
-  typeof useChannelInteractableLazyQuery
->;
-export type ChannelInteractableQueryResult = Apollo.QueryResult<
-  ChannelInteractableQuery,
-  ChannelInteractableQueryVariables
 >;
 export const GetTokenHoldersByChannelDocument = gql`
   query GetTokenHoldersByChannel($data: GetTokenHoldersInput) {
@@ -6548,6 +6637,61 @@ export type UpdateSharesEventMutationOptions = Apollo.BaseMutationOptions<
   UpdateSharesEventMutation,
   UpdateSharesEventMutationVariables
 >;
+export const UpdateStreamInteractionDocument = gql`
+  mutation UpdateStreamInteraction($data: UpdateStreamInteractionInput!) {
+    updateStreamInteraction(data: $data) {
+      softDelete
+      updatedAt
+      createdAt
+      text
+      interactionType
+      id
+    }
+  }
+`;
+export type UpdateStreamInteractionMutationFn = Apollo.MutationFunction<
+  UpdateStreamInteractionMutation,
+  UpdateStreamInteractionMutationVariables
+>;
+
+/**
+ * __useUpdateStreamInteractionMutation__
+ *
+ * To run a mutation, you first call `useUpdateStreamInteractionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateStreamInteractionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateStreamInteractionMutation, { data, loading, error }] = useUpdateStreamInteractionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateStreamInteractionMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateStreamInteractionMutation,
+    UpdateStreamInteractionMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateStreamInteractionMutation,
+    UpdateStreamInteractionMutationVariables
+  >(UpdateStreamInteractionDocument, options);
+}
+export type UpdateStreamInteractionMutationHookResult = ReturnType<
+  typeof useUpdateStreamInteractionMutation
+>;
+export type UpdateStreamInteractionMutationResult =
+  Apollo.MutationResult<UpdateStreamInteractionMutation>;
+export type UpdateStreamInteractionMutationOptions = Apollo.BaseMutationOptions<
+  UpdateStreamInteractionMutation,
+  UpdateStreamInteractionMutationVariables
+>;
 export const UpdateUserChannelContract1155MappingDocument = gql`
   mutation UpdateUserChannelContract1155Mapping(
     $data: UpdateUserChannelContract1155MappingInput!
@@ -7813,6 +7957,59 @@ export type UpdateNfcMutationOptions = Apollo.BaseMutationOptions<
   UpdateNfcMutation,
   UpdateNfcMutationVariables
 >;
+export const UpdatePackageDocument = gql`
+  mutation UpdatePackage($data: UpdatePackageInput!) {
+    updatePackage(data: $data) {
+      cooldownInSeconds
+      tokenHoldingPrice
+      packageName
+      id
+    }
+  }
+`;
+export type UpdatePackageMutationFn = Apollo.MutationFunction<
+  UpdatePackageMutation,
+  UpdatePackageMutationVariables
+>;
+
+/**
+ * __useUpdatePackageMutation__
+ *
+ * To run a mutation, you first call `useUpdatePackageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePackageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePackageMutation, { data, loading, error }] = useUpdatePackageMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdatePackageMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdatePackageMutation,
+    UpdatePackageMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdatePackageMutation,
+    UpdatePackageMutationVariables
+  >(UpdatePackageDocument, options);
+}
+export type UpdatePackageMutationHookResult = ReturnType<
+  typeof useUpdatePackageMutation
+>;
+export type UpdatePackageMutationResult =
+  Apollo.MutationResult<UpdatePackageMutation>;
+export type UpdatePackageMutationOptions = Apollo.BaseMutationOptions<
+  UpdatePackageMutation,
+  UpdatePackageMutationVariables
+>;
 export const UpdateUserDocument = gql`
   mutation UpdateUser($data: UpdateUserInput!) {
     updateUser(data: $data) {
@@ -7922,6 +8119,57 @@ export type UpdateUserNotificationsMutationResult =
 export type UpdateUserNotificationsMutationOptions = Apollo.BaseMutationOptions<
   UpdateUserNotificationsMutation,
   UpdateUserNotificationsMutationVariables
+>;
+export const UpdateUsernameDocument = gql`
+  mutation UpdateUsername($data: UpdateUsernameInput!) {
+    updateUsername(data: $data) {
+      username
+      address
+    }
+  }
+`;
+export type UpdateUsernameMutationFn = Apollo.MutationFunction<
+  UpdateUsernameMutation,
+  UpdateUsernameMutationVariables
+>;
+
+/**
+ * __useUpdateUsernameMutation__
+ *
+ * To run a mutation, you first call `useUpdateUsernameMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUsernameMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUsernameMutation, { data, loading, error }] = useUpdateUsernameMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateUsernameMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateUsernameMutation,
+    UpdateUsernameMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<
+    UpdateUsernameMutation,
+    UpdateUsernameMutationVariables
+  >(UpdateUsernameDocument, options);
+}
+export type UpdateUsernameMutationHookResult = ReturnType<
+  typeof useUpdateUsernameMutation
+>;
+export type UpdateUsernameMutationResult =
+  Apollo.MutationResult<UpdateUsernameMutation>;
+export type UpdateUsernameMutationOptions = Apollo.BaseMutationOptions<
+  UpdateUsernameMutation,
+  UpdateUsernameMutationVariables
 >;
 export const UpdateChannelFidSubscriptionDocument = gql`
   mutation UpdateChannelFidSubscription(
@@ -8224,110 +8472,4 @@ export type FetchCurrentUserLazyQueryHookResult = ReturnType<
 export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
->;
-export const UpdateStreamInteractionDocument = gql`
-  mutation UpdateStreamInteraction($data: UpdateStreamInteractionInput!) {
-    updateStreamInteraction(data: $data) {
-      softDelete
-      updatedAt
-      createdAt
-      text
-      interactionType
-      id
-    }
-  }
-`;
-export type UpdateStreamInteractionMutationFn = Apollo.MutationFunction<
-  UpdateStreamInteractionMutation,
-  UpdateStreamInteractionMutationVariables
->;
-
-/**
- * __useUpdateStreamInteractionMutation__
- *
- * To run a mutation, you first call `useUpdateStreamInteractionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateStreamInteractionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateStreamInteractionMutation, { data, loading, error }] = useUpdateStreamInteractionMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useUpdateStreamInteractionMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateStreamInteractionMutation,
-    UpdateStreamInteractionMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    UpdateStreamInteractionMutation,
-    UpdateStreamInteractionMutationVariables
-  >(UpdateStreamInteractionDocument, options);
-}
-export type UpdateStreamInteractionMutationHookResult = ReturnType<
-  typeof useUpdateStreamInteractionMutation
->;
-export type UpdateStreamInteractionMutationResult =
-  Apollo.MutationResult<UpdateStreamInteractionMutation>;
-export type UpdateStreamInteractionMutationOptions = Apollo.BaseMutationOptions<
-  UpdateStreamInteractionMutation,
-  UpdateStreamInteractionMutationVariables
->;
-export const UpdateUsernameDocument = gql`
-  mutation UpdateUsername($data: UpdateUsernameInput!) {
-    updateUsername(data: $data) {
-      username
-      address
-    }
-  }
-`;
-export type UpdateUsernameMutationFn = Apollo.MutationFunction<
-  UpdateUsernameMutation,
-  UpdateUsernameMutationVariables
->;
-
-/**
- * __useUpdateUsernameMutation__
- *
- * To run a mutation, you first call `useUpdateUsernameMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateUsernameMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateUsernameMutation, { data, loading, error }] = useUpdateUsernameMutation({
- *   variables: {
- *      data: // value for 'data'
- *   },
- * });
- */
-export function useUpdateUsernameMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    UpdateUsernameMutation,
-    UpdateUsernameMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<
-    UpdateUsernameMutation,
-    UpdateUsernameMutationVariables
-  >(UpdateUsernameDocument, options);
-}
-export type UpdateUsernameMutationHookResult = ReturnType<
-  typeof useUpdateUsernameMutation
->;
-export type UpdateUsernameMutationResult =
-  Apollo.MutationResult<UpdateUsernameMutation>;
-export type UpdateUsernameMutationOptions = Apollo.BaseMutationOptions<
-  UpdateUsernameMutation,
-  UpdateUsernameMutationVariables
 >;

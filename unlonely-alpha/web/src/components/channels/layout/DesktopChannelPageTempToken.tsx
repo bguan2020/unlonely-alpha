@@ -3,7 +3,6 @@ import { ChannelStaticQuery } from "../../../generated/graphql";
 import { useEffect, useMemo } from "react";
 import { useChat } from "../../../hooks/chat/useChat";
 import { useChannelContext } from "../../../hooks/context/useChannel";
-import { useUser } from "../../../hooks/context/useUser";
 import { useLivepeerStreamData } from "../../../hooks/internal/useLivepeerStreamData";
 import { useVipBadgeUi } from "../../../hooks/internal/useVipBadgeUi";
 import {
@@ -52,15 +51,15 @@ export const DesktopChannelPageTempToken = ({
   channelSSRDataLoading: boolean;
   channelSSRDataError?: ApolloError;
 }) => {
-  const { walletIsConnected } = useUser();
-  const { channel } = useChannelContext();
+  const { channel, chat: c } = useChannelContext();
   const {
-    loading: channelDataLoading,
     error: channelDataError,
     handleChannelStaticData,
     isOwner,
+    channelQueryData,
   } = channel;
-  const chat = useChat();
+
+  const chat = useChat({ chatBot: c.chatBot });
 
   const { tempToken } = useTempTokenContext();
 
@@ -89,7 +88,10 @@ export const DesktopChannelPageTempToken = ({
 
   const toast = useToast();
   const { livepeerData, playbackInfo, checkedForLivepeerPlaybackInfo } =
-    useLivepeerStreamData();
+    useLivepeerStreamData({
+      livepeerStreamId: channelQueryData?.livepeerStreamId ?? undefined,
+      livepeerPlaybackId: channelQueryData?.livepeerPlaybackId ?? undefined,
+    });
   // console.log("livepeerData", livepeerData);
   // console.log("playbackInfo", playbackInfo);
   // console.log("checkedForLivepeerPlaybackInfo", checkedForLivepeerPlaybackInfo);
@@ -104,18 +106,8 @@ export const DesktopChannelPageTempToken = ({
   }, [channelSSR]);
 
   const canShowInterface = useMemo(() => {
-    return (
-      !channelDataLoading &&
-      !channelDataError &&
-      !channelSSRDataError &&
-      !channelSSRDataLoading
-    );
-  }, [
-    channelDataLoading,
-    channelDataError,
-    channelSSRDataError,
-    channelSSRDataLoading,
-  ]);
+    return !channelDataError && !channelSSRDataError && !channelSSRDataLoading;
+  }, [channelDataError, channelSSRDataError, channelSSRDataLoading]);
 
   useEffect(() => {
     const init = async () => {
@@ -200,7 +192,7 @@ export const DesktopChannelPageTempToken = ({
               width="100%"
             >
               <Flex direction="column" width={"100%"} height="100%">
-                {isOwner && walletIsConnected ? (
+                {isOwner ? (
                   <>
                     <ChannelWideModals ablyChannel={chat.channel} />
                     {checkedForLivepeerPlaybackInfo && (

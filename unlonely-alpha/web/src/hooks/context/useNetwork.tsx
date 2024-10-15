@@ -17,7 +17,6 @@ import {
   Image,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { TbWorldExclamation } from "react-icons/tb";
 
 import { NETWORKS } from "../../constants/networks";
 import { Network } from "../../constants/types";
@@ -43,6 +42,10 @@ const NetworkContext = createContext<{
     explorerUrl: NETWORKS[0].blockExplorers?.default.url ?? "",
   },
 });
+
+const doesWalletClientSupportBase = (walletClientType: string) => {
+  return walletClientType !== "phantom";
+};
 
 export const NetworkProvider = ({
   children,
@@ -73,6 +76,7 @@ export const NetworkProvider = ({
       wallets[0] &&
       user?.address &&
       wallets[0]?.chainId?.split(":")[1] &&
+      doesWalletClientSupportBase(wallets[0]?.walletClientType) &&
       wallets[0]?.chainId?.split(":")[1] !==
         String(NETWORKS[0].config.chainId) &&
       !router.pathname.startsWith("/bridge")
@@ -88,7 +92,7 @@ export const NetworkProvider = ({
               <Flex justifyContent={"space-between"} alignItems="center">
                 <Text textAlign="center" fontSize="18px">
                   <Flex alignItems={"center"} gap="10px">
-                    <TbWorldExclamation /> wrong network
+                    wrong network
                   </Flex>
                 </Text>
                 <IconButton

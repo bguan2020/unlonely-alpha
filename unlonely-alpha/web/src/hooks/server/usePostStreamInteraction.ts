@@ -33,15 +33,17 @@ const usePostStreamInteraction = ({
       setLoading(true);
       const mutationResult = await mutate({ variables: { data } });
 
-      if (
-        mutationResult.errors ||
-        !mutationResult.data ||
-        !mutationResult.data.postStreamInteraction
-      ) {
-        onError && onError(mutationResult.errors);
-        setLoading(false);
-        return;
+      const res = mutationResult?.data?.postStreamInteraction;
+      /* eslint-disable no-console */
+      if (res) {
+        console.log("success");
+      } else {
+        onError && onError();
       }
+
+      return {
+        res,
+      };
 
       setLoading(false);
     },

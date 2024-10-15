@@ -27,12 +27,11 @@ const FullVibesChartPage = () => {
 };
 
 const FullVibesChart = () => {
-  const chat = useChat();
-
   const router = useRouter();
   const { slug } = router.query;
-  const { channel } = useChannelContext();
+  const { channel, chat: c } = useChannelContext();
   const { handleChannelStaticData } = channel;
+  const chat = useChat({ chatBot: c.chatBot });
   const {
     data: channelStatic,
     error: channelStaticError,

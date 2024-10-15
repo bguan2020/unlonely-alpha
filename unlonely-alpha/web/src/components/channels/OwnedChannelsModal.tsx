@@ -15,7 +15,7 @@ export const OwnedChannelsModal = ({
   isOpen: boolean;
   handleClose: () => void;
 }) => {
-  const { userAddress } = useUser();
+  const { user } = useUser();
   const { isStandalone } = useUserAgent();
   const [
     getChannelsByOwnerAddress,
@@ -27,7 +27,7 @@ export const OwnedChannelsModal = ({
   ] = useLazyQuery<GetChannelsByOwnerAddressQuery>(
     GET_CHANNELS_BY_OWNER_ADDRESS_QUERY,
     {
-      variables: { ownerAddress: userAddress },
+      variables: { ownerAddress: user?.address },
       fetchPolicy: "network-only",
     }
   );

@@ -36,7 +36,7 @@ export const useSendRemainingFundsToWinnerState = (
   tokenContractData: ContractData,
   callbackOnTxSuccess?: any
 ) => {
-  const { userAddress, user } = useUser();
+  const { user } = useUser();
   const toast = useToast();
   const client = useApolloClient();
   const publicClient = usePublicClient();
@@ -152,13 +152,16 @@ export const useSendRemainingFundsToWinnerState = (
         )} token balance was sent to ${identifiedUser}!`;
         addToChatbotForTempToken({
           username: user?.username ?? "",
-          address: userAddress ?? "",
+          address: user?.address ?? "",
           taskType:
             InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION,
           title,
-          description: `${userAddress}:${winnerWallet}:${
-            tokenContractData.address
-          }:${String(balance)}`,
+          description: JSON.stringify({
+            userAddress: user?.address ?? "",
+            winnerWallet,
+            tokenContractAddress: tokenContractData.address as `0x${string}`,
+            balance: String(balance),
+          }),
         });
         setWinner("");
         callbackOnTxSuccess?.();
