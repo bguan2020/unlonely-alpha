@@ -26,7 +26,7 @@ export const HomePageBooEventTokenCountdown = ({
           noOfLines={1}
           lineHeight="1.1"
         >
-          THE "FUD"
+          "THE FUD"
         </Text>
         <Text
           fontFamily={"DigitalDisplay"}

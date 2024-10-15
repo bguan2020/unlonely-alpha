@@ -69,7 +69,7 @@ export const HomePageBooEventStreamPage = () => {
           direction="column"
           width={
             timeLeftInMillis > 0
-              ? ["100%", "100%", "40%"]
+              ? ["100%", "100%", "30%"]
               : ["100%", "100%", "20%"]
           }
           height="100%"
