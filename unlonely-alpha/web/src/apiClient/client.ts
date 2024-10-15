@@ -38,6 +38,18 @@ const authLink = setContext(async (_, { headers }) => {
   };
 });
 
+const createAuthLink = (latestVerifiedAddress: string | null) => setContext(async (_, { headers }) => {
+  const token = await getAccessToken();
+  console.log("Setting latest-verified-address header:", latestVerifiedAddress);
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : "",
+      "latest-verified-address": latestVerifiedAddress || "",
+    },
+  };
+});
+
 function createApolloClient() {
   const httpLink = new HttpLink({
     uri:
@@ -65,24 +77,17 @@ export function initializeApollo(
   latestVerifiedAddress: string | null
 ) {
   const _apolloClient = apolloClient ?? createApolloClient();
-
-  const contextLink = setContext((_, { headers }) => {
-    return {
-      headers: {
-        ...headers,
-        "latest-verified-address": latestVerifiedAddress || "",
-      },
-    };
-  });
+  console.log("latestVerifiedAddress initializeApollo", latestVerifiedAddress);
+  const authLink = createAuthLink(latestVerifiedAddress);
 
   _apolloClient.setLink(
-    contextLink.concat(authLink).concat(
+    authLink.concat(
       new HttpLink({
         uri:
           process.env.NODE_ENV === "production"
             ? server
             : "http://localhost:4000/graphql",
-        fetch: fetchWithTimeout, // Ensure custom fetch is applied here as well
+        fetch: fetchWithTimeout,
       })
     )
   );

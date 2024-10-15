@@ -45,7 +45,7 @@ const ExcessTooltipAvatar = ({ user }: { user: CustomUser }) => {
           {rankUrl && (
             <Image src={rankUrl} width="20px" height="20px" mr="5px" />
           )}
-          {user.isFCUser && (
+          {user.FCHandle && (
             <Image
               src="/images/farcaster_logo.png"
               width="20px"

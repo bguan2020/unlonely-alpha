@@ -1,4 +1,4 @@
-import { Text, Flex, Spinner } from "@chakra-ui/react";
+import { Text, Flex } from "@chakra-ui/react";
 import { PlaybackInfo } from "livepeer/models/components/playbackinfo";
 import { useMemo, useRef, useState } from "react";
 import { useChannelContext } from "../../../hooks/context/useChannel";
@@ -26,7 +26,7 @@ export const DesktopChannelViewerPerspectiveSimplified = ({
   mode: "single-temp-token" | "versus-mode" | "";
 }) => {
   const { channel } = useChannelContext();
-  const { channelQueryData, loading: channelLoading } = channel;
+  const { channelQueryData } = channel;
 
   const playbackUrl = useMemo(
     () =>
@@ -91,13 +91,9 @@ export const DesktopChannelViewerPerspectiveSimplified = ({
             bg="black"
             justifyContent={"center"}
           >
-            {channelLoading ? (
-              <Spinner />
-            ) : (
-              <Text fontFamily="LoRes15" textAlign="center" fontSize="25px">
-                missing playback url, stream cannot be reached at this time
-              </Text>
-            )}
+            <Text fontFamily="LoRes15" textAlign="center" fontSize="25px">
+              missing playback url, stream cannot be reached at this time
+            </Text>
           </Flex>
         )}
       </Flex>

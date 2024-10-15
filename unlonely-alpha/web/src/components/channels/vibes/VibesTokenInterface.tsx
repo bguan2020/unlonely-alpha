@@ -38,7 +38,7 @@ import { AblyChannelPromise } from "../../../constants";
 import VibesTokenZoneModal from "./VibesTokenZoneModal";
 import useUserAgent from "../../../hooks/internal/useUserAgent";
 import { useWindowSize } from "../../../hooks/internal/useWindowSize";
-import ConnectWallet from "../../navigation/ConnectWallet";
+import { ConnectWallet } from "../../navigation/ConnectWallet";
 import { useNetworkContext } from "../../../hooks/context/useNetwork";
 import { FaPause } from "react-icons/fa";
 import {
@@ -90,7 +90,7 @@ const VibesTokenInterface = ({
   customLoading?: boolean;
   noChannelData?: boolean;
 }) => {
-  const { walletIsConnected } = useUser();
+  const { wagmiAddress } = useUser();
   const { isStandalone } = useUserAgent();
   const { ethPriceInUsd } = useCacheContext();
   const {
@@ -626,7 +626,7 @@ const VibesTokenInterface = ({
                       </Text>
                     )}
                   </Flex>
-                  {walletIsConnected ? (
+                  {wagmiAddress ? (
                     <VibesTokenExchange isFullChart />
                   ) : (
                     <Flex direction="column">
@@ -1197,7 +1197,7 @@ const VibesTokenInterface = ({
               </Flex>
               {!isFullChart && disableExchange !== true && (
                 <>
-                  {walletIsConnected ? (
+                  {wagmiAddress ? (
                     <VibesTokenExchange />
                   ) : (
                     <Flex direction="column">

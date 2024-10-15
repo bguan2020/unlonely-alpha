@@ -28,17 +28,20 @@ export const MobilePage = ({
   channelSSRDataLoading: boolean;
   channelSSRDataError?: ApolloError;
 }) => {
-  const { channel } = useChannelContext();
+  const { channel, chat: c } = useChannelContext();
   const {
-    loading: channelDataLoading,
     error: channelDataError,
     isOwner,
     handleChannelStaticData,
+    channelQueryData,
   } = channel;
   const toast = useToast();
   const { livepeerData, playbackInfo, checkedForLivepeerPlaybackInfo } =
-    useLivepeerStreamData();
-  const chat = useChat();
+    useLivepeerStreamData({
+      livepeerStreamId: channelQueryData?.livepeerStreamId ?? undefined,
+      livepeerPlaybackId: channelQueryData?.livepeerPlaybackId ?? undefined,
+    });
+  const chat = useChat({ chatBot: c.chatBot });
   useVipBadgeUi(chat);
   useTempTokenAblyInterpreter(chat);
   useVersusTempTokenAblyInterpreter(chat);
@@ -66,10 +69,7 @@ export const MobilePage = ({
         description={channelSSR?.description}
         isCustomHeader={true}
       >
-        {!channelDataLoading &&
-        !channelDataError &&
-        !channelSSRDataError &&
-        !channelSSRDataLoading ? (
+        {!channelDataError && !channelSSRDataError && !channelSSRDataLoading ? (
           <>
             {isOwner ? (
               <>

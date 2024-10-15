@@ -24,7 +24,7 @@ export const _unicodeEmojis = {
 export const gifsList = () => {
   const today = new Date();
   const year = today.getFullYear();
-  const halloweenStart = new Date(year, 9, 23); // October is month 9 (zero-based)
+  const halloweenStart = new Date(year, 9, 1); // October is month 9 (zero-based)
   const hallowweenEnd = new Date(year, 10, 1); // November is month 10 (zero-based)
   const originalGifs = [
     "https://i.imgur.com/VXcq6We.gif", // what just happened

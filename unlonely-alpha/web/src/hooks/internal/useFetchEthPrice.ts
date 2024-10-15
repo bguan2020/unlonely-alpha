@@ -1,11 +1,18 @@
 import * as AWS from "aws-sdk";
 import { useState, useRef, useEffect } from "react";
 import { getCoingeckoTokenPrice } from "../../utils/coingecko";
+import { useRouter } from "next/router";
 
 export const useFetchEthPrice = () => {
   const [ethPriceInUsd, setEthPriceInUsd] = useState<string>("0");
   const isFetchingPrice = useRef(false);
+
+  const router = useRouter(); // Get the current route
+
+
   useEffect(() => {
+    if (router.pathname === "/") return; // Skip fetching for the root ("/") route
+
     const interval = setInterval(() => {
       const init = async () => {
         if (typeof window === "undefined" || isFetchingPrice.current) return;
@@ -70,7 +77,7 @@ export const useFetchEthPrice = () => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [router.pathname]); // Dependency array includes the current route
 
   return ethPriceInUsd;
 };

@@ -20,7 +20,7 @@ export const SingleTempTokenTimerView = ({
   const { channel, chat } = useChannelContext();
   const { isOwner } = channel;
   const { addToChatbot: addToChatbotForTempToken } = chat;
-  const { user, userAddress } = useUser();
+  const { user } = useUser();
   const { tempToken } = useTempTokenContext();
   const { gameState } = tempToken;
   const router = useRouter();
@@ -55,7 +55,7 @@ export const SingleTempTokenTimerView = ({
     if (isOwner && router.pathname.startsWith("/channels")) {
       addToChatbotForTempToken({
         username: user?.username ?? "",
-        address: userAddress ?? "",
+        address: user?.address ?? "",
         taskType: InteractionType.TEMP_TOKEN_EXPIRED,
         title: "Game finished! Token is now expired!",
         description: "",

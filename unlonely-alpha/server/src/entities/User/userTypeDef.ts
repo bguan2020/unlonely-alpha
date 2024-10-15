@@ -6,6 +6,17 @@ export const typeDef = gql`
     contract1155ChainId: Int!
   }
 
+  input PackageCooldownChange {
+    name: String!
+    lastUsedAt: String!
+    usableAt: String!
+  }
+
+  type PackageCooldownMapping {
+    lastUsedAt: String!
+    usableAt: String!
+  }
+
   type User {
     id: ID!
     address: String!
@@ -31,6 +42,7 @@ export const typeDef = gql`
     notificationsNFCs: Boolean
     channel: [Channel]
     channelContract1155Mapping: JSON
+    packageCooldownMapping: JSON
   }
 
   type UpdateUserResponse {
@@ -70,6 +82,27 @@ export const typeDef = gql`
     userAddress: String!
   }
 
+  input GetDoesUserAddressMatchInput {
+    address: String!
+  }
+
+  type GetDoesUserAddressMatchResponse {
+    doesMatch: Boolean
+    user: User
+    contextUser: User
+  }
+
+  input UpdateUserPackageCooldownMappingInput {
+    userAddress: String!
+    newPackageCooldownChanges: [PackageCooldownChange]
+    replaceExisting: Boolean!
+  }
+
+  input UpdateUsernameInput {
+    address: String!
+    username: String!
+  }
+
   extend type Query {
     currentUser: User
     currentUserAuthMessage: String
@@ -80,7 +113,9 @@ export const typeDef = gql`
     getAllUsersWithChannel: [User]
     getAllUsersWithNotificationsToken: [User]
     getUserChannelContract1155Mapping(data: GetUserInput!): JSON
+    getUserPackageCooldownMapping(data: GetUserInput!): JSON
     getUserTokenHolding(data: GetUserTokenHoldingInput!): Int
+    getDoesUserAddressMatch(data: GetDoesUserAddressMatchInput!): GetDoesUserAddressMatchResponse
   }
 
   extend type Mutation {
@@ -88,7 +123,11 @@ export const typeDef = gql`
     updateUserChannelContract1155Mapping(
       data: UpdateUserChannelContract1155MappingInput!
     ): User
+    updateUserPackageCooldownMapping(
+      data: UpdateUserPackageCooldownMappingInput!
+    ): User
     updateUser(data: UpdateUserInput!): UpdateUserResponse
+    updateUsername(data: UpdateUsernameInput!): User
     updateUsers(data: UpdateUsersInput!): [User]
   }
 `;

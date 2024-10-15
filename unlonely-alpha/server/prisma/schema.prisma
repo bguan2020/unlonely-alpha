@@ -49,6 +49,7 @@ model User {
   gamblableInteractions GamblableInteraction[]
   gamblableEventLeaderboardEntries GamblableEventLeaderboard[]
   channelContract1155Mapping Json @default("{}")
+  packageCooldownMapping Json @default("{}")
 }
 
 model Subscription {
@@ -291,6 +292,32 @@ model BaseLeaderboard {
   updatedAt DateTime @updatedAt
 }
 
+model Package {
+  id Int      @id @default(autoincrement())
+  packageName String @default("")
+  tokenHoldingPrice    String @default("0")
+  cooldownInSeconds Int @default(0)
+}
+
+
+model StreamInteraction {
+  id           Int     @id @default(autoincrement())
+
+  interactionType String
+  text String?
+
+  ownerAddr String
+  owner User @relation(fields: [ownerAddr], references: [address])
+
+
+  channelId Int
+  channel Channel @relation(fields: [channelId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  softDelete Boolean @default(false)
+}
+
 // ------- DEPRECATED MODELS -------
 // DONT DELETE
 
@@ -315,24 +342,6 @@ model CreatorToken {
   channelId Int      @unique
   users     UserCreatorToken[]
 }
-
-model StreamInteraction {
-  id           Int     @id @default(autoincrement())
-
-  interactionType String
-  text String?
-
-  ownerAddr String
-  owner User @relation(fields: [ownerAddr], references: [address])
-
-
-  channelId Int
-  channel Channel @relation(fields: [channelId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 
 enum VibesTransactionType {
   BUY

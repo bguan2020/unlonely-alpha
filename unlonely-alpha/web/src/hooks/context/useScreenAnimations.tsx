@@ -7,7 +7,10 @@ import {
   useState,
 } from "react";
 
-import { BlastRain } from "../../components/chat/emoji/BlastRain";
+import {
+  BlastRain,
+  RainAnimationConfig,
+} from "../../components/chat/emoji/BlastRain";
 
 export const useScreenAnimationsContext = () => {
   return useContext(ScreenAnimationsContext);
@@ -15,7 +18,7 @@ export const useScreenAnimationsContext = () => {
 
 type ScreenAnimationsContextType = {
   isFireworksPlaying: boolean;
-  emojiBlast: (emoji: JSX.Element) => void;
+  emojiBlast: (emoji: JSX.Element, config?: RainAnimationConfig) => void;
   fireworks: () => void;
 };
 
@@ -34,7 +37,7 @@ export const ScreenAnimationsProvider = ({
   const fireworksTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [emojiQueue, setEmojiQueue] = useState<
-    { emoji: JSX.Element; uid: string }[]
+    { emoji: JSX.Element; uid: string; config?: RainAnimationConfig }[]
   >([]);
 
   const fireworks = () => {
@@ -49,8 +52,11 @@ export const ScreenAnimationsProvider = ({
     fireworksTimerRef.current = newTimer;
   };
 
-  const emojiBlast = (emoji: JSX.Element) => {
-    setEmojiQueue((prev) => [...prev, { emoji, uid: Date.now().toString() }]);
+  const emojiBlast = (emoji: JSX.Element, config?: RainAnimationConfig) => {
+    setEmojiQueue((prev) => [
+      ...prev,
+      { emoji, uid: Date.now().toString(), config },
+    ]);
   };
 
   const removeEmoji = useCallback((uid: string) => {
@@ -59,8 +65,14 @@ export const ScreenAnimationsProvider = ({
 
   const emojiRainComponents = useMemo(
     () =>
-      emojiQueue.map(({ emoji, uid }) => (
-        <BlastRain key={uid} emoji={emoji} uid={uid} remove={removeEmoji} />
+      emojiQueue.map(({ emoji, uid, config }) => (
+        <BlastRain
+          key={uid}
+          emoji={emoji}
+          uid={uid}
+          remove={removeEmoji}
+          config={config}
+        />
       )),
     [emojiQueue, removeEmoji]
   );

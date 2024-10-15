@@ -16,11 +16,9 @@ import { BorderType, OuterBorder } from "../general/OuterBorder";
 import { getColorFromString } from "../../styles/Colors";
 import { FaPencilAlt } from "react-icons/fa";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { useUser } from "../../hooks/context/useUser";
 import { SessionsModal } from "./SessionsModal";
 
 const ChannelDesc = () => {
-  const { walletIsConnected } = useUser();
   const { isStandalone } = useUserAgent();
   const { channel, ui } = useChannelContext();
   const { channelQueryData, totalBadges, realTimeChannelDetails, isOwner } =
@@ -51,13 +49,13 @@ const ChannelDesc = () => {
             name={
               channelQueryData?.owner.username
                 ? channelQueryData?.owner.username ?? ""
-                : channelQueryData?.owner.address ?? ""
+                : channelQueryData?.owner?.address ?? ""
             }
             src={ipfsUrl}
             bg={getColorFromString(
               channelQueryData?.owner.username
                 ? channelQueryData?.owner.username ?? ""
-                : channelQueryData?.owner.address ?? ""
+                : channelQueryData?.owner?.address ?? ""
             )}
             size="md"
           />
@@ -128,7 +126,7 @@ const ChannelDesc = () => {
           >
             {realTimeChannelDetails.channelName}
           </Text>
-          {isOwner && walletIsConnected && (
+          {isOwner && (
             <IconButton
               aria-label="edit channel title"
               _focus={{}}

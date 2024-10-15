@@ -47,6 +47,13 @@ export const resolvers = {
     ) => {
       return userService.getUserChannelContract1155Mapping(data, ctx);
     },
+    getUserPackageCooldownMapping: (
+      _: any,
+      { data }: { data: userService.IGetUserInput },
+      ctx: Context
+    ) => {
+      return userService.getUserPackageCooldownMapping(data, ctx);
+    },
     getAllUsers: (_: any, _args: any, ctx: Context) => {
       return userService.getAllUsers(ctx);
     },
@@ -66,6 +73,13 @@ export const resolvers = {
     ) => {
       return userService.getUserTokenHolding(data, ctx);
     },
+    getDoesUserAddressMatch: (
+      _: any,
+      { data }: { data: userService.IGetDoesUserAddressMatchInput },
+      ctx: Context
+    ) => {
+      return userService.getDoesUserAddressMatch(data, ctx);
+    },
   },
   Mutation: {
     updateUserNotifications: (
@@ -84,11 +98,22 @@ export const resolvers = {
       { data }: { data: userService.IUpdateUserInput },
       ctx: Context
     ) => {
-      // if (!ctx.user) {
-      //   throw new AuthenticationError("Not authenticated");
-      // }
+      if (!ctx.user) {
+        throw new AuthenticationError("Not authenticated");
+      }
 
       return userService.updateUser(data, ctx);
+    },
+    updateUsername: (
+      _: any,
+      { data }: { data: userService.IUpdateUsernameInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user) {
+        throw new AuthenticationError("Not authenticated");
+      }
+
+      return userService.updateUsername(data, ctx);
     },
     updateUsers: (
       _: any,
@@ -110,5 +135,18 @@ export const resolvers = {
 
       return userService.updateUserChannelContract1155Mapping(data, ctx);
     },
+    updateUserPackageCooldownMapping: (
+      _: any,
+      {
+        data,
+      }: { data: userService.IUpdateUserPackageCooldownMappingInput },
+      ctx: Context
+    ) => {
+      if (!ctx.user) {
+        throw new AuthenticationError("Not authenticated");
+      }
+
+      return userService.updateUserPackageCooldownMapping(data, ctx);
+    }
   },
 };

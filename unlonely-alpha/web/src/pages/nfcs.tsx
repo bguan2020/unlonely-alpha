@@ -83,7 +83,7 @@ const Nfcs = () => {
           nfc?.owner.username
             ?.toLowerCase()
             .includes(filterClipper?.toLowerCase()) ||
-          nfc?.owner.address
+          nfc?.owner?.address
             .toLowerCase()
             .includes(filterClipper?.toLowerCase())
       );

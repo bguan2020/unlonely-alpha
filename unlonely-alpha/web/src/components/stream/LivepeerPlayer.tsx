@@ -23,21 +23,28 @@ import copy from "copy-to-clipboard";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useChannelContext } from "../../hooks/context/useChannel";
 
-const unacceptedErrors = ["Failed to connect to peer."];
+const unacceptedErrors = [
+  "Failed to connect to peer.",
+  "Timeout reached for canPlay - triggering playback error.",
+];
 
 const LivepeerPlayer = memo(
   ({
     src,
     isPreview,
     customSizePercentages,
+    borderRadius,
+    cannotOpenClipDrawer,
   }: {
     src: Src[] | null;
     isPreview?: boolean;
     customSizePercentages?: { width: `${number}%`; height: `${number}%` };
+    borderRadius?: string;
+    cannotOpenClipDrawer?: boolean;
   }) => {
     const { ui } = useChannelContext();
     const { showClipDrawer, handleClipDrawer } = ui;
-    const { isStandalone } = useUserAgent();
+    const { isStandalone, isMobile } = useUserAgent();
     const [opacity, setOpacity] = useState(0);
     const toast = useToast();
 
@@ -74,6 +81,7 @@ const LivepeerPlayer = memo(
           height="100%"
           backgroundColor={"black"}
           position="relative"
+          borderRadius={borderRadius}
         >
           <Flex
             style={{
@@ -96,6 +104,7 @@ const LivepeerPlayer = memo(
         position="relative"
         onTouchStart={handleOpacity} // Handle touch event
         onMouseMove={handleOpacity} // Set opacity to 1 on mouse enter
+        transition="all 0.3s"
       >
         <Player.Root
           aspectRatio={null}
@@ -118,6 +127,7 @@ const LivepeerPlayer = memo(
               backgroundColor: "black",
               width: "100%",
               height: "100%",
+              borderRadius: borderRadius,
             }}
           >
             <Player.Video
@@ -183,6 +193,7 @@ const LivepeerPlayer = memo(
                   width: "100%",
                   height: "100%",
                 }}
+                borderRadius={borderRadius}
               >
                 <Flex
                   direction="column"
@@ -193,35 +204,45 @@ const LivepeerPlayer = memo(
                 >
                   {error ? (
                     <>
-                      <Text
-                        textAlign="center"
-                        fontSize={
-                          isPreview
-                            ? ["1rem", "1rem", "2rem", "2rem"]
-                            : !isStandalone
-                            ? "3rem"
-                            : "1rem"
-                        }
-                        fontFamily={"LoRes15"}
-                      >
-                        Error detected while playing video
-                      </Text>
-                      <Text textAlign="center">
-                        {JSON.parse(error).message}
-                      </Text>
-                      <Button
-                        color="white"
-                        width="100%"
-                        bg="#b82929"
-                        onClick={() => {
-                          copy(error);
-                          handleCopy();
-                        }}
-                        _focus={{}}
-                        _hover={{ background: "#f25719" }}
-                      >
-                        copy error
-                      </Button>
+                      {isMobile || isStandalone ? (
+                        <Flex justifyContent={"center"} direction="column">
+                          <Text textAlign="center">
+                            {JSON.parse(error).message}
+                          </Text>
+                        </Flex>
+                      ) : (
+                        <>
+                          <Text
+                            textAlign="center"
+                            fontSize={
+                              isPreview
+                                ? ["1rem", "1rem", "2rem", "2rem"]
+                                : !isStandalone
+                                ? "3rem"
+                                : "1rem"
+                            }
+                            fontFamily={"LoRes15"}
+                          >
+                            Error detected while playing video
+                          </Text>
+                          <Text textAlign="center">
+                            {JSON.parse(error).message}
+                          </Text>
+                          <Button
+                            color="white"
+                            width="100%"
+                            bg="#b82929"
+                            onClick={() => {
+                              copy(error);
+                              handleCopy();
+                            }}
+                            _focus={{}}
+                            _hover={{ background: "#f25719" }}
+                          >
+                            copy error
+                          </Button>
+                        </>
+                      )}
                     </>
                   ) : (
                     <>
@@ -238,7 +259,7 @@ const LivepeerPlayer = memo(
                       >
                         stream offline
                       </Text>
-                      {!isPreview && (
+                      {!isPreview && !cannotOpenClipDrawer && (
                         <>
                           <Text textAlign="center">
                             open here to catch up on clips from recent streams
@@ -261,20 +282,6 @@ const LivepeerPlayer = memo(
                           />
                         </>
                       )}
-                      {/* <IconButton
-                        color="white"
-                        aria-label="refresh"
-                        icon={<BiRefresh size="30px" />}
-                        bg="rgb(0, 0, 0, 0.5)"
-                        onClick={() => window?.location?.reload()}
-                        _hover={{
-                          bg: "rgb(255,255,255, 0.1)",
-                        }}
-                        _focus={{}}
-                        _active={{}}
-                        borderWidth="1px"
-                        zIndex="1"
-                      /> */}
                     </>
                   )}
                 </Flex>

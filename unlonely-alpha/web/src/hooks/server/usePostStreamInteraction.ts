@@ -3,6 +3,7 @@ import { gql } from "@apollo/client";
 import { GraphQLErrors } from "@apollo/client/errors";
 
 import {
+  PostStreamInteractionInput,
   PostStreamInteractionMutation,
   PostStreamInteractionMutationVariables,
 } from "../../generated/graphql";
@@ -28,19 +29,21 @@ const usePostStreamInteraction = ({
   >(POST_STREAM_INTERACTION_MUTATION);
 
   const postStreamInteraction = useCallback(
-    async (data) => {
+    async (data: PostStreamInteractionInput) => {
       setLoading(true);
       const mutationResult = await mutate({ variables: { data } });
 
-      if (
-        mutationResult.errors ||
-        !mutationResult.data ||
-        !mutationResult.data.postStreamInteraction
-      ) {
-        onError && onError(mutationResult.errors);
-        setLoading(false);
-        return;
+      const res = mutationResult?.data?.postStreamInteraction;
+      /* eslint-disable no-console */
+      if (res) {
+        console.log("success");
+      } else {
+        onError && onError();
       }
+
+      return {
+        res,
+      };
 
       setLoading(false);
     },

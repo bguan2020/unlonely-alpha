@@ -5,21 +5,26 @@ import {
   useGetHolderBalance,
   useSupply,
 } from "../contracts/useTournament";
-import { CHAT_MESSAGE_EVENT, Contract, InteractionType } from "../../constants";
+import { CHAT_MESSAGE_EVENT, Contract, InteractionType, NULL_ADDRESS } from "../../constants";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useChannelContext } from "../context/useChannel";
 import { useNetworkContext } from "../context/useNetwork";
 import { useUser } from "../context/useUser";
 import { ChatReturnType } from "../chat/useChat";
-import { isAddress, isAddressEqual } from "viem";
+import { jp } from "../../utils/validation/jsonParse";
+import { ChatBotMessageBody } from "../../constants/types/chat";
+import { areAddressesEqual } from "../../utils/validation/wallet";
+import { isAddress } from "viem";
 
 export const useVipBadgeUi = (chat: ChatReturnType) => {
-  const { userAddress } = useUser();
+  const { user } = useUser();
   const { channel, leaderboard } = useChannelContext();
   const { network } = useNetworkContext();
   const { localNetwork } = network;
   const { channelQueryData, handleTotalBadges } = channel;
   const { handleIsVip } = leaderboard;
+
+  const { receivedMessages } = chat;
 
   const tournamentContract = getContractFromNetwork(
     Contract.TOURNAMENT,
@@ -38,48 +43,46 @@ export const useVipBadgeUi = (chat: ChatReturnType) => {
   );
 
   const { vipBadgeBalance, setVipBadgeBalance } = useGetHolderBalance(
-    channelQueryData?.owner?.address as `0x${string}`,
+    isAddress(channelQueryData?.owner?.address ?? "") ? channelQueryData?.owner?.address as `0x${string}` : NULL_ADDRESS,
     0,
-    userAddress as `0x${string}`,
+    user?.address as `0x${string}`,
     tournamentContract
   );
 
   useEffect(() => {
     const init = async () => {
-      if (chat.receivedMessages.length === 0) return;
+      if (receivedMessages.length === 0) return;
       const latestMessage =
-        chat.receivedMessages[chat.receivedMessages.length - 1];
+        receivedMessages[receivedMessages.length - 1];
       if (
         latestMessage &&
         latestMessage.data.body &&
         latestMessage.name === CHAT_MESSAGE_EVENT &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
-        const body = latestMessage.data.body;
+        const body = jp(latestMessage.data.body) as ChatBotMessageBody;
         if (
-          body.split(":")[0] === InteractionType.BUY_BADGES &&
+          body.interactionType === InteractionType.BUY_BADGES &&
           Date.now() - latestMessage.timestamp < 12000
         ) {
-          if (body.split(":")[4] === generatedKey) {
+          if (body.eventByte === generatedKey) {
             if (
-              userAddress &&
-              isAddress(body.split(":")[1]) &&
-              isAddressEqual(
-                body.split(":")[1] as `0x${string}`,
-                userAddress as `0x${string}`
+              areAddressesEqual(
+                body.trader as `0x${string}`,
+                user?.address ?? ""
               )
             ) {
               setVipBadgeBalance((prev) =>
-                String(Number(prev) + Number(body.split(":")[2]))
+                String(Number(prev) + Number(body.badgeAmount))
               );
             }
-            setVipBadgeSupply(BigInt(body.split(":")[3]));
+            setVipBadgeSupply(BigInt(body.newSupply));
           }
         }
       }
     };
     init();
-  }, [chat.receivedMessages]);
+  }, [receivedMessages]);
 
   useEffect(() => {
     if (Number(vipBadgeBalance) > 0) {

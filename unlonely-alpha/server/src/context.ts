@@ -24,15 +24,16 @@ export const getContext: ContextFunction = async ({
     : null;
 
   let validated = false;
-  const latestVerifiedAddress = req.headers["latest-verified-address"] || null;
+  const latestVerifiedAddress = req.headers["latest-verified-address"] as string | undefined;
   let address;
   try {
     const { userId } = await privyClient.verifyAuthToken(authToken);
     const user = await privyClient.getUser(userId);
     // console.log(
-    //   "Authentication underway:",
+    //   "Authenticating request:",
     //   new Date(Date.now()).toLocaleString(),
     //   latestVerifiedAddress,
+    //   user.wallet?.address,
     //   userId
     // );
     address = latestVerifiedAddress || user.wallet?.address;
@@ -41,14 +42,15 @@ export const getContext: ContextFunction = async ({
     if (authToken !== null) console.error("Authentication failed  :", e);
   }
 
-  const user = address ? await findOrCreateUser({ address: address }) : null;
+  const user = address ? await findOrCreateUser({ address }) : null;
 
-  // if (user)
-  // console.log(
-  //   "Authentication success :",
-  //   new Date(Date.now()).toLocaleString(),
-  //   user.address
-  // );
+  // if (user) {
+  //   console.log(
+  //     "Authenticated request :",
+  //     new Date(Date.now()).toLocaleString(),
+  //     user.address
+  //   );
+  // }
 
   return {
     prisma: prisma,

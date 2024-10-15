@@ -14,6 +14,7 @@ import { fetchForNewTokenSupplies } from "./utils/fetchForNewTokenSupplies";
 import { directCastFc } from "./utils/directcastfc";
 import { sendPWANotifications } from "./utils/sendPWANotifications";
 import { fetchZoraMints } from "./utils/fetchZoraMints";
+import { Server } from "socket.io";
 
 const app = express();
 app.use(cors());
@@ -90,6 +91,33 @@ const startServer = async () => {
 
   // Create an HTTP server using the Express app
   const httpServer = http.createServer(app);
+
+  const io = new Server(httpServer, {
+    cors: {
+        origin: ["https://unlonely-alpha-git-homepage-exp-unlonely-alpha.vercel.app",
+                 "https://unlonely-alpha-git-staging-unlonely-alpha.vercel.app",
+                 "https://www.unlonely.app"
+                ],
+        methods: ["GET", "POST"]
+    }
+  });
+
+  io.on("connection", (socket: any) => {
+    console.log(`A user connected: ${socket.id}`);
+  
+    // Listen for "interaction" events from the client
+    socket.on("interaction", (data: any) => {
+      console.log("Received interaction:", data);
+  
+      // Send the message to all connected clients, including the sender
+      io.emit("interaction", data);
+    });
+  
+    // Handle disconnection
+    socket.on("disconnect", () => {
+      console.log("User disconnected");
+    });
+  });
 
   httpServer.listen(process.env.PORT || 4000, () => {
     console.info(`Server started on port ${process.env.PORT || 4000}`);

@@ -93,7 +93,7 @@ const NfcCard = ({ nfc, makeLinksExternal }: any) => {
             textAlign="center"
           >
             owner:{" "}
-            {nfc?.owner.username ?? centerEllipses(nfc?.owner.address, 13)}
+            {nfc?.owner.username ?? centerEllipses(nfc?.owner?.address, 13)}
           </Text>
           <Spacer />
           {nfc.openseaLink && (

@@ -49,7 +49,6 @@ import {
   PublicClient,
   TransactionReceipt,
   encodeFunctionData,
-  isAddressEqual,
 } from "viem";
 import {
   useConnectorClient,
@@ -77,6 +76,7 @@ import { useNetworkContext } from "../hooks/context/useNetwork";
 import AppLayout from "../components/layout/AppLayout";
 import { convertToHHMMSS } from "../utils/time";
 import useRequestUpload from "../hooks/server/channel/useRequestUpload";
+import { areAddressesEqual } from "../utils/validation/wallet";
 
 let ffmpeg: any; //Store the ffmpeg instance
 
@@ -1095,7 +1095,7 @@ const Clip = () => {
       },
     });
 
-    const userSplitRecipients = isAddressEqual(
+    const userSplitRecipients = areAddressesEqual(
       walletClient?.account.address,
       getChannelByIdData?.getChannelById?.owner?.address as `0x${string}`
     )

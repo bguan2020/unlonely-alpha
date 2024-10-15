@@ -1,5 +1,4 @@
 import { useRef, useEffect, useState } from "react";
-import { isAddress, isAddressEqual } from "viem";
 import { InteractionType, CHAT_MESSAGE_EVENT } from "../../../../constants";
 import { useTempTokenContext } from "../../../context/useTempToken";
 import useDebounce from "../../useDebounce";
@@ -8,9 +7,12 @@ import { ChatReturnType } from "../../../chat/useChat";
 import { useChannelContext } from "../../../context/useChannel";
 import { useScreenAnimationsContext } from "../../../context/useScreenAnimations";
 import { Text } from "@chakra-ui/react";
+import { jp } from "../../../../utils/validation/jsonParse";
+import { ChatBotMessageBody } from "../../../../constants/types/chat";
+import { areAddressesEqual } from "../../../../utils/validation/wallet";
 
 export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
-  const { userAddress } = useUser();
+  const { user } = useUser();
 
   const { channel } = useChannelContext();
   const { handleRealTimeChannelDetails } = channel;
@@ -51,9 +53,11 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   const mountingMessages = useRef(true);
   const fetching = useRef(false);
 
+  const { receivedMessages, mounted } = chat;
+
   useEffect(() => {
-    if (chat.mounted) mountingMessages.current = false;
-  }, [chat.mounted]);
+    if (mounted) mountingMessages.current = false;
+  }, [mounted]);
 
   const [tempTokenTransactionBody, setTempTokenTransactionBody] = useState("");
   const debouncedTempTokenTransactionBody = useDebounce(
@@ -66,52 +70,55 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   useEffect(() => {
     const processTempTokenEvents = async (body: string) => {
       if (!body || fetching.current) return;
+      const jpBody = jp(body) as ChatBotMessageBody;
       fetching.current = true;
-      const interactionType = body.split(":")[0];
-      const _userAddress = body.split(":")[1];
-      const txBlockNumber = BigInt(body.split(":")[3]);
-      const incomingTxTokenAddress = body.split(":")[4];
-      const totalSupply = BigInt(body.split(":")[5]);
+      const _userAddress = jpBody.address;
+      const txBlockNumber = jpBody.blockNumber;
+      const incomingTxTokenAddress = jpBody.tokenAddress;
+      const totalSupply = jpBody.totalSupply;
+      console.log(
+        "processTempTokenEvents jpBody",
+        jpBody,
+        currentTempTokenContract
+      );
       if (
         currentTempTokenContract.address &&
-        isAddress(incomingTxTokenAddress) &&
-        isAddress(currentTempTokenContract.address) &&
-        isAddressEqual(
+        areAddressesEqual(
           incomingTxTokenAddress as `0x${string}`,
           currentTempTokenContract.address as `0x${string}`
         )
       ) {
+        console.log(
+          "fetching temp token events",
+          jpBody,
+          currentTempTokenContract
+        );
         await getTempTokenEvents(
           currentTempTokenContract,
           currentActiveTokenMinBaseTokenPrice,
           blockNumberOfLastInAppTrade === BigInt(0) && tempTokenTxs.length > 0
             ? BigInt(tempTokenTxs[tempTokenTxs.length - 1].blockNumber)
             : blockNumberOfLastInAppTrade,
-          txBlockNumber
+          BigInt(txBlockNumber)
         );
         if (
-          userAddress &&
-          isAddress(userAddress) &&
-          isAddress(_userAddress) &&
-          isAddressEqual(
-            userAddress as `0x${string}`,
-            _userAddress as `0x${string}`
-          )
+          user?.address &&
+          areAddressesEqual(user?.address ?? "", _userAddress ?? "")
         ) {
           refetchUserTempTokenBalance?.();
         }
-        setBlockNumberOfLastInAppTrade(txBlockNumber);
-        if (interactionType === InteractionType.BUY_TEMP_TOKENS) {
-          const highestTotalSupply = body.split(":")[6];
-          const hasHitTotalSupplyThreshold = body.split(":")[7] === "true";
-          const newEndTimestampForToken = BigInt(body.split(":")[8]);
+        setBlockNumberOfLastInAppTrade(BigInt(txBlockNumber));
+        if (jpBody.interactionType === InteractionType.BUY_TEMP_TOKENS) {
+          const hasHitTotalSupplyThreshold =
+            jpBody.hasTotalSupplyThresholdReached === "true";
+          const newEndTimestampForToken = jpBody.endTimestamp;
           if (hasHitTotalSupplyThreshold) {
             onReachThresholdEvent(newEndTimestampForToken);
           }
           onMintEvent(BigInt(totalSupply));
           emojiBlast(<Text fontSize={"30px"}>{"📈"}</Text>);
         }
-        if (interactionType === InteractionType.SELL_TEMP_TOKENS) {
+        if (jpBody.interactionType === InteractionType.SELL_TEMP_TOKENS) {
           onBurnEvent(BigInt(totalSupply));
           emojiBlast(<Text fontSize={"30px"}>{"📉"}</Text>);
         }
@@ -122,18 +129,20 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   }, [debouncedTempTokenTransactionBody]);
 
   useEffect(() => {
-    if (chat.receivedMessages.length === 0) return;
-    const latestMessage =
-      chat.receivedMessages[chat.receivedMessages.length - 1];
+    if (receivedMessages.length === 0) return;
+    const latestMessage = receivedMessages[receivedMessages.length - 1];
+    console.log("useTempTokenAblyInterpreter latestMessage", latestMessage);
     if (
       latestMessage &&
       latestMessage.data.body &&
       latestMessage.name === CHAT_MESSAGE_EVENT &&
       Date.now() - latestMessage.timestamp < 12000
     ) {
+      console.log("useTempTokenAblyInterpreter latestMessage", latestMessage);
       const body = latestMessage.data.body;
+      const jpBody = jp(body) as ChatBotMessageBody;
       if (
-        body.split(":")[0] === InteractionType.CREATE_TEMP_TOKEN &&
+        jpBody.interactionType === InteractionType.CREATE_TEMP_TOKEN &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
         handleRealTimeChannelDetails({
@@ -145,47 +154,45 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         handleIsGameFailed(false);
         resetTempTokenTxs();
 
-        handleCurrentActiveTokenAddress(body.split(":")[1]);
-        handleCurrentActiveTokenSymbol(body.split(":")[2]);
-        handleCurrentActiveTokenEndTimestamp(BigInt(body.split(":")[3]));
-        handleCurrentActiveTokenCreationBlockNumber(BigInt(body.split(":")[4]));
+        handleCurrentActiveTokenAddress(jpBody.tokenAddress);
+        handleCurrentActiveTokenSymbol(jpBody.symbol);
+        handleCurrentActiveTokenEndTimestamp(BigInt(jpBody.endTimestamp));
+        handleCurrentActiveTokenCreationBlockNumber(
+          BigInt(jpBody.creationBlockNumber)
+        );
         handleCurrentActiveTokenTotalSupplyThreshold(
-          BigInt(body.split(":")[5])
+          BigInt(jpBody.totalSupplyThreshold)
         );
-        handleCurrentActiveTokenPreSaleEndTimestamp(BigInt(body.split(":")[6]));
-        handleCurrentActiveTokenFactoryAddress(body.split(":")[7]);
+        handleCurrentActiveTokenPreSaleEndTimestamp(
+          BigInt(jpBody.preSaleEndTimestamp)
+        );
+        handleCurrentActiveTokenFactoryAddress(jpBody.factoryAddress);
         handleIsPreSaleOngoing(
-          Number(BigInt(body.split(":")[6])) > Math.floor(Date.now() / 1000)
+          Number(jpBody.preSaleEndTimestamp) > Math.floor(Date.now() / 1000)
         );
-        handleCurrentActiveTokenMinBaseTokenPrice(BigInt(body.split(":")[8]));
+        handleCurrentActiveTokenMinBaseTokenPrice(
+          BigInt(jpBody.minBaseTokenPrice)
+        );
       }
       if (
-        body.split(":")[0] === InteractionType.BUY_TEMP_TOKENS ||
-        body.split(":")[0] === InteractionType.SELL_TEMP_TOKENS
+        jpBody.interactionType === InteractionType.BUY_TEMP_TOKENS ||
+        jpBody.interactionType === InteractionType.SELL_TEMP_TOKENS
       ) {
         setTempTokenTransactionBody(body);
       }
       if (
-        body.split(":")[0] ===
+        jpBody.interactionType ===
         InteractionType.SEND_REMAINING_FUNDS_TO_WINNER_AFTER_TEMP_TOKEN_EXPIRATION
       ) {
-        const to = body.split(":")[3];
+        const to = jpBody.tokenContractAddress;
 
-        if (
-          isAddress(to) &&
-          isAddress(lastInactiveTokenAddress) &&
-          isAddressEqual(to, lastInactiveTokenAddress)
-        ) {
+        if (areAddressesEqual(to, lastInactiveTokenAddress)) {
           onSendRemainingFundsToWinnerEvent(
             lastInactiveTokenAddress as `0x${string}`,
             false
           );
         }
-        if (
-          isAddress(to) &&
-          isAddress(currentActiveTokenAddress) &&
-          isAddressEqual(to, currentActiveTokenAddress)
-        ) {
+        if (areAddressesEqual(to, currentActiveTokenAddress)) {
           onSendRemainingFundsToWinnerEvent(
             currentActiveTokenAddress as `0x${string}`,
             true
@@ -193,12 +200,13 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         }
       }
       if (
-        body.split(":")[0] === InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED
+        jpBody.interactionType ===
+        InteractionType.TEMP_TOKEN_THRESHOLD_INCREASED
       ) {
-        const newThreshold = BigInt(body.split(":")[2]);
+        const newThreshold = BigInt(jpBody.newThreshold);
         handleCurrentActiveTokenTotalSupplyThreshold(newThreshold);
         handleCurrentActiveTokenHasHitTotalSupplyThreshold(false);
       }
     }
-  }, [chat.receivedMessages]);
+  }, [receivedMessages]);
 };

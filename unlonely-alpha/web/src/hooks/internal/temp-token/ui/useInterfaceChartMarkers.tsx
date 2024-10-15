@@ -1,7 +1,7 @@
 import { useApolloClient } from "@apollo/client";
 import { Flex, Text } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
-import { isAddress, formatUnits, isAddressEqual } from "viem";
+import { isAddress, formatUnits } from "viem";
 import { GET_USER_QUERY } from "../../../../constants/queries";
 import centerEllipses from "../../../../utils/centerEllipses";
 import { truncateValue } from "../../../../utils/tokenDisplayFormatting";
@@ -10,6 +10,7 @@ import { ChartTokenTx } from "../../../../components/channels/vibes/VibesTokenIn
 import { Contract } from "../../../../constants";
 import { getContractFromNetwork } from "../../../../utils/contract";
 import { useNetworkContext } from "../../../context/useNetwork";
+import { areAddressesEqual } from "../../../../utils/validation/wallet";
 
 export const useInterfaceChartMarkers = (
   chartTxs: ChartTokenTx[],
@@ -67,9 +68,7 @@ export const useInterfaceChartMarkers = (
 
         if (
           factoryContract.address !== undefined &&
-          isAddress(payload[0].payload.user) &&
-          isAddress(factoryContract.address as `0x${string}`) &&
-          isAddressEqual(payload[0].payload.user, factoryContract.address)
+          areAddressesEqual(payload[0].payload.user, factoryContract.address)
         ) {
           setAsyncData("FACTORY");
           setLastDataKey(payload[0].payload.user);

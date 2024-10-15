@@ -1,7 +1,13 @@
 import { User } from "@prisma/client";
 import { Context } from "../../context";
+
+export enum StreamInteractionType {
+  TTS_INTERACTION = "tts_interaction",
+  PACKAGE_INTERACTION = "package_interaction"
+}
+
 export interface IPostStreamInteractionInput {
-  interactionType: string;
+  streamInteractionType: StreamInteractionType;
   text?: string;
   channelId: string;
 }
@@ -13,7 +19,7 @@ export const postStreamInteraction = (
 ) => {
   return ctx.prisma.streamInteraction.create({
     data: {
-      interactionType: data.interactionType,
+      interactionType: data.streamInteractionType,
       text: data.text,
       owner: {
         connect: {
@@ -29,27 +35,53 @@ export const postStreamInteraction = (
   });
 };
 
-export interface IGetRecentStreamInteractionsByChannelInput {
-  channelId: string;
+export interface IUpdateStreamInteractionInput {
+  interactionId: string;
+  softDeleted: boolean;
 }
 
-// getStreamInteractionsByChannel but only ones that were created less than 5 min ago
-export const getRecentStreamInteractionsByChannel = (
-  data: IGetRecentStreamInteractionsByChannelInput,
+  export const updateStreamInteraction = (
+    data: IUpdateStreamInteractionInput,
+    ctx: Context
+  ) => {
+    return ctx.prisma.streamInteraction.update({
+      where: {
+        id: Number(data.interactionId),
+      },
+      data: {
+        softDelete: data.softDeleted,
+      },
+    });
+  }
+
+export interface IGetStreamInteractionsInput {
+  channelId: string;
+  streamInteractionTypes?: StreamInteractionType[];
+  orderBy: "asc" | "desc";
+  softDeleted?: boolean;
+}
+
+// getStreamInteractions but only ones that were created less than 5 min ago
+export const getStreamInteractions = (
+  data: IGetStreamInteractionsInput,
   ctx: Context
 ) => {
-  return ctx.prisma.streamInteraction.findMany({
-    where: {
-      channel: {
-        id: Number(data.channelId),
-      },
-      createdAt: {
-        gt: new Date(Date.now() - 5 * 60 * 1000),
-      },
-      interactionType: "control-text-interaction",
+  const whereClause = {
+    channel: {
+      id: Number(data.channelId),
     },
+    ...(data.streamInteractionTypes && { 
+      interactionType: {
+        in: data.streamInteractionTypes,
+      },
+    }),
+    ...(data.softDeleted !== undefined && { softDelete: data.softDeleted }),
+  };
+
+  return ctx.prisma.streamInteraction.findMany({
+    where: whereClause,
     orderBy: {
-      createdAt: "asc",
+      createdAt: data.orderBy,
     },
   });
 };

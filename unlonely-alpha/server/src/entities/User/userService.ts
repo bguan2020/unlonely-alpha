@@ -7,6 +7,7 @@ import {
   fetchMultipleSocials,
   fetchSocial,
 } from "../../utils/identityResolver";
+import { isValidAddress } from "../../utils/wallet";
 
 export const getLeaderboard = (ctx: Context) => {
   return ctx.prisma.user.findMany({
@@ -22,6 +23,14 @@ export interface IGetUserTokenHoldingInput {
   tokenAddress: string;
   userAddress: string;
 }
+
+type PackageCooldownChange = {
+  name: string;
+  lastUsedAt: string; // the timestamp in milliseconds when the package was last used
+  usableAt: string;   // the timestamp in milliseconds after which the package can be used, used independently of a package's cooldown
+};
+
+type PackageCooldownChangeMapping = { [key: string]: { lastUsedAt: string; usableAt: string } };
 
 export const getUserTokenHolding = async (
   data: IGetUserTokenHoldingInput,
@@ -85,7 +94,7 @@ export const getUser = async (data: IGetUserInput, ctx: Context) => {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new Error("getUser: User not found");
   }
 
   return user;
@@ -103,11 +112,28 @@ export const getUserChannelContract1155Mapping = async (
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new Error("getUserChannelContract1155Mapping: User not found");
   }
 
   return user.channelContract1155Mapping;
 };
+
+export const getUserPackageCooldownMapping = async (
+  data: IGetUserInput,
+  ctx: Context
+) => {
+  const user = await ctx.prisma.user.findUnique({
+    where: { address: data.address },
+    select: {
+      packageCooldownMapping: true,
+    },
+  });
+  if (!user) {
+    throw new Error("getUserBooPackageCooldownMapping: User not found");
+  }
+
+  return user.packageCooldownMapping;
+}
 
 export interface IUpdateUserChannelContract1155MappingInput {
   channelId: number;
@@ -126,7 +152,7 @@ export const updateUserChannelContract1155Mapping = async (
   });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new Error("updateUserChannelContract1155Mapping: User not found");
   }
 
   // Parse the current mapping
@@ -143,6 +169,54 @@ export const updateUserChannelContract1155Mapping = async (
     where: { address: data.userAddress },
     data: {
       channelContract1155Mapping: currentMapping,
+    },
+  });
+};
+
+export interface IUpdateUserPackageCooldownMappingInput {
+  userAddress: string;
+  newPackageCooldownChanges: PackageCooldownChange[]
+  replaceExisting: boolean // if false, the new changes will be merged with the existing mapping, else the existing mapping will be replaced
+}
+
+export const updateUserPackageCooldownMapping = async (
+  data: IUpdateUserPackageCooldownMappingInput,
+  ctx: Context
+) => {
+  // Fetch the current user data to get the existing mapping
+  const user = await ctx.prisma.user.findUnique({
+    where: { address: data.userAddress },
+  });
+
+  if (!user) {
+    throw new Error("updateUserBooPackageCooldownMapping, User not found");
+  }
+
+  // Parse the current mapping
+  let newMapping: PackageCooldownChangeMapping = {} as PackageCooldownChangeMapping;
+
+  const currentMapping: any = user.packageCooldownMapping || {};
+
+  const newChangesMapping = data.newPackageCooldownChanges.reduce((acc, item) => {
+    acc[item.name] = { lastUsedAt: item.lastUsedAt, usableAt: item.usableAt };
+    return acc;
+  }, {} as PackageCooldownChangeMapping)
+  
+  // Update the mapping
+  if (!data.replaceExisting){ 
+    newMapping = {
+      ...currentMapping,
+      ...newChangesMapping,
+    }
+  } else {
+    newMapping = newChangesMapping
+  }
+
+  // Update the user with the new mapping
+  return ctx.prisma.user.update({
+    where: { address: data.userAddress },
+    data: {
+      packageCooldownMapping: newMapping,
     },
   });
 };
@@ -223,12 +297,15 @@ export const updateAllUsers = async (ctx: Context) => {
       isFCUser: true,
     },
   });
+
+  const evmUsers = users.filter((user) => isValidAddress(user.address) === "ethereum");
+
   // for loop through users
-  for (let i = 0; i < users.length; i++) {
+  for (let i = 0; i < evmUsers.length; i++) {
     const response = await axios.get(
-      `https://searchcaster.xyz/api/profiles?connected_address=${users[i].address}`
+      `https://searchcaster.xyz/api/profiles?connected_address=${evmUsers[i].address}`
     );
-    console.log(users[i].address, users[i].username);
+    console.log(evmUsers[i].address, evmUsers[i].username);
     console.log(response);
 
     // // if data array is not empty
@@ -237,7 +314,7 @@ export const updateAllUsers = async (ctx: Context) => {
       // update user with FCImageUrl and isFCUser to true
       await ctx.prisma.user.update({
         where: {
-          address: users[i].address,
+          address: evmUsers[i].address,
         },
         data: {
           FCImageUrl: response.data[0].body.avatarUrl,
@@ -246,14 +323,14 @@ export const updateAllUsers = async (ctx: Context) => {
       });
       console.log(
         "updated user",
-        users[i].address,
+        evmUsers[i].address,
         response.data[0].body.avatarUrl
       );
     }
     const { data } = await lensClient.query({
       query: LENS_GET_DEFAULT_PROFILE,
       variables: {
-        ethereumAddress: users[i].address,
+        ethereumAddress: evmUsers[i].address,
       },
     });
 
@@ -262,7 +339,7 @@ export const updateAllUsers = async (ctx: Context) => {
       try {
         await ctx.prisma.user.update({
           where: {
-            address: users[i].address,
+            address: evmUsers[i].address,
           },
           data: {
             lensHandle: data.defaultProfile.handle,
@@ -275,7 +352,7 @@ export const updateAllUsers = async (ctx: Context) => {
         });
         console.log(
           "updated user",
-          users[i].address,
+          evmUsers[i].address,
           data.defaultProfile.handle,
           data.defaultProfile.picture.original.url
         );
@@ -306,6 +383,22 @@ export const updateUser = async (data: IUpdateUserInput, ctx: Context) => {
     error
   }
 };
+
+export interface IUpdateUsernameInput {
+  address: string;
+  username: string;
+}
+
+export const updateUsername = async (data: IUpdateUsernameInput, ctx: Context) => {
+  return await ctx.prisma.user.update({
+    where: {
+      address: data.address,
+    },
+    data: {
+      username: data.username,
+    },
+  });
+}
 
 export interface IUpdateUsersInput {
   addresses: string[];
@@ -393,3 +486,23 @@ export const updateUserNotifications = async (
     },
   });
 };
+
+// implemented to ensure user address from frontend and backend match to prevent any mistakes with the database
+export interface IGetDoesUserAddressMatchInput {
+  address: string;
+}
+
+export const getDoesUserAddressMatch = async (data: IGetDoesUserAddressMatchInput, ctx: Context) => {
+  const user = await ctx.prisma.user.findUnique({
+    where: {
+      address: data.address,
+    },
+  });
+
+  if (!user) throw new Error("getDoesUserAddressMatch: User not found from address");
+  if (!ctx.user) throw new Error("getDoesUserAddressMatch: User not found in context");
+
+  const contextUser = ctx.user
+
+  return {doesMatch: user.address === contextUser.address, user, contextUser: ctx.user}
+}

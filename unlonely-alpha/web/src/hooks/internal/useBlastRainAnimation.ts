@@ -7,6 +7,8 @@ export const useBlastRainAnimation = (
     vertSpeed?: number;
     horiSpeed?: number;
     downward?: boolean; // New option for downward movement
+    vertSpeedRange?: [number, number];
+    horizSpeedRange?: [number, number];
   }
 ) => {
   useEffect(() => {
@@ -14,8 +16,7 @@ export const useBlastRainAnimation = (
     if (!parent) return;
 
     const elements = parent.getElementsByClassName(childClass);
-    const vertSpeed = config?.vertSpeed ?? 3;
-    const horiSpeed = config?.horiSpeed ?? 1;
+
     const downward = config?.downward ?? false; // Default is upward
 
     const height = parent.clientHeight;
@@ -23,6 +24,9 @@ export const useBlastRainAnimation = (
 
     const items: any[] = [];
     for (let i = 0; i < elements.length; i++) {
+      const vertSpeed = getRandomNumberInRange(config?.vertSpeedRange) ?? config?.vertSpeed ?? 3;
+      const horiSpeed = getRandomNumberInRange(config?.horizSpeedRange) ?? config?.horiSpeed ?? 1;
+
       const element = elements[i] as HTMLElement;
       const elementWidth = 24;
       const elementHeight = element.clientHeight;
@@ -84,3 +88,12 @@ export const useBlastRainAnimation = (
     return () => cancelAnimationFrame(animationId); // Cleanup function
   }, []);
 };
+
+function getRandomNumberInRange(range?: [number, number]): number | undefined {
+  if (!range || range.length !== 2) {
+    return undefined;
+  }
+
+  const [min, max] = range;
+  return Math.random() * (max - min) + min;
+}

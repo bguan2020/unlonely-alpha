@@ -1,31 +1,32 @@
 import { ApolloError, useLazyQuery } from "@apollo/client";
 import {
-  Box,
-  Button,
-  Container,
-  Drawer,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
+  // Box,
+  // Button,
+  // Container,
+  // Drawer,
+  // DrawerCloseButton,
+  // DrawerContent,
+  // DrawerHeader,
+  // DrawerOverlay,
   Flex,
-  Stack,
+  // Stack,
   Text,
-  useBreakpointValue,
-  useDisclosure,
+  // useBreakpointValue,
+  // useDisclosure,
   Image,
   Spinner,
   IconButton,
   Input,
+  // useBreakpointValue,
 } from "@chakra-ui/react";
-import Link from "next/link";
+// import Link from "next/link";
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { useRouter } from "next/router";
 import { BiRefresh } from "react-icons/bi";
 
 import AppLayout from "../components/layout/AppLayout";
-import LiveChannelList from "../components/channels/LiveChannelList";
+// import LiveChannelList from "../components/channels/LiveChannelList";
 import { WavyText } from "../components/general/WavyText";
 import useUserAgent from "../hooks/internal/useUserAgent";
 import { Channel, GetSubscriptionQuery } from "../generated/graphql";
@@ -36,85 +37,87 @@ import useRemoveChannelFromSubscription from "../hooks/server/channel/useRemoveC
 import { useUser } from "../hooks/context/useUser";
 import { sortChannels } from "../utils/channelSort";
 import { useCacheContext } from "../hooks/context/useCache";
-import NfcLeaderboard from "../components/leaderboards/NfcLeaderboard";
+// import NfcLeaderboard from "../components/leaderboards/NfcLeaderboard";
+// import Header from "../components/navigation/Header";
+import BooEventWrapper from "../components/layout/BooEventWrapper";
 
-const FixedComponent = ({
-  newHeightPercentage,
-}: {
-  newHeightPercentage?: string;
-}) => {
-  return (
-    <Flex
-      borderWidth="1px"
-      borderRadius={"10px"}
-      bg={
-        "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-      }
-      height={newHeightPercentage ?? "100%"}
-      boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
-      background={"#19162F"}
-    >
-      <iframe
-        src="https://lu.ma/embed/calendar/cal-i5SksIDn63DmCXs/events?lt=dark"
-        frameBorder="0"
-        width="100%"
-        aria-hidden="false"
-        style={{
-          borderRadius: "10px",
-          borderWidth: "1px",
-        }}
-      />
-    </Flex>
-  );
-};
+// const FixedComponent = ({
+//   newHeightPercentage,
+// }: {
+//   newHeightPercentage?: string;
+// }) => {
+//   return (
+//     <Flex
+//       borderWidth="1px"
+//       borderRadius={"10px"}
+//       bg={
+//         "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
+//       }
+//       height={newHeightPercentage ?? "100%"}
+//       boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
+//       background={"#19162F"}
+//     >
+//       <iframe
+//         src="https://lu.ma/embed/calendar/cal-i5SksIDn63DmCXs/events?lt=dark"
+//         frameBorder="0"
+//         width="100%"
+//         aria-hidden="false"
+//         style={{
+//           borderRadius: "10px",
+//           borderWidth: "1px",
+//         }}
+//       />
+//     </Flex>
+//   );
+// };
 
-const ScrollableComponent = () => {
-  return (
-    <Flex direction="column" width="100%" overflowX={"hidden"} gap="10px">
-      <NfcLeaderboard />
-      <Flex
-        justifyContent={"space-between"}
-        my="6"
-        direction={["column", "row", "row", "row"]}
-      >
-        <Stack direction="row" spacing={["3", "8", "10", "16"]}>
-          <Link
-            href="https://www.unlonely.app/privacy"
-            passHref
-            target="_blank"
-          >
-            <Text fontFamily="LoRes15">privacy</Text>
-          </Link>
-          <Link
-            href="https://super-okra-6ad.notion.site/Unlonely-Terms-of-Service-b3c0ea0272c943e98e3120243955cd75?pvs=4"
-            passHref
-            target="_blank"
-          >
-            <Text fontFamily="LoRes15">terms</Text>
-          </Link>
-          <Link href="https://bit.ly/unlonelyFAQs" passHref target="_blank">
-            <Text fontFamily="LoRes15">about</Text>
-          </Link>
-        </Stack>
-        <Stack direction="row" spacing={["3", "8", "10", "16"]}>
-          <Link
-            href="https://twitter.com/unlonely_app"
-            passHref
-            target="_blank"
-          >
-            <Text fontFamily="LoRes15">twitter</Text>
-          </Link>
-          <Link href="https://warpcast.com/unlonely" passHref target="_blank">
-            <Text fontFamily="LoRes15">farcaster</Text>
-          </Link>
-          <Link href="https://t.me/+IE_BA-tyLIA5MzZh" passHref target="_blank">
-            <Text fontFamily="LoRes15">telegram</Text>
-          </Link>
-        </Stack>
-      </Flex>
-    </Flex>
-  );
-};
+// const ScrollableComponent = () => {
+//   return (
+//     <Flex direction="column" width="100%" overflowX={"hidden"} gap="10px">
+//       <NfcLeaderboard />
+//       <Flex
+//         justifyContent={"space-between"}
+//         my="6"
+//         direction={["column", "row", "row", "row"]}
+//       >
+//         <Stack direction="row" spacing={["3", "8", "10", "16"]}>
+//           <Link
+//             href="https://www.unlonely.app/privacy"
+//             passHref
+//             target="_blank"
+//           >
+//             <Text fontFamily="LoRes15">privacy</Text>
+//           </Link>
+//           <Link
+//             href="https://super-okra-6ad.notion.site/Unlonely-Terms-of-Service-b3c0ea0272c943e98e3120243955cd75?pvs=4"
+//             passHref
+//             target="_blank"
+//           >
+//             <Text fontFamily="LoRes15">terms</Text>
+//           </Link>
+//           <Link href="https://bit.ly/unlonelyFAQs" passHref target="_blank">
+//             <Text fontFamily="LoRes15">about</Text>
+//           </Link>
+//         </Stack>
+//         <Stack direction="row" spacing={["3", "8", "10", "16"]}>
+//           <Link
+//             href="https://twitter.com/unlonely_app"
+//             passHref
+//             target="_blank"
+//           >
+//             <Text fontFamily="LoRes15">twitter</Text>
+//           </Link>
+//           <Link href="https://warpcast.com/unlonely" passHref target="_blank">
+//             <Text fontFamily="LoRes15">farcaster</Text>
+//           </Link>
+//           <Link href="https://t.me/+c19n9g-FxZszODIx" passHref target="_blank">
+//             <Text fontFamily="LoRes15">telegram</Text>
+//           </Link>
+//         </Stack>
+//       </Flex>
+//     </Flex>
+//   );
+// };
 
 function DesktopHomePage({
   dataChannels,
@@ -125,23 +128,34 @@ function DesktopHomePage({
   loading: boolean;
   error?: ApolloError;
 }) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const btnRef = useRef<HTMLButtonElement>(null);
+  const { isMobile } = useUserAgent();
+  // const { isOpen, onOpen, onClose } = useDisclosure();
+  // const btnRef = useRef<HTMLButtonElement>(null);
 
-  const [directingToChannel, setDirectingToChannel] = useState<boolean>(false);
+  // const [directingToChannel, setDirectingToChannel] = useState<boolean>(false);
 
-  const channels = dataChannels;
+  // const channels = dataChannels;
 
-  const sideBarBreakpoints = useBreakpointValue({
-    base: false,
-    sm: false,
-    md: true,
-    xl: true,
-  });
+  // const sideBarBreakpoints = useBreakpointValue({
+  //   base: false,
+  //   sm: false,
+  //   md: true,
+  //   xl: true,
+  // });
 
   return (
-    <AppLayout isCustomHeader={false}>
-      {!directingToChannel ? (
+    <AppLayout isCustomHeader={false} noHeader>
+      <Flex
+        h="100dvh"
+        bg="rgba(5, 0, 31, 1)"
+        position={"relative"}
+        direction="column"
+        overflowY={["unset", "hidden", "hidden", "hidden"]}
+      >
+        {/* {!isMobile && <Header />} */}
+        <BooEventWrapper />
+      </Flex>
+      {/* {!directingToChannel ? (
         <Flex
           direction="column"
           justifyContent="center"
@@ -164,7 +178,6 @@ function DesktopHomePage({
             </DrawerContent>
           </Drawer>
           <Flex direction="column" gap={5}>
-            {/* <HeroBanner /> */}
             {!sideBarBreakpoints && !loading && (
               <Flex justifyContent={"center"}>
                 <Button
@@ -254,7 +267,7 @@ function DesktopHomePage({
         >
           <WavyText text="loading..." />
         </Flex>
-      )}
+      )} */}
     </AppLayout>
   );
 }
