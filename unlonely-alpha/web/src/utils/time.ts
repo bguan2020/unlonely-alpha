@@ -50,7 +50,10 @@ export const getTimeFromMillis = (
 ): string => {
   if (millis === 0) return "0";
 
-  const { days, hours, minutes, seconds } = getTimesFromMillis(millis, showDays);
+  const { days, hours, minutes, seconds } = getTimesFromMillis(
+    millis,
+    showDays
+  );
   if (format) {
     const paddedDays = days.toString().padStart(2, "0");
     const paddedHours = hours.toString().padStart(2, "0");
@@ -60,23 +63,23 @@ export const getTimeFromMillis = (
     if (showSeconds) {
       if (formatPlusLabel) {
         if (showDays) {
-          return `${paddedDays}D : ${paddedHours}H : ${paddedMinutes}M : ${paddedSeconds}S`
+          return `${paddedDays}D : ${paddedHours}H : ${paddedMinutes}M : ${paddedSeconds}S`;
         }
-        return `${paddedHours}H : ${paddedMinutes}M : ${paddedSeconds}S`
+        return `${paddedHours}H : ${paddedMinutes}M : ${paddedSeconds}S`;
       }
       if (showDays) {
-        return `${paddedDays}:${paddedHours}:${paddedMinutes}:${paddedSeconds}`
+        return `${paddedDays}:${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
       }
-      return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`
-    };
+      return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
+    }
     if (formatPlusLabel) {
       if (showDays) {
-        return `${paddedDays}D : ${paddedHours}H : ${paddedMinutes}M`
+        return `${paddedDays}D : ${paddedHours}H : ${paddedMinutes}M`;
       }
-      return `${paddedHours}H : ${paddedMinutes}M`
+      return `${paddedHours}H : ${paddedMinutes}M`;
     }
     if (showDays) {
-      return `${paddedDays}:${paddedHours}:${paddedMinutes}`
+      return `${paddedDays}:${paddedHours}:${paddedMinutes}`;
     }
     return `${paddedHours}:${paddedMinutes}`;
   }

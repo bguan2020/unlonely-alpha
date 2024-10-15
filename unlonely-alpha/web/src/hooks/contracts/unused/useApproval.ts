@@ -70,10 +70,7 @@ export const useApproval = (
 
   const { data: hash, writeContract } = useWriteContract();
 
-  const {
-    data: approvalData,
-    error: approvalError,
-  } = useWriteContract();
+  const { data: approvalData, error: approvalError } = useWriteContract();
 
   const requiresApproval = useMemo(() => {
     return (allowance as unknown as bigint) < amount;
@@ -92,13 +89,13 @@ export const useApproval = (
     if (txData) {
       if (callbacks?.onTxSuccess) callbacks?.onTxSuccess(txData);
     }
-  }, [txData])
+  }, [txData]);
 
   useEffect(() => {
     if (txError) {
       if (callbacks?.onTxError) callbacks?.onTxError(txError);
     }
-  }, [txError])    
+  }, [txError]);
 
   return {
     isTxLoading: isLoading,
@@ -108,13 +105,14 @@ export const useApproval = (
     isAllowanceLoading: allowanceLoading,
     writeApprovalError: approvalError,
     readAllowanceError: allowanceError,
-    writeApproval: () => writeContract({
-      address: tokenAddress,
-      abi,
-      functionName: "approve",
-      args: [spender, amountToApprove ?? amount],
-      chainId,
-    }),
+    writeApproval: () =>
+      writeContract({
+        address: tokenAddress,
+        abi,
+        functionName: "approve",
+        args: [spender, amountToApprove ?? amount],
+        chainId,
+      }),
     requiresApproval,
     refetchAllowance,
   };

@@ -53,4 +53,4 @@ export type Message = {
 export type ChatBotMessageBody = {
   interactionType: InteractionType;
   [key: string]: any;
-}
+};

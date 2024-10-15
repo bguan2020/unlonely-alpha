@@ -38,17 +38,21 @@ const authLink = setContext(async (_, { headers }) => {
   };
 });
 
-const createAuthLink = (latestVerifiedAddress: string | null) => setContext(async (_, { headers }) => {
-  const token = await getAccessToken();
-  console.log("Setting latest-verified-address header:", latestVerifiedAddress);
-  return {
-    headers: {
-      ...headers,
-      authorization: token ? `Bearer ${token}` : "",
-      "latest-verified-address": latestVerifiedAddress || "",
-    },
-  };
-});
+const createAuthLink = (latestVerifiedAddress: string | null) =>
+  setContext(async (_, { headers }) => {
+    const token = await getAccessToken();
+    console.log(
+      "Setting latest-verified-address header:",
+      latestVerifiedAddress
+    );
+    return {
+      headers: {
+        ...headers,
+        authorization: token ? `Bearer ${token}` : "",
+        "latest-verified-address": latestVerifiedAddress || "",
+      },
+    };
+  });
 
 function createApolloClient() {
   const httpLink = new HttpLink({

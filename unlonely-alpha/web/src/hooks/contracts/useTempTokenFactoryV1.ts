@@ -193,7 +193,6 @@ export const useCreateTempToken = (
   contract: ContractData,
   callbacks?: WriteCallbacks
 ) => {
-
   const {
     writeAsync: createTempToken,
     writeData: createTempTokenData,

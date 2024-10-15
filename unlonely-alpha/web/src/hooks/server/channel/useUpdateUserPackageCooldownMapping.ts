@@ -10,13 +10,15 @@ import {
 } from "../../../generated/graphql";
 
 const MUTATION = gql`
-  mutation UpdateUserPackageCooldownMapping($data: UpdateUserPackageCooldownMappingInput!) {
-  updateUserPackageCooldownMapping(data: $data) {
-    address
-    username
-    packageCooldownMapping
+  mutation UpdateUserPackageCooldownMapping(
+    $data: UpdateUserPackageCooldownMappingInput!
+  ) {
+    updateUserPackageCooldownMapping(data: $data) {
+      address
+      username
+      packageCooldownMapping
+    }
   }
-}
 `;
 
 const useUpdateUserPackageCooldownMapping = ({

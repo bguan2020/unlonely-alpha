@@ -3,7 +3,7 @@ import { Context } from "../../context";
 
 export enum StreamInteractionType {
   TTS_INTERACTION = "tts_interaction",
-  PACKAGE_INTERACTION = "package_interaction"
+  PACKAGE_INTERACTION = "package_interaction",
 }
 
 export interface IPostStreamInteractionInput {
@@ -40,19 +40,19 @@ export interface IUpdateStreamInteractionInput {
   softDeleted: boolean;
 }
 
-  export const updateStreamInteraction = (
-    data: IUpdateStreamInteractionInput,
-    ctx: Context
-  ) => {
-    return ctx.prisma.streamInteraction.update({
-      where: {
-        id: Number(data.interactionId),
-      },
-      data: {
-        softDelete: data.softDeleted,
-      },
-    });
-  }
+export const updateStreamInteraction = (
+  data: IUpdateStreamInteractionInput,
+  ctx: Context
+) => {
+  return ctx.prisma.streamInteraction.update({
+    where: {
+      id: Number(data.interactionId),
+    },
+    data: {
+      softDelete: data.softDeleted,
+    },
+  });
+};
 
 export interface IGetStreamInteractionsInput {
   channelId: string;
@@ -70,7 +70,7 @@ export const getStreamInteractions = (
     channel: {
       id: Number(data.channelId),
     },
-    ...(data.streamInteractionTypes && { 
+    ...(data.streamInteractionTypes && {
       interactionType: {
         in: data.streamInteractionTypes,
       },

@@ -28,7 +28,7 @@ export const useChatBox = (
   const { channel: channelContext } = useChannelContext();
   const { realTimeChannelDetails, channelQueryData } = channelContext;
   const { user, ready, authenticated } = useUser();
-  
+
   const loggedInWithPrivy = ready && authenticated;
 
   const { postFirstChat } = usePostFirstChat({

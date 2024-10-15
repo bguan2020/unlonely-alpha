@@ -743,7 +743,7 @@ export const getLivepeerThumbnail = async (livepeerPlaybackId: string) => {
     );
 
     const thumbnail = response.data.meta.source.find(
-      (source: Source) => 
+      (source: Source) =>
         source.hrn === "Thumbnail (PNG)" || source.hrn === "Thumbnail (JPEG)"
     );
 

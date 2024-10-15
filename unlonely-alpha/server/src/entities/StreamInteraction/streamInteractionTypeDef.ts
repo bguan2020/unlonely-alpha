@@ -36,13 +36,13 @@ export const typeDef = gql`
   }
 
   extend type Mutation {
-    updateStreamInteraction(data: UpdateStreamInteractionInput!): StreamInteraction
+    updateStreamInteraction(
+      data: UpdateStreamInteractionInput!
+    ): StreamInteraction
     postStreamInteraction(data: PostStreamInteractionInput!): StreamInteraction
   }
 
   extend type Query {
-    getStreamInteractions(
-      data: GetStreamInteractionsInput
-    ): [StreamInteraction]
+    getStreamInteractions(data: GetStreamInteractionsInput): [StreamInteraction]
   }
 `;

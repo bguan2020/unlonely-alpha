@@ -14,10 +14,7 @@ export const resolvers = {
       },
       ctx: Context
     ) => {
-      return streamInteractionService.getStreamInteractions(
-        data,
-        ctx
-      );
+      return streamInteractionService.getStreamInteractions(data, ctx);
     },
   },
   Mutation: {
@@ -46,7 +43,7 @@ export const resolvers = {
       ctx: Context
     ) => {
       return streamInteractionService.updateStreamInteraction(data, ctx);
-    }
+    },
   },
   StreamInteraction: {
     owner: ({ ownerAddr }: { ownerAddr: string }, _: any, ctx: Context) => {

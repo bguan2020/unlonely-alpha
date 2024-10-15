@@ -137,9 +137,7 @@ export const resolvers = {
     },
     updateUserPackageCooldownMapping: (
       _: any,
-      {
-        data,
-      }: { data: userService.IUpdateUserPackageCooldownMappingInput },
+      { data }: { data: userService.IUpdateUserPackageCooldownMappingInput },
       ctx: Context
     ) => {
       if (!ctx.user) {
@@ -147,6 +145,6 @@ export const resolvers = {
       }
 
       return userService.updateUserPackageCooldownMapping(data, ctx);
-    }
+    },
   },
 };

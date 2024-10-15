@@ -3,19 +3,22 @@ import { useRouter } from "next/router";
 import { gql } from "@apollo/client";
 import { GraphQLErrors } from "@apollo/client/errors";
 import { useAuthedMutation } from "../../apiClient/hooks";
-import { UpdatePackageInput, UpdatePackageMutation, UpdatePackageMutationVariables } from "../../generated/graphql";
-
+import {
+  UpdatePackageInput,
+  UpdatePackageMutation,
+  UpdatePackageMutationVariables,
+} from "../../generated/graphql";
 
 const MUTATION = gql`
-mutation UpdatePackage($data: UpdatePackageInput!) {
-  updatePackage(data: $data) {
-    cooldownInSeconds
-    tokenHoldingPrice
-    packageName
-    id
+  mutation UpdatePackage($data: UpdatePackageInput!) {
+    updatePackage(data: $data) {
+      cooldownInSeconds
+      tokenHoldingPrice
+      packageName
+      id
+    }
   }
-}
-`
+`;
 
 export const useUpdatePackage = ({
   onError,
@@ -32,13 +35,12 @@ export const useUpdatePackage = ({
   const updatePackage = useCallback(
     async (data: UpdatePackageInput) => {
       try {
-
         setLoading(true);
-        
+
         const mutationResult = await mutate({ variables: { data } });
-        
+
         const res = mutationResult?.data?.updatePackage;
-        
+
         if (res) {
           console.log("success");
         } else {

@@ -3,19 +3,23 @@ import { gql } from "@apollo/client";
 import { GraphQLErrors } from "@apollo/client/errors";
 
 import { useAuthedMutation } from "../../../apiClient/hooks";
-import { UpdateStreamInteractionMutation, UpdateStreamInteractionMutationVariables, UpdateStreamInteractionInput } from "../../../generated/graphql";
+import {
+  UpdateStreamInteractionMutation,
+  UpdateStreamInteractionMutationVariables,
+  UpdateStreamInteractionInput,
+} from "../../../generated/graphql";
 
 const MUTATION = gql`
-mutation UpdateStreamInteraction($data: UpdateStreamInteractionInput!) {
-  updateStreamInteraction(data: $data) {
-    softDelete
-    updatedAt
-    createdAt
-    text
-    interactionType
-    id
+  mutation UpdateStreamInteraction($data: UpdateStreamInteractionInput!) {
+    updateStreamInteraction(data: $data) {
+      softDelete
+      updatedAt
+      createdAt
+      text
+      interactionType
+      id
+    }
   }
-}
 `;
 
 const updateStreamInteraction = ({

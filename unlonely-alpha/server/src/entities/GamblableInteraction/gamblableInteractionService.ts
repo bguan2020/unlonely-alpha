@@ -457,10 +457,10 @@ export const getUnclaimedEvents = async (
         GamblableEvent.BET_YES_BUY,
         GamblableEvent.BET_NO_BUY,
         GamblableEvent.BET_CLAIM_PAYOUT,
-      ]
+      ],
     },
     softDelete: false,
-  }
+  };
 
   const userInteractions = await ctx.prisma.gamblableInteraction.findMany({
     where: whereQuery,

@@ -27,10 +27,12 @@ export interface IGetUserTokenHoldingInput {
 type PackageCooldownChange = {
   name: string;
   lastUsedAt: string; // the timestamp in milliseconds when the package was last used
-  usableAt: string;   // the timestamp in milliseconds after which the package can be used, used independently of a package's cooldown
+  usableAt: string; // the timestamp in milliseconds after which the package can be used, used independently of a package's cooldown
 };
 
-type PackageCooldownChangeMapping = { [key: string]: { lastUsedAt: string; usableAt: string } };
+type PackageCooldownChangeMapping = {
+  [key: string]: { lastUsedAt: string; usableAt: string };
+};
 
 export const getUserTokenHolding = async (
   data: IGetUserTokenHoldingInput,
@@ -133,7 +135,7 @@ export const getUserPackageCooldownMapping = async (
   }
 
   return user.packageCooldownMapping;
-}
+};
 
 export interface IUpdateUserChannelContract1155MappingInput {
   channelId: number;
@@ -175,8 +177,8 @@ export const updateUserChannelContract1155Mapping = async (
 
 export interface IUpdateUserPackageCooldownMappingInput {
   userAddress: string;
-  newPackageCooldownChanges: PackageCooldownChange[]
-  replaceExisting: boolean // if false, the new changes will be merged with the existing mapping, else the existing mapping will be replaced
+  newPackageCooldownChanges: PackageCooldownChange[];
+  replaceExisting: boolean; // if false, the new changes will be merged with the existing mapping, else the existing mapping will be replaced
 }
 
 export const updateUserPackageCooldownMapping = async (
@@ -193,23 +195,27 @@ export const updateUserPackageCooldownMapping = async (
   }
 
   // Parse the current mapping
-  let newMapping: PackageCooldownChangeMapping = {} as PackageCooldownChangeMapping;
+  let newMapping: PackageCooldownChangeMapping =
+    {} as PackageCooldownChangeMapping;
 
   const currentMapping: any = user.packageCooldownMapping || {};
 
-  const newChangesMapping = data.newPackageCooldownChanges.reduce((acc, item) => {
-    acc[item.name] = { lastUsedAt: item.lastUsedAt, usableAt: item.usableAt };
-    return acc;
-  }, {} as PackageCooldownChangeMapping)
-  
+  const newChangesMapping = data.newPackageCooldownChanges.reduce(
+    (acc, item) => {
+      acc[item.name] = { lastUsedAt: item.lastUsedAt, usableAt: item.usableAt };
+      return acc;
+    },
+    {} as PackageCooldownChangeMapping
+  );
+
   // Update the mapping
-  if (!data.replaceExisting){ 
+  if (!data.replaceExisting) {
     newMapping = {
       ...currentMapping,
       ...newChangesMapping,
-    }
+    };
   } else {
-    newMapping = newChangesMapping
+    newMapping = newChangesMapping;
   }
 
   // Update the user with the new mapping
@@ -298,7 +304,9 @@ export const updateAllUsers = async (ctx: Context) => {
     },
   });
 
-  const evmUsers = users.filter((user) => isValidAddress(user.address) === "ethereum");
+  const evmUsers = users.filter(
+    (user) => isValidAddress(user.address) === "ethereum"
+  );
 
   // for loop through users
   for (let i = 0; i < evmUsers.length; i++) {
@@ -380,8 +388,8 @@ export const updateUser = async (data: IUpdateUserInput, ctx: Context) => {
     newUserData: res,
     newSocialDataString: JSON.stringify(socialData),
     rawDataString: JSON.stringify(rawData),
-    error
-  }
+    error,
+  };
 };
 
 export interface IUpdateUsernameInput {
@@ -389,7 +397,10 @@ export interface IUpdateUsernameInput {
   username: string;
 }
 
-export const updateUsername = async (data: IUpdateUsernameInput, ctx: Context) => {
+export const updateUsername = async (
+  data: IUpdateUsernameInput,
+  ctx: Context
+) => {
   return await ctx.prisma.user.update({
     where: {
       address: data.address,
@@ -398,7 +409,7 @@ export const updateUsername = async (data: IUpdateUsernameInput, ctx: Context) =
       username: data.username,
     },
   });
-}
+};
 
 export interface IUpdateUsersInput {
   addresses: string[];
@@ -492,17 +503,26 @@ export interface IGetDoesUserAddressMatchInput {
   address: string;
 }
 
-export const getDoesUserAddressMatch = async (data: IGetDoesUserAddressMatchInput, ctx: Context) => {
+export const getDoesUserAddressMatch = async (
+  data: IGetDoesUserAddressMatchInput,
+  ctx: Context
+) => {
   const user = await ctx.prisma.user.findUnique({
     where: {
       address: data.address,
     },
   });
 
-  if (!user) throw new Error("getDoesUserAddressMatch: User not found from address");
-  if (!ctx.user) throw new Error("getDoesUserAddressMatch: User not found in context");
+  if (!user)
+    throw new Error("getDoesUserAddressMatch: User not found from address");
+  if (!ctx.user)
+    throw new Error("getDoesUserAddressMatch: User not found in context");
 
-  const contextUser = ctx.user
+  const contextUser = ctx.user;
 
-  return {doesMatch: user.address === contextUser.address, user, contextUser: ctx.user}
-}
+  return {
+    doesMatch: user.address === contextUser.address,
+    user,
+    contextUser: ctx.user,
+  };
+};

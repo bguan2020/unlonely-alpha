@@ -138,7 +138,7 @@ export const FIXED_SOLANA_MINT = {
   mintAddress: "8d5CdSJnxwyh2XjSWqE7HpEFSkvgoDaXwW6gTLfZm8v9",
   tokenAccount: "3GPNYL255Zdpv4jMjq1XhiZRHDLYZ6mV3cd9q6T6ybDW",
   poolAddress: "3Ehz9oTK2pULee65s5ftiv798mKjek9s8xdRWGMXChw7",
-  decimals: 6
+  decimals: 6,
 };
 
 export enum SwapMode {
@@ -165,7 +165,6 @@ export interface FormProps {
   /** Initial slippage to swap */
   initialSlippageBps?: number;
 }
-
 
 export const WRAPPED_SOL_MINT = new PublicKey(
   "So11111111111111111111111111111111111111112"

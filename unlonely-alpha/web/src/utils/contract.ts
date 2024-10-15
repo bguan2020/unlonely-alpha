@@ -74,7 +74,12 @@ export const returnDecodedTopics = (
         topics: logs[i].topics,
         strict,
       }) as Record<string, any>;
-      if (_topics && typeof _topics === "object" && "eventName" in _topics && _topics.eventName === eventName) {
+      if (
+        _topics &&
+        typeof _topics === "object" &&
+        "eventName" in _topics &&
+        _topics.eventName === eventName
+      ) {
         topics = _topics as DecodedTopics;
         break;
       }

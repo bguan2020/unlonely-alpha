@@ -114,12 +114,7 @@ export const useGetClaimBetEvents = () => {
       setFetchingBets(false);
     };
     init();
-  }, [
-    user?.address,
-    contractData.address,
-    wagmiAddress,
-    counter,
-  ]);
+  }, [user?.address, contractData.address, wagmiAddress, counter]);
 
   useEffect(() => {
     const interval = setInterval(() => {

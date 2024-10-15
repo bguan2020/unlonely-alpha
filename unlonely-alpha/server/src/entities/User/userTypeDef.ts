@@ -115,7 +115,9 @@ export const typeDef = gql`
     getUserChannelContract1155Mapping(data: GetUserInput!): JSON
     getUserPackageCooldownMapping(data: GetUserInput!): JSON
     getUserTokenHolding(data: GetUserTokenHoldingInput!): Int
-    getDoesUserAddressMatch(data: GetDoesUserAddressMatchInput!): GetDoesUserAddressMatchResponse
+    getDoesUserAddressMatch(
+      data: GetDoesUserAddressMatchInput!
+    ): GetDoesUserAddressMatchResponse
   }
 
   extend type Mutation {

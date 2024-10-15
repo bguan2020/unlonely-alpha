@@ -44,7 +44,7 @@ export const useLivepeerStreamData = ({
           setPlaybackInfo(playbackInfo);
         } catch (e) {
           console.log("error livepeer playback", e);
-        }        
+        }
       }
       setCheckedForLivepeerPlaybackInfo(true);
     };

@@ -1,7 +1,7 @@
 import {
   useWaitForTransactionReceipt,
   usePublicClient,
-  useWriteContract 
+  useWriteContract,
 } from "wagmi";
 import { useState, useCallback, useEffect } from "react";
 
@@ -248,7 +248,7 @@ export const useUnpreparedMint = (
   } = useWaitForTransactionReceipt({
     hash: writeData,
   });
-  
+
   useEffect(() => {
     if (txData) {
       if (callbacks?.onTxSuccess) callbacks.onTxSuccess(txData);
@@ -304,7 +304,7 @@ export const useUnpreparedBurn = (
     isLoading: isTxLoading,
     isSuccess: isTxSuccess,
   } = useWaitForTransactionReceipt({
-    hash: writeData
+    hash: writeData,
   });
 
   useEffect(() => {

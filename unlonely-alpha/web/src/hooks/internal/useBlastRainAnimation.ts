@@ -24,8 +24,14 @@ export const useBlastRainAnimation = (
 
     const items: any[] = [];
     for (let i = 0; i < elements.length; i++) {
-      const vertSpeed = getRandomNumberInRange(config?.vertSpeedRange) ?? config?.vertSpeed ?? 3;
-      const horiSpeed = getRandomNumberInRange(config?.horizSpeedRange) ?? config?.horiSpeed ?? 1;
+      const vertSpeed =
+        getRandomNumberInRange(config?.vertSpeedRange) ??
+        config?.vertSpeed ??
+        3;
+      const horiSpeed =
+        getRandomNumberInRange(config?.horizSpeedRange) ??
+        config?.horiSpeed ??
+        1;
 
       const element = elements[i] as HTMLElement;
       const elementWidth = 24;

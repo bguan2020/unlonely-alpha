@@ -18,7 +18,10 @@ import Link from "next/link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { SelectedUser } from "../../constants/types/chat";
 import { CreateUsernameInterface } from "./layout/CreateUsernameInterface";
-import { areAddressesEqual } from "../../utils/validation/wallet";
+import {
+  areAddressesEqual,
+  isValidAddress,
+} from "../../utils/validation/wallet";
 
 export const ChatUserModal = ({
   isOpen,
@@ -31,7 +34,7 @@ export const ChatUserModal = ({
   handleClose: () => void;
   targetUser?: SelectedUser;
 }) => {
-  const { user, solanaAddress } = useUser();
+  const { user } = useUser();
   const { channel: c } = useChannelContext();
   const { channelQueryData, channelRoles } = c;
   const { network } = useNetworkContext();
@@ -157,9 +160,15 @@ export const ChatUserModal = ({
               </Text>
               <Link
                 target="_blank"
-                href={`${explorerUrl}/address/${
-                  targetUser.address ? targetUser.address : ""
-                }`}
+                href={
+                  isValidAddress(targetUser.address) === "ethereum"
+                    ? `${explorerUrl}/address/${
+                        targetUser.address ? targetUser.address : ""
+                      }`
+                    : isValidAddress(targetUser.address) === "solana"
+                    ? `https://solscan.io/account/${targetUser.address}`
+                    : ""
+                }
                 passHref
               >
                 <Flex
@@ -259,7 +268,7 @@ export const ChatUserModal = ({
                     </>
                   )}
               </Flex>
-              {solanaAddress &&
+              {isValidAddress(targetUser.address ?? "") === "solana" &&
                 !user?.username &&
                 areAddressesEqual(
                   user?.address ?? "",

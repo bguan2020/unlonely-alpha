@@ -18,8 +18,15 @@ function isConnectorNotFoundError(error: unknown): error is Error {
   );
 }
 
-function isErrorWithName(error: unknown): error is { name: string; message: string } {
-  return typeof error === "object" && error !== null && "name" in error && "message" in error;
+function isErrorWithName(
+  error: unknown
+): error is { name: string; message: string } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    "message" in error
+  );
 }
 
 function convertBigIntsToStrings(obj: any): any {
@@ -31,7 +38,10 @@ function convertBigIntsToStrings(obj: any): any {
   }
   if (typeof obj === "object" && obj !== null) {
     return Object.fromEntries(
-      Object.entries(obj).map(([key, value]) => [key, convertBigIntsToStrings(value)])
+      Object.entries(obj).map(([key, value]) => [
+        key,
+        convertBigIntsToStrings(value),
+      ])
     );
   }
   return obj;
@@ -47,7 +57,11 @@ export const useWrite = (
   const { addAppError, popAppError } = useCacheContext();
   const [isRefetching, setIsRefetching] = useState(false);
 
-  const { data: simulateData, error: simulateError, refetch: simulateRefetch } = useSimulateContract(
+  const {
+    data: simulateData,
+    error: simulateError,
+    refetch: simulateRefetch,
+  } = useSimulateContract(
     convertBigIntsToStrings({
       address: contract.address,
       abi: contract.abi,
@@ -69,10 +83,12 @@ export const useWrite = (
 
   useEffect(() => {
     if (simulateError) {
-      const errorMessage = isErrorWithName(simulateError) ? simulateError.message : String(simulateError);
-      
+      const errorMessage = isErrorWithName(simulateError)
+        ? simulateError.message
+        : String(simulateError);
+
       if (callbacks?.onPrepareError) callbacks.onPrepareError(simulateError);
-      
+
       if (isConnectorNotFoundError(simulateError)) {
         console.log("ConnectorNotFoundError:", errorMessage);
         addAppError(simulateError, functionName);
@@ -86,16 +102,23 @@ export const useWrite = (
         addAppError(namedError, functionName);
       } else {
         console.log("Unknown error:", errorMessage);
-        addAppError({ name: "UnknownError", message: errorMessage }, functionName);
+        addAppError(
+          { name: "UnknownError", message: errorMessage },
+          functionName
+        );
       }
-      
+
       if (!isConnectorNotFoundError(simulateError)) {
         popAppError("ConnectorNotFoundError", "name");
       }
     }
   }, [simulateError, functionName]);
 
-  const { data: writeData, error: writeError, writeContract } = useWriteContract();
+  const {
+    data: writeData,
+    error: writeError,
+    writeContract,
+  } = useWriteContract();
 
   useEffect(() => {
     if (writeData) {

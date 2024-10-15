@@ -9,7 +9,6 @@ export const useFetchEthPrice = () => {
 
   const router = useRouter(); // Get the current route
 
-
   useEffect(() => {
     if (router.pathname === "/") return; // Skip fetching for the root ("/") route
 

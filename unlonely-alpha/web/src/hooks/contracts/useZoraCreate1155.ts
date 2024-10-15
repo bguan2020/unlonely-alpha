@@ -22,10 +22,12 @@ export const useZoraCreate1155 = (
   >(undefined);
   const [parametersReady, setParametersReady] = useState<boolean>(false);
 
-  const creatorClient = publicClient ? createCreatorClient({
-    chainId: localNetwork.config.chainId,
-    publicClient,
-  }) : undefined;
+  const creatorClient = publicClient
+    ? createCreatorClient({
+        chainId: localNetwork.config.chainId,
+        publicClient,
+      })
+    : undefined;
 
   const initParameters = useCallback(async () => {
     if (!user?.address || !contractObject || !creatorClient) return;
@@ -64,7 +66,7 @@ export const useZoraCreate1155 = (
       chainId: localNetwork.config.chainId,
     },
     parameters?.functionName ?? "",
-    [ ...(parameters?.args ?? []) ],
+    [...(parameters?.args ?? [])],
     createCallbackHandler("useZoraCreate1155", callbacks),
     {
       value: parameters?.value,

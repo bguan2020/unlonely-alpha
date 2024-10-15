@@ -35,7 +35,8 @@ html {
 }
 
 @keyframes glowPulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0px #ff1a13;
   }
   50% {
@@ -48,8 +49,9 @@ html {
 }
 
 @keyframes glowPulseBg {
-  0%, 100% {
-    background-color: #1F2935;
+  0%,
+  100% {
+    background-color: #1f2935;
   }
   50% {
     background-color: #ff1a13;

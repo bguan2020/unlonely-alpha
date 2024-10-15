@@ -50,7 +50,7 @@ export type SocialData = {
 
 export const fetchSocial = async (
   identity: string
-): Promise<{ socialData: SocialData, rawData: any, error: string }> => {
+): Promise<{ socialData: SocialData; rawData: any; error: string }> => {
   try {
     if (!process.env.AIRSTACK_API_KEY) {
       throw new Error("AIRSTACK_API_KEY not set");
@@ -108,7 +108,7 @@ export const fetchSocial = async (
     } else {
       newData.lensImageUrl = "";
     }
-    return {socialData: newData, rawData: res, error: ""};
+    return { socialData: newData, rawData: res, error: "" };
   } catch (e: any) {
     console.log("fetchSocial error", identity, e);
     return { socialData: {}, rawData: {}, error: String(e.message) };

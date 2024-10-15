@@ -24,7 +24,9 @@ export const getContext: ContextFunction = async ({
     : null;
 
   let validated = false;
-  const latestVerifiedAddress = req.headers["latest-verified-address"] as string | undefined;
+  const latestVerifiedAddress = req.headers["latest-verified-address"] as
+    | string
+    | undefined;
   let address;
   try {
     const { userId } = await privyClient.verifyAuthToken(authToken);

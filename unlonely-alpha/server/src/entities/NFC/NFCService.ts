@@ -809,10 +809,10 @@ export const requestUploadFromLivepeer = async (
     };
     return returnData;
   } catch (e) {
-      console.log("Error requesting upload from livepeer", e);
-      throw e;
-    }
-  };
+    console.log("Error requesting upload from livepeer", e);
+    throw e;
+  }
+};
 
 export interface IGetUniqueContract1155AddressesInput {
   offset: number;
@@ -838,7 +838,7 @@ export const getUniqueContract1155Addresses = async (
     },
   });
 };
-  
+
 export interface IGetNFCFeedInput {
   offset: number;
   limit: number;

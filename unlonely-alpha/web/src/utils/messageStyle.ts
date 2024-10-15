@@ -9,13 +9,12 @@ const deepBlueEventTypes = [
   InteractionType.EVENT_PAYOUT,
   InteractionType.PUBLISH_NFC,
   InteractionType.MINT_NFC_IN_CHAT,
-
 ];
 
 const purpleEventTypes = [
   InteractionType.USE_BOO_PACKAGE,
   InteractionType.SEND_BOO_TTS,
-]
+];
 
 const blueTempTokenInteractionTypes = [
   InteractionType.CREATE_TEMP_TOKEN,
@@ -29,9 +28,11 @@ const blueTempTokenInteractionTypes = [
   InteractionType.VERSUS_SET_WINNING_TOKEN_TRADEABLE_AND_TRANSFER_LIQUIDITY,
 ];
 
-const greenTempTokenInteractionTypes = [InteractionType.BUY_TEMP_TOKENS, 
-  
-  InteractionType.BUY_BOO];
+const greenTempTokenInteractionTypes = [
+  InteractionType.BUY_TEMP_TOKENS,
+
+  InteractionType.BUY_BOO,
+];
 
 const redTempTokenInteractionTypes = [
   InteractionType.SELL_TEMP_TOKENS,
@@ -41,22 +42,18 @@ const redTempTokenInteractionTypes = [
 ];
 
 export const messageStyle = (dataBody?: string) => {
-  if (!dataBody) return {}
+  if (!dataBody) return {};
   const jpData = jp(dataBody) as ChatBotMessageBody;
   if (
     dataBody &&
-    (deepBlueEventTypes as string[]).includes(
-      jpData.interactionType
-    )
+    (deepBlueEventTypes as string[]).includes(jpData.interactionType)
   ) {
     return {
       bg: "rgba(63, 59, 253, 1)",
     };
   } else if (
     dataBody &&
-    (blueTempTokenInteractionTypes as string[]).includes(
-      jpData.interactionType
-    )
+    (blueTempTokenInteractionTypes as string[]).includes(jpData.interactionType)
   ) {
     return {
       bg: "rgba(34, 167, 255, 0.26)",
@@ -80,9 +77,7 @@ export const messageStyle = (dataBody?: string) => {
     };
   } else if (
     dataBody &&
-    (redTempTokenInteractionTypes as string[]).includes(
-      jpData.interactionType
-    )
+    (redTempTokenInteractionTypes as string[]).includes(jpData.interactionType)
   ) {
     return {
       bg: "rgba(255, 0, 0, 0.26)",
@@ -91,17 +86,17 @@ export const messageStyle = (dataBody?: string) => {
       fontWeight: "bold",
       showTimestamp: true,
     };
-  } else if (    dataBody &&
-    (purpleEventTypes as string[]).includes(
-      jpData.interactionType
-    )) {
-      return {
-        bg: "rgba(172, 166, 255, 0.26)",
-        textColor: "#d8d7fc",
-        fontStyle: "italic",
-        fontWeight: "bold",
-        showTimestamp: true,
-      };
+  } else if (
+    dataBody &&
+    (purpleEventTypes as string[]).includes(jpData.interactionType)
+  ) {
+    return {
+      bg: "rgba(172, 166, 255, 0.26)",
+      textColor: "#d8d7fc",
+      fontStyle: "italic",
+      fontWeight: "bold",
+      showTimestamp: true,
+    };
   } else if (jpData.interactionType === InteractionType.CLIP) {
     return {
       bgGradient:
@@ -111,9 +106,7 @@ export const messageStyle = (dataBody?: string) => {
     return {
       bg: "rgba(10, 179, 18, 1)",
     };
-  } else if (
-    jpData.interactionType === InteractionType.SELL_VIBES
-  ) {
+  } else if (jpData.interactionType === InteractionType.SELL_VIBES) {
     return {
       bg: "rgba(218, 58, 19, 1)",
     };
