@@ -8,6 +8,7 @@ import MessageList from "./MessageList";
 import { useUser } from "../../hooks/context/useUser";
 import { VipBadgeBuy } from "../channels/vibes/VipBadgeBuy";
 import { useChatBox } from "../../hooks/chat/useChatBox";
+import { areAddressesEqual } from "../../utils/validation/wallet";
 
 export const Chat = ({
   chat,
@@ -31,7 +32,11 @@ export const Chat = ({
   const { user } = useUser();
 
   const userIsChannelOwner = useMemo(
-    () => user?.address === channelQueryData?.owner.address,
+    () =>
+      areAddressesEqual(
+        user?.address ?? "",
+        channelQueryData?.owner?.address ?? ""
+      ),
     [user, channelQueryData]
   );
 

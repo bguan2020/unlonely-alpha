@@ -23,6 +23,7 @@ import { messageStyle } from "../../utils/messageStyle";
 import { jp } from "../../utils/validation/jsonParse";
 import { NfcClipMintInterface } from "../general/NfcClipMintInterface";
 import trailString from "../../utils/trailString";
+import { areAddressesEqual } from "../../utils/validation/wallet";
 
 type Props = MessageItemProps & {
   messageText: string;
@@ -52,7 +53,11 @@ const MessageBody = ({
   const [nfcExpanded, setNfcExpanded] = useState(false);
 
   const userIsChannelOwner = useMemo(
-    () => user?.address === channelQueryData?.owner?.address,
+    () =>
+      areAddressesEqual(
+        user?.address ?? "",
+        channelQueryData?.owner?.address ?? ""
+      ),
     [user, channelQueryData]
   );
 

@@ -52,7 +52,11 @@ export const ChatUserModal = ({
   });
 
   const userIsChannelOwner = useMemo(
-    () => user?.address === channelQueryData?.owner?.address,
+    () =>
+      areAddressesEqual(
+        user?.address ?? "",
+        channelQueryData?.owner?.address ?? ""
+      ),
     [user, channelQueryData]
   );
 

@@ -5,6 +5,7 @@ import { TiPin } from "react-icons/ti";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import { MdClose } from "react-icons/md";
+import { areAddressesEqual } from "../../utils/validation/wallet";
 
 type Props = {
   messageText: string;
@@ -23,10 +24,13 @@ const PinnedMessageBody = ({ messageText, handlePinCallback }: Props) => {
   );
 
   const userIsChannelOwner = useMemo(
-    () => user?.address === channelQueryData?.owner?.address,
+    () =>
+      areAddressesEqual(
+        user?.address ?? "",
+        channelQueryData?.owner?.address ?? ""
+      ),
     [user, channelQueryData]
   );
-
   const userIsModerator = useMemo(
     () =>
       channelRoles?.some((m) => m?.address === user?.address && m?.role === 2),

@@ -38,6 +38,7 @@ import { truncateValue } from "../../utils/tokenDisplayFormatting";
 import { useTempTokenContext } from "../../hooks/context/useTempToken";
 import { bondingCurveBigInt } from "../../utils/contract";
 import { SelectedUser } from "../../constants/types/chat";
+import { areAddressesEqual } from "../../utils/validation/wallet";
 
 export const ChatUserModal_token = ({
   isOpen,
@@ -171,7 +172,11 @@ export const ChatUserModal_token = ({
   });
 
   const userIsChannelOwner = useMemo(
-    () => user?.address === channelQueryData?.owner?.address,
+    () =>
+      areAddressesEqual(
+        user?.address ?? "",
+        channelQueryData?.owner?.address ?? ""
+      ),
     [user, channelQueryData]
   );
 
