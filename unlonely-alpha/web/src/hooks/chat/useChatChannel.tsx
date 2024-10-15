@@ -16,12 +16,12 @@ import {
 import { useUser } from "../context/useUser";
 // import { SharesEventState } from "../../generated/graphql";
 import { useVibesContext } from "../context/useVibes";
-import { isAddress, isAddressEqual } from "viem";
 import { Box, Flex, useToast, Text } from "@chakra-ui/react";
 import centerEllipses from "../../utils/centerEllipses";
 import { useTempTokenContext } from "../context/useTempToken";
 import { useVersusTempTokenContext } from "../context/useVersusTempToken";
 import { jp } from "../../utils/validation/jsonParse";
+import { areAddressesEqual } from "../../utils/validation/wallet";
 
 const ably = new Ably.Realtime.Promise({ authUrl: "/api/createTokenRequest" });
 
@@ -112,13 +112,8 @@ export function useChatChannel(fixedChatName?: string) {
       const amount = body.amount as number;
       const symbol = body.symbol as string;
       const includesUser =
-        toAddress &&
-        isAddress(toAddress) &&
-        fromAddress &&
-        isAddress(fromAddress) &&
-        isAddress(user?.address ?? "") &&
-        (isAddressEqual(fromAddress, user?.address as `0x${string}`) ||
-          isAddressEqual(toAddress, user?.address as `0x${string}`));
+        areAddressesEqual(fromAddress ?? "", user?.address ?? "") ||
+        areAddressesEqual(toAddress ?? "", user?.address ?? "");
       if (includesUser) {
         if (symbol === "vibes") {
           refetchVibesBalance?.();
@@ -130,12 +125,7 @@ export function useChatChannel(fixedChatName?: string) {
           refetchUserTempTokenBalance?.();
         }
       }
-      if (
-        toAddress &&
-        isAddress(toAddress) &&
-        isAddress(user?.address ?? "") &&
-        isAddressEqual(toAddress, user?.address as `0x${string}`)
-      ) {
+      if (toAddress && areAddressesEqual(toAddress, user?.address ?? "")) {
         toast({
           duration: 5000,
           isClosable: true,

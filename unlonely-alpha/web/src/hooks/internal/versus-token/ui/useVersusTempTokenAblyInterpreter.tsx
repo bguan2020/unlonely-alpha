@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect } from "react";
-import { isAddress, isAddressEqual } from "viem";
 import { InteractionType, CHAT_MESSAGE_EVENT } from "../../../../constants";
 import { calculateMaxWinnerTokensToMint } from "../../../../utils/calculateMaxWinnerTokensToMint";
 import { ChatReturnType } from "../../../chat/useChat";
@@ -15,6 +14,7 @@ import {
 } from "../../../../constants/types/token";
 import { ChatBotMessageBody } from "../../../../constants/types/chat";
 import { jp } from "../../../../utils/validation/jsonParse";
+import { areAddressesEqual } from "../../../../utils/validation/wallet";
 
 export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   const { wagmiAddress } = useUser();
@@ -123,21 +123,13 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
       blockNumberOfLastInAppTrade.current = BigInt(txBlockNumber);
     } else {
       const incomingTxTokenAddress = jpBody.tokenAddress;
-      const tokenType =
-        isAddress(tokenB.address) &&
-        isAddress(incomingTxTokenAddress) &&
-        isAddressEqual(tokenB.address, incomingTxTokenAddress)
-          ? "b"
-          : "a";
-      if (
-        wagmiAddress &&
-        isAddress(wagmiAddress) &&
-        isAddress(_userAddress) &&
-        isAddressEqual(
-          wagmiAddress as `0x${string}`,
-          _userAddress as `0x${string}`
-        )
-      ) {
+      const tokenType = areAddressesEqual(
+        tokenB.address,
+        incomingTxTokenAddress
+      )
+        ? "b"
+        : "a";
+      if (wagmiAddress && areAddressesEqual(wagmiAddress, _userAddress)) {
         if (tokenType === "a") {
           await refetchUserTempTokenBalanceA?.();
         } else {
@@ -255,12 +247,6 @@ export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         jpBody.interactionType === InteractionType.SELL_TEMP_TOKENS ||
         jpBody.interactionType === InteractionType.VERSUS_WINNER_TOKENS_MINTED
       ) {
-        // todo: some buys and sells are not being processed, thus chart is not updating
-        // has been happening since switch to jpBody data object use
-        console.log(
-          "useVersusTempTokenAblyInterpreter setTxBody jpBody",
-          jpBody
-        );
         setTempTokenTransactionBody(body);
       }
       if (

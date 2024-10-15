@@ -11,9 +11,9 @@ import { useChannelContext } from "../context/useChannel";
 import { useNetworkContext } from "../context/useNetwork";
 import { useUser } from "../context/useUser";
 import { ChatReturnType } from "../chat/useChat";
-import { isAddress, isAddressEqual } from "viem";
 import { jp } from "../../utils/validation/jsonParse";
 import { ChatBotMessageBody } from "../../constants/types/chat";
+import { areAddressesEqual } from "../../utils/validation/wallet";
 
 export const useVipBadgeUi = (chat: ChatReturnType) => {
   const { user } = useUser();
@@ -66,11 +66,9 @@ export const useVipBadgeUi = (chat: ChatReturnType) => {
         ) {
           if (body.eventByte === generatedKey) {
             if (
-              isAddress(user?.address ?? "") &&
-              isAddress(body.trader) &&
-              isAddressEqual(
+              areAddressesEqual(
                 body.trader as `0x${string}`,
-                user?.address as `0x${string}`
+                user?.address ?? ""
               )
             ) {
               setVipBadgeBalance((prev) =>

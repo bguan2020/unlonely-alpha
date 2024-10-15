@@ -1,5 +1,4 @@
 import { useRef, useEffect, useState } from "react";
-import { isAddress, isAddressEqual } from "viem";
 import { InteractionType, CHAT_MESSAGE_EVENT } from "../../../../constants";
 import { useTempTokenContext } from "../../../context/useTempToken";
 import useDebounce from "../../useDebounce";
@@ -10,6 +9,7 @@ import { useScreenAnimationsContext } from "../../../context/useScreenAnimations
 import { Text } from "@chakra-ui/react";
 import { jp } from "../../../../utils/validation/jsonParse";
 import { ChatBotMessageBody } from "../../../../constants/types/chat";
+import { areAddressesEqual } from "../../../../utils/validation/wallet";
 
 export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
   const { user } = useUser();
@@ -83,9 +83,7 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
       );
       if (
         currentTempTokenContract.address &&
-        isAddress(incomingTxTokenAddress) &&
-        isAddress(currentTempTokenContract.address) &&
-        isAddressEqual(
+        areAddressesEqual(
           incomingTxTokenAddress as `0x${string}`,
           currentTempTokenContract.address as `0x${string}`
         )
@@ -105,12 +103,7 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         );
         if (
           user?.address &&
-          isAddress(user?.address) &&
-          isAddress(_userAddress) &&
-          isAddressEqual(
-            user?.address as `0x${string}`,
-            _userAddress as `0x${string}`
-          )
+          areAddressesEqual(user?.address ?? "", _userAddress ?? "")
         ) {
           refetchUserTempTokenBalance?.();
         }
@@ -185,9 +178,6 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
         jpBody.interactionType === InteractionType.BUY_TEMP_TOKENS ||
         jpBody.interactionType === InteractionType.SELL_TEMP_TOKENS
       ) {
-        // todo: some buys and sells are not being processed, thus chart is not updating
-        // has been happening since switch to jpBody data object use
-        console.log("useTempTokenAblyInterpreter setTxBody jpBody", jpBody);
         setTempTokenTransactionBody(body);
       }
       if (
@@ -196,21 +186,13 @@ export const useTempTokenAblyInterpreter = (chat: ChatReturnType) => {
       ) {
         const to = jpBody.tokenContractAddress;
 
-        if (
-          isAddress(to) &&
-          isAddress(lastInactiveTokenAddress) &&
-          isAddressEqual(to, lastInactiveTokenAddress)
-        ) {
+        if (areAddressesEqual(to, lastInactiveTokenAddress)) {
           onSendRemainingFundsToWinnerEvent(
             lastInactiveTokenAddress as `0x${string}`,
             false
           );
         }
-        if (
-          isAddress(to) &&
-          isAddress(currentActiveTokenAddress) &&
-          isAddressEqual(to, currentActiveTokenAddress)
-        ) {
+        if (areAddressesEqual(to, currentActiveTokenAddress)) {
           onSendRemainingFundsToWinnerEvent(
             currentActiveTokenAddress as `0x${string}`,
             true

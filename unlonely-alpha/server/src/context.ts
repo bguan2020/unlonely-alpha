@@ -29,13 +29,13 @@ export const getContext: ContextFunction = async ({
   try {
     const { userId } = await privyClient.verifyAuthToken(authToken);
     const user = await privyClient.getUser(userId);
-    console.log(
-      "Authenticating request:",
-      new Date(Date.now()).toLocaleString(),
-      latestVerifiedAddress,
-      user.wallet?.address,
-      userId
-    );
+    // console.log(
+    //   "Authenticating request:",
+    //   new Date(Date.now()).toLocaleString(),
+    //   latestVerifiedAddress,
+    //   user.wallet?.address,
+    //   userId
+    // );
     address = latestVerifiedAddress || user.wallet?.address;
     validated = true;
   } catch (e) {
