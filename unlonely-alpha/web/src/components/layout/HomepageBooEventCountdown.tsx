@@ -11,7 +11,7 @@ export const HomePageBooEventTokenCountdown = ({
     <Flex
       alignItems="center"
       justifyContent={"space-between"}
-      h={["85px", "115px", "115px", "115px"]}
+      h={["85px", "100px", "100px", "100px"]}
       py="10px"
       px="5vw"
       backgroundImage="url('/svg/gradient.svg')"
