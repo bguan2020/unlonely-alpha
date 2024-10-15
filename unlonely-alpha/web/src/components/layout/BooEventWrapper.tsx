@@ -13,8 +13,8 @@ import { useScreenAnimationsContext } from "../../hooks/context/useScreenAnimati
 import { Image } from "@chakra-ui/react";
 
 export const eventStartTime = 1730333783000;
-const slug = "danny";
-export const CHANNEL_ID_TO_USE = 29;
+const slug = "brian";
+export const CHANNEL_ID_TO_USE = 3;
 
 const BooEventWrapper = () => {
   return (
