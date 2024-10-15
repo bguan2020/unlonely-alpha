@@ -49,8 +49,9 @@ const useUpdateUsername = ({ onError }: Props) => {
         return {
           res,
         };
-      } catch (e) {
+      } catch (e: any) {
         console.log("updateUsername error", JSON.stringify(e, null, 2));
+        onError && onError(e);
       }
     },
     [mutate, onError]

@@ -1,4 +1,4 @@
-// import { AuthenticationError } from "apollo-server";
+import { AuthenticationError } from "apollo-server";
 
 import { Context } from "../../context";
 import * as packageService from "./packageService";
@@ -15,9 +15,9 @@ export const resolvers = {
       { data }: { data: packageService.IUpdatePackageInput },
       ctx: Context
     ) => {
-      // if (!ctx.user) {
-      //     throw new AuthenticationError("User is not authenticated");
-      // }
+      if (!ctx.user) {
+          throw new AuthenticationError("User is not authenticated");
+      }
       return packageService.updatePackage(data, ctx);
     },
   },

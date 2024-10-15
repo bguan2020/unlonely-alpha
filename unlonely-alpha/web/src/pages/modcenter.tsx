@@ -28,6 +28,7 @@ import {
 // import { WS_URL } from "../components/layout/BooEventTtsComponent";
 import { FaLongArrowAltRight, FaLongArrowAltLeft } from "react-icons/fa";
 import { CHANNEL_ID_TO_USE } from "../components/layout/BooEventWrapper";
+import centerEllipses from "../utils/centerEllipses";
 
 export const INTERACTIONS_CHANNEL = "persistMessages:interactions";
 
@@ -173,6 +174,7 @@ const ModCenter = () => {
         const ttsBody: {
           id: string;
           text: string;
+          userId: string;
         } = JSON.parse(message.data.body);
 
         setReceivedTtsInteractions((prevInteractions) => {
@@ -195,10 +197,10 @@ const ModCenter = () => {
   const { updateStreamInteraction } = useUpdateStreamInteraction({});
 
   const [receivedTtsInteractions, setReceivedTtsInteractions] = useState<
-    { id: string; text?: string }[]
+    { id: string; userId: string; text?: string }[]
   >([]);
   const [queuedTtsInteractions, setQueuedTtsInteractions] = useState<
-    { id: string; text?: string }[]
+    { id: string; userId: string; text?: string }[]
   >([]);
   const [receivedPackageInteractions, setReceivedPackageInteractions] =
     useState<
@@ -251,16 +253,19 @@ const ModCenter = () => {
         },
       },
     });
-    const ttsInteractions = interactions?.getStreamInteractions
-      .filter(
-        (i: any) => i.interactionType === StreamInteractionType.TtsInteraction
-      )
-      .map((interaction: any) => {
-        return {
-          id: interaction.id,
-          text: interaction.text,
-        };
-      });
+    const ttsInteractions: { id: string; userId: string; text?: string }[] =
+      interactions?.getStreamInteractions
+        .filter(
+          (i: any) => i.interactionType === StreamInteractionType.TtsInteraction
+        )
+        .map((interaction: any) => {
+          const owner = interaction?.owner;
+          return {
+            id: interaction.id,
+            userId: owner.username ?? centerEllipses(owner.address, 15),
+            text: interaction.text,
+          };
+        });
     const packageInteractions = interactions?.getStreamInteractions
       .filter(
         (i: any) =>
@@ -288,12 +293,16 @@ const ModCenter = () => {
   const { updatePackage } = useUpdatePackage({});
 
   const handleQueuedTtsInteractions = useCallback(
-    async (interaction: { id: string; text?: string }, remove: boolean) => {
+    async (
+      interaction: { id: string; userId: string; text?: string },
+      remove: boolean
+    ) => {
       if (!remove) {
         setQueuedTtsInteractions((prevInteractions) => {
           return [
             {
               id: interaction.id,
+              userId: interaction.userId,
               text: interaction.text,
             },
             ...prevInteractions,
@@ -310,6 +319,7 @@ const ModCenter = () => {
             ...prevInteractions,
             {
               id: interaction.id,
+              userId: interaction.userId,
               text: interaction.text,
             },
           ];
@@ -597,6 +607,14 @@ const ModCenter = () => {
                   gap="4px"
                   direction="column"
                 >
+                  <Text
+                    fontSize="13px"
+                    color={"#a1c5ff"}
+                    fontStyle={"italic"}
+                    fontWeight={"bold"}
+                  >
+                    {interaction.userId}
+                  </Text>
                   <Text>{interaction.text}</Text>
                   <Flex justifyContent={"space-between"} gap="4px">
                     <Button

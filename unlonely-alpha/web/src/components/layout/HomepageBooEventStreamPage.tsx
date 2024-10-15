@@ -35,6 +35,10 @@ export const HomePageBooEventStreamPage = () => {
     return remaining > 0 ? remaining : 0;
   }, [dateNow]);
 
+  const isThereTimeLeft = useMemo(() => {
+    return timeLeftInMillis > 0;
+  }, [timeLeftInMillis]);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setDateNow(Date.now());
@@ -45,18 +49,16 @@ export const HomePageBooEventStreamPage = () => {
   return (
     <Flex direction="column" height="100vh">
       <Header />
-      {timeLeftInMillis > 0 && (
+      {isThereTimeLeft && (
         <HomePageBooEventTokenCountdown timeLeftInMillis={timeLeftInMillis} />
       )}
       <Flex
         direction={["column", "column", "row"]}
         width="100%"
-        height={
-          timeLeftInMillis > 0 ? "calc(100vh - 100px - 24px - 70px)" : "unset"
-        }
+        height={isThereTimeLeft ? "calc(100vh - 100px - 24px - 70px)" : "100%"}
         bg="black"
       >
-        {timeLeftInMillis > 0 ? (
+        {isThereTimeLeft ? (
           <HomepageBooEventTrailer />
         ) : (
           <HomepageBooEventStream
@@ -68,9 +70,7 @@ export const HomePageBooEventStreamPage = () => {
         <Flex
           direction="column"
           width={
-            timeLeftInMillis > 0
-              ? ["100%", "100%", "30%"]
-              : ["100%", "100%", "20%"]
+            isThereTimeLeft ? ["100%", "100%", "30%"] : ["100%", "100%", "20%"]
           }
           height="100%"
         >
@@ -80,7 +80,7 @@ export const HomePageBooEventStreamPage = () => {
             tokenForTransfer="vibes"
             noTabs
             tokenGating={
-              (balance && balance > 0 && solanaAddress) || timeLeftInMillis > 0
+              (balance && balance > 0 && solanaAddress) || isThereTimeLeft
                 ? undefined
                 : solanaAddress
                 ? {
@@ -96,7 +96,7 @@ export const HomePageBooEventStreamPage = () => {
           />
         </Flex>
       </Flex>
-      {timeLeftInMillis > 0 && (
+      {isThereTimeLeft && (
         <Flex
           justifyContent={"space-between"}
           px="10px"

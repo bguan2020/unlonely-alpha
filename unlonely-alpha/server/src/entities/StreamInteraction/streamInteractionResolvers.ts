@@ -42,6 +42,9 @@ export const resolvers = {
       },
       ctx: Context
     ) => {
+      if (!ctx.user || !ctx.userIsAuthed) {
+        throw new AuthenticationError("User is not authenticated");
+      }
       return streamInteractionService.updateStreamInteraction(data, ctx);
     },
   },

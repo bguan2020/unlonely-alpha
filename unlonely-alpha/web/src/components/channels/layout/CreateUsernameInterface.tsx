@@ -24,7 +24,11 @@ export const CreateUsernameInterface = ({
   const [stagingUsername, setStagingUsername] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const { updateUsername } = useUpdateUsername({});
+  const { updateUsername } = useUpdateUsername({
+    onError: (error: any) => {
+      handleError(String(error));
+    },
+  });
   const toast = useToast();
 
   const errorMessage = useMemo(() => {
@@ -40,9 +44,9 @@ export const CreateUsernameInterface = ({
     return "";
   }, [stagingUsername]);
 
-  const handleError = () => {
+  const handleError = (message?: string) => {
     toast({
-      title: "error creating username",
+      title: message ?? "error creating username",
       status: "error",
       duration: 4000,
       isClosable: true,

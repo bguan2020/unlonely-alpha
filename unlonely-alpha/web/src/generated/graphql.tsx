@@ -1885,6 +1885,7 @@ export type GetStreamInteractionsQuery = {
     text?: string | null;
     interactionType: string;
     id: string;
+    owner: { __typename?: "User"; username?: string | null; address: string };
   } | null> | null;
 };
 
@@ -3806,6 +3807,10 @@ export const GetStreamInteractionsDocument = gql`
       text
       interactionType
       id
+      owner {
+        username
+        address
+      }
     }
   }
 `;

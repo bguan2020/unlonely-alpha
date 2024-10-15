@@ -84,8 +84,6 @@ export function useChatChannel(fixedChatName?: string) {
       : "persistMessages:chat-demo";
   }, [chatChannel, fixedChatName]);
 
-  console.log("ablyChannelName", channelName);
-
   const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
   const [allMessages, setAllMessages] = useState<Message[]>([]);
   const [hasMessagesLoaded, setHasMessagesLoaded] = useState(false);

@@ -461,18 +461,6 @@ export const UserProvider = ({
                             connectWallet({
                               suggestedAddress: (account as WalletWithMetadata)
                                 .address,
-                              // walletList:
-                              //   (account as WalletWithMetadata)
-                              //     .walletClientType &&
-                              //   isWalletListEntry(
-                              //     (account as WalletWithMetadata)
-                              //       .walletClientType
-                              //   )
-                              //     ? ([
-                              //         (account as WalletWithMetadata)
-                              //           .walletClientType,
-                              //       ] as WalletListEntry[])
-                              //     : undefined,
                             });
                           }
                         }}
@@ -514,30 +502,6 @@ export const UserProvider = ({
               {privyUser?.id}
             </Text>
           </Flex>
-          {/* <Button onClick={() => signMessage({ message: "hello world" })}>
-            test sign message
-          </Button> */}
-          {/* <Button
-            onClick={async () => {
-              // const { data: getDoesUserAddressMatchData } = await client.query({
-              //   query: GET_DOES_USER_ADDRESS_MATCH_QUERY,
-              //   variables: { data: { address: wagmiAddress } },
-              // });
-              // console.log(
-              //   "ARC verified manual getDoesUserAddressMatchData",
-              //   getDoesUserAddressMatchData
-              // );
-              // setDoesUserAddressMatch(
-              //   getDoesUserAddressMatchData?.getDoesUserAddressMatch
-              // );
-              postStreamInteraction({
-                streamInteractionType: "test",
-                channelId: "1",
-              });
-            }}
-          >
-            test backend
-          </Button> */}
           <Button
             color="white"
             bg="#E09025"

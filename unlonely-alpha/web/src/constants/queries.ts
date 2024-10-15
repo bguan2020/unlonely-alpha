@@ -127,6 +127,10 @@ export const GET_STREAM_INTERACTIONS_QUERY = gql`
       text
       interactionType
       id
+      owner {
+        username
+        address
+      }
     }
   }
 `;
