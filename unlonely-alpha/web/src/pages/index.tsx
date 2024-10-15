@@ -110,7 +110,7 @@ import BooEventWrapper from "../components/layout/BooEventWrapper";
 //           <Link href="https://warpcast.com/unlonely" passHref target="_blank">
 //             <Text fontFamily="LoRes15">farcaster</Text>
 //           </Link>
-//           <Link href="https://t.me/+IE_BA-tyLIA5MzZh" passHref target="_blank">
+//           <Link href="https://t.me/+c19n9g-FxZszODIx" passHref target="_blank">
 //             <Text fontFamily="LoRes15">telegram</Text>
 //           </Link>
 //         </Stack>

@@ -122,7 +122,7 @@ export const HomePageBooEventStreamPage = () => {
           <Link href="https://bit.ly/unlonelyFAQs" passHref target="_blank">
             <Text fontFamily="LoRes15">faq</Text>
           </Link>
-          <Link href="https://t.me/+IE_BA-tyLIA5MzZh" passHref target="_blank">
+          <Link href="https://t.me/+c19n9g-FxZszODIx" passHref target="_blank">
             <Text fontFamily="LoRes15">telegram</Text>
           </Link>
           <Link
