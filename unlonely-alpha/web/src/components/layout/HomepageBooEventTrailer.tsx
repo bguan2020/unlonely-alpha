@@ -1,5 +1,6 @@
 import { Flex } from "@chakra-ui/react";
 import { useEffect, useRef } from "react";
+import { isValidAddress } from "../../utils/validation/wallet";
 
 export const HomepageBooEventTrailer = ({
   callback,
@@ -26,6 +27,11 @@ export const HomepageBooEventTrailer = ({
       video?.removeEventListener("volumechange", checkMuteStatus);
     };
   }, []);
+
+  console.log(
+    "valid address",
+    isValidAddress("3cFa74jShjwGR1pzgbcyQESwCjzx7ndPMUV6oEGdo2W4")
+  );
 
   return (
     <Flex width={"100%"} height="auto">
