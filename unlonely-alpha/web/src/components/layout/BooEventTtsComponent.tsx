@@ -10,10 +10,7 @@ import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useU
 import { convertToHHMMSS } from "../../utils/time";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { createPackageCooldownArray } from "../../utils/packageCooldownHandler";
-
-// export const WS_URL = "wss://sea-lion-app-j3rts.ondigitalocean.app/";
-
-// let socket: Socket | null;
+import centerEllipses from "../../utils/centerEllipses";
 
 export const BooEventTtsComponent = ({
   interactionsAblyChannel,
@@ -40,18 +37,6 @@ export const BooEventTtsComponent = ({
     updateUserPackageCooldownMapping: updateUserBooPackageCooldownMapping,
   } = useUpdateUserPackageCooldownMapping({});
 
-  // useEffect(() => {
-  //   socket = io(WS_URL, {
-  //     transports: ["websocket"],
-  //   });
-
-  //   return () => {
-  //     if (socket) {
-  //       socket.disconnect();
-  //     }
-  //   };
-  // }, []);
-
   const handlePost = async (text: string) => {
     await postStreamInteraction({
       channelId: String(channelQueryData?.id),
@@ -75,11 +60,11 @@ export const BooEventTtsComponent = ({
           body: JSON.stringify({
             id: res?.res?.id ?? "0",
             text,
+            userId: user?.username ?? centerEllipses(user?.address, 15),
           }),
         },
       });
     });
-    // socket?.emit("interaction", { text });
   };
 
   const cooldownCountdown = useMemo(() => {
