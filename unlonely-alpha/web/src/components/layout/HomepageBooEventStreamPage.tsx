@@ -52,7 +52,7 @@ export const HomePageBooEventStreamPage = () => {
         direction={["column", "column", "row"]}
         width="100%"
         height={
-          timeLeftInMillis > 0 ? "calc(100vh - 115px - 24px - 70px)" : "unset"
+          timeLeftInMillis > 0 ? "calc(100vh - 100px - 24px - 70px)" : "unset"
         }
         bg="black"
       >
