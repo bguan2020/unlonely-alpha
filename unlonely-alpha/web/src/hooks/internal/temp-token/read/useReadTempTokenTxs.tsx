@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { parseAbiItem } from "viem";
+import { isAddress, parseAbiItem } from "viem";
 import { NULL_ADDRESS } from "../../../../constants";
 import { ContractData, TradeableTokenTx } from "../../../../constants/types";
 import {
@@ -76,7 +76,12 @@ export const useReadTempTokenTxs = ({
   const {
     balance: userTempTokenBalance,
     refetch: refetchUserTempTokenBalance,
-  } = useGetUserBalance(user?.address as `0x${string}`, tempTokenContract);
+  } = useGetUserBalance(
+    isAddress(user?.address as `0x${string}`)
+      ? (user?.address as `0x${string}`)
+      : "",
+    tempTokenContract
+  );
 
   const getTempTokenEvents = useCallback(
     async (

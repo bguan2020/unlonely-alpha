@@ -5,7 +5,7 @@ import {
   useGetHolderBalance,
   useSupply,
 } from "../contracts/useTournament";
-import { CHAT_MESSAGE_EVENT, Contract, InteractionType } from "../../constants";
+import { CHAT_MESSAGE_EVENT, Contract, InteractionType, NULL_ADDRESS } from "../../constants";
 import { getContractFromNetwork } from "../../utils/contract";
 import { useChannelContext } from "../context/useChannel";
 import { useNetworkContext } from "../context/useNetwork";
@@ -14,6 +14,7 @@ import { ChatReturnType } from "../chat/useChat";
 import { jp } from "../../utils/validation/jsonParse";
 import { ChatBotMessageBody } from "../../constants/types/chat";
 import { areAddressesEqual } from "../../utils/validation/wallet";
+import { isAddress } from "viem";
 
 export const useVipBadgeUi = (chat: ChatReturnType) => {
   const { user } = useUser();
@@ -42,7 +43,7 @@ export const useVipBadgeUi = (chat: ChatReturnType) => {
   );
 
   const { vipBadgeBalance, setVipBadgeBalance } = useGetHolderBalance(
-    channelQueryData?.owner?.address as `0x${string}`,
+    isAddress(channelQueryData?.owner?.address ?? "") ? channelQueryData?.owner?.address as `0x${string}` : NULL_ADDRESS,
     0,
     user?.address as `0x${string}`,
     tournamentContract

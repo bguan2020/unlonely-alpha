@@ -21,6 +21,7 @@ import {
   Contract,
   DEFAULT_TOKEN_TRADE_AMOUNT,
   InteractionType,
+  NULL_ADDRESS,
 } from "../../../constants";
 import {
   useGetMintCostAfterFees,
@@ -91,7 +92,9 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
   } = useGetMintCostAfterFees(amount_votes_bigint, contract);
 
   const { data: userEthBalance, refetch: refetchUserEthBalance } = useBalance({
-    address: user?.address as `0x${string}`,
+    address: isAddress(user?.address as `0x${string}`)
+      ? (user?.address as `0x${string}`)
+      : NULL_ADDRESS,
   });
 
   const { protocolFeeDestination, refetch: refetchDest } =

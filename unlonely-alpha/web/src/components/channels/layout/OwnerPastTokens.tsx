@@ -68,7 +68,7 @@ export const OwnerPastTokens = () => {
           data: {
             factoryAddress: factoryContract.address as `0x${string}`,
             chainId: localNetwork.config.chainId,
-            ownerAddress: channelQueryData?.owner?.address as `0x${string}`,
+            ownerAddress: channelQueryData?.owner?.address,
             fulfillAllNotAnyConditions: true,
           },
         },
