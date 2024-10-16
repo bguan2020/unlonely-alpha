@@ -15,6 +15,7 @@ import {
   FIXED_SOLANA_MINT,
   PACKAGE_PRICE_CHANGE_EVENT,
   RESET_COOLDOWNS_NAME,
+  ROOM_CHANGE_EVENT,
   TEXT_TO_SPEECH_PACKAGE_NAME,
 } from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
@@ -24,12 +25,17 @@ import { BooEventTtsComponent } from "./BooEventTtsComponent";
 import { useLazyQuery } from "@apollo/client";
 import {
   GET_PACKAGES_QUERY,
+  GET_ROOMS_QUERY,
   GET_USER_PACKAGE_COOLDOWN_MAPPING_QUERY,
 } from "../../constants/queries";
 import { GetUserPackageCooldownMappingQuery } from "../../generated/graphql";
 import { jp } from "../../utils/validation/jsonParse";
 import { BooScarePackages } from "./BooScarePackages";
-import { INTERACTIONS_CHANNEL, PackageInfo } from "../../pages/modcenter";
+import {
+  INTERACTIONS_CHANNEL,
+  PackageInfo,
+  RoomInfo,
+} from "../../pages/modcenter";
 import { useAblyChannel } from "../../hooks/chat/useChatChannel";
 import { UseInteractionModal } from "../channels/UseInteractionModal";
 import { areAddressesEqual } from "../../utils/validation/wallet";
@@ -111,6 +117,11 @@ export const HomepageBooEventStream = ({
         };
         setBooPackageMap(newPackageMap);
       }
+      if (message && message.data.body && message.name === ROOM_CHANGE_EVENT) {
+        const body = message.data.body;
+        const jpBody = jp(body);
+        setCurrentRoom(jpBody);
+      }
     }
   );
 
@@ -139,6 +150,14 @@ export const HomepageBooEventStream = ({
     fetchPolicy: "network-only",
   });
 
+  const [getRooms] = useLazyQuery(GET_ROOMS_QUERY, {
+    fetchPolicy: "network-only",
+  });
+
+  const [currentRoom, setCurrentRoom] = useState<RoomInfo | undefined>(
+    undefined
+  );
+
   const fetchBooPackages = useCallback(async () => {
     const { data } = await _fetchBooPackages();
     const packages = data?.getPackages;
@@ -155,8 +174,20 @@ export const HomepageBooEventStream = ({
     }
   }, []);
 
+  const fetchRoom = useCallback(async () => {
+    const { data } = await getRooms();
+    const rooms = data?.getRooms;
+    if (rooms) {
+      // find the room whose inUse is true
+      const roomInUse = rooms.find((room: any) => room.inUse);
+      console.log("roomInUse", roomInUse);
+      setCurrentRoom(roomInUse);
+    }
+  }, []);
+
   useEffect(() => {
     fetchBooPackages();
+    fetchRoom();
   }, []);
 
   const [_fetchUserBooPackageCooldownMapping] =
@@ -298,6 +329,7 @@ export const HomepageBooEventStream = ({
                           </Flex>
                         </Flex>
                         <BooCarePackages
+                          currentRoom={currentRoom}
                           interactionsAblyChannel={interactionsChannel}
                           dateNow={dateNow}
                           booPackageMap={booPackageMap}
@@ -366,6 +398,7 @@ export const HomepageBooEventStream = ({
                           </Flex>
                         </Flex>
                         <BooScarePackages
+                          currentRoom={currentRoom}
                           interactionsAblyChannel={interactionsChannel}
                           dateNow={dateNow}
                           booPackageMap={booPackageMap}
