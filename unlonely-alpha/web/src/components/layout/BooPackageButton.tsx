@@ -1,4 +1,4 @@
-import { Flex, IconButton } from "@chakra-ui/react";
+import { Flex, IconButton, Tooltip } from "@chakra-ui/react";
 import { useUser } from "../../hooks/context/useUser";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import {
@@ -135,41 +135,50 @@ export const BooPackageButton = ({
 
   return (
     <Flex direction="column" gap="4px">
-      <Flex position="relative" justifyContent={"center"}>
-        <IconButton
-          bg="transparent"
-          _focus={{}}
-          _active={{}}
-          _hover={{}}
-          icon={imageComponent}
-          aria-label={`${packageInfo.name}-package`}
-          isDisabled={isDisabled}
-          onClick={() => {
-            onClick(packageInfo.name, handleSendTokens);
-          }}
-        />
-        {cooldownCountdown.displayCooldown > 0 && (
-          <Flex
-            position="absolute"
-            top="0"
-            left="0"
-            right="0"
-            bottom="0"
-            bg="blackAlpha.500"
-            justifyContent="center"
-            alignItems="center"
-            borderRadius="15px"
-            color={
-              cooldownCountdown.secondaryCooldown >
-              cooldownCountdown.lastUsedCooldown
-                ? "red"
-                : "unset"
-            }
-          >
-            {`${cooldownCountdown.displayCooldown}s`}
-          </Flex>
-        )}
-      </Flex>
+      <Tooltip
+        label={
+          isValidAddress(user?.address) !== "solana"
+            ? "log in with solana wallet first"
+            : null
+        }
+        isDisabled={!isDisabled}
+      >
+        <Flex position="relative" justifyContent={"center"}>
+          <IconButton
+            bg="transparent"
+            _focus={{}}
+            _active={{}}
+            _hover={{}}
+            icon={imageComponent}
+            aria-label={`${packageInfo.name}-package`}
+            isDisabled={isDisabled}
+            onClick={() => {
+              onClick(packageInfo.name, handleSendTokens);
+            }}
+          />
+          {cooldownCountdown.displayCooldown > 0 && (
+            <Flex
+              position="absolute"
+              top="0"
+              left="0"
+              right="0"
+              bottom="0"
+              bg="blackAlpha.500"
+              justifyContent="center"
+              alignItems="center"
+              borderRadius="15px"
+              color={
+                cooldownCountdown.secondaryCooldown >
+                cooldownCountdown.lastUsedCooldown
+                  ? "red"
+                  : "unset"
+              }
+            >
+              {`${cooldownCountdown.displayCooldown}s`}
+            </Flex>
+          )}
+        </Flex>
+      </Tooltip>
     </Flex>
   );
 };

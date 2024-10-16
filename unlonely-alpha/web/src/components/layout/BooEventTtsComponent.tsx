@@ -120,7 +120,7 @@ export const BooEventTtsComponent = ({
             transform: "scale(1.1)",
             transition: "transform 0.2s",
           }}
-          border={"1px solid #b8b8b8"}
+          border={`1px solid rgb(184, 184, 184, ${isDisabled ? 0.5 : 1})`}
           borderRadius={"10px"}
           padding="10px"
           position={"relative"}
@@ -151,8 +151,14 @@ export const BooEventTtsComponent = ({
             alt="megaphone"
             width="20px"
             height="20px"
+            opacity={isDisabled ? 0.5 : 1}
           />
-          <Text textAlign={"center"} fontFamily="LoRes15" fontSize="20px">
+          <Text
+            textAlign={"center"}
+            fontFamily="LoRes15"
+            fontSize="20px"
+            opacity={isDisabled ? 0.5 : 1}
+          >
             TTS BROADCAST MESSAGE
           </Text>
         </Flex>

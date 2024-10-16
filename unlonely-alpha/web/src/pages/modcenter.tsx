@@ -688,6 +688,14 @@ const ModCenter = () => {
                     gap="4px"
                     direction="column"
                   >
+                    <Text
+                      fontSize="13px"
+                      color={"#a1c5ff"}
+                      fontStyle={"italic"}
+                      fontWeight={"bold"}
+                    >
+                      {interaction.userId}
+                    </Text>
                     <Text>{interaction.text}</Text>
                     <Flex justifyContent={"space-between"} gap="4px">
                       <Button

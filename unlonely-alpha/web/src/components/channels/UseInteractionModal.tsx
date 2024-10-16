@@ -64,7 +64,7 @@ export const UseInteractionModal = ({
               </Flex>
               {loadingText && <Text textAlign="center">{loadingText}</Text>}
             </Flex>
-          ) : balanceData.balance &&
+          ) : balanceData.balance !== null &&
             balanceData.balance < Number(interactionData.price) ? (
             <Flex direction="column">
               <Text textAlign="center">

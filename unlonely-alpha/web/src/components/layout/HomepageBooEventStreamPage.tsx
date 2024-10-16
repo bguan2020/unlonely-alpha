@@ -36,7 +36,8 @@ export const HomePageBooEventStreamPage = () => {
   }, [dateNow]);
 
   const isThereTimeLeft = useMemo(() => {
-    return timeLeftInMillis > 0;
+    // return timeLeftInMillis > 0;
+    return false;
   }, [timeLeftInMillis]);
 
   useEffect(() => {
