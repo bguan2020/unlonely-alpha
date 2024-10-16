@@ -4,16 +4,22 @@ import { isValidAddress } from "../../utils/validation/wallet";
 import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
 import { useUser } from "../../hooks/context/useUser";
 import { convertToHHMMSS } from "../../utils/time";
-import { RESET_COOLDOWNS_NAME } from "../../constants";
+import {
+  RESET_COOLDOWNS_NAME,
+  TEXT_TO_SPEECH_PACKAGE_NAME,
+} from "../../constants";
+import { RoomInfo } from "../../pages/modcenter";
 
 export const BooPackageCooldownResetComponent = ({
   dateNow,
+  currentRoom,
   booPackageMap,
   userBooPackageCooldowns,
   handleUserBooPackageCooldowns,
   onClick,
 }: {
   dateNow: number;
+  currentRoom: RoomInfo | undefined;
   booPackageMap: any;
   userBooPackageCooldowns: any;
   handleUserBooPackageCooldowns: (mapping: any) => void;
@@ -36,7 +42,11 @@ export const BooPackageCooldownResetComponent = ({
   }, [userBooPackageCooldowns, dateNow, booPackageMap]);
 
   const hasOtherCooldowns = useMemo(() => {
-    const iterable = Object.entries(userBooPackageCooldowns ?? {});
+    const iterable = Object.entries(userBooPackageCooldowns ?? {}).filter(
+      ([key]) =>
+        currentRoom?.availablePackages.includes(key) ||
+        key === TEXT_TO_SPEECH_PACKAGE_NAME
+    );
     for (const [key, value] of iterable) {
       if (
         dateNow - (booPackageMap?.[key]?.cooldownInSeconds ?? 0) * 1000 <

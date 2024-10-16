@@ -578,6 +578,7 @@ export const HomepageBooEventStream = ({
                       }}
                     />
                     <BooPackageCooldownResetComponent
+                      currentRoom={currentRoom}
                       dateNow={dateNow}
                       booPackageMap={booPackageMap}
                       userBooPackageCooldowns={userBooPackageCooldowns}
