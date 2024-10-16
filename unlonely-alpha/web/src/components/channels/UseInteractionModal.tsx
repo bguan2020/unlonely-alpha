@@ -10,6 +10,10 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { containsSwears } from "../../utils/validation/profanityFilter";
+import {
+  RESET_COOLDOWNS_NAME,
+  TEXT_TO_SPEECH_PACKAGE_NAME,
+} from "../../constants";
 
 export const UseInteractionModal = ({
   isOpen,
@@ -32,7 +36,7 @@ export const UseInteractionModal = ({
   const [loadingText, setLoadingText] = useState<string | null>(null);
   const [text, setText] = useState("");
 
-  const isTts = interactionData.name === "text-to-speech";
+  const isTts = interactionData.name === TEXT_TO_SPEECH_PACKAGE_NAME;
 
   useEffect(() => {
     const checkSolanaTokenBalance = async () => {
@@ -78,7 +82,7 @@ export const UseInteractionModal = ({
           ) : (
             <Flex direction="column" gap="10px">
               <Text textAlign="center">disclaimer</Text>
-              {interactionData.name !== "reset-cooldowns" && (
+              {interactionData.name !== RESET_COOLDOWNS_NAME && (
                 <Textarea
                   id="text"
                   placeholder={
@@ -97,7 +101,7 @@ export const UseInteractionModal = ({
                 }}
                 onClick={async () => {
                   setLoadingText(
-                    interactionData.name === "reset-cooldowns"
+                    interactionData.name === RESET_COOLDOWNS_NAME
                       ? "resetting..."
                       : isTts
                       ? "sending message..."
@@ -112,12 +116,12 @@ export const UseInteractionModal = ({
                   (text.length === 0 ||
                     text.length > 200 ||
                     containsSwears(text)) &&
-                  interactionData.name !== "reset-cooldowns"
+                  interactionData.name !== RESET_COOLDOWNS_NAME
                 }
               >
                 Send
               </Button>
-              {interactionData.name !== "reset-cooldowns" && (
+              {interactionData.name !== RESET_COOLDOWNS_NAME && (
                 <Text h="20px" color={"red"} fontSize="10px">
                   {text.length > 200
                     ? "message must be 200 characters or under"

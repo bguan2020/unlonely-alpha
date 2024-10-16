@@ -193,3 +193,16 @@ export const INITIAL_FORM_CONFIG: IFormConfigurator = Object.freeze({
   },
   useUserSlippage: true,
 });
+
+
+export const TEXT_TO_SPEECH_PACKAGE_NAME = "text-to-speech";
+export const RESET_COOLDOWNS_NAME = "reset-cooldowns";
+export enum BooRoom {
+  WAITING_ROOM = "waiting-room",
+  MANNEQUIN_ROOM = "mannequin-room",
+  BLOOD_BATH = "blood-bath",
+  SEX_DUNGEON = "sex-dungeon",
+  BLACK_OUT = "black-out",
+  CLASSROOM = "classroom",
+  ATH = "ath",
+}

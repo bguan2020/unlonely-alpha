@@ -363,6 +363,7 @@ const ModCenter = () => {
             {booPackageMap &&
               Object.entries(booPackageMap)
                 .sort((a, b) => Number(a[1].id) - Number(b[1].id))
+                .filter(([packageName, packageInfo]) => packageName !== "room")
                 .map(([packageName, packageInfo]) => (
                   <SimpleGrid
                     columns={4}

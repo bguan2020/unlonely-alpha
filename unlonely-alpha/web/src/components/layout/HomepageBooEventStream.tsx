@@ -11,7 +11,12 @@ import { BooEventTile } from "./BooEventTile";
 import { DndContext } from "@dnd-kit/core";
 import Draggable from "./Draggable";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { FIXED_SOLANA_MINT, PACKAGE_PRICE_CHANGE_EVENT } from "../../constants";
+import {
+  FIXED_SOLANA_MINT,
+  PACKAGE_PRICE_CHANGE_EVENT,
+  RESET_COOLDOWNS_NAME,
+  TEXT_TO_SPEECH_PACKAGE_NAME,
+} from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import { BooCarePackages } from "./BooCarePackages";
 import { useDragRefs } from "../../hooks/internal/useDragRef";
@@ -530,9 +535,10 @@ export const HomepageBooEventStream = ({
                         setInteractionState({
                           isOpen: true,
                           interactionData: {
-                            name: "text-to-speech",
+                            name: TEXT_TO_SPEECH_PACKAGE_NAME,
                             price:
-                              booPackageMap["text-to-speech"].tokenHoldingPrice,
+                              booPackageMap[TEXT_TO_SPEECH_PACKAGE_NAME]
+                                .tokenHoldingPrice,
                             handleInteraction: callback,
                           },
                         });
@@ -551,9 +557,9 @@ export const HomepageBooEventStream = ({
                         setInteractionState({
                           isOpen: true,
                           interactionData: {
-                            name: "reset-cooldowns",
+                            name: RESET_COOLDOWNS_NAME,
                             price:
-                              booPackageMap["reset-cooldowns"]
+                              booPackageMap[RESET_COOLDOWNS_NAME]
                                 .tokenHoldingPrice,
                             handleInteraction: callback,
                           },

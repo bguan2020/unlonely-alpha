@@ -2,7 +2,11 @@ import { Flex, Text, Image, Tooltip } from "@chakra-ui/react";
 import { useMemo } from "react";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 // import { StreamInteractionType } from "../../generated/graphql";
-import { AblyChannelPromise, SEND_TTS_EVENT } from "../../constants";
+import {
+  AblyChannelPromise,
+  SEND_TTS_EVENT,
+  TEXT_TO_SPEECH_PACKAGE_NAME,
+} from "../../constants";
 import { StreamInteractionType } from "../../generated/graphql";
 import { isValidAddress } from "../../utils/validation/wallet";
 import { useUser } from "../../hooks/context/useUser";
@@ -48,7 +52,7 @@ export const BooEventTtsComponent = ({
         newPackageCooldownChanges: createPackageCooldownArray(
           booPackageMap,
           userBooPackageCooldowns,
-          "text-to-speech"
+          TEXT_TO_SPEECH_PACKAGE_NAME
         ),
         replaceExisting: false,
       }).then(async () => {
@@ -69,13 +73,17 @@ export const BooEventTtsComponent = ({
 
   const cooldownCountdown = useMemo(() => {
     const lastUsedCooldown = Math.ceil(
-      ((userBooPackageCooldowns?.["text-to-speech"]?.lastUsedAt ?? 0) -
+      ((userBooPackageCooldowns?.[TEXT_TO_SPEECH_PACKAGE_NAME]?.lastUsedAt ??
+        0) -
         (dateNow -
-          (booPackageMap?.["text-to-speech"]?.cooldownInSeconds ?? 0) * 1000)) /
+          (booPackageMap?.[TEXT_TO_SPEECH_PACKAGE_NAME]?.cooldownInSeconds ??
+            0) *
+            1000)) /
         1000
     );
     const secondaryCooldown = Math.ceil(
-      ((userBooPackageCooldowns?.["text-to-speech"]?.usableAt ?? 0) - dateNow) /
+      ((userBooPackageCooldowns?.[TEXT_TO_SPEECH_PACKAGE_NAME]?.usableAt ?? 0) -
+        dateNow) /
         1000
     );
     return {
