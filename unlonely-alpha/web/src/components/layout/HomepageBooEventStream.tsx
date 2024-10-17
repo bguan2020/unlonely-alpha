@@ -54,13 +54,15 @@ export const HomepageBooEventStream = ({
   dateNow,
   isModalGlowing,
   balanceData,
+  triggerGlowingEffect,
 }: {
   dateNow: number;
   isModalGlowing: boolean;
   balanceData: {
     balance: number | null;
-    fetchTokenBalance: () => Promise<void>;
+    fetchTokenBalance: () => Promise<number | undefined>;
   };
+  triggerGlowingEffect: () => void;
 }) => {
   const { channel } = useChannelContext();
   const { channelQueryData } = channel;
@@ -239,6 +241,7 @@ export const HomepageBooEventStream = ({
         }}
         balanceData={balanceData}
         interactionData={interactionState.interactionData}
+        triggerGlowingEffect={triggerGlowingEffect}
       />
       <DndContext sensors={sensors} onDragStart={handleDragStart}>
         <Draggable
@@ -478,19 +481,19 @@ export const HomepageBooEventStream = ({
                     />
                   </Tooltip>
                   {viewState === "token" && (
-                    <Tooltip label="pool page" shouldWrapChildren>
+                    <Tooltip label="dexscreener" shouldWrapChildren>
                       <IconButton
                         bg="#1F2935"
                         color="#21ec54"
                         _hover={{
                           bg: "#354559",
                         }}
-                        aria-label="go to pool"
+                        aria-label="go to dexscreener"
                         icon={<ExternalLinkIcon />}
                         zIndex={51}
                         onClick={() => {
                           window.open(
-                            `https://app.meteora.ag/pools/${FIXED_SOLANA_MINT.poolAddress}`,
+                            `https://dexscreener.com/solana/${FIXED_SOLANA_MINT.poolAddress}`,
                             "_blank"
                           );
                         }}

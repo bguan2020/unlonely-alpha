@@ -14,24 +14,27 @@ import {
   RESET_COOLDOWNS_NAME,
   TEXT_TO_SPEECH_PACKAGE_NAME,
 } from "../../constants";
+import { addCommasToNumber } from "../../utils/tokenDisplayFormatting";
 
 export const UseInteractionModal = ({
   isOpen,
   handleClose,
   balanceData,
   interactionData,
+  triggerGlowingEffect,
 }: {
   isOpen: boolean;
   handleClose: () => void;
   balanceData: {
     balance: number | null;
-    fetchTokenBalance: () => Promise<void>;
+    fetchTokenBalance: () => Promise<number | undefined>;
   };
   interactionData: {
     name: string;
     price: string;
     handleInteraction: (...args: any[]) => Promise<void>;
   };
+  triggerGlowingEffect: () => void;
 }) => {
   const [loadingText, setLoadingText] = useState<string | null>(null);
   const [text, setText] = useState("");
@@ -42,8 +45,11 @@ export const UseInteractionModal = ({
     const checkSolanaTokenBalance = async () => {
       if (isOpen) {
         setLoadingText("Checking $BOO balance...");
-        await balanceData.fetchTokenBalance();
         await new Promise((resolve) => setTimeout(resolve, 2000));
+        const balance = await balanceData.fetchTokenBalance();
+        if (balance !== undefined && balance < Number(interactionData.price)) {
+          triggerGlowingEffect();
+        }
         setLoadingText(null);
       }
     };
@@ -52,7 +58,7 @@ export const UseInteractionModal = ({
 
   return (
     <Modal isCentered isOpen={isOpen} onClose={handleClose} size="sm">
-      <ModalOverlay backgroundColor="#0e0332e6" />
+      <ModalOverlay backgroundColor="#230f6683" />
       <ModalContent
         maxW="500px"
         boxShadow="0px 8px 28px #0a061c40"
@@ -72,11 +78,15 @@ export const UseInteractionModal = ({
             balanceData.balance < Number(interactionData.price) ? (
             <Flex direction="column">
               <Text textAlign="center">
-                need to hold at least {interactionData.price} $BOO
+                need to hold at least {addCommasToNumber(interactionData.price)}{" "}
+                $BOO
               </Text>
               <Text textAlign="center">
                 you still need{" "}
-                {Number(interactionData.price) - balanceData.balance} $BOO
+                {addCommasToNumber(
+                  Math.ceil(Number(interactionData.price) - balanceData.balance)
+                )}{" "}
+                $BOO
               </Text>
             </Flex>
           ) : (

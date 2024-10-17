@@ -30,6 +30,7 @@ import { FaLongArrowAltRight, FaLongArrowAltLeft } from "react-icons/fa";
 import { CHANNEL_ID_TO_USE } from "../components/layout/BooEventWrapper";
 import centerEllipses from "../utils/centerEllipses";
 import { useUpdateRooms } from "../hooks/server/useUpdateRooms";
+import { addCommasToNumber } from "../utils/tokenDisplayFormatting";
 
 export const INTERACTIONS_CHANNEL = "persistMessages:interactions";
 
@@ -83,6 +84,9 @@ const ModCenter = () => {
   const [paused, setPaused] = useState(false);
 
   const [stagingPackages, setStagingPackages] = useState<StagingPackages>({});
+
+  console.log("stagingPackages", stagingPackages);
+
   const [currentAudio, setCurrentAudio] = useState<AudioData | null>(null); // State to display the current playing audio
 
   const [interactionsChannel] = useAblyChannel(
@@ -387,13 +391,17 @@ const ModCenter = () => {
                         <Text>{packageName}</Text>
                         <Input
                           placeholder="price"
-                          value={stagingPackages[packageName].tokenHoldingPrice}
+                          value={addCommasToNumber(
+                            stagingPackages[packageName].tokenHoldingPrice
+                          )}
                           onChange={(e) =>
                             setStagingPackages((prev) => ({
                               ...prev,
                               [packageName]: {
-                                ...stagingPackages[packageName],
-                                tokenHoldingPrice: String(e.target.value),
+                                ...prev[packageName],
+                                tokenHoldingPrice: String(
+                                  e.target.value
+                                ).replace(/,/g, ""),
                               },
                             }))
                           }

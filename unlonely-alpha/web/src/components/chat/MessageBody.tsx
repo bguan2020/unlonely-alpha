@@ -15,7 +15,7 @@ import { useUser } from "../../hooks/context/useUser";
 import centerEllipses from "../../utils/centerEllipses";
 import { SenderStatus } from "../../constants/types/chat";
 import { useChannelContext } from "../../hooks/context/useChannel";
-import Badges from "./Badges";
+// import Badges from "./Badges";
 import { formatTimestampToTime } from "../../utils/time";
 import { TiPin } from "react-icons/ti";
 import { MessageItemProps } from "./MessageList";
@@ -251,7 +251,7 @@ const MessageBody = ({
             <Flex direction={"column"} width="100%">
               <Box key={index} px="0.3rem" position="relative">
                 <Text as="span">
-                  <Badges message={message} />
+                  {/* <Badges message={message} /> */}
                   <Text
                     as="span"
                     onClick={() => {
@@ -269,7 +269,7 @@ const MessageBody = ({
                   >
                     {message.data.username
                       ? trailString(message.data.username)
-                      : centerEllipses(message.data.address, 10)}
+                      : centerEllipses(message.data.address, 15)}
                   </Text>
                   {message.data.username !== "🤖" ? ":" : ""}{" "}
                   {message.data.isGif && (

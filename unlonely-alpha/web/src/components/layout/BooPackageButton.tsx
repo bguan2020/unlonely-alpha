@@ -13,6 +13,7 @@ import { StreamInteractionType } from "../../generated/graphql";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 import { isValidAddress } from "../../utils/validation/wallet";
 import { createPackageCooldownArray } from "../../utils/packageCooldownHandler";
+import { convertToHHMMSS } from "../../utils/time";
 
 export const BooPackageButton = ({
   imageComponent,
@@ -174,7 +175,7 @@ export const BooPackageButton = ({
                   : "unset"
               }
             >
-              {`${cooldownCountdown.displayCooldown}s`}
+              {convertToHHMMSS(String(cooldownCountdown.displayCooldown), true)}
             </Flex>
           )}
         </Flex>

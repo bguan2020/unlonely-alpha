@@ -66,6 +66,7 @@ export const HomePageBooEventStreamPage = () => {
             dateNow={dateNow}
             isModalGlowing={isGlowing}
             balanceData={{ balance, fetchTokenBalance }}
+            triggerGlowingEffect={triggerGlowingEffect}
           />
         )}
         <Flex

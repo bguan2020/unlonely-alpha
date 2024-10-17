@@ -28,6 +28,7 @@ export const useSolanaTokenBalance = () => {
 
     setLoading(true);
 
+    let resBalance = undefined;
     try {
       const connection = new Connection(SOLANA_RPC_URL, "confirmed");
       const tokenMint = new PublicKey(FIXED_SOLANA_MINT.mintAddress);
@@ -49,11 +50,13 @@ export const useSolanaTokenBalance = () => {
         balance
       );
       setBalance(Number(balance));
+      resBalance = Number(balance);
     } catch (error) {
       console.error("Error fetching token balance:", error);
     } finally {
       setLoading(false);
     }
+    return resBalance;
   }, [solanaAddress, loading]);
 
   return {

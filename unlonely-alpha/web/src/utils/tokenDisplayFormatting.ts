@@ -118,3 +118,8 @@ const rangeFrom0 = (stop: number): number[] => {
   }
   return arr;
 };
+
+export const addCommasToNumber = (value: number | string): string => {
+  // take the value, ensure it's a valid number and convert it to a string, place a comma every 3 digits
+  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}

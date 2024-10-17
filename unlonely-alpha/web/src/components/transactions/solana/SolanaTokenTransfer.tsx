@@ -20,7 +20,7 @@ export const SolanaTokenTransfer = ({
 }: {
   rpcUrl: string;
   balance: number | null;
-  fetchTokenBalance: () => void;
+  fetchTokenBalance: () => Promise<number | undefined>;
 }) => {
   const { publicKey, sendTransaction, connected, connect } = useWallet();
   const [toAddress, setToAddress] = useState<string>("");
