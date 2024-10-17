@@ -12,6 +12,7 @@ import {
   SimpleGrid,
   Spinner,
   Text,
+  useToast,
 } from "@chakra-ui/react";
 import useUpdateStreamInteraction from "../hooks/server/channel/useUpdateStreamInteraction";
 import { StreamInteractionType } from "../generated/graphql";
@@ -84,10 +85,9 @@ const ModCenter = () => {
   const [paused, setPaused] = useState(false);
 
   const [stagingPackages, setStagingPackages] = useState<StagingPackages>({});
-
-  console.log("stagingPackages", stagingPackages);
-
   const [currentAudio, setCurrentAudio] = useState<AudioData | null>(null); // State to display the current playing audio
+
+  const toast = useToast();
 
   const [interactionsChannel] = useAblyChannel(
     INTERACTIONS_CHANNEL,
@@ -350,6 +350,15 @@ const ModCenter = () => {
     audio.play(); // Play the current audio
   };
 
+  const handleConfirmed = (item: string) => {
+    toast({
+      title: `${item} update confirmed`,
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
+
   return (
     <Flex direction="column" p="20px" gap="10px">
       <Flex direction="column" justifyContent={"center"}>
@@ -446,6 +455,9 @@ const ModCenter = () => {
                               tokenHoldingPrice:
                                 stagingPackages[packageName].tokenHoldingPrice,
                             });
+                            if (data?.res) {
+                              handleConfirmed("package");
+                            }
                             interactionsChannel?.publish({
                               name: PACKAGE_PRICE_CHANGE_EVENT,
                               data: {
@@ -509,6 +521,9 @@ const ModCenter = () => {
                               {} as Record<string, RoomInfo>
                             );
                           });
+                          if (data?.res) {
+                            handleConfirmed("room");
+                          }
                           interactionsChannel?.publish({
                             name: ROOM_CHANGE_EVENT,
                             data: {

@@ -4,6 +4,7 @@ import usePostStreamInteraction from "../../hooks/server/usePostStreamInteractio
 // import { StreamInteractionType } from "../../generated/graphql";
 import {
   AblyChannelPromise,
+  InteractionType,
   SEND_TTS_EVENT,
   TEXT_TO_SPEECH_PACKAGE_NAME,
 } from "../../constants";
@@ -32,8 +33,9 @@ export const BooEventTtsComponent = ({
   onTtsClick: (callback: (...args: any[]) => Promise<void>) => void;
 }) => {
   const { user } = useUser();
-  const { channel } = useChannelContext();
+  const { chat: c, channel } = useChannelContext();
   const { channelQueryData } = channel;
+  const { addToChatbot } = c;
 
   const { postStreamInteraction } = usePostStreamInteraction({});
 
@@ -57,6 +59,17 @@ export const BooEventTtsComponent = ({
         replaceExisting: false,
       }).then(async () => {
         await fetchUserBooPackageCooldownMapping(user?.address ?? "");
+        addToChatbot({
+          username: user?.username ?? "",
+          address: user?.address ?? "",
+          taskType: InteractionType.USE_BOO_PACKAGE,
+          title: text,
+          description: JSON.stringify({
+            message: `${
+              user?.username ?? centerEllipses(user?.address, 15)
+            } sent a TTS!`,
+          }),
+        });
       });
       await interactionsAblyChannel?.publish({
         name: SEND_TTS_EVENT,

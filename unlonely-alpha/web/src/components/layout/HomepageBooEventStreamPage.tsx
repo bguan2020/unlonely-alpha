@@ -1,5 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Flex, Text } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  Modal,
+  ModalContent,
+  ModalOverlay,
+  Text,
+} from "@chakra-ui/react";
 import { useChat } from "../../hooks/chat/useChat";
 import ChatComponent from "../chat/ChatComponent";
 import { useChannelContext } from "../../hooks/context/useChannel";
@@ -17,7 +24,7 @@ export const HomePageBooEventStreamPage = () => {
   const { chatBot } = c;
   const chat = useChat({ chatBot });
 
-  const { solanaAddress, handleIsManagingWallets } = useUser();
+  const { solanaAddress, logout } = useUser();
 
   const { balance, fetchTokenBalance } = useSolanaTokenBalance();
 
@@ -29,6 +36,7 @@ export const HomePageBooEventStreamPage = () => {
   };
 
   const [dateNow, setDateNow] = useState(Date.now());
+  const [isOpen, setIsOpen] = useState(false);
   const timeLeftInMillis = useMemo(() => {
     const now = dateNow;
     const remaining = eventStartTime - now;
@@ -53,6 +61,42 @@ export const HomePageBooEventStreamPage = () => {
       {isThereTimeLeft && (
         <HomePageBooEventTokenCountdown timeLeftInMillis={timeLeftInMillis} />
       )}
+      <Modal
+        isCentered
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        size="sm"
+      >
+        <ModalOverlay backgroundColor="#230f6683" />
+        <ModalContent
+          maxW="500px"
+          boxShadow="0px 8px 28px #0a061c40"
+          padding="12px"
+          borderRadius="5px"
+          bg="#281b5a"
+        >
+          <Flex direction="column">
+            <Text textAlign="center">
+              Please log out and log in with your solana account.
+            </Text>
+            <Button
+              width="100%"
+              borderRadius="25px"
+              _hover={{}}
+              _focus={{}}
+              _active={{}}
+              color="white"
+              bg="#E09025"
+              onClick={() => {
+                logout();
+                setIsOpen(false);
+              }}
+            >
+              logout
+            </Button>
+          </Flex>
+        </ModalContent>
+      </Modal>
       <Flex
         direction={["column", "column", "row"]}
         width="100%"
@@ -90,7 +134,7 @@ export const HomePageBooEventStreamPage = () => {
                     gateMessage: "BUY $BOO TO JOIN CHAT",
                   }
                 : {
-                    ctaBuyTokens: () => handleIsManagingWallets(true),
+                    ctaBuyTokens: () => setIsOpen(true),
                     gateMessage: "SWITCH TO SOLANA",
                   }
             }
