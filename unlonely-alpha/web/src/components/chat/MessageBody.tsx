@@ -268,7 +268,7 @@ const MessageBody = ({
                     fontWeight="bold"
                   >
                     {message.data.username
-                      ? trailString(message.data.username)
+                      ? trailString(message.data.username, 15)
                       : centerEllipses(message.data.address, 15)}
                   </Text>
                   {message.data.username !== "🤖" ? ":" : ""}{" "}
@@ -299,7 +299,14 @@ const MessageBody = ({
                   )}
                   {isPackageRelated && message.data.body && (
                     <>
-                      <Text as="span">{jp(message.data.body).message}</Text>
+                      <Text
+                        as="span"
+                        fontStyle={messageStyle(message.data.body).fontStyle}
+                        fontWeight={messageStyle(message.data.body).fontWeight}
+                        fontSize={"12px"}
+                      >
+                        {jp(message.data.body).message}
+                      </Text>
                       <br />
                     </>
                   )}
