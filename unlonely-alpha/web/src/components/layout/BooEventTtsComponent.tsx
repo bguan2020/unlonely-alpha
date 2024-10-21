@@ -77,7 +77,7 @@ export const BooEventTtsComponent = ({
           body: JSON.stringify({
             id: res?.res?.id ?? "0",
             text,
-            userId: user?.username ?? centerEllipses(user?.address, 15),
+            userId: user?.username ?? user?.address,
           }),
         },
       });

@@ -29,7 +29,6 @@ import {
 } from "../constants";
 import { FaLongArrowAltRight, FaLongArrowAltLeft } from "react-icons/fa";
 import { CHANNEL_ID_TO_USE } from "../components/layout/BooEventWrapper";
-import centerEllipses from "../utils/centerEllipses";
 import { useUpdateRooms } from "../hooks/server/useUpdateRooms";
 import { addCommasToNumber } from "../utils/tokenDisplayFormatting";
 
@@ -77,7 +76,8 @@ export type StagingPackages = {
 };
 
 export type AudioData = {
-  interactionId: string;
+  id: string;
+  userId: string;
   text?: string;
 };
 
@@ -221,7 +221,7 @@ const ModCenter = () => {
           const owner = interaction?.owner;
           return {
             id: interaction.id,
-            userId: owner.username ?? centerEllipses(owner.address, 15),
+            userId: owner.username ?? owner.address,
             text: interaction.text,
           };
         });
@@ -307,18 +307,19 @@ const ModCenter = () => {
     []
   );
 
-  const pushAudio = async (interaction: { id: string; text?: string }) => {
-    setCurrentAudio({
-      interactionId: interaction.id,
-      text: interaction.text,
-    }); // Set the current audio being played for display
+  const pushAudio = async (interaction: AudioData) => {
+    setCurrentAudio(interaction); // Set the current audio being played for display
     const response = await fetch("/api/tts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         paymentId: "test123",
         userId: "userTest",
-        textToSpeak: interaction.text,
+        textToSpeak: `${
+          interaction.userId.includes(".")
+            ? interaction.userId
+            : interaction.userId.slice(0, 4)
+        } sent you the following message: ${interaction.text}`,
       }),
     });
     const data = await response.json();
@@ -701,7 +702,7 @@ const ModCenter = () => {
                 <Flex
                   key={interaction.id}
                   bg={
-                    currentAudio?.interactionId === interaction.id
+                    currentAudio?.id === interaction.id
                       ? "green.500"
                       : "#212e6f"
                   }
@@ -717,7 +718,9 @@ const ModCenter = () => {
                     fontStyle={"italic"}
                     fontWeight={"bold"}
                   >
-                    {interaction.userId}
+                    {interaction.userId.includes(".")
+                      ? interaction.userId
+                      : interaction.userId.slice(0, 4)}
                   </Text>
                   <Text>{interaction.text}</Text>
                   <Flex justifyContent={"space-between"} gap="4px">
@@ -782,7 +785,7 @@ const ModCenter = () => {
                     key={interaction.id}
                     backgroundColor="#212e6f"
                     bg={
-                      currentAudio?.interactionId === interaction.id
+                      currentAudio?.id === interaction.id
                         ? "green.500"
                         : "#212e6f"
                     }
