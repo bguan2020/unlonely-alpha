@@ -1,9 +1,9 @@
-import { Flex, Image } from "@chakra-ui/react";
+import { SimpleGrid } from "@chakra-ui/react";
 import { BooPackageButton } from "./BooPackageButton";
-import { AblyChannelPromise } from "../../constants";
+import { AblyChannelPromise, ScarePackageName } from "../../constants";
 import { RoomInfo } from "../../pages/modcenter";
 
-const scarePackageNames = ["ghost"];
+const scarePackageNames: string[] = Object.values(ScarePackageName);
 
 export const BooScarePackages = ({
   dateNow,
@@ -26,35 +26,23 @@ export const BooScarePackages = ({
   ) => void;
 }) => {
   return (
-    <Flex flexWrap={"wrap"} justifyContent={"space-evenly"}>
-      {scarePackageNames
-        .filter((name) => currentRoom?.availablePackages.includes(name))
-        .map((name) => (
-          <BooPackageButton
-            booPackageMap={booPackageMap}
-            imageComponent={
-              <Image
-                src={`/images/packages/${name}.png`}
-                height="50px"
-                _hover={{
-                  cursor: "pointer",
-                  transform: "scale(1.1)",
-                  transition: "transform 0.2s",
-                }}
-              />
-            }
-            key={name}
-            cooldownInSeconds={booPackageMap?.[name]?.cooldownInSeconds ?? 0}
-            userBooPackageCooldowns={userBooPackageCooldowns}
-            dateNow={dateNow}
-            packageInfo={{ name, isCarePackage: false }}
-            fetchUserBooPackageCooldownMapping={
-              fetchUserBooPackageCooldownMapping
-            }
-            interactionsAblyChannel={interactionsAblyChannel}
-            onClick={onPackageClick}
-          />
-        ))}
-    </Flex>
+    <SimpleGrid columns={3} height="100%" alignItems={"center"}>
+      {scarePackageNames.map((name) => (
+        <BooPackageButton
+          booPackageMap={booPackageMap}
+          key={name}
+          cooldownInSeconds={booPackageMap?.[name]?.cooldownInSeconds ?? 0}
+          userBooPackageCooldowns={userBooPackageCooldowns}
+          dateNow={dateNow}
+          packageInfo={{ name, isCarePackage: false }}
+          fetchUserBooPackageCooldownMapping={
+            fetchUserBooPackageCooldownMapping
+          }
+          isAvailable={currentRoom?.availablePackages.includes(name)}
+          interactionsAblyChannel={interactionsAblyChannel}
+          onClick={onPackageClick}
+        />
+      ))}
+    </SimpleGrid>
   );
 };

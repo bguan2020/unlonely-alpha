@@ -325,6 +325,7 @@ export const HomepageBooEventStream = ({
                               fontFamily="LoRes15"
                               fontSize={["20px", "30px"]}
                               mx={2}
+                              noOfLines={1}
                             >
                               CARE PACKAGES
                             </Text>
@@ -388,16 +389,25 @@ export const HomepageBooEventStream = ({
                           alignItems={"flex-start"}
                         >
                           <Flex alignItems="center" gap="10px">
-                            <Image src="/images/pixel-ghost.png" alt="ghost" />
+                            <Image
+                              src="/images/skull.png"
+                              alt="ghost"
+                              h="34px"
+                            />
                             <Text
                               textAlign="center"
                               fontFamily="LoRes15"
                               fontSize={["20px", "30px"]}
                               mx={2}
+                              noOfLines={1}
                             >
                               SCARE PACKAGES
                             </Text>
-                            <Image src="/images/pixel-ghost.png" alt="ghost" />
+                            <Image
+                              src="/images/skull.png"
+                              alt="ghost"
+                              h="34px"
+                            />
                           </Flex>
                         </Flex>
                         <BooScarePackages
@@ -637,6 +647,7 @@ export const HomepageBooEventStream = ({
                   _hover={{
                     bg: "#354559",
                   }}
+                  borderRadius="10px"
                   aria-label={"expand stream"}
                   icon={<FaExpandArrowsAlt />}
                   onClick={() => {

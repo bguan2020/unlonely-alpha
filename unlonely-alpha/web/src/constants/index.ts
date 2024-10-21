@@ -198,6 +198,43 @@ export const INITIAL_FORM_CONFIG: IFormConfigurator = Object.freeze({
 
 export const TEXT_TO_SPEECH_PACKAGE_NAME = "text-to-speech";
 export const RESET_COOLDOWNS_NAME = "reset-cooldowns";
+
+export enum CarePackageName {
+  WATER_BOTTLE = "water-bottle",
+  TOILET = "toilet",
+  PIZZA = "pizza",
+  TORCH = "torch",
+  PAPER_ROLL = "paper-roll",
+  PHONE = "phone",
+}
+
+export enum ScarePackageName {
+  BLACKOUT = "blackout",
+  FOG = "fog",
+  BOOM = "boom",
+  WHALE = "whale",
+  FIREBALL = "fireball",
+  FART_SPRAY = "fart-spray",
+}
+
+export const CarePackageToDescription: Record<CarePackageName, string> = {
+  [CarePackageName.WATER_BOTTLE]: "send water to a thirsty contestant",
+  [CarePackageName.TOILET]: "let a contestant use the bathroom",
+  [CarePackageName.PIZZA]: "send pizza to a hungry contestant",
+  [CarePackageName.TORCH]: "too dark? send 1 light-able match",
+  [CarePackageName.PAPER_ROLL]: "things got messy? send 1 sheet of paper towel",
+  [CarePackageName.PHONE]: "give a contestant their phone for 1 min to make a desperate tweet",
+};
+
+export const ScarePackageToDescription: Record<ScarePackageName, string> = {
+  [ScarePackageName.BLACKOUT]: "turn all the lights out in this room for 1 min",
+  [ScarePackageName.FOG]: "add some fog to this room",
+  [ScarePackageName.BOOM]: "???",
+  [ScarePackageName.WHALE]: "oh ur a whale? tell us what you want happen",
+  [ScarePackageName.FIREBALL]: "send a contestant a shot of fireball whiskey",
+  [ScarePackageName.FART_SPRAY]: "send fart spray",
+};
+
 export enum BooRoom {
   WAITING_ROOM = "waiting-room",
   MANNEQUIN_ROOM = "mannequin-room",
