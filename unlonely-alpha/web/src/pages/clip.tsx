@@ -201,7 +201,6 @@ const Clip = () => {
       channelId &&
       clipRange[0] < clipRange[1] &&
       getChannelByIdData?.getChannelById &&
-      network.chainId &&
       walletClient?.account.address &&
       user &&
       title &&
@@ -317,7 +316,7 @@ const Clip = () => {
         console.log("createClip error", e);
         setPageState("error");
         setErrorMessage(
-          `Error creating rough clip, unable to execute function correctly, took ${
+          `Error creating rough clip, unable to run function correctly, took ${
             (Date.now() - start) / 1000
           }s`
         );
@@ -326,12 +325,15 @@ const Clip = () => {
       const roughUrl = res?.url;
       if (res?.errorMessage) {
         console.log(
-          "Error creating rough clip, got error from createClip,",
-          res.errorMessage
+          `Error creating rough clip, function ran ok, but spat out error, ${
+            res.errorMessage
+          }, took ${(Date.now() - start) / 1000}s`
         );
         setPageState("error");
         setErrorMessage(
-          `Error creating rough clip, got error from createClip, ${res.errorMessage}`
+          `Error creating rough clip, function ran ok, but spat out error, ${
+            res.errorMessage
+          }, took ${(Date.now() - start) / 1000}s`
         );
         return;
       }
@@ -382,10 +384,10 @@ const Clip = () => {
       videoRef.current.load();
       videoRef.current.onloadedmetadata = () => {
         console.log("loaded metadata");
-        const width = videoRef.current?.videoWidth;
-        const height = videoRef.current?.videoHeight;
-        const duration = videoRef.current?.duration;
-        console.log(`Resolution: ${width}x${height}, Duration: ${duration}s`);
+        // const width = videoRef.current?.videoWidth;
+        // const height = videoRef.current?.videoHeight;
+        // const duration = videoRef.current?.duration;
+        // console.log(`Resolution: ${width}x${height}, Duration: ${duration}s`);
         setClipRange([0, videoRef.current?.duration || 0]);
       };
     }
@@ -563,13 +565,15 @@ const Clip = () => {
       });
     } catch (e) {
       setPageState("error");
-      setErrorMessage(`Error trimming video, catch block caught ${e}`);
+      setErrorMessage(
+        `Error trimming video, unable to run function correctly, catch block caught ${e}`
+      );
       return;
     }
     if (!trimRes) {
       setPageState("error");
       setErrorMessage(
-        "Error trimming video, no error message but response is missing"
+        "Error trimming video, function ran ok, no error message but response is missing"
       );
       return;
     }

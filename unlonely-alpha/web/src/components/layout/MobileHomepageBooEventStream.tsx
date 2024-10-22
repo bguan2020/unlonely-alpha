@@ -100,6 +100,7 @@ export const MobileHomepageBooEventStream = () => {
             background="#564F9A"
             _active={{}}
             _focus={{}}
+            _hover={{}}
           >
             <Flex alignItems={"center"}>
               <FaRegCopy size="25px" />
