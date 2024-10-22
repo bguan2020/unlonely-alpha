@@ -1,4 +1,4 @@
-import { Flex, Text, Tooltip } from "@chakra-ui/react";
+import { Flex, Image, Tooltip, Text } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { isValidAddress } from "../../utils/validation/wallet";
 import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
@@ -95,25 +95,23 @@ export const BooPackageCooldownResetComponent = ({
       position={"relative"}
     >
       <Tooltip
+        bg={isValidAddress(user?.address) !== "solana" ? "unset" : "#7EFB97"}
+        placement="bottom-end"
+        color={isValidAddress(user?.address) !== "solana" ? "unset" : "black"}
         label={
           isValidAddress(user?.address) !== "solana"
             ? "log in with solana wallet first"
-            : null
+            : "don’t want to wait? reset cooldown period here"
         }
-        isDisabled={!isDisabled}
       >
         <Flex
           alignItems={"center"}
           justifyContent={"center"}
-          gap="16px"
+          direction="column"
           _hover={{
             cursor: "pointer",
-            transform: "scale(1.1)",
-            transition: "transform 0.2s",
           }}
-          border={"1px solid #b8b8b8"}
-          borderRadius={"10px"}
-          padding="10px"
+          p="10px"
           position={"relative"}
         >
           {cooldownCountdown > 0 && (
@@ -123,7 +121,7 @@ export const BooPackageCooldownResetComponent = ({
               left="0"
               right="0"
               bottom="0"
-              bg="blackAlpha.800"
+              bg="blackAlpha.900"
               justifyContent="center"
               alignItems="center"
               borderRadius="10px"
@@ -131,9 +129,10 @@ export const BooPackageCooldownResetComponent = ({
               {convertToHHMMSS(String(cooldownCountdown), true)}
             </Flex>
           )}
-          <Text textAlign={"center"} fontFamily="LoRes15" fontSize="20px">
-            reset
+          <Text fontFamily="LoRes15" fontSize="30px" color="#FF9800">
+            COOLDOWN
           </Text>
+          <Image src={"/images/packages/reset.png"} />
         </Flex>
       </Tooltip>
     </Flex>

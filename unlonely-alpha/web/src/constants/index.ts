@@ -144,7 +144,7 @@ export const SOLANA_RPC_URL =
 export const FIXED_SOLANA_MINT = {
   mintAddress: "4sx9a8c81cPWYPy3QVptKcgZu87ncixZp5d2cxeVpump",
   tokenAccount: "3GPNYL255Zdpv4jMjq1XhiZRHDLYZ6mV3cd9q6T6ybDW",
-  poolAddress: "cufcyzagxskbgscedkad9fnc461oewu6tbuqeruubdsr",
+  poolAddress: "CUfcyzaGxsKBGScEDkaD9FNc461oewU6tBuqERUUBdsr",
   decimals: 6,
 };
 

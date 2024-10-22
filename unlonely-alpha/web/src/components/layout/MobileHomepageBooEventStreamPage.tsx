@@ -13,6 +13,7 @@ export const MobileHomePageBooEventStreamPage = () => {
     // const now = dateNow;
     // const remaining = eventStartTime - now;
     // return remaining > 0 ? remaining : 0;
+    // todo: uncomment this out
     return 0;
   }, [dateNow]);
 

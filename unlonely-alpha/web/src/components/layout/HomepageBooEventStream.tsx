@@ -223,7 +223,11 @@ export const HomepageBooEventStream = ({
   }, []);
 
   useEffect(() => {
-    if (user) fetchUserBooPackageCooldownMapping(user?.address);
+    if (user) {
+      fetchUserBooPackageCooldownMapping(user?.address);
+    } else {
+      setUserBooPackageCooldowns(undefined);
+    }
   }, [user]);
 
   return (
@@ -561,60 +565,63 @@ export const HomepageBooEventStream = ({
                   }}
                 />
                 {viewState === "token" && (
-                  <BooEventTile
-                    color="#796AFF"
-                    width="100%"
+                  <Flex
+                    gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
                     height={`calc(100% - ${TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}% - ${
                       TOKEN_VIEW_TILE_PIXEL_GAP * 2
                     }px - ${TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT}px)`}
                   >
-                    <BooEventTtsComponent
-                      fetchUserBooPackageCooldownMapping={
-                        fetchUserBooPackageCooldownMapping
-                      }
-                      interactionsAblyChannel={interactionsChannel}
-                      booPackageMap={booPackageMap}
-                      dateNow={dateNow}
-                      userBooPackageCooldowns={userBooPackageCooldowns}
-                      onTtsClick={(
-                        callback: (...args: any[]) => Promise<void>
-                      ) => {
-                        setInteractionState({
-                          isOpen: true,
-                          interactionData: {
-                            name: TEXT_TO_SPEECH_PACKAGE_NAME,
-                            price:
-                              booPackageMap[TEXT_TO_SPEECH_PACKAGE_NAME]
-                                .tokenHoldingPrice,
-                            handleInteraction: callback,
-                          },
-                        });
-                      }}
-                    />
-                    <BooPackageCooldownResetComponent
-                      currentRoom={currentRoom}
-                      dateNow={dateNow}
-                      booPackageMap={booPackageMap}
-                      userBooPackageCooldowns={userBooPackageCooldowns}
-                      handleUserBooPackageCooldowns={
-                        handleUserBooPackageCooldowns
-                      }
-                      onClick={(
-                        callback: (...args: any[]) => Promise<void>
-                      ) => {
-                        setInteractionState({
-                          isOpen: true,
-                          interactionData: {
-                            name: RESET_COOLDOWNS_NAME,
-                            price:
-                              booPackageMap[RESET_COOLDOWNS_NAME]
-                                .tokenHoldingPrice,
-                            handleInteraction: callback,
-                          },
-                        });
-                      }}
-                    />
-                  </BooEventTile>
+                    <BooEventTile color="#FF9800" width="100%">
+                      <BooPackageCooldownResetComponent
+                        currentRoom={currentRoom}
+                        dateNow={dateNow}
+                        booPackageMap={booPackageMap}
+                        userBooPackageCooldowns={userBooPackageCooldowns}
+                        handleUserBooPackageCooldowns={
+                          handleUserBooPackageCooldowns
+                        }
+                        onClick={(
+                          callback: (...args: any[]) => Promise<void>
+                        ) => {
+                          setInteractionState({
+                            isOpen: true,
+                            interactionData: {
+                              name: RESET_COOLDOWNS_NAME,
+                              price:
+                                booPackageMap[RESET_COOLDOWNS_NAME]
+                                  .tokenHoldingPrice,
+                              handleInteraction: callback,
+                            },
+                          });
+                        }}
+                      />
+                    </BooEventTile>
+                    <BooEventTile color="#00A0C8" width="100%">
+                      <BooEventTtsComponent
+                        fetchUserBooPackageCooldownMapping={
+                          fetchUserBooPackageCooldownMapping
+                        }
+                        interactionsAblyChannel={interactionsChannel}
+                        booPackageMap={booPackageMap}
+                        dateNow={dateNow}
+                        userBooPackageCooldowns={userBooPackageCooldowns}
+                        onTtsClick={(
+                          callback: (...args: any[]) => Promise<void>
+                        ) => {
+                          setInteractionState({
+                            isOpen: true,
+                            interactionData: {
+                              name: TEXT_TO_SPEECH_PACKAGE_NAME,
+                              price:
+                                booPackageMap[TEXT_TO_SPEECH_PACKAGE_NAME]
+                                  .tokenHoldingPrice,
+                              handleInteraction: callback,
+                            },
+                          });
+                        }}
+                      />
+                    </BooEventTile>
+                  </Flex>
                 )}
               </Flex>
             </Flex>

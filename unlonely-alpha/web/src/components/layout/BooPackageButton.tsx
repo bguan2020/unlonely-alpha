@@ -163,12 +163,12 @@ export const BooPackageButton = ({
               {!isAvailable ? (
                 <Text
                   textAlign={"center"}
-                  fontSize="12px"
+                  fontSize="10px"
                   position="absolute"
                   bg="#7E7E7E"
                   zIndex="2"
                 >
-                  unavailable in this room
+                  N/A in this room
                 </Text>
               ) : cooldownCountdown.displayCooldown > 0 ? (
                 <Flex

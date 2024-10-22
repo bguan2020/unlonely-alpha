@@ -125,26 +125,24 @@ export const BooEventTtsComponent = ({
       position={"relative"}
     >
       <Tooltip
+        bg={isValidAddress(user?.address) !== "solana" ? "unset" : "#7EFB97"}
+        placement="bottom-end"
+        color={isValidAddress(user?.address) !== "solana" ? "unset" : "black"}
         label={
           isValidAddress(user?.address) !== "solana"
             ? "log in with solana wallet first"
-            : null
+            : "send a custom Text-To-Speech message to the contestants"
         }
-        isDisabled={!isDisabled}
       >
         <Flex
           alignItems={"center"}
           justifyContent={"center"}
-          gap="16px"
           _hover={{
             cursor: "pointer",
-            transform: "scale(1.1)",
-            transition: "transform 0.2s",
           }}
-          border={`1px solid rgb(184, 184, 184, ${isDisabled ? 0.5 : 1})`}
-          borderRadius={"10px"}
           padding="10px"
           position={"relative"}
+          direction={"column"}
         >
           {cooldownCountdown.displayCooldown > 0 && (
             <Flex
@@ -167,15 +165,10 @@ export const BooEventTtsComponent = ({
               {convertToHHMMSS(String(cooldownCountdown.displayCooldown), true)}
             </Flex>
           )}
-          <Image
-            src="/images/megaphone.png"
-            alt="megaphone"
-            width="20px"
-            height="20px"
-          />
-          <Text textAlign={"center"} fontFamily="LoRes15" fontSize="20px">
-            TTS BROADCAST MESSAGE
+          <Text textAlign={"center"} fontFamily="LoRes15" fontSize="25px">
+            TTS MESSAGE
           </Text>
+          <Image src={"/images/packages/tts.png"} />
         </Flex>
       </Tooltip>
     </Flex>
