@@ -12,9 +12,18 @@ import { getSrc } from "@livepeer/react/external";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useLivepeerStreamData } from "../../hooks/internal/useLivepeerStreamData";
 import NextImage from "next/image";
-import { Modal, ModalContent, ModalOverlay } from "@chakra-ui/react";
+import {
+  Button,
+  Modal,
+  ModalContent,
+  ModalOverlay,
+  useToast,
+} from "@chakra-ui/react";
 import { useState } from "react";
 import { ContinuousRain } from "../chat/emoji/BlastRain";
+import { FIXED_SOLANA_MINT } from "../../constants";
+import copy from "copy-to-clipboard";
+import { FaRegCopy } from "react-icons/fa";
 
 enum ButtonOptionNames {
   "heart-black-border" = "heart-black-border",
@@ -32,11 +41,22 @@ export const MobileHomepageBooEventStream = () => {
   const [modalState, setModalState] = useState<ButtonOptionNames | undefined>(
     undefined
   );
+  const toast = useToast();
 
   const { playbackInfo } = useLivepeerStreamData({
     livepeerPlaybackId: channelQueryData?.livepeerPlaybackId ?? undefined,
     livepeerStreamId: channelQueryData?.livepeerStreamId ?? undefined,
   });
+
+  const handleCopyContractAddress = () => {
+    copy(FIXED_SOLANA_MINT.mintAddress);
+    toast({
+      title: "copied contract address",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
 
   return (
     <Flex
@@ -65,46 +85,62 @@ export const MobileHomepageBooEventStream = () => {
         <Box width={"100%"} height={"30vh"} bg={"black"}></Box>
       )}
       <Flex
-        flexWrap={"wrap"}
-        justifyContent={"space-evenly"}
-        // height={"calc(100dvh - 30vh - 30px)"}
+        direction="column"
+        gap="20px"
+        justifyContent={"center"}
+        width="100%"
+        my="20px"
       >
-        <Flex direction="column" gap="20px">
-          <SimpleGrid columns={2} spacing={5} mx="auto" my="20px">
-            {buttonOptionNames.map((name) => (
-              <Box
-                width="140px"
-                height="140px"
-                bg="#FF7B00"
-                borderRadius="100%"
-                key={name}
-                onClick={() => {
-                  setModalState(name as ButtonOptionNames);
-                }}
-                _hover={{
-                  cursor: "pointer",
-                  transform: "scale(1.1)",
-                  transition: "transform 0.2s",
-                }}
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                boxShadow="5px 5px 10px #37FF8B"
-              >
-                <Image src={`/images/${name}.png`} height="80px" alt={name} />
-              </Box>
-            ))}
-          </SimpleGrid>
-          <Flex justifyContent={"center"}>
-            <Text
-              textAlign="center"
-              fontFamily="LoRes15"
-              color="#37FF8B"
-              fontSize="15px"
+        <Flex justifyContent={"center"}>
+          <Button
+            onClick={handleCopyContractAddress}
+            borderRadius="35px"
+            width="150px"
+            color="white"
+            background="#564F9A"
+          >
+            <Flex alignItems={"center"}>
+              <FaRegCopy size="25px" />
+              <Text fontSize="30px" fontFamily="LoRes15">
+                $BOO CA
+              </Text>
+            </Flex>
+          </Button>
+        </Flex>
+        <SimpleGrid columns={2} spacing={5} mx="auto">
+          {buttonOptionNames.map((name) => (
+            <Box
+              width="140px"
+              height="140px"
+              bg="#FF7B00"
+              borderRadius="100%"
+              key={name}
+              onClick={() => {
+                setModalState(name as ButtonOptionNames);
+              }}
+              _hover={{
+                cursor: "pointer",
+                transform: "scale(1.1)",
+                transition: "transform 0.2s",
+              }}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              boxShadow="5px 5px 10px #37FF8B"
             >
-              join on desktop for the full experience
-            </Text>
-          </Flex>
+              <Image src={`/images/${name}.png`} height="80px" alt={name} />
+            </Box>
+          ))}
+        </SimpleGrid>
+        <Flex justifyContent={"center"}>
+          <Text
+            textAlign="center"
+            fontFamily="LoRes15"
+            color="#37FF8B"
+            fontSize="15px"
+          >
+            join on desktop for the full experience
+          </Text>
         </Flex>
       </Flex>
     </Flex>
@@ -130,7 +166,7 @@ const WantToUnlockModal = ({
         padding="50px 20px"
         borderRadius="20px"
         width="300px"
-        bg="#FF7B00"
+        bg={getModalBackgroundColor(modalState)}
         color="black"
       >
         {modalState !== undefined && (
@@ -230,4 +266,19 @@ const WantToUnlockModal = ({
       </ModalContent>
     </Modal>
   );
+};
+
+const getModalBackgroundColor = (modalState?: ButtonOptionNames): string => {
+  switch (modalState) {
+    case ButtonOptionNames["heart-black-border"]:
+      return "#18162C";
+    case ButtonOptionNames["ghost-clear"]:
+      return "#7200A5";
+    case ButtonOptionNames["boolloon"]:
+      return "#FF7B00";
+    case ButtonOptionNames["megaphone-color"]:
+      return "#1C9A00";
+    default:
+      return "black";
+  }
 };

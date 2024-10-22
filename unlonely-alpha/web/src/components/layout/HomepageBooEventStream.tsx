@@ -38,7 +38,7 @@ import {
 } from "../../pages/modcenter";
 import { useAblyChannel } from "../../hooks/chat/useChatChannel";
 import { UseInteractionModal } from "../channels/UseInteractionModal";
-import { areAddressesEqual } from "../../utils/validation/wallet";
+// import { areAddressesEqual } from "../../utils/validation/wallet";
 import { BooPackageCooldownResetComponent } from "./BooPackageCooldownResetComponent";
 
 export const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
@@ -520,39 +520,40 @@ export const HomepageBooEventStream = ({
                   }
                   isBuy={!isSell}
                   txCallback={async (txid, swapResult) => {
-                    const tokenAccountA = base58Encode(
-                      convertWordsToBigInt(swapResult.inputAddress._bn.words)
-                    );
-                    const tokenAccountB = base58Encode(
-                      convertWordsToBigInt(swapResult.outputAddress._bn.words)
-                    );
-                    if (
-                      areAddressesEqual(
-                        tokenAccountA,
-                        FIXED_SOLANA_MINT.tokenAccount
-                      )
-                    ) {
-                      // this is a sell
-                      console.log(
-                        "sold",
-                        swapResult.inputAmount /
-                          10 ** FIXED_SOLANA_MINT.decimals
-                      );
-                    }
-                    if (
-                      areAddressesEqual(
-                        tokenAccountB,
-                        FIXED_SOLANA_MINT.tokenAccount
-                      )
-                    ) {
-                      // this is a buy
-                      console.log(
-                        "bought",
-                        swapResult.outputAmount /
-                          10 ** FIXED_SOLANA_MINT.decimals
-                      );
-                    }
+                    // const tokenAccountA = base58Encode(
+                    //   convertWordsToBigInt(swapResult.inputAddress._bn.words)
+                    // );
+                    // const tokenAccountB = base58Encode(
+                    //   convertWordsToBigInt(swapResult.outputAddress._bn.words)
+                    // );
+                    // if (
+                    //   areAddressesEqual(
+                    //     tokenAccountA,
+                    //     FIXED_SOLANA_MINT.tokenAccount
+                    //   )
+                    // ) {
+                    //   // this is a sell
+                    //   console.log(
+                    //     "sold",
+                    //     swapResult.inputAmount /
+                    //       10 ** FIXED_SOLANA_MINT.decimals
+                    //   );
+                    // }
+                    // if (
+                    //   areAddressesEqual(
+                    //     tokenAccountB,
+                    //     FIXED_SOLANA_MINT.tokenAccount
+                    //   )
+                    // ) {
+                    //   // this is a buy
+                    //   console.log(
+                    //     "bought",
+                    //     swapResult.outputAmount /
+                    //       10 ** FIXED_SOLANA_MINT.decimals
+                    //   );
+                    // }
                     // getTransactionData(txid);
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
                     balanceData.fetchTokenBalance();
                   }}
                   interfaceStyle={{

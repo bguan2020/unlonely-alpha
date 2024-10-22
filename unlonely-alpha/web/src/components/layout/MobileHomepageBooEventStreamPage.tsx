@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { eventStartTime } from "./BooEventWrapper";
+// import { eventStartTime } from "./BooEventWrapper";
 import { MobileHomepageBooEventStream } from "./MobileHomepageBooEventStream";
 import { getTimesFromMillis } from "../../utils/time";
 import { Flex, Text, Image } from "@chakra-ui/react";
@@ -10,9 +10,10 @@ export const MobileHomePageBooEventStreamPage = () => {
   const [dateNow, setDateNow] = useState(Date.now());
 
   const timeLeftInMillis = useMemo(() => {
-    const now = dateNow;
-    const remaining = eventStartTime - now;
-    return remaining > 0 ? remaining : 0;
+    // const now = dateNow;
+    // const remaining = eventStartTime - now;
+    // return remaining > 0 ? remaining : 0;
+    return 0;
   }, [dateNow]);
 
   useEffect(() => {
