@@ -111,7 +111,6 @@ export const BooPackageCooldownResetComponent = ({
           _hover={{
             cursor: "pointer",
           }}
-          p="10px"
           position={"relative"}
         >
           {cooldownCountdown > 0 && (
@@ -129,10 +128,10 @@ export const BooPackageCooldownResetComponent = ({
               {convertToHHMMSS(String(cooldownCountdown), true)}
             </Flex>
           )}
-          <Text fontFamily="LoRes15" fontSize="30px" color="#FF9800">
+          <Text fontFamily="LoRes15" fontSize="calc(1vw + 1vh)" color="#FF9800">
             COOLDOWN
           </Text>
-          <Image src={"/images/packages/reset.png"} />
+          <Image src={"/images/packages/reset.png"} w="5vw" />
         </Flex>
       </Tooltip>
     </Flex>

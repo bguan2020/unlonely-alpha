@@ -140,7 +140,6 @@ export const BooEventTtsComponent = ({
           _hover={{
             cursor: "pointer",
           }}
-          padding="10px"
           position={"relative"}
           direction={"column"}
         >
@@ -165,10 +164,14 @@ export const BooEventTtsComponent = ({
               {convertToHHMMSS(String(cooldownCountdown.displayCooldown), true)}
             </Flex>
           )}
-          <Text textAlign={"center"} fontFamily="LoRes15" fontSize="25px">
+          <Text
+            textAlign={"center"}
+            fontFamily="LoRes15"
+            fontSize="calc(0.8vw + 0.8vh)"
+          >
             TTS MESSAGE
           </Text>
-          <Image src={"/images/packages/tts.png"} />
+          <Image src={"/images/packages/tts.png"} w="5vw" />
         </Flex>
       </Tooltip>
     </Flex>

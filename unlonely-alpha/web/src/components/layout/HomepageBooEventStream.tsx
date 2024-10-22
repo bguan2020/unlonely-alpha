@@ -327,9 +327,9 @@ export const HomepageBooEventStream = ({
                             <Text
                               textAlign="center"
                               fontFamily="LoRes15"
-                              fontSize={["20px", "30px"]}
+                              fontSize={["10px", "10px", "15px", "25px"]}
                               mx={2}
-                              noOfLines={1}
+                              // noOfLines={1}
                             >
                               CARE PACKAGES
                             </Text>
@@ -401,9 +401,9 @@ export const HomepageBooEventStream = ({
                             <Text
                               textAlign="center"
                               fontFamily="LoRes15"
-                              fontSize={["20px", "30px"]}
+                              fontSize={["10px", "10px", "15px", "25px"]}
                               mx={2}
-                              noOfLines={1}
+                              // noOfLines={1}
                             >
                               SCARE PACKAGES
                             </Text>
@@ -571,7 +571,7 @@ export const HomepageBooEventStream = ({
                       TOKEN_VIEW_TILE_PIXEL_GAP * 2
                     }px - ${TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT}px)`}
                   >
-                    <BooEventTile color="#FF9800" width="100%">
+                    <BooEventTile color="#FF9800" width="100%" padding="5px">
                       <BooPackageCooldownResetComponent
                         currentRoom={currentRoom}
                         dateNow={dateNow}
@@ -596,7 +596,7 @@ export const HomepageBooEventStream = ({
                         }}
                       />
                     </BooEventTile>
-                    <BooEventTile color="#00A0C8" width="100%">
+                    <BooEventTile color="#00A0C8" width="100%" padding="5px">
                       <BooEventTtsComponent
                         fetchUserBooPackageCooldownMapping={
                           fetchUserBooPackageCooldownMapping

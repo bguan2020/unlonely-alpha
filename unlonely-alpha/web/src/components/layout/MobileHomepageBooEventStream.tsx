@@ -165,7 +165,7 @@ const WantToUnlockModal = ({
     >
       <ModalOverlay backgroundColor="#282828e6" />
       <ModalContent
-        padding="50px 20px"
+        padding="20px"
         borderRadius="20px"
         width="300px"
         {...getModalStyles(modalState)}
@@ -202,7 +202,7 @@ const WantToUnlockModal = ({
               fontSize="35px"
               color={getModalStyles(modalState).color}
             >
-              CARE PACKAGES?
+              {getModalStyles(modalState).titleAppend}?
             </Text>
           </Flex>
           <Flex justifyContent={"center"} bg="white" borderRadius={"50px"}>
@@ -296,20 +296,22 @@ const getModalStyles = (
 ): {
   bg: string;
   color: string;
+  titleAppend: string;
 } => {
   switch (modalState) {
     case ButtonOptionNames["heart-black-border"]:
-      return { bg: "#FFCEE4", color: "black" };
+      return { bg: "#FFCEE4", color: "black", titleAppend: "CARE PACKAGES" };
     case ButtonOptionNames["ghost-clear"]:
-      return { bg: "#7200A5", color: "white" };
+      return { bg: "#7200A5", color: "white", titleAppend: "SCARE PACKAGES" };
     case ButtonOptionNames["boolloon"]:
-      return { bg: "#FF7B00", color: "black" };
+      return { bg: "#FF7B00", color: "black", titleAppend: "UNLONELY CHAT" };
     case ButtonOptionNames["megaphone-color"]:
-      return { bg: "#1C9A00", color: "white" };
+      return { bg: "#1C9A00", color: "white", titleAppend: "T-T-S MESSAGES" };
     default:
       return {
         bg: "black",
         color: "white",
+        titleAppend: "CARE PACKAGES",
       };
   }
 };

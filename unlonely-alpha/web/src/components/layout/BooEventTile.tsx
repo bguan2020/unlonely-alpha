@@ -6,12 +6,14 @@ export const BooEventTile = ({
   width,
   height,
   backgroundColor,
+  padding,
 }: {
   children: React.ReactNode;
   color: string;
   width?: string;
   height?: string;
   backgroundColor?: string;
+  padding?: string;
 }) => {
   return (
     <Flex position={"relative"} width={width} height={height}>
@@ -32,6 +34,7 @@ export const BooEventTile = ({
         bg={backgroundColor ?? "#161923"}
         border={`4px solid ${color}`}
         direction={"column"}
+        padding={padding}
       >
         {children}
       </Flex>
