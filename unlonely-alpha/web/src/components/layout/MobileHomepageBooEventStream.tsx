@@ -98,6 +98,7 @@ export const MobileHomepageBooEventStream = () => {
             width="150px"
             color="white"
             background="#564F9A"
+            _active={{}}
           >
             <Flex alignItems={"center"}>
               <FaRegCopy size="25px" />
@@ -110,8 +111,8 @@ export const MobileHomepageBooEventStream = () => {
         <SimpleGrid columns={2} spacing={5} mx="auto">
           {buttonOptionNames.map((name) => (
             <Box
-              width="140px"
-              height="140px"
+              width="120px"
+              height="120px"
               bg="#FF7B00"
               borderRadius="100%"
               key={name}
