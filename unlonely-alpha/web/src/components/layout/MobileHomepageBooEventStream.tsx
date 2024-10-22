@@ -166,8 +166,7 @@ const WantToUnlockModal = ({
         padding="50px 20px"
         borderRadius="20px"
         width="300px"
-        bg={getModalBackgroundColor(modalState)}
-        color="black"
+        {...getModalStyles(modalState)}
       >
         {modalState !== undefined && (
           <ContinuousRain
@@ -185,14 +184,13 @@ const WantToUnlockModal = ({
             }}
           />
         )}
-        <Flex direction="column">
-          <Flex direction="column" mb="30px">
+        <Flex direction="column" gap="30px">
+          <Flex direction="column">
             <Text
               textAlign="center"
               fontFamily="LoRes15"
               fontSize="25px"
-              color="white"
-              textShadow="1px 1px 0 black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black"
+              color={getModalStyles(modalState).color}
             >
               want to unlock
             </Text>
@@ -200,27 +198,38 @@ const WantToUnlockModal = ({
               textAlign="center"
               fontFamily="LoRes15"
               fontSize="35px"
-              color="white"
-              textShadow="1px 1px 0 black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black"
+              color={getModalStyles(modalState).color}
             >
               CARE PACKAGES?
             </Text>
           </Flex>
+          <Flex justifyContent={"center"} bg="white" borderRadius={"50px"}>
+            <Text fontSize="15px" color={"black"} fontWeight={"bold"}>
+              on desktop you can:
+            </Text>
+          </Flex>
           {modalState === ButtonOptionNames["heart-black-border"] && (
             <>
-              <Text textAlign="left" textDecoration="underline" fontSize="15px">
-                on desktop you can:
-              </Text>
-              <Box mt="10px">
-                <UnorderedList spacing={2} fontSize="15px" color="black">
+              <Box>
+                <UnorderedList
+                  spacing={2}
+                  fontSize="12px"
+                  color={getModalStyles(modalState)}
+                >
                   <ListItem>
-                    send participants <b>water and food</b> in real time
+                    send <b>DRiP WATER💧 & FOOD 🍕</b>
                   </ListItem>
                   <ListItem>
-                    send a <b>mad lads backpack</b> with surprise goodies
+                    send <b>a MATCH 🔥</b>
                   </ListItem>
                   <ListItem>
-                    hurry, <b>the show ends in XXX hours!</b>
+                    send <b>PAPER TOWELS</b> 🧻
+                  </ListItem>
+                  <ListItem>
+                    let them <b>use the BATHROOM</b> 🚽
+                  </ListItem>
+                  <ListItem>
+                    give a contestant <b>their PHONE</b>📱
                   </ListItem>
                 </UnorderedList>
               </Box>
@@ -228,38 +237,50 @@ const WantToUnlockModal = ({
           )}
           {modalState === ButtonOptionNames["ghost-clear"] && (
             <>
-              <Text textAlign="left" textDecoration="underline" fontSize="15px">
-                on desktop you can:
-              </Text>
               <Box mt="10px">
-                <UnorderedList spacing={2} fontSize="15px" color="black">
+                <UnorderedList
+                  spacing={2}
+                  fontSize="12px"
+                  color={getModalStyles(modalState)}
+                >
                   <ListItem>
-                    <b>send in a ghost</b> to chase the contestants
+                    turn the <b>LIGHTS OFF</b> 💡
                   </ListItem>
                   <ListItem>
-                    turn on <b>high frequency sound</b>
+                    <b>add FOG</b> 🌬️
                   </ListItem>
                   <ListItem>
-                    flicker the <b>lights</b>
+                    send a <b>shot of FIREBALL</b> 🥃
                   </ListItem>
                   <ListItem>
-                    turn the <b>fog machine</b> on
+                    blast <b>FART SPRAY</b> 💨
+                  </ListItem>
+                  <ListItem>
+                    <b>$BOO WHALE</b> custom request 🐋👀
                   </ListItem>
                 </UnorderedList>
               </Box>
             </>
           )}
           {modalState === ButtonOptionNames["megaphone-color"] && (
-            <Text textAlign="left" fontSize="15px">
-              only on desktop, you can send a{" "}
-              <b>custom TTS (text-to-speech) broadcast message</b> to the
-              contestants
+            <Text
+              textAlign="center"
+              fontSize="12px"
+              color={getModalStyles(modalState)}
+            >
+              send a <b>custom Text-To-Speech (TTS) message</b> directly to the
+              contestants and all viewers
             </Text>
           )}
           {modalState === ButtonOptionNames["boolloon"] && (
-            <Text textAlign="left" fontSize="15px">
-              only on desktop, you can <b>participate in live chat</b> with the
-              rest of the viewers
+            <Text
+              textAlign="center"
+              fontSize="12px"
+              color={getModalStyles(modalState)}
+            >
+              login to unlonely and own any amount of $BOO to{" "}
+              <b>unlock live chat.</b>
+              plus <b>update your username</b> to a custom .boo address 👻
             </Text>
           )}
         </Flex>
@@ -268,17 +289,25 @@ const WantToUnlockModal = ({
   );
 };
 
-const getModalBackgroundColor = (modalState?: ButtonOptionNames): string => {
+const getModalStyles = (
+  modalState?: ButtonOptionNames
+): {
+  bg: string;
+  color: string;
+} => {
   switch (modalState) {
     case ButtonOptionNames["heart-black-border"]:
-      return "#18162C";
+      return { bg: "#FFCEE4", color: "black" };
     case ButtonOptionNames["ghost-clear"]:
-      return "#7200A5";
+      return { bg: "#7200A5", color: "white" };
     case ButtonOptionNames["boolloon"]:
-      return "#FF7B00";
+      return { bg: "#FF7B00", color: "black" };
     case ButtonOptionNames["megaphone-color"]:
-      return "#1C9A00";
+      return { bg: "#1C9A00", color: "white" };
     default:
-      return "black";
+      return {
+        bg: "black",
+        color: "white",
+      };
   }
 };
