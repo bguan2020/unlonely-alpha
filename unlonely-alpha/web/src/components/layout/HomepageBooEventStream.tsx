@@ -40,6 +40,7 @@ import { useAblyChannel } from "../../hooks/chat/useChatChannel";
 import { UseInteractionModal } from "../channels/UseInteractionModal";
 // import { areAddressesEqual } from "../../utils/validation/wallet";
 import { BooPackageCooldownResetComponent } from "./BooPackageCooldownResetComponent";
+import { isValidAddress } from "../../utils/validation/wallet";
 
 export const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 export const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
@@ -315,7 +316,28 @@ export const HomepageBooEventStream = ({
                     <Flex
                       gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
                       height={`${100 - TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}%`}
+                      position="relative"
                     >
+                      {isValidAddress(user?.address) !== "solana" && (
+                        <Flex
+                          justifyContent="center"
+                          alignItems="center"
+                          position="absolute"
+                          zIndex="3"
+                          bg="rgba(24, 22, 45, 0.54)"
+                          width="100%"
+                          height="100%"
+                        >
+                          <Text
+                            textAlign={"center"}
+                            fontSize="calc(1vw + 1vh)"
+                            bg="#7EFB97"
+                            color="black"
+                          >
+                            please log in with solana wallet to access
+                          </Text>
+                        </Flex>
+                      )}
                       <BooEventTile color="#F57CA1" width="100%" height="100%">
                         <Flex
                           justifyContent="center"

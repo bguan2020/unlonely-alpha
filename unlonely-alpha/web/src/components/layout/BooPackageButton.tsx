@@ -189,16 +189,6 @@ export const BooPackageButton = ({
                     true
                   )}
                 </Flex>
-              ) : isValidAddress(user?.address) !== "solana" ? (
-                <Text
-                  textAlign={"center"}
-                  fontSize="12px"
-                  position="absolute"
-                  bg="#4b4b4b"
-                  zIndex="2"
-                >
-                  log in with solana wallet first
-                </Text>
               ) : null}
             </>
           )}
