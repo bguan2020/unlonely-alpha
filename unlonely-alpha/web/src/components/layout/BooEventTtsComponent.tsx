@@ -123,11 +123,12 @@ export const BooEventTtsComponent = ({
         if (!isDisabled) onTtsClick(handlePost);
       }}
       position={"relative"}
+      opacity={isDisabled ? 0.5 : 1}
     >
       <Tooltip
-        bg={isValidAddress(user?.address) !== "solana" ? "unset" : "#7EFB97"}
+        bg={"#7EFB97"}
         placement="bottom-end"
-        color={isValidAddress(user?.address) !== "solana" ? "unset" : "black"}
+        color={"black"}
         label={
           isValidAddress(user?.address) !== "solana"
             ? "log in with solana wallet first"
