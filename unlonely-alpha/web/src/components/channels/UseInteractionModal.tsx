@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import { containsSwears } from "../../utils/validation/profanityFilter";
 import {
+  PackageNameToModalTitle,
   RESET_COOLDOWNS_NAME,
   TEXT_TO_SPEECH_PACKAGE_NAME,
 } from "../../constants";
@@ -44,9 +45,10 @@ export const UseInteractionModal = ({
   useEffect(() => {
     const checkSolanaTokenBalance = async () => {
       if (isOpen) {
-        setLoadingText("Checking $BOO balance...");
+        setLoadingText("...checking $BOO balance...");
         await new Promise((resolve) => setTimeout(resolve, 2000));
         const balance = await balanceData.fetchTokenBalance();
+        console.log("balance", balance);
         if (balance !== undefined && balance < Number(interactionData.price)) {
           triggerGlowingEffect();
         }
@@ -57,88 +59,114 @@ export const UseInteractionModal = ({
   }, [isOpen]);
 
   return (
-    <Modal isCentered isOpen={isOpen} onClose={handleClose} size="sm">
+    <Modal isCentered isOpen={isOpen} onClose={handleClose} size="xs">
       <ModalOverlay backgroundColor="#230f6683" />
       <ModalContent
         maxW="500px"
         boxShadow="0px 8px 28px #0a061c40"
         padding="12px"
         borderRadius="5px"
-        bg="#281b5a"
+        bg="#7EFB97"
+        color="black"
       >
         <Flex direction="column">
           {loadingText !== null ? (
-            <Flex direction="column">
+            <Flex direction="column" gap="22px">
+              <Text fontWeight={"bold"} textAlign="center">
+                {PackageNameToModalTitle[interactionData.name]}
+              </Text>
               <Flex justifyContent={"center"}>
                 <Spinner />
               </Flex>
-              {loadingText && <Text textAlign="center">{loadingText}</Text>}
+              {loadingText && (
+                <Text fontWeight={"bold"} textAlign="center">
+                  {loadingText}
+                </Text>
+              )}
             </Flex>
-          ) : balanceData.balance !== null &&
-            balanceData.balance < Number(interactionData.price) ? (
-            <Flex direction="column">
-              <Text textAlign="center">
-                need to hold at least {addCommasToNumber(interactionData.price)}{" "}
-                $BOO
+          ) : balanceData.balance === null ||
+            (balanceData.balance !== null &&
+              balanceData.balance < Number(interactionData.price)) ? (
+            <Flex
+              direction="column"
+              gap="22px"
+              alignItems="center"
+              width="100%"
+            >
+              <Text textAlign={"center"} fontWeight={"bold"}>
+                {"you don’t hold enough $BOO rn :("}
               </Text>
-              <Text textAlign="center">
-                you still need{" "}
+              <Text width="200px" textAlign="center">
+                buy at least{" "}
                 {addCommasToNumber(
-                  Math.ceil(Number(interactionData.price) - balanceData.balance)
+                  Math.ceil(
+                    Number(interactionData.price) - (balanceData.balance ?? 0)
+                  )
                 )}{" "}
-                $BOO
+                to unlock this action!
               </Text>
             </Flex>
           ) : (
             <Flex direction="column" gap="10px">
-              <Text textAlign="center">disclaimer</Text>
+              <Text textAlign="center" fontWeight={"bold"}>
+                {PackageNameToModalTitle[interactionData.name]}
+              </Text>
               {interactionData.name !== RESET_COOLDOWNS_NAME && (
                 <Textarea
                   id="text"
                   placeholder={
                     isTts ? "Enter message to broadcast" : "Enter message"
                   }
+                  bg="#18162D"
+                  color="white"
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                 />
               )}
-
-              <Button
-                bg="#2562db"
-                color={"white"}
-                _hover={{
-                  bg: "#4683fd",
-                }}
-                onClick={async () => {
-                  setLoadingText(
-                    interactionData.name === RESET_COOLDOWNS_NAME
-                      ? "resetting..."
-                      : isTts
-                      ? "sending message..."
-                      : "using package..."
-                  );
-                  await interactionData.handleInteraction(text);
-                  setText("");
-                  setLoadingText(null);
-                  handleClose();
-                }}
-                isDisabled={
-                  (text.length === 0 ||
-                    text.length > 200 ||
-                    containsSwears(text)) &&
-                  interactionData.name !== RESET_COOLDOWNS_NAME
-                }
-              >
-                Send
-              </Button>
+              <Flex justifyContent={"flex-end"}>
+                <Button
+                  width="fit-content"
+                  bg="#003EDA"
+                  color={"white"}
+                  _hover={{
+                    bg: "#4683fd",
+                  }}
+                  fontSize={"25px"}
+                  onClick={async () => {
+                    setLoadingText(
+                      interactionData.name === RESET_COOLDOWNS_NAME
+                        ? "resetting..."
+                        : isTts
+                        ? "sending message..."
+                        : "using package..."
+                    );
+                    await interactionData.handleInteraction(text);
+                    setText("");
+                    setLoadingText(null);
+                    handleClose();
+                  }}
+                  isDisabled={
+                    (text.length === 0 ||
+                      text.length > 200 ||
+                      containsSwears(text)) &&
+                    interactionData.name !== RESET_COOLDOWNS_NAME
+                  }
+                >
+                  SEND NOW
+                </Button>
+              </Flex>
               {interactionData.name !== RESET_COOLDOWNS_NAME && (
-                <Text h="20px" color={"red"} fontSize="10px">
-                  {text.length > 200
-                    ? "message must be 200 characters or under"
-                    : containsSwears(text)
-                    ? "message contains strong swear words"
-                    : ""}
-                </Text>
+                <>
+                  {text.length > 200 ? (
+                    <Text h="20px" color={"red"} fontSize="10px">
+                      message must be 200 characters or under
+                    </Text>
+                  ) : containsSwears(text) ? (
+                    <Text h="20px" color={"red"} fontSize="10px">
+                      message contains strong swear words
+                    </Text>
+                  ) : null}
+                </>
               )}
             </Flex>
           )}

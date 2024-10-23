@@ -55,8 +55,6 @@ export default function EditChannelModal({
     handleClose();
   };
 
-  // todo: add error message handling here for user
-
   return (
     <TransactionModalTemplate
       title={title}

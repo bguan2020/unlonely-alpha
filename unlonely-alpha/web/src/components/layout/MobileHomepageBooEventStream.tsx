@@ -102,8 +102,8 @@ export const MobileHomepageBooEventStream = () => {
             _focus={{}}
             _hover={{}}
           >
-            <Flex alignItems={"center"}>
-              <FaRegCopy size="25px" />
+            <Flex alignItems={"center"} gap="5px">
+              <FaRegCopy size="20px" />
               <Text fontSize="30px" fontFamily="LoRes15">
                 $BOO CA
               </Text>
@@ -282,8 +282,8 @@ const WantToUnlockModal = ({
               color={getModalStyles(modalState)}
             >
               login to unlonely and own any amount of $BOO to{" "}
-              <b>unlock live chat.</b>
-              plus <b>update your username</b> to a custom .boo address 👻
+              <b>unlock live chat.</b> plus, <b>update your username</b> to a
+              custom .boo address 👻
             </Text>
           )}
         </Flex>

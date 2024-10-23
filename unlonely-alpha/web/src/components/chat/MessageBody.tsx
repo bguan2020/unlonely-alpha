@@ -268,8 +268,8 @@ const MessageBody = ({
                     fontWeight="bold"
                   >
                     {message.data.username
-                      ? trailString(message.data.username, 15)
-                      : centerEllipses(message.data.address, 15)}
+                      ? trailString(message.data.username, 20)
+                      : centerEllipses(message.data.address, 20)}
                   </Text>
                   {message.data.username !== "🤖" ? ":" : ""}{" "}
                   {message.data.isGif && (

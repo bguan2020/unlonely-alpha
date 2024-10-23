@@ -45,6 +45,7 @@ export const HomePageBooEventStreamPage = () => {
 
   const isThereTimeLeft = useMemo(() => {
     // return timeLeftInMillis > 0;
+    // todo: uncomment this line
     return false;
   }, [timeLeftInMillis]);
 
