@@ -97,13 +97,15 @@ export const UseInteractionModal = ({
                 {"you don’t hold enough $BOO rn :("}
               </Text>
               <Text width="200px" textAlign="center">
-                buy at least{" "}
-                {addCommasToNumber(
-                  Math.ceil(
-                    Number(interactionData.price) - (balanceData.balance ?? 0)
-                  )
-                )}{" "}
-                to unlock this action!
+                buy{" "}
+                <b>
+                  {addCommasToNumber(
+                    Math.ceil(
+                      Number(interactionData.price) - (balanceData.balance ?? 0)
+                    )
+                  )}
+                </b>{" "}
+                more to unlock!
               </Text>
             </Flex>
           ) : (

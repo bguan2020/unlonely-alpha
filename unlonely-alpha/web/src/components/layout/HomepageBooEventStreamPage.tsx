@@ -26,7 +26,7 @@ export const HomePageBooEventStreamPage = () => {
 
   const { solanaAddress, logout } = useUser();
 
-  const { balance, fetchTokenBalance } = useSolanaTokenBalance();
+  const balanceData = useSolanaTokenBalance();
 
   const [isGlowing, setIsGlowing] = useState(false);
 
@@ -110,7 +110,7 @@ export const HomePageBooEventStreamPage = () => {
           <HomepageBooEventStream
             dateNow={dateNow}
             isModalGlowing={isGlowing}
-            balanceData={{ balance, fetchTokenBalance }}
+            balanceData={balanceData}
             triggerGlowingEffect={triggerGlowingEffect}
           />
         )}
@@ -127,7 +127,10 @@ export const HomePageBooEventStreamPage = () => {
             tokenForTransfer="vibes"
             noTabs
             tokenGating={
-              (balance && balance > 0 && solanaAddress) || isThereTimeLeft
+              (balanceData.balance &&
+                balanceData.balance > 0 &&
+                solanaAddress) ||
+              isThereTimeLeft
                 ? undefined
                 : solanaAddress
                 ? {
