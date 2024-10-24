@@ -242,6 +242,7 @@ export const ScarePackageToDescription: Record<ScarePackageName, string> = {
 };
 
 export const PackageNameToModalTitle: Record<string, string> = {
+  ["text-to-speech"]: "send a custom text-to-speech message to contestants!",
   [CarePackageName.WATER_BOTTLE]: "send water to a contestant!",
   [CarePackageName.TOILET]: "let a contestant use the bathroom!",
   [CarePackageName.PIZZA]: "send pizza to a contestant!",
