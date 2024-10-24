@@ -123,7 +123,7 @@ export const BooEventTtsComponent = ({
         if (!isDisabled) onTtsClick(handlePost);
       }}
       position={"relative"}
-      opacity={isDisabled ? 0.5 : 1}
+      opacity={isValidAddress(user?.address) !== "solana" ? 0.5 : 1}
     >
       <Tooltip
         bg={"#7EFB97"}

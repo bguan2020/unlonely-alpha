@@ -127,7 +127,11 @@ export const UseInteractionModal = ({
               )}
               <Flex justifyContent={"flex-end"}>
                 <Button
-                  width="fit-content"
+                  width={
+                    interactionData.name === RESET_COOLDOWNS_NAME
+                      ? "100%"
+                      : "fit-content"
+                  }
                   bg="#003EDA"
                   color={"white"}
                   _hover={{
@@ -154,7 +158,9 @@ export const UseInteractionModal = ({
                     interactionData.name !== RESET_COOLDOWNS_NAME
                   }
                 >
-                  SEND NOW
+                  {interactionData.name !== RESET_COOLDOWNS_NAME
+                    ? "SEND NOW"
+                    : "RESET NOW"}
                 </Button>
               </Flex>
               {interactionData.name !== RESET_COOLDOWNS_NAME && (
