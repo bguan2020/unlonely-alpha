@@ -18,13 +18,15 @@ import { HomePageBooEventTokenCountdown } from "./HomepageBooEventCountdown";
 import { HomepageBooEventTrailer } from "./HomepageBooEventTrailer";
 import Link from "next/link";
 import Header from "../navigation/Header";
+import { areAddressesEqual } from "../../utils/validation/wallet";
 
 export const HomePageBooEventStreamPage = () => {
-  const { chat: c } = useChannelContext();
+  const { chat: c, channel } = useChannelContext();
+  const { channelQueryData, channelRoles } = channel;
   const { chatBot } = c;
   const chat = useChat({ chatBot });
 
-  const { solanaAddress, logout } = useUser();
+  const { user, solanaAddress, logout } = useUser();
 
   const balanceData = useSolanaTokenBalance();
 
@@ -55,6 +57,21 @@ export const HomePageBooEventStreamPage = () => {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  const userIsChannelOwner = useMemo(
+    () =>
+      areAddressesEqual(
+        user?.address ?? "",
+        channelQueryData?.owner?.address ?? ""
+      ),
+    [user, channelQueryData]
+  );
+
+  const userIsModerator = useMemo(
+    () =>
+      channelRoles?.some((m) => m?.address === user?.address && m?.role === 2),
+    [user, channelRoles]
+  );
 
   return (
     <Flex direction="column" height="100vh">
@@ -142,7 +159,7 @@ export const HomePageBooEventStreamPage = () => {
                     gateMessage: "SWITCH TO SOLANA",
                   }
             }
-            noClipping
+            noClipping={!userIsChannelOwner && !userIsModerator}
           />
         </Flex>
       </Flex>
