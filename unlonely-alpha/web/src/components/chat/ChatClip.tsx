@@ -57,8 +57,6 @@ export const ChatClip = () => {
     if (url) setFinalUrl(url);
   };
 
-  // todo: add error message handling here for user
-
   return (
     <>
       {isClipUiOpen && (

@@ -84,6 +84,7 @@ export const VIBES_TOKEN_PRICE_RANGE_EVENT = "vibes-token-price-range";
 export const TOKEN_TRANSFER_EVENT = "token-transfer";
 export const PINNED_CHAT_MESSAGES_EVENT = "pinned-chat-messages";
 export const PACKAGE_PRICE_CHANGE_EVENT = "package-price-change";
+export const ROOM_CHANGE_EVENT = "room-change";
 export const PACKAGE_PURCHASE_EVENT = "package-purchase";
 export const SEND_TTS_EVENT = "send-tts";
 
@@ -140,6 +141,12 @@ export const FIXED_SOLANA_MINT = {
   poolAddress: "3Ehz9oTK2pULee65s5ftiv798mKjek9s8xdRWGMXChw7",
   decimals: 6,
 };
+// export const FIXED_SOLANA_MINT = {
+//   mintAddress: "4sx9a8c81cPWYPy3QVptKcgZu87ncixZp5d2cxeVpump",
+//   tokenAccount: "3GPNYL255Zdpv4jMjq1XhiZRHDLYZ6mV3cd9q6T6ybDW",
+//   poolAddress: "CUfcyzaGxsKBGScEDkaD9FNc461oewU6tBuqERUUBdsr",
+//   decimals: 6,
+// };
 
 export enum SwapMode {
   ExactInOrOut = "ExactInOrOut",
@@ -193,3 +200,69 @@ export const INITIAL_FORM_CONFIG: IFormConfigurator = Object.freeze({
   },
   useUserSlippage: true,
 });
+
+
+export const TEXT_TO_SPEECH_PACKAGE_NAME = "text-to-speech";
+export const RESET_COOLDOWNS_NAME = "reset-cooldowns";
+
+export enum CarePackageName {
+  WATER_BOTTLE = "water-bottle",
+  TOILET = "toilet",
+  PIZZA = "pizza",
+  TORCH = "torch",
+  PAPER_ROLL = "paper-roll",
+  PHONE = "phone",
+}
+
+export enum ScarePackageName {
+  BLACKOUT = "blackout",
+  FOG = "fog",
+  BOOM = "boom",
+  WHALE = "whale",
+  FIREBALL = "fireball",
+  FART_SPRAY = "fart-spray",
+}
+
+export const CarePackageToDescription: Record<CarePackageName, string> = {
+  [CarePackageName.WATER_BOTTLE]: "send water to a thirsty contestant",
+  [CarePackageName.TOILET]: "let a contestant use the bathroom",
+  [CarePackageName.PIZZA]: "send pizza to a hungry contestant",
+  [CarePackageName.TORCH]: "too dark? send 1 light-able match",
+  [CarePackageName.PAPER_ROLL]: "things got messy? send 1 sheet of paper towel",
+  [CarePackageName.PHONE]: "give a contestant their phone for 1 min to make a desperate tweet",
+};
+
+export const ScarePackageToDescription: Record<ScarePackageName, string> = {
+  [ScarePackageName.BLACKOUT]: "turn all the lights out in this room for 1 min",
+  [ScarePackageName.FOG]: "add some fog to this room",
+  [ScarePackageName.BOOM]: "???",
+  [ScarePackageName.WHALE]: "oh ur a whale? tell us what you want happen",
+  [ScarePackageName.FIREBALL]: "send a contestant a shot of fireball whiskey",
+  [ScarePackageName.FART_SPRAY]: "send fart spray",
+};
+
+export const PackageNameToModalTitle: Record<string, string> = {
+  ["text-to-speech"]: "send a custom text-to-speech message to contestants!",
+  [CarePackageName.WATER_BOTTLE]: "send water to a contestant!",
+  [CarePackageName.TOILET]: "let a contestant use the bathroom!",
+  [CarePackageName.PIZZA]: "send pizza to a contestant!",
+  [CarePackageName.TORCH]: "send a match!",
+  [CarePackageName.PAPER_ROLL]: "send 1 sheet of paper towel!",
+  [CarePackageName.PHONE]: "give phone for 1 min!",
+  [ScarePackageName.BLACKOUT]: "LIGHTS OUT!",
+  [ScarePackageName.FOG]: "add fog!",
+  [ScarePackageName.BOOM]: "a surprise?!",
+  [ScarePackageName.WHALE]: "custom whale request!",
+  [ScarePackageName.FIREBALL]: "one shot of fireball coming right up!",
+  [ScarePackageName.FART_SPRAY]: "send fart spray!",
+};
+
+export enum BooRoom {
+  WAITING_ROOM = "waiting-room",
+  MANNEQUIN_ROOM = "mannequin-room",
+  BLOOD_BATH = "blood-bath",
+  SEX_DUNGEON = "sex-dungeon",
+  BLACK_OUT = "black-out",
+  CLASSROOM = "classroom",
+  ATH = "ath",
+}

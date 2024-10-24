@@ -1,3 +1,4 @@
+import { RESET_COOLDOWNS_NAME } from "../constants";
 import { PackageInfo } from "../pages/modcenter";
 
 type NewPackageCooldown = {
@@ -6,13 +7,13 @@ type NewPackageCooldown = {
   usableAt: string;
 };
 
-const SECONDARY_COOLDOWN_IN_MILLIS = 30 * 1000;
+const SECONDARY_COOLDOWN_IN_MILLIS = 15 * 60 * 1000;
 
 export const createPackageCooldownArray = (
   _packageMap: any,
   _userPackageCooldownMapping: any,
   nameOfPackageUsed: string,
-  namesOfPackagesExcused: string[] = ["reset-cooldowns"]
+  namesOfPackagesExcused: string[] = [RESET_COOLDOWNS_NAME]
 ): NewPackageCooldown[] => {
   const packageMap: Record<string, PackageInfo> = { ..._packageMap };
 

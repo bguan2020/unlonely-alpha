@@ -586,6 +586,7 @@ export type Mutation = {
   updateOpenseaLink?: Maybe<Nfc>;
   updatePackage: Package;
   updatePinnedChatMessages?: Maybe<Channel>;
+  updateRooms: Room;
   updateSharesEvent?: Maybe<Channel>;
   updateStreamInteraction?: Maybe<StreamInteraction>;
   updateTempTokenHasHitTotalSupplyThreshold: Scalars["Boolean"];
@@ -794,6 +795,10 @@ export type MutationUpdatePackageArgs = {
 
 export type MutationUpdatePinnedChatMessagesArgs = {
   data: UpdatePinnedChatMessagesInput;
+};
+
+export type MutationUpdateRoomsArgs = {
+  data: UpdateRoomsInput;
 };
 
 export type MutationUpdateSharesEventArgs = {
@@ -1106,6 +1111,7 @@ export type Query = {
   getPackages: Array<Package>;
   getPoap?: Maybe<Poap>;
   getRecentChats?: Maybe<Array<Maybe<Chat>>>;
+  getRooms: Array<Room>;
   getStreamInteractions?: Maybe<Array<Maybe<StreamInteraction>>>;
   getSubscriptionByEndpoint?: Maybe<Subscription>;
   getSubscriptionsByChannelId?: Maybe<Array<Maybe<Subscription>>>;
@@ -1298,6 +1304,15 @@ export type RequestUploadResponse = {
   task: AssetTask;
   tusEndpoint: Scalars["String"];
   url: Scalars["String"];
+};
+
+export type Room = {
+  __typename?: "Room";
+  availablePackages: Array<Scalars["String"]>;
+  createdAt: Scalars["String"];
+  inUse: Scalars["Boolean"];
+  roomName: Scalars["String"];
+  updatedAt: Scalars["String"];
 };
 
 export type SendAllNotificationsInput = {
@@ -1550,6 +1565,10 @@ export type UpdatePinnedChatMessagesInput = {
   pinnedChatMessages: Array<InputMaybe<Scalars["String"]>>;
 };
 
+export type UpdateRoomsInput = {
+  roomNameToUse: Scalars["String"];
+};
+
 export type UpdateSharesEventInput = {
   eventState?: InputMaybe<SharesEventState>;
   id: Scalars["ID"];
@@ -1795,6 +1814,18 @@ export type GetPackagesQuery = {
     tokenHoldingPrice?: string | null;
     packageName: string;
     id: string;
+  }>;
+};
+
+export type GetRoomsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type GetRoomsQuery = {
+  __typename?: "Query";
+  getRooms: Array<{
+    __typename?: "Room";
+    availablePackages: Array<string>;
+    inUse: boolean;
+    roomName: string;
   }>;
 };
 
@@ -3194,6 +3225,20 @@ export type FetchCurrentUserQuery = {
   } | null;
 };
 
+export type UpdateRoomsMutationVariables = Exact<{
+  data: UpdateRoomsInput;
+}>;
+
+export type UpdateRoomsMutation = {
+  __typename?: "Mutation";
+  updateRooms: {
+    __typename?: "Room";
+    availablePackages: Array<string>;
+    inUse: boolean;
+    roomName: string;
+  };
+};
+
 export const GetUserDocument = gql`
   query GetUser($data: GetUserInput!) {
     getUser(data: $data) {
@@ -3489,6 +3534,60 @@ export type GetPackagesLazyQueryHookResult = ReturnType<
 export type GetPackagesQueryResult = Apollo.QueryResult<
   GetPackagesQuery,
   GetPackagesQueryVariables
+>;
+export const GetRoomsDocument = gql`
+  query GetRooms {
+    getRooms {
+      availablePackages
+      inUse
+      roomName
+    }
+  }
+`;
+
+/**
+ * __useGetRoomsQuery__
+ *
+ * To run a query within a React component, call `useGetRoomsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRoomsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRoomsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetRoomsQuery(
+  baseOptions?: Apollo.QueryHookOptions<GetRoomsQuery, GetRoomsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useQuery<GetRoomsQuery, GetRoomsQueryVariables>(
+    GetRoomsDocument,
+    options
+  );
+}
+export function useGetRoomsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<
+    GetRoomsQuery,
+    GetRoomsQueryVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useLazyQuery<GetRoomsQuery, GetRoomsQueryVariables>(
+    GetRoomsDocument,
+    options
+  );
+}
+export type GetRoomsQueryHookResult = ReturnType<typeof useGetRoomsQuery>;
+export type GetRoomsLazyQueryHookResult = ReturnType<
+  typeof useGetRoomsLazyQuery
+>;
+export type GetRoomsQueryResult = Apollo.QueryResult<
+  GetRoomsQuery,
+  GetRoomsQueryVariables
 >;
 export const GetLivepeerClipDataDocument = gql`
   query GetLivepeerClipData($data: GetLivepeerClipDataInput) {
@@ -8477,4 +8576,56 @@ export type FetchCurrentUserLazyQueryHookResult = ReturnType<
 export type FetchCurrentUserQueryResult = Apollo.QueryResult<
   FetchCurrentUserQuery,
   FetchCurrentUserQueryVariables
+>;
+export const UpdateRoomsDocument = gql`
+  mutation UpdateRooms($data: UpdateRoomsInput!) {
+    updateRooms(data: $data) {
+      availablePackages
+      inUse
+      roomName
+    }
+  }
+`;
+export type UpdateRoomsMutationFn = Apollo.MutationFunction<
+  UpdateRoomsMutation,
+  UpdateRoomsMutationVariables
+>;
+
+/**
+ * __useUpdateRoomsMutation__
+ *
+ * To run a mutation, you first call `useUpdateRoomsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateRoomsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateRoomsMutation, { data, loading, error }] = useUpdateRoomsMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateRoomsMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    UpdateRoomsMutation,
+    UpdateRoomsMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<UpdateRoomsMutation, UpdateRoomsMutationVariables>(
+    UpdateRoomsDocument,
+    options
+  );
+}
+export type UpdateRoomsMutationHookResult = ReturnType<
+  typeof useUpdateRoomsMutation
+>;
+export type UpdateRoomsMutationResult =
+  Apollo.MutationResult<UpdateRoomsMutation>;
+export type UpdateRoomsMutationOptions = Apollo.BaseMutationOptions<
+  UpdateRoomsMutation,
+  UpdateRoomsMutationVariables
 >;

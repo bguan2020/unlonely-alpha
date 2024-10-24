@@ -59,6 +59,16 @@ export const GET_PACKAGES_QUERY = gql`
   }
 `;
 
+export const GET_ROOMS_QUERY = gql`
+  query GetRooms {
+    getRooms {
+      availablePackages
+      inUse
+      roomName
+    }
+  }
+`
+
 export const GET_LIVEPEER_CLIP_DATA_QUERY = gql`
   query GetLivepeerClipData($data: GetLivepeerClipDataInput) {
     getLivepeerClipData(data: $data) {

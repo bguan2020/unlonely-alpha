@@ -606,19 +606,20 @@ const ChatForm = ({
                       alignItems="center"
                       justifyContent="center"
                       zIndex={1}
+                      onClick={tokenGating.ctaBuyTokens}
                     >
-                      <Button
-                        onClick={tokenGating.ctaBuyTokens}
-                        bg="transparent"
-                        _hover={{}}
-                        _active={{}}
-                        _focus={{}}
-                        width="100%"
+                      <Text
+                        color="red"
+                        fontWeight="bold"
+                        fontSize={[
+                          "20px",
+                          "20px",
+                          "calc(0.6vw + 0.7vh)",
+                          "calc(0.6vw + 0.7vh)",
+                        ]}
                       >
-                        <Text color="red" fontWeight="bold" fontSize="20px">
-                          {tokenGating.gateMessage}
-                        </Text>
-                      </Button>
+                        {tokenGating.gateMessage}
+                      </Text>
                     </Box>
                   )}
                 </Flex>

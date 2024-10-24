@@ -4,20 +4,21 @@ import { PublicKey, Connection } from "@solana/web3.js";
 import { useState, useEffect, useCallback } from "react";
 import { FIXED_SOLANA_MINT, SOLANA_RPC_URL } from "../../../constants";
 import { useUser } from "../../context/useUser";
+import { isValidAddress } from "../../../utils/validation/wallet";
 
 export const useSolanaTokenBalance = () => {
   const [balance, setBalance] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const { solanaAddress, activeWallet } = useUser();
+  const { solanaAddress, user } = useUser();
 
   useEffect(() => {
-    if (solanaAddress) {
+    if (solanaAddress || isValidAddress(user?.address) === "solana") {
       fetchTokenBalance();
     } else {
       setBalance(null);
     }
-  }, [solanaAddress, activeWallet]);
+  }, [solanaAddress, user]);
 
   const fetchTokenBalance = useCallback(async () => {
     if (!solanaAddress || loading) {
@@ -28,6 +29,7 @@ export const useSolanaTokenBalance = () => {
 
     setLoading(true);
 
+    let resBalance = undefined;
     try {
       const connection = new Connection(SOLANA_RPC_URL, "confirmed");
       const tokenMint = new PublicKey(FIXED_SOLANA_MINT.mintAddress);
@@ -49,11 +51,14 @@ export const useSolanaTokenBalance = () => {
         balance
       );
       setBalance(Number(balance));
+      resBalance = Number(balance);
     } catch (error) {
       console.error("Error fetching token balance:", error);
+      setBalance(null);
     } finally {
       setLoading(false);
     }
+    return resBalance;
   }, [solanaAddress, loading]);
 
   return {

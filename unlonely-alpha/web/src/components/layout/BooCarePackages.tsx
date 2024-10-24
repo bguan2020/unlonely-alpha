@@ -1,11 +1,13 @@
-import { Flex, Image } from "@chakra-ui/react";
+import { SimpleGrid } from "@chakra-ui/react";
 import { BooPackageButton } from "./BooPackageButton";
-import { AblyChannelPromise } from "../../constants";
+import { AblyChannelPromise, CarePackageName } from "../../constants";
+import { RoomInfo } from "../../pages/modcenter";
 
-const carePackageNames = ["water", "flashlight"];
+const carePackageNames: string[] = Object.values(CarePackageName);
 
 export const BooCarePackages = ({
   dateNow,
+  currentRoom,
   booPackageMap,
   userBooPackageCooldowns,
   fetchUserBooPackageCooldownMapping,
@@ -13,6 +15,7 @@ export const BooCarePackages = ({
   onPackageClick,
 }: {
   dateNow: number;
+  currentRoom: RoomInfo | undefined;
   booPackageMap: any;
   userBooPackageCooldowns: any;
   fetchUserBooPackageCooldownMapping: any;
@@ -23,21 +26,10 @@ export const BooCarePackages = ({
   ) => void;
 }) => {
   return (
-    <Flex flexWrap={"wrap"} justifyContent={"space-evenly"}>
+    <SimpleGrid columns={3} height="100%" alignItems={"center"}>
       {carePackageNames.map((name) => (
         <BooPackageButton
           booPackageMap={booPackageMap}
-          imageComponent={
-            <Image
-              src={`/images/packages/${name}.png`}
-              height="50px"
-              _hover={{
-                cursor: "pointer",
-                transform: "scale(1.1)",
-                transition: "transform 0.2s",
-              }}
-            />
-          }
           key={name}
           cooldownInSeconds={booPackageMap?.[name]?.cooldownInSeconds ?? 0}
           userBooPackageCooldowns={userBooPackageCooldowns}
@@ -46,10 +38,11 @@ export const BooCarePackages = ({
           fetchUserBooPackageCooldownMapping={
             fetchUserBooPackageCooldownMapping
           }
+          isAvailable={currentRoom?.availablePackages.includes(name)}
           interactionsAblyChannel={interactionsAblyChannel}
           onClick={onPackageClick}
         />
       ))}
-    </Flex>
+    </SimpleGrid>
   );
 };

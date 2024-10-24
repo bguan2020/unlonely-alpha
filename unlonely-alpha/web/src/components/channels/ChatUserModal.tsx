@@ -268,15 +268,36 @@ export const ChatUserModal = ({
                     </>
                   )}
               </Flex>
-              {isValidAddress(targetUser.address ?? "") === "solana" &&
-                !user?.username &&
+              {!user?.username &&
                 areAddressesEqual(
                   user?.address ?? "",
                   targetUser.address ?? ""
                 ) && (
-                  <Button onClick={() => setModalState("creatingUsername")}>
-                    Create Username
-                  </Button>
+                  <Flex
+                    direction="column"
+                    gap="5px"
+                    p="5px"
+                    bg="rgba(0, 0, 0, 0.3)"
+                    borderRadius="10px"
+                  >
+                    {isValidAddress(targetUser.address ?? "") !== "solana" && (
+                      <Text
+                        color="red.500"
+                        textAlign={"center"}
+                        fontSize="15px"
+                      >
+                        only available for users on solana
+                      </Text>
+                    )}
+                    <Button
+                      onClick={() => setModalState("creatingUsername")}
+                      isDisabled={
+                        isValidAddress(targetUser.address ?? "") !== "solana"
+                      }
+                    >
+                      Create Username
+                    </Button>
+                  </Flex>
                 )}
             </Flex>
           )}
