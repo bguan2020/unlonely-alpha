@@ -11,9 +11,10 @@ import {
 import { useEffect, useState } from "react";
 import { containsSwears } from "../../utils/validation/profanityFilter";
 import {
+  PackageNameToModalDescription,
+  PackageNameToModalExampleMessage,
   PackageNameToModalTitle,
   RESET_COOLDOWNS_NAME,
-  TEXT_TO_SPEECH_PACKAGE_NAME,
 } from "../../constants";
 import { addCommasToNumber } from "../../utils/tokenDisplayFormatting";
 
@@ -39,8 +40,6 @@ export const UseInteractionModal = ({
 }) => {
   const [loadingText, setLoadingText] = useState<string | null>(null);
   const [text, setText] = useState("");
-
-  const isTts = interactionData.name === TEXT_TO_SPEECH_PACKAGE_NAME;
 
   useEffect(() => {
     const checkSolanaTokenBalance = async () => {
@@ -109,15 +108,24 @@ export const UseInteractionModal = ({
               </Text>
             </Flex>
           ) : (
-            <Flex direction="column" gap="10px">
+            <Flex direction="column" gap="15px">
               <Text textAlign="center" fontWeight={"bold"}>
                 {PackageNameToModalTitle[interactionData.name]}
               </Text>
-              {interactionData.name !== RESET_COOLDOWNS_NAME && (
+              {PackageNameToModalDescription[interactionData.name] && (
+                <Text textAlign="center">
+                  {PackageNameToModalDescription[interactionData.name]}
+                </Text>
+              )}
+              {PackageNameToModalExampleMessage[interactionData.name] && (
                 <Textarea
                   id="text"
                   placeholder={
-                    isTts ? "Enter message to broadcast" : "Enter message"
+                    PackageNameToModalExampleMessage[interactionData.name]
+                      ? `ex: ${
+                          PackageNameToModalExampleMessage[interactionData.name]
+                        }`
+                      : ""
                   }
                   bg="#18162D"
                   color="white"
@@ -128,9 +136,9 @@ export const UseInteractionModal = ({
               <Flex justifyContent={"flex-end"}>
                 <Button
                   width={
-                    interactionData.name === RESET_COOLDOWNS_NAME
-                      ? "100%"
-                      : "fit-content"
+                    PackageNameToModalExampleMessage[interactionData.name]
+                      ? "fit-content"
+                      : "100%"
                   }
                   bg="#003EDA"
                   color={"white"}
@@ -142,9 +150,7 @@ export const UseInteractionModal = ({
                     setLoadingText(
                       interactionData.name === RESET_COOLDOWNS_NAME
                         ? "resetting..."
-                        : isTts
-                        ? "sending message..."
-                        : "using package..."
+                        : "sending..."
                     );
                     await interactionData.handleInteraction(text);
                     setText("");

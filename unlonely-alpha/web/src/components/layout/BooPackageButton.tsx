@@ -4,11 +4,11 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import {
   AblyChannelPromise,
   CarePackageName,
-  CarePackageToDescription,
+  CarePackageToTooltipDescription,
   InteractionType,
   PACKAGE_PURCHASE_EVENT,
   ScarePackageName,
-  ScarePackageToDescription,
+  ScarePackageToTooltipDescription,
 } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
 import { useMemo, useState } from "react";
@@ -147,8 +147,12 @@ export const BooPackageButton = ({
         color="black"
         label={
           packageInfo.isCarePackage
-            ? CarePackageToDescription[packageInfo.name as CarePackageName]
-            : ScarePackageToDescription[packageInfo.name as ScarePackageName]
+            ? CarePackageToTooltipDescription[
+                packageInfo.name as CarePackageName
+              ]
+            : ScarePackageToTooltipDescription[
+                packageInfo.name as ScarePackageName
+              ]
         }
       >
         <Flex

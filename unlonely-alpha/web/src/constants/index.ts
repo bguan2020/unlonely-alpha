@@ -223,7 +223,7 @@ export enum ScarePackageName {
   FART_SPRAY = "fart-spray",
 }
 
-export const CarePackageToDescription: Record<CarePackageName, string> = {
+export const CarePackageToTooltipDescription: Record<CarePackageName, string> = {
   [CarePackageName.WATER_BOTTLE]: "send water to a thirsty contestant",
   [CarePackageName.TOILET]: "let a contestant use the bathroom",
   [CarePackageName.PIZZA]: "send pizza to a hungry contestant",
@@ -232,7 +232,7 @@ export const CarePackageToDescription: Record<CarePackageName, string> = {
   [CarePackageName.PHONE]: "give a contestant their phone for 1 min to make a desperate tweet",
 };
 
-export const ScarePackageToDescription: Record<ScarePackageName, string> = {
+export const ScarePackageToTooltipDescription: Record<ScarePackageName, string> = {
   [ScarePackageName.BLACKOUT]: "turn all the lights out in this room for 1 min",
   [ScarePackageName.FOG]: "add some fog to this room",
   [ScarePackageName.BOOM]: "???",
@@ -257,6 +257,25 @@ export const PackageNameToModalTitle: Record<string, string> = {
   [ScarePackageName.FIREBALL]: "one shot of fireball coming right up!",
   [ScarePackageName.FART_SPRAY]: "send fart spray!",
 };
+
+export const PackageNameToModalExampleMessage: Record<string, string> = {
+  [TEXT_TO_SPEECH_PACKAGE_NAME]: "tell rasmr to stop bitching",
+  [CarePackageName.WATER_BOTTLE]: "send this bottle of water to my gf linda",
+  [CarePackageName.TOILET]: "let sarah use the bathroom omg",
+  [CarePackageName.PIZZA]: "send pizza to rasmr so he has energy to keep getting spanked",
+  [CarePackageName.TORCH]: "send a match to sarah she's so blind rn",
+  [CarePackageName.PAPER_ROLL]: "send 1 paper towel to linda pls",
+  [CarePackageName.PHONE]: "tell rasmr it better be a banger tweet",
+  [ScarePackageName.WHALE]: "suggest something and we'll do everything in our power to make it happen",
+  [ScarePackageName.FIREBALL]: "send this shot to rasmr frrrrr",
+}
+
+export const PackageNameToModalDescription: Record<string, string> = {
+  [ScarePackageName.BLACKOUT]: "turn the lights off in this room for 30 seconds",
+  [ScarePackageName.FOG]: "we'll turn the fog machine on in this room for 1 minute",
+  [ScarePackageName.BOOM]: "send it to find out 👀",
+  [ScarePackageName.FART_SPRAY]: "it's time to stink up this room",
+}
 
 export enum BooRoom {
   WAITING_ROOM = "waiting-room",
