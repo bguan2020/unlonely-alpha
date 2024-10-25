@@ -161,15 +161,17 @@ export const UseInteractionModal = ({
                     (text.length === 0 ||
                       text.length > 200 ||
                       containsSwears(text)) &&
-                    interactionData.name !== RESET_COOLDOWNS_NAME
+                    (PackageNameToModalExampleMessage[interactionData.name]
+                      ? true
+                      : false)
                   }
                 >
-                  {interactionData.name !== RESET_COOLDOWNS_NAME
-                    ? "SEND NOW"
-                    : "RESET NOW"}
+                  {interactionData.name === RESET_COOLDOWNS_NAME
+                    ? "RESET NOW"
+                    : "SEND NOW"}
                 </Button>
               </Flex>
-              {interactionData.name !== RESET_COOLDOWNS_NAME && (
+              {PackageNameToModalExampleMessage[interactionData.name] && (
                 <>
                   {text.length > 200 ? (
                     <Text h="20px" color={"red"} fontSize="10px">
