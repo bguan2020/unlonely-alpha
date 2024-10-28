@@ -34,12 +34,18 @@ export const useSolanaTokenBalance = () => {
       const connection = new Connection(SOLANA_RPC_URL, "confirmed");
       const tokenMint = new PublicKey(FIXED_SOLANA_MINT.mintAddress);
 
+      console.log("Token mint address:", tokenMint.toString());
+
       const tokenAccountAddress = await getAssociatedTokenAddress(
         tokenMint,
         new PublicKey(solanaAddress)
       );
 
+      console.log("Token account address:", tokenAccountAddress.toString());
+
       const tokenAccount = await getAccount(connection, tokenAccountAddress);
+
+      console.log("Token account:", tokenAccount);
 
       const amount = new Decimal(tokenAccount.amount.toString());
 

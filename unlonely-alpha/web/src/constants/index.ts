@@ -140,12 +140,6 @@ export const FIXED_SOLANA_MINT = {
   poolAddress: "HKyrNi2yfBQyFY7jH3c2h9YqVrmuLqe3tUZXFQhNY6PW",
   decimals: 6,
 };
-// export const FIXED_SOLANA_MINT = {
-//   mintAddress: "4sx9a8c81cPWYPy3QVptKcgZu87ncixZp5d2cxeVpump",
-//   tokenAccount: "3GPNYL255Zdpv4jMjq1XhiZRHDLYZ6mV3cd9q6T6ybDW",
-//   poolAddress: "CUfcyzaGxsKBGScEDkaD9FNc461oewU6tBuqERUUBdsr",
-//   decimals: 6,
-// };
 
 export enum SwapMode {
   ExactInOrOut = "ExactInOrOut",
