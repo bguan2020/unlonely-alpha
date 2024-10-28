@@ -30,7 +30,6 @@ import {
 import { FaLongArrowAltRight, FaLongArrowAltLeft } from "react-icons/fa";
 import { CHANNEL_ID_TO_USE } from "../components/layout/BooEventWrapper";
 import { useUpdateRooms } from "../hooks/server/useUpdateRooms";
-import { addCommasToNumber } from "../utils/tokenDisplayFormatting";
 import { filteredInput } from "../utils/validation/input";
 
 export const INTERACTIONS_CHANNEL = "persistMessages:interactions";
@@ -402,16 +401,15 @@ const ModCenter = () => {
                         <Text>{packageName}</Text>
                         <Input
                           placeholder="price"
-                          value={addCommasToNumber(
-                            stagingPackages[packageName].tokenHoldingPrice
-                          )}
+                          value={stagingPackages[packageName].tokenHoldingPrice}
                           onChange={(e) =>
                             setStagingPackages((prev) => ({
                               ...prev,
                               [packageName]: {
                                 ...prev[packageName],
                                 tokenHoldingPrice: filteredInput(
-                                  String(e.target.value).replace(/,/g, "")
+                                  String(e.target.value),
+                                  true
                                 ),
                               },
                             }))

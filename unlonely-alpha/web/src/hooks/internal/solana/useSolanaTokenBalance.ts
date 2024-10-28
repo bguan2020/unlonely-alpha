@@ -67,9 +67,18 @@ export const useSolanaTokenBalance = () => {
     return resBalance;
   }, [solanaAddress, loading]);
 
+  const manualAddToBalance = (amount: number) => {
+    if (balance === null) {
+      setBalance(Math.max(amount, 0));
+    } else {
+      setBalance(Math.max(balance + amount, 0));
+    }
+  }
+
   return {
     balance,
     loading,
     fetchTokenBalance,
+    manualAddToBalance
   };
 };

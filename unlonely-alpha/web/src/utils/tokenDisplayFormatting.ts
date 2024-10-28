@@ -120,6 +120,7 @@ const rangeFrom0 = (stop: number): number[] => {
 };
 
 export const addCommasToNumber = (value: number | string): string => {
-  // take the value, ensure it's a valid number and convert it to a string, place a comma every 3 digits
-  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const [integerPart, fractionalPart] = value.toString().split(".");
+  const formattedIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return fractionalPart ? `${formattedIntegerPart}.${fractionalPart}` : formattedIntegerPart;
 }
