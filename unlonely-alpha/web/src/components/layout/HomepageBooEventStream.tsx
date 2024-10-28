@@ -549,7 +549,9 @@ export const HomepageBooEventStream = ({
                   txCallback={async (txid, swapResult) => {
                     console.log("swapResult", swapResult);
                     balanceData.manualAddToBalance(
-                      (swapResult.outputAmount /
+                      ((isSell
+                        ? swapResult.inputAmount
+                        : swapResult.outputAmount) /
                         10 ** FIXED_SOLANA_MINT.decimals) *
                         (isSell ? -1 : 1)
                     );
