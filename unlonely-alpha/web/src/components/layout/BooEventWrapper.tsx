@@ -12,7 +12,7 @@ import { MobileHomePageBooEventStreamPage } from "./MobileHomepageBooEventStream
 import { useScreenAnimationsContext } from "../../hooks/context/useScreenAnimations";
 import { Image } from "@chakra-ui/react";
 
-export const eventStartTime = 1730333783000;
+export const eventStartTime = 0;
 const slug = "brian";
 export const CHANNEL_ID_TO_USE = 3;
 
