@@ -1,18 +1,25 @@
-import { Flex, Text, Tooltip } from "@chakra-ui/react";
+import { Flex, Image, Tooltip, Text } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { isValidAddress } from "../../utils/validation/wallet";
 import useUpdateUserPackageCooldownMapping from "../../hooks/server/channel/useUpdateUserPackageCooldownMapping";
 import { useUser } from "../../hooks/context/useUser";
 import { convertToHHMMSS } from "../../utils/time";
+import {
+  RESET_COOLDOWNS_NAME,
+  TEXT_TO_SPEECH_PACKAGE_NAME,
+} from "../../constants";
+import { RoomInfo } from "../../pages/modcenter";
 
 export const BooPackageCooldownResetComponent = ({
   dateNow,
+  currentRoom,
   booPackageMap,
   userBooPackageCooldowns,
   handleUserBooPackageCooldowns,
   onClick,
 }: {
   dateNow: number;
+  currentRoom: RoomInfo | undefined;
   booPackageMap: any;
   userBooPackageCooldowns: any;
   handleUserBooPackageCooldowns: (mapping: any) => void;
@@ -26,16 +33,20 @@ export const BooPackageCooldownResetComponent = ({
 
   const cooldownCountdown = useMemo(() => {
     return Math.ceil(
-      ((userBooPackageCooldowns?.["reset-cooldowns"]?.lastUsedAt ?? 0) -
+      ((userBooPackageCooldowns?.[RESET_COOLDOWNS_NAME]?.lastUsedAt ?? 0) -
         (dateNow -
-          (booPackageMap?.["reset-cooldowns"]?.cooldownInSeconds ?? 0) *
+          (booPackageMap?.[RESET_COOLDOWNS_NAME]?.cooldownInSeconds ?? 0) *
             1000)) /
         1000
     );
   }, [userBooPackageCooldowns, dateNow, booPackageMap]);
 
   const hasOtherCooldowns = useMemo(() => {
-    const iterable = Object.entries(userBooPackageCooldowns ?? {});
+    const iterable = Object.entries(userBooPackageCooldowns ?? {}).filter(
+      ([key]) =>
+        currentRoom?.availablePackages.includes(key) ||
+        key === TEXT_TO_SPEECH_PACKAGE_NAME
+    );
     for (const [key, value] of iterable) {
       if (
         dateNow - (booPackageMap?.[key]?.cooldownInSeconds ?? 0) * 1000 <
@@ -61,7 +72,7 @@ export const BooPackageCooldownResetComponent = ({
       userAddress: user?.address ?? "",
       newPackageCooldownChanges: [
         {
-          name: "reset-cooldowns",
+          name: RESET_COOLDOWNS_NAME,
           lastUsedAt: String(dateNow),
           usableAt: "0",
         },
@@ -82,27 +93,25 @@ export const BooPackageCooldownResetComponent = ({
         if (!isDisabled) onClick(handleReset);
       }}
       position={"relative"}
+      opacity={isValidAddress(user?.address) !== "solana" ? 0.5 : 1}
     >
       <Tooltip
+        bg={"#7EFB97"}
+        placement="bottom-end"
+        color={"black"}
         label={
           isValidAddress(user?.address) !== "solana"
             ? "log in with solana wallet first"
-            : null
+            : "don’t want to wait? reset cooldown period here"
         }
-        isDisabled={!isDisabled}
       >
         <Flex
           alignItems={"center"}
           justifyContent={"center"}
-          gap="16px"
+          direction="column"
           _hover={{
             cursor: "pointer",
-            transform: "scale(1.1)",
-            transition: "transform 0.2s",
           }}
-          border={"1px solid #b8b8b8"}
-          borderRadius={"10px"}
-          padding="10px"
           position={"relative"}
         >
           {cooldownCountdown > 0 && (
@@ -112,7 +121,7 @@ export const BooPackageCooldownResetComponent = ({
               left="0"
               right="0"
               bottom="0"
-              bg="blackAlpha.800"
+              bg="blackAlpha.900"
               justifyContent="center"
               alignItems="center"
               borderRadius="10px"
@@ -120,9 +129,10 @@ export const BooPackageCooldownResetComponent = ({
               {convertToHHMMSS(String(cooldownCountdown), true)}
             </Flex>
           )}
-          <Text textAlign={"center"} fontFamily="LoRes15" fontSize="20px">
-            reset
+          <Text fontFamily="LoRes15" fontSize="calc(1vw + 1vh)" color="#FF9800">
+            COOLDOWN
           </Text>
+          <Image src={"/images/packages/reset.png"} w="5vw" />
         </Flex>
       </Tooltip>
     </Flex>

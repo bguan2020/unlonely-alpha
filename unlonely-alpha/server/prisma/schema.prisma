@@ -292,14 +292,6 @@ model BaseLeaderboard {
   updatedAt DateTime @updatedAt
 }
 
-model Package {
-  id Int      @id @default(autoincrement())
-  packageName String @default("")
-  tokenHoldingPrice    String @default("0")
-  cooldownInSeconds Int @default(0)
-}
-
-
 model StreamInteraction {
   id           Int     @id @default(autoincrement())
 
@@ -316,6 +308,20 @@ model StreamInteraction {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   softDelete Boolean @default(false)
+}
+model Package {
+  id Int      @id @default(autoincrement())
+  packageName String @default("")
+  tokenHoldingPrice    String @default("0")
+  cooldownInSeconds Int @default(0)
+}
+
+model Room {
+  roomName String @id
+  inUse Boolean @default(false)
+  availablePackages String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ------- DEPRECATED MODELS -------

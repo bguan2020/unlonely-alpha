@@ -1,10 +1,14 @@
-import { Flex, IconButton } from "@chakra-ui/react";
+import { Flex, Image, Tooltip, Text } from "@chakra-ui/react";
 import { useUser } from "../../hooks/context/useUser";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import {
   AblyChannelPromise,
+  CarePackageName,
+  CarePackageToTooltipDescription,
   InteractionType,
   PACKAGE_PURCHASE_EVENT,
+  ScarePackageName,
+  ScarePackageToTooltipDescription,
 } from "../../constants";
 import centerEllipses from "../../utils/centerEllipses";
 import { useMemo, useState } from "react";
@@ -13,9 +17,9 @@ import { StreamInteractionType } from "../../generated/graphql";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 import { isValidAddress } from "../../utils/validation/wallet";
 import { createPackageCooldownArray } from "../../utils/packageCooldownHandler";
+import { convertToHHMMSS } from "../../utils/time";
 
 export const BooPackageButton = ({
-  imageComponent,
   cooldownInSeconds,
   userBooPackageCooldowns,
   dateNow,
@@ -23,9 +27,9 @@ export const BooPackageButton = ({
   packageInfo,
   interactionsAblyChannel,
   booPackageMap,
+  isAvailable,
   onClick,
 }: {
-  imageComponent: any;
   cooldownInSeconds: number;
   userBooPackageCooldowns: any;
   dateNow: number;
@@ -34,6 +38,7 @@ export const BooPackageButton = ({
     name: string;
     isCarePackage: boolean;
   };
+  isAvailable?: boolean;
   interactionsAblyChannel: AblyChannelPromise;
   booPackageMap: any;
   onClick: (
@@ -129,47 +134,86 @@ export const BooPackageButton = ({
     return (
       cooldownCountdown.displayCooldown > 0 ||
       loading ||
-      isValidAddress(user?.address) !== "solana"
+      isValidAddress(user?.address) !== "solana" ||
+      !isAvailable
     );
-  }, [cooldownCountdown, user, loading]);
+  }, [cooldownCountdown, user, loading, isAvailable]);
 
   return (
-    <Flex direction="column" gap="4px">
-      <Flex position="relative" justifyContent={"center"}>
-        <IconButton
-          bg="transparent"
-          _focus={{}}
-          _active={{}}
-          _hover={{}}
-          icon={imageComponent}
-          aria-label={`${packageInfo.name}-package`}
-          isDisabled={isDisabled}
-          onClick={() => {
-            onClick(packageInfo.name, handleSendTokens);
-          }}
-        />
-        {cooldownCountdown.displayCooldown > 0 && (
-          <Flex
-            position="absolute"
-            top="0"
-            left="0"
-            right="0"
-            bottom="0"
-            bg="blackAlpha.500"
-            justifyContent="center"
-            alignItems="center"
-            borderRadius="15px"
-            color={
-              cooldownCountdown.secondaryCooldown >
-              cooldownCountdown.lastUsedCooldown
-                ? "red"
-                : "unset"
-            }
-          >
-            {`${cooldownCountdown.displayCooldown}s`}
-          </Flex>
-        )}
-      </Flex>
+    <Flex direction="column" p="4px" margin="auto">
+      <Tooltip
+        bg="#7EFB97"
+        placement="bottom-end"
+        color="black"
+        label={
+          packageInfo.isCarePackage
+            ? CarePackageToTooltipDescription[
+                packageInfo.name as CarePackageName
+              ]
+            : ScarePackageToTooltipDescription[
+                packageInfo.name as ScarePackageName
+              ]
+        }
+      >
+        <Flex
+          position="relative"
+          justifyContent={"center"}
+          alignItems={"center"}
+          w="100%"
+          h="100%"
+        >
+          {isDisabled && (
+            <>
+              {!isAvailable ? (
+                <Text
+                  textAlign={"center"}
+                  fontSize="10px"
+                  position="absolute"
+                  bg="#7E7E7E"
+                  zIndex="2"
+                >
+                  N/A in this room
+                </Text>
+              ) : cooldownCountdown.displayCooldown > 0 ? (
+                <Flex
+                  position={"absolute"}
+                  p="10px"
+                  bg="blackAlpha.800"
+                  color={
+                    cooldownCountdown.secondaryCooldown >
+                    cooldownCountdown.lastUsedCooldown
+                      ? "red"
+                      : "unset"
+                  }
+                  zIndex="2"
+                  borderRadius="15px"
+                >
+                  {convertToHHMMSS(
+                    String(cooldownCountdown.displayCooldown),
+                    true
+                  )}
+                </Flex>
+              ) : null}
+            </>
+          )}
+          <Image
+            src={`/images/packages/${packageInfo.name}.png`}
+            filter={`brightness(${isAvailable ? 1 : 0.7}) saturate(${
+              isAvailable ? 1 : 0.5
+            })`}
+            w={["50%", "60%", "80%", "calc(4vh + 3vw + 10px)"]}
+            h={["50%", "60%", "80%", "calc(4vh + 3vw + 10px)"]}
+            _hover={{
+              cursor: "pointer",
+              transform: "scale(1.1)",
+              transition: "transform 0.2s",
+            }}
+            onClick={() => {
+              !isDisabled && onClick(packageInfo.name, handleSendTokens);
+            }}
+          />
+        </Flex>
+      </Tooltip>
     </Flex>
   );
 };

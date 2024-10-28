@@ -24,6 +24,7 @@ import { typeDef as gamblableInteractionTypeDef } from "./GamblableInteraction/g
 import { typeDef as vibesTypeDef } from "./Vibes/vibesTypeDef";
 import { typeDef as tempTokenTypeDef } from "./TempToken/tempTokenTypeDef";
 import { typeDef as packageTypeDef } from "./Package/packageTypeDef";
+import { typeDef as roomTypeDef } from "./Room/roomTypeDef";
 
 import { resolvers as likeResolvers } from "./Like/likeResolvers";
 import { resolvers as userResolvers } from "./User/userResolvers";
@@ -43,6 +44,7 @@ import { resolvers as gamblableInteractionResolvers } from "./GamblableInteracti
 import { resolvers as vibesResolvers } from "./Vibes/vibesResolvers";
 import { resolvers as tempTokenResolvers } from "./TempToken/tempTokenResolvers";
 import { resolvers as packageResolvers } from "./Package/packageResolvers";
+import { resolvers as roomResolvers } from "./Room/roomResolvers";
 
 const Query = gql`
   enum SortOrder {
@@ -91,6 +93,7 @@ export default makeExecutableSchema({
     vibesTypeDef,
     tempTokenTypeDef,
     packageTypeDef,
+    roomTypeDef,
   ],
   resolvers: merge(
     resolvers,
@@ -111,6 +114,7 @@ export default makeExecutableSchema({
     gamblableInteractionResolvers,
     vibesResolvers,
     tempTokenResolvers,
-    packageResolvers
+    packageResolvers,
+    roomResolvers,
   ),
 });

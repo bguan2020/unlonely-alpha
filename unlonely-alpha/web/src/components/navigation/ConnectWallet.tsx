@@ -125,11 +125,23 @@ const ConnectedDisplay = () => {
         confirmButton="logout"
         title="are you sure you want to log out?"
         isOpen={isCloseModalOpen}
-        canSend={true}
-        onSend={callLogout}
         isModalLoading={false}
         handleClose={() => setIsCloseModalOpen(false)}
-      />
+        hideFooter
+      >
+        <Button
+          width="100%"
+          borderRadius="25px"
+          _hover={{}}
+          _focus={{}}
+          _active={{}}
+          color="white"
+          bg="#E09025"
+          onClick={callLogout}
+        >
+          logout
+        </Button>
+      </TransactionModalTemplate>
       {!isStandalone && (
         <OwnedChannelsModal
           isOpen={isChannelsModalOpen}

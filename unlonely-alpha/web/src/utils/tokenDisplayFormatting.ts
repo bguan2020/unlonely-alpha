@@ -118,3 +118,9 @@ const rangeFrom0 = (stop: number): number[] => {
   }
   return arr;
 };
+
+export const addCommasToNumber = (value: number | string): string => {
+  const [integerPart, fractionalPart] = value.toString().split(".");
+  const formattedIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return fractionalPart ? `${formattedIntegerPart}.${fractionalPart}` : formattedIntegerPart;
+}

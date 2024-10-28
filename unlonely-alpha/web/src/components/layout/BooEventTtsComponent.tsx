@@ -2,7 +2,12 @@ import { Flex, Text, Image, Tooltip } from "@chakra-ui/react";
 import { useMemo } from "react";
 import usePostStreamInteraction from "../../hooks/server/usePostStreamInteraction";
 // import { StreamInteractionType } from "../../generated/graphql";
-import { AblyChannelPromise, SEND_TTS_EVENT } from "../../constants";
+import {
+  AblyChannelPromise,
+  InteractionType,
+  SEND_TTS_EVENT,
+  TEXT_TO_SPEECH_PACKAGE_NAME,
+} from "../../constants";
 import { StreamInteractionType } from "../../generated/graphql";
 import { isValidAddress } from "../../utils/validation/wallet";
 import { useUser } from "../../hooks/context/useUser";
@@ -28,8 +33,9 @@ export const BooEventTtsComponent = ({
   onTtsClick: (callback: (...args: any[]) => Promise<void>) => void;
 }) => {
   const { user } = useUser();
-  const { channel } = useChannelContext();
+  const { chat: c, channel } = useChannelContext();
   const { channelQueryData } = channel;
+  const { addToChatbot } = c;
 
   const { postStreamInteraction } = usePostStreamInteraction({});
 
@@ -48,11 +54,22 @@ export const BooEventTtsComponent = ({
         newPackageCooldownChanges: createPackageCooldownArray(
           booPackageMap,
           userBooPackageCooldowns,
-          "text-to-speech"
+          TEXT_TO_SPEECH_PACKAGE_NAME
         ),
         replaceExisting: false,
       }).then(async () => {
         await fetchUserBooPackageCooldownMapping(user?.address ?? "");
+        addToChatbot({
+          username: user?.username ?? "",
+          address: user?.address ?? "",
+          taskType: InteractionType.USE_BOO_PACKAGE,
+          title: text,
+          description: JSON.stringify({
+            message: `${
+              user?.username ?? centerEllipses(user?.address, 15)
+            } sent a TTS!`,
+          }),
+        });
       });
       await interactionsAblyChannel?.publish({
         name: SEND_TTS_EVENT,
@@ -60,7 +77,7 @@ export const BooEventTtsComponent = ({
           body: JSON.stringify({
             id: res?.res?.id ?? "0",
             text,
-            userId: user?.username ?? centerEllipses(user?.address, 15),
+            userId: user?.username ?? user?.address,
           }),
         },
       });
@@ -69,13 +86,17 @@ export const BooEventTtsComponent = ({
 
   const cooldownCountdown = useMemo(() => {
     const lastUsedCooldown = Math.ceil(
-      ((userBooPackageCooldowns?.["text-to-speech"]?.lastUsedAt ?? 0) -
+      ((userBooPackageCooldowns?.[TEXT_TO_SPEECH_PACKAGE_NAME]?.lastUsedAt ??
+        0) -
         (dateNow -
-          (booPackageMap?.["text-to-speech"]?.cooldownInSeconds ?? 0) * 1000)) /
+          (booPackageMap?.[TEXT_TO_SPEECH_PACKAGE_NAME]?.cooldownInSeconds ??
+            0) *
+            1000)) /
         1000
     );
     const secondaryCooldown = Math.ceil(
-      ((userBooPackageCooldowns?.["text-to-speech"]?.usableAt ?? 0) - dateNow) /
+      ((userBooPackageCooldowns?.[TEXT_TO_SPEECH_PACKAGE_NAME]?.usableAt ?? 0) -
+        dateNow) /
         1000
     );
     return {
@@ -102,28 +123,26 @@ export const BooEventTtsComponent = ({
         if (!isDisabled) onTtsClick(handlePost);
       }}
       position={"relative"}
+      opacity={isValidAddress(user?.address) !== "solana" ? 0.5 : 1}
     >
       <Tooltip
+        bg={"#7EFB97"}
+        placement="bottom-end"
+        color={"black"}
         label={
           isValidAddress(user?.address) !== "solana"
             ? "log in with solana wallet first"
-            : null
+            : "send a custom Text-To-Speech message to the contestants"
         }
-        isDisabled={!isDisabled}
       >
         <Flex
           alignItems={"center"}
           justifyContent={"center"}
-          gap="16px"
           _hover={{
             cursor: "pointer",
-            transform: "scale(1.1)",
-            transition: "transform 0.2s",
           }}
-          border={"1px solid #b8b8b8"}
-          borderRadius={"10px"}
-          padding="10px"
           position={"relative"}
+          direction={"column"}
         >
           {cooldownCountdown.displayCooldown > 0 && (
             <Flex
@@ -132,7 +151,7 @@ export const BooEventTtsComponent = ({
               left="0"
               right="0"
               bottom="0"
-              bg="blackAlpha.800"
+              bg="blackAlpha.900"
               justifyContent="center"
               alignItems="center"
               borderRadius="10px"
@@ -146,15 +165,14 @@ export const BooEventTtsComponent = ({
               {convertToHHMMSS(String(cooldownCountdown.displayCooldown), true)}
             </Flex>
           )}
-          <Image
-            src="/images/megaphone.png"
-            alt="megaphone"
-            width="20px"
-            height="20px"
-          />
-          <Text textAlign={"center"} fontFamily="LoRes15" fontSize="20px">
-            TTS BROADCAST MESSAGE
+          <Text
+            textAlign={"center"}
+            fontFamily="LoRes15"
+            fontSize="calc(0.8vw + 0.8vh)"
+          >
+            TTS MESSAGE
           </Text>
+          <Image src={"/images/packages/tts.png"} w="5vw" />
         </Flex>
       </Tooltip>
     </Flex>

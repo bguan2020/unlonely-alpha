@@ -11,7 +11,13 @@ import { BooEventTile } from "./BooEventTile";
 import { DndContext } from "@dnd-kit/core";
 import Draggable from "./Draggable";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { FIXED_SOLANA_MINT, PACKAGE_PRICE_CHANGE_EVENT } from "../../constants";
+import {
+  FIXED_SOLANA_MINT,
+  PACKAGE_PRICE_CHANGE_EVENT,
+  RESET_COOLDOWNS_NAME,
+  ROOM_CHANGE_EVENT,
+  TEXT_TO_SPEECH_PACKAGE_NAME,
+} from "../../constants";
 import { useUser } from "../../hooks/context/useUser";
 import { BooCarePackages } from "./BooCarePackages";
 import { useDragRefs } from "../../hooks/internal/useDragRef";
@@ -19,16 +25,22 @@ import { BooEventTtsComponent } from "./BooEventTtsComponent";
 import { useLazyQuery } from "@apollo/client";
 import {
   GET_PACKAGES_QUERY,
+  GET_ROOMS_QUERY,
   GET_USER_PACKAGE_COOLDOWN_MAPPING_QUERY,
 } from "../../constants/queries";
 import { GetUserPackageCooldownMappingQuery } from "../../generated/graphql";
 import { jp } from "../../utils/validation/jsonParse";
 import { BooScarePackages } from "./BooScarePackages";
-import { INTERACTIONS_CHANNEL, PackageInfo } from "../../pages/modcenter";
+import {
+  INTERACTIONS_CHANNEL,
+  PackageInfo,
+  RoomInfo,
+} from "../../pages/modcenter";
 import { useAblyChannel } from "../../hooks/chat/useChatChannel";
 import { UseInteractionModal } from "../channels/UseInteractionModal";
-import { areAddressesEqual } from "../../utils/validation/wallet";
+// import { areAddressesEqual } from "../../utils/validation/wallet";
 import { BooPackageCooldownResetComponent } from "./BooPackageCooldownResetComponent";
+import { isValidAddress } from "../../utils/validation/wallet";
 
 export const TOKEN_VIEW_COLUMN_2_PIXEL_WIDTH = 330;
 export const TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT = 200;
@@ -43,13 +55,16 @@ export const HomepageBooEventStream = ({
   dateNow,
   isModalGlowing,
   balanceData,
+  triggerGlowingEffect,
 }: {
   dateNow: number;
   isModalGlowing: boolean;
   balanceData: {
     balance: number | null;
-    fetchTokenBalance: () => Promise<void>;
+    fetchTokenBalance: () => Promise<number | undefined>;
+    manualAddToBalance: (amount: number) => void;
   };
+  triggerGlowingEffect: () => void;
 }) => {
   const { channel } = useChannelContext();
   const { channelQueryData } = channel;
@@ -106,6 +121,11 @@ export const HomepageBooEventStream = ({
         };
         setBooPackageMap(newPackageMap);
       }
+      if (message && message.data.body && message.name === ROOM_CHANGE_EVENT) {
+        const body = message.data.body;
+        const jpBody = jp(body);
+        setCurrentRoom(jpBody);
+      }
     }
   );
 
@@ -134,6 +154,14 @@ export const HomepageBooEventStream = ({
     fetchPolicy: "network-only",
   });
 
+  const [getRooms] = useLazyQuery(GET_ROOMS_QUERY, {
+    fetchPolicy: "network-only",
+  });
+
+  const [currentRoom, setCurrentRoom] = useState<RoomInfo | undefined>(
+    undefined
+  );
+
   const fetchBooPackages = useCallback(async () => {
     const { data } = await _fetchBooPackages();
     const packages = data?.getPackages;
@@ -150,8 +178,20 @@ export const HomepageBooEventStream = ({
     }
   }, []);
 
+  const fetchRoom = useCallback(async () => {
+    const { data } = await getRooms();
+    const rooms = data?.getRooms;
+    if (rooms) {
+      // find the room whose inUse is true
+      const roomInUse = rooms.find((room: any) => room.inUse);
+      console.log("roomInUse", roomInUse);
+      setCurrentRoom(roomInUse);
+    }
+  }, []);
+
   useEffect(() => {
     fetchBooPackages();
+    fetchRoom();
   }, []);
 
   const [_fetchUserBooPackageCooldownMapping] =
@@ -185,7 +225,11 @@ export const HomepageBooEventStream = ({
   }, []);
 
   useEffect(() => {
-    if (user) fetchUserBooPackageCooldownMapping(user?.address);
+    if (user) {
+      fetchUserBooPackageCooldownMapping(user?.address);
+    } else {
+      setUserBooPackageCooldowns(undefined);
+    }
   }, [user]);
 
   return (
@@ -203,6 +247,7 @@ export const HomepageBooEventStream = ({
         }}
         balanceData={balanceData}
         interactionData={interactionState.interactionData}
+        triggerGlowingEffect={triggerGlowingEffect}
       />
       <DndContext sensors={sensors} onDragStart={handleDragStart}>
         <Draggable
@@ -272,7 +317,28 @@ export const HomepageBooEventStream = ({
                     <Flex
                       gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
                       height={`${100 - TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}%`}
+                      position="relative"
                     >
+                      {isValidAddress(user?.address) !== "solana" && (
+                        <Flex
+                          justifyContent="center"
+                          alignItems="center"
+                          position="absolute"
+                          zIndex="3"
+                          bg="rgba(24, 22, 45, 0.54)"
+                          width="100%"
+                          height="100%"
+                        >
+                          <Text
+                            textAlign={"center"}
+                            fontSize="calc(1vw + 1vh)"
+                            bg="#7EFB97"
+                            color="black"
+                          >
+                            please log in with solana wallet to access
+                          </Text>
+                        </Flex>
+                      )}
                       <BooEventTile color="#F57CA1" width="100%" height="100%">
                         <Flex
                           justifyContent="center"
@@ -284,8 +350,9 @@ export const HomepageBooEventStream = ({
                             <Text
                               textAlign="center"
                               fontFamily="LoRes15"
-                              fontSize={["20px", "30px"]}
+                              fontSize={["10px", "10px", "15px", "25px"]}
                               mx={2}
+                              // noOfLines={1}
                             >
                               CARE PACKAGES
                             </Text>
@@ -293,6 +360,7 @@ export const HomepageBooEventStream = ({
                           </Flex>
                         </Flex>
                         <BooCarePackages
+                          currentRoom={currentRoom}
                           interactionsAblyChannel={interactionsChannel}
                           dateNow={dateNow}
                           booPackageMap={booPackageMap}
@@ -348,19 +416,29 @@ export const HomepageBooEventStream = ({
                           alignItems={"flex-start"}
                         >
                           <Flex alignItems="center" gap="10px">
-                            <Image src="/images/pixel-ghost.png" alt="ghost" />
+                            <Image
+                              src="/images/skull.png"
+                              alt="ghost"
+                              h="34px"
+                            />
                             <Text
                               textAlign="center"
                               fontFamily="LoRes15"
-                              fontSize={["20px", "30px"]}
+                              fontSize={["10px", "10px", "15px", "25px"]}
                               mx={2}
+                              // noOfLines={1}
                             >
                               SCARE PACKAGES
                             </Text>
-                            <Image src="/images/pixel-ghost.png" alt="ghost" />
+                            <Image
+                              src="/images/skull.png"
+                              alt="ghost"
+                              h="34px"
+                            />
                           </Flex>
                         </Flex>
                         <BooScarePackages
+                          currentRoom={currentRoom}
                           interactionsAblyChannel={interactionsChannel}
                           dateNow={dateNow}
                           booPackageMap={booPackageMap}
@@ -440,19 +518,19 @@ export const HomepageBooEventStream = ({
                     />
                   </Tooltip>
                   {viewState === "token" && (
-                    <Tooltip label="pool page" shouldWrapChildren>
+                    <Tooltip label="dexscreener" shouldWrapChildren>
                       <IconButton
                         bg="#1F2935"
                         color="#21ec54"
                         _hover={{
                           bg: "#354559",
                         }}
-                        aria-label="go to pool"
+                        aria-label="go to dexscreener"
                         icon={<ExternalLinkIcon />}
                         zIndex={51}
                         onClick={() => {
                           window.open(
-                            `https://app.meteora.ag/pools/${FIXED_SOLANA_MINT.poolAddress}`,
+                            `https://dexscreener.com/solana/${FIXED_SOLANA_MINT.poolAddress}`,
                             "_blank"
                           );
                         }}
@@ -469,98 +547,75 @@ export const HomepageBooEventStream = ({
                   }
                   isBuy={!isSell}
                   txCallback={async (txid, swapResult) => {
-                    const tokenAccountA = base58Encode(
-                      convertWordsToBigInt(swapResult.inputAddress._bn.words)
+                    console.log("swapResult", swapResult);
+                    balanceData.manualAddToBalance(
+                      (swapResult.outputAmount /
+                        10 ** FIXED_SOLANA_MINT.decimals) *
+                        (isSell ? -1 : 1)
                     );
-                    const tokenAccountB = base58Encode(
-                      convertWordsToBigInt(swapResult.outputAddress._bn.words)
-                    );
-                    if (
-                      areAddressesEqual(
-                        tokenAccountA,
-                        FIXED_SOLANA_MINT.tokenAccount
-                      )
-                    ) {
-                      // this is a sell
-                      console.log(
-                        "sold",
-                        swapResult.inputAmount /
-                          10 ** FIXED_SOLANA_MINT.decimals
-                      );
-                    }
-                    if (
-                      areAddressesEqual(
-                        tokenAccountB,
-                        FIXED_SOLANA_MINT.tokenAccount
-                      )
-                    ) {
-                      // this is a buy
-                      console.log(
-                        "bought",
-                        swapResult.outputAmount /
-                          10 ** FIXED_SOLANA_MINT.decimals
-                      );
-                    }
-                    // getTransactionData(txid);
-                    balanceData.fetchTokenBalance();
                   }}
                   interfaceStyle={{
                     isGlowing: isModalGlowing,
                   }}
                 />
                 {viewState === "token" && (
-                  <BooEventTile
-                    color="#796AFF"
-                    width="100%"
+                  <Flex
+                    gap={`${TOKEN_VIEW_TILE_PIXEL_GAP}px`}
                     height={`calc(100% - ${TOKEN_VIEW_GRAPH_PERCENT_HEIGHT}% - ${
                       TOKEN_VIEW_TILE_PIXEL_GAP * 2
                     }px - ${TOKEN_VIEW_MINI_PLAYER_PIXEL_HEIGHT}px)`}
                   >
-                    <BooEventTtsComponent
-                      fetchUserBooPackageCooldownMapping={
-                        fetchUserBooPackageCooldownMapping
-                      }
-                      interactionsAblyChannel={interactionsChannel}
-                      booPackageMap={booPackageMap}
-                      dateNow={dateNow}
-                      userBooPackageCooldowns={userBooPackageCooldowns}
-                      onTtsClick={(
-                        callback: (...args: any[]) => Promise<void>
-                      ) => {
-                        setInteractionState({
-                          isOpen: true,
-                          interactionData: {
-                            name: "text-to-speech",
-                            price:
-                              booPackageMap["text-to-speech"].tokenHoldingPrice,
-                            handleInteraction: callback,
-                          },
-                        });
-                      }}
-                    />
-                    <BooPackageCooldownResetComponent
-                      dateNow={dateNow}
-                      booPackageMap={booPackageMap}
-                      userBooPackageCooldowns={userBooPackageCooldowns}
-                      handleUserBooPackageCooldowns={
-                        handleUserBooPackageCooldowns
-                      }
-                      onClick={(
-                        callback: (...args: any[]) => Promise<void>
-                      ) => {
-                        setInteractionState({
-                          isOpen: true,
-                          interactionData: {
-                            name: "reset-cooldowns",
-                            price:
-                              booPackageMap["reset-cooldowns"]
-                                .tokenHoldingPrice,
-                            handleInteraction: callback,
-                          },
-                        });
-                      }}
-                    />
-                  </BooEventTile>
+                    <BooEventTile color="#FF9800" width="100%" padding="5px">
+                      <BooPackageCooldownResetComponent
+                        currentRoom={currentRoom}
+                        dateNow={dateNow}
+                        booPackageMap={booPackageMap}
+                        userBooPackageCooldowns={userBooPackageCooldowns}
+                        handleUserBooPackageCooldowns={
+                          handleUserBooPackageCooldowns
+                        }
+                        onClick={(
+                          callback: (...args: any[]) => Promise<void>
+                        ) => {
+                          setInteractionState({
+                            isOpen: true,
+                            interactionData: {
+                              name: RESET_COOLDOWNS_NAME,
+                              price:
+                                booPackageMap[RESET_COOLDOWNS_NAME]
+                                  .tokenHoldingPrice,
+                              handleInteraction: callback,
+                            },
+                          });
+                        }}
+                      />
+                    </BooEventTile>
+                    <BooEventTile color="#00A0C8" width="100%" padding="5px">
+                      <BooEventTtsComponent
+                        fetchUserBooPackageCooldownMapping={
+                          fetchUserBooPackageCooldownMapping
+                        }
+                        interactionsAblyChannel={interactionsChannel}
+                        booPackageMap={booPackageMap}
+                        dateNow={dateNow}
+                        userBooPackageCooldowns={userBooPackageCooldowns}
+                        onTtsClick={(
+                          callback: (...args: any[]) => Promise<void>
+                        ) => {
+                          setInteractionState({
+                            isOpen: true,
+                            interactionData: {
+                              name: TEXT_TO_SPEECH_PACKAGE_NAME,
+                              price:
+                                booPackageMap[TEXT_TO_SPEECH_PACKAGE_NAME]
+                                  .tokenHoldingPrice,
+                              handleInteraction: callback,
+                            },
+                          });
+                        }}
+                      />
+                    </BooEventTile>
+                  </Flex>
                 )}
               </Flex>
             </Flex>
@@ -594,6 +649,7 @@ export const HomepageBooEventStream = ({
                   _hover={{
                     bg: "#354559",
                   }}
+                  borderRadius="10px"
                   aria-label={"expand stream"}
                   icon={<FaExpandArrowsAlt />}
                   onClick={() => {

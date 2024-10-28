@@ -12,9 +12,18 @@ import { getSrc } from "@livepeer/react/external";
 import { useChannelContext } from "../../hooks/context/useChannel";
 import { useLivepeerStreamData } from "../../hooks/internal/useLivepeerStreamData";
 import NextImage from "next/image";
-import { Modal, ModalContent, ModalOverlay } from "@chakra-ui/react";
+import {
+  Button,
+  Modal,
+  ModalContent,
+  ModalOverlay,
+  useToast,
+} from "@chakra-ui/react";
 import { useState } from "react";
 import { ContinuousRain } from "../chat/emoji/BlastRain";
+import { FIXED_SOLANA_MINT } from "../../constants";
+import copy from "copy-to-clipboard";
+import { FaRegCopy } from "react-icons/fa";
 
 enum ButtonOptionNames {
   "heart-black-border" = "heart-black-border",
@@ -32,11 +41,22 @@ export const MobileHomepageBooEventStream = () => {
   const [modalState, setModalState] = useState<ButtonOptionNames | undefined>(
     undefined
   );
+  const toast = useToast();
 
   const { playbackInfo } = useLivepeerStreamData({
     livepeerPlaybackId: channelQueryData?.livepeerPlaybackId ?? undefined,
     livepeerStreamId: channelQueryData?.livepeerStreamId ?? undefined,
   });
+
+  const handleCopyContractAddress = () => {
+    copy(FIXED_SOLANA_MINT.mintAddress);
+    toast({
+      title: "copied contract address",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
 
   return (
     <Flex
@@ -65,46 +85,65 @@ export const MobileHomepageBooEventStream = () => {
         <Box width={"100%"} height={"30vh"} bg={"black"}></Box>
       )}
       <Flex
-        flexWrap={"wrap"}
-        justifyContent={"space-evenly"}
-        // height={"calc(100dvh - 30vh - 30px)"}
+        direction="column"
+        gap="20px"
+        justifyContent={"center"}
+        width="100%"
+        my="20px"
       >
-        <Flex direction="column" gap="20px">
-          <SimpleGrid columns={2} spacing={5} mx="auto" my="20px">
-            {buttonOptionNames.map((name) => (
-              <Box
-                width="140px"
-                height="140px"
-                bg="#FF7B00"
-                borderRadius="100%"
-                key={name}
-                onClick={() => {
-                  setModalState(name as ButtonOptionNames);
-                }}
-                _hover={{
-                  cursor: "pointer",
-                  transform: "scale(1.1)",
-                  transition: "transform 0.2s",
-                }}
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                boxShadow="5px 5px 10px #37FF8B"
-              >
-                <Image src={`/images/${name}.png`} height="80px" alt={name} />
-              </Box>
-            ))}
-          </SimpleGrid>
-          <Flex justifyContent={"center"}>
-            <Text
-              textAlign="center"
-              fontFamily="LoRes15"
-              color="#37FF8B"
-              fontSize="15px"
+        <Flex justifyContent={"center"}>
+          <Button
+            onClick={handleCopyContractAddress}
+            borderRadius="35px"
+            width="150px"
+            color="white"
+            background="#564F9A"
+            _active={{}}
+            _focus={{}}
+            _hover={{}}
+          >
+            <Flex alignItems={"center"} gap="5px">
+              <FaRegCopy size="20px" />
+              <Text fontSize="30px" fontFamily="LoRes15">
+                $BOO CA
+              </Text>
+            </Flex>
+          </Button>
+        </Flex>
+        <SimpleGrid columns={2} spacing={5} mx="auto">
+          {buttonOptionNames.map((name) => (
+            <Box
+              width="120px"
+              height="120px"
+              bg="#FF7B00"
+              borderRadius="100%"
+              key={name}
+              onClick={() => {
+                setModalState(name as ButtonOptionNames);
+              }}
+              _hover={{
+                cursor: "pointer",
+                transform: "scale(1.1)",
+                transition: "transform 0.2s",
+              }}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              boxShadow="5px 5px 10px #37FF8B"
             >
-              join on desktop for the full experience
-            </Text>
-          </Flex>
+              <Image src={`/images/${name}.png`} height="80px" alt={name} />
+            </Box>
+          ))}
+        </SimpleGrid>
+        <Flex justifyContent={"center"}>
+          <Text
+            textAlign="center"
+            fontFamily="LoRes15"
+            color="#37FF8B"
+            fontSize="15px"
+          >
+            join on desktop for the full experience
+          </Text>
         </Flex>
       </Flex>
     </Flex>
@@ -127,11 +166,10 @@ const WantToUnlockModal = ({
     >
       <ModalOverlay backgroundColor="#282828e6" />
       <ModalContent
-        padding="50px 20px"
+        padding="20px"
         borderRadius="20px"
         width="300px"
-        bg="#FF7B00"
-        color="black"
+        {...getModalStyles(modalState)}
       >
         {modalState !== undefined && (
           <ContinuousRain
@@ -149,14 +187,13 @@ const WantToUnlockModal = ({
             }}
           />
         )}
-        <Flex direction="column">
-          <Flex direction="column" mb="30px">
+        <Flex direction="column" gap="30px">
+          <Flex direction="column">
             <Text
               textAlign="center"
               fontFamily="LoRes15"
               fontSize="25px"
-              color="white"
-              textShadow="1px 1px 0 black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black"
+              color={getModalStyles(modalState).color}
             >
               want to unlock
             </Text>
@@ -164,27 +201,38 @@ const WantToUnlockModal = ({
               textAlign="center"
               fontFamily="LoRes15"
               fontSize="35px"
-              color="white"
-              textShadow="1px 1px 0 black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black"
+              color={getModalStyles(modalState).color}
             >
-              CARE PACKAGES?
+              {getModalStyles(modalState).titleAppend}?
+            </Text>
+          </Flex>
+          <Flex justifyContent={"center"} bg="white" borderRadius={"50px"}>
+            <Text fontSize="15px" color={"black"} fontWeight={"bold"}>
+              on desktop you can:
             </Text>
           </Flex>
           {modalState === ButtonOptionNames["heart-black-border"] && (
             <>
-              <Text textAlign="left" textDecoration="underline" fontSize="15px">
-                on desktop you can:
-              </Text>
-              <Box mt="10px">
-                <UnorderedList spacing={2} fontSize="15px" color="black">
+              <Box>
+                <UnorderedList
+                  spacing={2}
+                  fontSize="12px"
+                  color={getModalStyles(modalState)}
+                >
                   <ListItem>
-                    send participants <b>water and food</b> in real time
+                    send <b>DRiP WATER💧 & FOOD 🍕</b>
                   </ListItem>
                   <ListItem>
-                    send a <b>mad lads backpack</b> with surprise goodies
+                    send <b>a MATCH 🔥</b>
                   </ListItem>
                   <ListItem>
-                    hurry, <b>the show ends in XXX hours!</b>
+                    send <b>PAPER TOWELS</b> 🧻
+                  </ListItem>
+                  <ListItem>
+                    let them <b>use the BATHROOM</b> 🚽
+                  </ListItem>
+                  <ListItem>
+                    give a contestant <b>their PHONE</b>📱
                   </ListItem>
                 </UnorderedList>
               </Box>
@@ -192,42 +240,79 @@ const WantToUnlockModal = ({
           )}
           {modalState === ButtonOptionNames["ghost-clear"] && (
             <>
-              <Text textAlign="left" textDecoration="underline" fontSize="15px">
-                on desktop you can:
-              </Text>
               <Box mt="10px">
-                <UnorderedList spacing={2} fontSize="15px" color="black">
+                <UnorderedList
+                  spacing={2}
+                  fontSize="12px"
+                  color={getModalStyles(modalState)}
+                >
                   <ListItem>
-                    <b>send in a ghost</b> to chase the contestants
+                    turn the <b>LIGHTS OFF</b> 💡
                   </ListItem>
                   <ListItem>
-                    turn on <b>high frequency sound</b>
+                    <b>add FOG</b> 🌬️
                   </ListItem>
                   <ListItem>
-                    flicker the <b>lights</b>
+                    send a <b>shot of FIREBALL</b> 🥃
                   </ListItem>
                   <ListItem>
-                    turn the <b>fog machine</b> on
+                    blast <b>FART SPRAY</b> 💨
+                  </ListItem>
+                  <ListItem>
+                    <b>$BOO WHALE</b> custom request 🐋👀
                   </ListItem>
                 </UnorderedList>
               </Box>
             </>
           )}
           {modalState === ButtonOptionNames["megaphone-color"] && (
-            <Text textAlign="left" fontSize="15px">
-              only on desktop, you can send a{" "}
-              <b>custom TTS (text-to-speech) broadcast message</b> to the
-              contestants
+            <Text
+              textAlign="center"
+              fontSize="12px"
+              color={getModalStyles(modalState)}
+            >
+              send a <b>custom Text-To-Speech (TTS) message</b> directly to the
+              contestants and all viewers
             </Text>
           )}
           {modalState === ButtonOptionNames["boolloon"] && (
-            <Text textAlign="left" fontSize="15px">
-              only on desktop, you can <b>participate in live chat</b> with the
-              rest of the viewers
+            <Text
+              textAlign="center"
+              fontSize="12px"
+              color={getModalStyles(modalState)}
+            >
+              login to unlonely and own any amount of $BOO to{" "}
+              <b>unlock live chat.</b> plus, <b>update your username</b> to a
+              custom .boo address 👻
             </Text>
           )}
         </Flex>
       </ModalContent>
     </Modal>
   );
+};
+
+const getModalStyles = (
+  modalState?: ButtonOptionNames
+): {
+  bg: string;
+  color: string;
+  titleAppend: string;
+} => {
+  switch (modalState) {
+    case ButtonOptionNames["heart-black-border"]:
+      return { bg: "#FFCEE4", color: "black", titleAppend: "CARE PACKAGES" };
+    case ButtonOptionNames["ghost-clear"]:
+      return { bg: "#7200A5", color: "white", titleAppend: "SCARE PACKAGES" };
+    case ButtonOptionNames["boolloon"]:
+      return { bg: "#FF7B00", color: "black", titleAppend: "UNLONELY CHAT" };
+    case ButtonOptionNames["megaphone-color"]:
+      return { bg: "#1C9A00", color: "white", titleAppend: "T-T-S MESSAGES" };
+    default:
+      return {
+        bg: "black",
+        color: "white",
+        titleAppend: "CARE PACKAGES",
+      };
+  }
 };

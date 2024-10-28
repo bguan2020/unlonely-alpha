@@ -1,6 +1,7 @@
 import { useLazyQuery } from "@apollo/client";
 import {
   GET_PACKAGES_QUERY,
+  GET_ROOMS_QUERY,
   GET_STREAM_INTERACTIONS_QUERY,
 } from "../constants/queries";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -11,6 +12,7 @@ import {
   SimpleGrid,
   Spinner,
   Text,
+  useToast,
 } from "@chakra-ui/react";
 import useUpdateStreamInteraction from "../hooks/server/channel/useUpdateStreamInteraction";
 import { StreamInteractionType } from "../generated/graphql";
@@ -22,19 +24,17 @@ import { useUpdatePackage } from "../hooks/server/useUpdatePackage";
 import {
   PACKAGE_PRICE_CHANGE_EVENT,
   PACKAGE_PURCHASE_EVENT,
+  ROOM_CHANGE_EVENT,
   SEND_TTS_EVENT,
 } from "../constants";
-// import { io, Socket } from "socket.io-client";
-// import { WS_URL } from "../components/layout/BooEventTtsComponent";
 import { FaLongArrowAltRight, FaLongArrowAltLeft } from "react-icons/fa";
 import { CHANNEL_ID_TO_USE } from "../components/layout/BooEventWrapper";
-import centerEllipses from "../utils/centerEllipses";
+import { useUpdateRooms } from "../hooks/server/useUpdateRooms";
+import { filteredInput } from "../utils/validation/input";
 
 export const INTERACTIONS_CHANNEL = "persistMessages:interactions";
 
 const mods = process.env.NEXT_PUBLIC_MODS?.split(",");
-
-// let socket: Socket | null;
 
 export default function ModCenterPage() {
   const { user } = useUser();
@@ -46,23 +46,6 @@ export default function ModCenterPage() {
     }
     return false;
   }, [user, mods]);
-
-  // useEffect(() => {
-  //   socket = io(WS_URL, {
-  //     transports: ["websocket"],
-  //   });
-
-  //   // Listen for play-audio events from the server
-  //   socket.on("interaction", (data) => {
-  //     console.log("interaction", data);
-  //   });
-
-  //   return () => {
-  //     if (socket) {
-  //       socket.disconnect();
-  //     }
-  //   };
-  // }, []);
 
   return (
     <Flex h="100vh" bg="rgba(5, 0, 31, 1)" position={"relative"}>
@@ -76,6 +59,12 @@ export default function ModCenterPage() {
   );
 }
 
+export interface RoomInfo {
+  roomName: string;
+  inUse: boolean;
+  availablePackages: string[];
+}
+
 export interface PackageInfo {
   id: string;
   tokenHoldingPrice: string;
@@ -87,7 +76,8 @@ export type StagingPackages = {
 };
 
 export type AudioData = {
-  interactionId: string;
+  id: string;
+  userId: string;
   text?: string;
 };
 
@@ -97,48 +87,7 @@ const ModCenter = () => {
   const [stagingPackages, setStagingPackages] = useState<StagingPackages>({});
   const [currentAudio, setCurrentAudio] = useState<AudioData | null>(null); // State to display the current playing audio
 
-  const pushAudio = async (interaction: { id: string; text?: string }) => {
-    setCurrentAudio({
-      interactionId: interaction.id,
-      text: interaction.text,
-    }); // Set the current audio being played for display
-    const response = await fetch("/api/tts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        paymentId: "test123",
-        userId: "userTest",
-        textToSpeak: interaction.text,
-      }),
-    });
-    const data = await response.json();
-    if (!data.success) {
-      setCurrentAudio(null); // Clear current audio when it ends
-    }
-    const base64Audio = `data:audio/mp3;base64,${data.audio}`;
-    const audio = new Audio(base64Audio);
-
-    // Set up the event listener to handle when the audio finishes
-    audio.onended = async () => {
-      setQueuedTtsInteractions((prevInteractions) =>
-        prevInteractions.filter(
-          (_interaction) => _interaction.id !== interaction.id
-        )
-      );
-      setCurrentAudio(null); // Clear current audio when it ends
-      await updateStreamInteraction({
-        interactionId: interaction.id,
-        softDeleted: true,
-      });
-      setReceivedTtsInteractions((prevInteractions) =>
-        prevInteractions.filter(
-          (_interaction) => _interaction.id !== interaction.id
-        )
-      );
-    };
-
-    audio.play(); // Play the current audio
-  };
+  const toast = useToast();
 
   const [interactionsChannel] = useAblyChannel(
     INTERACTIONS_CHANNEL,
@@ -190,11 +139,21 @@ const ModCenter = () => {
     }
   );
 
-  const [call] = useLazyQuery(GET_STREAM_INTERACTIONS_QUERY, {
+  const [getInteractions] = useLazyQuery(GET_STREAM_INTERACTIONS_QUERY, {
+    fetchPolicy: "network-only",
+  });
+
+  const [getRooms] = useLazyQuery(GET_ROOMS_QUERY, {
+    fetchPolicy: "network-only",
+  });
+
+  const [_fetchBooPackages] = useLazyQuery(GET_PACKAGES_QUERY, {
     fetchPolicy: "network-only",
   });
 
   const { updateStreamInteraction } = useUpdateStreamInteraction({});
+  const { updateRooms } = useUpdateRooms({});
+  const { updatePackage } = useUpdatePackage({});
 
   const [receivedTtsInteractions, setReceivedTtsInteractions] = useState<
     { id: string; userId: string; text?: string }[]
@@ -212,14 +171,15 @@ const ModCenter = () => {
         text: string;
       }[]
     >([]);
-
   const [booPackageMap, setBooPackageMap] = useState<
     Record<string, PackageInfo>
   >({});
-
-  const [_fetchBooPackages] = useLazyQuery(GET_PACKAGES_QUERY, {
-    fetchPolicy: "network-only",
-  });
+  const [roomsMap, setRoomsMap] = useState<Record<string, RoomInfo>>({});
+  const currentRoomInUse = useMemo(() => {
+    return Object.entries(roomsMap).find(([roomName, roomInfo]) => {
+      return roomInfo.inUse;
+    })?.[1];
+  }, [roomsMap]);
 
   const fetchBooPackages = useCallback(async () => {
     const { data } = await _fetchBooPackages();
@@ -239,8 +199,7 @@ const ModCenter = () => {
   }, []);
 
   const getStreamInteractions = useCallback(async () => {
-    setPaused(true);
-    const { data: interactions } = await call({
+    const { data: interactions } = await getInteractions({
       variables: {
         data: {
           channelId: String(CHANNEL_ID_TO_USE),
@@ -262,7 +221,7 @@ const ModCenter = () => {
           const owner = interaction?.owner;
           return {
             id: interaction.id,
-            userId: owner.username ?? centerEllipses(owner.address, 15),
+            userId: owner.username ?? owner.address,
             text: interaction.text,
           };
         });
@@ -276,21 +235,35 @@ const ModCenter = () => {
       });
     setReceivedPackageInteractions(packageInteractions);
     setReceivedTtsInteractions(ttsInteractions);
-    setPaused(false);
+  }, []);
+
+  const fetchRooms = useCallback(async () => {
+    const { data } = await getRooms();
+    const rooms = data?.getRooms;
+    if (rooms) {
+      const roomMap = rooms.reduce((map: any, item: any) => {
+        map[item.roomName] = {
+          roomName: item.roomName,
+          inUse: item.inUse,
+          availablePackages: item.availablePackages,
+        };
+        return map;
+      }, {} as Record<string, RoomInfo>);
+      setRoomsMap(roomMap);
+    }
   }, []);
 
   const fetchAll = useCallback(async () => {
     setPaused(true);
     await fetchBooPackages();
     await getStreamInteractions();
+    await fetchRooms();
     setPaused(false);
   }, []);
 
   useEffect(() => {
     fetchAll();
   }, []);
-
-  const { updatePackage } = useUpdatePackage({});
 
   const handleQueuedTtsInteractions = useCallback(
     async (
@@ -334,6 +307,59 @@ const ModCenter = () => {
     []
   );
 
+  const pushAudio = async (interaction: AudioData) => {
+    setCurrentAudio(interaction); // Set the current audio being played for display
+    const response = await fetch("/api/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        paymentId: "test123",
+        userId: "userTest",
+        textToSpeak: `${
+          interaction.userId.includes(".")
+            ? interaction.userId
+            : interaction.userId.slice(0, 4)
+        } sent you the following message: ${interaction.text}`,
+      }),
+    });
+    const data = await response.json();
+    if (!data.success) {
+      setCurrentAudio(null); // Clear current audio when it ends
+    }
+    const base64Audio = `data:audio/mp3;base64,${data.audio}`;
+    const audio = new Audio(base64Audio);
+
+    // Set up the event listener to handle when the audio finishes
+    audio.onended = async () => {
+      setQueuedTtsInteractions((prevInteractions) =>
+        prevInteractions.filter(
+          (_interaction) => _interaction.id !== interaction.id
+        )
+      );
+      setCurrentAudio(null); // Clear current audio when it ends
+      await updateStreamInteraction({
+        interactionId: interaction.id,
+        softDeleted: true,
+      });
+      setReceivedTtsInteractions((prevInteractions) =>
+        prevInteractions.filter(
+          (_interaction) => _interaction.id !== interaction.id
+        )
+      );
+    };
+
+    audio.play(); // Play the current audio
+  };
+
+  const handleConfirmed = (item: string) => {
+    toast({
+      title: `${item} update confirmed`,
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
+
   return (
     <Flex direction="column" p="20px" gap="10px">
       <Flex direction="column" justifyContent={"center"}>
@@ -353,92 +379,170 @@ const ModCenter = () => {
           p="5px"
           gap="5px"
         >
-          <SimpleGrid columns={4} spacing={10}>
-            <Text>Interaction</Text>
-            <Text>Price</Text>
-            <Text>Cooldown</Text>
-          </SimpleGrid>
+          <Flex>
+            <Flex direction="column" width="70%">
+              <SimpleGrid columns={4} spacing={10}>
+                <Text>Interaction</Text>
+                <Text>Price</Text>
+                <Text>Cooldown</Text>
+              </SimpleGrid>
 
-          <Flex direction="column" overflowY={"scroll"} height="30vh">
-            {booPackageMap &&
-              Object.entries(booPackageMap)
-                .sort((a, b) => Number(a[1].id) - Number(b[1].id))
-                .map(([packageName, packageInfo]) => (
-                  <SimpleGrid
-                    columns={4}
-                    spacing={10}
-                    backgroundColor="#212e6f"
-                    p="10px"
-                  >
-                    <Text>{packageName}</Text>
-                    <Input
-                      placeholder="price"
-                      value={stagingPackages[packageName].tokenHoldingPrice}
-                      onChange={(e) =>
-                        setStagingPackages((prev) => ({
-                          ...prev,
-                          [packageName]: {
-                            ...stagingPackages[packageName],
-                            tokenHoldingPrice: String(e.target.value),
-                          },
-                        }))
-                      }
-                    />
-                    <Input
-                      placeholder="cooldown"
-                      value={stagingPackages[packageName].cooldownInSeconds}
-                      onChange={(e) =>
-                        setStagingPackages((prev) => ({
-                          ...prev,
-                          [packageName]: {
-                            ...stagingPackages[packageName],
-                            cooldownInSeconds: String(e.target.value),
-                          },
-                        }))
-                      }
-                    />
-                    <Button
-                      isDisabled={
-                        !stagingPackages[packageName] ||
-                        !stagingPackages[packageName].tokenHoldingPrice ||
-                        !stagingPackages[packageName].cooldownInSeconds ||
-                        (Number(
-                          booPackageMap?.[packageName]?.tokenHoldingPrice
-                        ) ===
-                          Number(
-                            stagingPackages[packageName].tokenHoldingPrice
-                          ) &&
-                          Number(
-                            booPackageMap?.[packageName]?.cooldownInSeconds
-                          ) ===
-                            Number(
-                              stagingPackages[packageName].cooldownInSeconds
-                            ))
-                      }
-                      onClick={async () => {
-                        const data = await updatePackage({
-                          packageName,
-                          cooldownInSeconds: Number(
-                            stagingPackages[packageName].cooldownInSeconds
-                          ),
-                          tokenHoldingPrice:
-                            stagingPackages[packageName].tokenHoldingPrice,
-                        });
-                        interactionsChannel?.publish({
-                          name: PACKAGE_PRICE_CHANGE_EVENT,
-                          data: {
-                            body: JSON.stringify({
-                              ...data?.res,
-                            }),
-                          },
-                        });
-                        fetchBooPackages();
-                      }}
+              <Flex direction="column" overflowY={"scroll"} height="30vh">
+                {booPackageMap &&
+                  Object.entries(booPackageMap)
+                    .sort((a, b) => Number(a[1].id) - Number(b[1].id))
+                    .map(([packageName, packageInfo]) => (
+                      <SimpleGrid
+                        columns={4}
+                        spacing={10}
+                        backgroundColor="#212e6f"
+                        p="10px"
+                      >
+                        <Text>{packageName}</Text>
+                        <Input
+                          placeholder="price"
+                          value={stagingPackages[packageName].tokenHoldingPrice}
+                          onChange={(e) =>
+                            setStagingPackages((prev) => ({
+                              ...prev,
+                              [packageName]: {
+                                ...prev[packageName],
+                                tokenHoldingPrice: filteredInput(
+                                  String(e.target.value),
+                                  true
+                                ),
+                              },
+                            }))
+                          }
+                        />
+                        <Input
+                          placeholder="cooldown"
+                          value={stagingPackages[packageName].cooldownInSeconds}
+                          onChange={(e) =>
+                            setStagingPackages((prev) => ({
+                              ...prev,
+                              [packageName]: {
+                                ...stagingPackages[packageName],
+                                cooldownInSeconds: String(e.target.value),
+                              },
+                            }))
+                          }
+                        />
+                        <Button
+                          isDisabled={
+                            !stagingPackages[packageName] ||
+                            !stagingPackages[packageName].tokenHoldingPrice ||
+                            !stagingPackages[packageName].cooldownInSeconds ||
+                            (Number(
+                              booPackageMap?.[packageName]?.tokenHoldingPrice
+                            ) ===
+                              Number(
+                                stagingPackages[packageName].tokenHoldingPrice
+                              ) &&
+                              Number(
+                                booPackageMap?.[packageName]?.cooldownInSeconds
+                              ) ===
+                                Number(
+                                  stagingPackages[packageName].cooldownInSeconds
+                                ))
+                          }
+                          onClick={async () => {
+                            const data = await updatePackage({
+                              packageName,
+                              cooldownInSeconds: Number(
+                                stagingPackages[packageName].cooldownInSeconds
+                              ),
+                              tokenHoldingPrice:
+                                stagingPackages[packageName].tokenHoldingPrice,
+                            });
+                            if (data?.res) {
+                              handleConfirmed("package");
+                            }
+                            interactionsChannel?.publish({
+                              name: PACKAGE_PRICE_CHANGE_EVENT,
+                              data: {
+                                body: JSON.stringify({
+                                  ...data?.res,
+                                }),
+                              },
+                            });
+                            fetchBooPackages();
+                          }}
+                        >
+                          Update
+                        </Button>
+                      </SimpleGrid>
+                    ))}
+              </Flex>
+            </Flex>
+            <Flex direction="column" width="30%">
+              <Text>Room</Text>
+              <Flex direction="column" overflowY={"scroll"} h="30vh">
+                {Object.entries(roomsMap)
+                  .sort((a, b) => a[1].roomName.localeCompare(b[1].roomName))
+                  .map(([roomName, roomInfo]) => (
+                    <Flex
+                      key={roomName}
+                      backgroundColor="#212e6f"
+                      p="10px"
+                      justifyContent={"space-between"}
+                      gap="4px"
                     >
-                      Update
-                    </Button>
-                  </SimpleGrid>
-                ))}
+                      <Text>{roomName}</Text>
+                      <Button
+                        bg={
+                          roomName === currentRoomInUse?.roomName &&
+                          currentRoomInUse?.inUse
+                            ? "green.500"
+                            : "blue.500"
+                        }
+                        color="white"
+                        _hover={{
+                          bg:
+                            roomName === currentRoomInUse?.roomName &&
+                            currentRoomInUse?.inUse
+                              ? "green.600"
+                              : "blue.600",
+                        }}
+                        onClick={async () => {
+                          const data = await updateRooms({
+                            roomNameToUse: roomName,
+                          });
+                          // set all other rooms inUse to false, and use spread operator to update the room inUse
+                          setRoomsMap((prevRooms) => {
+                            return Object.entries(prevRooms).reduce(
+                              (acc, [roomName, roomInfo]) => {
+                                acc[roomName] = {
+                                  ...roomInfo,
+                                  inUse: roomName === data?.res?.roomName,
+                                };
+                                return acc;
+                              },
+                              {} as Record<string, RoomInfo>
+                            );
+                          });
+                          if (data?.res) {
+                            handleConfirmed("room");
+                          }
+                          interactionsChannel?.publish({
+                            name: ROOM_CHANGE_EVENT,
+                            data: {
+                              body: JSON.stringify({
+                                ...data?.res,
+                              }),
+                            },
+                          });
+                        }}
+                      >
+                        {roomName === currentRoomInUse?.roomName &&
+                        currentRoomInUse?.inUse
+                          ? "in use"
+                          : "use"}
+                      </Button>
+                    </Flex>
+                  ))}
+              </Flex>
+            </Flex>
           </Flex>
           <Flex width="100%" gap="5px">
             <Flex direction="column" gap="4px" width="100%" height="40vh">
@@ -597,7 +701,7 @@ const ModCenter = () => {
                 <Flex
                   key={interaction.id}
                   bg={
-                    currentAudio?.interactionId === interaction.id
+                    currentAudio?.id === interaction.id
                       ? "green.500"
                       : "#212e6f"
                   }
@@ -613,7 +717,9 @@ const ModCenter = () => {
                     fontStyle={"italic"}
                     fontWeight={"bold"}
                   >
-                    {interaction.userId}
+                    {interaction.userId.includes(".")
+                      ? interaction.userId
+                      : interaction.userId.slice(0, 4)}
                   </Text>
                   <Text>{interaction.text}</Text>
                   <Flex justifyContent={"space-between"} gap="4px">
@@ -678,7 +784,7 @@ const ModCenter = () => {
                     key={interaction.id}
                     backgroundColor="#212e6f"
                     bg={
-                      currentAudio?.interactionId === interaction.id
+                      currentAudio?.id === interaction.id
                         ? "green.500"
                         : "#212e6f"
                     }
@@ -688,6 +794,14 @@ const ModCenter = () => {
                     gap="4px"
                     direction="column"
                   >
+                    <Text
+                      fontSize="13px"
+                      color={"#a1c5ff"}
+                      fontStyle={"italic"}
+                      fontWeight={"bold"}
+                    >
+                      {interaction.userId}
+                    </Text>
                     <Text>{interaction.text}</Text>
                     <Flex justifyContent={"space-between"} gap="4px">
                       <Button

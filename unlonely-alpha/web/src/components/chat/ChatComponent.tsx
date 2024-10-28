@@ -266,23 +266,13 @@ const ChatComponent = ({
                   </Flex>
                 )}
               </Flex>
-              {selectedTab === "chat" && (
-                <Chat
-                  chat={chat}
-                  tokenForTransfer={tokenForTransfer}
-                  tokenGating={tokenGating}
-                  noClipping={noClipping}
-                />
-              )}
-              {selectedTab === "vip" && (
-                <Chat
-                  chat={chat}
-                  tokenForTransfer={tokenForTransfer}
-                  isVipChat
-                  tokenGating={tokenGating}
-                  noClipping={noClipping}
-                />
-              )}
+              <Chat
+                chat={chat}
+                tokenForTransfer={tokenForTransfer}
+                tokenGating={tokenGating}
+                noClipping={noClipping}
+                isVipChat={selectedTab === "vip"}
+              />
             </Flex>
           </OuterBorder>
         </Container>

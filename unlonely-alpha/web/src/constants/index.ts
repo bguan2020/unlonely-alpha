@@ -84,6 +84,7 @@ export const VIBES_TOKEN_PRICE_RANGE_EVENT = "vibes-token-price-range";
 export const TOKEN_TRANSFER_EVENT = "token-transfer";
 export const PINNED_CHAT_MESSAGES_EVENT = "pinned-chat-messages";
 export const PACKAGE_PRICE_CHANGE_EVENT = "package-price-change";
+export const ROOM_CHANGE_EVENT = "room-change";
 export const PACKAGE_PURCHASE_EVENT = "package-purchase";
 export const SEND_TTS_EVENT = "send-tts";
 
@@ -135,9 +136,8 @@ export const UNLONELY_LOGO_IPFS_URL =
 export const SOLANA_RPC_URL =
   "https://solana-mainnet.g.alchemy.com/v2/-D7ZPwVOE8mWLx2zsHpYC2dpZDNkhzjf";
 export const FIXED_SOLANA_MINT = {
-  mintAddress: "8d5CdSJnxwyh2XjSWqE7HpEFSkvgoDaXwW6gTLfZm8v9",
-  tokenAccount: "3GPNYL255Zdpv4jMjq1XhiZRHDLYZ6mV3cd9q6T6ybDW",
-  poolAddress: "3Ehz9oTK2pULee65s5ftiv798mKjek9s8xdRWGMXChw7",
+  mintAddress: "GdiPk4dx3pFDrrxHZmbnyed8W9sL5DR6WpigrBANpj7y",
+  poolAddress: "HKyrNi2yfBQyFY7jH3c2h9YqVrmuLqe3tUZXFQhNY6PW",
   decimals: 6,
 };
 
@@ -193,3 +193,89 @@ export const INITIAL_FORM_CONFIG: IFormConfigurator = Object.freeze({
   },
   useUserSlippage: true,
 });
+
+
+export const TEXT_TO_SPEECH_PACKAGE_NAME = "text-to-speech";
+export const RESET_COOLDOWNS_NAME = "reset-cooldowns";
+
+export enum CarePackageName {
+  WATER_BOTTLE = "water-bottle",
+  TOILET = "toilet",
+  PIZZA = "pizza",
+  TORCH = "torch",
+  PAPER_ROLL = "paper-roll",
+  PHONE = "phone",
+}
+
+export enum ScarePackageName {
+  BLACKOUT = "blackout",
+  FOG = "fog",
+  BOOM = "boom",
+  WHALE = "whale",
+  FIREBALL = "fireball",
+  FART_SPRAY = "fart-spray",
+}
+
+export const CarePackageToTooltipDescription: Record<CarePackageName, string> = {
+  [CarePackageName.WATER_BOTTLE]: "send water to a thirsty contestant",
+  [CarePackageName.TOILET]: "let a contestant use the bathroom",
+  [CarePackageName.PIZZA]: "send pizza to a hungry contestant",
+  [CarePackageName.TORCH]: "too dark? send 1 light-able match",
+  [CarePackageName.PAPER_ROLL]: "things got messy? send 1 sheet of paper towel",
+  [CarePackageName.PHONE]: "give a contestant their phone for 1 min to make a desperate tweet",
+};
+
+export const ScarePackageToTooltipDescription: Record<ScarePackageName, string> = {
+  [ScarePackageName.BLACKOUT]: "turn all the lights out in this room for 1 min",
+  [ScarePackageName.FOG]: "add some fog to this room",
+  [ScarePackageName.BOOM]: "???",
+  [ScarePackageName.WHALE]: "oh ur a whale? tell us what you want happen",
+  [ScarePackageName.FIREBALL]: "send a contestant a shot of fireball whiskey",
+  [ScarePackageName.FART_SPRAY]: "send fart spray",
+};
+
+export const PackageNameToModalTitle: Record<string, string> = {
+  [TEXT_TO_SPEECH_PACKAGE_NAME]: "send a custom text-to-speech message to contestants!",
+  [RESET_COOLDOWNS_NAME]: "reset package cooldowns to start using them again!",
+  [CarePackageName.WATER_BOTTLE]: "send water to a contestant!",
+  [CarePackageName.TOILET]: "let a contestant use the bathroom!",
+  [CarePackageName.PIZZA]: "send pizza to a contestant!",
+  [CarePackageName.TORCH]: "send a match!",
+  [CarePackageName.PAPER_ROLL]: "send 1 sheet of paper towel!",
+  [CarePackageName.PHONE]: "give phone for 1 min!",
+  [ScarePackageName.BLACKOUT]: "LIGHTS OUT!",
+  [ScarePackageName.FOG]: "add fog!",
+  [ScarePackageName.BOOM]: "a surprise?!",
+  [ScarePackageName.WHALE]: "custom whale request!",
+  [ScarePackageName.FIREBALL]: "one shot of fireball coming right up!",
+  [ScarePackageName.FART_SPRAY]: "send fart spray!",
+};
+
+export const PackageNameToModalExampleMessage: Record<string, string> = {
+  [TEXT_TO_SPEECH_PACKAGE_NAME]: "tell rasmr to stop bitching",
+  [CarePackageName.WATER_BOTTLE]: "send this bottle of water to my gf linda",
+  [CarePackageName.TOILET]: "let sarah use the bathroom omg",
+  [CarePackageName.PIZZA]: "send pizza to rasmr so he has energy to keep getting spanked",
+  [CarePackageName.TORCH]: "send a match to sarah she's so blind rn",
+  [CarePackageName.PAPER_ROLL]: "send 1 paper towel to linda pls",
+  [CarePackageName.PHONE]: "tell rasmr it better be a banger tweet",
+  [ScarePackageName.WHALE]: "suggest something and we'll do everything in our power to make it happen",
+  [ScarePackageName.FIREBALL]: "send this shot to rasmr frrrrr",
+}
+
+export const PackageNameToModalDescription: Record<string, string> = {
+  [ScarePackageName.BLACKOUT]: "turn the lights off in this room for 30 seconds",
+  [ScarePackageName.FOG]: "we'll turn the fog machine on in this room for 1 minute",
+  [ScarePackageName.BOOM]: "send it to find out 👀",
+  [ScarePackageName.FART_SPRAY]: "it's time to stink up this room",
+}
+
+export enum BooRoom {
+  WAITING_ROOM = "waiting-room",
+  MANNEQUIN_ROOM = "mannequin-room",
+  BLOOD_BATH = "blood-bath",
+  SEX_DUNGEON = "sex-dungeon",
+  BLACK_OUT = "black-out",
+  CLASSROOM = "classroom",
+  ATH = "ath",
+}
