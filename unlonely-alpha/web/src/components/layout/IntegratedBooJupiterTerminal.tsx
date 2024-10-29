@@ -32,6 +32,7 @@ export const IntegratedTerminal = memo((props: IntegratedTerminalProps) => {
         displayMode: "integrated",
         integratedTargetId: "integrated-terminal",
         endpoint: SOLANA_RPC_URL,
+        refetchIntervalForTokenAccounts: 25000,
         formProps: {
           fixedInputMint: true,
           fixedOutputMint: true,
