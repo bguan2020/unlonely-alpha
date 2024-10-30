@@ -166,12 +166,12 @@ export function useChatChannel(fixedChatName?: string) {
       if (localBanList.length === 0) {
         setReceivedMessages([...messageHistory, message]);
       } else {
-        if (user?.address && localBanList.includes(user?.address)) {
+        if (user?.address && localBanList?.includes(user?.address)) {
           // Current user is banned, they see all messages
           setReceivedMessages([...messageHistory, message]);
         } else {
           // Current user is not banned, they only see messages from non-banned users
-          if (!localBanList.includes(message.data.address)) {
+          if (!localBanList?.includes(message.data.address)) {
             setReceivedMessages([...messageHistory, message]);
           }
         }
@@ -201,10 +201,10 @@ export function useChatChannel(fixedChatName?: string) {
         const messageHistory = result.items.filter((message: any) => {
           if (message.name !== CHAT_MESSAGE_EVENT) return false;
 
-          const senderIsBanned = localBanList.includes(message.data.address);
+          const senderIsBanned = localBanList?.includes(message.data.address);
 
           // For non-banned users or users without a user?.address
-          if (!user?.address || !localBanList.includes(user?.address)) {
+          if (!user?.address || !localBanList?.includes(user?.address)) {
             return !senderIsBanned;
           }
 

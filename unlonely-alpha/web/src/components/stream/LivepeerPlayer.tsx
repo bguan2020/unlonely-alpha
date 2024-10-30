@@ -115,7 +115,7 @@ const LivepeerPlayer = memo(
               e?.message &&
               e?.message?.length > 0 &&
               e?.type === "unknown" &&
-              !unacceptedErrors.includes(e?.message)
+              !unacceptedErrors?.includes(e?.message)
             ) {
               console.log("Error playing video", JSON.stringify(e));
               setError(JSON.stringify(e));

@@ -397,7 +397,7 @@ export const TempTokenChart = ({
             {interfaceChartData.timeFilter === "all" && (
               <>
                 {Array.from(tempTokenChartTimeIndexes.keys())
-                  .filter((i) => i.includes("d"))
+                  .filter((i) => i?.includes("d"))
                   .map((key) => {
                     return (
                       <ReferenceLine
@@ -439,7 +439,7 @@ export const TempTokenChart = ({
             {interfaceChartData.timeFilter === "1d" && (
               <>
                 {Array.from(tempTokenChartTimeIndexes.keys())
-                  .filter((i) => i.includes("h"))
+                  .filter((i) => i?.includes("h"))
                   .map((key) => {
                     return (
                       <ReferenceLine

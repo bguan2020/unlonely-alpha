@@ -1071,7 +1071,7 @@ const VibesTokenInterface = ({
                     {timeFilter === "all" && isFullChart && !previewMode && (
                       <>
                         {Array.from(chartTimeIndexes.keys())
-                          .filter((i) => i.includes("d"))
+                          .filter((i) => i?.includes("d"))
                           .map((key) => {
                             return (
                               <ReferenceLine
@@ -1113,7 +1113,7 @@ const VibesTokenInterface = ({
                     {timeFilter === "1d" && isFullChart && !previewMode && (
                       <>
                         {Array.from(chartTimeIndexes.keys())
-                          .filter((i) => i.includes("h"))
+                          .filter((i) => i?.includes("h"))
                           .map((key) => {
                             return (
                               <ReferenceLine

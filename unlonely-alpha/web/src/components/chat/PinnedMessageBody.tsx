@@ -39,8 +39,8 @@ const PinnedMessageBody = ({ messageText, handlePinCallback }: Props) => {
 
   const isGif = useMemo(
     () =>
-      messageText.includes("https://i.imgur.com/") ||
-      messageText.includes("https://media.tenor.com/"),
+      messageText?.includes("https://i.imgur.com/") ||
+      messageText?.includes("https://media.tenor.com/"),
     [messageText]
   );
 

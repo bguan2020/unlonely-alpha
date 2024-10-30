@@ -132,7 +132,7 @@ const MessageList = memo(
           const isVip = m.data.senderStatus === SenderStatus.VIP;
           const isChatbotWithAcceptableInteractionType =
             m.data.senderStatus === SenderStatus.CHATBOT &&
-            !excludedChatbotInteractionTypesInVipChat.includes(
+            !excludedChatbotInteractionTypesInVipChat?.includes(
               (jp(m.data.body ?? "") as ChatBotMessageBody)?.interactionType
             );
           return (
@@ -149,7 +149,7 @@ const MessageList = memo(
 
     const handleUpdatePinnedChatMessages = async (value: string) => {
       if (channelQueryData?.id) {
-        const isPinned = pinnedChatMessages.includes(value);
+        const isPinned = pinnedChatMessages?.includes(value);
         let updatedPinnedChatMessages: string[] = [];
         if (isPinned) {
           updatedPinnedChatMessages = pinnedChatMessages.filter(

@@ -20,8 +20,8 @@ const EmojiDisplay = ({
 }: Props) => {
   // check if emoji contains "https://i.imgur.com/" to determine if it is a gif
   const isGif =
-    emoji.includes("https://i.imgur.com/") ||
-    emoji.includes("https://media.tenor.com/");
+    emoji?.includes("https://i.imgur.com/") ||
+    emoji?.includes("https://media.tenor.com/");
 
   return (
     <>

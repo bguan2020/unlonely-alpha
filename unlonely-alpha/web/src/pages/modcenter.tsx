@@ -316,7 +316,7 @@ const ModCenter = () => {
         paymentId: "test123",
         userId: "userTest",
         textToSpeak: `${
-          interaction.userId.includes(".")
+          interaction.userId?.includes(".")
             ? interaction.userId
             : interaction.userId.slice(0, 4)
         } sent you the following message: ${interaction.text}`,
@@ -717,7 +717,7 @@ const ModCenter = () => {
                     fontStyle={"italic"}
                     fontWeight={"bold"}
                   >
-                    {interaction.userId.includes(".")
+                    {interaction.userId?.includes(".")
                       ? interaction.userId
                       : interaction.userId.slice(0, 4)}
                   </Text>

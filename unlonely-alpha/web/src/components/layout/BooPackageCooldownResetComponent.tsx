@@ -44,7 +44,7 @@ export const BooPackageCooldownResetComponent = ({
   const hasOtherCooldowns = useMemo(() => {
     const iterable = Object.entries(userBooPackageCooldowns ?? {}).filter(
       ([key]) =>
-        currentRoom?.availablePackages.includes(key) ||
+        currentRoom?.availablePackages?.includes(key) ||
         key === TEXT_TO_SPEECH_PACKAGE_NAME
     );
     for (const [key, value] of iterable) {
@@ -57,7 +57,7 @@ export const BooPackageCooldownResetComponent = ({
       }
     }
     return false;
-  }, [dateNow, userBooPackageCooldowns, booPackageMap]);
+  }, [dateNow, userBooPackageCooldowns, booPackageMap, currentRoom]);
 
   const isDisabled = useMemo(() => {
     return (

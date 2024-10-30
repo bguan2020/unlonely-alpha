@@ -476,7 +476,7 @@ const Graphs = memo(
           )[0][1] as number
         );
         const _activeChannels = enumerableArray
-          .filter(([key, value]) => key.includes("_viewCount"))
+          .filter(([key, value]) => key?.includes("_viewCount"))
           .filter(([key, value]) => (value as number) > 0);
         const _topTenPerformingChannels = activeChannels
           .sort((a, b) => (b[1] as number) - (a[1] as number))
@@ -556,7 +556,7 @@ const Graphs = memo(
           )[0][1] as number
         );
         const _activeChannels = enumerableArray
-          .filter(([key, value]) => key.includes("_playtimeMins"))
+          .filter(([key, value]) => key?.includes("_playtimeMins"))
           .filter(([key, value]) => (value as number) > 0);
         const _topTenPerformingChannels = activeChannels
           .sort((a, b) => (b[1] as number) - (a[1] as number))

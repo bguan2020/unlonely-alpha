@@ -642,7 +642,7 @@ const ChatForm = ({
                       setInstantCommandSend(false);
                     }}
                     onCommandClick={(text: string) => {
-                      if (instantCommandSend && !text.includes("!chatbot")) {
+                      if (instantCommandSend && !text?.includes("!chatbot")) {
                         sendChatMessage(text, false, currSenderStatus);
                       } else {
                         focusInput();

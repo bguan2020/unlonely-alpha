@@ -74,7 +74,7 @@ const Nfcs = () => {
       );
       console.log(matchingIds);
       newNfcResults = newNfcResults?.filter((nfc) =>
-        matchingIds.includes(nfc?.channelId)
+        matchingIds?.includes(nfc?.channelId)
       );
     }
     if (filterClipper.length > 0) {
@@ -82,10 +82,10 @@ const Nfcs = () => {
         (nfc) =>
           nfc?.owner.username
             ?.toLowerCase()
-            .includes(filterClipper?.toLowerCase()) ||
+            ?.includes(filterClipper?.toLowerCase()) ||
           nfc?.owner?.address
             .toLowerCase()
-            .includes(filterClipper?.toLowerCase())
+            ?.includes(filterClipper?.toLowerCase())
       );
     }
     if (filterStreamer.length === 0 && filterClipper.length === 0) {
@@ -132,7 +132,7 @@ const Nfcs = () => {
     if (
       router.query[NFCS_SORT_QUERY_PARAM] &&
       typeof router.query[NFCS_SORT_QUERY_PARAM] === "string" &&
-      ["createdAt", "totalMints"].includes(router.query[NFCS_SORT_QUERY_PARAM])
+      ["createdAt", "totalMints"]?.includes(router.query[NFCS_SORT_QUERY_PARAM])
     ) {
       orderBy = router.query[NFCS_SORT_QUERY_PARAM] as
         | "createdAt"

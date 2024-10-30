@@ -46,14 +46,14 @@ export const messageStyle = (dataBody?: string) => {
   const jpData = jp(dataBody) as ChatBotMessageBody;
   if (
     dataBody &&
-    (deepBlueEventTypes as string[]).includes(jpData.interactionType)
+    (deepBlueEventTypes as string[])?.includes(jpData.interactionType)
   ) {
     return {
       bg: "rgba(63, 59, 253, 1)",
     };
   } else if (
     dataBody &&
-    (blueTempTokenInteractionTypes as string[]).includes(jpData.interactionType)
+    (blueTempTokenInteractionTypes as string[])?.includes(jpData.interactionType)
   ) {
     return {
       bg: "rgba(34, 167, 255, 0.26)",
@@ -64,7 +64,7 @@ export const messageStyle = (dataBody?: string) => {
     };
   } else if (
     dataBody &&
-    (greenTempTokenInteractionTypes as string[]).includes(
+    (greenTempTokenInteractionTypes as string[])?.includes(
       jpData.interactionType
     )
   ) {
@@ -77,7 +77,7 @@ export const messageStyle = (dataBody?: string) => {
     };
   } else if (
     dataBody &&
-    (redTempTokenInteractionTypes as string[]).includes(jpData.interactionType)
+    (redTempTokenInteractionTypes as string[])?.includes(jpData.interactionType)
   ) {
     return {
       bg: "rgba(255, 0, 0, 0.26)",
@@ -88,7 +88,7 @@ export const messageStyle = (dataBody?: string) => {
     };
   } else if (
     dataBody &&
-    (purpleEventTypes as string[]).includes(jpData.interactionType)
+    (purpleEventTypes as string[])?.includes(jpData.interactionType)
   ) {
     return {
       bg: "rgba(172, 166, 255, 0.26)",

@@ -401,7 +401,7 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
               {interfaceChartData.timeFilter === "all" && (
                 <>
                   {Array.from(readTempTokenTxs.tempTokenChartTimeIndexes.keys())
-                    .filter((i) => i.includes("d"))
+                    .filter((i) => i?.includes("d"))
                     .map((key) => {
                       return (
                         <ReferenceLine
@@ -443,7 +443,7 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
               {interfaceChartData.timeFilter === "1d" && (
                 <>
                   {Array.from(readTempTokenTxs.tempTokenChartTimeIndexes.keys())
-                    .filter((i) => i.includes("h"))
+                    .filter((i) => i?.includes("h"))
                     .map((key) => {
                       return (
                         <ReferenceLine

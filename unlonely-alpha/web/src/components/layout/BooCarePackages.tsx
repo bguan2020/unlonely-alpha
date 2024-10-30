@@ -38,7 +38,7 @@ export const BooCarePackages = ({
           fetchUserBooPackageCooldownMapping={
             fetchUserBooPackageCooldownMapping
           }
-          isAvailable={currentRoom?.availablePackages.includes(name)}
+          isAvailable={currentRoom?.availablePackages?.includes(name) ?? false}
           interactionsAblyChannel={interactionsAblyChannel}
           onClick={onPackageClick}
         />

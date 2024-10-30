@@ -26,7 +26,7 @@ export const createPackageCooldownArray = (
         lastUsedAt: String(now),
         usableAt: _userPackageCooldownMapping?.[name]?.usableAt ?? "0",
       };
-    } else if (!namesOfPackagesExcused.includes(name)) {
+    } else if (!(namesOfPackagesExcused?.includes(name))) {
       return {
         name,
         lastUsedAt: _userPackageCooldownMapping?.[name]?.lastUsedAt ?? "0",

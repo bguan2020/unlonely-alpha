@@ -115,7 +115,7 @@ export const useChat = ({
       const lastMessage = chatBot[chatBot.length - 1];
       let body: string | undefined = undefined;
       if (
-        Object.values(InteractionType).includes(
+        Object.values(InteractionType)?.includes(
           lastMessage.taskType as InteractionType
         )
       ) {

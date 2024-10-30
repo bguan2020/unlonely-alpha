@@ -293,7 +293,7 @@ export const TempTokenAdmin = () => {
                   <Tr
                     key={index}
                     bgColor={
-                      tokenAddressesIncludedForOperation.includes(
+                      tokenAddressesIncludedForOperation?.includes(
                         token.tokenAddress
                       )
                         ? "unset"
@@ -343,7 +343,7 @@ export const TempTokenAdmin = () => {
                         _active={{}}
                         onClick={() => {
                           if (
-                            !tokenAddressesIncludedForOperation.includes(
+                            !tokenAddressesIncludedForOperation?.includes(
                               token.tokenAddress
                             )
                           ) {
@@ -360,7 +360,7 @@ export const TempTokenAdmin = () => {
                           }
                         }}
                       >
-                        {tokenAddressesIncludedForOperation.includes(
+                        {tokenAddressesIncludedForOperation?.includes(
                           token.tokenAddress
                         )
                           ? "✅"

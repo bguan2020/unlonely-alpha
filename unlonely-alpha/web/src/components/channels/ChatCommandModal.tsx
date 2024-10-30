@@ -112,7 +112,7 @@ export default function ChatCommandModal({
   useEffect(() => {
     for (const c of commandsData) {
       if (
-        Object.values(BaseChatCommand).includes(
+        Object.values(BaseChatCommand)?.includes(
           `!${c.command}` as BaseChatCommand
         )
       ) {
@@ -168,7 +168,7 @@ export default function ChatCommandModal({
               variant="glow"
               placeholder={"command"}
               value={`!${c.command}`}
-              isInvalid={Object.values(BaseChatCommand).includes(
+              isInvalid={Object.values(BaseChatCommand)?.includes(
                 `!${c.command}` as BaseChatCommand
               )}
               onChange={(e) =>

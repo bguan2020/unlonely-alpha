@@ -72,7 +72,7 @@ export default function Commands({
 
   const matchingList = useMemo(() => {
     return aggregatedCommandList.filter((command) => {
-      return command.value.includes(chat);
+      return command.value?.includes(chat);
     });
   }, [aggregatedCommandList, chat]);
 

@@ -385,11 +385,11 @@ function MobileHomePage({
       debouncedSearch.length > 0
         ? c.owner.username
             ?.toLowerCase()
-            .includes(debouncedSearch?.toLowerCase()) ||
+            ?.includes(debouncedSearch?.toLowerCase()) ||
           c.owner.address
             .toLowerCase()
-            .includes(debouncedSearch?.toLowerCase()) ||
-          c.slug.toLowerCase().includes(debouncedSearch?.toLowerCase())
+            ?.includes(debouncedSearch?.toLowerCase()) ||
+          c.slug.toLowerCase()?.includes(debouncedSearch?.toLowerCase())
         : c
     );
   }, [sortedChannels, debouncedSearch]);
