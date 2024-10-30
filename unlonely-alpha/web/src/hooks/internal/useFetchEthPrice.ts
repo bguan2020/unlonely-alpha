@@ -10,7 +10,7 @@ export const useFetchEthPrice = () => {
   const router = useRouter(); // Get the current route
 
   useEffect(() => {
-    if (router.pathname === "/") return; // Skip fetching for the root ("/") route
+    if (router.pathname === "/" || router.pathname === "/modcenter") return; // Skip fetching for routes that don't need the price
 
     const interval = setInterval(() => {
       const init = async () => {
