@@ -362,12 +362,13 @@ export const UserProvider = ({
         <Flex direction={"column"} gap="5px">
           {privyUser?.linkedAccounts
             .filter((account) => account.type === "wallet")
-            .map((account) => {
+            .map((account, i) => {
               const foundWallet = wallets.find(
                 (w) => w.address === (account as WalletWithMetadata).address
               );
               return (
                 <Flex
+                  key={i}
                   gap="5px"
                   background="rgba(0, 0, 0, 0.5)"
                   borderRadius="5px"
