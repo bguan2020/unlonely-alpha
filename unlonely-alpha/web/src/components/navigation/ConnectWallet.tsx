@@ -65,7 +65,7 @@ export const ConnectWallet = () => {
         onClick={() => {
           loggedInWithPrivy ? handleIsManagingWallets(true) : login();
         }}
-        isDisabled={fetchingUser || !ready}
+        // isDisabled={fetchingUser || !ready}
       >
         {fetchingUser || !ready ? (
           <Spinner />
