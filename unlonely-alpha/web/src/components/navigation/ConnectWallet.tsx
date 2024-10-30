@@ -42,6 +42,8 @@ export const ConnectWallet = () => {
     [authenticated, ready]
   );
 
+  console.log("fetchingUser || ready", fetchingUser, ready);
+
   return loggedInWithPrivy && user ? (
     <ConnectedDisplay />
   ) : (
