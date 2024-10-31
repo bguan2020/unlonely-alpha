@@ -26,6 +26,7 @@ import {
   convertToObjectArray,
 } from "../utils/dataMetricsFormatting";
 import useDebounce from "../hooks/internal/useDebounce";
+import { safeIncludes } from "../utils/safeFunctions";
 
 const EXCLUDED_PLAYBACK_IDS = ["a3c1xtfzwcwqzv51"];
 
@@ -476,7 +477,7 @@ const Graphs = memo(
           )[0][1] as number
         );
         const _activeChannels = enumerableArray
-          .filter(([key, value]) => key?.includes("_viewCount"))
+          .filter(([key, value]) => safeIncludes(key, "_viewCount"))
           .filter(([key, value]) => (value as number) > 0);
         const _topTenPerformingChannels = activeChannels
           .sort((a, b) => (b[1] as number) - (a[1] as number))
@@ -556,7 +557,7 @@ const Graphs = memo(
           )[0][1] as number
         );
         const _activeChannels = enumerableArray
-          .filter(([key, value]) => key?.includes("_playtimeMins"))
+          .filter(([key, value]) => safeIncludes(key, "_playtimeMins"))
           .filter(([key, value]) => (value as number) > 0);
         const _topTenPerformingChannels = activeChannels
           .sort((a, b) => (b[1] as number) - (a[1] as number))

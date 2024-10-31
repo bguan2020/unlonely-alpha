@@ -40,6 +40,7 @@ import { useCacheContext } from "../hooks/context/useCache";
 // import NfcLeaderboard from "../components/leaderboards/NfcLeaderboard";
 // import Header from "../components/navigation/Header";
 import BooEventWrapper from "../components/layout/BooEventWrapper";
+import { safeIncludes } from "../utils/safeFunctions";
 
 // const FixedComponent = ({
 //   newHeightPercentage,
@@ -354,13 +355,15 @@ function MobileHomePage({
     const _suggestedNonLiveChannels = suggestedChannels
       ? channels.filter(
           (channel) =>
-            suggestedChannels?.includes(String(channel.id)) && !channel.isLive
+            safeIncludes(suggestedChannels, String(channel.id)) &&
+            !channel.isLive
         )
       : [];
     const otherChannels = suggestedChannels
       ? channels.filter(
           (channel) =>
-            !suggestedChannels?.includes(String(channel.id)) && !channel.isLive
+            !safeIncludes(suggestedChannels, String(channel.id)) &&
+            !channel.isLive
         )
       : channels.filter((channel) => !channel.isLive);
     const sortedLiveChannels = sortChannels(liveChannels);
@@ -383,13 +386,15 @@ function MobileHomePage({
   const filteredChannels = useMemo(() => {
     return sortedChannels?.filter((c) =>
       debouncedSearch.length > 0
-        ? c.owner.username
-            ?.toLowerCase()
-            ?.includes(debouncedSearch?.toLowerCase()) ||
-          c.owner.address
-            .toLowerCase()
-            ?.includes(debouncedSearch?.toLowerCase()) ||
-          c.slug.toLowerCase()?.includes(debouncedSearch?.toLowerCase())
+        ? safeIncludes(
+            c.owner.username?.toLowerCase(),
+            debouncedSearch?.toLowerCase()
+          ) ||
+          safeIncludes(
+            c.owner.address?.toLowerCase(),
+            debouncedSearch?.toLowerCase()
+          ) ||
+          safeIncludes(c.slug?.toLowerCase(), debouncedSearch?.toLowerCase())
         : c
     );
   }, [sortedChannels, debouncedSearch]);
@@ -458,9 +463,10 @@ function MobileHomePage({
                 itemContent={(index, data) => (
                   <SelectableChannel
                     key={data.id || index}
-                    subscribed={
-                      suggestedChannels?.includes(String(data.id)) ?? false
-                    }
+                    subscribed={safeIncludes(
+                      suggestedChannels,
+                      String(data.id)
+                    )}
                     channel={data}
                     addChannelToSubscription={addChannelToSubscription}
                     removeChannelFromSubscription={

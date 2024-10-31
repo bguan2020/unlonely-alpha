@@ -29,7 +29,7 @@ import {
   GET_USER_PACKAGE_COOLDOWN_MAPPING_QUERY,
 } from "../../constants/queries";
 import { GetUserPackageCooldownMappingQuery } from "../../generated/graphql";
-import { jp } from "../../utils/validation/jsonParse";
+import { jp } from "../../utils/safeFunctions";
 import { BooScarePackages } from "./BooScarePackages";
 import {
   INTERACTIONS_CHANNEL,

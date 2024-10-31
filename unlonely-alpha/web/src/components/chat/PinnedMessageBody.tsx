@@ -6,6 +6,7 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import { useUser } from "../../hooks/context/useUser";
 import { MdClose } from "react-icons/md";
 import { areAddressesEqual } from "../../utils/validation/wallet";
+import { safeIncludes } from "../../utils/safeFunctions";
 
 type Props = {
   messageText: string;
@@ -39,8 +40,8 @@ const PinnedMessageBody = ({ messageText, handlePinCallback }: Props) => {
 
   const isGif = useMemo(
     () =>
-      messageText?.includes("https://i.imgur.com/") ||
-      messageText?.includes("https://media.tenor.com/"),
+      safeIncludes(messageText, "https://i.imgur.com/") ||
+      safeIncludes(messageText, "https://media.tenor.com/"),
     [messageText]
   );
 

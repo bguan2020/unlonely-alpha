@@ -2,6 +2,7 @@ import { SimpleGrid } from "@chakra-ui/react";
 import { BooPackageButton } from "./BooPackageButton";
 import { AblyChannelPromise, CarePackageName } from "../../constants";
 import { RoomInfo } from "../../pages/modcenter";
+import { safeIncludes } from "../../utils/safeFunctions";
 
 const carePackageNames: string[] = Object.values(CarePackageName);
 
@@ -38,7 +39,7 @@ export const BooCarePackages = ({
           fetchUserBooPackageCooldownMapping={
             fetchUserBooPackageCooldownMapping
           }
-          isAvailable={currentRoom?.availablePackages?.includes(name) ?? false}
+          isAvailable={safeIncludes(currentRoom?.availablePackages, name)}
           interactionsAblyChannel={interactionsAblyChannel}
           onClick={onPackageClick}
         />

@@ -16,7 +16,7 @@ import { useChannelContext } from "../context/useChannel";
 import { useNetworkContext } from "../context/useNetwork";
 import { useUser } from "../context/useUser";
 import { ChatReturnType } from "../chat/useChat";
-import { jp } from "../../utils/validation/jsonParse";
+import { jp } from "../../utils/safeFunctions";
 import { ChatBotMessageBody } from "../../constants/types/chat";
 import { areAddressesEqual } from "../../utils/validation/wallet";
 import { isAddress } from "viem";

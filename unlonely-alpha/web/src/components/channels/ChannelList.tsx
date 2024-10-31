@@ -4,6 +4,7 @@ import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { Channel } from "../../generated/graphql";
 import ChannelCard from "./ChannelCard";
 import useUserAgent from "../../hooks/internal/useUserAgent";
+import { safeIncludes } from "../../utils/safeFunctions";
 
 type Props = {
   channels: Channel[];
@@ -45,13 +46,15 @@ const ChannelList = memo(
     const filteredChannels = useMemo(() => {
       return channels?.filter((c) =>
         debouncedSearch.length > 0
-          ? c.owner.username
-              ?.toLowerCase()
-              ?.includes(debouncedSearch?.toLowerCase()) ||
-            c.owner.address
-              .toLowerCase()
-              ?.includes(debouncedSearch?.toLowerCase()) ||
-            c.slug.toLowerCase()?.includes(debouncedSearch?.toLowerCase())
+          ? safeIncludes(
+              c.owner.username?.toLowerCase(),
+              debouncedSearch?.toLowerCase()
+            ) ||
+            safeIncludes(
+              c.owner.address?.toLowerCase(),
+              debouncedSearch?.toLowerCase()
+            ) ||
+            safeIncludes(c.slug?.toLowerCase(), debouncedSearch?.toLowerCase())
           : c
       );
     }, [channels, debouncedSearch]);
@@ -113,9 +116,7 @@ const ChannelList = memo(
                   <ChannelCard
                     key={h.id}
                     channel={h}
-                    subscribed={
-                      suggestedChannels?.includes(String(h.id)) ?? false
-                    }
+                    subscribed={safeIncludes(suggestedChannels, String(h.id))}
                     addChannelToSubscription={addChannelToSubscription}
                     removeChannelFromSubscription={
                       removeChannelFromSubscription

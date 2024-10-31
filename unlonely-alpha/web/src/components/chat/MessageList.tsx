@@ -22,7 +22,7 @@ import useUpdatePinnedChatMessages from "../../hooks/server/channel/useUpdatePin
 import PinnedMessageBody from "./PinnedMessageBody";
 import { useZoraCollect1155 } from "../../hooks/contracts/useZoraCollect1155";
 import { TransactionReceipt } from "viem";
-import { jp } from "../../utils/validation/jsonParse";
+import { jp, safeIncludes } from "../../utils/safeFunctions";
 
 type MessageListProps = {
   messages: Message[];
@@ -132,7 +132,8 @@ const MessageList = memo(
           const isVip = m.data.senderStatus === SenderStatus.VIP;
           const isChatbotWithAcceptableInteractionType =
             m.data.senderStatus === SenderStatus.CHATBOT &&
-            !excludedChatbotInteractionTypesInVipChat?.includes(
+            safeIncludes(
+              excludedChatbotInteractionTypesInVipChat,
               (jp(m.data.body ?? "") as ChatBotMessageBody)?.interactionType
             );
           return (
@@ -149,7 +150,7 @@ const MessageList = memo(
 
     const handleUpdatePinnedChatMessages = async (value: string) => {
       if (channelQueryData?.id) {
-        const isPinned = pinnedChatMessages?.includes(value);
+        const isPinned = safeIncludes(pinnedChatMessages, value);
         let updatedPinnedChatMessages: string[] = [];
         if (isPinned) {
           updatedPinnedChatMessages = pinnedChatMessages.filter(

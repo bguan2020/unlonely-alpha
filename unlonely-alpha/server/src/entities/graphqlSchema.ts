@@ -115,6 +115,6 @@ export default makeExecutableSchema({
     vibesResolvers,
     tempTokenResolvers,
     packageResolvers,
-    roomResolvers,
+    roomResolvers
   ),
 });

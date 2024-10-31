@@ -38,6 +38,7 @@ import { streamerTourSteps } from "../../pages/_app";
 
 import { NULL_ADDRESS } from "../../constants";
 import { Message } from "../../constants/types/chat";
+import { safeIncludes } from "../../utils/safeFunctions";
 
 type Props = {
   messages: Message[];
@@ -642,7 +643,10 @@ const ChatForm = ({
                       setInstantCommandSend(false);
                     }}
                     onCommandClick={(text: string) => {
-                      if (instantCommandSend && !text?.includes("!chatbot")) {
+                      if (
+                        instantCommandSend &&
+                        !safeIncludes(text, "!chatbot")
+                      ) {
                         sendChatMessage(text, false, currSenderStatus);
                       } else {
                         focusInput();

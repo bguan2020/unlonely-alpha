@@ -29,12 +29,10 @@ export default async function handler(req: any, res: any) {
         .json({ success: true, audio: audioBuffer.toString("base64") });
     } catch (error) {
       console.error("Error with TTS streaming:", error);
-      res
-        .status(500)
-        .json({
-          error: "TTS streaming failed",
-          details: (error as any).message,
-        });
+      res.status(500).json({
+        error: "TTS streaming failed",
+        details: (error as any).message,
+      });
     }
   } else {
     res.status(405).json({ message: "Method not allowed" });

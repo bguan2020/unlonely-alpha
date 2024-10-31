@@ -73,12 +73,12 @@ export const useSolanaTokenBalance = () => {
     } else {
       setBalance(Math.max(balance + amount, 0));
     }
-  }
+  };
 
   return {
     balance,
     loading,
     fetchTokenBalance,
-    manualAddToBalance
+    manualAddToBalance,
   };
 };

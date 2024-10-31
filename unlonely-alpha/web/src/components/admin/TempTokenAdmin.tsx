@@ -32,6 +32,7 @@ import copy from "copy-to-clipboard";
 import { FaRegCopy } from "react-icons/fa";
 import { Contract } from "../../constants";
 import { getContractFromNetwork } from "../../utils/contract";
+import { safeIncludes } from "../../utils/safeFunctions";
 // import { verifyTempTokenV1OnBase } from "../../utils/contract-verification/tempToken";
 
 type DetailedTempToken = TempToken & {
@@ -293,7 +294,8 @@ export const TempTokenAdmin = () => {
                   <Tr
                     key={index}
                     bgColor={
-                      tokenAddressesIncludedForOperation?.includes(
+                      safeIncludes(
+                        tokenAddressesIncludedForOperation,
                         token.tokenAddress
                       )
                         ? "unset"
@@ -343,7 +345,8 @@ export const TempTokenAdmin = () => {
                         _active={{}}
                         onClick={() => {
                           if (
-                            !tokenAddressesIncludedForOperation?.includes(
+                            !safeIncludes(
+                              tokenAddressesIncludedForOperation,
                               token.tokenAddress
                             )
                           ) {
@@ -360,7 +363,8 @@ export const TempTokenAdmin = () => {
                           }
                         }}
                       >
-                        {tokenAddressesIncludedForOperation?.includes(
+                        {safeIncludes(
+                          tokenAddressesIncludedForOperation,
                           token.tokenAddress
                         )
                           ? "✅"

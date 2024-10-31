@@ -1,5 +1,6 @@
 import { LivepeerViewershipMetrics } from "../generated/graphql";
 import { MergedMetrics } from "../pages/metrics";
+import { safeIncludes } from "./safeFunctions";
 
 export const mergeMetrics = (data: LivepeerViewershipMetrics[]) => {
   const allTimestamps = new Set<number>();
@@ -78,7 +79,7 @@ export const mergeMetrics = (data: LivepeerViewershipMetrics[]) => {
 
   const totalViewCountArray = viewCountsResult.map((item) => {
     const countableKeys = Object.keys(item).filter((key) =>
-      key.includes("_viewCount")
+      safeIncludes(key, "_viewCount")
     );
     const sumOfViewCounts = countableKeys
       .map((key) => item[key])
@@ -91,7 +92,7 @@ export const mergeMetrics = (data: LivepeerViewershipMetrics[]) => {
 
   const totalPlaytimeMinsArray = playtimeMinsResult.map((item) => {
     const countableKeys = Object.keys(item).filter((key) =>
-      key.includes("_playtimeMins")
+      safeIncludes(key, "_playtimeMins")
     );
     const sumOfPlaytimeMins = countableKeys
       .map((key) => item[key])

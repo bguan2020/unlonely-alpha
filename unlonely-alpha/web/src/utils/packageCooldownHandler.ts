@@ -1,5 +1,6 @@
 import { RESET_COOLDOWNS_NAME } from "../constants";
 import { PackageInfo } from "../pages/modcenter";
+import { safeIncludes } from "./safeFunctions";
 
 type NewPackageCooldown = {
   name: string;
@@ -26,7 +27,7 @@ export const createPackageCooldownArray = (
         lastUsedAt: String(now),
         usableAt: _userPackageCooldownMapping?.[name]?.usableAt ?? "0",
       };
-    } else if (!(namesOfPackagesExcused?.includes(name))) {
+    } else if (!safeIncludes(namesOfPackagesExcused, name)) {
       return {
         name,
         lastUsedAt: _userPackageCooldownMapping?.[name]?.lastUsedAt ?? "0",

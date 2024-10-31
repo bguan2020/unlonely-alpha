@@ -9,6 +9,7 @@ import {
   TEXT_TO_SPEECH_PACKAGE_NAME,
 } from "../../constants";
 import { RoomInfo } from "../../pages/modcenter";
+import { safeIncludes } from "../../utils/safeFunctions";
 
 export const BooPackageCooldownResetComponent = ({
   dateNow,
@@ -44,7 +45,7 @@ export const BooPackageCooldownResetComponent = ({
   const hasOtherCooldowns = useMemo(() => {
     const iterable = Object.entries(userBooPackageCooldowns ?? {}).filter(
       ([key]) =>
-        currentRoom?.availablePackages?.includes(key) ||
+        safeIncludes(currentRoom?.availablePackages, key) ||
         key === TEXT_TO_SPEECH_PACKAGE_NAME
     );
     for (const [key, value] of iterable) {

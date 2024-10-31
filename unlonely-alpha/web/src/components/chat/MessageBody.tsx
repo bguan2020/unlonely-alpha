@@ -20,7 +20,7 @@ import { formatTimestampToTime } from "../../utils/time";
 import { TiPin } from "react-icons/ti";
 import { MessageItemProps } from "./MessageList";
 import { messageStyle } from "../../utils/messageStyle";
-import { jp } from "../../utils/validation/jsonParse";
+import { jp } from "../../utils/safeFunctions";
 import { NfcClipMintInterface } from "../general/NfcClipMintInterface";
 import trailString from "../../utils/trailString";
 import { areAddressesEqual } from "../../utils/validation/wallet";

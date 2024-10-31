@@ -28,7 +28,7 @@ import { useChannelContext } from "../../../hooks/context/useChannel";
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import { ChatReturnType } from "../../../hooks/chat/useChat";
 import { ChatBotMessageBody } from "../../../constants/types/chat";
-import { jp } from "../../../utils/validation/jsonParse";
+import { jp } from "../../../utils/safeFunctions";
 
 export const VipBadgeBuy = ({ chat }: { chat: ChatReturnType }) => {
   const { wagmiAddress, user, ready, authenticated } = useUser();

@@ -194,7 +194,6 @@ export const INITIAL_FORM_CONFIG: IFormConfigurator = Object.freeze({
   useUserSlippage: true,
 });
 
-
 export const TEXT_TO_SPEECH_PACKAGE_NAME = "text-to-speech";
 export const RESET_COOLDOWNS_NAME = "reset-cooldowns";
 
@@ -216,16 +215,22 @@ export enum ScarePackageName {
   FART_SPRAY = "fart-spray",
 }
 
-export const CarePackageToTooltipDescription: Record<CarePackageName, string> = {
-  [CarePackageName.WATER_BOTTLE]: "send water to a thirsty contestant",
-  [CarePackageName.TOILET]: "let a contestant use the bathroom",
-  [CarePackageName.PIZZA]: "send pizza to a hungry contestant",
-  [CarePackageName.TORCH]: "too dark? send 1 light-able match",
-  [CarePackageName.PAPER_ROLL]: "things got messy? send 1 sheet of paper towel",
-  [CarePackageName.PHONE]: "give a contestant their phone for 1 min to make a desperate tweet",
-};
+export const CarePackageToTooltipDescription: Record<CarePackageName, string> =
+  {
+    [CarePackageName.WATER_BOTTLE]: "send water to a thirsty contestant",
+    [CarePackageName.TOILET]: "let a contestant use the bathroom",
+    [CarePackageName.PIZZA]: "send pizza to a hungry contestant",
+    [CarePackageName.TORCH]: "too dark? send 1 light-able match",
+    [CarePackageName.PAPER_ROLL]:
+      "things got messy? send 1 sheet of paper towel",
+    [CarePackageName.PHONE]:
+      "give a contestant their phone for 1 min to make a desperate tweet",
+  };
 
-export const ScarePackageToTooltipDescription: Record<ScarePackageName, string> = {
+export const ScarePackageToTooltipDescription: Record<
+  ScarePackageName,
+  string
+> = {
   [ScarePackageName.BLACKOUT]: "turn all the lights out in this room for 1 min",
   [ScarePackageName.FOG]: "add some fog to this room",
   [ScarePackageName.BOOM]: "???",
@@ -235,7 +240,8 @@ export const ScarePackageToTooltipDescription: Record<ScarePackageName, string> 
 };
 
 export const PackageNameToModalTitle: Record<string, string> = {
-  [TEXT_TO_SPEECH_PACKAGE_NAME]: "send a custom text-to-speech message to contestants!",
+  [TEXT_TO_SPEECH_PACKAGE_NAME]:
+    "send a custom text-to-speech message to contestants!",
   [RESET_COOLDOWNS_NAME]: "reset package cooldowns to start using them again!",
   [CarePackageName.WATER_BOTTLE]: "send water to a contestant!",
   [CarePackageName.TOILET]: "let a contestant use the bathroom!",
@@ -255,20 +261,24 @@ export const PackageNameToModalExampleMessage: Record<string, string> = {
   [TEXT_TO_SPEECH_PACKAGE_NAME]: "tell rasmr to stop bitching",
   [CarePackageName.WATER_BOTTLE]: "send this bottle of water to my gf linda",
   [CarePackageName.TOILET]: "let sarah use the bathroom omg",
-  [CarePackageName.PIZZA]: "send pizza to rasmr so he has energy to keep getting spanked",
+  [CarePackageName.PIZZA]:
+    "send pizza to rasmr so he has energy to keep getting spanked",
   [CarePackageName.TORCH]: "send a match to sarah she's so blind rn",
   [CarePackageName.PAPER_ROLL]: "send 1 paper towel to linda pls",
   [CarePackageName.PHONE]: "tell rasmr it better be a banger tweet",
-  [ScarePackageName.WHALE]: "suggest something and we'll do everything in our power to make it happen",
+  [ScarePackageName.WHALE]:
+    "suggest something and we'll do everything in our power to make it happen",
   [ScarePackageName.FIREBALL]: "send this shot to rasmr frrrrr",
-}
+};
 
 export const PackageNameToModalDescription: Record<string, string> = {
-  [ScarePackageName.BLACKOUT]: "turn the lights off in this room for 30 seconds",
-  [ScarePackageName.FOG]: "we'll turn the fog machine on in this room for 1 minute",
+  [ScarePackageName.BLACKOUT]:
+    "turn the lights off in this room for 30 seconds",
+  [ScarePackageName.FOG]:
+    "we'll turn the fog machine on in this room for 1 minute",
   [ScarePackageName.BOOM]: "send it to find out 👀",
   [ScarePackageName.FART_SPRAY]: "it's time to stink up this room",
-}
+};
 
 export enum BooRoom {
   WAITING_ROOM = "waiting-room",

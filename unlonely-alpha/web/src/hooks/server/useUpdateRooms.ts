@@ -10,13 +10,13 @@ import {
 } from "../../generated/graphql";
 
 const MUTATION = gql`
-    mutation UpdateRooms($data: UpdateRoomsInput!) {
-      updateRooms(data: $data) {
-        availablePackages
-        inUse
-        roomName
-      }
+  mutation UpdateRooms($data: UpdateRoomsInput!) {
+    updateRooms(data: $data) {
+      availablePackages
+      inUse
+      roomName
     }
+  }
 `;
 
 export const useUpdateRooms = ({

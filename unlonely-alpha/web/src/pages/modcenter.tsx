@@ -31,6 +31,7 @@ import { FaLongArrowAltRight, FaLongArrowAltLeft } from "react-icons/fa";
 import { CHANNEL_ID_TO_USE } from "../components/layout/BooEventWrapper";
 import { useUpdateRooms } from "../hooks/server/useUpdateRooms";
 import { filteredInput } from "../utils/validation/input";
+import { safeIncludes } from "../utils/safeFunctions";
 
 export const INTERACTIONS_CHANNEL = "persistMessages:interactions";
 
@@ -316,7 +317,7 @@ const ModCenter = () => {
         paymentId: "test123",
         userId: "userTest",
         textToSpeak: `${
-          interaction.userId?.includes(".")
+          safeIncludes(interaction.userId, ".")
             ? interaction.userId
             : interaction.userId.slice(0, 4)
         } sent you the following message: ${interaction.text}`,
@@ -717,7 +718,7 @@ const ModCenter = () => {
                     fontStyle={"italic"}
                     fontWeight={"bold"}
                   >
-                    {interaction.userId?.includes(".")
+                    {safeIncludes(interaction.userId, ".")
                       ? interaction.userId
                       : interaction.userId.slice(0, 4)}
                   </Text>

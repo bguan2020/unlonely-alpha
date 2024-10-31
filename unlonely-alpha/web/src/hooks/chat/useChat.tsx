@@ -15,7 +15,7 @@ import {
 } from "../../constants/types/chat";
 import { useChatChannel } from "./useChatChannel";
 import { ChatBot } from "../../constants/types";
-import { jp } from "../../utils/validation/jsonParse";
+import { jp } from "../../utils/safeFunctions";
 
 export type ChatReturnType = {
   channel: AblyChannelPromise;

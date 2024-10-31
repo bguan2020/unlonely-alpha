@@ -401,7 +401,6 @@ export const updateUsername = async (
   data: IUpdateUsernameInput,
   ctx: Context
 ) => {
-
   const isUsernameTaken = await ctx.prisma.user.findFirst({
     where: {
       username: data.username,
@@ -409,7 +408,9 @@ export const updateUsername = async (
   });
 
   if (isUsernameTaken) {
-    throw new Error("Cannot update username, it is already taken by another user");
+    throw new Error(
+      "Cannot update username, it is already taken by another user"
+    );
   }
 
   return await ctx.prisma.user.update({

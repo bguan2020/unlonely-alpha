@@ -7,7 +7,7 @@ import { ChatReturnType } from "../../../chat/useChat";
 import { useChannelContext } from "../../../context/useChannel";
 import { useScreenAnimationsContext } from "../../../context/useScreenAnimations";
 import { Text } from "@chakra-ui/react";
-import { jp } from "../../../../utils/validation/jsonParse";
+import { jp } from "../../../../utils/safeFunctions";
 import { ChatBotMessageBody } from "../../../../constants/types/chat";
 import { areAddressesEqual } from "../../../../utils/validation/wallet";
 

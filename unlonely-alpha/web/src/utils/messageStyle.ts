@@ -1,6 +1,6 @@
 import { InteractionType } from "../constants";
 import { ChatBotMessageBody } from "../constants/types/chat";
-import { jp } from "./validation/jsonParse";
+import { jp, safeIncludes } from "./safeFunctions";
 
 const deepBlueEventTypes = [
   InteractionType.EVENT_LIVE,
@@ -44,16 +44,13 @@ const redTempTokenInteractionTypes = [
 export const messageStyle = (dataBody?: string) => {
   if (!dataBody) return {};
   const jpData = jp(dataBody) as ChatBotMessageBody;
-  if (
-    dataBody &&
-    (deepBlueEventTypes as string[])?.includes(jpData.interactionType)
-  ) {
+  if (dataBody && safeIncludes(deepBlueEventTypes, jpData.interactionType)) {
     return {
       bg: "rgba(63, 59, 253, 1)",
     };
   } else if (
     dataBody &&
-    (blueTempTokenInteractionTypes as string[])?.includes(jpData.interactionType)
+    safeIncludes(blueTempTokenInteractionTypes, jpData.interactionType)
   ) {
     return {
       bg: "rgba(34, 167, 255, 0.26)",
@@ -64,9 +61,7 @@ export const messageStyle = (dataBody?: string) => {
     };
   } else if (
     dataBody &&
-    (greenTempTokenInteractionTypes as string[])?.includes(
-      jpData.interactionType
-    )
+    safeIncludes(greenTempTokenInteractionTypes, jpData.interactionType)
   ) {
     return {
       bg: "rgba(55, 255, 139, 0.26)",
@@ -77,7 +72,7 @@ export const messageStyle = (dataBody?: string) => {
     };
   } else if (
     dataBody &&
-    (redTempTokenInteractionTypes as string[])?.includes(jpData.interactionType)
+    safeIncludes(redTempTokenInteractionTypes, jpData.interactionType)
   ) {
     return {
       bg: "rgba(255, 0, 0, 0.26)",
@@ -88,7 +83,7 @@ export const messageStyle = (dataBody?: string) => {
     };
   } else if (
     dataBody &&
-    (purpleEventTypes as string[])?.includes(jpData.interactionType)
+    safeIncludes(purpleEventTypes, jpData.interactionType)
   ) {
     return {
       bg: "rgba(172, 166, 255, 0.26)",

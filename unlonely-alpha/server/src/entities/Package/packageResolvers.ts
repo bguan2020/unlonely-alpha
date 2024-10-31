@@ -16,7 +16,7 @@ export const resolvers = {
       ctx: Context
     ) => {
       if (!ctx.user) {
-          throw new AuthenticationError("User is not authenticated");
+        throw new AuthenticationError("User is not authenticated");
       }
       return packageService.updatePackage(data, ctx);
     },

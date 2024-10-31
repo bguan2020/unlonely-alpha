@@ -22,6 +22,7 @@ import { SlArrowDown, SlArrowUp } from "react-icons/sl";
 import copy from "copy-to-clipboard";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import { safeIncludes } from "../../utils/safeFunctions";
 
 const unacceptedErrors = [
   "Failed to connect to peer.",
@@ -115,7 +116,7 @@ const LivepeerPlayer = memo(
               e?.message &&
               e?.message?.length > 0 &&
               e?.type === "unknown" &&
-              !unacceptedErrors?.includes(e?.message)
+              !safeIncludes(unacceptedErrors, e?.message)
             ) {
               console.log("Error playing video", JSON.stringify(e));
               setError(JSON.stringify(e));

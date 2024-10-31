@@ -28,6 +28,7 @@ import { TabsComponent } from "./TabsComponent";
 // import { MobileVersusTempTokensInterface } from "../channels/layout/versus/MobileVersusTempTokensInterface";
 import { useTempTokenContext } from "../../hooks/context/useTempToken";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
+import { safeIncludes } from "../../utils/safeFunctions";
 // import Participants from "../presence/Participants";
 
 const StandaloneChatComponent = ({
@@ -108,7 +109,8 @@ const StandaloneChatComponent = ({
 
   const channelCanNotify = useMemo(
     () =>
-      data?.getSubscriptionByEndpoint?.allowedChannels?.includes(
+      safeIncludes(
+        data?.getSubscriptionByEndpoint?.allowedChannels,
         String(channelId)
       ),
     [channelId, data]
@@ -204,7 +206,7 @@ const StandaloneChatComponent = ({
       position={"relative"}
       marginTop={"25vh"}
     >
-      {chatChannel?.includes("channel") ? (
+      {safeIncludes(chatChannel, "channel") ? (
         <Flex justifyContent={"space-between"} py="2px">
           <Flex alignItems="center">
             <IconButton

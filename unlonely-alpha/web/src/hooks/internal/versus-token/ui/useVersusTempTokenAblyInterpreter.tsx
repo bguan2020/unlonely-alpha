@@ -13,7 +13,7 @@ import {
   VersusTokenDataType,
 } from "../../../../constants/types/token";
 import { ChatBotMessageBody } from "../../../../constants/types/chat";
-import { jp } from "../../../../utils/validation/jsonParse";
+import { jp } from "../../../../utils/safeFunctions";
 import { areAddressesEqual } from "../../../../utils/validation/wallet";
 
 export const useVersusTempTokenAblyInterpreter = (chat: ChatReturnType) => {

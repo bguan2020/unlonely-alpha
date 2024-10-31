@@ -21,6 +21,7 @@ import {
   useGetClaimBetEventsInitial,
 } from "../internal/useGetClaimBetEvents";
 import useUserAgent from "../internal/useUserAgent";
+import { safeIncludes } from "../../utils/safeFunctions";
 
 const pathnamesAcceptedForFetchingChannelFeed = ["/claim"];
 
@@ -115,8 +116,9 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (
       wagmiAddress &&
-      appErrors.filter((err) => err.name?.includes("ConnectorNotFoundError"))
-        .length > 0 &&
+      appErrors.filter((err) =>
+        safeIncludes(err.name, "ConnectorNotFoundError")
+      ).length > 0 &&
       !toast.isActive("no-connector") &&
       !isStandalone
     ) {
