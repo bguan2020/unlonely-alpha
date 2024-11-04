@@ -38,5 +38,5 @@ export const createPackageCooldownArray = (
     }
   });
 
-  return array.filter((item) => item !== null) as NewPackageCooldown[];
+  return array?.filter((item) => item !== null) as NewPackageCooldown[];
 };

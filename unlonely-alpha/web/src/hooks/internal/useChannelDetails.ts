@@ -132,7 +132,7 @@ export const useChannelDetails = (slug: string | string[] | undefined) => {
         setChannelRoles((prev) => [...prev, { address, role }]);
       } else {
         setChannelRoles((prev) =>
-          prev.filter((r) => r.address !== address && r.role !== role)
+          prev?.filter((r) => r.address !== address && r.role !== role)
         );
       }
     },
@@ -141,7 +141,7 @@ export const useChannelDetails = (slug: string | string[] | undefined) => {
 
   useEffect(() => {
     if (channelQueryData?.vibesTokenPriceRange) {
-      const filteredArray = channelQueryData?.vibesTokenPriceRange.filter(
+      const filteredArray = channelQueryData?.vibesTokenPriceRange?.filter(
         (str): str is string => str !== null
       );
       if (filteredArray.length === 2) {
@@ -152,7 +152,7 @@ export const useChannelDetails = (slug: string | string[] | undefined) => {
 
   useEffect(() => {
     if (channelQueryData?.pinnedChatMessages) {
-      const filteredArray = channelQueryData?.pinnedChatMessages.filter(
+      const filteredArray = channelQueryData?.pinnedChatMessages?.filter(
         (str): str is string => str !== null
       );
       handlePinnedChatMessages(filteredArray);
@@ -161,7 +161,7 @@ export const useChannelDetails = (slug: string | string[] | undefined) => {
 
   useEffect(() => {
     if (channelQueryData?.roles) {
-      const filteredArray = channelQueryData?.roles.filter(
+      const filteredArray = channelQueryData?.roles?.filter(
         (
           role
         ): role is {

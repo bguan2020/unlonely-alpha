@@ -67,10 +67,10 @@ const Participants = ({ ablyPresenceChannel, show }: Props) => {
   useEffect(() => {
     if (presenceData) {
       // split presenceData into two arrays, one where data.user exists, and one where it doesn't
-      const presenceDataWithUser = presenceData.filter(
+      const presenceDataWithUser = presenceData?.filter(
         (presence) => presence.data?.user
       );
-      const presenceDataWithoutUser = presenceData.filter(
+      const presenceDataWithoutUser = presenceData?.filter(
         (presence) => !presence.data?.user
       );
 
@@ -80,7 +80,7 @@ const Participants = ({ ablyPresenceChannel, show }: Props) => {
       );
 
       // remove duplicates so only 1 of each user.address is shown
-      const uniquePresenceDataWithUser = presenceDataWithUserRandom.filter(
+      const uniquePresenceDataWithUser = presenceDataWithUserRandom?.filter(
         (presence, index, self) => {
           return (
             index ===

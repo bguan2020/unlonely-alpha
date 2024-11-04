@@ -127,7 +127,7 @@ const MessageList = memo(
     const { selectedUserInChat, handleSelectedUserInChat } = ui;
     const chatMessages = useMemo(() => {
       if (isVipChat) {
-        return messages.filter((m) => {
+        return messages?.filter((m) => {
           const isChatMessageEvent = m.name === CHAT_MESSAGE_EVENT;
           const isVip = m.data.senderStatus === SenderStatus.VIP;
           const isChatbotWithAcceptableInteractionType =
@@ -142,7 +142,7 @@ const MessageList = memo(
           );
         });
       } else {
-        return messages.filter((m) => m.name === CHAT_MESSAGE_EVENT);
+        return messages?.filter((m) => m.name === CHAT_MESSAGE_EVENT);
       }
     }, [messages, isVipChat]);
 
@@ -153,7 +153,7 @@ const MessageList = memo(
         const isPinned = safeIncludes(pinnedChatMessages, value);
         let updatedPinnedChatMessages: string[] = [];
         if (isPinned) {
-          updatedPinnedChatMessages = pinnedChatMessages.filter(
+          updatedPinnedChatMessages = pinnedChatMessages?.filter(
             (item) => item !== value
           );
         } else {

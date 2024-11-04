@@ -402,7 +402,7 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
               {interfaceChartData.timeFilter === "all" && (
                 <>
                   {Array.from(readTempTokenTxs.tempTokenChartTimeIndexes.keys())
-                    .filter((i) => safeIncludes(i, "d"))
+                    ?.filter((i) => safeIncludes(i, "d"))
                     .map((key) => {
                       return (
                         <ReferenceLine
@@ -419,7 +419,7 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
                     })}
                   {[...Array(NUMBER_OF_DAYS_IN_MONTH).keys()]
                     .map((i) => i + 1)
-                    .filter(
+                    ?.filter(
                       (d) =>
                         readTempTokenTxs.tempTokenChartTimeIndexes.get(`${d}d`)
                           ?.blockNumber === undefined
@@ -444,7 +444,7 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
               {interfaceChartData.timeFilter === "1d" && (
                 <>
                   {Array.from(readTempTokenTxs.tempTokenChartTimeIndexes.keys())
-                    .filter((i) => safeIncludes(i, "h"))
+                    ?.filter((i) => safeIncludes(i, "h"))
                     .map((key) => {
                       return (
                         <ReferenceLine
@@ -461,7 +461,7 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
                     })}
                   {[...Array(NUMBER_OF_HOURS_IN_DAY).keys()]
                     .map((i) => i + 1)
-                    .filter(
+                    ?.filter(
                       (h) =>
                         readTempTokenTxs.tempTokenChartTimeIndexes.get(`${h}h`)
                           ?.blockNumber === undefined

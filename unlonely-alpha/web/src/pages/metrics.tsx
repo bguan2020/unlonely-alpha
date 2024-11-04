@@ -357,7 +357,7 @@ const Graphs = memo(
               ?.filter(
                 (item): item is LivepeerViewershipMetrics => item !== null
               )
-              .filter((item) =>
+              ?.filter((item) =>
                 safeIncludes(EXCLUDED_PLAYBACK_IDS, item.playbackId)
               );
             if (nonNullData && nonNullData.length > 0) {
@@ -472,13 +472,13 @@ const Graphs = memo(
         const enumerableArray = Object.entries(payload[0].payload);
         setTimeStamp(payload[0].payload["timestamp"]);
         setTotalViews(
-          enumerableArray.filter(
+          enumerableArray?.filter(
             ([key]) => key === "totalViewCount"
           )[0][1] as number
         );
         const _activeChannels = enumerableArray
-          .filter(([key, value]) => safeIncludes(key, "_viewCount"))
-          .filter(([key, value]) => (value as number) > 0);
+          ?.filter(([key, value]) => safeIncludes(key, "_viewCount"))
+          ?.filter(([key, value]) => (value as number) > 0);
         const _topTenPerformingChannels = activeChannels
           .sort((a, b) => (b[1] as number) - (a[1] as number))
           .slice(0, 10);
@@ -552,13 +552,13 @@ const Graphs = memo(
         const enumerableArray = Object.entries(payload[0].payload);
         setTimeStamp(payload[0].payload["timestamp"]);
         setTotalPlaytime(
-          enumerableArray.filter(
+          enumerableArray?.filter(
             ([key]) => key === "totalPlaytimeMins"
           )[0][1] as number
         );
         const _activeChannels = enumerableArray
-          .filter(([key, value]) => safeIncludes(key, "_playtimeMins"))
-          .filter(([key, value]) => (value as number) > 0);
+          ?.filter(([key, value]) => safeIncludes(key, "_playtimeMins"))
+          ?.filter(([key, value]) => (value as number) > 0);
         const _topTenPerformingChannels = activeChannels
           .sort((a, b) => (b[1] as number) - (a[1] as number))
           .slice(0, 10);
@@ -961,7 +961,7 @@ const saveMetricsAsCsv = (
     keyword === "playtimeMins" ? "_playtimeMins" : "_viewCount";
 
   // Extract all unique playbackIds
-  const playbackIds = Object.keys(data[0]).filter(
+  const playbackIds = Object.keys(data[0])?.filter(
     (key) => key !== "timestamp" && key !== totalKeyword
   );
 

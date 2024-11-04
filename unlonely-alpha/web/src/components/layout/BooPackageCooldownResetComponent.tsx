@@ -43,7 +43,7 @@ export const BooPackageCooldownResetComponent = ({
   }, [userBooPackageCooldowns, dateNow, booPackageMap]);
 
   const hasOtherCooldowns = useMemo(() => {
-    const iterable = Object.entries(userBooPackageCooldowns ?? {}).filter(
+    const iterable = Object.entries(userBooPackageCooldowns ?? {})?.filter(
       ([key]) =>
         safeIncludes(currentRoom?.availablePackages, key) ||
         key === TEXT_TO_SPEECH_PACKAGE_NAME

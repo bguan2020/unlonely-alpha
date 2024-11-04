@@ -158,7 +158,7 @@ export const UserProvider = ({
     if (privyUser?.linkedAccounts.length === 1)
       return privyUser?.linkedAccounts[0];
     const accountWithLatestVerifiedAt = privyUser?.linkedAccounts
-      .filter((account) => account.latestVerifiedAt instanceof Date) // Filter accounts with a valid Date
+      ?.filter((account) => account.latestVerifiedAt instanceof Date) // Filter accounts with a valid Date
       .reduce((latest: any, current) => {
         if (
           !latest ||
@@ -361,7 +361,7 @@ export const UserProvider = ({
       >
         <Flex direction={"column"} gap="5px">
           {privyUser?.linkedAccounts
-            .filter((account) => account.type === "wallet")
+            ?.filter((account) => account.type === "wallet")
             .map((account, i) => {
               const foundWallet = wallets.find(
                 (w) => w.address === (account as WalletWithMetadata).address
@@ -469,7 +469,7 @@ export const UserProvider = ({
                         {foundWallet ? "set active" : "connect"}
                       </Button>
                     )}
-                    {privyUser?.linkedAccounts.filter(
+                    {privyUser?.linkedAccounts?.filter(
                       (account) => account.type === "wallet"
                     ).length > 1 && (
                       <Tooltip label="unlink wallet" shouldWrapChildren>

@@ -351,21 +351,21 @@ function MobileHomePage({
   }, [initialNotificationsGranted]);
 
   useEffect(() => {
-    const liveChannels = channels.filter((channel) => channel.isLive);
+    const liveChannels = channels?.filter((channel) => channel.isLive);
     const _suggestedNonLiveChannels = suggestedChannels
-      ? channels.filter(
+      ? channels?.filter(
           (channel) =>
             safeIncludes(suggestedChannels, String(channel.id)) &&
             !channel.isLive
         )
       : [];
     const otherChannels = suggestedChannels
-      ? channels.filter(
+      ? channels?.filter(
           (channel) =>
             !safeIncludes(suggestedChannels, String(channel.id)) &&
             !channel.isLive
         )
-      : channels.filter((channel) => !channel.isLive);
+      : channels?.filter((channel) => !channel.isLive);
     const sortedLiveChannels = sortChannels(liveChannels);
     const sortedSuggestedNonLiveChannels = sortChannels(
       _suggestedNonLiveChannels

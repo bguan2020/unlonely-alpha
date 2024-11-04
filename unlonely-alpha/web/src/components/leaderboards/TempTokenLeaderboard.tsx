@@ -47,7 +47,7 @@ const TempTokenLeaderboard = () => {
 
   const dataset = useMemo(
     () =>
-      (data?.getTempTokens ?? []).filter(
+      (data?.getTempTokens ?? [])?.filter(
         (token): token is TempToken => token !== null
       ),
     [data]

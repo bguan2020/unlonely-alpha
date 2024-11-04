@@ -72,7 +72,7 @@ export default function Commands({
   const [currentOpen, setCurrentOpen] = useState(open);
 
   const matchingList = useMemo(() => {
-    return aggregatedCommandList.filter((command) => {
+    return aggregatedCommandList?.filter((command) => {
       return safeIncludes(command.value, chat);
     });
   }, [aggregatedCommandList, chat]);

@@ -32,7 +32,7 @@ export default function ModeratorModal({
   });
 
   const moderators = useMemo(
-    () => channelRoles.filter((role) => role?.role === 2),
+    () => channelRoles?.filter((role) => role?.role === 2),
     [channelRoles]
   );
 

@@ -116,7 +116,7 @@ const Nfcs = () => {
         },
       });
       const nfcs: NfcFeedQuery["getNFCFeed"] = nfcsData?.data?.getNFCFeed ?? [];
-      const filteredNfcs = (nfcs ?? []).filter(
+      const filteredNfcs = (nfcs ?? [])?.filter(
         (nfc): nfc is NonNullable<typeof nfc> =>
           nfc !== null && nfc !== undefined
       );

@@ -103,7 +103,7 @@ const ModCenter = () => {
         } = JSON.parse(message.data.body);
         setReceivedPackageInteractions((prevInteractions) => {
           // Filter out any interactions with the same ID
-          const filteredInteractions = prevInteractions.filter(
+          const filteredInteractions = prevInteractions?.filter(
             (interaction) => interaction.id !== packageInfoBody.id
           );
 
@@ -129,7 +129,7 @@ const ModCenter = () => {
 
         setReceivedTtsInteractions((prevInteractions) => {
           // Filter out any interactions with the same ID
-          const filteredInteractions = prevInteractions.filter(
+          const filteredInteractions = prevInteractions?.filter(
             (interaction) => interaction.id !== ttsBody.id
           );
 
@@ -215,7 +215,7 @@ const ModCenter = () => {
     });
     const ttsInteractions: { id: string; userId: string; text?: string }[] =
       interactions?.getStreamInteractions
-        .filter(
+        ?.filter(
           (i: any) => i.interactionType === StreamInteractionType.TtsInteraction
         )
         .map((interaction: any) => {
@@ -227,7 +227,7 @@ const ModCenter = () => {
           };
         });
     const packageInteractions = interactions?.getStreamInteractions
-      .filter(
+      ?.filter(
         (i: any) =>
           i.interactionType === StreamInteractionType.PackageInteraction
       )
@@ -283,7 +283,7 @@ const ModCenter = () => {
           ];
         });
         setReceivedTtsInteractions((prevInteractions) =>
-          prevInteractions.filter(
+          prevInteractions?.filter(
             (_interaction) => _interaction.id !== interaction.id
           )
         );
@@ -299,7 +299,7 @@ const ModCenter = () => {
           ];
         });
         setQueuedTtsInteractions((prevInteractions) =>
-          prevInteractions.filter(
+          prevInteractions?.filter(
             (_interaction) => _interaction.id !== interaction.id
           )
         );
@@ -333,7 +333,7 @@ const ModCenter = () => {
     // Set up the event listener to handle when the audio finishes
     audio.onended = async () => {
       setQueuedTtsInteractions((prevInteractions) =>
-        prevInteractions.filter(
+        prevInteractions?.filter(
           (_interaction) => _interaction.id !== interaction.id
         )
       );
@@ -343,7 +343,7 @@ const ModCenter = () => {
         softDeleted: true,
       });
       setReceivedTtsInteractions((prevInteractions) =>
-        prevInteractions.filter(
+        prevInteractions?.filter(
           (_interaction) => _interaction.id !== interaction.id
         )
       );
@@ -550,7 +550,7 @@ const ModCenter = () => {
               <Text>
                 Care Packages (
                 {
-                  receivedPackageInteractions.filter(
+                  receivedPackageInteractions?.filter(
                     (interaction) => interaction.isCarePackage
                   ).length
                 }
@@ -563,7 +563,7 @@ const ModCenter = () => {
                 overflowY={"scroll"}
               >
                 {receivedPackageInteractions
-                  .filter((interaction) => interaction.isCarePackage)
+                  ?.filter((interaction) => interaction.isCarePackage)
                   .map((interaction) => (
                     <Flex
                       key={interaction.id}
@@ -599,7 +599,7 @@ const ModCenter = () => {
                             softDeleted: true,
                           });
                           setReceivedPackageInteractions((prevInteractions) =>
-                            prevInteractions.filter(
+                            prevInteractions?.filter(
                               (_interaction) =>
                                 _interaction.id !== interaction.id
                             )
@@ -617,7 +617,7 @@ const ModCenter = () => {
               <Text>
                 Scare Packages (
                 {
-                  receivedPackageInteractions.filter(
+                  receivedPackageInteractions?.filter(
                     (interaction) => !interaction.isCarePackage
                   ).length
                 }
@@ -630,7 +630,7 @@ const ModCenter = () => {
                 overflowY={"scroll"}
               >
                 {receivedPackageInteractions
-                  .filter((interaction) => !interaction.isCarePackage)
+                  ?.filter((interaction) => !interaction.isCarePackage)
                   .map((interaction) => (
                     <Flex
                       key={interaction.id}
@@ -666,7 +666,7 @@ const ModCenter = () => {
                             softDeleted: true,
                           });
                           setReceivedPackageInteractions((prevInteractions) =>
-                            prevInteractions.filter(
+                            prevInteractions?.filter(
                               (_interaction) =>
                                 _interaction.id !== interaction.id
                             )
@@ -735,7 +735,7 @@ const ModCenter = () => {
                           softDeleted: true,
                         });
                         setReceivedTtsInteractions((prevInteractions) =>
-                          prevInteractions.filter(
+                          prevInteractions?.filter(
                             (_interaction) => _interaction.id !== interaction.id
                           )
                         );

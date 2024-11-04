@@ -60,7 +60,7 @@ export const ScreenAnimationsProvider = ({
   };
 
   const removeEmoji = useCallback((uid: string) => {
-    setEmojiQueue((prev) => prev.filter((e) => e.uid !== uid));
+    setEmojiQueue((prev) => prev?.filter((e) => e.uid !== uid));
   }, []);
 
   const emojiRainComponents = useMemo(

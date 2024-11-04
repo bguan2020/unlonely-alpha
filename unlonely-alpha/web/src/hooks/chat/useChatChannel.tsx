@@ -100,7 +100,7 @@ export function useChatChannel(fixedChatName?: string) {
     }
     const newAllMessages = [...allMessages, message];
     setAllMessages(newAllMessages);
-    const messageHistory = receivedMessages.filter(
+    const messageHistory = receivedMessages?.filter(
       (m) => m.name === CHAT_MESSAGE_EVENT
     );
     if (message.name === TOKEN_TRANSFER_EVENT) {
@@ -186,7 +186,7 @@ export function useChatChannel(fixedChatName?: string) {
       return;
     }
     const filteredUsersToBan = (channelRoles ?? [])
-      .filter((user) => user?.role === 1)
+      ?.filter((user) => user?.role === 1)
       .map((user) => user?.address) as string[];
     setLocalBanList(filteredUsersToBan);
   }, [channelRoles]);
@@ -198,7 +198,7 @@ export function useChatChannel(fixedChatName?: string) {
       // @ts-ignore
       await channel.history((err, result) => {
         setAllMessages(result.items);
-        const messageHistory = result.items.filter((message: any) => {
+        const messageHistory = result.items?.filter((message: any) => {
           if (message.name !== CHAT_MESSAGE_EVENT) return false;
 
           const senderIsBanned = safeIncludes(

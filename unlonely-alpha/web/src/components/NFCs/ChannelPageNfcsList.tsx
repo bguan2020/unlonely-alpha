@@ -51,7 +51,7 @@ export const ChannelPageNfcsList = () => {
       },
     });
     const nfcs: NfcFeedQuery["getNFCFeed"] = nfcsData?.data?.getNFCFeed ?? [];
-    const filteredNfcs = (nfcs ?? []).filter(
+    const filteredNfcs = (nfcs ?? [])?.filter(
       (nfc): nfc is NonNullable<typeof nfc> => nfc !== null && nfc !== undefined
     );
     setPagesFetched((prev) => prev + 1);
@@ -124,7 +124,7 @@ export const ChannelPageNfcsList = () => {
         </DrawerHeader>
         <DrawerBody>
           <NfcList
-            nfcs={(channelNfcs ?? []).filter((nfc) => {
+            nfcs={(channelNfcs ?? [])?.filter((nfc) => {
               if (filterNfcsByUserOnly) {
                 return (
                   nfc?.owner?.address.toLowerCase() ===

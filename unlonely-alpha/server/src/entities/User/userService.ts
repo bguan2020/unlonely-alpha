@@ -247,7 +247,7 @@ export const migrateAllUsersWithNotificationsToken = async (ctx: Context) => {
     const tokensArray = JSON.parse(users[i].notificationsTokens);
 
     // Filter out null values
-    const nonNullTokens = tokensArray.filter((token: any) => token !== null);
+    const nonNullTokens = tokensArray?.filter((token: any) => token !== null);
 
     // If there are any non-null tokens, create the deviceToken
     if (nonNullTokens.length > 0) {

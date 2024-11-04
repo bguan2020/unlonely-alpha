@@ -78,7 +78,7 @@ export const mergeMetrics = (data: LivepeerViewershipMetrics[]) => {
   });
 
   const totalViewCountArray = viewCountsResult.map((item) => {
-    const countableKeys = Object.keys(item).filter((key) =>
+    const countableKeys = Object.keys(item)?.filter((key) =>
       safeIncludes(key, "_viewCount")
     );
     const sumOfViewCounts = countableKeys
@@ -91,7 +91,7 @@ export const mergeMetrics = (data: LivepeerViewershipMetrics[]) => {
   });
 
   const totalPlaytimeMinsArray = playtimeMinsResult.map((item) => {
-    const countableKeys = Object.keys(item).filter((key) =>
+    const countableKeys = Object.keys(item)?.filter((key) =>
       safeIncludes(key, "_playtimeMins")
     );
     const sumOfPlaytimeMins = countableKeys
@@ -124,7 +124,7 @@ export const convertToObjectArray = (
   const largestValue = Math.max(...entries.map((entry) => entry[1]));
 
   // Filter entries to include only those with values >= 1% of the largest value
-  const filteredEntries = entries.filter(
+  const filteredEntries = entries?.filter(
     (entry) => entry[1] >= largestValue * thresholdPercentage
   );
 

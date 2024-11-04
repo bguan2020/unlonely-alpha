@@ -67,7 +67,7 @@ export const useGetClaimBetEvents = () => {
           },
         });
         unclaimedBets =
-          data?.data?.getUnclaimedEvents.filter(
+          data?.data?.getUnclaimedEvents?.filter(
             (event): event is SharesEvent =>
               event !== null && event?.chainId === contractData.chainId
           ) || [];
@@ -106,7 +106,7 @@ export const useGetClaimBetEvents = () => {
         ...event,
         payout: formattedPayouts[i],
       }));
-      const claimableBets = combinedBets.filter(
+      const claimableBets = combinedBets?.filter(
         (event) => event.payout > BigInt(0) && (event?.resultIndex ?? -1) >= 0
       );
       setClaimableBets(claimableBets);

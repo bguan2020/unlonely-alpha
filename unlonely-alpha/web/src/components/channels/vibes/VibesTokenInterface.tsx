@@ -1072,7 +1072,7 @@ const VibesTokenInterface = ({
                     {timeFilter === "all" && isFullChart && !previewMode && (
                       <>
                         {Array.from(chartTimeIndexes.keys())
-                          .filter((i) => safeIncludes(i, "d"))
+                          ?.filter((i) => safeIncludes(i, "d"))
                           .map((key) => {
                             return (
                               <ReferenceLine
@@ -1089,7 +1089,7 @@ const VibesTokenInterface = ({
                           })}
                         {[...Array(NUMBER_OF_DAYS_IN_MONTH).keys()]
                           .map((i) => i + 1)
-                          .filter(
+                          ?.filter(
                             (d) =>
                               chartTimeIndexes.get(`${d}d`)?.blockNumber ===
                               undefined
@@ -1114,7 +1114,7 @@ const VibesTokenInterface = ({
                     {timeFilter === "1d" && isFullChart && !previewMode && (
                       <>
                         {Array.from(chartTimeIndexes.keys())
-                          .filter((i) => safeIncludes(i, "h"))
+                          ?.filter((i) => safeIncludes(i, "h"))
                           .map((key) => {
                             return (
                               <ReferenceLine
@@ -1131,7 +1131,7 @@ const VibesTokenInterface = ({
                           })}
                         {[...Array(NUMBER_OF_HOURS_IN_DAY).keys()]
                           .map((i) => i + 1)
-                          .filter(
+                          ?.filter(
                             (h) =>
                               chartTimeIndexes.get(`${h}h`)?.blockNumber ===
                               undefined

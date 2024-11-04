@@ -81,7 +81,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   const popAppError = useCallback(
     (errorName: string, field: string) => {
       setAppErrors((appErrors) =>
-        appErrors.filter((err) => (err as any)[field] !== errorName)
+        appErrors?.filter((err) => (err as any)[field] !== errorName)
       );
     },
     [appErrors]
@@ -116,7 +116,7 @@ export const CacheProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (
       wagmiAddress &&
-      appErrors.filter((err) =>
+      appErrors?.filter((err) =>
         safeIncludes(err.name, "ConnectorNotFoundError")
       ).length > 0 &&
       !toast.isActive("no-connector") &&
