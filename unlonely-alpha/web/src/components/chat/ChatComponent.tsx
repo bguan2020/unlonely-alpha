@@ -26,6 +26,7 @@ import {
   CHANNEL_IDS_NO_VIP,
   CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS,
 } from "../../constants";
+import { safeIncludes } from "../../utils/safeFunctions";
 
 const ChatComponent = ({
   chat,
@@ -67,7 +68,10 @@ const ChatComponent = ({
           {!noTabs && (
             <Flex width="100%">
               {channelQueryData?.id &&
-                !CHANNEL_IDS_NO_VIP.includes(Number(channelQueryData?.id)) && (
+                !safeIncludes(
+                  CHANNEL_IDS_NO_VIP,
+                  Number(channelQueryData?.id)
+                ) && (
                   <>
                     <OuterBorder
                       cursor={"pointer"}
@@ -239,7 +243,8 @@ const ChatComponent = ({
                     gap="5px"
                     alignItems={"center"}
                   >
-                    {CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS.includes(
+                    {safeIncludes(
+                      CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS,
                       channelQueryData?.slug as string
                     ) &&
                       isOwner && (

@@ -15,7 +15,7 @@ import {
 } from "../../constants/types/chat";
 import { useChatChannel } from "./useChatChannel";
 import { ChatBot } from "../../constants/types";
-import { jp } from "../../utils/safeFunctions";
+import { jp, safeIncludes } from "../../utils/safeFunctions";
 
 export type ChatReturnType = {
   channel: AblyChannelPromise;
@@ -115,7 +115,8 @@ export const useChat = ({
       const lastMessage = chatBot[chatBot.length - 1];
       let body: string | undefined = undefined;
       if (
-        Object.values(InteractionType)?.includes(
+        safeIncludes(
+          Object.values(InteractionType),
           lastMessage.taskType as InteractionType
         )
       ) {

@@ -1,3 +1,5 @@
+import { safeIncludes } from "./safeFunctions";
+
 export const truncateValue = (
   value: number | string,
   decimals = 6,
@@ -34,7 +36,7 @@ export const truncateValue = (
 // converts scientific notation like 1.2345e3 or 1.2345e-5 to precise number like 1234.5 or 0.000012345
 export const convertSciNotaToPrecise = (str: string): string => {
   // if string is in scientific notation, for example (1.2345e3, or 1.2345e-5), (2)
-  if (str?.includes("e")) {
+  if (safeIncludes(str, "e")) {
     // get number left of 'e'
     const n = str.split("e")[0];
 
@@ -44,7 +46,7 @@ export const convertSciNotaToPrecise = (str: string): string => {
     // remove decimal in advance
     const temp = n.replace(".", "");
     let zeros = "";
-    if (exponent && exponent.includes("-")) {
+    if (safeIncludes(exponent, "-")) {
       // if exponent has negative sign, it must be negative
       const range = rangeFrom0(parseInt(exponent.slice(1)) - 1);
       range.forEach(() => (zeros += "0"));
@@ -54,7 +56,7 @@ export const convertSciNotaToPrecise = (str: string): string => {
 
       let lengthOfDecimalPlaces = 0;
 
-      if (n?.includes(".")) {
+      if (safeIncludes(n, ".")) {
         // if number contains decimals, this is important
         lengthOfDecimalPlaces = n.split(".")[1].length;
       }

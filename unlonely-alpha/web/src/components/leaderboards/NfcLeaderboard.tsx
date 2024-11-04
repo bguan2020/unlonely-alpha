@@ -25,6 +25,7 @@ import centerEllipses from "../../utils/centerEllipses";
 import trailString from "../../utils/trailString";
 import { useZoraCollect1155 } from "../../hooks/contracts/useZoraCollect1155";
 import { NfcClipMintInterface } from "../general/NfcClipMintInterface";
+import { safeIncludes } from "../../utils/safeFunctions";
 
 const headers = ["rank", "clip link + title", "clipped by", "channel", "mints"];
 
@@ -162,12 +163,12 @@ const NfcLeaderboard = () => {
                       .map((row, rowIndex) => {
                         return (
                           <Tr key={rowIndex}>
-                            {visibleColumns?.includes(0) && (
+                            {safeIncludes(visibleColumns, 0) && (
                               <Td p="5px" textAlign="center">
                                 {row.data[0]}
                               </Td>
                             )}
-                            {visibleColumns?.includes(1) && (
+                            {safeIncludes(visibleColumns, 1) && (
                               <Td
                                 p="5px"
                                 _hover={{
@@ -193,12 +194,12 @@ const NfcLeaderboard = () => {
                                 </Flex>
                               </Td>
                             )}
-                            {visibleColumns?.includes(2) && (
+                            {safeIncludes(visibleColumns, 2) && (
                               <Td p="5px" textAlign="center">
                                 {row.data[2]}
                               </Td>
                             )}
-                            {visibleColumns?.includes(3) && (
+                            {safeIncludes(visibleColumns, 3) && (
                               <Td
                                 p="5px"
                                 color={!row.data[3] ? "gray" : "unset"}
@@ -222,7 +223,7 @@ const NfcLeaderboard = () => {
                                 {row.data[3] || "n/a"}
                               </Td>
                             )}
-                            {visibleColumns?.includes(4) && (
+                            {safeIncludes(visibleColumns, 4) && (
                               <Td p="5px" textAlign="center">
                                 <Flex
                                   gap="20px"

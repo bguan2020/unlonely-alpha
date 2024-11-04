@@ -9,6 +9,7 @@ import { useChatBox } from "../../hooks/chat/useChatBox";
 import { SingleTempTokenTimerView } from "../channels/temp/TempTokenTimerView";
 import { VersusTempTokenTimerView } from "../channels/versus/VersusTokenTimerView";
 import { CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS } from "../../constants";
+import { safeIncludes } from "../../utils/safeFunctions";
 
 export const ChatWithTempTokenTimer = ({
   chat,
@@ -63,7 +64,8 @@ export const ChatWithTempTokenTimer = ({
           gap="5px"
           alignItems={"center"}
         >
-          {CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS.includes(
+          {safeIncludes(
+            CHANNEL_SLUGS_CAN_HIDE_PARTICIPANTS,
             channelQueryData?.slug as string
           ) &&
             isOwner && (

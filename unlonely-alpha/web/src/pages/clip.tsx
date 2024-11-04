@@ -352,7 +352,7 @@ const Clip = () => {
         let durationString = "";
 
         ffmpeg.setLogger(({ type, message }: { type: any; message: any }) => {
-          if (type === "fferr" && message?.includes("Duration")) {
+          if (type === "fferr" && safeIncludes(message, "Duration")) {
             const match = message.match(/Duration: (\d+:\d+:\d+\.\d+)/);
             if (match) {
               durationString = match[1];
@@ -583,7 +583,7 @@ const Clip = () => {
       `${(Date.now() - trimFunctionStart) / 1000}s`
     );
     const assetId = trimRes?.res;
-    if (assetId?.includes("error:")) {
+    if (!!assetId && safeIncludes(assetId, "error:")) {
       setPageState("error");
       setErrorMessage(assetId);
       return;

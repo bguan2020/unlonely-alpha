@@ -25,6 +25,7 @@ import AppLayout from "../components/layout/AppLayout";
 import Header from "../components/navigation/Header";
 import { NFCS_SORT_QUERY_PARAM } from "../constants";
 import { useRouter } from "next/router";
+import { safeIncludes } from "../utils/safeFunctions";
 
 const Nfcs = () => {
   const router = useRouter();
@@ -74,18 +75,20 @@ const Nfcs = () => {
       );
       console.log(matchingIds);
       newNfcResults = newNfcResults?.filter((nfc) =>
-        matchingIds?.includes(nfc?.channelId)
+        safeIncludes(matchingIds, nfc?.channelId)
       );
     }
     if (filterClipper.length > 0) {
       newNfcResults = newNfcResults?.filter(
         (nfc) =>
-          nfc?.owner.username
-            ?.toLowerCase()
-            ?.includes(filterClipper?.toLowerCase()) ||
-          nfc?.owner?.address
-            .toLowerCase()
-            ?.includes(filterClipper?.toLowerCase())
+          safeIncludes(
+            nfc?.owner.username?.toLowerCase(),
+            filterClipper?.toLowerCase()
+          ) ||
+          safeIncludes(
+            nfc?.owner.address?.toLowerCase(),
+            filterClipper?.toLowerCase()
+          )
       );
     }
     if (filterStreamer.length === 0 && filterClipper.length === 0) {
@@ -132,7 +135,10 @@ const Nfcs = () => {
     if (
       router.query[NFCS_SORT_QUERY_PARAM] &&
       typeof router.query[NFCS_SORT_QUERY_PARAM] === "string" &&
-      ["createdAt", "totalMints"]?.includes(router.query[NFCS_SORT_QUERY_PARAM])
+      safeIncludes(
+        ["createdAt", "totalMints"],
+        router.query[NFCS_SORT_QUERY_PARAM]
+      )
     ) {
       orderBy = router.query[NFCS_SORT_QUERY_PARAM] as
         | "createdAt"
