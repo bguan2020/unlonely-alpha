@@ -44,7 +44,7 @@ export const convertSciNotaToPrecise = (str: string): string => {
     // remove decimal in advance
     const temp = n.replace(".", "");
     let zeros = "";
-    if (exponent?.includes("-")) {
+    if (exponent && exponent.includes("-")) {
       // if exponent has negative sign, it must be negative
       const range = rangeFrom0(parseInt(exponent.slice(1)) - 1);
       range.forEach(() => (zeros += "0"));
