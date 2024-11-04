@@ -12,9 +12,13 @@ export const isValidAddress = (
   }
 
   // Check if the address is a valid Solana address
-  const key = new PublicKey(address);
-  if (PublicKey.isOnCurve(key.toBytes())) {
-    return "solana";
+  try {
+    const key = new PublicKey(address);
+    if (PublicKey.isOnCurve(key.toBytes())) {
+      return "solana";
+    }
+  } catch (error) {
+    console.log("isValidAddress ", error);
   }
 
   return undefined;
