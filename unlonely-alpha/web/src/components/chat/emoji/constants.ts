@@ -45,7 +45,7 @@ export const gifsList = () => {
   return originalGifs;
 };
 
-export const unicodeEmojis = Object.keys(_unicodeEmojis).reduce(
+export const unicodeEmojis = Object.keys(_unicodeEmojis)?.reduce(
   (prevVal: any, category: string) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore

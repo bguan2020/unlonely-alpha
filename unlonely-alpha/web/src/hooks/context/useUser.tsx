@@ -159,7 +159,7 @@ export const UserProvider = ({
       return privyUser?.linkedAccounts[0];
     const accountWithLatestVerifiedAt = privyUser?.linkedAccounts
       ?.filter((account) => account.latestVerifiedAt instanceof Date) // Filter accounts with a valid Date
-      .reduce((latest: any, current) => {
+      ?.reduce((latest: any, current) => {
         if (
           !latest ||
           (current.latestVerifiedAt &&

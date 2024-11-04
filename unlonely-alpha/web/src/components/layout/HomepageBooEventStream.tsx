@@ -166,7 +166,7 @@ export const HomepageBooEventStream = ({
     const { data } = await _fetchBooPackages();
     const packages = data?.getPackages;
     if (packages) {
-      const packageMap = packages.reduce((map: any, item: any) => {
+      const packageMap = packages?.reduce((map: any, item: any) => {
         map[item.packageName] = {
           tokenHoldingPrice: item.tokenHoldingPrice as string,
           cooldownInSeconds: item.cooldownInSeconds as number,
@@ -174,7 +174,7 @@ export const HomepageBooEventStream = ({
         };
         return map;
       }, {} as Record<string, { price: number; cooldown: number }>);
-      setBooPackageMap(packageMap);
+      if (packageMap) setBooPackageMap(packageMap);
     }
   }, []);
 

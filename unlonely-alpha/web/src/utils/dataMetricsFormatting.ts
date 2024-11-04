@@ -83,7 +83,7 @@ export const mergeMetrics = (data: LivepeerViewershipMetrics[]) => {
     );
     const sumOfViewCounts = countableKeys
       .map((key) => item[key])
-      .reduce((acc, item) => acc + item, 0);
+      ?.reduce((acc, item) => acc + item, 0);
     return {
       timestamp: item.timestamp,
       totalViewCount: sumOfViewCounts,
@@ -96,7 +96,7 @@ export const mergeMetrics = (data: LivepeerViewershipMetrics[]) => {
     );
     const sumOfPlaytimeMins = countableKeys
       .map((key) => item[key])
-      .reduce((acc, item) => acc + item, 0);
+      ?.reduce((acc, item) => acc + item, 0);
     return {
       timestamp: item.timestamp,
       totalPlaytimeMins: sumOfPlaytimeMins,

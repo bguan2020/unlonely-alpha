@@ -186,7 +186,7 @@ const ModCenter = () => {
     const { data } = await _fetchBooPackages();
     const packages = data?.getPackages;
     if (packages) {
-      const packageMap = packages.reduce((map: any, item: any) => {
+      const packageMap = packages?.reduce((map: any, item: any) => {
         map[item.packageName] = {
           tokenHoldingPrice: item.tokenHoldingPrice,
           cooldownInSeconds: item.cooldownInSeconds,
@@ -194,8 +194,10 @@ const ModCenter = () => {
         };
         return map;
       }, {} as Record<string, PackageInfo>);
-      setBooPackageMap(packageMap);
-      setStagingPackages(packageMap);
+      if (packageMap) {
+        setBooPackageMap(packageMap);
+        setStagingPackages(packageMap);
+      }
     }
   }, []);
 
@@ -242,7 +244,7 @@ const ModCenter = () => {
     const { data } = await getRooms();
     const rooms = data?.getRooms;
     if (rooms) {
-      const roomMap = rooms.reduce((map: any, item: any) => {
+      const roomMap = rooms?.reduce((map: any, item: any) => {
         map[item.roomName] = {
           roomName: item.roomName,
           inUse: item.inUse,
@@ -250,7 +252,7 @@ const ModCenter = () => {
         };
         return map;
       }, {} as Record<string, RoomInfo>);
-      setRoomsMap(roomMap);
+      if (roomMap) setRoomsMap(roomMap);
     }
   }, []);
 
@@ -511,7 +513,7 @@ const ModCenter = () => {
                           });
                           // set all other rooms inUse to false, and use spread operator to update the room inUse
                           setRoomsMap((prevRooms) => {
-                            return Object.entries(prevRooms).reduce(
+                            return Object.entries(prevRooms)?.reduce(
                               (acc, [roomName, roomInfo]) => {
                                 acc[roomName] = {
                                   ...roomInfo,
