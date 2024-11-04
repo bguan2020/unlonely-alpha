@@ -6,7 +6,7 @@ export const jp = (body: string) => {
   }
 };
 
-export const safeIncludes = (_var: any, val: string) => {
+export const safeIncludes = (_var: any, val: any) => {
   try {
     return _var?.includes?.(val) ?? false;
   } catch (e) {

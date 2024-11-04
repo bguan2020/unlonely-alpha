@@ -38,6 +38,7 @@ import { useBalance } from "wagmi";
 import useUpdateTempTokenHighestTotalSupply from "../../../server/temp-token/useUpdateTempTokenHighestTotalSupply";
 import useUpdateTempTokenHasHitTotalSupplyThreshold from "../../../server/temp-token/useUpdateTempTokenHasHitTotalSupplyThreshold";
 import { returnDecodedTopics } from "../../../../utils/contract";
+import { safeIncludes } from "../../../../utils/safeFunctions";
 
 export type UseTradeTempTokenStateType = {
   tradeAmount: string;
@@ -331,7 +332,7 @@ export const useTradeTempTokenState = ({
         let message =
           "Unknown error, please check the explorer for more details";
         Object.keys(mintErrors).forEach((key) => {
-          if (String(error).includes(key)) {
+          if (safeIncludes(String(error), key)) {
             message = mintErrors[key];
           }
         });
@@ -458,7 +459,7 @@ export const useTradeTempTokenState = ({
         let message =
           "Unknown error, please check the explorer for more details";
         Object.keys(burnErrors).forEach((key) => {
-          if (String(error).includes(key)) {
+          if (safeIncludes(String(error), key)) {
             message = burnErrors[key];
           }
         });

@@ -49,6 +49,7 @@ import { GET_USER_QUERY } from "../../../constants/queries";
 import { useApolloClient } from "@apollo/client";
 import { useVibesContext } from "../../../hooks/context/useVibes";
 import VibesTokenExchange from "./VibesTokenExchange";
+import { safeIncludes } from "../../../utils/safeFunctions";
 
 export type ChartTokenTx = {
   user: string;
@@ -1071,7 +1072,7 @@ const VibesTokenInterface = ({
                     {timeFilter === "all" && isFullChart && !previewMode && (
                       <>
                         {Array.from(chartTimeIndexes.keys())
-                          .filter((i) => i?.includes("d"))
+                          .filter((i) => safeIncludes(i, "d"))
                           .map((key) => {
                             return (
                               <ReferenceLine
@@ -1113,7 +1114,7 @@ const VibesTokenInterface = ({
                     {timeFilter === "1d" && isFullChart && !previewMode && (
                       <>
                         {Array.from(chartTimeIndexes.keys())
-                          .filter((i) => i?.includes("h"))
+                          .filter((i) => safeIncludes(i, "h"))
                           .map((key) => {
                             return (
                               <ReferenceLine

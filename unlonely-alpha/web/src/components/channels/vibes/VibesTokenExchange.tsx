@@ -46,6 +46,7 @@ import {
 import { truncateValue } from "../../../utils/tokenDisplayFormatting";
 import useUserAgent from "../../../hooks/internal/useUserAgent";
 import { useVibesContext } from "../../../hooks/context/useVibes";
+import { safeIncludes } from "../../../utils/safeFunctions";
 
 export const mintErrors: { [key: string]: string } = {
   InsufficientValue:
@@ -202,7 +203,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         let message =
           "Unknown error, please check the explorer for more details";
         Object.keys(mintErrors).forEach((key) => {
-          if (String(error).includes(key)) {
+          if (safeIncludes(String(error), key)) {
             message = mintErrors[key];
           }
         });
@@ -317,7 +318,7 @@ const VibesTokenExchange = ({ isFullChart }: { isFullChart?: boolean }) => {
         let message =
           "Unknown error, please check the explorer for more details";
         Object.keys(burnErrors).forEach((key) => {
-          if (String(error).includes(key)) {
+          if (safeIncludes(String(error), key)) {
             message = burnErrors[key];
           }
         });

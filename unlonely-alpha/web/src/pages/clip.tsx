@@ -77,6 +77,7 @@ import AppLayout from "../components/layout/AppLayout";
 import { convertToHHMMSS } from "../utils/time";
 import useRequestUpload from "../hooks/server/channel/useRequestUpload";
 import { areAddressesEqual } from "../utils/validation/wallet";
+import { safeIncludes } from "../utils/safeFunctions";
 
 let ffmpeg: any; //Store the ffmpeg instance
 
@@ -351,7 +352,7 @@ const Clip = () => {
         let durationString = "";
 
         ffmpeg.setLogger(({ type, message }: { type: any; message: any }) => {
-          if (type === "fferr" && message.includes("Duration")) {
+          if (type === "fferr" && message?.includes("Duration")) {
             const match = message.match(/Duration: (\d+:\d+:\d+\.\d+)/);
             if (match) {
               durationString = match[1];
@@ -881,7 +882,7 @@ const Clip = () => {
               );
             } catch (e) {
               console.log("walletClient.sendTransaction caught error", e);
-              if (String(e as any).includes("User rejected the request"))
+              if (safeIncludes(String(e as any), "User rejected the request"))
                 throw new Error((e as any).message);
             }
             setTransactionProgressMessage("creating split contract...");
@@ -968,7 +969,7 @@ const Clip = () => {
             console.log("multicall3 response", hash);
           } catch (e) {
             console.log("walletClient.writeContract caught error", e);
-            if (String(e as any).includes("User rejected the request"))
+            if (safeIncludes(String(e as any), "User rejected the request"))
               throw new Error((e as any).message);
           }
 
@@ -1057,7 +1058,7 @@ const Clip = () => {
       window.open(`${window.origin}/nfc/${_finalClipObject.id}`, "_self");
     } catch (e) {
       console.log("handleTransaction caught error", e, (e as any).message);
-      if (String(e as any).includes("User rejected the request"))
+      if (safeIncludes(String(e as any), "User rejected the request"))
         setTransactionProgressMessage(PLEASE_CONTINUE_TRANSACTION);
     }
   }, [

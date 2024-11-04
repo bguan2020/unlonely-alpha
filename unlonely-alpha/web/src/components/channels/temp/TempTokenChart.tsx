@@ -29,6 +29,7 @@ import { useOwnerUpdateTotalSupplyThresholdState } from "../../../hooks/internal
 import useUserAgent from "../../../hooks/internal/useUserAgent";
 import { SingleTempTokenTimerView } from "../temp/TempTokenTimerView";
 import { useUser } from "../../../hooks/context/useUser";
+import { safeIncludes } from "../../../utils/safeFunctions";
 
 export const ZONE_BREADTH = 0.05;
 export const NUMBER_OF_HOURS_IN_DAY = 24;
@@ -397,7 +398,7 @@ export const TempTokenChart = ({
             {interfaceChartData.timeFilter === "all" && (
               <>
                 {Array.from(tempTokenChartTimeIndexes.keys())
-                  .filter((i) => i?.includes("d"))
+                  .filter((i) => safeIncludes(i, "d"))
                   .map((key) => {
                     return (
                       <ReferenceLine
@@ -439,7 +440,7 @@ export const TempTokenChart = ({
             {interfaceChartData.timeFilter === "1d" && (
               <>
                 {Array.from(tempTokenChartTimeIndexes.keys())
-                  .filter((i) => i?.includes("h"))
+                  .filter((i) => safeIncludes(i, "h"))
                   .map((key) => {
                     return (
                       <ReferenceLine

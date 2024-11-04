@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { BaseChatCommand, CommandData } from "../../constants";
 import { useChannelContext } from "../../hooks/context/useChannel";
+import { safeIncludes } from "../../utils/safeFunctions";
 interface Command {
   name: string;
   description?: string;
@@ -72,7 +73,7 @@ export default function Commands({
 
   const matchingList = useMemo(() => {
     return aggregatedCommandList.filter((command) => {
-      return command.value?.includes(chat);
+      return safeIncludes(command.value, chat);
     });
   }, [aggregatedCommandList, chat]);
 

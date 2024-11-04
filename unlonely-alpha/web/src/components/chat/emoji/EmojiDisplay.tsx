@@ -2,6 +2,7 @@ import React from "react";
 import { Flex } from "@chakra-ui/react";
 
 import Gif from "./Gif";
+import { safeIncludes } from "../../../utils/safeFunctions";
 
 type Props = {
   emoji: string;
@@ -20,8 +21,8 @@ const EmojiDisplay = ({
 }: Props) => {
   // check if emoji contains "https://i.imgur.com/" to determine if it is a gif
   const isGif =
-    emoji?.includes("https://i.imgur.com/") ||
-    emoji?.includes("https://media.tenor.com/");
+    safeIncludes(emoji, "https://i.imgur.com/") ||
+    safeIncludes(emoji, "https://media.tenor.com/");
 
   return (
     <>

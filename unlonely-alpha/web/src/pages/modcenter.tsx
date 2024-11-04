@@ -458,15 +458,15 @@ const ModCenter = () => {
                             });
                             if (data?.res) {
                               handleConfirmed("package");
+                              interactionsChannel?.publish({
+                                name: PACKAGE_PRICE_CHANGE_EVENT,
+                                data: {
+                                  body: JSON.stringify({
+                                    ...data?.res,
+                                  }),
+                                },
+                              });
                             }
-                            interactionsChannel?.publish({
-                              name: PACKAGE_PRICE_CHANGE_EVENT,
-                              data: {
-                                body: JSON.stringify({
-                                  ...data?.res,
-                                }),
-                              },
-                            });
                             fetchBooPackages();
                           }}
                         >

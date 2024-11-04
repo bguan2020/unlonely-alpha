@@ -57,6 +57,7 @@ import Header from "../../../components/navigation/Header";
 import { WavyText } from "../../../components/general/WavyText";
 import { bondingCurveBigInt } from "../../../utils/contract";
 import { base } from "viem/chains";
+import { safeIncludes } from "../../../utils/safeFunctions";
 
 const TokenTradePage = () => {
   const router = useRouter();
@@ -401,7 +402,7 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
               {interfaceChartData.timeFilter === "all" && (
                 <>
                   {Array.from(readTempTokenTxs.tempTokenChartTimeIndexes.keys())
-                    .filter((i) => i?.includes("d"))
+                    .filter((i) => safeIncludes(i, "d"))
                     .map((key) => {
                       return (
                         <ReferenceLine
@@ -443,7 +444,7 @@ export const TradeLayer = ({ tempToken }: { tempToken: TempToken }) => {
               {interfaceChartData.timeFilter === "1d" && (
                 <>
                   {Array.from(readTempTokenTxs.tempTokenChartTimeIndexes.keys())
-                    .filter((i) => i?.includes("h"))
+                    .filter((i) => safeIncludes(i, "h"))
                     .map((key) => {
                       return (
                         <ReferenceLine

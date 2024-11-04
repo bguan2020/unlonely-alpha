@@ -13,6 +13,7 @@ import { useChannelContext } from "../../hooks/context/useChannel";
 import useUserAgent from "../../hooks/internal/useUserAgent";
 import useUpdateDeleteChatCommands from "../../hooks/server/channel/updateDeleteChatCommands";
 import { TransactionModalTemplate } from "../transactions/TransactionModalTemplate";
+import { safeIncludes } from "../../utils/safeFunctions";
 
 export default function ChatCommandModal({
   title,
@@ -112,7 +113,8 @@ export default function ChatCommandModal({
   useEffect(() => {
     for (const c of commandsData) {
       if (
-        Object.values(BaseChatCommand)?.includes(
+        safeIncludes(
+          Object.values(BaseChatCommand),
           `!${c.command}` as BaseChatCommand
         )
       ) {
@@ -168,7 +170,8 @@ export default function ChatCommandModal({
               variant="glow"
               placeholder={"command"}
               value={`!${c.command}`}
-              isInvalid={Object.values(BaseChatCommand)?.includes(
+              isInvalid={safeIncludes(
+                Object.values(BaseChatCommand),
                 `!${c.command}` as BaseChatCommand
               )}
               onChange={(e) =>
