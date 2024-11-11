@@ -357,8 +357,8 @@ const Graphs = memo(
               ?.filter(
                 (item): item is LivepeerViewershipMetrics => item !== null
               )
-              ?.filter((item) =>
-                safeIncludes(EXCLUDED_PLAYBACK_IDS, item.playbackId)
+              ?.filter(
+                (item) => !safeIncludes(EXCLUDED_PLAYBACK_IDS, item.playbackId)
               );
             if (nonNullData && nonNullData.length > 0) {
               metricData = nonNullData;

@@ -255,7 +255,7 @@ export const UserProvider = ({
         });
         break;
       } else {
-        console.error("user not found in database", data); // todo: create error toast just in case
+        console.error("user not found in database for address", _address, data); // todo: create error toast just in case
       }
 
       await new Promise((resolve) => setTimeout(resolve, 2000));

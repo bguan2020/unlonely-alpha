@@ -132,7 +132,7 @@ const MessageList = memo(
           const isVip = m.data.senderStatus === SenderStatus.VIP;
           const isChatbotWithAcceptableInteractionType =
             m.data.senderStatus === SenderStatus.CHATBOT &&
-            safeIncludes(
+            !safeIncludes(
               excludedChatbotInteractionTypesInVipChat,
               (jp(m.data.body ?? "") as ChatBotMessageBody)?.interactionType
             );
