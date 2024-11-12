@@ -223,6 +223,15 @@ export const UserProvider = ({
     fetchPolicy: "network-only",
   });
 
+  console.log("privyUser?.linkedAccounts", privyUser?.linkedAccounts);
+  console.log(
+    "latestVerifiedPrivyAccount",
+    latestVerifiedPrivyAccount?.address,
+    "wagmiAddress",
+    wagmiAddress
+  );
+  console.log("wallets", wallets, evmWallets, solanaWallets);
+
   const fetchAndSetUserData = useCallback(async (_address: string) => {
     setFetchingUser(true);
     handleLatestVerifiedAddress(_address);
@@ -281,7 +290,11 @@ export const UserProvider = ({
       areAddressesEqual(w.address, localAddress)
     );
     console.log("foundEvmWallet", foundEvmWallet, evmWallets, localAddress);
-    if (foundEvmWallet) setActiveWallet(foundEvmWallet);
+    try {
+      if (foundEvmWallet) setActiveWallet(foundEvmWallet);
+    } catch (e) {
+      console.error("error setting active wallet", e);
+    }
   }, [localAddress, evmWallets]);
 
   const handleIsManagingWallets = useCallback((value: boolean) => {
@@ -339,15 +352,6 @@ export const UserProvider = ({
       handleUser,
     ]
   );
-
-  console.log("privyUser?.linkedAccounts", privyUser?.linkedAccounts);
-  console.log(
-    "latestVerifiedPrivyAccount",
-    latestVerifiedPrivyAccount?.address,
-    "wagmiAddress",
-    wagmiAddress
-  );
-  console.log("wallets", wallets, evmWallets, solanaWallets);
 
   return (
     <UserContext.Provider value={value}>
