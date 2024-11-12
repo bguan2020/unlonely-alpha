@@ -1,25 +1,14 @@
 import { ApolloError, useLazyQuery } from "@apollo/client";
 import {
-  // Box,
-  // Button,
-  // Container,
-  // Drawer,
-  // DrawerCloseButton,
-  // DrawerContent,
-  // DrawerHeader,
-  // DrawerOverlay,
   Flex,
-  // Stack,
   Text,
-  // useBreakpointValue,
-  // useDisclosure,
   Image,
   Spinner,
   IconButton,
   Input,
-  // useBreakpointValue,
+  useBreakpointValue,
+  Tooltip,
 } from "@chakra-ui/react";
-// import Link from "next/link";
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { useRouter } from "next/router";
@@ -37,88 +26,15 @@ import useRemoveChannelFromSubscription from "../hooks/server/channel/useRemoveC
 import { useUser } from "../hooks/context/useUser";
 import { sortChannels } from "../utils/channelSort";
 import { useCacheContext } from "../hooks/context/useCache";
-// import NfcLeaderboard from "../components/leaderboards/NfcLeaderboard";
-// import Header from "../components/navigation/Header";
-import BooEventWrapper from "../components/layout/BooEventWrapper";
+// import BooEventWrapper from "../components/layout/BooEventWrapper";
 import { safeIncludes } from "../utils/safeFunctions";
-
-// const FixedComponent = ({
-//   newHeightPercentage,
-// }: {
-//   newHeightPercentage?: string;
-// }) => {
-//   return (
-//     <Flex
-//       borderWidth="1px"
-//       borderRadius={"10px"}
-//       bg={
-//         "repeating-linear-gradient(#E2F979 0%, #B0E5CF 34.37%, #BA98D7 66.67%, #D16FCE 100%)"
-//       }
-//       height={newHeightPercentage ?? "100%"}
-//       boxShadow="0px 4px 16px rgba(208, 234, 53, 0.4)"
-//       background={"#19162F"}
-//     >
-//       <iframe
-//         src="https://lu.ma/embed/calendar/cal-i5SksIDn63DmCXs/events?lt=dark"
-//         frameBorder="0"
-//         width="100%"
-//         aria-hidden="false"
-//         style={{
-//           borderRadius: "10px",
-//           borderWidth: "1px",
-//         }}
-//       />
-//     </Flex>
-//   );
-// };
-
-// const ScrollableComponent = () => {
-//   return (
-//     <Flex direction="column" width="100%" overflowX={"hidden"} gap="10px">
-//       <NfcLeaderboard />
-//       <Flex
-//         justifyContent={"space-between"}
-//         my="6"
-//         direction={["column", "row", "row", "row"]}
-//       >
-//         <Stack direction="row" spacing={["3", "8", "10", "16"]}>
-//           <Link
-//             href="https://www.unlonely.app/privacy"
-//             passHref
-//             target="_blank"
-//           >
-//             <Text fontFamily="LoRes15">privacy</Text>
-//           </Link>
-//           <Link
-//             href="https://super-okra-6ad.notion.site/Unlonely-Terms-of-Service-b3c0ea0272c943e98e3120243955cd75?pvs=4"
-//             passHref
-//             target="_blank"
-//           >
-//             <Text fontFamily="LoRes15">terms</Text>
-//           </Link>
-//           <Link href="https://bit.ly/unlonelyFAQs" passHref target="_blank">
-//             <Text fontFamily="LoRes15">about</Text>
-//           </Link>
-//         </Stack>
-//         <Stack direction="row" spacing={["3", "8", "10", "16"]}>
-//           <Link
-//             href="https://twitter.com/unlonely_app"
-//             passHref
-//             target="_blank"
-//           >
-//             <Text fontFamily="LoRes15">twitter</Text>
-//           </Link>
-//           <Link href="https://warpcast.com/unlonely" passHref target="_blank">
-//             <Text fontFamily="LoRes15">farcaster</Text>
-//           </Link>
-//           <Link href="https://t.me/+c19n9g-FxZszODIx" passHref target="_blank">
-//             <Text fontFamily="LoRes15">telegram</Text>
-//           </Link>
-//         </Stack>
-//       </Flex>
-//     </Flex>
-//   );
-// };
+import HomepageHeader from "../components/navigation/HomepageHeader";
+import { HomepageWelcomeTicker } from "../components/layout/HomepageWelcomeTicker";
+import { FIXED_SOLANA_MINT } from "../constants";
+import { IntegratedTerminal } from "../components/layout/IntegratedBooJupiterTerminal";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { RiSwapFill } from "react-icons/ri";
+import { HomePageGalleryScroller } from "../components/layout/HomePageGalleryScroller";
 
 function DesktopHomePage({
   dataChannels,
@@ -137,24 +53,138 @@ function DesktopHomePage({
 
   // const channels = dataChannels;
 
-  // const sideBarBreakpoints = useBreakpointValue({
-  //   base: false,
-  //   sm: false,
-  //   md: true,
-  //   xl: true,
-  // });
+  const isMobileView = useBreakpointValue({
+    base: true,
+    sm: true,
+    md: false,
+    xl: false,
+  });
+
+  const [isSell, setIsSell] = useState<boolean>(false);
 
   return (
     <AppLayout isCustomHeader={false} noHeader>
-      <Flex
-        h="100dvh"
-        bg="rgba(5, 0, 31, 1)"
-        position={"relative"}
-        direction="column"
-        overflowY={["unset", "hidden", "hidden", "hidden"]}
-      >
+      <Flex bg="rgba(5, 0, 31, 1)" position={"relative"} direction="column">
         {/* {!isMobile && <Header />} */}
-        <BooEventWrapper />
+        <HomepageHeader />
+        <HomepageWelcomeTicker />
+        <Flex direction={isMobileView ? "column-reverse" : "row"}>
+          <Flex
+            width={isMobileView ? "100%" : "45%"}
+            direction="column"
+            gap="15px"
+            p="20px"
+          >
+            <Text textAlign={"center"} fontSize="30px" fontWeight="bold">
+              gallery
+            </Text>
+            <Flex bg="rgba(55, 255, 139, 1)" direction="column">
+              <Flex color="black">
+                <Flex width="30%">
+                  <Text>the FUD</Text>
+                </Flex>
+                <Flex width="70%">
+                  <HomePageGalleryScroller clips={[]} />
+                </Flex>
+              </Flex>
+              <Flex color="black">
+                <Flex width="30%">
+                  <Text>love on leverage (s2)</Text>
+                </Flex>
+                <Flex width="70%">
+                  <HomePageGalleryScroller clips={[]} />
+                </Flex>
+              </Flex>
+              <Flex color="black">
+                <Flex width="30%">
+                  <Text>love on leverage (s1)</Text>
+                </Flex>
+                <Flex width="70%">
+                  <HomePageGalleryScroller clips={[]} />
+                </Flex>
+              </Flex>
+              <Flex color="black">
+                <Flex width="30%">
+                  <Text>unlonely NFCs</Text>
+                </Flex>
+                <Flex width="70%">
+                  <HomePageGalleryScroller clips={[]} />
+                </Flex>
+              </Flex>
+            </Flex>
+          </Flex>
+          <Flex
+            direction="column"
+            width={isMobileView ? "100%" : "55%"}
+            gap="50px"
+            p="20px"
+          >
+            <Flex direction="column" gap="15px">
+              <Text textAlign={"center"} fontSize="30px" fontWeight="bold">
+                what is $boo?
+              </Text>
+              <Flex>
+                <iframe
+                  width="100%"
+                  id="geckoterminal-embed"
+                  title="GeckoTerminal Embed"
+                  src={`https://www.geckoterminal.com/solana/pools/${FIXED_SOLANA_MINT.poolAddress}?embed=1&info=0&swaps=0`}
+                  allow="clipboard-write"
+                ></iframe>
+                <Flex width="50%">
+                  <Flex position={"absolute"} zIndex={51} bg="#1F2935">
+                    <Tooltip
+                      label={`switch to ${isSell ? "buy" : "sell"}`}
+                      shouldWrapChildren
+                    >
+                      <IconButton
+                        bg="#1F2935"
+                        color="#21ec54"
+                        _hover={{
+                          bg: "#354559",
+                        }}
+                        aria-label="swap token input"
+                        icon={<RiSwapFill size={20} />}
+                        zIndex={51}
+                        onClick={() => {
+                          setIsSell((prev) => !prev);
+                        }}
+                      />
+                    </Tooltip>
+                    <Tooltip label="dexscreener" shouldWrapChildren>
+                      <IconButton
+                        bg="#1F2935"
+                        color="#21ec54"
+                        _hover={{
+                          bg: "#354559",
+                        }}
+                        aria-label="go to dexscreener"
+                        icon={<ExternalLinkIcon />}
+                        zIndex={51}
+                        onClick={() => {
+                          window.open(
+                            `https://dexscreener.com/solana/${FIXED_SOLANA_MINT.poolAddress}`,
+                            "_blank"
+                          );
+                        }}
+                      />
+                    </Tooltip>
+                  </Flex>
+                  <IntegratedTerminal isBuy={!isSell} height="400px" />
+                </Flex>
+              </Flex>
+            </Flex>
+            <Flex direction="column" gap="15px">
+              <Text textAlign={"center"} fontSize="30px" fontWeight="bold">
+                what's next?
+              </Text>
+              <Text>
+                $boo is unlonely’s official content token, currently tradable on
+                solana (copy CA here).
+              </Text>
+            </Flex>
+          </Flex>
+        </Flex>
       </Flex>
       {/* {!directingToChannel ? (
         <Flex
