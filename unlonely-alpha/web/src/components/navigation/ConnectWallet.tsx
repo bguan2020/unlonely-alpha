@@ -30,19 +30,14 @@ export const ConnectWallet = () => {
     ready,
     authenticated,
     fetchingUser,
-    activeWallet,
     login,
-    connectWallet,
     handleIsManagingWallets,
-    logout,
   } = useUser();
 
   const loggedInWithPrivy = useMemo(
     () => authenticated && ready,
     [authenticated, ready]
   );
-
-  console.log("fetchingUser || ready", fetchingUser, ready);
 
   return loggedInWithPrivy && user ? (
     <ConnectedDisplay />
@@ -65,7 +60,6 @@ export const ConnectWallet = () => {
         onClick={() => {
           loggedInWithPrivy ? handleIsManagingWallets(true) : login();
         }}
-        // isDisabled={fetchingUser || !ready}
       >
         {fetchingUser || !ready ? (
           <Spinner />

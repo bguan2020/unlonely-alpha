@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useLazyQuery } from "@apollo/client";
@@ -130,6 +131,8 @@ export const UserProvider = ({
   const [localAddress, setLocalAddress] = useState<string | undefined>(
     undefined
   );
+
+  const calledConnectWalletOnMount = useRef(false);
 
   const { address: wagmiAddress } = useAccount();
 
@@ -432,7 +435,8 @@ export const UserProvider = ({
                       areAddressesEqual(
                         solanaAddress ?? "",
                         localAddress ?? ""
-                      )) ? (
+                      )) &&
+                    (foundWallet as any)?.type ? (
                       <Flex gap="5px">
                         <Flex
                           background="#22b66e"
