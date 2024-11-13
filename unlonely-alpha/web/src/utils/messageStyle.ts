@@ -30,8 +30,6 @@ const blueTempTokenInteractionTypes = [
 
 const greenTempTokenInteractionTypes = [
   InteractionType.BUY_TEMP_TOKENS,
-
-  InteractionType.BUY_BOO,
 ];
 
 const redTempTokenInteractionTypes = [
