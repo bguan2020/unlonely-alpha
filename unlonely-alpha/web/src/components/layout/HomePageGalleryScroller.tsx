@@ -1,15 +1,15 @@
-import { Flex, Text, Box, Image } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 import { useRef, useEffect } from "react";
 import NfcCardSkeleton from "../NFCs/NfcCardSkeleton";
-
+import { GalleryData } from "../../pages";
 type Props = {
-  clips: any[];
+  galleryDataArray: GalleryData[];
   makeLinksExternal?: boolean;
   loading?: boolean;
 };
 
 export const HomePageGalleryScroller: React.FunctionComponent<Props> = ({
-  clips,
+  galleryDataArray,
   makeLinksExternal,
   loading,
 }) => {
@@ -39,22 +39,33 @@ export const HomePageGalleryScroller: React.FunctionComponent<Props> = ({
       overflowX="scroll"
       overflowY="clip"
       width="100%"
-      height={{
-        base: "15rem",
-        sm: "20rem",
-        md: "20rem",
-        lg: "20rem",
-      }}
       gap={"1rem"}
       py="1rem"
       position={"relative"}
     >
-      {clips?.map(
-        (clip: any) =>
-          !!clip && (
+      {galleryDataArray?.map((galleryData: GalleryData) => (
+        <Flex
+          key={galleryData.link}
+          direction="column"
+          padding="0.3rem"
+          borderRadius="1rem"
+          minH="8rem"
+          minW={{ base: "16rem", sm: "25rem", md: "25rem", lg: "25rem" }}
+          bg={"#131323"}
+          p={"10px"}
+          cursor="pointer"
+          transition="transform 0.2s"
+          _hover={{ transform: "scale(1.05)" }}
+        >
+          {/* <Flex
+            _hover={{
+              filter: "brightness(80%)",
+              position: "relative",
+            }}
+          >
             <Box position="relative" mb="10px">
               <Image
-                src={clip.videoThumbnail ?? "/svg/defaultThumbnail.svg"}
+                src={galleryData.thumbnailUrl}
                 width={["236px", "380px"]}
                 height={["132px", "213px"]}
                 borderRadius={"10px"}
@@ -75,9 +86,16 @@ export const HomePageGalleryScroller: React.FunctionComponent<Props> = ({
                 }
               />
             </Box>
-          )
-      )}
-      {!loading && clips?.length === 0 && (
+          </Flex> */}
+          <video key={galleryData.link} controls preload="metadata">
+            <source
+              src={galleryData.link.concat("#t=0.1")}
+              type="video/mp4"
+            ></source>
+          </video>
+        </Flex>
+      ))}
+      {!loading && galleryDataArray?.length === 0 && (
         <Text>no clips for this gallery yet!</Text>
       )}
       {loading && [1, 2, 3, 4, 5].map((i) => <NfcCardSkeleton key={i} />)}

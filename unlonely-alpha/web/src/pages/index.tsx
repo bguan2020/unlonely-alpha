@@ -8,6 +8,8 @@ import {
   Input,
   useBreakpointValue,
   Tooltip,
+  Button,
+  useToast,
 } from "@chakra-ui/react";
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
@@ -35,6 +37,170 @@ import { IntegratedTerminal } from "../components/layout/IntegratedBooJupiterTer
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { RiSwapFill } from "react-icons/ri";
 import { HomePageGalleryScroller } from "../components/layout/HomePageGalleryScroller";
+import { FaRegCopy } from "react-icons/fa";
+import copy from "copy-to-clipboard";
+
+export type GalleryData = {
+  link: string;
+  thumbnailUrl: string;
+};
+
+const FUD_GALLERY: GalleryData[] = [
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/53c777b99t6iz1t3/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/53c777b99t6iz1t3/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/9b8etvdrpax7ffat/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/9b8etvdrpax7ffat/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/fb17772bn8fv0czh/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/fb17772bn8fv0czh/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a73384r7dlw15k0e/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a73384r7dlw15k0e/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/d84179xshamjhvfj/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/d84179xshamjhvfj/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/fc876hm4fjl6ar2d/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/fc876hm4fjl6ar2d/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/fa37pi29jo6xheve/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/fa37pi29jo6xheve/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/84c7fb50xfko74qw/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/84c7fb50xfko74qw/thumbnails/keyframes_0.png",
+  },
+];
+
+const LOL_S2_GALLERY: GalleryData[] = [
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/c956z9uignbc90mo/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/c956z9uignbc90mo/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/338fg877s5pcytlr/video/download.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/338fg877s5pcytlr/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/35400m0ahprxnpzc/video/download.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/35400m0ahprxnpzc/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/3fb3sst39yp9e933/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/3fb3sst39yp9e933/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/814cxfsvmmv0nd6n/video/download.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/814cxfsvmmv0nd6n/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/ab0am2g9rxmzh0z7/video/download.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/ab0am2g9rxmzh0z7/thumbnails/keyframes_0.png",
+  },
+];
+
+const LOL_S1_GALLERY: GalleryData[] = [
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a63eolqg2mcu3lsq/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/a63eolqg2mcu3lsq/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/02caqj3ptyeu1w7a/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/02caqj3ptyeu1w7a/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/31dckd3mgzlu58dx/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/31dckd3mgzlu58dx/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/decf26falqhb6lgk/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/decf26falqhb6lgk/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/5e1acmpbpjres546/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/5e1acmpbpjres546/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/2250k25nz3ezrafa/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/2250k25nz3ezrafa/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/082cfh9zyf80pf04/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/082cfh9zyf80pf04/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/565az06iknyl5iiv/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/565az06iknyl5iiv/thumbnails/keyframes_0.png",
+  },
+];
+
+const SELECT_NFCS: GalleryData[] = [
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/51f2l6xnxdu2otj9/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/51f2l6xnxdu2otj9/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/b8cady7pl6ndtzfw/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/b8cady7pl6ndtzfw/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/36efm3k9mv4e3htl/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/36efm3k9mv4e3htl/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/b16333wky0wpgr8d/720p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/b16333wky0wpgr8d/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/5e06p8lvjs5drlz7/1080p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/5e06p8lvjs5drlz7/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/0b33rd95h30ir6ne/1080p0.mp4",
+    thumbnailUrl:
+      "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/0b33rd95h30ir6ne/thumbnails/keyframes_0.png",
+  },
+  {
+    link: "https://unlonely-clips.s3.us-west-2.amazonaws.com/brian-clips/20240416151906/clip.mp4",
+    thumbnailUrl:
+      "https://unlonely-clips.s3.us-west-2.amazonaws.com/brian-clips/20240416151906/thumbnail.jpg",
+  },
+];
 
 function DesktopHomePage({
   dataChannels,
@@ -52,6 +218,7 @@ function DesktopHomePage({
   // const [directingToChannel, setDirectingToChannel] = useState<boolean>(false);
 
   // const channels = dataChannels;
+  const toast = useToast();
 
   const isMobileView = useBreakpointValue({
     base: true,
@@ -61,6 +228,16 @@ function DesktopHomePage({
   });
 
   const [isSell, setIsSell] = useState<boolean>(false);
+
+  const handleCopyContractAddress = () => {
+    copy(FIXED_SOLANA_MINT.mintAddress);
+    toast({
+      title: "copied contract address",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
 
   return (
     <AppLayout isCustomHeader={false} noHeader>
@@ -73,42 +250,188 @@ function DesktopHomePage({
             width={isMobileView ? "100%" : "45%"}
             direction="column"
             gap="15px"
-            p="20px"
+            p="10px"
           >
             <Text textAlign={"center"} fontSize="30px" fontWeight="bold">
               gallery
             </Text>
-            <Flex bg="rgba(55, 255, 139, 1)" direction="column">
-              <Flex color="black">
-                <Flex width="30%">
-                  <Text>the FUD</Text>
+            <Flex
+              bg="rgba(55, 255, 139, 1)"
+              direction={"column"}
+              gap="10px"
+              p="10px"
+            >
+              <Flex color="black" direction={isMobileView ? "column" : "row"}>
+                <Flex
+                  width={isMobileView ? "100%" : "30%"}
+                  direction="column"
+                  justifyContent={"space-around"}
+                  p="10px"
+                >
+                  <Text
+                    fontSize="25px"
+                    fontWeight="bold"
+                    textDecoration={"underline"}
+                  >
+                    the FUD
+                  </Text>
+                  <Text fontSize="15px">
+                    a 24 hr horror show feat. rasmr, linda & sarah locked in a
+                    bushwick church basement
+                  </Text>
                 </Flex>
-                <Flex width="70%">
-                  <HomePageGalleryScroller clips={[]} />
+                <Flex width={isMobileView ? "100%" : "70%"}>
+                  <Flex
+                    bg="rgba(0, 0, 0, 0.3)"
+                    direction="row"
+                    overflowY="hidden"
+                    justifyContent="left"
+                    p="10px"
+                    width="100%"
+                    height={{
+                      base: "14rem",
+                      sm: "18rem",
+                      md: "18rem",
+                      lg: "18rem",
+                    }}
+                  >
+                    <HomePageGalleryScroller galleryDataArray={FUD_GALLERY} />
+                  </Flex>
                 </Flex>
               </Flex>
-              <Flex color="black">
-                <Flex width="30%">
-                  <Text>love on leverage (s2)</Text>
+              <Flex color="black" direction={isMobileView ? "column" : "row"}>
+                <Flex
+                  width={isMobileView ? "100%" : "30%"}
+                  direction="column"
+                  justifyContent={"space-around"}
+                  p="10px"
+                >
+                  <Text
+                    fontSize="25px"
+                    fontWeight="bold"
+                    textDecoration={"underline"}
+                  >
+                    love on leverage (s2)
+                  </Text>
+                  <Text fontSize="15px">
+                    cooper, li jin, david phelps & more go on live blind dates
+                    that viewers can bet on
+                  </Text>
                 </Flex>
-                <Flex width="70%">
-                  <HomePageGalleryScroller clips={[]} />
+                <Flex width={isMobileView ? "100%" : "70%"}>
+                  <Flex
+                    bg="rgba(0, 0, 0, 0.3)"
+                    direction="row"
+                    overflowY="hidden"
+                    justifyContent="left"
+                    p="10px"
+                    width="100%"
+                    height={{
+                      base: "14rem",
+                      sm: "18rem",
+                      md: "18rem",
+                      lg: "18rem",
+                    }}
+                  >
+                    <HomePageGalleryScroller
+                      galleryDataArray={LOL_S2_GALLERY}
+                    />
+                  </Flex>
                 </Flex>
               </Flex>
-              <Flex color="black">
-                <Flex width="30%">
-                  <Text>love on leverage (s1)</Text>
+              <Flex color="black" direction={isMobileView ? "column" : "row"}>
+                <Flex
+                  width={isMobileView ? "100%" : "30%"}
+                  direction="column"
+                  justifyContent={"space-around"}
+                  p="10px"
+                >
+                  <Text
+                    fontSize="25px"
+                    fontWeight="bold"
+                    textDecoration={"underline"}
+                  >
+                    love on leverage (s1)
+                  </Text>
+                  <Text fontSize="15px">
+                    seraphim, winny.eth, reka, dancingeddie & more go on live
+                    blind dates that viewers can bet on.
+                  </Text>
                 </Flex>
-                <Flex width="70%">
-                  <HomePageGalleryScroller clips={[]} />
+                <Flex width={isMobileView ? "100%" : "70%"}>
+                  <Flex
+                    bg="rgba(0, 0, 0, 0.3)"
+                    direction="row"
+                    overflowY="hidden"
+                    justifyContent="left"
+                    p="10px"
+                    width="100%"
+                    height={{
+                      base: "14rem",
+                      sm: "18rem",
+                      md: "18rem",
+                      lg: "18rem",
+                    }}
+                  >
+                    <HomePageGalleryScroller
+                      galleryDataArray={LOL_S1_GALLERY}
+                    />
+                  </Flex>
                 </Flex>
               </Flex>
-              <Flex color="black">
-                <Flex width="30%">
-                  <Text>unlonely NFCs</Text>
+              <Flex color="black" direction={isMobileView ? "column" : "row"}>
+                <Flex
+                  width={isMobileView ? "100%" : "30%"}
+                  direction="column"
+                  justifyContent={"space-around"}
+                  p="10px"
+                >
+                  <Text
+                    fontSize="25px"
+                    fontWeight="bold"
+                    textDecoration={"underline"}
+                  >
+                    unlonely NFCs
+                  </Text>
+                  <Text fontSize="15px">
+                    clips from the various streams on unlonely from doormat,
+                    rehash, gmfarcaster, ted & many more
+                  </Text>
+                  <Flex justifyContent={"flex-end"}>
+                    <Button
+                      bg="#262664"
+                      color="rgba(55, 255, 139, 1)"
+                      height="25px"
+                      width="100px"
+                      _hover={{ color: "#262664", bg: "#ffffff" }}
+                      onClick={() => {
+                        window.open(
+                          `${window.origin}/nfcs?sort=createdAt`,
+                          "_blank"
+                        );
+                      }}
+                    >
+                      see all
+                    </Button>
+                  </Flex>
                 </Flex>
-                <Flex width="70%">
-                  <HomePageGalleryScroller clips={[]} />
+                <Flex width={isMobileView ? "100%" : "70%"}>
+                  <Flex
+                    bg="rgba(0, 0, 0, 0.3)"
+                    direction="row"
+                    overflowY="hidden"
+                    justifyContent="left"
+                    p="10px"
+                    width="100%"
+                    height={{
+                      base: "14rem",
+                      sm: "18rem",
+                      md: "18rem",
+                      lg: "18rem",
+                    }}
+                  >
+                    <HomePageGalleryScroller galleryDataArray={SELECT_NFCS} />
+                  </Flex>
                 </Flex>
               </Flex>
             </Flex>
@@ -117,7 +440,7 @@ function DesktopHomePage({
             direction="column"
             width={isMobileView ? "100%" : "55%"}
             gap="50px"
-            p="20px"
+            p="10px"
           >
             <Flex direction="column" gap="15px">
               <Text textAlign={"center"} fontSize="30px" fontWeight="bold">
@@ -130,8 +453,9 @@ function DesktopHomePage({
                   title="GeckoTerminal Embed"
                   src={`https://www.geckoterminal.com/solana/pools/${FIXED_SOLANA_MINT.poolAddress}?embed=1&info=0&swaps=0`}
                   allow="clipboard-write"
+                  hidden={isMobileView}
                 ></iframe>
-                <Flex width="50%">
+                <Flex width={isMobileView ? "100%" : "50%"}>
                   <Flex position={"absolute"} zIndex={51} bg="#1F2935">
                     <Tooltip
                       label={`switch to ${isSell ? "buy" : "sell"}`}
@@ -170,7 +494,11 @@ function DesktopHomePage({
                       />
                     </Tooltip>
                   </Flex>
-                  <IntegratedTerminal isBuy={!isSell} height="400px" />
+                  <IntegratedTerminal
+                    isBuy={!isSell}
+                    height="400px"
+                    width={isMobileView ? "100%" : "unset"}
+                  />
                 </Flex>
               </Flex>
             </Flex>
@@ -178,10 +506,31 @@ function DesktopHomePage({
               <Text textAlign={"center"} fontSize="30px" fontWeight="bold">
                 what's next?
               </Text>
-              <Text>
+              <Text textAlign={"center"}>
                 $boo is unlonely’s official content token, currently tradable on
-                solana (copy CA here).
+                solana.
               </Text>
+              <Flex justifyContent={"center"}>
+                <Button
+                  onClick={handleCopyContractAddress}
+                  borderRadius="35px"
+                  width="150px"
+                  color="white"
+                  background="#564F9A"
+                  _active={{}}
+                  _focus={{}}
+                  _hover={{
+                    transform: "scale(1.05)",
+                  }}
+                >
+                  <Flex alignItems={"center"} gap="5px">
+                    <FaRegCopy size="20px" />
+                    <Text fontSize="30px" fontFamily="LoRes15">
+                      $BOO CA
+                    </Text>
+                  </Flex>
+                </Button>
+              </Flex>
             </Flex>
           </Flex>
         </Flex>

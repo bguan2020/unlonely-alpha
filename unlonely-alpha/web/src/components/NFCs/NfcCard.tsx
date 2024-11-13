@@ -112,7 +112,7 @@ const NfcCard = ({ nfc, makeLinksExternal }: any) => {
   );
 };
 
-const LinkWrapper = ({ href, children, isExternal }: any) => {
+export const LinkWrapper = ({ href, children, isExternal }: any) => {
   if (isExternal) {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer">
