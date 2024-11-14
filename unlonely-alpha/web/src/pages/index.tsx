@@ -275,8 +275,37 @@ function DesktopHomePage({
                     the FUD
                   </Text>
                   <Text fontSize="15px">
-                    a 24 hr horror show feat. rasmr, linda & sarah locked in a
-                    bushwick church basement
+                    a 24 hr horror show feat.{" "}
+                    <a
+                      href="https://x.com/rasmr_eth"
+                      target="_blank"
+                      style={{
+                        textDecoration: "underline",
+                      }}
+                    >
+                      rasmr
+                    </a>
+                    ,{" "}
+                    <a
+                      href="https://x.com/Lin_DAO_"
+                      target="_blank"
+                      style={{
+                        textDecoration: "underline",
+                      }}
+                    >
+                      linda
+                    </a>{" "}
+                    &{" "}
+                    <a
+                      href="https://x.com/sracha_z"
+                      target="_blank"
+                      style={{
+                        textDecoration: "underline",
+                      }}
+                    >
+                      sarah
+                    </a>{" "}
+                    locked in a bushwick church basement
                   </Text>
                 </Flex>
                 <Flex width={isMobileView ? "100%" : "70%"}>
@@ -312,8 +341,36 @@ function DesktopHomePage({
                     love on leverage (s2)
                   </Text>
                   <Text fontSize="15px">
-                    cooper, li jin, david phelps & more go on live blind dates
-                    that viewers can bet on
+                    <a
+                      href="https://x.com/Cooopahtroopa"
+                      target="_blank"
+                      style={{
+                        textDecoration: "underline",
+                      }}
+                    >
+                      cooper
+                    </a>
+                    ,{" "}
+                    <a
+                      href="https://x.com/ljin18"
+                      target="_blank"
+                      style={{
+                        textDecoration: "underline",
+                      }}
+                    >
+                      li jin
+                    </a>
+                    ,{" "}
+                    <a
+                      href="https://x.com/divine_economy"
+                      target="_blank"
+                      style={{
+                        textDecoration: "underline",
+                      }}
+                    >
+                      david phelps
+                    </a>{" "}
+                    & more go on live blind dates that viewers can bet on
                   </Text>
                 </Flex>
                 <Flex width={isMobileView ? "100%" : "70%"}>
@@ -351,8 +408,46 @@ function DesktopHomePage({
                     love on leverage (s1)
                   </Text>
                   <Text fontSize="15px">
-                    seraphim, winny.eth, reka, dancingeddie & more go on live
-                    blind dates that viewers can bet on.
+                    <a
+                      href="https://x.com/MacroMate8"
+                      target="_blank"
+                      style={{
+                        textDecoration: "underline",
+                      }}
+                    >
+                      seraphim
+                    </a>
+                    ,{" "}
+                    <a
+                      href="https://x.com/winnyeth"
+                      target="_blank"
+                      style={{
+                        textDecoration: "underline",
+                      }}
+                    >
+                      winny.eth
+                    </a>
+                    ,{" "}
+                    <a
+                      href="https://x.com/reka_eth"
+                      target="_blank"
+                      style={{
+                        textDecoration: "underline",
+                      }}
+                    >
+                      reka
+                    </a>
+                    ,{" "}
+                    <a
+                      href="https://x.com/DancingEddie_"
+                      target="_blank"
+                      style={{
+                        textDecoration: "underline",
+                      }}
+                    >
+                      dancingeddie
+                    </a>{" "}
+                    & more go on live blind dates that viewers can bet on.
                   </Text>
                 </Flex>
                 <Flex width={isMobileView ? "100%" : "70%"}>
@@ -390,8 +485,37 @@ function DesktopHomePage({
                     unlonely NFCs
                   </Text>
                   <Text fontSize="15px">
-                    clips from the various streams on unlonely from doormat,
-                    rehash, gmfarcaster, ted & many more
+                    clips from the various streams on unlonely from{" "}
+                    <a
+                      href="https://x.com/ddwchen"
+                      target="_blank"
+                      style={{
+                        textDecoration: "underline",
+                      }}
+                    >
+                      rehash
+                    </a>
+                    ,{" "}
+                    <a
+                      href="https://warpcast.com/~/channel/gmfarcaster"
+                      target="_blank"
+                      style={{
+                        textDecoration: "underline",
+                      }}
+                    >
+                      gmfarcaster
+                    </a>
+                    ,{" "}
+                    <a
+                      href="https://warpcast.com/ted"
+                      target="_blank"
+                      style={{
+                        textDecoration: "underline",
+                      }}
+                    >
+                      ted
+                    </a>{" "}
+                    & many more
                   </Text>
                   <Flex justifyContent={"flex-start"}>
                     <Button
@@ -442,6 +566,34 @@ function DesktopHomePage({
               <Text textAlign={"center"} fontSize="30px" fontWeight="bold">
                 what is $boo?
               </Text>
+              <Text textAlign={"center"} fontSize="15px">
+                $boo is a token on solana that powers our shows (see gallery for
+                recent examples of interactive livestream shows we've produced).
+                it's a brand new business model for content creators that
+                directly monetizes attention - circumventing ads and platforms.
+              </Text>
+
+              <Flex justifyContent={"center"}>
+                <Button
+                  onClick={handleCopyContractAddress}
+                  borderRadius="35px"
+                  width="150px"
+                  color="white"
+                  background="#564F9A"
+                  _active={{}}
+                  _focus={{}}
+                  _hover={{
+                    transform: "scale(1.05)",
+                  }}
+                >
+                  <Flex alignItems={"center"} gap="5px">
+                    <FaRegCopy size="20px" />
+                    <Text fontSize="30px" fontFamily="LoRes15">
+                      $BOO CA
+                    </Text>
+                  </Flex>
+                </Button>
+              </Flex>
               <Flex direction="column" gap="10px">
                 <Flex height="50vh">
                   <iframe
@@ -508,30 +660,52 @@ function DesktopHomePage({
                 what's next?
               </Text>
               <Text textAlign={"center"}>
-                $boo is unlonely’s official content token, currently tradable on
-                solana.
-              </Text>
-              <Flex justifyContent={"center"}>
-                <Button
-                  onClick={handleCopyContractAddress}
-                  borderRadius="35px"
-                  width="150px"
-                  color="white"
-                  background="#564F9A"
-                  _active={{}}
-                  _focus={{}}
-                  _hover={{
-                    transform: "scale(1.05)",
+                we're always cooking up new exciting content. follow{" "}
+                <a
+                  href="https://x.com/unlonely_app"
+                  target="_blank"
+                  style={{
+                    textDecoration: "underline",
+                    color: "#21ec54",
                   }}
                 >
-                  <Flex alignItems={"center"} gap="5px">
-                    <FaRegCopy size="20px" />
-                    <Text fontSize="30px" fontFamily="LoRes15">
-                      $BOO CA
-                    </Text>
-                  </Flex>
-                </Button>
-              </Flex>
+                  unlonely
+                </a>
+                , and its founders{" "}
+                <a
+                  href="https://x.com/gracewhiteguan"
+                  target="_blank"
+                  style={{
+                    textDecoration: "underline",
+                    color: "#21ec54",
+                  }}
+                >
+                  grace
+                </a>{" "}
+                &{" "}
+                <a
+                  href="https://x.com/bdguan"
+                  target="_blank"
+                  style={{
+                    textDecoration: "underline",
+                    color: "#21ec54",
+                  }}
+                >
+                  brian
+                </a>
+                , to stay in the know. plus join the{" "}
+                <a
+                  href="https://t.me/+c19n9g-FxZszODIx"
+                  target="_blank"
+                  style={{
+                    textDecoration: "underline",
+                    color: "#21ec54",
+                  }}
+                >
+                  power users chat
+                </a>{" "}
+                to be part of the community!
+              </Text>
             </Flex>
           </Flex>
         </Flex>
