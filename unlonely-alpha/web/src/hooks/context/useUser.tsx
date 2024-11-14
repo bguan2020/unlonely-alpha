@@ -231,6 +231,16 @@ export const UserProvider = ({
     wagmiAddress
   );
   console.log("wallets", wallets, evmWallets, solanaWallets);
+  console.log(
+    "hasConnectedWallet",
+    privyUser?.linkedAccounts
+      ?.filter((account) => account.type === "wallet")
+      .some((account) =>
+        wallets.some(
+          (w) => w.address === (account as WalletWithMetadata).address
+        )
+      )
+  );
 
   const fetchAndSetUserData = useCallback(async (_address: string) => {
     setFetchingUser(true);
@@ -285,16 +295,20 @@ export const UserProvider = ({
   }, [latestVerifiedPrivyAccount?.address]);
 
   useEffect(() => {
-    if (!localAddress || evmWallets.length === 0) return;
-    const foundEvmWallet = evmWallets.find((w) =>
-      areAddressesEqual(w.address, localAddress)
-    );
-    console.log("foundEvmWallet", foundEvmWallet, evmWallets, localAddress);
-    try {
-      if (foundEvmWallet) setActiveWallet(foundEvmWallet);
-    } catch (e) {
-      console.error("error setting active wallet", e);
-    }
+    const connectEvmWallet = async () => {
+      if (!localAddress || evmWallets.length === 0) return;
+      const foundEvmWallet = evmWallets.find((w) =>
+        areAddressesEqual(w.address, localAddress)
+      );
+      console.log("foundEvmWallet", foundEvmWallet, evmWallets, localAddress);
+      try {
+        // await new Promise((resolve) => setTimeout(resolve, 1500));
+        if (foundEvmWallet) setActiveWallet(foundEvmWallet);
+      } catch (e) {
+        console.error("error setting active wallet", e);
+      }
+    };
+    connectEvmWallet();
   }, [localAddress, evmWallets]);
 
   const handleIsManagingWallets = useCallback((value: boolean) => {
