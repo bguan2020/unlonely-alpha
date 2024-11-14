@@ -393,7 +393,7 @@ function DesktopHomePage({
                     clips from the various streams on unlonely from doormat,
                     rehash, gmfarcaster, ted & many more
                   </Text>
-                  <Flex justifyContent={"flex-end"}>
+                  <Flex justifyContent={"flex-start"}>
                     <Button
                       bg="#262664"
                       color="rgba(55, 255, 139, 1)"
