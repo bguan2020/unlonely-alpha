@@ -56,37 +56,8 @@ export const HomePageGalleryScroller: React.FunctionComponent<Props> = ({
           cursor="pointer"
           transition="transform 0.2s"
           _hover={{ transform: "scale(1.05)" }}
+          justifyContent={"center"}
         >
-          {/* <Flex
-            _hover={{
-              filter: "brightness(80%)",
-              position: "relative",
-            }}
-          >
-            <Box position="relative" mb="10px">
-              <Image
-                src={galleryData.thumbnailUrl}
-                width={["236px", "380px"]}
-                height={["132px", "213px"]}
-                borderRadius={"10px"}
-              />
-              <Image
-                src="/images/playIcon.png"
-                opacity={0.5}
-                style={
-                  {
-                    position: "absolute",
-                    zIndex: 1,
-                    visibility: "visible",
-                    margin: "auto",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                  } as React.CSSProperties
-                }
-              />
-            </Box>
-          </Flex> */}
           <video key={galleryData.link} controls preload="metadata">
             <source
               src={galleryData.link.concat("#t=0.1")}

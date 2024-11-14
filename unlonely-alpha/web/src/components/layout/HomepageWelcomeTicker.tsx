@@ -16,7 +16,7 @@ export const HomepageWelcomeTicker = () => {
   return (
     <PageVisibility onChange={handleVisibilityChange}>
       {pageIsVisible && (
-        <Ticker speed={10}>
+        <Ticker speed={5}>
           {() => (
             <Text fontSize="30px" fontWeight="bold" mx="5px">
               gm & welcome 💚 💚 💚

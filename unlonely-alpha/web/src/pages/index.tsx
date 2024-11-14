@@ -105,7 +105,7 @@ const LOL_S2_GALLERY: GalleryData[] = [
       "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/35400m0ahprxnpzc/thumbnails/keyframes_0.png",
   },
   {
-    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/3fb3sst39yp9e933/720p0.mp4",
+    link: "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/3fb3sst39yp9e933/video/download.mp4",
     thumbnailUrl:
       "https://vod-cdn.lp-playback.studio/raw/jxf4iblf6wlsyor6526t4tcmtmqa/catalyst-vod-com/hls/3fb3sst39yp9e933/thumbnails/keyframes_0.png",
   },
@@ -245,9 +245,9 @@ function DesktopHomePage({
         {/* {!isMobile && <Header />} */}
         <HomepageHeader />
         <HomepageWelcomeTicker />
-        <Flex direction={isMobileView ? "column-reverse" : "row"}>
+        <Flex direction={isMobileView ? "column-reverse" : "row"} mt="20px">
           <Flex
-            width={isMobileView ? "100%" : "45%"}
+            width={isMobileView ? "100%" : "50%"}
             direction="column"
             gap="15px"
             p="10px"
@@ -265,7 +265,6 @@ function DesktopHomePage({
                 <Flex
                   width={isMobileView ? "100%" : "30%"}
                   direction="column"
-                  justifyContent={"space-around"}
                   p="10px"
                 >
                   <Text
@@ -303,7 +302,6 @@ function DesktopHomePage({
                 <Flex
                   width={isMobileView ? "100%" : "30%"}
                   direction="column"
-                  justifyContent={"space-around"}
                   p="10px"
                 >
                   <Text
@@ -343,7 +341,6 @@ function DesktopHomePage({
                 <Flex
                   width={isMobileView ? "100%" : "30%"}
                   direction="column"
-                  justifyContent={"space-around"}
                   p="10px"
                 >
                   <Text
@@ -383,7 +380,6 @@ function DesktopHomePage({
                 <Flex
                   width={isMobileView ? "100%" : "30%"}
                   direction="column"
-                  justifyContent={"space-around"}
                   p="10px"
                 >
                   <Text
@@ -438,7 +434,7 @@ function DesktopHomePage({
           </Flex>
           <Flex
             direction="column"
-            width={isMobileView ? "100%" : "55%"}
+            width={isMobileView ? "100%" : "50%"}
             gap="50px"
             p="10px"
           >
@@ -446,59 +442,64 @@ function DesktopHomePage({
               <Text textAlign={"center"} fontSize="30px" fontWeight="bold">
                 what is $boo?
               </Text>
-              <Flex>
-                <iframe
-                  width="100%"
-                  id="geckoterminal-embed"
-                  title="GeckoTerminal Embed"
-                  src={`https://www.geckoterminal.com/solana/pools/${FIXED_SOLANA_MINT.poolAddress}?embed=1&info=0&swaps=0`}
-                  allow="clipboard-write"
-                  hidden={isMobileView}
-                ></iframe>
-                <Flex width={isMobileView ? "100%" : "50%"}>
-                  <Flex position={"absolute"} zIndex={51} bg="#1F2935">
-                    <Tooltip
-                      label={`switch to ${isSell ? "buy" : "sell"}`}
-                      shouldWrapChildren
-                    >
-                      <IconButton
-                        bg="#1F2935"
-                        color="#21ec54"
-                        _hover={{
-                          bg: "#354559",
-                        }}
-                        aria-label="swap token input"
-                        icon={<RiSwapFill size={20} />}
-                        zIndex={51}
-                        onClick={() => {
-                          setIsSell((prev) => !prev);
-                        }}
-                      />
-                    </Tooltip>
-                    <Tooltip label="dexscreener" shouldWrapChildren>
-                      <IconButton
-                        bg="#1F2935"
-                        color="#21ec54"
-                        _hover={{
-                          bg: "#354559",
-                        }}
-                        aria-label="go to dexscreener"
-                        icon={<ExternalLinkIcon />}
-                        zIndex={51}
-                        onClick={() => {
-                          window.open(
-                            `https://dexscreener.com/solana/${FIXED_SOLANA_MINT.poolAddress}`,
-                            "_blank"
-                          );
-                        }}
-                      />
-                    </Tooltip>
+              <Flex direction="column" gap="10px">
+                <Flex height="50vh">
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    id="geckoterminal-embed"
+                    title="GeckoTerminal Embed"
+                    src={`https://www.geckoterminal.com/solana/pools/${FIXED_SOLANA_MINT.poolAddress}?embed=1&info=0&swaps=0`}
+                    allow="clipboard-write"
+                    hidden={isMobileView}
+                  ></iframe>
+                </Flex>
+                <Flex width="100%" justifyContent={"center"}>
+                  <Flex>
+                    <Flex position={"absolute"} zIndex={51} bg="#1F2935">
+                      <Tooltip
+                        label={`switch to ${isSell ? "buy" : "sell"}`}
+                        shouldWrapChildren
+                      >
+                        <IconButton
+                          bg="#1F2935"
+                          color="#21ec54"
+                          _hover={{
+                            bg: "#354559",
+                          }}
+                          aria-label="swap token input"
+                          icon={<RiSwapFill size={20} />}
+                          zIndex={51}
+                          onClick={() => {
+                            setIsSell((prev) => !prev);
+                          }}
+                        />
+                      </Tooltip>
+                      <Tooltip label="dexscreener" shouldWrapChildren>
+                        <IconButton
+                          bg="#1F2935"
+                          color="#21ec54"
+                          _hover={{
+                            bg: "#354559",
+                          }}
+                          aria-label="go to dexscreener"
+                          icon={<ExternalLinkIcon />}
+                          zIndex={51}
+                          onClick={() => {
+                            window.open(
+                              `https://dexscreener.com/solana/${FIXED_SOLANA_MINT.poolAddress}`,
+                              "_blank"
+                            );
+                          }}
+                        />
+                      </Tooltip>
+                    </Flex>
+                    <IntegratedTerminal
+                      isBuy={!isSell}
+                      height="400px"
+                      width={isMobileView ? "100%" : "unset"}
+                    />
                   </Flex>
-                  <IntegratedTerminal
-                    isBuy={!isSell}
-                    height="400px"
-                    width={isMobileView ? "100%" : "unset"}
-                  />
                 </Flex>
               </Flex>
             </Flex>
