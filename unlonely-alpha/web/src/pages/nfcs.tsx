@@ -30,6 +30,7 @@ import { safeIncludes } from "../utils/safeFunctions";
 const Nfcs = () => {
   const router = useRouter();
 
+  const [loadingMore, setLoadingMore] = useState(false);
   const [channelNfcs, setChannelNfcs] = useState<NfcFeedQuery["getNFCFeed"]>(
     []
   );
@@ -215,22 +216,28 @@ const Nfcs = () => {
           </Flex>
           <Button onClick={applyFilters}>apply</Button>
         </Flex>
-        <Wrap
-          ref={ref}
-          spacing="30px"
-          justify={"center"}
-          overflowY={"scroll"}
-          p="20px"
-        >
-          {channelNfcsToUse &&
-            channelNfcsToUse.map((nfc) => (
-              <WrapItem key={nfc?.id}>
-                <Center w="380px">
-                  <NfcCard key={nfc?.id} nfc={nfc} />
-                </Center>
-              </WrapItem>
-            ))}
-        </Wrap>
+        {loading && !loadingMore ? (
+          <Flex justifyContent={"center"}>
+            <Spinner />
+          </Flex>
+        ) : (
+          <Wrap
+            ref={ref}
+            spacing="30px"
+            justify={"center"}
+            overflowY={"scroll"}
+            p="20px"
+          >
+            {channelNfcsToUse &&
+              channelNfcsToUse.map((nfc) => (
+                <WrapItem key={nfc?.id}>
+                  <Center w="380px">
+                    <NfcCard key={nfc?.id} nfc={nfc} />
+                  </Center>
+                </WrapItem>
+              ))}
+          </Wrap>
+        )}
         {!fetchedUnderLimit && !hasAppliedFilters && (
           <Button
             opacity={showNextButton ? 1 : 0}
@@ -240,13 +247,15 @@ const Nfcs = () => {
             left="50%"
             transform="translateX(-50%)"
             onClick={async () => {
+              setLoadingMore(true);
               await fetchNfcs(sort).then(() => {
                 setShowNextButton(false);
               });
+              setLoadingMore(false);
             }}
             bg={"rgba(55, 255, 139, 1)"}
           >
-            <Text>{loading ? <Spinner /> : "load more"}</Text>
+            <Text>{loadingMore ? <Spinner /> : "load more"}</Text>
           </Button>
         )}
       </Flex>

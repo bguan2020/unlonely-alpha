@@ -50,7 +50,7 @@ const NfcList: React.FunctionComponent<Props> = ({
     el.addEventListener("scroll", handleScroll);
 
     return () => {
-      el.removeEventListener("wheel", handleScroll);
+      el.removeEventListener("wheel", handleWheel);
       el.removeEventListener("scroll", handleScroll);
     };
   }, []);
