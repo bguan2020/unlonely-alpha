@@ -45,7 +45,6 @@ export enum InteractionType {
 
   USE_BOO_PACKAGE = "use-boo-package-interaction",
   SEND_BOO_TTS = "send-tts-interaction",
-  BUY_BOO = "buy-boo-interaction",
 }
 
 export enum BaseChatCommand {

@@ -51,19 +51,7 @@ const AppLayout: React.FC<Props> = ({
   });
 
   return (
-    <Box
-      background={customBgColor ?? "rgba(0, 0, 0, 0.65)"}
-      overflowY={
-        router.pathname === "/" && isMobile && !isStandalone
-          ? "hidden"
-          : "unset"
-      }
-      h={
-        router.pathname === "/" && isMobile && !isStandalone
-          ? "100dvh"
-          : "unset"
-      }
-    >
+    <Box background={customBgColor ?? "rgba(0, 0, 0, 0.65)"}>
       {isCustomHeader === false && (
         <NextHead
           title={title ? title : ""}
@@ -84,11 +72,6 @@ const AppLayout: React.FC<Props> = ({
                 minH={
                   smallestDevice ? "calc(100vh - 25px)" : "calc(100vh - 48px)"
                 }
-                overflowY={
-                  router.pathname === "/" && isMobile && !isStandalone
-                    ? "hidden"
-                    : "unset"
-                }
               >
                 {error && (
                   <Alert status="error">
@@ -101,11 +84,6 @@ const AppLayout: React.FC<Props> = ({
                   isLoaded={!loading}
                   overflowX="hidden"
                   pb={noHeader ? "0px" : "20px"}
-                  overflowY={
-                    router.pathname === "/" && isMobile && !isStandalone
-                      ? "hidden"
-                      : "unset"
-                  }
                 >
                   {children}
                 </Skeleton>

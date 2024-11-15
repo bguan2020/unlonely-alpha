@@ -75,12 +75,6 @@ export const useChat = ({
     ) {
       const body = jp(latestMessage.data.body);
       if (
-        (body.interactionType === InteractionType.BUY ||
-          body.interactionType === InteractionType.TIP) &&
-        Date.now() - latestMessage.timestamp < 12000
-      ) {
-        fireworks();
-      } else if (
         body.interactionType === InteractionType.BLAST &&
         Date.now() - latestMessage.timestamp < 12000
       ) {
